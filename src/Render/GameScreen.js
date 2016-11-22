@@ -1,0 +1,5 @@
+function GameScreen()
+{
+    var $ = this;
+}
+

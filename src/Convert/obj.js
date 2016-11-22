@@ -1,0 +1,5 @@
+function obj()
+{
+    var $ = this;
+}
+

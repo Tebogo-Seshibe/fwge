@@ -1,0 +1,5 @@
+function File()
+{
+    var $ = this;
+}
+
