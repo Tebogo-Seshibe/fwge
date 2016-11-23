@@ -1,26 +1,36 @@
+/*!
+ *  @param  {Object: request}
+ *    @param  {Array: position}
+ *    @param  {Array: rotation}
+ *    @param  {Array: scale}
+ *    @param  {Array: shear}
+ */
 function Transform(request)
 {
     var $ = this;
-    
     if (!request) request = {};
-
-    console.log(FWGE);
-    
-    if (!request.position) request.position = FWGE.Maths.Vector3.Create();
-    if (!(request.position instanceof Float32Array) || request.length !== 3) request.position = FWGE.Maths.Vector3.Create(request.position);
-    if (!request.rotation) request.rotation = FWGE.Maths.Vector3.Create();
-    if (!(request.rotation instanceof Float32Array) || request.length !== 3) request.rotation = FWGE.Maths.Vector3.Create(request.rotation);
-    if (!request.scale) request.scale = FWGE.Maths.Vector3.Create();
-    if (!(request.scale instanceof Float32Array) || request.length !== 3) request.scale = FWGE.Maths.Vector3.Create(1.0,1.0,1.0);
-    if (!request.shear) request.shear = FWGE.Maths.Vector3.Create();
-    if (!(request.shear instanceof Float32Array) || request.length !== 3) request.shear = FWGE.Maths.Vector3.Create(request.shear);
-    
     GameItem.call($, request.gameobject, "TRANSFORM");
     
-    var _Position = request.position;
-    var _Rotation = request.rotation;
-    var _Scale = request.scale;
-    var _Shear = request.shear;
+    function setup(item)
+    {
+        if (!item || !(item instanceof Array)) item = [0,0,0];
+        if (item.length < 3)
+        {
+            switch (item.length)
+            {
+                case 0: item.position[0] = 0;
+                case 1: item.position[1] = 0;
+                case 2: item.position[2] = 0;
+            }
+        }
+
+        return item;
+    }
+    
+    var _Position = FWGE.Maths.Vector3.Create(setup(request.position));
+    var _Rotation = FWGE.Maths.Vector3.Create(setup(request.rotation));
+    var _Scale = FWGE.Maths.Vector3.Create(setup(request.scale));
+    var _Shear = FWGE.Maths.Vector3.Create(setup(request.shear));
     
     var _Up = FWGE.Maths.Vector3.Create(0, 1, 0);
     var _Forward = FWGE.Maths.Vector3.Create(0, 0, 1);
@@ -30,43 +40,43 @@ function Transform(request)
     {
         Position:
         {
-            get: function getPosition(){ return _Position; },
+            get: function getPosition() { return _Position; },
             set: function setPosition()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === "VECTOR3")
                     FWGE.Maths.Vector3.Set(_Position, arguments[0]);
             }
         },            
         Rotation:
         {
-            get: function getRotation(){ return _Rotation; },
+            get: function getRotation() { return _Rotation; },
             set: function setRotation()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === "VECTOR3")
                     FWGE.Maths.Vector3.Set(_Rotation, arguments[0]);
             }
         },
         Scale:
         {
-            get: function getScale(){ return _Scale; },
+            get: function getScale() { return _Scale; },
             set: function setScale()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === "VECTOR3")
                     FWGE.Maths.Vector3.Set(_Scale, arguments[0]);
             }
         },            
         Shear:
         {
-            get: function getShear(){ return _Shear; },
+            get: function getShear() { return _Shear; },
             set: function setShear()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === "VECTOR3")
                     FWGE.Maths.Vector3.Set(_Shear, arguments[0]);
             }
         },
-        Up:         { get: function(){ return _Up; } },
-        Forward:    { get: function(){ return _Forward; } },
-        Right:      { get: function(){ return _Right; } },
+        Up:         { get: function() { return _Up; } },
+        Forward:    { get: function() { return _Forward; } },
+        Right:      { get: function() { return _Right; } },
         
         TransformUpdate:
         {

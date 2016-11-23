@@ -1,62 +1,79 @@
+/*!
+ *  @param {Object: request}
+ *    @param {Array: ambient}
+ *    @param {Array: diffuse}
+ *    @param {Array: specular}
+ *    @param {Array: alpha}
+ *    @param {Array: shininess}
+ *    @param {Array: shader}
+ *    @param {Array: imagemap}
+ *    @param {Array: bumpmap}
+ *    @param {Array: specularmap}
+ */
 function Material(request)
 {
     var $ = this;
-
-    if (!request)   request = {};
-    if (!request.ambient || request.ambient.Type !== "COLOUR") request.ambient = FWGE.Render.Colour.Create(request.ambient);
-    if (!request.diffuse || request.diffuse.Type !== "COLOUR") request.diffuse = FWGE.Render.Colour.Create(request.diffuse);
-    if (!request.specular || request.specular.Type !== "COLOUR") request.specular = FWGE.Render.Colour.Create(request.specular);
-    if (typeof request.alpha !== 'number') request.alpha = 1.0;
-    if (typeof request.shininess !== 'number') request.shininess = 5.0;
-    if (!request.shader) request.shader = undefined;
-    if (!request.imagemap) request.imagemap = undefined;
-    if (!request.bumpmap) request.bumpmap = undefined;
-    
-    console.log(request);
-
+    if (!request) request = {};
     GameItem.call($, undefined, "MATERIAL");
+
+    function setup(item)
+    {
+        if (!item || !(item instanceof Array)) item = [0,0,0];
+        if (item.length < 3)
+        {
+            switch (item.length)
+            {
+                case 0: item.position[0] = 0;
+                case 1: item.position[1] = 0;
+                case 2: item.position[2] = 0;
+            }
+        }
+
+        return item;
+    }
     
-    var _Ambient    = request.ambient;
-    var _Diffuse    = request.diffuse;
-    var _Specular   = request.specular;
-    var _Alpha      = request.alpha;
-    var _Shininess	= request.shininess;
-    var _Shader     = request.shader;
-    var _Image      = undefined;
-    var _Bump       = undefined;
+    var _Ambient     = FWGE.Render.Colour.Create(setup(request.ambient));
+    var _Diffuse     = FWGE.Render.Colour.Create(setup(request.diffuse));
+    var _Specular    = FWGE.Render.Colour.Create(setup(request.specular));
+    var _Alpha       = typeof request.alpha === 'number' && request.alpha >= 0 ? request.alpha : 1.0;
+    var _Shininess	 = typeof request.shininess === 'number' && request.shininess >= 0 ? request.shininess : 5.0;
+    var _Shader      = request.shader instanceof Shader ? request.shader : undefined;
+    var _ImageMap    = undefined;
+    var _BumpMap     = undefined;
+    var _SpecularMap = undefined;
     
     Object.defineProperties($,
     {
         Ambient:
         {
-            get: function getAmbient(){ return _Ambient; },
+            get: function getAmbient() { return _Ambient; },
             set: function setAmbient()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === 'COLOUR')
                     FWGE.Maths.Vector3.Set(_Ambient, arguments[0]);
             }
         },
         Diffuse:
         {
-            get: function getDiffuse(){ return _Diffuse; },
+            get: function getDiffuse() { return _Diffuse; },
             set: function setDiffuse()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === 'COLOUR')
                     FWGE.Maths.Vector3.Set(_Diffuse, arguments[0]);
             }
         },
         Specular:
         {
-            get: function getSpecular(){ return _Specular; },
+            get: function getSpecular() { return _Specular; },
             set: function setSpecular()
             {
-                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                if (arguments[0].Type === 'COLOUR')
                     FWGE.Maths.Vector3.Set(_Specular, arguments[0]);
             }
         },
         Alpha:
         {
-            get: function getAlpha(){ return _Alpha; },
+            get: function getAlpha() { return _Alpha; },
             set: function setAlpha()
             {
                 if (typeof arguments[0] === 'number')
@@ -65,7 +82,7 @@ function Material(request)
         },
         Shininess:
         {
-            get: function getShininess(){ return _Shininess; },
+            get: function getShininess() { return _Shininess; },
             set: function setShininess()
             {
                 if (typeof arguments[0] === 'number')
@@ -74,29 +91,38 @@ function Material(request)
         },
         Shader:
         {
-            get: function getShader(){ return _Shader; },
+            get: function getShader() { return _Shader; },
             set: function setShader()
             {
                 if (arguments[0] instanceof Shader)
                     _Shader = arguments[0];
             }
         },
-        Image:
+        ImageMap:
         {
-            get: function getImage(){ return _Image; },
-            set: function setImage()
+            get: function getImageMap() { return _ImageMap; },
+            set: function setImageMap()
             {
                 if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
-                    _Image = arguments[0];
+                    _ImageMap = arguments[0];
             }
         },
-        Bump:
+        BumpMap:
         {
-            get: function getBump(){ return _Bump; },
-            set: function setBump()
+            get: function getBumpMap() { return _BumpMap; },
+            set: function setBumpMap()
             {
                 if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
-                    _Bump = arguments[0];
+                    _BumpMap = arguments[0];
+            }
+        },
+        SpecularMap:
+        {
+            get: function getSpecularMap() { return _SpecularMap; },
+            set: function setSpecularMap()
+            {
+                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                    _SpecularMap = arguments[0];
             }
         }
     });
@@ -108,25 +134,44 @@ Object.defineProperties(Material.prototype,
     constructor: { value: Material },
     SetTexture:
     {
-        value: function SetTexture(imagemap, bumpmap)
+        /*!
+         *  @param {Object}
+         *    @param {String: image}
+         *    @param {String: bump}
+         *    @param {String: specular}
+         */
+        value: function SetTextures(request)
         {
-            if (!!imagemap)
+            if (!request) request = {};
+
+            if (!!request.image)
             {
-                var image = new Image();
-                image.onload = function(){ this.LoadImage(image, this.Image) };
-                image.src = imagemap;
+                var img = new Image();
+                img.onload = function(){ this.LoadImage(img, this.ImageMap) };
+                img.src = image;
             }
             
-            if (!!bumpmap)
+            if (!!request.bump)
             {
-                var bump = new Image();
-                bump.onload = function(){ this.LoadImage(bump, this.Bump) };
-                bump.src = bumpmap;
+                var img = new Image();
+                img.onload = function(){ this.LoadImage(img, this.BumpMap) };
+                img.src = bump;
+            }
+            
+            if (!!request.specular)
+            {
+                var img = new Image();
+                img.onload = function(){ this.LoadImage(img, this.SpecularMap) };
+                img.src = specular;
             }
         }
     },
     LoadImage:
     {
+        /*!
+         *  @param {Image: image}
+         *  @param {WebGLTexture: texture}
+         */
         value: function LoadImage(image, texture)
         {
             

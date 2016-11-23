@@ -1,49 +1,34 @@
 /*!
- *  @param      request
- *      @param  name
- *      @param  material
- *      @param  mesh
- *      @param  transform
- *      @param  physics
- *      @param  animation
- *      @param  begin
- *      @param  update
- *      @param  end
+ *  @param {Object: request}
+ *      @param {String: name}
+ *      @param {Material: material}
+ *      @param {Mesh: mesh}
+ *      @param {Transform: transform}
+ *      @param {Physics: physics}
+ *      @param {Animation: animation}
+ *      @param {LightObject: lightitem}
+ *      @param {Function: begin}
+ *      @param {Function: update}
+ *      @param {Function: end}
  */
 function GameObject(request)
 {
     var $ = this;
-    
     if (!request) request = {};
-    if (!request.name) request.name = "GameObject";
-    
-    if (!request.material) request.material    = undefined;
-    if (!request.mesh) request.mesh = undefined;
-    if (!request.transform) request.transform   = new Transform({ gameobject: $ });
-    if (!request.physicsitem) request.physicsitem = undefined;
-    if (!request.animation) request.animation   = undefined;
-    if (!request.lightitem) request.lightitem   = undefined;
-    
-    if (!request.begin)         request.begin       = function(){};
-    if (!request.update)        request.update      = function(){};
-    if (!request.end)           request.end         = function(){};
-    
-    console.log(request);
-    
     GameItem.call($, $, "GAMEOBJECT");
     
-    var _Name           = request.name;
-    var _Material       = request.material;
-    var _Mesh           = request.mesh;
-    var _Transform      = request.transform;
-    var _PhysicsItem    = request.physicsitem;
-    var _Animation      = request.animation;
-    var _LightItem      = request.lightitem;
-    var _ParticleSystem = request.particlesystem;
+    var _Name = !request.name || typeof request.name === 'string' ? request.name : "GameObject";
+    var _Material = request.material instanceof Material ? request.material : undefined;
+    var _Mesh = request.mesh instanceof Mesh ? request.mesh : undefined;
+    var _Transform = request.transform instanceof Transform ? request.transform : new Transform();
+    var _PhysicsItem = request.physicsitem instanceof PhysicsItem ? request.physicsitem : undefined;
+    var _Animation = request.animation instanceof Animation ? request.animation : undefined;
+    var _LightItem = request.lightitem instanceof LightObject ? request.lightitem : undefined;
+    var _ParticleSystem = request.particlesystem instanceof ParticleSystem ? request.particlesystem : undefined;
     
-    var _Begin          = request.begin;
-    var _Update         = request.update;
-    var _End            = request.end;
+    var _Begin = typeof request.begin === 'function' ? request.begin : function(){};
+    var _Update = typeof request.update === 'function' ? request.update : function(){};
+    var _End = typeof request.end === 'function' ? request.end : function(){};
     
     Object.defineProperties($,
     {
@@ -52,7 +37,7 @@ function GameObject(request)
         Transform:  { value: request.transform },
         Name:
         {
-            get: function getName(){ return _Name; },
+            get: function getName() { return _Name; },
             set: function setName()
             {
                 if (typeof arguments[0] === 'string')
@@ -155,7 +140,7 @@ Object.defineProperties(GameObject.prototype,
                     shear:      this.Transform.Shear
                 }),
                 physics:        this.Physics,
-                animation:      this.Aniamation
+                animation:      this.Animation
             });
             
             for (var i = 0; i < this.Children.length; ++i)
@@ -184,7 +169,6 @@ Object.defineProperties(GameObject.prototype,
         {
             this.Update();
             this.Transform.TransformUpdate();
-            if (!!this.PhysicsItem)     this.PhysicsItem.PhysicsUpdate();
             if (!!this.PhysicsItem)     this.PhysicsItem.PhysicsUpdate();
             if (!!this.Animation)       this.Animation.AnimationUpdate();
             if (!!this.LightItem)       this.LightItem.LightUpdate();
