@@ -1,0 +1,33 @@
+html, body
+{
+	display: block;
+	position: absolute;
+
+	top: 0px;
+	left: 0px;
+	height: 100vh;
+	width: 100vw;
+
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
+
+	overflow: hidden;
+
+	background: #272727;
+}
+
+canvas#canvas
+{
+	display: block;
+	position: absolute;
+
+	top: 50%;
+	left: 50%;
+	height: 600px;
+	width: 800px;
+
+	transform: translate(-50%, -50%);
+
+	border: solid 1px white;
+}

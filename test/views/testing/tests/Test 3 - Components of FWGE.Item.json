@@ -1,0 +1,46 @@
+{
+	"id": 3,
+	"description": "Tests of the components of FWGE.Item.",
+	"init":
+	[
+		"FWGE.Init(document.getElementById('canvas'));",
+		"this.Vars.transform = new FWGE.Item.Transform();",
+		"this.Vars.mesh = new FWGE.Item.Mesh();",
+		"this.Vars.material = new FWGE.Item.Material();",
+		"this.Vars.physicsitem = new FWGE.Item.PhysicsItem();",
+		"this.Vars.collision = new FWGE.Item.Collision();",
+		"this.Vars.particlesystem = new FWGE.Item.ParticleSystem();",
+		"this.Vars.animation = new FWGE.Item.Animation();",
+		"this.Vars.gameobject = new FWGE.Item.GameObject();"
+	],
+	"finish": [],
+	"tests":
+	[
+		"return typeof FWGE.Item.Transform === 'function';",
+		"return typeof FWGE.Item.Mesh === 'function';",
+		"return typeof FWGE.Item.Material === 'function';",
+		"return typeof FWGE.Item.PhysicsItem === 'function';",
+		"return typeof FWGE.Item.Collision === 'function';",
+		"return typeof FWGE.Item.ParticleSystem === 'function';",
+		"return typeof FWGE.Item.Animation === 'function';",
+		"return typeof FWGE.Item.GameObject === 'function';",
+
+		"return FWGE.Item.Transform.length === 1;",
+		"return FWGE.Item.Mesh.length === 1;",
+		"return FWGE.Item.Material.length === 1;",
+		"return FWGE.Item.PhysicsItem.length === 1;",
+		"return FWGE.Item.Collision.length === 1;",
+		"return FWGE.Item.ParticleSystem.length === 1;",
+		"return FWGE.Item.Animation.length === 1;",
+		"return FWGE.Item.GameObject.length === 1;",
+
+		"return this.Vars.transform instanceof FWGE.Item.Transform;",
+		"return this.Vars.mesh instanceof FWGE.Item.Mesh;",
+		"return this.Vars.material instanceof FWGE.Item.Material;",
+		"return this.Vars.physicsitem instanceof FWGE.Item.PhysicsItem;",
+		"return this.Vars.collision instanceof FWGE.Item.Collision;",
+		"return this.Vars.particlesystem instanceof FWGE.Item.ParticleSystem;",
+		"return this.Vars.animation instanceof FWGE.Item.Animation;",
+		"return this.Vars.gameobject instanceof FWGE.Item.GameObject;"
+	]
+}

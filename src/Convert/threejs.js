@@ -1,5 +1,0 @@
-function threejs()
-{
-    var $ = this;
-}
-

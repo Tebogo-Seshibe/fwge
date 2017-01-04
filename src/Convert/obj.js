@@ -1,5 +1,0 @@
-function obj()
-{
-    var $ = this;
-}
-

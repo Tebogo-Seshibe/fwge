@@ -1,5 +1,0 @@
-function File()
-{
-    var $ = this;
-}
-
