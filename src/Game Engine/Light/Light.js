@@ -1,8 +1,9 @@
 var __LIGHT__ = new Array(12);
 
 /*!
- * 	@constructor 	Light
- *	@description	Some words in a sentence
+ * @constructor Light
+ * @module		FWGE.Game
+ * @description	This module is used to create the lights in the scene.
  */
 function Light()
 {
@@ -17,9 +18,14 @@ function Light()
     Object.defineProperties(this,
     {
     	/*!
-    	 *	@function		Ambient
-    	 *	@description	Description
-    	 *	@return 		{AmbientLight}
+    	 * @function	Ambient
+    	 * @description	Returns a new ambient light object. It is treated as a singleton,
+		 * 				i.e. there is only one ambient light object in a scene.
+		 * @param 		{Object: request}
+		 * 				> {GameObject: parent}
+		 * 				> {Float32Array: colour}	[nullable]
+		 * 				> {Number: intensity}		[nullable]
+    	 * @return 		AmbientLight
     	 */
         Ambient:
         {
@@ -36,9 +42,15 @@ function Light()
         },
 
     	/*!
-    	 *	@function		Directional
-    	 *	@description	Description
-    	 *	@return 		{DirectionalLight}
+    	 * @function	Directional
+    	 * @description	Returns a new directional light object. There can up to three
+		 * 				directional light objects in a scene.
+		 * @param 		{Object: request}
+		 * 				> {GameObject: parent}
+		 * 				> {Float32Array: colour}	[nullable]
+		 * 				> {Number: intensity}		[nullable]
+		 * 				> {Float32Array: direction}	[nullable]
+    	 * @return 		DirectionalLight
     	 */
         Directional:
         {
@@ -63,9 +75,16 @@ function Light()
         },
 
     	/*!
-    	 *	@function		Point
-    	 *	@description	Description
-    	 *	@return 		{PointLight}
+    	 * @function	Point
+    	 * @description	Returns a new point light object. There can up to eight
+		 * 				point light objects in a scene.
+		 * @param 		{Object: request}
+		 * 				> {GameObject: parent}
+		 * 				> {Float32Array: colour}	[nullable]
+		 * 				> {Number: intensity}		[nullable]
+		 * 				> {Number: radius}			[nullable]
+		 * 				> {Number: angle}			[nullable]
+    	 * @return 		PointLight
     	 */
         Point:
         {
@@ -90,9 +109,9 @@ function Light()
         },
 
     	/*!
-    	 *	@function		Remove
-    	 *	@description	Description
-    	 *	@param			{LightItem: light}
+    	 * @function	Remove
+    	 * @description	Removes a given light object from the scene.
+		 * @param 		{LightItem: light}
     	 */
         Remove:
         {

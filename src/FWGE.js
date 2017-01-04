@@ -1,25 +1,25 @@
 /*!
  * 	@constructor 	FWGE
- *	@module			{}
+ *	@module				{}
  */
 function FWGEPrototype()
 {
 	Object.defineProperties(this,
 	{
 		/*!
-		 * 	@property		{GameEngine: Game}
+		 * 	@property			{GameEngine: Game}
 		 *  @description	<link>GameEngine</link>
 		 */
 		Game: 		{value: new GameEngine()},
 
 		/*!
-		 * 	@property		{PhysicsEngine: Physics}
+		 * 	@property			{PhysicsEngine: Physics}
 		 *  @description	<link>PhysicsEngine</link>
 		 */
 		Physics: 	{value: new PhysicsEngine()},
 
 		/*!
-		 * 	@property		{RenderEngine: Render}
+		 * 	@property			{RenderEngine: Render}
 		 *  @description	<link>RenderEngine</link>
 		 */
 		Render: 	{value: new RenderEngine()},
@@ -27,11 +27,11 @@ function FWGEPrototype()
 		/*!
 		 * 	@function 		Init
 		 *	@description 	Initializes the webgl context
-		 *	@param			{Object: request}
-		 * 					> {HTMLCanvasElement: canvas}
-		 *					> {Number: height}
-		 *					> {Number: width}
-		 *					> {Float32Array: clear}
+		 *	@param				{Object: request}
+		 * 								> {HTMLCanvasElement: canvas}
+		 *								> {Number: height}
+		 *								> {Number: width}
+		 *								> {Float32Array: clear}
 		 */
 		Init: 
 		{

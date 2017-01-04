@@ -1,5 +1,6 @@
-var files = require("./files.js").list;
+var files = require("./files.js");
 var fs = require("fs");
+var no;
 
 files.forEach(function forEach(item, index)
 {
@@ -8,7 +9,6 @@ files.forEach(function forEach(item, index)
 		var file = fs.readFileSync(__dirname + "/" + item, 'utf8');
 		var pivot = -1;
 
-		console.log("================ " + item + " ================");
 		while (pivot < file.length)
 		{
 			var result = get_comments(file, pivot);
@@ -18,11 +18,13 @@ files.forEach(function forEach(item, index)
 			else
 				property(result.text);*/
 
-			console.log(result.text);
+			console.log("= = = = = = = = = = = = = = = =\n",
+						result.text,
+						"\n= = = = = = = = = = = = = = = =")
+
 
 			pivot = result.index;
 		}
-		console.log("================ " + item + " ================");
 	}
 });
 
@@ -33,20 +35,22 @@ function get_comments(file, index)
 
 	while (++index < file.length)
 	{
-		if (reading && file[index] === '/' && file[index - 1] === '*')
+		if (reading)
+			text += file[index];
+
+		if (!!file.slice(index, index + 3).match(/\/\*\!/))
+			reading = true;
+
+		if (!!file.slice(index - 2, index + 1).match(/\*\//))
 		{
+			text += '\n';
 			reading = false;
-			break;
+			index += 3;
 		}
 
-		if (reading)
-			text += file[index]
-
-		if (!reading && file[index] === '/')
-			reading = true;
 	}
 
-	return {text: text, index: index};
+	return {text: clean(text), index: index};
 }
 
 function describe(comments)
@@ -67,4 +71,16 @@ function property(comments)
 	var obj = [];
 
 	return obj;
+}
+
+function clean(text)
+{
+	var arr = text.split('\n');
+	var len = arr.length - 1;
+	var s = "";
+
+	for (var i = 1; i < len; ++i)
+		s += arr[i].trim().substring(2).trim().split(/\s+/).join(" ") + '\n';
+
+	return s;
 }

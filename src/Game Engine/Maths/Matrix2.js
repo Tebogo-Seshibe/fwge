@@ -1,33 +1,25 @@
+/*!
+ * @constructor Matrix2
+ * @description This library contains the methods required for 2x2 matrices.
+ *              They are represented as a Float32Array of length 4.
+ * @module      FWGE.Game.Maths 
+ */
 function Matrix2()
-{        
-    var $ = this;
-    
-    function Error()
+{    
+    Object.defineProperties(this,
     {
-        var parameter = [];
-        console.log(arguments);
-
-        if (arguments[1].length === 0)
-            parameter = "undefined";
-        else
-            for (var e in arguments[1])
-                parameter.push(typeof arguments[1][e]);
-        
-        switch (arguments[0])
-        {
-            case "SET":
-                console.error(new window.Error
-                (
-                    "No match for given parameters: " + parameter.toString() + 
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, Float32Array)" +
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, number, number, number, number)"
-                ));
-            break;
-        }
-    }
-    
-    Object.defineProperties($,
-    {
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @return      Float32Array
+         */
         Create:
         {
             value: function Create()
@@ -67,6 +59,21 @@ function Matrix2()
                 return $;
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @return      Float32Array
+         */
         Set:
         {
             value: function Set()
@@ -91,11 +98,17 @@ function Matrix2()
                     $[2] = c; $[3] = d;
 
                     return $;
-                }                
-
-                Error("SET", arguments);                    
+                }
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Transpose:
         {
             value: function Transpose()
@@ -104,10 +117,16 @@ function Matrix2()
                     return this.Set(arguments[0],
                                     arguments[0][0], arguments[0][2],
                                     arguments[0][1], arguments[0][3]);
-                
-                Error("TRANSPOSE", arguments);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Identity:
         {
             value: function Identiy()
@@ -121,16 +140,30 @@ function Matrix2()
                                        0, 1);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Determinant:
         {
             value: function Determinant()
             {
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 4)
                     return arguments[0][0] * arguments[0][3] - arguments[0][2] * arguments[0][1];
-                
-                Error("DETERMINANT", arguments);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Inverse:
         {
             value: function Inverse()
@@ -145,10 +178,16 @@ function Matrix2()
                     else
                         return arguments[0];
                 }
-                
-                Error("INVERSE", arguments);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Sum:
         {
             value: function Sum()
@@ -158,16 +197,20 @@ function Matrix2()
                     return this.Set(arguments[0],
                                     arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1],
                                     arguments[0][2] + arguments[1][2], arguments[0][3] + arguments[1][3]);
-                
-                Error("SUM", arguments);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         Mult:
         {
             value: function Mult()
             {
-                
-                
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 4)
                 {
                     if (arguments[1] instanceof Float32Array && arguments[1].length === 4)
@@ -189,10 +232,16 @@ function Matrix2()
                                         arguments[0][2] * arguments[1], arguments[0][3] * arguments[1]);
                     }
                 }
-                
-                Error("MULT", arguments);
             }
         },
+        
+        /*!
+         * @function    Create
+         * @description Creates an new Float32Array with the <code>Type</code>
+         *              set to <code>"MATRIX2"</code>. It also has the appropriate
+         *              value indexers: M11, M12, M21, M22.
+         * @return      Float32Array
+         */
         RevMult:
         {
             value: function RevMult()
@@ -208,10 +257,7 @@ function Matrix2()
                         arguments[1][2] * arguments[0][0] + arguments[1][3] * arguments[0][2],
                         arguments[1][2] * arguments[0][1] + arguments[1][3] * arguments[0][3]
                     ); 
-                }
-                
-                Error("REVMULT", arguments);
-                
+                }                
             }
         } 
     });

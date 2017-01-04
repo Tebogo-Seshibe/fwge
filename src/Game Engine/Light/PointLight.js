@@ -1,9 +1,11 @@
 /*!
- *  @constructor    PointLight
- *  @description    Point lighting
- *  @param          {Object: request}
- *                  > {Number: radius}
- *                  > {Number: angle}
+ * @constructor PointLight
+ * @description Defines a light Object that emits from a given point within a radius.
+ * @param       {Object: request}
+ *              > {Float32Array: colour}    [nullable]
+ *              > {Number: intensity}       [nullable]
+ *              > {Number: radius}          [nullable]
+ *              > {Number: angle}           [nullable]
  */
 function PointLight(request)
 {
@@ -11,11 +13,10 @@ function PointLight(request)
     request.type = "POINTLIGHT";
     LightObject.call(this, request);
     
-    var $       = this;
     var _Radius = typeof request.radius === 'number' ? request.radius   : 5;
     var _Angle  = typeof request.angle  === 'number' ? request.angle    : 180;
     
-    Object.defineProperties($, 
+    Object.defineProperties(this, 
     {
         Radius:
         {

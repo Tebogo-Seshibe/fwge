@@ -1,6 +1,6 @@
 /*!
- * 	@constructor	GameEngine
- * 	@module			FWGE
+ *	@constructor	GameEngine
+ *	@module			FWGE
  *	@description	Something...
  */
 function GameEngine()
