@@ -1,6 +1,6 @@
-documentation
-node_modules
-test
+documentation/
+node_modules/
+test/
 concat.js
 document.js
 files.js
