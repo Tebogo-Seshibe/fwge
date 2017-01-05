@@ -28,7 +28,7 @@ function Shader(request)
         RenderBuffer:     { value: GL.createRenderbuffer() }
     });
 
-    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);		 	
+    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);             
     GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
     GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, 1024, 768);
     GL.bindTexture(GL.TEXTURE_2D, this.Texture);

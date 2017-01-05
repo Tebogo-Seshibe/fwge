@@ -22,9 +22,9 @@ function Projection()
         (
             _Camera,
 
-                          2 / (right - left), 								 0, 		 			       0, 0,
-                                           0, 				2 / (top - bottom), 		 			 	   0, 0,
-                                        theta, 							   phi, 		   -2 / (far - near), 0,
+                          2 / (right - left),                                  0,                             0, 0,
+                                           0,                 2 / (top - bottom),                              0, 0,
+                                        theta,                                phi,            -2 / (far - near), 0,
             -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
         );
         

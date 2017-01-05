@@ -10,32 +10,32 @@
  */
 function PhysicsBody(request)
 {
-	if (request) request = {};
+    if (request) request = {};
     request.type = "PHYSICSBODY";
-	PhysicsItem.call(this, request);
+    PhysicsItem.call(this, request);
 
     var _Mass  = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
     var _LockX = typeof request.lockx === 'boolean'?  request.lockx : false;
     var _LockY = typeof request.locky === 'boolean'?  request.locky : false;
     var _LockZ = typeof request.lockz === 'boolean'?  request.lockz : false;
     
-	Object.defineProperties(this,
-	{
+    Object.defineProperties(this,
+    {
         /**
          * @property    Mass: {Number}
          *              > get
          *              > set
          * @description The mass of the gameobject this physics body is attached to.
          */
-    	Mass:
-    	{
-    		get: function getMass() { return _Mass; },
-    		set: function setMass()
-    		{
-    			if (typeof arguments[0] === 'number' && arguments[0] >= 0.0)
+        Mass:
+        {
+            get: function getMass() { return _Mass; },
+            set: function setMass()
+            {
+                if (typeof arguments[0] === 'number' && arguments[0] >= 0.0)
                     _Mass = arguments[0];
-    		},
-    	},
+            },
+        },
         
         /**
          * @property    LockX: {Boolean}

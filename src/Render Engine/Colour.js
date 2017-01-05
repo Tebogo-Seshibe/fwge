@@ -28,7 +28,7 @@ function Colour()
                 
                 Object.defineProperties($,
                 {
-                	Type: { value: "COLOUR" },
+                    Type: { value: "COLOUR" },
                     R:
                     {
                         get: function getR(){ return $[0]; },

@@ -6,7 +6,7 @@
  */
 function Vector3()
 {
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
         /**
          * @function    Create: {Float32Array}

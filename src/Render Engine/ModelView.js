@@ -207,10 +207,10 @@ function ModelView()
                 (
                     FWGE.Game.Maths.Matrix4.Create
                     (
-                                  1.0, 			   0.0, Math.tan(rho), 0.0,
-                        Math.tan(phi), 			   1.0, 		  0.0, 0.0,
-                                  0.0, Math.tan(theta), 		  1.0, 0.0,
-                                  0.0, 			   0.0, 		  0.0, 1.0
+                                  1.0,                0.0, Math.tan(rho), 0.0,
+                        Math.tan(phi),                1.0,           0.0, 0.0,
+                                  0.0, Math.tan(theta),           1.0, 0.0,
+                                  0.0,                0.0,           0.0, 1.0
                     ),
                     matrix
                 );

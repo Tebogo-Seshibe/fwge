@@ -39,26 +39,26 @@ function RenderEngine()
          *  @function       Init: void
          *  @description    Initializes the rendering engine
          */
-    	Init:
-    	{
-    		value: function Init()
-    		{
+        Init:
+        {
+            value: function Init()
+            {
                 _Renderer = new Renderer();
                 GL.enable(GL.DEPTH_TEST);
-    		}
-    	},
+            }
+        },
 
         /**
          *  @function       RenderUpdate: void
          *  @description    Updates the rendering to the screen
          */
-    	RenderUpdate:
-    	{
-    		value: function RenderUpdate()
-    		{
+        RenderUpdate:
+        {
+            value: function RenderUpdate()
+            {
                 _Renderer.Render();
-    		}
-    	}
+            }
+        }
     });
 }
 

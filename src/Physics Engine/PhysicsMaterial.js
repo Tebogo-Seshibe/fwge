@@ -1,9 +1,9 @@
 var __PHYSICSMATERIAL__ = [];
 
 /**
- * @constructor	PhysicsMaterial
+ * @constructor PhysicsMaterial
  * @description Some words of encouragement
- * @param		request: {Object}
+ * @param       request: {Object}
  */
 function PhysicsMaterial()
 {

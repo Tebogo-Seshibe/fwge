@@ -40,7 +40,7 @@ function RenderMaterial(request)
     var _Diffuse     = colour(request.diffuse);
     var _Specular    = colour(request.specular);
     var _Alpha       = typeof request.alpha     === 'number' && request.alpha     >= 0 ? request.alpha     : 1.0;
-    var _Shininess	 = typeof request.shininess === 'number' && request.shininess >= 0 ? request.shininess : 5.0;
+    var _Shininess   = typeof request.shininess === 'number' && request.shininess >= 0 ? request.shininess : 5.0;
     var _Shader      = request.shader instanceof Shader ? request.shader : undefined;
     var _ImageMap    = undefined;
     var _BumpMap     = undefined;

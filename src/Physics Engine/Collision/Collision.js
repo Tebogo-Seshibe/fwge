@@ -2,8 +2,8 @@
  * @constructor Collision
  * @description This is the base object for collision objects
  * @module      FWGE.Physics
- * @param       request: {Object}
- * 	            > parent: {PhysicsItem}
+ * @param       request:  {Object}
+ *              > parent: {PhysicsItem}
  */
 function Collision(request)
 {
