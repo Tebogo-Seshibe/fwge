@@ -18,9 +18,9 @@ files.forEach(function forEach(item, index)
 			else
 				property(result.text);*/
 
-			console.log("= = = = = = = = = = = = = = = =\n",
-						result.text,
-						"\n= = = = = = = = = = = = = = = =")
+			console.log("= = = = = = = = = = = = = = = =\n" +
+						result.text +
+						"\n= = = = = = = = = = = = = = = =");
 
 
 			pivot = result.index;
@@ -38,7 +38,7 @@ function get_comments(file, index)
 		if (reading)
 			text += file[index];
 
-		if (!!file.slice(index, index + 3).match(/\/\*\!/))
+		if (!!file.slice(index, index + 3).match(/\/\*\!/) || !!file.slice(index, index + 3).match(/\/\*\*/))
 			reading = true;
 
 		if (!!file.slice(index - 2, index + 1).match(/\*\//))
