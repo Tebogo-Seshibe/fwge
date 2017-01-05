@@ -1,19 +1,19 @@
 var __OBJECT__ = [];
 
-/*!
- *  @constructor    GameObject
- *  @module         FWGE.GameEngine
- *  @description    The main object container for object types.   
- *  @param          {Object: request}
- *                  > {Material: material}
- *                  > {Mesh: mesh}
- *                  > {Transform: transform}
- *                  > {Physics: physics}
- *                  > {Animation: animation}
- *                  > {LightObject: lightitem}
- *                  > {Function: begin}
- *                  > {Function: update}
- *                  > {Function: end}
+/**
+ * @constructor GameObject
+ * @description The main object container for object types.   
+ * @module      FWGE.Game
+ * @param       request:        {Object}
+ *              > material:     {Material}      [nullable]
+ *              > mesh:         {Mesh}          [nullable]
+ *              > transform:    {Transform}     [nullable]
+ *              > physics:      {Physics}       [nullable]
+ *              > animation:    {Animation}     [nullable]
+ *              > lightitem:    {LightObject}   [nullable]
+ *              > begin:        {Function}      [nullable]
+ *              > update:       {Function}      [nullable]
+ *              > end:          {Function}      [nullable]
  */
 function GameObject(request)
 {
@@ -36,33 +36,35 @@ function GameObject(request)
     
     Object.defineProperties(this,
     {
-        /*!
-         *  @property       {String: ID}
-         *                  > get
-         *  @description    Something...
+        /**
+         * @property    ID: {String}
+         *              > get
+         * @description Unique identifier for the gameobject
          */
         ID: { value: "[go-" + IDCounter.next() + "]" },
 
-        /*!
-         *  @property       {Transform: Transform}
-         *                  > get
-         *  @description    
+        /**
+         * @property    Transform:  {Transform}
+         *              > get
+         * @description The transform object attached to the current gameobject
          */
         Transform: { value: request.transform instanceof Transform ? request.transform : new Transform() },
 
-        /*!
-         *  @property       {Array: Children}
-         *  @description    
+        /**
+         * @property    Children:   {Array}
+         *              > get
+         * @description An array of gameobjects. All children transformation will be relative to 
+         *              the parent gameobject.
          */
         Children: { get: function getChildren() { return _Children } },
 
-        /*!
-        *   @function       {GameObject: AddChild}
-         *  @param          {GameObject: gameobject}
-         *  @description    Pushes a gameobect to the current object's childrens array, and
-         *                  move it down the rendering tree.
+        /**
+         * @function    AddChild:   {GameObject}
+         * @description Pushes a gameobect to the current object's childrens array, and
+         *              move it down the rendering tree.
+         * @param       gameobject: {GameObject}
          */
-        AddChild: 
+        AddChild:
         {
             value: function AddChild(gameobject)
             {
@@ -79,11 +81,11 @@ function GameObject(request)
             }
         },
 
-        /*!
-         *   @function       {GameObject: RemoveChild}
-         *  @description    Removes a gameobect from the current object's childrens array, and
-         *                  moves it up the rendering tree.
-         *  @param          {GameObject: gameobject}
+        /**
+         * @function    RemoveChild: {GameObject}
+         * @description Removes a gameobject from the current object's childrens array, and
+         *              moves it up the rendering tree.
+         * @param       gameobject:  {GameObject}
          */
         RemoveChild: 
         {
@@ -104,145 +106,147 @@ function GameObject(request)
             }
         },
 
-        /*!
-         *  @property       {Material: material}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    RenderMaterial: {RenderMaterial}
+         *              > get
+         *              > set
+         * @description The render material attached to this gameobject.
          */
         RenderMaterial:
         {
             get: function getRenderMaterial() { return _RenderMaterial; },
-            set: function setRenderMaterial(rendermaterial)
+            set: function setRenderMaterial()
             {
-                if (rendermaterial instanceof RenderMaterial || rendermaterial === undefined)
-                    _RenderMaterial = rendermaterial;
+                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
+                    _RenderMaterial = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Mesh: mesh}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Mesh: {Mesh}
+         *              > get
+         *              > set
+         * @description The mesh attached to this gameobject.
          */
         Mesh:
         {
             get: function getMesh() { return _Mesh; },
-            set: function setMesh(mesh)
+            set: function setMesh()
             {
-                if (mesh instanceof Mesh || mesh === undefined)
-                    _Mesh = mesh;
+                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
+                    _Mesh = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {PhysicsItem: physicsitem}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    PhysicsItem: {PhysicsItem}
+         *              > get
+         *              > set
+         * @description The physics item attached to this gameobject.
          */
         PhysicsItem:
         {
             get: function getPhysicsItem() { return _PhysicsItem; },
-            set: function setPhysicsItem(physicsitem)
+            set: function setPhysicsItem()
             {
-                if (physicsitem instanceof PhysicsItem || physicsitem === undefined)
-                    _PhysicsItem = physicsitem;
+                if (arguments[0] instanceof PhysicsItem || arguments[0] === undefined)
+                    _PhysicsItem = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Animation: animation}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Animation: {Animation}
+         *              > get
+         *              > set
+         * @description The animation attached to this gameobject.
          */
         Animation:
         {
             get: function getAnimation() { return _Animation; },
-            set: function setAnimation(animation)
+            set: function setAnimation()
             {
-                if (animation instanceof Animation || animation === undefined)
-                    _Animation = animation;
+                if (arguments[0] instanceof Animation || arguments[0] === undefined)
+                    _Animation = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {ParticleSystem: particlesystem}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    particlesystem: {ParticleSystem}
+         *              > get
+         *              > set
+         * @description The particle system attached to this gameobject.
          */
         ParticleSystem:
         {
             get: function getParticleSystem() { return _ParticleSystem; },
-            set: function setParticleSystem(particlesystem)
+            set: function setParticleSystem()
             {
-                if (particlesystem instanceof ParticleSystem || particlesystem === undefined)
-                    _ParticleSystem = particlesystem;
+                if (arguments[0] instanceof ParticleSystem || arguments[0] === undefined)
+                    _ParticleSystem = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: Begin}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Begin:{Function}
+         *              > get
+         *              > set
+         * @description This method is called upon object creation.
          */
         Begin:
         {
             get: function getBegin() { return _Begin; },
-            set: function setBegin(begin)
+            set: function setBegin()
             {
-                if (typeof begin === 'function')
-                    _Begin = begin;
+                if (typeof arguments[0] === 'function')
+                    _Begin = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: Update}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Update: {Function}
+         *              > get
+         *              > set
+         * @description This method is called after each render frame
          */
         Update:
         {
             get: function getUpdate() { return _Update; },
-            set: function setUpdate(update)
+            set: function setUpdate()
             {
-                if (typeof update === 'function')
-                    _Update = update;
+                if (typeof arguments[0] === 'function')
+                    _Update = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: End}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    End: {Function}
+         *              > get
+         *              > set
+         * @description This method is called once the gameobject if destroyed.
          */
         End:
         {
             get: function getEnd() { return _End; },
-            set: function setEnd(end)
+            set: function setEnd()
             {
-                if (typeof end === 'function')
-                    _End = end;
+                if (typeof arguments[0] === 'function')
+                    _End = arguments[0];
             }
         }
     });
     
+    this.Begin();
     __OBJECT__.push(this);
 }
 Object.defineProperties(GameObject.prototype,
 {
     constructor: { value: GameObject },
     
-    /*!
-     *  @function       {GameObject: Clone}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function    Clone: {GameObject}
+     * @description Creates a clone of a gameobject. If no gameobject is provided,
+     *              it creates a clone of the calling gameobject.
+     * @param       gameobject:  {GameObject} [nullable]
      */
     Clone:
     {
@@ -252,7 +256,7 @@ Object.defineProperties(GameObject.prototype,
 
             var clone = new GameObject
             ({
-                name:           $.name,
+                name:           $.Name,
                 material:       $.Material,
                 mesh:           $.Mesh,
                 transform:      new Transform
@@ -273,31 +277,39 @@ Object.defineProperties(GameObject.prototype,
         }
     },
 
-    /*!
-     *  @function       {undefined: Destroy}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function    Destroy: void
+     * @description Destroys the object after a given amount of time
+     * @param       timeout: {Number}
      */
     Destroy:
     {
-        value: function Destroy()
+        value: function Destroy(timeout)
         {
-            console.log("Destroying current object");
-            var timeout = typeof arguments[0] === 'number' ? arguments[0] : 0;
+            var self = this;
+
+            if (typeof timeout !== 'number')
+                timeout = 0;
+
             setTimeout(function()
             {
                 var i = __OBJECT__.length;
                 while (--i >= 0)
-                    if (__OBJECT__[i] === this)
-                        __OBJECT__.slice(i, 1)
-            });
+                {
+                    if (__OBJECT__[i] === self)
+                    {
+                        __OBJECT__.splice(i, 1);
+                        break;
+                    }
+                }
+                self.End();
+            }, 1000 * timeout);
         }
     },
 
-    /*!
-     *  @function       {undefined: ObjectUpdate}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function        ObjectUpdate: void
+     * @description     Updates the object
      */
     ObjectUpdate:
     {

@@ -1,24 +1,24 @@
-/*!
+/**
  * @constructor Matrix2
- * @description This library contains the methods required for 2x2 matrices.
- *              They are represented as a Float32Array of length 4.
+ * @description This library contains the methods for 2x2 matrix operations.
+ *              2x2 matrices are represented as a Float32Array of length 4.
  * @module      FWGE.Game.Maths 
  */
 function Matrix2()
 {    
     Object.defineProperties(this,
     {
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "MATRIX2".
+         *              It also has the appropriate value indexers:
+         *              M11, M12,
+         *              M21, M22.
          * @param       {Float32Array}  [nullable, override: 1]
          * @param       {Number}        [nullable, override: 2]
          * @param       {Number}        [nullable, override: 2]
          * @param       {Number}        [nullable, override: 2]
          * @param       {Number}        [nullable, override: 2]
-         * @return      Float32Array
          */
         Create:
         {
@@ -60,11 +60,9 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new to the a given Float32Array.
          * @param       {Float32Array}  [override: 1]
          * @param       {Float32Array}  [override: 1]
          * @param       {Float32Array}  [override: 2]
@@ -72,7 +70,6 @@ function Matrix2()
          * @param       {Number}        [override: 2]
          * @param       {Number}        [override: 2]
          * @param       {Number}        [override: 2]
-         * @return      Float32Array
          */
         Set:
         {
@@ -102,12 +99,10 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Transpose: {Float32Array}
+         * @description Transposes a matrix.
+         * @param       {Float32Array}
          */
         Transpose:
         {
@@ -120,12 +115,11 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Identity: {Float32Array}
+         * @description If given a Float32Array, it resets it to an identity matrix.
+         *              If not, it simply returns a new identity matrix.
+         * @param       {Float32Array}
          */
         Identity:
         {
@@ -141,12 +135,10 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Determinant: {Number}
+         * @description Calculates the determinant of a given Float32Array.
+         * @param       {Float32Array}
          */
         Determinant:
         {
@@ -157,12 +149,11 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Inverse: {Float32Array}
+         * @description Inverts a given Float32Array when possible i.e. the determinant
+         *              is not 0.
+         * @param       {Float32Array}
          */
         Inverse:
         {
@@ -181,12 +172,11 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
          */
         Sum:
         {
@@ -200,12 +190,14 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array or
+         *              multiply a Float32Array with a scalar value.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -235,12 +227,12 @@ function Matrix2()
             }
         },
         
-        /*!
-         * @function    Create
-         * @description Creates an new Float32Array with the <code>Type</code>
-         *              set to <code>"MATRIX2"</code>. It also has the appropriate
-         *              value indexers: M11, M12, M21, M22.
-         * @return      Float32Array
+        /**
+         * @function    RevMult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array but
+         *              assigns the result to the second Float32Array.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
          */
         RevMult:
         {

@@ -1,33 +1,32 @@
-/*!
- * 	@constructor 	Item
- *	@module 		FWGE.GameEngine
- *	@description 	The base object for every item
- *					used by the game engine.
- *	@param			{GameObject: request}
- *					> {String: type}
- *					> {String: name}
+/**
+ * @constructor Item
+ * @module 		FWGE.Game
+ * @description The base object for every item
+ *				used within the game engine.
+ * @param		request: 	{Object}
+ *				> type: 	{String}	[nullable]
+ *				> name:		{String}	[nullable]
  */
 function Item(request)
 {
 	if (!request) request = {};
 
-	var $ 	  = this;
 	var _Name = request.name || "Item";
 
 	Object.defineProperties(this,
 	{
-        /*!
-         *  @property       {String: Type}
-         *					> get
-         *  @description    A string descriptior for the type of item.
+        /**
+         * @property    Type:{String}
+         *				> get
+         * @description A string descriptor for the type of item.
          */
 		Type: { value: request.type || "ITEM" },
 
-        /*!
-         *  @property       {String: Name}
-         *					> get
-         *					> set
-         *  @description    A string descriptior for the item.
+        /**
+         * @property    Name: {String}
+         *				> get
+         *				> set
+         * @description A simple string naming the item
          */
 		Name:
 		{

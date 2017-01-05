@@ -1,7 +1,7 @@
-/*!
- * 	@constructor 	RenderItem
- *	@description 	The base item regarding rendering.
- *	@param 			{Object: request}
+/**
+ * @constructor RenderItem
+ * @description The base item regarding rendering.
+ * @param 		request: {Object}
  */
 function RenderItem(request)
 {

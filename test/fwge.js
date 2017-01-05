@@ -15,10 +15,10 @@ Object.defineProperties(Math,
 var IDCounter = new function IDCounter(){ var id = 0; this.next = function next(){ return id++ }; };
 
 
-/*!
- * 	@constructor	GameEngine
- * 	@module			FWGE
- *	@description	Something...
+/**
+ * @constructor	GameEngine
+ * @description	Something...
+ * @module		FWGE
  */
 function GameEngine()
 {
@@ -27,20 +27,72 @@ function GameEngine()
 
 	Object.defineProperties(this,
 	{
-		GameObject: 	{value: GameObject},
-		Animation: 		{value: Animation},
-		Input: 			{value: new Input()},
-		Time: 			{value: new Time()},
-		Transform: 		{value: Transform},
-		Light: 			{value: new Light()},
-		Maths: 			{value: new Maths()},
-		ParticleSystem: {value: ParticleSystem},
-		Particle: 		{value: Particle},
-		Camera: 		{value: new Camera()},
+		/**
+		 * @property	GameObject: {Function}
+		 * @description	The GameObject constructor.
+		 * @see			FWGE.Game.GameObject
+		 */
+		GameObject: 	{ value: GameObject },
+		
+		/**
+		 * @property	Animation: {Function}
+		 * @description	The Animation constructor.
+		 * @see			FWGE.Game.Animation
+		 */
+		Animation: 		{ value: Animation },
+		
+		/**
+		 * @property	Input: {Input}
+		 * @description	The module that handles user inputs.
+		 * @see			FWGE.Game.Input
+		 */
+		Input: 			{ value: new Input() },
+		
+		/**
+		 * @property	Time: {Time}
+		 * @description	The running clock.
+		 * @see			FWGE.Game.Time
+		 */
+		Time: 			{ value: new Time() },
+		
+		/**
+		 * @property	Transform {Transform}
+		 * @description	The Transform constructor.
+		 * @see			FWGE.Game.Transform
+		 */
+		Transform: 		{ value: Transform },
+		
+		/**
+		 * @property	Light: {Light}
+		 * @description	The Light module.
+		 * @see			FWGE.Game.Light
+		 */
+		Light: 			{ value: new Light() },
+		
+		/**
+		 * @property	Maths: {Maths}
+		 * @description	The Maths module.
+		 * @see			FWGE.Game.Maths
+		 */
+		Maths: 			{ value: new Maths() },
+		
+		/**
+		 * @property	ParticleSystem: {Function}
+		 * @description	The ParticleSystem constructor.
+		 * @see			FWGE.Game.ParticleSystem
+		 */
+		ParticleSystem: { value: ParticleSystem },
+		
+		/**
+		 * @property	Camera: {Camera}
+		 * @description	The viewer.
+		 * @see			FWGE.Game.Camera
+		 */
+		Camera: 		{ value: new Camera() },
 
-        /*!
-         *  @function       {undefined: Init}
-         *  @description    Initializes the game engine
+        /**
+         * @function       	Init: void
+         * @description    	Initializes the game engine
          */
 		Init:
 		{
@@ -50,9 +102,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Run}
-         *  @description    Runs the main game loop
+        /**
+         * @function       Run: void
+         * @description    Runs the main game loop
          */
 		Run: 
 		{ 
@@ -69,9 +121,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: GameUpdate}
-         *  @description    Updates the objects
+        /**
+         * @function       GameUpdate: void
+         * @description    Updates the scene
          */
 		GameUpdate:
 		{
@@ -87,9 +139,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Start}
-         *  @description    Initiates/resumes the main game loop
+        /**
+         * @function       Start: void
+         * @description    Initiates/resumes the main game loop
          */
 		Start:
 		{
@@ -103,9 +155,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Stop}
-         *  @description    Suspends the main game loop
+        /**
+         * @function       Stop: void
+         * @description    Suspends the main game loop
          */
 		Stop:
 		{
@@ -125,36 +177,35 @@ function GameEngine()
 };
 
 
-/*!
- * 	@constructor 	Item
- *	@module 		FWGE.GameEngine
- *	@description 	The base object for every item
- *					used by the game engine.
- *	@param			{GameObject: request}
- *					> {String: type}
- *					> {String: name}
+/**
+ * @constructor Item
+ * @module 		FWGE.Game
+ * @description The base object for every item
+ *				used within the game engine.
+ * @param		request: 	{Object}
+ *				> type: 	{String}	[nullable]
+ *				> name:		{String}	[nullable]
  */
 function Item(request)
 {
 	if (!request) request = {};
 
-	var $ 	  = this;
 	var _Name = request.name || "Item";
 
 	Object.defineProperties(this,
 	{
-        /*!
-         *  @property       {String: Type}
-         *					> get
-         *  @description    A string descriptior for the type of item.
+        /**
+         * @property    Type:{String}
+         *				> get
+         * @description A string descriptor for the type of item.
          */
 		Type: { value: request.type || "ITEM" },
 
-        /*!
-         *  @property       {String: Name}
-         *					> get
-         *					> set
-         *  @description    A string descriptior for the item.
+        /**
+         * @property    Name: {String}
+         *				> get
+         *				> set
+         * @description A simple string naming the item
          */
 		Name:
 		{
@@ -167,36 +218,35 @@ function Item(request)
 		}
 	});
 }
-/*!
- *  @constructor    GameItem
- *  @module         FWGE.GameEngine
- *  @description    The base container for objects used within the scene.
- *  @param          {Object: request}
- *                  > {GameObject: gameobject}
+/**
+ * @constructor GameItem
+ * @description The base container for objects used within the scene.
+ * @module      FWGE.Game
+ * @param       request:        {Object}
+ *              > gameobject:   {GameObject}    [nullable]
  */
 function GameItem(request)
 {
     if (!request) request = {};
     Item.call(this, request);
 
-    var $           = this;
     var _GameObject = request.gameobject;
     
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
-        /*!
-         *  @property       {GameObject: GameObject}
-         *                  > get
-         *                  > set
-         *  @description    The GameObject this item is attached to.
+        /**
+         * @property    GameObject: {GameObject}
+         *              > get
+         *              > set
+         * @description The GameObject this item is attached to.
          */
         GameObject:
         {
             get: function getGameObject() { return _GameObject; },
-            set: function setGameObject(gameobject)
+            set: function setGameObject()
             {
-                if (parent instanceof GameObject || gameobject === undefined)
-                    _GameObject = gameobject;
+                if (arguments[0] instanceof GameObject || arguments[0] === undefined)
+                    _GameObject = arguments[0];
             }
         }
     });
@@ -205,20 +255,20 @@ function GameItem(request)
 
 var __OBJECT__ = [];
 
-/*!
- *  @constructor    GameObject
- *  @module         FWGE.GameEngine
- *  @description    The main object container for object types.   
- *  @param          {Object: request}
- *                  > {Material: material}
- *                  > {Mesh: mesh}
- *                  > {Transform: transform}
- *                  > {Physics: physics}
- *                  > {Animation: animation}
- *                  > {LightObject: lightitem}
- *                  > {Function: begin}
- *                  > {Function: update}
- *                  > {Function: end}
+/**
+ * @constructor GameObject
+ * @description The main object container for object types.   
+ * @module      FWGE.Game
+ * @param       request:        {Object}
+ *              > material:     {Material}      [nullable]
+ *              > mesh:         {Mesh}          [nullable]
+ *              > transform:    {Transform}     [nullable]
+ *              > physics:      {Physics}       [nullable]
+ *              > animation:    {Animation}     [nullable]
+ *              > lightitem:    {LightObject}   [nullable]
+ *              > begin:        {Function}      [nullable]
+ *              > update:       {Function}      [nullable]
+ *              > end:          {Function}      [nullable]
  */
 function GameObject(request)
 {
@@ -241,33 +291,35 @@ function GameObject(request)
     
     Object.defineProperties(this,
     {
-        /*!
-         *  @property       {String: ID}
-         *                  > get
-         *  @description    Something...
+        /**
+         * @property    ID: {String}
+         *              > get
+         * @description Unique identifier for the gameobject
          */
         ID: { value: "[go-" + IDCounter.next() + "]" },
 
-        /*!
-         *  @property       {Transform: Transform}
-         *                  > get
-         *  @description    
+        /**
+         * @property    Transform:  {Transform}
+         *              > get
+         * @description The transform object attached to the current gameobject
          */
         Transform: { value: request.transform instanceof Transform ? request.transform : new Transform() },
 
-        /*!
-         *  @property       {Array: Children}
-         *  @description    
+        /**
+         * @property    Children:   {Array}
+         *              > get
+         * @description An array of gameobjects. All children transformation will be relative to 
+         *              the parent gameobject.
          */
         Children: { get: function getChildren() { return _Children } },
 
-        /*!
-        *   @function       {GameObject: AddChild}
-         *  @param          {GameObject: gameobject}
-         *  @description    Pushes a gameobect to the current object's childrens array, and
-         *                  move it down the rendering tree.
+        /**
+         * @function    AddChild:   {GameObject}
+         * @description Pushes a gameobect to the current object's childrens array, and
+         *              move it down the rendering tree.
+         * @param       gameobject: {GameObject}
          */
-        AddChild: 
+        AddChild:
         {
             value: function AddChild(gameobject)
             {
@@ -284,11 +336,11 @@ function GameObject(request)
             }
         },
 
-        /*!
-         *   @function       {GameObject: RemoveChild}
-         *  @description    Removes a gameobect from the current object's childrens array, and
-         *                  moves it up the rendering tree.
-         *  @param          {GameObject: gameobject}
+        /**
+         * @function    RemoveChild: {GameObject}
+         * @description Removes a gameobject from the current object's childrens array, and
+         *              moves it up the rendering tree.
+         * @param       gameobject:  {GameObject}
          */
         RemoveChild: 
         {
@@ -309,145 +361,147 @@ function GameObject(request)
             }
         },
 
-        /*!
-         *  @property       {Material: material}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    RenderMaterial: {RenderMaterial}
+         *              > get
+         *              > set
+         * @description The render material attached to this gameobject.
          */
         RenderMaterial:
         {
             get: function getRenderMaterial() { return _RenderMaterial; },
-            set: function setRenderMaterial(rendermaterial)
+            set: function setRenderMaterial()
             {
-                if (rendermaterial instanceof RenderMaterial || rendermaterial === undefined)
-                    _RenderMaterial = rendermaterial;
+                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
+                    _RenderMaterial = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Mesh: mesh}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Mesh: {Mesh}
+         *              > get
+         *              > set
+         * @description The mesh attached to this gameobject.
          */
         Mesh:
         {
             get: function getMesh() { return _Mesh; },
-            set: function setMesh(mesh)
+            set: function setMesh()
             {
-                if (mesh instanceof Mesh || mesh === undefined)
-                    _Mesh = mesh;
+                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
+                    _Mesh = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {PhysicsItem: physicsitem}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    PhysicsItem: {PhysicsItem}
+         *              > get
+         *              > set
+         * @description The physics item attached to this gameobject.
          */
         PhysicsItem:
         {
             get: function getPhysicsItem() { return _PhysicsItem; },
-            set: function setPhysicsItem(physicsitem)
+            set: function setPhysicsItem()
             {
-                if (physicsitem instanceof PhysicsItem || physicsitem === undefined)
-                    _PhysicsItem = physicsitem;
+                if (arguments[0] instanceof PhysicsItem || arguments[0] === undefined)
+                    _PhysicsItem = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Animation: animation}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Animation: {Animation}
+         *              > get
+         *              > set
+         * @description The animation attached to this gameobject.
          */
         Animation:
         {
             get: function getAnimation() { return _Animation; },
-            set: function setAnimation(animation)
+            set: function setAnimation()
             {
-                if (animation instanceof Animation || animation === undefined)
-                    _Animation = animation;
+                if (arguments[0] instanceof Animation || arguments[0] === undefined)
+                    _Animation = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {ParticleSystem: particlesystem}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    particlesystem: {ParticleSystem}
+         *              > get
+         *              > set
+         * @description The particle system attached to this gameobject.
          */
         ParticleSystem:
         {
             get: function getParticleSystem() { return _ParticleSystem; },
-            set: function setParticleSystem(particlesystem)
+            set: function setParticleSystem()
             {
-                if (particlesystem instanceof ParticleSystem || particlesystem === undefined)
-                    _ParticleSystem = particlesystem;
+                if (arguments[0] instanceof ParticleSystem || arguments[0] === undefined)
+                    _ParticleSystem = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: Begin}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Begin:{Function}
+         *              > get
+         *              > set
+         * @description This method is called upon object creation.
          */
         Begin:
         {
             get: function getBegin() { return _Begin; },
-            set: function setBegin(begin)
+            set: function setBegin()
             {
-                if (typeof begin === 'function')
-                    _Begin = begin;
+                if (typeof arguments[0] === 'function')
+                    _Begin = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: Update}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    Update: {Function}
+         *              > get
+         *              > set
+         * @description This method is called after each render frame
          */
         Update:
         {
             get: function getUpdate() { return _Update; },
-            set: function setUpdate(update)
+            set: function setUpdate()
             {
-                if (typeof update === 'function')
-                    _Update = update;
+                if (typeof arguments[0] === 'function')
+                    _Update = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Function: End}
-         *                  > get
-         *                  > set
-         *  @description    Something...
+        /**
+         * @property    End: {Function}
+         *              > get
+         *              > set
+         * @description This method is called once the gameobject if destroyed.
          */
         End:
         {
             get: function getEnd() { return _End; },
-            set: function setEnd(end)
+            set: function setEnd()
             {
-                if (typeof end === 'function')
-                    _End = end;
+                if (typeof arguments[0] === 'function')
+                    _End = arguments[0];
             }
         }
     });
     
+    this.Begin();
     __OBJECT__.push(this);
 }
 Object.defineProperties(GameObject.prototype,
 {
     constructor: { value: GameObject },
     
-    /*!
-     *  @function       {GameObject: Clone}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function    Clone: {GameObject}
+     * @description Creates a clone of a gameobject. If no gameobject is provided,
+     *              it creates a clone of the calling gameobject.
+     * @param       gameobject:  {GameObject} [nullable]
      */
     Clone:
     {
@@ -457,7 +511,7 @@ Object.defineProperties(GameObject.prototype,
 
             var clone = new GameObject
             ({
-                name:           $.name,
+                name:           $.Name,
                 material:       $.Material,
                 mesh:           $.Mesh,
                 transform:      new Transform
@@ -478,33 +532,39 @@ Object.defineProperties(GameObject.prototype,
         }
     },
 
-    /*!
-     *  @function       {undefined: Destroy}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function    Destroy: void
+     * @description Destroys the object after a given amount of time
+     * @param       timeout: {Number}
      */
     Destroy:
     {
-        value: function Destroy()
+        value: function Destroy(timeout)
         {
-            var timeout = typeof arguments[0] === 'number' ? arguments[0] : 0;
             var self = this;
-                var i = __OBJECT__.length;
-                while (--i >= 0)
-                    if (__OBJECT__[i] === self)
-                        __OBJECT__ = __OBJECT__.slice(i, i + 1);
-            
+
+            if (typeof timeout !== 'number')
+                timeout = 0;
+
             setTimeout(function()
             {
-
-            }, timeout * 1000);
+                var i = __OBJECT__.length;
+                while (--i >= 0)
+                {
+                    if (__OBJECT__[i] === self)
+                    {
+                        __OBJECT__.splice(i, 1);
+                        break;
+                    }
+                }
+                self.End();
+            }, 1000 * timeout);
         }
     },
 
-    /*!
-     *  @function       {undefined: ObjectUpdate}
-     *  @description    Something
-     *  @param          {GameObject: gameobject}
+    /**
+     * @function        ObjectUpdate: void
+     * @description     Updates the object
      */
     ObjectUpdate:
     {
@@ -521,10 +581,10 @@ Object.defineProperties(GameObject.prototype,
 });
 
 
-/*!
- *  @constructor    Camera
- *  @module         FWGE.GameEngine
- *  @description    Something...
+/**
+ * @constructor Camera
+ * @description Something...
+ * @module      FWGE.Game
  */
 function Camera()
 {
@@ -542,9 +602,26 @@ function Camera()
 
     Object.defineProperties(this,
     {
+        /**
+		 * @constant	PERSPECTIVE: {Number}
+		 * 				> get
+		 * @description Represents a perspective rendering mode
+		 */
     	PERSPECTIVE:  { value: 0 },
+		
+        /**
+		 * @constant	ORTHOGRAPHIC: {Number}
+		 * 				> get
+		 * @description Represents an orthographic rendering mode
+		 */
     	ORTHOGRAPHIC: { value: 1 },
-        
+
+        /**
+		 * @property	Mode: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the current rendering mode the camera is using
+		 */
     	Mode:
     	{ 
     		get: function getMode() { return _Mode; },
@@ -553,7 +630,14 @@ function Camera()
     			if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
     				_Mode = arguments[0];
     		}
-    	}, 
+    	},
+		
+        /**
+		 * @property	FOV: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the current field of view of the camera
+		 */
     	FOV:
     	{ 
     		get: function getFOV() { return _FOV; },
@@ -563,6 +647,13 @@ function Camera()
     				_FOV = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Aspect: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the aspect ratio of the camera
+		 */
     	Aspect:
     	{ 
     		get: function getAspect() { return _Aspect; },
@@ -572,6 +663,13 @@ function Camera()
     				_Aspect = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Near: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the near clipping plane
+		 */
     	Near:
     	{ 
     		get: function getNear() { return _Near; },
@@ -581,6 +679,13 @@ function Camera()
     				_Near = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Far: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the far clipping plane
+		 */
     	Far:
     	{ 
     		get: function getFar() { return _Far; },
@@ -590,6 +695,13 @@ function Camera()
     				_Far = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Left: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the left clipping plane
+		 */
     	Left:
     	{ 
     		get: function getLeft() { return _Left; },
@@ -599,6 +711,13 @@ function Camera()
     				_Left = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Right: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the right clipping plane
+		 */
     	Right:
     	{ 
     		get: function getRight() { return _Right; },
@@ -608,6 +727,13 @@ function Camera()
     				_Right = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Top: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the top clipping plane
+		 */
     	Top:
     	{ 
     		get: function getTop() { return _Top; },
@@ -617,6 +743,13 @@ function Camera()
     				_Top = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Bottom: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the bottom clipping plane
+		 */
     	Bottom:
     	{ 
     		get: function getBottom() { return _Bottom; },
@@ -626,6 +759,13 @@ function Camera()
     				_Bottom = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Theta: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent camera's yaw around the scene
+		 */
     	Theta:
     	{ 
     		get: function getTheta() { return _Theta; },
@@ -635,6 +775,13 @@ function Camera()
     				_Theta = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Phi: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the camera's pitch around the scene
+		 */
     	Phi:
     	{ 
     		get: function getPhi() { return _Phi; },
@@ -644,6 +791,11 @@ function Camera()
     				_Phi = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	CameraUpdate: void
+		 * @description Updates the camera
+		 */
         CameraUpdate:
         {
             value: function CameraUpdate()
@@ -657,39 +809,32 @@ function Camera()
 }
 
 
-/*!
- * 	{GameObject: request}
+/**
+ * @constructor	Particle
+ * @description	Definition of an animator
+ * @module		FWGE.Game
+ * @param		request: 	{Object}
  */
 function Animation(request)
 {
     if (!request) request = {};
-    GameItem.call(this, request);
-
-    
+    request.type = "ANIMATION";
+    GameItem.call(this, request);    
 }
 
 
-function Other()
-{
-    var $ = this;
-    
-    Object.defineProperties($,
-    {        
-        File:     { value: new File() },
-        Input:    { value: new Input() },
-        Time:     { value: new Time() },
-        Physics:     { value: new Physics() },
-    });
-}
-
-
+/**
+ * @constructor Time
+ * @description This is the running clock that keeps track of elapsed time
+ *              between render frames.
+ * @module      FWGE.Game
+ */
 function Time()
 {
-    var $     = this;
     var _Now  = undefined,
         _Then = undefined;
     
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
         Delta:      { get: function(){ return (_Now - _Then) / 60; } },
         DeltaTime:  { get: function(){ return _Now - _Then; } },
@@ -711,14 +856,15 @@ function Time()
 }
 
 
-/*!
- *  @constructor    Transform
- *  @description    Hello
- *  @param          {Object: request}
- *                  {Array: position}
- *                  {Array: rotation}
- *                  {Array: scale}
- *                  {Array: shear}
+/**
+ * @constructor Transform
+ * @description This object contains all the transformations that 
+ *              are to be applied to the parent gameobject.
+ * @param       request:    {Object}
+ *              > position: {Array}     [nullable]
+ *              > rotation: {Array}     [nullable]
+ *              > scale:    {Array}     [nullable]
+ *              > shear:    {Array}     [nullable]
  */
 function Transform(request)
 {
@@ -729,20 +875,17 @@ function Transform(request)
     function setup(item)
     {
         if (!item || !(item instanceof Array)) item = [0,0,0];
-        if (item.length < 3)
+
+        switch (item.length)
         {
-            switch (item.length)
-            {
-                case 0: item.position[0] = 0;
-                case 1: item.position[1] = 0;
-                case 2: item.position[2] = 0;
-            }
+            case 0: item[0] = 0;
+            case 1: item[1] = 0;
+            case 2: item[2] = 0;
         }
 
         return FWGE.Game.Maths.Vector3.Create(item);
     }
     
-    var $           = this;
     var _Position   = setup(request.position);
     var _Rotation   = setup(request.rotation);
     var _Scale      = setup(request.scale);
@@ -752,11 +895,11 @@ function Transform(request)
     var _Forward    = FWGE.Game.Maths.Vector3.Create(0, 0, 1);
     var _Right      = FWGE.Game.Maths.Vector3.Create(1, 0, 0);
     
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
-        /*!
-         *  @property       {Float32Array: Position}
-         *  @description    Hello
+        /**
+         * @property    Position: {Float32Array}
+         * @description The current position of the parent of gameobject
          */
         Position:
         {
@@ -768,9 +911,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Rotation}
-         *  @description    Hello
+        /**
+         * @property    Rotation: {Float32Array}
+         * @description The current rotation of the parent of gameobject
          */           
         Rotation:
         {
@@ -782,9 +925,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Scale}
-         *  @description    Hello
+        /**
+         * @property    Scale: {Float32Array}
+         * @description The current scaling of the parent of gameobject
          */
         Scale:
         {
@@ -796,9 +939,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Shear}
-         *  @description    Hello
+        /**
+         * @property    Shear: {Float32Array}
+         * @description The current shearing of the parent of gameobject
          */
         Shear:
         {
@@ -810,34 +953,34 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Up}
-         *  @description    Hello
+        /**
+         * @property    Up: {Float32Array}
+         * @description The parent gameobject's up vector
          */
         Up:         { get: function() { return _Up; } },
         
-        /*!
-         *  @property       {Float32Array: Forward}
-         *  @description    Hello
+        /**
+         * @property    Forward: {Float32Array}
+         * @description The parent gameobject's forward vector
          */
         Forward:    { get: function() { return _Forward; } },
         
-        /*!
-         *  @property       {Float32Array: Right}
-         *  @description    Hello
+        /**
+         * @property    Right: {Float32Array}
+         * @description The parent gameobject's right vector
          */
         Right:      { get: function() { return _Right; } },
     });
     
-    $.TransformUpdate();
+    this.TransformUpdate();
 }
 Object.defineProperties(Transform.prototype,
 {
     constructor: {value: Transform},
 
-    /*!
-     *  @property       {Float32Array: Position}
-     *  @description    Hello
+    /**
+     * @property    TransformUpdate: void
+     * @description Updates the transformations
      */
     TransformUpdate:
     {
@@ -849,25 +992,26 @@ Object.defineProperties(Transform.prototype,
     }
 });
 
-/*!
- *  @constructor    Input
- *  @description    The input detector
+/**
+ * @constructor Input
+ * @description This module handles all user key and mouse inputs.
+ * @module      FWGE.Game
  */
 function Input()
 {
-    var UP      = 0;
-    var PRESS   = 128;
-    var DOWN    = 256;
-    var END     = 384;
+    var _UP      = 0;
+    var _PRESS   = 128;
+    var _DOWN    = 256;
+    var _END     = 384;
 
-    var _Keys   = new Array(END);
+    var _Keys   = new Array(_END);
     var _Mouse  = new Array(8);
     var _Axis   = new Array(16);
 
-    for (var i = 0; i < PRESS; ++i)
+    for (var i = 0; i < _PRESS; ++i)
         _Keys[i] = true;
 
-    for (var i = PRESS; i < END; ++i)
+    for (var i = _PRESS; i < _END; ++i)
         _Keys[i] = false;
 
     function handle_event(e)
@@ -885,306 +1029,389 @@ function Input()
     {
         var key = handle_event(e);
 
-        _Keys[key + UP   ]    = true;
-        _Keys[key + PRESS]    = false;
-        _Keys[key + DOWN ]    = false;
+        _Keys[key + _UP   ]    = true;
+        _Keys[key + _PRESS]    = false;
+        _Keys[key + _DOWN ]    = false;
     };
     window.onkeydown = function onkeydown(e)
     {
         var key = handle_event(e);
 
-        _Keys[key + UP   ]    = false;
-        _Keys[key + PRESS]    = true;
-        _Keys[key + DOWN ]    = true;
+        _Keys[key + _UP   ]    = false;
+        _Keys[key + _PRESS]    = true;
+        _Keys[key + _DOWN ]    = true;
     };
 
-    document.body.oncontextmenu = function oncontextmenu(e) { return false; };
-    window.onmouseenter = function onmouseenter(e) { var key = handle_event(e) };
-    window.onmousemove = function onmousemove(e) { var key = handle_event(e); };
-    window.onmouseleave = function onmouseleave(e) { var key = handle_event(e); };
-    window.onmousedown = function onmousedown(e) { var key = handle_event(e); };
-    window.onmouseup = function onmouseup(e) { var key = handle_event(e); };
+    document.body.oncontextmenu = function oncontextmenu(e) { handle_event(e); return false; };
+    window.onmouseenter = function onmouseenter(e)
+    {
+        var key = handle_event(e);
+
+        //TODO
+    };
+    window.onmousemove = function onmousemove(e) 
+    {
+        var key = handle_event(e);
+
+        //TODO
+    };
+    window.onmouseleave = function onmouseleave(e)
+    {
+        var key = handle_event(e);
+
+        //TODO
+    };
+    window.onmousedown = function onmousedown(e) 
+    {
+        var key = handle_event(e);
+
+        //TODO
+    };
+    window.onmouseup = function onmouseup(e)   
+    {
+        var key = handle_event(e);
+
+        //TODO
+    };
     
     Object.defineProperties(this, 
     {
-        KEY_F1_UP:      { get: function getF1KeyUp()     { return _Keys[112 + UP   ]; } },
-        KEY_F1_PRESS:   { get: function getF1KeyPress()  { return _Keys[112 + PRESS]; } },
-        KEY_F1_DOWN:    { get: function getF1KeyDown()   { return _Keys[112 + DOWN ]; } },
+        KEY_F1_UP:      { get: function getF1KeyUp()     { return _Keys[112 + _UP   ]; } },
+        KEY_F1_PRESS:   { get: function getF1KeyPress()  { return _Keys[112 + _PRESS]; } },
+        KEY_F1_DOWN:    { get: function getF1KeyDown()   { return _Keys[112 + _DOWN ]; } },
 
-        KEY_F2_UP:      { get: function getF2KeyUp()     { return _Keys[113 + UP   ]; } },
-        KEY_F2_PRESS:   { get: function getF2KeyPress()  { return _Keys[113 + PRESS]; } },
-        KEY_F2_DOWN:    { get: function getF2KeyDown()   { return _Keys[113 + DOWN ]; } },
+        KEY_F2_UP:      { get: function getF2KeyUp()     { return _Keys[113 + _UP   ]; } },
+        KEY_F2_PRESS:   { get: function getF2KeyPress()  { return _Keys[113 + _PRESS]; } },
+        KEY_F2_DOWN:    { get: function getF2KeyDown()   { return _Keys[113 + _DOWN ]; } },
 
-        KEY_F3_UP:      { get: function getF3KeyUp()     { return _Keys[114 + UP   ]; } },
-        KEY_F3_PRESS:   { get: function getF3KeyPress()  { return _Keys[114 + PRESS]; } },
-        KEY_F3_DOWN:    { get: function getF3KeyDown()   { return _Keys[114 + DOWN ]; } },
+        KEY_F3_UP:      { get: function getF3KeyUp()     { return _Keys[114 + _UP   ]; } },
+        KEY_F3_PRESS:   { get: function getF3KeyPress()  { return _Keys[114 + _PRESS]; } },
+        KEY_F3_DOWN:    { get: function getF3KeyDown()   { return _Keys[114 + _DOWN ]; } },
 
-        KEY_F4_UP:      { get: function getF4KeyUp()     { return _Keys[115 + UP   ]; } },
-        KEY_F4_PRESS:   { get: function getF4KeyPress()  { return _Keys[115 + PRESS]; } },
-        KEY_F4_DOWN:    { get: function getF4KeyDown()   { return _Keys[115 + DOWN ]; } },
+        KEY_F4_UP:      { get: function getF4KeyUp()     { return _Keys[115 + _UP   ]; } },
+        KEY_F4_PRESS:   { get: function getF4KeyPress()  { return _Keys[115 + _PRESS]; } },
+        KEY_F4_DOWN:    { get: function getF4KeyDown()   { return _Keys[115 + _DOWN ]; } },
 
-        KEY_F5_UP:      { get: function getF5KeyUp()     { return _Keys[116 + UP   ]; } },
-        KEY_F5_PRESS:   { get: function getF5KeyPress()  { return _Keys[116 + PRESS]; } },
-        KEY_F5_DOWN:    { get: function getF5KeyDown()   { return _Keys[116 + DOWN ]; } },
+        KEY_F5_UP:      { get: function getF5KeyUp()     { return _Keys[116 + _UP   ]; } },
+        KEY_F5_PRESS:   { get: function getF5KeyPress()  { return _Keys[116 + _PRESS]; } },
+        KEY_F5_DOWN:    { get: function getF5KeyDown()   { return _Keys[116 + _DOWN ]; } },
 
-        KEY_F6_UP:      { get: function getF6KeyUp()     { return _Keys[117 + UP   ]; } },
-        KEY_F6_PRESS:   { get: function getF6KeyPress()  { return _Keys[117 + PRESS]; } },
-        KEY_F6_DOWN:    { get: function getF6KeyDown()   { return _Keys[117 + DOWN ]; } },
+        KEY_F6_UP:      { get: function getF6KeyUp()     { return _Keys[117 + _UP   ]; } },
+        KEY_F6_PRESS:   { get: function getF6KeyPress()  { return _Keys[117 + _PRESS]; } },
+        KEY_F6_DOWN:    { get: function getF6KeyDown()   { return _Keys[117 + _DOWN ]; } },
 
-        KEY_F7_UP:      { get: function getF7KeyUp()     { return _Keys[118 + UP   ]; } },
-        KEY_F7_PRESS:   { get: function getF7KeyPress()  { return _Keys[118 + PRESS]; } },
-        KEY_F7_DOWN:    { get: function getF7KeyDown()   { return _Keys[118 + DOWN ]; } },
+        KEY_F7_UP:      { get: function getF7KeyUp()     { return _Keys[118 + _UP   ]; } },
+        KEY_F7_PRESS:   { get: function getF7KeyPress()  { return _Keys[118 + _PRESS]; } },
+        KEY_F7_DOWN:    { get: function getF7KeyDown()   { return _Keys[118 + _DOWN ]; } },
 
-        KEY_F8_UP:      { get: function getF8KeyUp()     { return _Keys[119 + UP   ]; } },
-        KEY_F8_PRESS:   { get: function getF8KeyPress()  { return _Keys[119 + PRESS]; } },
-        KEY_F8_DOWN:    { get: function getF8KeyDown()   { return _Keys[119 + DOWN ]; } },
+        KEY_F8_UP:      { get: function getF8KeyUp()     { return _Keys[119 + _UP   ]; } },
+        KEY_F8_PRESS:   { get: function getF8KeyPress()  { return _Keys[119 + _PRESS]; } },
+        KEY_F8_DOWN:    { get: function getF8KeyDown()   { return _Keys[119 + _DOWN ]; } },
 
-        KEY_F9_UP:      { get: function getF9KeyUp()     { return _Keys[120 + UP   ]; } },
-        KEY_F9_PRESS:   { get: function getF9KeyPress()  { return _Keys[120 + PRESS]; } },
-        KEY_F9_DOWN:    { get: function getF9KeyDown()   { return _Keys[120 + DOWN ]; } },
+        KEY_F9_UP:      { get: function getF9KeyUp()     { return _Keys[120 + _UP   ]; } },
+        KEY_F9_PRESS:   { get: function getF9KeyPress()  { return _Keys[120 + _PRESS]; } },
+        KEY_F9_DOWN:    { get: function getF9KeyDown()   { return _Keys[120 + _DOWN ]; } },
 
-        KEY_F10_UP:     { get: function getF10KeyUp()    { return _Keys[121 + UP   ]; } },
-        KEY_F10_PRESS:  { get: function getF10KeyPress() { return _Keys[121 + PRESS]; } },
-        KEY_F10_DOWN:   { get: function getF10KeyDown()  { return _Keys[121 + DOWN ]; } },
+        KEY_F10_UP:     { get: function getF10KeyUp()    { return _Keys[121 + _UP   ]; } },
+        KEY_F10_PRESS:  { get: function getF10KeyPress() { return _Keys[121 + _PRESS]; } },
+        KEY_F10_DOWN:   { get: function getF10KeyDown()  { return _Keys[121 + _DOWN ]; } },
 
-        KEY_F11_UP:     { get: function getF11KeyUp()    { return _Keys[122 + UP   ]; } },
-        KEY_F11_PRESS:  { get: function getF11KeyPress() { return _Keys[122 + PRESS]; } },
-        KEY_F11_DOWN:   { get: function getF11KeyDown()  { return _Keys[122 + DOWN ]; } },
+        KEY_F11_UP:     { get: function getF11KeyUp()    { return _Keys[122 + _UP   ]; } },
+        KEY_F11_PRESS:  { get: function getF11KeyPress() { return _Keys[122 + _PRESS]; } },
+        KEY_F11_DOWN:   { get: function getF11KeyDown()  { return _Keys[122 + _DOWN ]; } },
 
-        KEY_F12_UP:     { get: function getF12KeyUp()    { return _Keys[123 + UP   ]; } },
-        KEY_F12_PRESS:  { get: function getF12KeyPress() { return _Keys[123 + PRESS]; } },
-        KEY_F12_DOWN:   { get: function getF12KeyDown()  { return _Keys[123 + DOWN ]; } },
+        KEY_F12_UP:     { get: function getF12KeyUp()    { return _Keys[123 + _UP   ]; } },
+        KEY_F12_PRESS:  { get: function getF12KeyPress() { return _Keys[123 + _PRESS]; } },
+        KEY_F12_DOWN:   { get: function getF12KeyDown()  { return _Keys[123 + _DOWN ]; } },
 
 
-        KEY_0_UP:       { get: function get0KeyUp()    { return _Keys[48 + UP   ]; } },
-        KEY_0_PRESS:    { get: function get0KeyPress() { return _Keys[48 + PRESS]; } },
-        KEY_0_DOWN:     { get: function get0KeyDown()  { return _Keys[48 + DOWN ]; } },
+        KEY_0_UP:       { get: function get0KeyUp()    { return _Keys[48 + _UP   ]; } },
+        KEY_0_PRESS:    { get: function get0KeyPress() { return _Keys[48 + _PRESS]; } },
+        KEY_0_DOWN:     { get: function get0KeyDown()  { return _Keys[48 + _DOWN ]; } },
 
-        KEY_1_UP:       { get: function get1KeyUp()    { return _Keys[49 + UP   ]; } },
-        KEY_1_PRESS:    { get: function get1KeyPress() { return _Keys[49 + PRESS]; } },
-        KEY_1_DOWN:     { get: function get1KeyDown()  { return _Keys[49 + DOWN ]; } },
+        KEY_1_UP:       { get: function get1KeyUp()    { return _Keys[49 + _UP   ]; } },
+        KEY_1_PRESS:    { get: function get1KeyPress() { return _Keys[49 + _PRESS]; } },
+        KEY_1_DOWN:     { get: function get1KeyDown()  { return _Keys[49 + _DOWN ]; } },
 
-        KEY_2_UP:       { get: function get2KeyUp()    { return _Keys[50 + UP   ]; } },
-        KEY_2_PRESS:    { get: function get2KeyPress() { return _Keys[50 + PRESS]; } },
-        KEY_2_DOWN:     { get: function get2KeyDown()  { return _Keys[50 + DOWN ]; } },
+        KEY_2_UP:       { get: function get2KeyUp()    { return _Keys[50 + _UP   ]; } },
+        KEY_2_PRESS:    { get: function get2KeyPress() { return _Keys[50 + _PRESS]; } },
+        KEY_2_DOWN:     { get: function get2KeyDown()  { return _Keys[50 + _DOWN ]; } },
 
-        KEY_3_UP:       { get: function get3KeyUp()    { return _Keys[51 + UP   ]; } },
-        KEY_3_PRESS:    { get: function get3KeyPress() { return _Keys[51 + PRESS]; } },
-        KEY_3_DOWN:     { get: function get3KeyDown()  { return _Keys[51 + DOWN ]; } },
+        KEY_3_UP:       { get: function get3KeyUp()    { return _Keys[51 + _UP   ]; } },
+        KEY_3_PRESS:    { get: function get3KeyPress() { return _Keys[51 + _PRESS]; } },
+        KEY_3_DOWN:     { get: function get3KeyDown()  { return _Keys[51 + _DOWN ]; } },
 
-        KEY_4_UP:       { get: function get4KeyUp()    { return _Keys[52 + UP   ]; } },
-        KEY_4_PRESS:    { get: function get4KeyPress() { return _Keys[52 + PRESS]; } },
-        KEY_4_DOWN:     { get: function get4KeyDown()  { return _Keys[52 + DOWN ]; } },
+        KEY_4_UP:       { get: function get4KeyUp()    { return _Keys[52 + _UP   ]; } },
+        KEY_4_PRESS:    { get: function get4KeyPress() { return _Keys[52 + _PRESS]; } },
+        KEY_4_DOWN:     { get: function get4KeyDown()  { return _Keys[52 + _DOWN ]; } },
 
-        KEY_5_UP:       { get: function get5KeyUp()    { return _Keys[53 + UP   ]; } },
-        KEY_5_PRESS:    { get: function get5KeyPress() { return _Keys[53 + PRESS]; } },
-        KEY_5_DOWN:     { get: function get5KeyDown()  { return _Keys[53 + DOWN ]; } },
+        KEY_5_UP:       { get: function get5KeyUp()    { return _Keys[53 + _UP   ]; } },
+        KEY_5_PRESS:    { get: function get5KeyPress() { return _Keys[53 + _PRESS]; } },
+        KEY_5_DOWN:     { get: function get5KeyDown()  { return _Keys[53 + _DOWN ]; } },
 
-        KEY_6_UP:       { get: function get6KeyUp()    { return _Keys[54 + UP   ]; } },
-        KEY_6_PRESS:    { get: function get6KeyPress() { return _Keys[54 + PRESS]; } },
-        KEY_6_DOWN:     { get: function get6KeyDown()  { return _Keys[54 + DOWN ]; } },
+        KEY_6_UP:       { get: function get6KeyUp()    { return _Keys[54 + _UP   ]; } },
+        KEY_6_PRESS:    { get: function get6KeyPress() { return _Keys[54 + _PRESS]; } },
+        KEY_6_DOWN:     { get: function get6KeyDown()  { return _Keys[54 + _DOWN ]; } },
 
-        KEY_7_UP:       { get: function get7KeyUp()    { return _Keys[55 + UP   ]; } },
-        KEY_7_PRESS:    { get: function get7KeyPress() { return _Keys[55 + PRESS]; } },
-        KEY_7_DOWN:     { get: function get7KeyDown()  { return _Keys[55 + DOWN ]; } },
+        KEY_7_UP:       { get: function get7KeyUp()    { return _Keys[55 + _UP   ]; } },
+        KEY_7_PRESS:    { get: function get7KeyPress() { return _Keys[55 + _PRESS]; } },
+        KEY_7_DOWN:     { get: function get7KeyDown()  { return _Keys[55 + _DOWN ]; } },
 
-        KEY_8_UP:       { get: function get8KeyUp()    { return _Keys[56 + UP   ]; } },
-        KEY_8_PRESS:    { get: function get8KeyPress() { return _Keys[56 + PRESS]; } },
-        KEY_8_DOWN:     { get: function get8KeyDown()  { return _Keys[56 + DOWN ]; } },
+        KEY_8_UP:       { get: function get8KeyUp()    { return _Keys[56 + _UP   ]; } },
+        KEY_8_PRESS:    { get: function get8KeyPress() { return _Keys[56 + _PRESS]; } },
+        KEY_8_DOWN:     { get: function get8KeyDown()  { return _Keys[56 + _DOWN ]; } },
 
-        KEY_9_UP:       { get: function get9KeyUp()    { return _Keys[57 + UP   ]; } },
-        KEY_9_PRESS:    { get: function get9KeyPress() { return _Keys[57 + PRESS]; } },
-        KEY_9_DOWN:     { get: function get9KeyDown()  { return _Keys[57 + DOWN ]; } },
+        KEY_9_UP:       { get: function get9KeyUp()    { return _Keys[57 + _UP   ]; } },
+        KEY_9_PRESS:    { get: function get9KeyPress() { return _Keys[57 + _PRESS]; } },
+        KEY_9_DOWN:     { get: function get9KeyDown()  { return _Keys[57 + _DOWN ]; } },
 
 
-        KEY_TAB_UP:          { get: function getTABKeyUp()          { return _Keys[9 + UP   ]; } },
-        KEY_TAB_PRESS:       { get: function getTABKeyPress()       { return _Keys[9 + PRESS]; } },
-        KEY_TAB_DOWN:        { get: function getTABKeyDown()        { return _Keys[9 + DOWN ]; } },
+        KEY_NUMPAD_0_UP:       { get: function getNumpad0KeyUp()    { return _Keys[96 + _UP   ]; } },
+        KEY_NUMPAD_0_PRESS:    { get: function getNumpad0KeyPress() { return _Keys[96 + _PRESS]; } },
+        KEY_NUMPAD_0_DOWN:     { get: function getNumpad0KeyDown()  { return _Keys[96 + _DOWN ]; } },
 
-        KEY_CAPS_UP:         { get: function getCAPSKeyUp()         { return _Keys[20 + UP   ]; } },
-        KEY_CAPS_PRESS:      { get: function getCAPSKeyPress()      { return _Keys[20 + PRESS]; } },
-        KEY_CAPS_DOWN:       { get: function getCAPSKeyDown()       { return _Keys[20 + DOWN ]; } },
+        KEY_NUMPAD_1_UP:       { get: function getNumpad1KeyUp()    { return _Keys[97 + _UP   ]; } },
+        KEY_NUMPAD_1_PRESS:    { get: function getNumpad1KeyPress() { return _Keys[97 + _PRESS]; } },
+        KEY_NUMPAD_1_DOWN:     { get: function getNumpad1KeyDown()  { return _Keys[97 + _DOWN ]; } },
 
-        KEY_SHIFT_UP:        { get: function getSHIFTKeyUp()        { return _Keys[16 + UP   ]; } },
-        KEY_SHIFT_PRESS:     { get: function getSHIFTKeyPress()     { return _Keys[16 + PRESS]; } },
-        KEY_SHIFT_DOWN:      { get: function getSHIFTKeyDown()      { return _Keys[16 + DOWN ]; } },
+        KEY_NUMPAD_2_UP:       { get: function getNumpad2KeyUp()    { return _Keys[98 + _UP   ]; } },
+        KEY_NUMPAD_2_PRESS:    { get: function getNumpad2KeyPress() { return _Keys[98 + _PRESS]; } },
+        KEY_NUMPAD_2_DOWN:     { get: function getNumpad2KeyDown()  { return _Keys[98 + _DOWN ]; } },
 
-        KEY_CTRL_UP:         { get: function getCTRLKeyUp()         { return _Keys[17 + UP   ]; } },
-        KEY_CTRL_PRESS:      { get: function getCTRLKeyPress()      { return _Keys[17 + PRESS]; } },
-        KEY_CTRL_DOWN:       { get: function getCTRLKeyDown()       { return _Keys[17 + DOWN ]; } },
+        KEY_NUMPAD_3_UP:       { get: function getNumpad3KeyUp()    { return _Keys[99 + _UP   ]; } },
+        KEY_NUMPAD_3_PRESS:    { get: function getNumpad3KeyPress() { return _Keys[99 + _PRESS]; } },
+        KEY_NUMPAD_3_DOWN:     { get: function getNumpad3KeyDown()  { return _Keys[99 + _DOWN ]; } },
 
-        KEY_ALT_UP:          { get: function getALTKeyUp()          { return _Keys[18 + UP   ]; } },
-        KEY_ALT_PRESS:       { get: function getALTKeyPress()       { return _Keys[18 + PRESS]; } },
-        KEY_ALT_DOWN:        { get: function getALTKeyDown()        { return _Keys[18 + DOWN ]; } },
+        KEY_NUMPAD_4_UP:       { get: function getNumpad4KeyUp()    { return _Keys[100 + _UP   ]; } },
+        KEY_NUMPAD_4_PRESS:    { get: function getNumpad4KeyPress() { return _Keys[100 + _PRESS]; } },
+        KEY_NUMPAD_4_DOWN:     { get: function getNumpad4KeyDown()  { return _Keys[100 + _DOWN ]; } },
 
-        KEY_BACKSPACE_UP:    { get: function getBACKSPACEKeyUp()    { return _Keys[8 + UP   ]; } },
-        KEY_BACKSPACE_PRESS: { get: function getBACKSPACEKeyPress() { return _Keys[8 + PRESS]; } },
-        KEY_BACKSPACE_DOWN:  { get: function getBACKSPACEKeyDown()  { return _Keys[8 + DOWN ]; } },
+        KEY_NUMPAD_5_UP:       { get: function getNumpad5KeyUp()    { return _Keys[101 + _UP   ]; } },
+        KEY_NUMPAD_5_PRESS:    { get: function getNumpad5KeyPress() { return _Keys[101 + _PRESS]; } },
+        KEY_NUMPAD_5_DOWN:     { get: function getNumpad5KeyDown()  { return _Keys[101 + _DOWN ]; } },
 
-        KEY_ENTER_UP:        { get: function getENTERKeyUp()        { return _Keys[13 + UP   ]; } },
-        KEY_ENTER_PRESS:     { get: function getENTERKeyPress()     { return _Keys[13 + PRESS]; } },
-        KEY_ENTER_DOWN:      { get: function getENTERKeyDown()      { return _Keys[13 + DOWN ]; } },
+        KEY_NUMPAD_6_UP:       { get: function getNumpad6KeyUp()    { return _Keys[102 + _UP   ]; } },
+        KEY_NUMPAD_6_PRESS:    { get: function getNumpad6KeyPress() { return _Keys[102 + _PRESS]; } },
+        KEY_NUMPAD_6_DOWN:     { get: function getNumpad6KeyDown()  { return _Keys[102 + _DOWN ]; } },
 
+        KEY_NUMPAD_7_UP:       { get: function getNumpad7KeyUp()    { return _Keys[103 + _UP   ]; } },
+        KEY_NUMPAD_7_PRESS:    { get: function getNumpad7KeyPress() { return _Keys[103 + _PRESS]; } },
+        KEY_NUMPAD_7_DOWN:     { get: function getNumpad7KeyDown()  { return _Keys[103 + _DOWN ]; } },
 
-        KEY_UP_UP:       { get: function getUPKeyUp()       { return _Keys[38 + UP   ]; } },
-        KEY_UP_PRESS:    { get: function getUPKeyPress()    { return _Keys[38 + PRESS]; } },
-        KEY_UP_DOWN:     { get: function getUPKeyDown()     { return _Keys[38 + DOWN ]; } },
+        KEY_NUMPAD_8_UP:       { get: function getNumpad8KeyUp()    { return _Keys[104 + _UP   ]; } },
+        KEY_NUMPAD_8_PRESS:    { get: function getNumpad8KeyPress() { return _Keys[104 + _PRESS]; } },
+        KEY_NUMPAD_8_DOWN:     { get: function getNumpad8KeyDown()  { return _Keys[104 + _DOWN ]; } },
 
-        KEY_LEFT_UP:     { get: function getLEFTKeyUp()     { return _Keys[37 + UP   ]; } },
-        KEY_LEFT_PRESS:  { get: function getLEFTKeyPress()  { return _Keys[37 + PRESS]; } },
-        KEY_LEFT_DOWN:   { get: function getLEFTKeyDown()   { return _Keys[37 + DOWN ]; } },
+        KEY_NUMPAD_9_UP:       { get: function getNumpad9KeyUp()    { return _Keys[105 + _UP   ]; } },
+        KEY_NUMPAD_9_PRESS:    { get: function getNumpad9KeyPress() { return _Keys[105 + _PRESS]; } },
+        KEY_NUMPAD_9_DOWN:     { get: function getNumpad9KeyDown()  { return _Keys[105 + _DOWN ]; } },
 
-        KEY_RIGHT_UP:    { get: function getRIGHTKeyUp()    { return _Keys[40 + UP   ]; } },
-        KEY_RIGHT_PRESS: { get: function getRIGHTKeyPress() { return _Keys[40 + PRESS]; } },
-        KEY_RIGHT_DOWN:  { get: function getRIGHTKeyDown()  { return _Keys[40 + DOWN ]; } },
 
-        KEY_DOWN_UP:     { get: function getDOWNKeyUp()     { return _Keys[39 + UP   ]; } },
-        KEY_DOWN_PRESS:  { get: function getDOWNKeyPress()  { return _Keys[39 + PRESS]; } },
-        KEY_DOWN_DOWN:   { get: function getDOWNKeyDown()   { return _Keys[39 + DOWN ]; } },
+        KEY_DIVIDE_UP:        { get: function getDivideKeyUp()      { return _Keys[111 + _UP   ]; } },
+        KEY_DIVIDE_PRESS:     { get: function getDivideKeyPress()   { return _Keys[111 + _PRESS]; } },
+        KEY_DIVIDE_DOWN:      { get: function getDivideKeyDown()    { return _Keys[111 + _DOWN ]; } },
 
+        KEY_MULTIPLY_UP:      { get: function getMultiplyKeyUp()    { return _Keys[106 + _UP   ]; } },
+        KEY_MULTIPLY_PRESS:   { get: function getMultiplyKeyPress() { return _Keys[106 + _PRESS]; } },
+        KEY_MULTIPLY_DOWN:    { get: function getMultiplyKeyDown()  { return _Keys[106 + _DOWN ]; } },
 
-        KEY_BRACKET_L_UP:     { get: function getTABKeyUp()    { return _Keys[219 + UP   ]; } },
-        KEY_BRACKET_L_PRESS:  { get: function getTABKeyPress() { return _Keys[219 + PRESS]; } },
-        KEY_BRACKET_L_DOWN:   { get: function getTABKeyDown()  { return _Keys[219 + DOWN ]; } },
+        KEY_SUBTRACT_UP:      { get: function getSubtractKeyUp()    { return _Keys[109 + _UP   ]; } },
+        KEY_SUBTRACT_PRESS:   { get: function getSubtractKeyPress() { return _Keys[109 + _PRESS]; } },
+        KEY_SUBTRACT_DOWN:    { get: function getSubtractKeyDown()  { return _Keys[109 + _DOWN ]; } },
 
-        KEY_BRACKET_R_UP:     { get: function getTABKeyUp()    { return _Keys[221 + UP   ]; } },
-        KEY_BRACKET_R_PRESS:  { get: function getTABKeyPress() { return _Keys[221 + PRESS]; } },
-        KEY_BRACKET_R_DOWN:   { get: function getTABKeyDown()  { return _Keys[221 + DOWN ]; } },
+        KEY_ADD_UP:           { get: function getAddKeyUp()         { return _Keys[107 + _UP   ]; } },
+        KEY_ADD_PRESS:        { get: function getAddKeyPress()      { return _Keys[107 + _PRESS]; } },
+        KEY_ADD_DOWN:         { get: function getAddKeyDown()       { return _Keys[107 + _DOWN ]; } },
 
-        KEY_COLON_UP:         { get: function getTABKeyUp()    { return _Keys[186 + UP   ]; } },
-        KEY_COLON_PRESS:      { get: function getTABKeyPress() { return _Keys[186 + PRESS]; } },
-        KEY_COLON_DOWN:       { get: function getTABKeyDown()  { return _Keys[186 + DOWN ]; } },
 
-        KEY_QUOTE_UP:         { get: function getTABKeyUp()    { return _Keys[222 + UP   ]; } },
-        KEY_QUOTE_PRESS:      { get: function getTABKeyPress() { return _Keys[222 + PRESS]; } },
-        KEY_QUOTE_DOWN:       { get: function getTABKeyDown()  { return _Keys[222 + DOWN ]; } },
+        KEY_TAB_UP:          { get: function getTABKeyUp()          { return _Keys[9 + _UP   ]; } },
+        KEY_TAB_PRESS:       { get: function getTABKeyPress()       { return _Keys[9 + _PRESS]; } },
+        KEY_TAB_DOWN:        { get: function getTABKeyDown()        { return _Keys[9 + _DOWN ]; } },
 
-        KEY_COMMA_UP:         { get: function getTABKeyUp()    { return _Keys[188 + UP   ]; } },
-        KEY_COMMA_PRESS:      { get: function getTABKeyPress() { return _Keys[188 + PRESS]; } },
-        KEY_COMMA_DOWN:       { get: function getTABKeyDown()  { return _Keys[188 + DOWN ]; } },
+        KEY_CAPS_UP:         { get: function getCAPSKeyUp()         { return _Keys[20 + _UP   ]; } },
+        KEY_CAPS_PRESS:      { get: function getCAPSKeyPress()      { return _Keys[20 + _PRESS]; } },
+        KEY_CAPS_DOWN:       { get: function getCAPSKeyDown()       { return _Keys[20 + _DOWN ]; } },
 
-        KEY_PERIOD_UP:        { get: function getTABKeyUp()    { return _Keys[190 + UP   ]; } },
-        KEY_PERIOD_PRESS:     { get: function getTABKeyPress() { return _Keys[190 + PRESS]; } },
-        KEY_PERIOD_DOWN:      { get: function getTABKeyDown()  { return _Keys[190 + DOWN ]; } },
+        KEY_SHIFT_UP:        { get: function getSHIFTKeyUp()        { return _Keys[16 + _UP   ]; } },
+        KEY_SHIFT_PRESS:     { get: function getSHIFTKeyPress()     { return _Keys[16 + _PRESS]; } },
+        KEY_SHIFT_DOWN:      { get: function getSHIFTKeyDown()      { return _Keys[16 + _DOWN ]; } },
 
-        KEY_SLASH_F_UP:       { get: function getTABKeyUp()    { return _Keys[191 + UP   ]; } },
-        KEY_SLASH_F_PRESS:    { get: function getTABKeyPress() { return _Keys[191 + PRESS]; } },
-        KEY_SLASH_F_DOWN:     { get: function getTABKeyDown()  { return _Keys[191 + DOWN ]; } },
+        KEY_CTRL_UP:         { get: function getCTRLKeyUp()         { return _Keys[17 + _UP   ]; } },
+        KEY_CTRL_PRESS:      { get: function getCTRLKeyPress()      { return _Keys[17 + _PRESS]; } },
+        KEY_CTRL_DOWN:       { get: function getCTRLKeyDown()       { return _Keys[17 + _DOWN ]; } },
 
-        KEY_SLASH_B_UP:       { get: function getTABKeyUp()    { return _Keys[220 + UP   ]; } },
-        KEY_SLASH_B_PRESS:    { get: function getTABKeyPress() { return _Keys[220 + PRESS]; } },
-        KEY_SLASH_B_DOWN:     { get: function getTABKeyDown()  { return _Keys[220 + DOWN ]; } },
+        KEY_ALT_UP:          { get: function getALTKeyUp()          { return _Keys[18 + _UP   ]; } },
+        KEY_ALT_PRESS:       { get: function getALTKeyPress()       { return _Keys[18 + _PRESS]; } },
+        KEY_ALT_DOWN:        { get: function getALTKeyDown()        { return _Keys[18 + _DOWN ]; } },
 
+        KEY_BACKSPACE_UP:    { get: function getBACKSPACEKeyUp()    { return _Keys[8 + _UP   ]; } },
+        KEY_BACKSPACE_PRESS: { get: function getBACKSPACEKeyPress() { return _Keys[8 + _PRESS]; } },
+        KEY_BACKSPACE_DOWN:  { get: function getBACKSPACEKeyDown()  { return _Keys[8 + _DOWN ]; } },
 
-        KEY_A_UP:       { get: function getAKeyUp()     { return _Keys[65 + UP   ]; } },
-        KEY_A_PRESS:    { get: function getAKeyPress()  { return _Keys[65 + PRESS]; } },
-        KEY_A_DOWN:     { get: function getAKeyDown()   { return _Keys[65 + DOWN ]; } },
+        KEY_ENTER_UP:        { get: function getENTERKeyUp()        { return _Keys[13 + _UP   ]; } },
+        KEY_ENTER_PRESS:     { get: function getENTERKeyPress()     { return _Keys[13 + _PRESS]; } },
+        KEY_ENTER_DOWN:      { get: function getENTERKeyDown()      { return _Keys[13 + _DOWN ]; } },
 
-        KEY_B_UP:       { get: function getBKeyUp()     { return _Keys[66 + UP   ]; } },
-        KEY_B_PRESS:    { get: function getBKeyPress()  { return _Keys[66 + PRESS]; } },
-        KEY_B_DOWN:     { get: function getBKeyDown()   { return _Keys[66 + DOWN ]; } },
 
-        KEY_C_UP:       { get: function getCKeyUp()     { return _Keys[67 + UP   ]; } },
-        KEY_C_PRESS:    { get: function getCKeyPress()  { return _Keys[67 + PRESS]; } },
-        KEY_C_DOWN:     { get: function getCKeyDown()   { return _Keys[67 + DOWN ]; } },
+        KEY_UP_UP:       { get: function getUPKeyUp()       { return _Keys[38 + _UP   ]; } },
+        KEY_UP_PRESS:    { get: function getUPKeyPress()    { return _Keys[38 + _PRESS]; } },
+        KEY_UP_DOWN:     { get: function getUPKeyDown()     { return _Keys[38 + _DOWN ]; } },
 
-        KEY_D_UP:       { get: function getDKeyUp()     { return _Keys[68 + UP   ]; } },
-        KEY_D_PRESS:    { get: function getDKeyPress()  { return _Keys[68 + PRESS]; } },
-        KEY_D_DOWN:     { get: function getDKeyDown()   { return _Keys[68 + DOWN ]; } },
+        KEY_LEFT_UP:     { get: function getLEFTKeyUp()     { return _Keys[37 + _UP   ]; } },
+        KEY_LEFT_PRESS:  { get: function getLEFTKeyPress()  { return _Keys[37 + _PRESS]; } },
+        KEY_LEFT_DOWN:   { get: function getLEFTKeyDown()   { return _Keys[37 + _DOWN ]; } },
 
-        KEY_E_UP:       { get: function getEKeyUp()     { return _Keys[69 + UP   ]; } },
-        KEY_E_PRESS:    { get: function getEKeyPress()  { return _Keys[69 + PRESS]; } },
-        KEY_E_DOWN:     { get: function getEKeyDown()   { return _Keys[69 + DOWN ]; } },
+        KEY_RIGHT_UP:    { get: function getRIGHTKeyUp()    { return _Keys[40 + _UP   ]; } },
+        KEY_RIGHT_PRESS: { get: function getRIGHTKeyPress() { return _Keys[40 + _PRESS]; } },
+        KEY_RIGHT_DOWN:  { get: function getRIGHTKeyDown()  { return _Keys[40 + _DOWN ]; } },
 
-        KEY_F_UP:       { get: function getFKeyUp()     { return _Keys[70 + UP   ]; } },
-        KEY_F_PRESS:    { get: function getFKeyPress()  { return _Keys[70 + PRESS]; } },
-        KEY_F_DOWN:     { get: function getFKeyDown()   { return _Keys[70 + DOWN ]; } },
+        KEY_DOWN_UP:     { get: function getDOWNKeyUp()     { return _Keys[39 + _UP   ]; } },
+        KEY_DOWN_PRESS:  { get: function getDOWNKeyPress()  { return _Keys[39 + _PRESS]; } },
+        KEY_DOWN_DOWN:   { get: function getDOWNKeyDown()   { return _Keys[39 + _DOWN ]; } },
 
-        KEY_G_UP:       { get: function getGKeyUp()     { return _Keys[71 + UP   ]; } },
-        KEY_G_PRESS:    { get: function getGKeyPress()  { return _Keys[71 + PRESS]; } },
-        KEY_G_DOWN:     { get: function getGKeyDown()   { return _Keys[71 + DOWN ]; } },
 
-        KEY_H_UP:       { get: function getHKeyUp()     { return _Keys[72 + UP   ]; } },
-        KEY_H_PRESS:    { get: function getHKeyPress()  { return _Keys[72 + PRESS]; } },
-        KEY_H_DOWN:     { get: function getHKeyDown()   { return _Keys[72 + DOWN ]; } },
+        KEY_BRACKET_L_UP:     { get: function getTABKeyUp()    { return _Keys[219 + _UP   ]; } },
+        KEY_BRACKET_L_PRESS:  { get: function getTABKeyPress() { return _Keys[219 + _PRESS]; } },
+        KEY_BRACKET_L_DOWN:   { get: function getTABKeyDown()  { return _Keys[219 + _DOWN ]; } },
 
-        KEY_I_UP:       { get: function getIKeyUp()     { return _Keys[73 + UP   ]; } },
-        KEY_I_PRESS:    { get: function getIKeyPress()  { return _Keys[73 + PRESS]; } },
-        KEY_I_DOWN:     { get: function getIKeyDown()   { return _Keys[73 + DOWN ]; } },
+        KEY_BRACKET_R_UP:     { get: function getTABKeyUp()    { return _Keys[221 + _UP   ]; } },
+        KEY_BRACKET_R_PRESS:  { get: function getTABKeyPress() { return _Keys[221 + _PRESS]; } },
+        KEY_BRACKET_R_DOWN:   { get: function getTABKeyDown()  { return _Keys[221 + _DOWN ]; } },
 
-        KEY_J_UP:       { get: function getJKeyUp()     { return _Keys[74 + UP   ]; } },
-        KEY_J_PRESS:    { get: function getJKeyPress()  { return _Keys[74 + PRESS]; } },
-        KEY_J_DOWN:     { get: function getJKeyDown()   { return _Keys[74 + DOWN ]; } },
+        KEY_COLON_UP:         { get: function getTABKeyUp()    { return _Keys[186 + _UP   ]; } },
+        KEY_COLON_PRESS:      { get: function getTABKeyPress() { return _Keys[186 + _PRESS]; } },
+        KEY_COLON_DOWN:       { get: function getTABKeyDown()  { return _Keys[186 + _DOWN ]; } },
 
-        KEY_K_UP:       { get: function getKKeyUp()     { return _Keys[75 + UP   ]; } },
-        KEY_K_PRESS:    { get: function getKKeyPress()  { return _Keys[75 + PRESS]; } },
-        KEY_K_DOWN:     { get: function getKKeyDown()   { return _Keys[75 + DOWN ]; } },
+        KEY_QUOTE_UP:         { get: function getTABKeyUp()    { return _Keys[222 + _UP   ]; } },
+        KEY_QUOTE_PRESS:      { get: function getTABKeyPress() { return _Keys[222 + _PRESS]; } },
+        KEY_QUOTE_DOWN:       { get: function getTABKeyDown()  { return _Keys[222 + _DOWN ]; } },
 
-        KEY_L_UP:       { get: function getLKeyUp()     { return _Keys[76 + UP   ]; } },
-        KEY_L_PRESS:    { get: function getLKeyPress()  { return _Keys[76 + PRESS]; } },
-        KEY_L_DOWN:     { get: function getLKeyDown()   { return _Keys[76 + DOWN ]; } },
+        KEY_COMMA_UP:         { get: function getTABKeyUp()    { return _Keys[188 + _UP   ]; } },
+        KEY_COMMA_PRESS:      { get: function getTABKeyPress() { return _Keys[188 + _PRESS]; } },
+        KEY_COMMA_DOWN:       { get: function getTABKeyDown()  { return _Keys[188 + _DOWN ]; } },
 
-        KEY_M_UP:       { get: function getMKeyUp()     { return _Keys[77 + UP   ]; } },
-        KEY_M_PRESS:    { get: function getMKeyPress()  { return _Keys[77 + PRESS]; } },
-        KEY_M_DOWN:     { get: function getMKeyDown()   { return _Keys[77 + DOWN ]; } },
+        KEY_PERIOD_UP:        { get: function getTABKeyUp()    { return _Keys[190 + _UP   ]; } },
+        KEY_PERIOD_PRESS:     { get: function getTABKeyPress() { return _Keys[190 + _PRESS]; } },
+        KEY_PERIOD_DOWN:      { get: function getTABKeyDown()  { return _Keys[190 + _DOWN ]; } },
 
-        KEY_N_UP:       { get: function getNKeyUp()     { return _Keys[78 + UP   ]; } },
-        KEY_N_PRESS:    { get: function getNKeyPress()  { return _Keys[78 + PRESS]; } },
-        KEY_N_DOWN:     { get: function getNKeyDown()   { return _Keys[78 + DOWN ]; } },
+        KEY_SLASH_F_UP:       { get: function getTABKeyUp()    { return _Keys[191 + _UP   ]; } },
+        KEY_SLASH_F_PRESS:    { get: function getTABKeyPress() { return _Keys[191 + _PRESS]; } },
+        KEY_SLASH_F_DOWN:     { get: function getTABKeyDown()  { return _Keys[191 + _DOWN ]; } },
 
-        KEY_O_UP:       { get: function getOKeyUp()     { return _Keys[79 + UP   ]; } },
-        KEY_O_PRESS:    { get: function getOKeyPress()  { return _Keys[79 + PRESS]; } },
-        KEY_O_DOWN:     { get: function getOKeyDown()   { return _Keys[79 + DOWN ]; } },
+        KEY_SLASH_B_UP:       { get: function getTABKeyUp()    { return _Keys[220 + _UP   ]; } },
+        KEY_SLASH_B_PRESS:    { get: function getTABKeyPress() { return _Keys[220 + _PRESS]; } },
+        KEY_SLASH_B_DOWN:     { get: function getTABKeyDown()  { return _Keys[220 + _DOWN ]; } },
 
-        KEY_P_UP:       { get: function getPKeyUp()     { return _Keys[80 + UP   ]; } },
-        KEY_P_PRESS:    { get: function getPKeyPress()  { return _Keys[80 + PRESS]; } },
-        KEY_P_DOWN:     { get: function getPKeyDown()   { return _Keys[80 + DOWN ]; } },
 
-        KEY_Q_UP:       { get: function getQKeyUp()     { return _Keys[81 + UP   ]; } },
-        KEY_Q_PRESS:    { get: function getQKeyPress()  { return _Keys[81 + PRESS]; } },
-        KEY_Q_DOWN:     { get: function getQKeyDown()   { return _Keys[81 + DOWN ]; } },
+        KEY_A_UP:       { get: function getAKeyUp()     { return _Keys[65 + _UP   ]; } },
+        KEY_A_PRESS:    { get: function getAKeyPress()  { return _Keys[65 + _PRESS]; } },
+        KEY_A_DOWN:     { get: function getAKeyDown()   { return _Keys[65 + _DOWN ]; } },
 
-        KEY_R_UP:       { get: function getRKeyUp()     { return _Keys[82 + UP   ]; } },
-        KEY_R_PRESS:    { get: function getRKeyPress()  { return _Keys[82 + PRESS]; } },
-        KEY_R_DOWN:     { get: function getRKeyDown()   { return _Keys[82 + DOWN ]; } },
+        KEY_B_UP:       { get: function getBKeyUp()     { return _Keys[66 + _UP   ]; } },
+        KEY_B_PRESS:    { get: function getBKeyPress()  { return _Keys[66 + _PRESS]; } },
+        KEY_B_DOWN:     { get: function getBKeyDown()   { return _Keys[66 + _DOWN ]; } },
 
-        KEY_S_UP:       { get: function getSKeyUp()     { return _Keys[83 + UP   ]; } },
-        KEY_S_PRESS:    { get: function getSKeyPress()  { return _Keys[83 + PRESS]; } },
-        KEY_S_DOWN:     { get: function getSKeyDown()   { return _Keys[83 + DOWN ]; } },
+        KEY_C_UP:       { get: function getCKeyUp()     { return _Keys[67 + _UP   ]; } },
+        KEY_C_PRESS:    { get: function getCKeyPress()  { return _Keys[67 + _PRESS]; } },
+        KEY_C_DOWN:     { get: function getCKeyDown()   { return _Keys[67 + _DOWN ]; } },
 
-        KEY_T_UP:       { get: function getTKeyUp()     { return _Keys[84 + UP   ]; } },
-        KEY_T_PRESS:    { get: function getTKeyPress()  { return _Keys[84 + PRESS]; } },
-        KEY_T_DOWN:     { get: function getTKeyDown()   { return _Keys[84 + DOWN ]; } },
+        KEY_D_UP:       { get: function getDKeyUp()     { return _Keys[68 + _UP   ]; } },
+        KEY_D_PRESS:    { get: function getDKeyPress()  { return _Keys[68 + _PRESS]; } },
+        KEY_D_DOWN:     { get: function getDKeyDown()   { return _Keys[68 + _DOWN ]; } },
 
-        KEY_U_UP:       { get: function getUKeyUp()     { return _Keys[85 + UP   ]; } },
-        KEY_U_PRESS:    { get: function getUKeyPress()  { return _Keys[85 + PRESS]; } },
-        KEY_U_DOWN:     { get: function getUKeyDown()   { return _Keys[85 + DOWN ]; } },
+        KEY_E_UP:       { get: function getEKeyUp()     { return _Keys[69 + _UP   ]; } },
+        KEY_E_PRESS:    { get: function getEKeyPress()  { return _Keys[69 + _PRESS]; } },
+        KEY_E_DOWN:     { get: function getEKeyDown()   { return _Keys[69 + _DOWN ]; } },
 
-        KEY_V_UP:       { get: function getVKeyUp()     { return _Keys[86 + UP   ]; } },
-        KEY_V_PRESS:    { get: function getVKeyPress()  { return _Keys[86 + PRESS]; } },
-        KEY_V_DOWN:     { get: function getVKeyDown()   { return _Keys[86 + DOWN ]; } },
+        KEY_F_UP:       { get: function getFKeyUp()     { return _Keys[70 + _UP   ]; } },
+        KEY_F_PRESS:    { get: function getFKeyPress()  { return _Keys[70 + _PRESS]; } },
+        KEY_F_DOWN:     { get: function getFKeyDown()   { return _Keys[70 + _DOWN ]; } },
 
-        KEY_W_UP:       { get: function getWKeyUp()     { return _Keys[87 + UP   ]; } },
-        KEY_W_PRESS:    { get: function getWKeyPress()  { return _Keys[87 + PRESS]; } },
-        KEY_W_DOWN:     { get: function getWKeyDown()   { return _Keys[87 + DOWN ]; } },
+        KEY_G_UP:       { get: function getGKeyUp()     { return _Keys[71 + _UP   ]; } },
+        KEY_G_PRESS:    { get: function getGKeyPress()  { return _Keys[71 + _PRESS]; } },
+        KEY_G_DOWN:     { get: function getGKeyDown()   { return _Keys[71 + _DOWN ]; } },
 
-        KEY_X_UP:       { get: function getXKeyUp()     { return _Keys[88 + UP   ]; } },
-        KEY_X_PRESS:    { get: function getXKeyPress()  { return _Keys[88 + PRESS]; } },
-        KEY_X_DOWN:     { get: function getXKeyDown()   { return _Keys[88 + DOWN ]; } },
+        KEY_H_UP:       { get: function getHKeyUp()     { return _Keys[72 + _UP   ]; } },
+        KEY_H_PRESS:    { get: function getHKeyPress()  { return _Keys[72 + _PRESS]; } },
+        KEY_H_DOWN:     { get: function getHKeyDown()   { return _Keys[72 + _DOWN ]; } },
 
-        KEY_Y_UP:       { get: function getYKeyUp()     { return _Keys[89 + UP   ]; } },
-        KEY_Y_PRESS:    { get: function getYKeyPress()  { return _Keys[89 + PRESS]; } },
-        KEY_Y_DOWN:     { get: function getYKeyDown()   { return _Keys[89 + DOWN ]; } },
+        KEY_I_UP:       { get: function getIKeyUp()     { return _Keys[73 + _UP   ]; } },
+        KEY_I_PRESS:    { get: function getIKeyPress()  { return _Keys[73 + _PRESS]; } },
+        KEY_I_DOWN:     { get: function getIKeyDown()   { return _Keys[73 + _DOWN ]; } },
 
-        KEY_Z_UP:       { get: function getZKeyUp()     { return _Keys[90 + UP   ]; } },
-        KEY_Z_PRESS:    { get: function getZKeyPress()  { return _Keys[90 + PRESS]; } },
-        KEY_Z_DOWN:     { get: function getZKeyDown()   { return _Keys[90 + DOWN ]; } },
+        KEY_J_UP:       { get: function getJKeyUp()     { return _Keys[74 + _UP   ]; } },
+        KEY_J_PRESS:    { get: function getJKeyPress()  { return _Keys[74 + _PRESS]; } },
+        KEY_J_DOWN:     { get: function getJKeyDown()   { return _Keys[74 + _DOWN ]; } },
+
+        KEY_K_UP:       { get: function getKKeyUp()     { return _Keys[75 + _UP   ]; } },
+        KEY_K_PRESS:    { get: function getKKeyPress()  { return _Keys[75 + _PRESS]; } },
+        KEY_K_DOWN:     { get: function getKKeyDown()   { return _Keys[75 + _DOWN ]; } },
+
+        KEY_L_UP:       { get: function getLKeyUp()     { return _Keys[76 + _UP   ]; } },
+        KEY_L_PRESS:    { get: function getLKeyPress()  { return _Keys[76 + _PRESS]; } },
+        KEY_L_DOWN:     { get: function getLKeyDown()   { return _Keys[76 + _DOWN ]; } },
+
+        KEY_M_UP:       { get: function getMKeyUp()     { return _Keys[77 + _UP   ]; } },
+        KEY_M_PRESS:    { get: function getMKeyPress()  { return _Keys[77 + _PRESS]; } },
+        KEY_M_DOWN:     { get: function getMKeyDown()   { return _Keys[77 + _DOWN ]; } },
+
+        KEY_N_UP:       { get: function getNKeyUp()     { return _Keys[78 + _UP   ]; } },
+        KEY_N_PRESS:    { get: function getNKeyPress()  { return _Keys[78 + _PRESS]; } },
+        KEY_N_DOWN:     { get: function getNKeyDown()   { return _Keys[78 + _DOWN ]; } },
+
+        KEY_O_UP:       { get: function getOKeyUp()     { return _Keys[79 + _UP   ]; } },
+        KEY_O_PRESS:    { get: function getOKeyPress()  { return _Keys[79 + _PRESS]; } },
+        KEY_O_DOWN:     { get: function getOKeyDown()   { return _Keys[79 + _DOWN ]; } },
+
+        KEY_P_UP:       { get: function getPKeyUp()     { return _Keys[80 + _UP   ]; } },
+        KEY_P_PRESS:    { get: function getPKeyPress()  { return _Keys[80 + _PRESS]; } },
+        KEY_P_DOWN:     { get: function getPKeyDown()   { return _Keys[80 + _DOWN ]; } },
+
+        KEY_Q_UP:       { get: function getQKeyUp()     { return _Keys[81 + _UP   ]; } },
+        KEY_Q_PRESS:    { get: function getQKeyPress()  { return _Keys[81 + _PRESS]; } },
+        KEY_Q_DOWN:     { get: function getQKeyDown()   { return _Keys[81 + _DOWN ]; } },
+
+        KEY_R_UP:       { get: function getRKeyUp()     { return _Keys[82 + _UP   ]; } },
+        KEY_R_PRESS:    { get: function getRKeyPress()  { return _Keys[82 + _PRESS]; } },
+        KEY_R_DOWN:     { get: function getRKeyDown()   { return _Keys[82 + _DOWN ]; } },
+
+        KEY_S_UP:       { get: function getSKeyUp()     { return _Keys[83 + _UP   ]; } },
+        KEY_S_PRESS:    { get: function getSKeyPress()  { return _Keys[83 + _PRESS]; } },
+        KEY_S_DOWN:     { get: function getSKeyDown()   { return _Keys[83 + _DOWN ]; } },
+
+        KEY_T_UP:       { get: function getTKeyUp()     { return _Keys[84 + _UP   ]; } },
+        KEY_T_PRESS:    { get: function getTKeyPress()  { return _Keys[84 + _PRESS]; } },
+        KEY_T_DOWN:     { get: function getTKeyDown()   { return _Keys[84 + _DOWN ]; } },
+
+        KEY_U_UP:       { get: function getUKeyUp()     { return _Keys[85 + _UP   ]; } },
+        KEY_U_PRESS:    { get: function getUKeyPress()  { return _Keys[85 + _PRESS]; } },
+        KEY_U_DOWN:     { get: function getUKeyDown()   { return _Keys[85 + _DOWN ]; } },
+
+        KEY_V_UP:       { get: function getVKeyUp()     { return _Keys[86 + _UP   ]; } },
+        KEY_V_PRESS:    { get: function getVKeyPress()  { return _Keys[86 + _PRESS]; } },
+        KEY_V_DOWN:     { get: function getVKeyDown()   { return _Keys[86 + _DOWN ]; } },
+
+        KEY_W_UP:       { get: function getWKeyUp()     { return _Keys[87 + _UP   ]; } },
+        KEY_W_PRESS:    { get: function getWKeyPress()  { return _Keys[87 + _PRESS]; } },
+        KEY_W_DOWN:     { get: function getWKeyDown()   { return _Keys[87 + _DOWN ]; } },
+
+        KEY_X_UP:       { get: function getXKeyUp()     { return _Keys[88 + _UP   ]; } },
+        KEY_X_PRESS:    { get: function getXKeyPress()  { return _Keys[88 + _PRESS]; } },
+        KEY_X_DOWN:     { get: function getXKeyDown()   { return _Keys[88 + _DOWN ]; } },
+
+        KEY_Y_UP:       { get: function getYKeyUp()     { return _Keys[89 + _UP   ]; } },
+        KEY_Y_PRESS:    { get: function getYKeyPress()  { return _Keys[89 + _PRESS]; } },
+        KEY_Y_DOWN:     { get: function getYKeyDown()   { return _Keys[89 + _DOWN ]; } },
+
+        KEY_Z_UP:       { get: function getZKeyUp()     { return _Keys[90 + _UP   ]; } },
+        KEY_Z_PRESS:    { get: function getZKeyPress()  { return _Keys[90 + _PRESS]; } },
+        KEY_Z_DOWN:     { get: function getZKeyDown()   { return _Keys[90 + _DOWN ]; } },
 
         InputUpdate:
         {
             value: function InputUpdate()
             {
-                for (var i = PRESS; i < DOWN; ++i)
+                for (var i = _PRESS; i < _DOWN; ++i)
                     if (_Keys[i])
                         _Keys[i] = false;
             }
@@ -1195,9 +1422,10 @@ function Input()
 
 var __LIGHT__ = new Array(12);
 
-/*!
- * 	@constructor 	Light
- *	@description	Some words in a sentence
+/**
+ * @constructor Light
+ * @module		FWGE.Game
+ * @description	This module is used to create the lights in the scene.
  */
 function Light()
 {
@@ -1211,10 +1439,15 @@ function Light()
 
     Object.defineProperties(this,
     {
-    	/*!
-    	 *	@function		Ambient
-    	 *	@description	Description
-    	 *	@return 		{AmbientLight}
+    	/**
+    	 * @function	Ambient: {AmbientLight}
+    	 * @description	Returns a new ambient light object. It is treated as a singleton,
+		 * 				i.e. there is only one ambient light object in a scene.
+		 * @see 		FWGE.Game.Light.AmbientLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity:	{Number}		[nullable]
     	 */
         Ambient:
         {
@@ -1230,10 +1463,16 @@ function Light()
         	}
         },
 
-    	/*!
-    	 *	@function		Directional
-    	 *	@description	Description
-    	 *	@return 		{DirectionalLight}
+    	/**
+    	 * @function	Directional: {DirectionalLight}
+    	 * @description	Returns a new directional light object. There can up to three
+		 * 				directional light objects in a scene.
+		 * @see 		FWGE.Game.Light.DirectionalLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity: 	{Number}		[nullable]
+		 * 				> direction: 	{Float32Array}	[nullable]
     	 */
         Directional:
         {
@@ -1257,10 +1496,18 @@ function Light()
         	}
         },
 
-    	/*!
-    	 *	@function		Point
-    	 *	@description	Description
-    	 *	@return 		{PointLight}
+    	/**
+    	 * @function	Point: {PointLight}
+    	 * @description	Returns a new point light object. There can up to eight
+		 * 				point light objects in a scene.
+		 * @see 		FWGE.Game.Light.PointLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity: 	{Number}		[nullable]
+		 * 				> radius: 		{Number}		[nullable]
+		 * 				> angle:		{Number}		[nullable]
+    	 * @return 		PointLight
     	 */
         Point:
         {
@@ -1284,10 +1531,10 @@ function Light()
         	}
         },
 
-    	/*!
-    	 *	@function		Remove
-    	 *	@description	Description
-    	 *	@param			{LightItem: light}
+    	/**
+    	 * @function	Remove: void
+    	 * @description	Removes a given light object from the scene.
+		 * @param 		light: 	{LightItem}
     	 */
         Remove:
         {
@@ -1333,81 +1580,114 @@ function Light()
 }
 
 
-/*!
- *  @constructor    LightItem
- *  @description    Hello
- *  @param          {Object: request}
- *                  > {Float32Array: colour}
- *                  > {Number: intensity}
+/**
+ * @constructor LightItem
+ * @description Base definition of an object that illuminates the scene.
+ * @param       request:        {Object}
+ *              > colour:       {Float32Array}  [nullable]
+ *              > intensity:    {Number}        [nullable]
  */
 function LightItem(request)
 {
+    if (!request) request = {};
     GameItem.call(this, request);
 
-    if (!request) request = {};
-    
-    var $ = this;
-    var _Colour     = request.colour instanceof Float32Array ? request.colour    : new Float32Array(3);
-    var _Intensity  = typeof request.intensity === 'number'  ? request.intensity : 1.0;
-    
-    Object.defineProperties($,
+    var _Colour = request.colour instanceof Float32Array ? request.colour : new Float32Array(3);
+    var _Intensity = typeof request.intensity === 'number' ? request.intensity : 1.0;
+
+    Object.defineProperties(this,
     {
+        /**
+         * @property    Colour: {Float32Array}
+         *              > get
+         *              > set
+         * @description Descrbies the colour that the light object emits.
+         */
         Colour:
         {
-            get: function getColour(){ return _Colour; },
-            set: function setColour(colour)
+            get: function getColour() { return _Colour; },
+            set: function setColour()
             {
-                if (colour instanceof Float32Array && colour.length === 3)
-                    FWGE.Game.Maths.Vector3.Set(_Colour, colour);
+                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                    FWGE.Game.Maths.Vector3.Set(_Colour, arguments[0]);
             }
         },
+
+        /**
+         * @property    Intensity:  {Number}
+         *              > get
+         *              > set
+         * @description Descrbies the intensity at which the light object emits.
+         */
         Intensity:
         {
-            get: function getIntensity(){ return _Intensity; },
-            set: function setIntensity(colour)
+            get: function getIntensity() { return _Intensity; },
+            set: function setIntensity()
             {
-                if (typeof colour === 'number')
-                    _Intensity = colour;
+                if (typeof arguments[0] === 'number')
+                    _Intensity = Math.clamp(0, 255, arguments[0]);
             }
         }
     });
-    
-    __LIGHT__.push($);
 }
 
 
-/*!
- * 	@constructor	AmbientLight
- *	@description 	Ambient lighting
- *	@param			{Object: request}[nullable]
+/**
+ * @constructor AmbientLight
+ * @description Describes a light that evenly lights the scene.
+ * @module      FWGE.Game.Light
+ * @param		request:        {Object}
+ *              > colour:       {Float32Array}  [nullable]
+ *              > intensity:    {Number}        [nullable]
  */
 function AmbientLight(request)
 {
-    if (!request)   request = {};
+    if (!request) request = {};
     request.type = "AMBIENTLIGHT";
-    
+
     LightItem.call(this, request);
 }
 
 
-/*!
- *  @constructor    DirectionalLight
- *  @description    Directional lighting
- *  @param          {Object: request} [nullable]
+/**
+ * @constructor DirectionalLight
+ * @description Definition of a light that shines in a given direction.
+ * @module      FWGE.Game.Light
+ * @param       request:        {Object}        [nullable]
+ *              > colour:       {Float32Array}  [nullable]
+ *              > intensity:    {Number}        [nullable]
+ *              > direction:    {Float32Array}  [nullable]
  */
 function DirectionalLight(request)
 {
-    if (!request)   request = {};
+    if (!request) request = {};
     request.type = "DIRECTIONALLIGHT";
     LightObject.call(this, request);
-    
-    var $           = this;
-    var _Direction  = (request.direction instanceof Float32Array && request.direction.length === 3) ? request.direction : new Float32Array(3);
-    
-    Object.defineProperties($,
-    {
-        Direction: { get: function getDirection() { return _Direction; } },
 
+    var _Direction = (request.direction instanceof Float32Array && request.direction.length === 3) ? request.direction : new Float32Array(3);
+
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    Direction: {Float32Array}
+         *              > get
+         *              > set
+         * @description Returns the direction the light is pointing in.
+         */
+        Direction:
+        {
+            get: function getDirection() { return _Direction; },
+            set: function setDirection()
+            {
+                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                    FWGE.Game.Maths.Vector3.Set(_Direction, arguments[0]);
+            }
+        },
+
+        /**
+         * @function    DirectionalUpdate: void
+         * @description Updates the lighting.
+         */
         DirectionalUpdate:
         {
             value: function DirectionalUpdate()
@@ -1420,12 +1700,15 @@ function DirectionalLight(request)
 }
 
 
-/*!
- *  @constructor    PointLight
- *  @description    Point lighting
- *  @param          {Object: request}
- *                  > {Number: radius}
- *                  > {Number: angle}
+/**
+ * @constructor PointLight
+ * @description Defines a light Object that emits from a given point within a radius.
+ * @module      FWGE.Game.Light
+ * @param       request:        {Object}
+ *              > colour:       {Float32Array}  [nullable]
+ *              > intensity:    {Number}        [nullable]
+ *              > radius:       {Number}        [nullable]
+ *              > angle:        {Number}        [nullable]
  */
 function PointLight(request)
 {
@@ -1433,79 +1716,138 @@ function PointLight(request)
     request.type = "POINTLIGHT";
     LightObject.call(this, request);
     
-    var $       = this;
-    var _Radius = typeof request.radius === 'number' ? request.radius   : 5;
-    var _Angle  = typeof request.angle  === 'number' ? request.angle    : 180;
+    var _Radius = typeof request.radius === 'number' ? request.radius : 5;
+    var _Angle = typeof request.angle  === 'number' ? request.angle : 180;
     
-    Object.defineProperties($, 
+    Object.defineProperties(this, 
     {
+        /**
+         * @property    Radius: {Number}
+         *              > get
+         *              > set
+         * @description The range the light will illuminate 
+         */
         Radius:
         {
             get: function getRadius() { return _Radius; },
-            set: function setRadius(radius)
+            set: function setRadius()
             {
-                if (typeof radius === 'number')
-                    _Radius = radius;
+                if (typeof arguments[0] === 'number')
+                    _Radius = arguments[0];
             }
         },
+        
+        /**
+         * @property    Angle: {Number}
+         *              > get
+         *              > set
+         * @description The angle the light will illuminate.
+         *              35 would be a spotlight while 180 would be a globe.
+         */
         Angle:
         {
             get: function getAngle() { return _Angle; },
-            set: function setAngle(angle)
+            set: function setAngle()
             {
-                if (typeof angle === 'number')
-                    _Angle = Math.clamp(0, 180, angle);
+                if (typeof arguments[0] === 'number')
+                    _Angle = Math.clamp(0, 180, arguments[0]);
             }
         }
     });
 }
 
 
+/**
+ * @constructor Maths
+ * @description This module contains the methods required for matrix and vector
+ *              operations.
+ * @module      FWGE.Game
+ */
 function Maths()
 {
     Object.defineProperties(this,
     {
+        /**
+         * @property    Matrix2: {Matrix2}
+         *              > get
+         * @description Operations for 2x2 matrices.
+         * @see         FWGE.Maths.Matrix2
+         */
         Matrix2:      { value: new Matrix2() },
+        
+        /**
+         * @property    Matrix3: {Matrix3}
+         *              > get
+         * @description Operations for 3x3 matrices.
+         * @see         FWGE.Maths.Matrix3
+         */
         Matrix3:      { value: new Matrix3() },
+        
+        /**
+         * @property    Matrix4: {Matrix4}
+         *              > get
+         * @description Operations for 4x4 matrices.
+         * @see         FWGE.Maths.Matrix4
+         */
         Matrix4:      { value: new Matrix4() },
+        
+        /**
+         * @property    Vector2: {Vector2}
+         *              > get
+         * @description Operations for 2 component veectors.
+         * @see         FWGE.Maths.Vector2
+         */
         Vector2:      { value: new Vector2() },
+        
+        /**
+         * @property    Vector3: {Vector3}
+         *              > get
+         * @description Operations for 3 component veectors.
+         * @see         FWGE.Maths.Vector3
+         */
         Vector3:      { value: new Vector3() },
+        
+        /**
+         * @property    Vector4: {Vector4}
+         *              > get
+         * @description Operations for 4 component veectors.
+         * @see         FWGE.Maths.Vector4
+         */
         Vector4:      { value: new Vector4() },
+        
+        /**
+         * @property    Quaternion: {Quaternion}
+         *              > get
+         * @description Operations for 4 component quaternions.
+         * @see         FWGE.Maths.Quaternion
+         */
         Quaternion:   { value: new Quaternion() }
     });
 };
 
 
+/**
+ * @constructor Matrix2
+ * @description This library contains the methods for 2x2 matrix operations.
+ *              2x2 matrices are represented as a Float32Array of length 4.
+ * @module      FWGE.Game.Maths 
+ */
 function Matrix2()
-{        
-    var $ = this;
-    
-    function Error()
+{    
+    Object.defineProperties(this,
     {
-        var parameter = [];
-        console.log(arguments);
-
-        if (arguments[1].length === 0)
-            parameter = "undefined";
-        else
-            for (var e in arguments[1])
-                parameter.push(typeof arguments[1][e]);
-        
-        switch (arguments[0])
-        {
-            case "SET":
-                console.error(new window.Error
-                (
-                    "No match for given parameters: " + parameter.toString() + 
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, Float32Array)" +
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, number, number, number, number)"
-                ));
-            break;
-        }
-    }
-    
-    Object.defineProperties($,
-    {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "MATRIX2".
+         *              It also has the appropriate value indexers:
+         *              M11, M12,
+         *              M21, M22.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -1545,6 +1887,18 @@ function Matrix2()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -1569,11 +1923,15 @@ function Matrix2()
                     $[2] = c; $[3] = d;
 
                     return $;
-                }                
-
-                Error("SET", arguments);                    
+                }
             }
         },
+        
+        /**
+         * @function    Transpose: {Float32Array}
+         * @description Transposes a matrix.
+         * @param       {Float32Array}
+         */
         Transpose:
         {
             value: function Transpose()
@@ -1582,10 +1940,15 @@ function Matrix2()
                     return this.Set(arguments[0],
                                     arguments[0][0], arguments[0][2],
                                     arguments[0][1], arguments[0][3]);
-                
-                Error("TRANSPOSE", arguments);
             }
         },
+        
+        /**
+         * @function    Identity: {Float32Array}
+         * @description If given a Float32Array, it resets it to an identity matrix.
+         *              If not, it simply returns a new identity matrix.
+         * @param       {Float32Array}
+         */
         Identity:
         {
             value: function Identiy()
@@ -1599,16 +1962,27 @@ function Matrix2()
                                        0, 1);
             }
         },
+        
+        /**
+         * @function    Determinant: {Number}
+         * @description Calculates the determinant of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Determinant:
         {
             value: function Determinant()
             {
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 4)
                     return arguments[0][0] * arguments[0][3] - arguments[0][2] * arguments[0][1];
-                
-                Error("DETERMINANT", arguments);
             }
         },
+        
+        /**
+         * @function    Inverse: {Float32Array}
+         * @description Inverts a given Float32Array when possible i.e. the determinant
+         *              is not 0.
+         * @param       {Float32Array}
+         */
         Inverse:
         {
             value: function Inverse()
@@ -1623,10 +1997,15 @@ function Matrix2()
                     else
                         return arguments[0];
                 }
-                
-                Error("INVERSE", arguments);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -1636,16 +2015,22 @@ function Matrix2()
                     return this.Set(arguments[0],
                                     arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1],
                                     arguments[0][2] + arguments[1][2], arguments[0][3] + arguments[1][3]);
-                
-                Error("SUM", arguments);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array or
+         *              multiply a Float32Array with a scalar value.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
             {
-                
-                
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 4)
                 {
                     if (arguments[1] instanceof Float32Array && arguments[1].length === 4)
@@ -1667,10 +2052,16 @@ function Matrix2()
                                         arguments[0][2] * arguments[1], arguments[0][3] * arguments[1]);
                     }
                 }
-                
-                Error("MULT", arguments);
             }
         },
+        
+        /**
+         * @function    RevMult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array but
+         *              assigns the result to the second Float32Array.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         RevMult:
         {
             value: function RevMult()
@@ -1686,46 +2077,41 @@ function Matrix2()
                         arguments[1][2] * arguments[0][0] + arguments[1][3] * arguments[0][2],
                         arguments[1][2] * arguments[0][1] + arguments[1][3] * arguments[0][3]
                     ); 
-                }
-                
-                Error("REVMULT", arguments);
-                
+                }                
             }
         } 
     });
 }
 
 
+/**
+ * @constructor Matrix3
+ * @description This library contains the methods for 3x3 matrix operations.
+ *              3x3 matrices are represented as a Float32Array of length 9.
+ * @module      FWGE.Game.Maths 
+ */
 function Matrix3()
-{
-    var $ = this;
-    
-    function Error()
+{    
+    Object.defineProperties(this,
     {
-        var parameter = [];
-        console.log(arguments);
-
-        if (arguments[1].length === 0)
-            parameter = "undefined";
-        else
-            for (var e in arguments[1])
-                parameter.push(typeof arguments[1][e]);
-        
-        switch (arguments[0])
-        {
-            case "SET":
-                console.error(new window.Error
-                (
-                    "No match for given parameters: " + parameter.toString() + 
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, Float32Array)" +
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, number, number, number, number)"
-                ));
-            break;
-        }
-    }
-    
-    Object.defineProperties($,
-    {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "MATRIX3".
+         *              It also has the appropriate value indexers:
+         *              M11, M12, M13,
+         *              M21, M22, M23,
+         *              M31, M32, M33.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -1795,6 +2181,23 @@ function Matrix3()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -1822,11 +2225,15 @@ function Matrix3()
                     $[6] = g; $[7] = h; $[8] = i;
 
                     return $;
-                }                
-
-                Error("SET", arguments);                    
+                }                  
             }
         },
+        
+        /**
+         * @function    Transpose: {Float32Array}
+         * @description Transposes a matrix.
+         * @param       {Float32Array}
+         */
         Transpose:
         {
             value: function Transpose()
@@ -1836,10 +2243,15 @@ function Matrix3()
                                     arguments[0][0], arguments[0][3], arguments[0][6],
                                     arguments[0][1], arguments[0][4], arguments[0][7],
                                     arguments[0][2], arguments[0][5], arguments[0][8]);
-                
-                Error("TRANSPOSE", arguments);
             }
         },
+        
+        /**
+         * @function    Identity: {Float32Array}
+         * @description If given a Float32Array, it resets it to an identity matrix.
+         *              If not, it simply returns a new identity matrix.
+         * @param       {Float32Array}
+         */
         Identity:
         {
             value: function Identiy()
@@ -1855,6 +2267,12 @@ function Matrix3()
                                        0, 0, 1);
             }
         },
+        
+        /**
+         * @function    Determinant: {Number}
+         * @description Calculates the determinant of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Determinant:
         {
             value: function Determinant()
@@ -1863,10 +2281,15 @@ function Matrix3()
                     return arguments[0][0] * (arguments[0][4] * arguments[0][8] - arguments[0][5] * arguments[0][7]) -
                             arguments[0][1] * (arguments[0][3] * arguments[0][8] - arguments[0][5] * arguments[0][6]) + 
                             arguments[0][2] * (arguments[0][3] * arguments[0][7] - arguments[0][4] * arguments[0][6]);
-                
-                Error("DETERMINANT", arguments);
             }
         },
+        
+        /**
+         * @function    Inverse: {Float32Array}
+         * @description Inverts a given Float32Array when possible i.e. the determinant
+         *              is not 0.
+         * @param       {Float32Array}
+         */
         Inverse:
         {
             value: function Inverse()
@@ -1890,10 +2313,15 @@ function Matrix3()
                     else
                         return arguments[0];
                 }
-                
-                Error("INVERSE", arguments);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -1904,10 +2332,18 @@ function Matrix3()
                                     arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1], arguments[0][2] + arguments[1][2],
                                     arguments[0][3] + arguments[1][3], arguments[0][4] + arguments[1][4], arguments[0][5] + arguments[1][5],
                                     arguments[0][6] + arguments[1][6], arguments[0][7] + arguments[1][7], arguments[0][8] + arguments[1][8]);
-                
-                Error("SUM", arguments);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array or
+         *              multiply a Float32Array with a scalar value.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -1942,10 +2378,16 @@ function Matrix3()
                                         arguments[0][6] * arguments[1], arguments[0][7] * arguments[1], arguments[0][8] * arguments[1]);
                     }
                 }
-                
-                Error("MULT", arguments);
             }
         },
+        
+        /**
+         * @function    RevMult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array but
+         *              assigns the result to the second Float32Array.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         RevMult:
         {
             value: function RevMult()
@@ -1967,47 +2409,50 @@ function Matrix3()
                         arguments[0][6] * arguments[1][1] + arguments[0][7] * arguments[1][4] + arguments[0][8] * arguments[1][7],
                         arguments[0][6] * arguments[1][2] + arguments[0][7] * arguments[1][5] + arguments[0][8] * arguments[1][8]
                     );
-                }
-                
-                Error("REVMULT", arguments);
-                
+                }                
             }
         } 
     });
 }
 
 
+/**
+ * @constructor Matrix4
+ * @description This library contains the methods for 2x2 matrix operations.
+ *              4x4 matrices are represented as a Float32Array of length 16.
+ * @module      FWGE.Game.Maths 
+ */
 function Matrix4()
 {
-    var $ = this;
-    
-    function Error()
+    Object.defineProperties(this,
     {
-        var parameter = [];
-        console.log(arguments);
-
-        if (arguments[1].length === 0)
-            parameter = "undefined";
-        else
-            for (var e in arguments[1])
-                parameter.push(typeof arguments[1][e]);
-        
-        switch (arguments[0])
-        {
-            case "SET":
-                console.error(new window.Error
-                (
-                    "No match for given parameters: " + parameter.toString() + 
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, Float32Array)" +
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, number, number, number, number)"
-                ));
-            break;
-        }
-    }
-    
-    Object.defineProperties($,
-    {
-        "Create":
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "MATRIX4".
+         *              It also has the appropriate value indexers:
+         *              M11, M12, M13, M14,
+         *              M21, M22, M23, M24,
+         *              M31, M32, M33, M34,
+         *              M41, M42, M43, M44.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
+        Create:
         {
             value: function Create()
             {                    
@@ -2118,6 +2563,30 @@ function Matrix4()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -2148,11 +2617,15 @@ function Matrix4()
                     $[12] = m; $[13] = n; $[14] = o; $[15] = p;
 
                     return $;
-                }                
-
-                Error("SET", arguments);                    
+                }                  
             }
         },
+        
+        /**
+         * @function    Transpose: {Float32Array}
+         * @description Transposes a matrix.
+         * @param       {Float32Array}
+         */
         Transpose:
         {
             value: function Transpose()
@@ -2167,6 +2640,13 @@ function Matrix4()
                 Error("TRANSPOSE", arguments);
             }
         },
+        
+        /**
+         * @function    Identity: {Float32Array}
+         * @description If given a Float32Array, it resets it to an identity matrix.
+         *              If not, it simply returns a new identity matrix.
+         * @param       {Float32Array}
+         */
         Identity:
         {
             value: function Identiy()
@@ -2184,6 +2664,12 @@ function Matrix4()
                                        0, 0, 0, 1);
             }
         },
+        
+        /**
+         * @function    Determinant: {Number}
+         * @description Calculates the determinant of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Determinant:
         {
             value: function Determinant()
@@ -2213,10 +2699,15 @@ function Matrix4()
                         arguments[0][3] * arguments[0][4] *  arguments[0][9] * arguments[0][14] -
                         arguments[0][3] * arguments[0][5] * arguments[0][10] * arguments[0][12] -
                         arguments[0][3] * arguments[0][6] *  arguments[0][8] * arguments[0][13];
-                
-                Error("DETERMINANT", arguments);
             }
         },
+        
+        /**
+         * @function    Inverse: {Float32Array}
+         * @description Inverts a given Float32Array when possible i.e. the determinant
+         *              is not 0.
+         * @param       {Float32Array}
+         */
         Inverse:
         {
             value: function Inverse()
@@ -2328,10 +2819,15 @@ function Matrix4()
                     else
                         return arguments[0];
                 }
-                
-                Error("INVERSE", arguments);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -2350,10 +2846,18 @@ function Matrix4()
                                     
                                     arguments[0][12] + arguments[1][12], arguments[0][13] + arguments[1][13],
                                     arguments[0][14] + arguments[1][14], arguments[0][15] + arguments[1][15]);
-                
-                Error("SUM", arguments);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array or
+         *              multiply a Float32Array with a scalar value.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -2397,10 +2901,16 @@ function Matrix4()
                                         arguments[0][12] * arguments[1], arguments[0][13] * arguments[1], arguments[0][14] * arguments[1], arguments[0][15] * arguments[1]);
                     }
                 }
-                
-                Error("MULT", arguments);
             }
         },
+        
+        /**
+         * @function    RevMult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array but
+         *              assigns the result to the second Float32Array.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         RevMult:
         {
             value: function RevMult()
@@ -2431,9 +2941,6 @@ function Matrix4()
                         arguments[0][12] * arguments[1][3] + arguments[0][13] * arguments[1][7] + arguments[0][14] * arguments[1][11] + arguments[0][15] * arguments[1][15]
                     );
                 }
-                
-                Error("REVMULT", arguments);
-                
             }
         } 
     });
@@ -2448,12 +2955,27 @@ function Quaternion()
 }
 
 
+/**
+ * @constructor Vector2
+ * @description This library contains the methods for 2 component vector operations.
+ *              2 component vector are represented as a Float32Array of length 2.
+ * @module      FWGE.Game.Maths 
+ */
 function Vector2()
 {
     var $ = this;
     
     Object.defineProperties($,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         *              It also has the appropriate value indexers:
+         *              <X, Y>.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -2489,6 +3011,16 @@ function Vector2()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new values to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -2516,6 +3048,12 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Length: {Number}
+         * @description Calculates the length of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Length:
         {
             value: function Length()
@@ -2524,6 +3062,13 @@ function Vector2()
                     return Math.sqrt(arguments[0][0] * arguments[0][0] + arguments[0][1] * arguments[0][1]);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -2532,6 +3077,13 @@ function Vector2()
                     return this.Set(arguments[0], arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1]);
             }
         },
+        
+        /**
+         * @function    Diff: {Float32Array}
+         * @description Subtracts two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Diff:
         {
             value: function Diff()
@@ -2540,6 +3092,16 @@ function Vector2()
                     return this.Create(arguments[1][0] - arguments[0][0], arguments[1][1] - arguments[0][1]);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Multiplies two Float32Array component-wise. If the second parameter is
+         *              a number, the Float32Array is scale by it.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -2553,6 +3115,12 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Dot: {Number}
+         * @description Calculates the dot product of two Float32Array objects.
+         * @param       {Float32Array}
+         */
         Dot:
         {
             value: function Dot()
@@ -2562,6 +3130,12 @@ function Vector2()
                         return arguments[0][0] * arguments[1][0] + arguments[0][1] * arguments[1][1];
             }
         },
+        
+        /**
+         * @function    Unit: {Float32Array}
+         * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
+         * @param       {Float32Array}
+         */
         Unit:
         {
             value: function Unit()
@@ -2575,6 +3149,13 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Cross: {Float32Array}
+         * @description Performs a cross multiplication on two Float32Array objects
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Cross:
         {
             value: function Cross()
@@ -2587,12 +3168,26 @@ function Vector2()
 }
 
 
+/**
+ * @constructor Vector3
+ * @description This library contains the methods for 2 component vector operations.
+ *              3 component vector are represented as a Float32Array of length 3.
+ * @module      FWGE.Game.Maths 
+ */
 function Vector3()
 {
-    var $ = this;
-    
     Object.defineProperties($,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         *              It also has the appropriate value indexers:
+         *              <X, Y, Z>.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -2638,6 +3233,17 @@ function Vector3()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new values to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -2668,6 +3274,12 @@ function Vector3()
                 }
             }
         },
+        
+        /**
+         * @function    Length: {Number}
+         * @description Calculates the length of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Length:
         {
             value: function Length()
@@ -2676,6 +3288,13 @@ function Vector3()
                     return Math.sqrt(arguments[0][0] * arguments[0][0] + arguments[0][1] * arguments[0][1] + arguments[0][2] * arguments[0][2]);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -2684,6 +3303,13 @@ function Vector3()
                     return this.Set(arguments[0], arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1], arguments[0][2] + arguments[1][2]);
             }
         },
+        
+        /**
+         * @function    Diff: {Float32Array}
+         * @description Subtracts two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Diff:
         {
             value: function Diff()
@@ -2692,6 +3318,16 @@ function Vector3()
                     return this.Create(arguments[1][0] - arguments[0][0], arguments[1][1] - arguments[0][1], arguments[1][2] - arguments[0][2]);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Multiplies two Float32Array component-wise. If the second parameter is
+         *              a number, the Float32Array is scale by it.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -2705,6 +3341,12 @@ function Vector3()
                 }
             }
         },
+        
+        /**
+         * @function    Dot: {Number}
+         * @description Calculates the dot product of two Float32Array objects.
+         * @param       {Float32Array}
+         */
         Dot:
         {
             value: function Dot()
@@ -2714,6 +3356,12 @@ function Vector3()
                         return arguments[0][0] * arguments[1][0] + arguments[0][1] * arguments[1][1] + arguments[0][2] * arguments[1][2];
             }
         },
+        
+        /**
+         * @function    Unit: {Float32Array}
+         * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
+         * @param       {Float32Array}
+         */
         Unit:
         {
             value: function Unit()
@@ -2727,6 +3375,13 @@ function Vector3()
                 }
             }
         },
+        
+        /**
+         * @function    Cross: {Float32Array}
+         * @description Performs a cross multiplication on two Float32Array objects
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Cross:
         {
             value: function Cross()
@@ -2739,12 +3394,27 @@ function Vector3()
 }
 
 
+/**
+ * @constructor Vector4
+ * @description This library contains the methods for 2 component vector operations.
+ *              4 component vector are represented as a Float32Array of length 4.
+ * @module      FWGE.Game.Maths 
+ */
 function Vector4()
 {
-    var $ = this;
-    
     Object.defineProperties($,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         *              It also has the appropriate value indexers:
+         *              <W, X, Y, Z>.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -2800,6 +3470,18 @@ function Vector4()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new values to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -2833,6 +3515,12 @@ function Vector4()
                 }
             }
         },
+        
+        /**
+         * @function    Length: {Number}
+         * @description Calculates the length of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Length:
         {
             value: function Length()
@@ -2841,6 +3529,13 @@ function Vector4()
                     return Math.sqrt(arguments[0][0] * arguments[0][0] + arguments[0][1] * arguments[0][1] + arguments[0][2] * arguments[0][2]);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -2849,6 +3544,13 @@ function Vector4()
                     return this.Set(arguments[0], arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1], arguments[0][2] + arguments[1][2], arguments[0][3] + arguments[1][3]);
             }
         },
+        
+        /**
+         * @function    Diff: {Float32Array}
+         * @description Subtracts two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Diff:
         {
             value: function Diff()
@@ -2857,6 +3559,16 @@ function Vector4()
                     return this.Create(arguments[1][0] - arguments[0][0], arguments[1][1] - arguments[0][1], arguments[1][2] - arguments[0][2], arguments[1][3] - arguments[0][3]);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Multiplies two Float32Array component-wise. If the second parameter is
+         *              a number, the Float32Array is scale by it.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -2870,6 +3582,12 @@ function Vector4()
                 }
             }
         },
+        
+        /**
+         * @function    Dot: {Number}
+         * @description Calculates the dot product of two Float32Array objects.
+         * @param       {Float32Array}
+         */
         Dot:
         {
             value: function Dot()
@@ -2879,6 +3597,12 @@ function Vector4()
                         return arguments[0][0] * arguments[1][0] + arguments[0][1] * arguments[1][1] + arguments[0][2] * arguments[1][2] + arguments[0][3] * arguments[1][3];
             }
         },
+        
+        /**
+         * @function    Unit: {Float32Array}
+         * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
+         * @param       {Float32Array}
+         */
         Unit:
         {
             value: function Unit()
@@ -2896,43 +3620,71 @@ function Vector4()
 }
 
 
+/**
+ * @constructor	Particle
+ * @description	Definition of a single particle.
+ * @module		FWGE.Game.ParticleSystem
+ * @param		request: 	{Object}
+ */
 function Particle(request)
 {
 	if (!request) request = {};
-
-	
+	request.type = "PARTICLE";
+	GameItem.call(this, request);
 }
+/**
+ * @constructor	ParticleSystem
+ * @description	Definition of a particle system.
+ * @module		FWGE.Game
+ * @param		request: 	{Object}
+ */
 function ParticleSystem(request)
 {
     if (!request) request = {};
     request.type = "PARTICLESYSTEM";
     GameItem.call(this, request);
-
-    var $ = this;
 }
 
 
-/*!
- *  @constructor    PhysicsEngine
- *  @description    Hello
+/**
+ * @constructor PhysicsEngine
+ * @description Something...
+ * @module      FWGE
  */
 function PhysicsEngine()
 {
     Object.defineProperties(this,
     {
+        /**
+         * @property    Collision: {Number}
+         * @description Constructor for a Collision object.
+         * @see         FWGE.Physics.Collision
+         */
         Collision:          {value: Collision},
+        
+        /**
+         * @property    Collision: {Number}
+         * @description Constructor for a Physics Body.
+         * @see         FWGE.Physics.PhysicsBody
+         */
         PhysicsBody:        {value: PhysicsBody},
+        
+        /**
+         * @property    Collision: {Number}
+         * @description Constructor for a PhysicsMaterial.
+         * @see         FWGE.Physics.PhysicsMaterial
+         */
         PhysicsMaterial:    {value: PhysicsMaterial},
 
-        /*!
-         *  @property       {Number: Gravity}
-         *  @description    Gravity in m/s
+        /**
+         * @constant    Gravity: {Number}
+         * @description Gravity in m/s
          */
     	Gravity: { value: -9.8 },
 
-        /*!
-         *  @function       Init
-         *  @description    Initializes the physics engine
+        /**
+         * @function    Init: void
+         * @description Initializes the physics engine
          */
         Init:
         {
@@ -2942,9 +3694,9 @@ function PhysicsEngine()
             }
         },
 
-        /*!
-         *  @function       PhysicsUpdate
-         *  @description    Initializes the physics engine
+        /**
+         * @function    PhysicsUpdate: void
+         * @description Initializes the physics engine
          */
         PhysicsUpdate:
         {
@@ -2957,10 +3709,11 @@ function PhysicsEngine()
 }
 
 
-/*!
- * 	@constructor 	PhysicsItem
- *	@description 	The physics item
- *	@param			{Object: request}
+/**
+ * @constructor PhysicsItem
+ * @description The physics item
+ * @module      FWGE.Physics
+ *	@param		request: {Object}
  */
 function PhysicsItem(request)
 {
@@ -2976,19 +3729,29 @@ function PhysicsItem(request)
 
 var __PHYSICSMATERIAL__ = [];
 
-/*!
- * 	@constructor	PhysicsMaterial
- * 	@description 	Some words of encouragement
- * 	@param			{Object: request}
+/**
+ * @constructor	PhysicsMaterial
+ * @description Some words of encouragement
+ * @param		request: {Object}
  */
 function PhysicsMaterial()
 {
 
 }
+/**
+ * @constructor PhysicsBody
+ * @description This object provides the masic physical properties of an object.
+ * @module      FWGE.Physics
+ * @param       request:    {Object}
+ *              > mass:     {Number}    [nullable]
+ *              > lockx:    {Boolean}   [nullable]
+ *              > LockY:    {Boolean}   [nullable]
+ *              > lockz:    {Boolean}   [nullable]
+ */
 function PhysicsBody(request)
 {
 	if (request) request = {};
-    request.type = "RIGIDBODY";
+    request.type = "PHYSICSBODY";
 	PhysicsItem.call(this, request);
 
     var _Mass  = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
@@ -2998,46 +3761,79 @@ function PhysicsBody(request)
     
 	Object.defineProperties(this,
 	{
+        /**
+         * @property    Mass: {Number}
+         *              > get
+         *              > set
+         * @description The mass of the gameobject this physics body is attached to.
+         */
     	Mass:
     	{
     		get: function getMass() { return _Mass; },
-    		set: function setMass(mass)
+    		set: function setMass()
     		{
-    			if (typeof mass === 'number' && mass >= 0.0)
-    				_Mass = mass;
+    			if (typeof arguments[0] === 'number' && arguments[0] >= 0.0)
+                    _Mass = arguments[0];
     		},
     	},
+        
+        /**
+         * @property    LockX: {Boolean}
+         *              > get
+         *              > set
+         * @description Determines whether gravity will affect it along the x-axis
+         */
         LockX:
         {
             get: function getLockX() { return _LockX; },
-            set: function setLockX(lockx)
+            set: function setLockX()
             {
-                if (typeof lockx === 'boolean')
-                    _LockX = lockx;
+                if (typeof arguments[0] === 'boolean')
+                    _LockX = arguments[0];
             },
         },
+        
+        /**
+         * @property    LockY: {Boolean}
+         *              > get
+         *              > set
+         * @description Determines whether gravity will affect it along the y-axis
+         */
         LockY:
         {
             get: function getLockY() { return _LockY; },
-            set: function setLockY(locky)
+            set: function setLockY()
             {
-                if (typeof locky === 'boolean')
-                    _LockY = locky;
+                if (typeof arguments[0] === 'boolean')
+                    _LockY = arguments[0];
             },
         },
+        
+        /**
+         * @property    LockZ: {Boolean}
+         *              > get
+         *              > set
+         * @description Determines whether gravity will affect it along the z-axis
+         */
         LockZ:
         {
             get: function getLockZ() { return _LockZ; },
-            set: function setLockZ(lockz)
+            set: function setLockZ()
             {
-                if (typeof lockz === 'boolean')
-                    _LockZ = lockz;
+                if (typeof arguments[0] === 'boolean')
+                    _LockZ = arguments[0];
             },
         }
     });
 }
-/*!
- * 	{GameObject: request}
+
+
+/**
+ * @constructor Collision
+ * @description This is the base object for collision objects
+ * @module      FWGE.Physics
+ * @param       request: {Object}
+ * 	            > parent: {PhysicsItem}
  */
 function Collision(request)
 {
@@ -3045,23 +3841,68 @@ function Collision(request)
     request.type = "COLLISION";
     PhysicsItem.call(this, request);
 
+    var _PhysicsItem = request.parent instanceof PhysicsItem ? request.parent : undefined;
+
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    PhysicsItem: {PhysicsItem}
+         *              > get
+         *              > set
+         * @description The physics item this collider is attached to
+         */
+        PhysicsItem:
+        {
+            get: function getPhysicsItem() { return _PhysicsItem; },
+            set: function setPhysicsItem()
+            {
+                if (arguments[0] instanceof PhysicsItem || arguments === undefined)
+                    _PhysicsItem = arguments[0];
+            }
+        }
+    });   
 }
 
 
+/**
+ * @constructor RenderEngine
+ * @description This module contains all the visual related aspects of the 
+ *              game engine.
+ * @module      FWGE 
+ */
 function RenderEngine()
 {
     var _Renderer;
 
     Object.defineProperties(this,
     {
+        /**
+         * @property    Colour: {Colour}
+         * @description This module creates colour arrays.
+         * @see         FWGE.Render.Colour
+         */
         Colour:         {value: new Colour()},
+        /**
+         * @property    Mesh: {Function}
+         * @description This is the constructor for a Mesh object.
+         * @see         FWGE.Render.Mesh
+         */
         Mesh:           {value: Mesh},
+        /**
+         * @property    RenderM<aterial: {Function`}
+         * @description This is the constructor for a Render Material.
+         * @see         FWGE.Render.RenderMaterial
+         */
         RenderMaterial: {value: RenderMaterial},
+        /**
+         * @property    Shader: {Function}
+         * @description This is a constructor for a Shader object.
+         * @see         FWGE.Render.Shader
+         */
         Shader:         {value: Shader},
-        GameScreen:     {value: new GameScreen()},
 
-        /*!
-         *  @function       Init
+        /**
+         *  @function       Init: void
          *  @description    Initializes the rendering engine
          */
     	Init:
@@ -3069,11 +3910,12 @@ function RenderEngine()
     		value: function Init()
     		{
                 _Renderer = new Renderer();
+                GL.enable(GL.DEPTH_TEST);
     		}
     	},
 
-        /*!
-         *  @function       RenderUpdate
+        /**
+         *  @function       RenderUpdate: void
          *  @description    Updates the rendering to the screen
          */
     	RenderUpdate:
@@ -3087,10 +3929,10 @@ function RenderEngine()
 }
 
 
-/*!
- * 	@constructor 	RenderItem
- *	@description 	The base item regarding rendering.
- *	@param 			{Object: request}
+/**
+ * @constructor RenderItem
+ * @description The base item regarding rendering.
+ * @param 		request: {Object}
  */
 function RenderItem(request)
 {
@@ -3098,15 +3940,15 @@ function RenderItem(request)
 }
 var __SHADER__ = [];
 
-/*!
- *  @constructor    Shader
- *  @description    Something
- *  @param          {Object: request}
- *                  > {String: name}
- *                  > {String: vertexShader}
- *                  > {String: fragmentShader}
- *                  > {Number: width}
- *                  > {Number: height}
+/**
+ * @constructor Shader
+ * @description This object links with the vertex and fragment shaders
+ * @param       request:            {Object}
+ *              > name:             {String}
+ *              > vertexShader:     {String}
+ *              > fragmentShader:   {String}
+ *              > width:            {Number}    [nullable]
+ *              > height:           {Number}    [nullable]
  */
 function Shader(request)
 {
@@ -3285,10 +4127,24 @@ function Shader(request)
 }
 
 
+/**
+ * @constructor Colour
+ * @description This module is used to create simple 3 valued arrays
+ *              representing the rgb values of colours.
+ * @module      FWGE.Render
+ */
 function Colour()
 {
     Object.defineProperties(this,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates a new Float32Array array. These arrays have R,G, and B accessors.
+         * @param       {Float32Array}  [nullable, override 1]
+         * @param       {Number}        [nullable, override 2]
+         * @param       {Number}        [nullable, override 2]
+         * @param       {Number}        [nullable, override 2]
+         */
         Create:
         {
             value: function Create()
@@ -3338,23 +4194,18 @@ function Colour()
 }
 
 
-function GameScreen()
-{
-    var $ = this;
-}
-
-
 var __MESH__ = [];
 
-/*!
- *  @constructor    Mesh
- *  @description    The vertex array buffer containers 
- *  @param          {Object: request}
- *                  {Array: position}
- *                  {Array: uvs}
- *                  {Array: colours}
- *                  {Array: normals}
- *                  {Array: indices}
+/**
+ * @constructor Mesh
+ * @description The vertex array buffer containers
+ * @module      FWGE.Render
+ * @param       request:     {Object}    [nullable]
+ *              > position:  {Array}     [nullable]
+ *              > uvs:       {Array}     [nullable]
+ *              > colours:   {Array}     [nullable]
+ *              > normals:   {Array}     [nullable]
+ *              > indices:   {Array}     [nullable]
  */
 function Mesh(request)
 {   
@@ -3381,39 +4232,39 @@ function Mesh(request)
 
     Object.defineProperties(this,
     {
-        /*!
-         *  @property       {WebGLBuffer: PositionBuffer}
-         *  @description    Vertex buffer object for the 
+        /**
+         * @constant    PositionBuffer: {WebGLBuffer}
+         * @description Buffer containing all the vertex position vectors
          */
         PositionBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: UVBuffer}
-         *  @description    Hello
+        /**
+         * @constant    UVBuffer: {WebGLBuffer}
+         * @description Buffer containing all the uv coordinate vectors
          */
         UVBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: ColourBuffer}
-         *  @description    Hello
+        /**
+         * @constant    ColourBuffer: {WebGLBuffer}
+         * @description Buffer containing all the colour for the vertices
          */
         ColourBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: NormalBuffer}
-         *  @description    Hello
+        /**
+         * @constant    NormalBuffer: {WebGLBuffer}
+         * @description Buffer containing all the nromal vectors
          */
         NormalBuffer: { value: GL.createBuffer() },
         
-        /*!
-         *  @property       {WebGLBuffer: IndexBuffer}
-         *  @description    Hello
+        /**
+         * @constant    IndexBuffer: {WebGLBuffer}
+         * @description Buffer containing all the indices
          */
         IndexBuffer: { value: GL.createBuffer() },
         
-        /*!
-         *  @property       {Number: VertexCount}
-         *  @description    Hello
+        /**
+         * @constant    VertexCount: {Number}
+         * @description The number of vertices in the mesh
          */
         VertexCount: { value: !!request.indices ? request.indices.length : 0 }
     });
@@ -3450,37 +4301,37 @@ function Mesh(request)
 
 var __MATERIAL__ = [];
 
-/*!
- *  @constructor    Material
- *  @description    Hello
- *  @param          {Object: request}
- *                  > {Array: ambient}
- *                  > {Array: diffuse}
- *                  > {Array: specular}
- *                  > {Number: alpha}
- *                  > {Number: shininess}
- *                  > {Number: shader}
- *                  > {String: imagemap}
- *                  > {String: bumpmap}
- *                  > {String: specularmap}
+/**
+ * @constructor Material
+ * @description This object defines how the mesh in a gameobject will look
+ *              like when rendered to a screen.
+ * @module      FWGE.Render
+ * @param       request:        {Object}
+ *              > ambient:      {Array}     [nullable]
+ *              > diffuse:      {Array}     [nullable]
+ *              > specular:     {Array}     [nullable]
+ *              > alpha:        {Number}    [nullable]
+ *              > shininess:    {Number}    [nullable]
+ *              > shader:       {Number}    [nullable]
+ *              > imagemap:     {String}    [nullable]
+ *              > bumpmap:      {String}    [nullable]
+ *              > specularmap:  {String}    [nullable]
  */
 function RenderMaterial(request)
 {
     if (!request) request = {};
     request.type = "MATERIAL";
-    RenderItem.call(this, {parent: undefined, });
+    RenderItem.call(this, request);
 
     function colour(item)
     {
         if (!item || !(item instanceof Array)) item = [0, 0, 0];
-        if (item.length < 3)
+        
+        switch (item.length)
         {
-            switch (item.length)
-            {
-                case 0: item.position[0] = 0;
-                case 1: item.position[1] = 0;
-                case 2: item.position[2] = 0;
-            }
+            case 0: item.position[0] = 0;
+            case 1: item.position[1] = 0;
+            case 2: item.position[2] = 0;
         }
 
         return FWGE.Render.Colour.Create(item);
@@ -3498,129 +4349,147 @@ function RenderMaterial(request)
     
     Object.defineProperties(this,
     {
-        /*!
-         *  @property       {Float32Array: Ambient}
-         *  @description    
+        /**
+         * @property    Ambient: {Float32Array}
+         *              > get
+         *              > set
+         * @description The colour of the material under no light
          */
         Ambient:
         {
             get: function getAmbient() { return _Ambient; },
-            set: function setAmbient(ambient)
+            set: function setAmbient()
             {
-                if (ambient.Type === 'COLOUR')
-                    FWGE.Game.Maths.Vector3.Set(_Ambient, ambient);
+                if (arguments[0].Type === 'COLOUR')
+                    FWGE.Game.Maths.Vector3.Set(_Ambient, arguments[0]);
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Diffuse}
-         *  @description    
+        /**
+         * @property    Diffuse: {Float32Array}
+         *              > get
+         *              > set
+         * @description The colour of the object under even/flat light
          */
         Diffuse:
         {
             get: function getDiffuse() { return _Diffuse; },
-            set: function setDiffuse(diffuse)
+            set: function setDiffuse()
             {
-                if (diffuse.Type === 'COLOUR')
-                    FWGE.Game.Maths.Vector3.Set(_Diffuse, diffuse);
+                if (arguments[0].Type === 'COLOUR')
+                    FWGE.Game.Maths.Vector3.Set(_Diffuse, arguments[0]);
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Specular}
-         *  @description    
+        /**
+         * @property    Specular: {Float32Array}
+         *              > get
+         *              > set
+         * @description The colour of the object when reflection specular light
          */
         Specular:
         {
             get: function getSpecular() { return _Specular; },
-            set: function setSpecular(specular)
+            set: function setSpecular()
             {
-                if (specular.Type === 'COLOUR')
-                    FWGE.Game.Maths.Vector3.Set(_Specular, specular);
+                if (arguments[0].Type === 'COLOUR')
+                    FWGE.Game.Maths.Vector3.Set(_Specular, arguments[0]);
             }
         },
 
-        /*!
-         *  @property       {Number: Alpha}
-         *  @description    
+        /**
+         * @property    Alpha: {Number}
+         *              > get
+         *              > set
+         * @description The opacity of the material
          */
         Alpha:
         {
             get: function getAlpha() { return _Alpha; },
-            set: function setAlpha(alpha)
+            set: function setAlpha()
             {
-                if (typeof alpha === 'number')
-                    _Alpha = alpha;
+                if (typeof arguments[0] === 'number')
+                    _Alpha = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Number: Shininess}
-         *  @description    
+        /**
+         * @property    Shininess: {Number}
+         *              > get
+         *              > set
+         * @description This amount of shine the specular light shows
          */
         Shininess:
         {
             get: function getShininess() { return _Shininess; },
-            set: function setShininess(shininess)
+            set: function setShininess()
             {
-                if (typeof shininess === 'number')
-                    _Shininess = shininess;
+                if (typeof arguments[0] === 'number')
+                    _Shininess = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {Shader: Shader}
-         *  @description    
+        /**
+         * @property    Shader: {Shader}
+         *              > get
+         *              > set
+         * @description The shader used to the render
          */
         Shader:
         {
             get: function getShader() { return _Shader; },
-            set: function setShader(shader)
+            set: function setShader()
             {
-                if (shader instanceof Shader)
-                    _Shader = shader;
+                if (arguments[0] instanceof Shader)
+                    _Shader = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {WebGLTexture: ImageMap}
-         *  @description    
+        /**
+         * @property    ImageMap: {WebGLTexture}
+         *              > get
+         *              > set
+         * @description The texture map for the material
          */
         ImageMap:
         {
             get: function getImageMap() { return _ImageMap; },
-            set: function setImageMap(imagemap)
+            set: function setImageMap()
             {
-                if (imagemap instanceof WebGLTexture || imagemap === undefined)
-                    _ImageMap = imagemap;
+                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                    _ImageMap = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {WebGLTexture: BumpMap}
-         *  @description    
+        /**
+         * @property    BumpMap: {WebGLTexture}
+         *              > get
+         *              > set
+         * @description The bump map for the material
          */
         BumpMap:
         {
             get: function getBumpMap() { return _BumpMap; },
-            set: function setBumpMap(bumpmap)
+            set: function setBumpMap()
             {
-                if (bumpmap instanceof WebGLTexture || bumpmap === undefined)
-                    _BumpMap = bumpmap;
+                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                    _BumpMap = arguments[0];
             }
         },
 
-        /*!
-         *  @property       {WebGLTexture: SpecularMap}
-         *  @description    
+        /**
+         * @property    SpecularMap: {WebGLTexture}
+         *              > get
+         *              > set
+         * @description The specular map for the material
          */
         SpecularMap:
         {
             get: function getSpecularMap() { return _SpecularMap; },
-            set: function setSpecularMap(specularmap)
+            set: function setSpecularMap()
             {
-                if (specularmap instanceof WebGLTexture || specularmap === undefined)
-                    _SpecularMap = specularmap;
+                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                    _SpecularMap = arguments[0];
             }
         }
     });
@@ -3631,14 +4500,15 @@ Object.defineProperties(RenderMaterial.prototype,
 {
     constructor: { value: RenderMaterial },
     
-    /*!
-     *  @description    
-     *  @param          {Object}
-     *                  {String: image}
-     *                  {String: bump}
-     *                  {String: specular}
+    /**
+     * @function    SetTextures: void
+     * @description This function simply loads the appropriate textures into memory.   
+     * @param       request:     {Object}
+     *              > image:     {String}    [nullable]
+     *              > bump:      {String}    [nullable]
+     *              > specular:  {String}    [nullable]
      */
-    SetTexture:
+    SetTextures:
     {
         value: function SetTextures(request)
         {
@@ -3661,12 +4531,23 @@ Object.defineProperties(RenderMaterial.prototype,
 });
 
 
+/**
+ * @constructor ModelView
+ * @description This module handles the model view matrices of the
+ *              objects within the scene by applying the appropriate
+ *              transformations.
+ */
 function ModelView()
 {
     var _Stack  = [];
     
     Object.defineProperties(this,
     {
+        /**
+         * @function    PushMatrix: void
+         * @description Pushes a copy of the last matrix onto the stack. If the stack is
+         *              currently empty, an identity matrix is pushed.
+         */
         PushMatrix:
         {
             value: function PushMatrix()
@@ -3681,6 +4562,12 @@ function ModelView()
                 ));
             }
         },
+
+        /**
+         * @function    PeekMatrix: {Float32Array}
+         * @description Returns the matrix on the top of the stack. If the stack
+         *              is empty, an identity matrix is returned.
+         */
         PeekMatrix:
         {
             value: function PeekMatrix()
@@ -3691,6 +4578,11 @@ function ModelView()
                     return _Stack[_Stack.length - 1];
             }
         },
+
+        /**
+         * @function    PopMatrix: {Float32Array}
+         * @description Returns and removes the matrix on the top os the stack.
+         */
         PopMatrix:
         {
             value: function PopMatrix()
@@ -3698,6 +4590,13 @@ function ModelView()
                 return _Stack.pop();
             }
         },
+
+        /**
+         * @function    Transform: void
+         * @description Performs the appropriate matrix operations for the different
+         *              transformations on the the top matrix.
+         * @param       transform: {Transform}
+         */
         Transform:
         {
             value: function Transform(transform)
@@ -3725,6 +4624,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a translation matrix.
+         * @param       matrix:         {Float32Array}
+         * @param       translation:    {Float32Array}
+         */
         Translate:
         {
             value: function Translate(matrix, translation)
@@ -3742,6 +4648,7 @@ function ModelView()
                 );
             }
         },
+
         RotateAround:
         {
             value: function RotateAround()
@@ -3749,6 +4656,13 @@ function ModelView()
                 /* TODO */   
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a rotation matrix.
+         * @param       matrix:     {Float32Array}
+         * @param       rotation:   {Float32Array}
+         */
         Rotate:
         {
             value: function Rotate(matrix, rotation)
@@ -3786,6 +4700,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a scaler matrix.
+         * @param       matrix:     {Float32Array}
+         * @param       scalers:    {Float32Array}
+         */
         Scale:
         {
             value: function Scale(matrix, scalers)
@@ -3800,6 +4721,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Shear: {Float32Array}
+         * @description Returns a shearing matrix.
+         * @param       matrix:    {Float32Array}
+         * @param       angles:    {Float32Array}
+         */
         Shear:
         {
             value: function Shear(matrix, angles)
@@ -3825,6 +4753,12 @@ function ModelView()
 }
 
 
+/**
+ * @constructor Projection
+ * @description This module handles the matrices regarding the camera's current
+ *              view mode, and its orientation within the scene.
+ * @module      FWGE.Render
+ */
 function Projection()
 {
     var _Camera = FWGE.Game.Maths.Matrix4.Identity();
@@ -3861,8 +4795,6 @@ function Projection()
         var width = right - left;
         var height = top - bottom;
         var depth = far - near;
-
-        console.log(left, right, top, bottom, height, depth);
 
         FWGE.Game.Maths.Matrix4.Set
         (
@@ -3909,22 +4841,22 @@ function Projection()
                 }
             }
         },
-        GetViewer:
-        {
-            value: function GetViewer()
-            {
-                return _Camera;
-            }
-        }
+        
+        GetViewer: { value: function GetViewer() { return _Camera; } }
     });
 }
 
 
+/**
+ * @constructor	Renderer
+ * @description	This module handles the actual rendering of the scene to
+ * 				the screen.
+ * @module		FWGE.Render
+ */
 function Renderer()
 {
 	var __MODELVIEW__ = new ModelView();
 	var __PROJECTION__ = new Projection();
-	__PROJECTION__.ProjectionUpdate();
 
 	Object.defineProperties(this,
 	{
@@ -3943,6 +4875,7 @@ function Renderer()
 				}
 			}
 		},
+
 		ClearBuffers:
 		{
 			value: function ClearBuffers()
@@ -3960,6 +4893,7 @@ function Renderer()
 	            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 			}
 		},
+
 		RenderObject:
 		{
 			value: function RenderObject(object)
@@ -4011,6 +4945,7 @@ function Renderer()
 	            __MODELVIEW__.PopMatrix();
 			}
 		},
+
 		BindAttributes:
 		{
 			value: function BindAttributes(mesh, material, attributes)
@@ -4054,6 +4989,7 @@ function Renderer()
 	            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 	        }
 		},
+
 		SetObjectUniforms:
 		{
 			value: function SetObjectUniforms(material, uniforms)
@@ -4094,6 +5030,7 @@ function Renderer()
 	            }
 	        }
 		},
+
 		SetGlobalUniforms:
 		{
 			value: function SetGlobalUniform()
@@ -4152,6 +5089,7 @@ function Renderer()
 	            GL.useProgram(null);
 	        }
 		},
+
 		CalculateNormalMatrix:
 		{
 			value: function CalculateNormalMatrix()
@@ -4166,13 +5104,16 @@ function Renderer()
 				);
 			}
 		},
+
 		Draw:
 		{
 			value: function Draw(vertexCount)
 	        {
+	        	console.log(vertexCount);
 	            GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
 	        }
 		},
+
 		FinalDraw:
 		{
 			value: function FinalDraw()
@@ -4181,54 +5122,55 @@ function Renderer()
 			}
 		}
 	});
+
+	__PROJECTION__.ProjectionUpdate();
 };
 
 
-/*!
- * 	@constructor 	FWGE
- *	@module			{}
+/**
+ * @constructor FWGEPrototype
+ * @module		{}
  */
 function FWGEPrototype()
 {
 	Object.defineProperties(this,
 	{
-		/*!
-		 * 	@property		{GameEngine: Game}
-		 *  @description	<link>GameEngine</link>
+		/**
+		 * @property	Game: {GameEngine}
+		 * @description	The main engine. @see FWGE.Game
 		 */
 		Game: 		{value: new GameEngine()},
 
-		/*!
-		 * 	@property		{PhysicsEngine: Physics}
-		 *  @description	<link>PhysicsEngine</link>
+		/**
+		 * @property	Physics: {PhysicsEngine}
+		 * @description	The physics engine. @see FWGE.Physics
 		 */
 		Physics: 	{value: new PhysicsEngine()},
 
-		/*!
-		 * 	@property		{RenderEngine: Render}
-		 *  @description	<link>RenderEngine</link>
+		/**
+		 * @property	Render: {RenderEngine}
+		 * @description	The rendering engine. @see Render
 		 */
 		Render: 	{value: new RenderEngine()},
 
-		/*!
-		 * 	@function 		Init
-		 *	@description 	Initializes the webgl context
-		 *	@param			{Object: request}
-		 * 					> {HTMLCanvasElement: canvas}
-		 *					> {Number: height}
-		 *					> {Number: width}
-		 *					> {Float32Array: clear}
+		/**
+		 * @function 	Init: void
+		 * @description Initializes the webgl context and the seperate engines
+		 * @param		request: 	{Object}
+		 * 				> canvas: 	{HTMLCanvasElement}
+		 *				> height: 	{Number}				[nullable]
+		 *				> width: 	{Number}				[nullable]
+		 *				> clear: 	{Float32Array}			[nullable]
 		 */
 		Init: 
 		{
 			value: function Init(request)
 			{
 				if (!request) request = {};
-				if (!request.clear) request.clear = [0, 0, 0, 0];
+				if (!request.clear || !(request.clear instanceof Float32Array) || request.clear.length === 4)
+					request.clear = [0, 0, 0, 0];
 
 				GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-
-                        GL.enable(GL.DEPTH_TEST);
 
 				if (!GL)
 					throw "Webgl context could not be initialized.";
@@ -4239,20 +5181,7 @@ function FWGEPrototype()
 				this.Physics.Init();
 				this.Render.Init();
 			}
-		},
-
-		/*!
-		 * 	@function 		Start
-		 * 	@description 	Starts up the engine
-		 */
-		Start: { value: function Start() { if (!!GL) this.Game.Start();  } },
-
-
-		/*!
-		 * 	@function 		Stop
-		 * 	@description 	Stops the engine
-		 */
-		Stop:  { value: function Stop()  { this.Game.Stop(); } }
+		}
 	});
 }
 

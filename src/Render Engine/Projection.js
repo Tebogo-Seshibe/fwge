@@ -1,3 +1,9 @@
+/**
+ * @constructor Projection
+ * @description This module handles the matrices regarding the camera's current
+ *              view mode, and its orientation within the scene.
+ * @module      FWGE.Render
+ */
 function Projection()
 {
     var _Camera = FWGE.Game.Maths.Matrix4.Identity();
@@ -34,8 +40,6 @@ function Projection()
         var width = right - left;
         var height = top - bottom;
         var depth = far - near;
-
-        console.log(left, right, top, bottom, height, depth);
 
         FWGE.Game.Maths.Matrix4.Set
         (
@@ -82,13 +86,8 @@ function Projection()
                 }
             }
         },
-        GetViewer:
-        {
-            value: function GetViewer()
-            {
-                return _Camera;
-            }
-        }
+        
+        GetViewer: { value: function GetViewer() { return _Camera; } }
     });
 }
 

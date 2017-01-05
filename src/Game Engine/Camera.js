@@ -1,7 +1,7 @@
-/*!
- *  @constructor    Camera
- *  @module         FWGE.GameEngine
- *  @description    Something...
+/**
+ * @constructor Camera
+ * @description Something...
+ * @module      FWGE.Game
  */
 function Camera()
 {
@@ -19,9 +19,26 @@ function Camera()
 
     Object.defineProperties(this,
     {
+        /**
+		 * @constant	PERSPECTIVE: {Number}
+		 * 				> get
+		 * @description Represents a perspective rendering mode
+		 */
     	PERSPECTIVE:  { value: 0 },
+		
+        /**
+		 * @constant	ORTHOGRAPHIC: {Number}
+		 * 				> get
+		 * @description Represents an orthographic rendering mode
+		 */
     	ORTHOGRAPHIC: { value: 1 },
-        
+
+        /**
+		 * @property	Mode: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the current rendering mode the camera is using
+		 */
     	Mode:
     	{ 
     		get: function getMode() { return _Mode; },
@@ -30,7 +47,14 @@ function Camera()
     			if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
     				_Mode = arguments[0];
     		}
-    	}, 
+    	},
+		
+        /**
+		 * @property	FOV: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the current field of view of the camera
+		 */
     	FOV:
     	{ 
     		get: function getFOV() { return _FOV; },
@@ -40,6 +64,13 @@ function Camera()
     				_FOV = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Aspect: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the aspect ratio of the camera
+		 */
     	Aspect:
     	{ 
     		get: function getAspect() { return _Aspect; },
@@ -49,6 +80,13 @@ function Camera()
     				_Aspect = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Near: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the near clipping plane
+		 */
     	Near:
     	{ 
     		get: function getNear() { return _Near; },
@@ -58,6 +96,13 @@ function Camera()
     				_Near = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Far: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the far clipping plane
+		 */
     	Far:
     	{ 
     		get: function getFar() { return _Far; },
@@ -67,6 +112,13 @@ function Camera()
     				_Far = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Left: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the left clipping plane
+		 */
     	Left:
     	{ 
     		get: function getLeft() { return _Left; },
@@ -76,6 +128,13 @@ function Camera()
     				_Left = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Right: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the right clipping plane
+		 */
     	Right:
     	{ 
     		get: function getRight() { return _Right; },
@@ -85,6 +144,13 @@ function Camera()
     				_Right = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Top: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the top clipping plane
+		 */
     	Top:
     	{ 
     		get: function getTop() { return _Top; },
@@ -94,6 +160,13 @@ function Camera()
     				_Top = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Bottom: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the bottom clipping plane
+		 */
     	Bottom:
     	{ 
     		get: function getBottom() { return _Bottom; },
@@ -103,6 +176,13 @@ function Camera()
     				_Bottom = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Theta: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent camera's yaw around the scene
+		 */
     	Theta:
     	{ 
     		get: function getTheta() { return _Theta; },
@@ -112,6 +192,13 @@ function Camera()
     				_Theta = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	Phi: {Number}
+		 * 				> get
+		 * 				> set
+		 * @description Represent the camera's pitch around the scene
+		 */
     	Phi:
     	{ 
     		get: function getPhi() { return _Phi; },
@@ -121,6 +208,11 @@ function Camera()
     				_Phi = arguments[0];
     		}
     	},
+		
+        /**
+		 * @property	CameraUpdate: void
+		 * @description Updates the camera
+		 */
         CameraUpdate:
         {
             value: function CameraUpdate()

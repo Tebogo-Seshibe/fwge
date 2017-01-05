@@ -1,9 +1,24 @@
+/**
+ * @constructor Vector2
+ * @description This library contains the methods for 2 component vector operations.
+ *              2 component vector are represented as a Float32Array of length 2.
+ * @module      FWGE.Game.Maths 
+ */
 function Vector2()
 {
     var $ = this;
     
     Object.defineProperties($,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         *              It also has the appropriate value indexers:
+         *              <X, Y>.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
         Create:
         {
             value: function Create()
@@ -39,6 +54,16 @@ function Vector2()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new values to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -66,6 +91,12 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Length: {Number}
+         * @description Calculates the length of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Length:
         {
             value: function Length()
@@ -74,6 +105,13 @@ function Vector2()
                     return Math.sqrt(arguments[0][0] * arguments[0][0] + arguments[0][1] * arguments[0][1]);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -82,6 +120,13 @@ function Vector2()
                     return this.Set(arguments[0], arguments[0][0] + arguments[1][0], arguments[0][1] + arguments[1][1]);
             }
         },
+        
+        /**
+         * @function    Diff: {Float32Array}
+         * @description Subtracts two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Diff:
         {
             value: function Diff()
@@ -90,6 +135,16 @@ function Vector2()
                     return this.Create(arguments[1][0] - arguments[0][0], arguments[1][1] - arguments[0][1]);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Multiplies two Float32Array component-wise. If the second parameter is
+         *              a number, the Float32Array is scale by it.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -103,6 +158,12 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Dot: {Number}
+         * @description Calculates the dot product of two Float32Array objects.
+         * @param       {Float32Array}
+         */
         Dot:
         {
             value: function Dot()
@@ -112,6 +173,12 @@ function Vector2()
                         return arguments[0][0] * arguments[1][0] + arguments[0][1] * arguments[1][1];
             }
         },
+        
+        /**
+         * @function    Unit: {Float32Array}
+         * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
+         * @param       {Float32Array}
+         */
         Unit:
         {
             value: function Unit()
@@ -125,6 +192,13 @@ function Vector2()
                 }
             }
         },
+        
+        /**
+         * @function    Cross: {Float32Array}
+         * @description Performs a cross multiplication on two Float32Array objects
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Cross:
         {
             value: function Cross()

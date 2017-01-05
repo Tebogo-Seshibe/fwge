@@ -1,8 +1,5 @@
 var Cube;
 
-/*!
- *
- */
 var server = (function()
 {
 	function Server()
@@ -131,7 +128,6 @@ function addShader()
 				begin: 			function Begin()
 				{
 					console.log("Begin Cube");
-					console.log(this);
 				},
 				update: 		function Update()
 				{
@@ -157,13 +153,12 @@ function addShader()
 				end: 			function End()
 				{
 					console.log("Ending Cube");
-					console.log(this);
 				}
 			});
 
 			console.log(Cube);
 
-			Cube.Destroy();
+			//Cube.Destroy(5);
 			/*setTimeout(function setTimeout(e)
 			{
 				FWGE.Stop();

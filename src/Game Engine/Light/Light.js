@@ -1,6 +1,6 @@
 var __LIGHT__ = new Array(12);
 
-/*!
+/**
  * @constructor Light
  * @module		FWGE.Game
  * @description	This module is used to create the lights in the scene.
@@ -17,15 +17,15 @@ function Light()
 
     Object.defineProperties(this,
     {
-    	/*!
-    	 * @function	Ambient
+    	/**
+    	 * @function	Ambient: {AmbientLight}
     	 * @description	Returns a new ambient light object. It is treated as a singleton,
 		 * 				i.e. there is only one ambient light object in a scene.
-		 * @param 		{Object: request}
-		 * 				> {GameObject: parent}
-		 * 				> {Float32Array: colour}	[nullable]
-		 * 				> {Number: intensity}		[nullable]
-    	 * @return 		AmbientLight
+		 * @see 		FWGE.Game.Light.AmbientLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity:	{Number}		[nullable]
     	 */
         Ambient:
         {
@@ -41,16 +41,16 @@ function Light()
         	}
         },
 
-    	/*!
-    	 * @function	Directional
+    	/**
+    	 * @function	Directional: {DirectionalLight}
     	 * @description	Returns a new directional light object. There can up to three
 		 * 				directional light objects in a scene.
-		 * @param 		{Object: request}
-		 * 				> {GameObject: parent}
-		 * 				> {Float32Array: colour}	[nullable]
-		 * 				> {Number: intensity}		[nullable]
-		 * 				> {Float32Array: direction}	[nullable]
-    	 * @return 		DirectionalLight
+		 * @see 		FWGE.Game.Light.DirectionalLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity: 	{Number}		[nullable]
+		 * 				> direction: 	{Float32Array}	[nullable]
     	 */
         Directional:
         {
@@ -74,16 +74,17 @@ function Light()
         	}
         },
 
-    	/*!
-    	 * @function	Point
+    	/**
+    	 * @function	Point: {PointLight}
     	 * @description	Returns a new point light object. There can up to eight
 		 * 				point light objects in a scene.
-		 * @param 		{Object: request}
-		 * 				> {GameObject: parent}
-		 * 				> {Float32Array: colour}	[nullable]
-		 * 				> {Number: intensity}		[nullable]
-		 * 				> {Number: radius}			[nullable]
-		 * 				> {Number: angle}			[nullable]
+		 * @see 		FWGE.Game.Light.PointLight
+		 * @param 		request: 		{Object}
+		 * 				> parent: 		{GameObject}
+		 * 				> colour: 		{Float32Array}	[nullable]
+		 * 				> intensity: 	{Number}		[nullable]
+		 * 				> radius: 		{Number}		[nullable]
+		 * 				> angle:		{Number}		[nullable]
     	 * @return 		PointLight
     	 */
         Point:
@@ -108,10 +109,10 @@ function Light()
         	}
         },
 
-    	/*!
-    	 * @function	Remove
+    	/**
+    	 * @function	Remove: void
     	 * @description	Removes a given light object from the scene.
-		 * @param 		{LightItem: light}
+		 * @param 		light: 	{LightItem}
     	 */
         Remove:
         {

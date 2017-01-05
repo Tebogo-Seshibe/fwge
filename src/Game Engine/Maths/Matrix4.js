@@ -1,34 +1,40 @@
+/**
+ * @constructor Matrix4
+ * @description This library contains the methods for 2x2 matrix operations.
+ *              4x4 matrices are represented as a Float32Array of length 16.
+ * @module      FWGE.Game.Maths 
+ */
 function Matrix4()
 {
-    var $ = this;
-    
-    function Error()
+    Object.defineProperties(this,
     {
-        var parameter = [];
-        console.log(arguments);
-
-        if (arguments[1].length === 0)
-            parameter = "undefined";
-        else
-            for (var e in arguments[1])
-                parameter.push(typeof arguments[1][e]);
-        
-        switch (arguments[0])
-        {
-            case "SET":
-                console.error(new window.Error
-                (
-                    "No match for given parameters: " + parameter.toString() + 
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, Float32Array)" +
-                    "\n\tFWGE.Maths.Matrix2.Set(Float32Array, number, number, number, number)"
-                ));
-            break;
-        }
-    }
-    
-    Object.defineProperties($,
-    {
-        "Create":
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates an new Float32Array with the Type set to "MATRIX4".
+         *              It also has the appropriate value indexers:
+         *              M11, M12, M13, M14,
+         *              M21, M22, M23, M24,
+         *              M31, M32, M33, M34,
+         *              M41, M42, M43, M44.
+         * @param       {Float32Array}  [nullable, override: 1]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         * @param       {Number}        [nullable, override: 2]
+         */
+        Create:
         {
             value: function Create()
             {                    
@@ -139,6 +145,30 @@ function Matrix4()
                 return $;
             }
         },
+        
+        /**
+         * @function    Set: {Float32Array}
+         * @description Assigns new to the a given Float32Array.
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 1]
+         * @param       {Float32Array}  [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         * @param       {Number}        [override: 2]
+         */
         Set:
         {
             value: function Set()
@@ -169,11 +199,15 @@ function Matrix4()
                     $[12] = m; $[13] = n; $[14] = o; $[15] = p;
 
                     return $;
-                }                
-
-                Error("SET", arguments);                    
+                }                  
             }
         },
+        
+        /**
+         * @function    Transpose: {Float32Array}
+         * @description Transposes a matrix.
+         * @param       {Float32Array}
+         */
         Transpose:
         {
             value: function Transpose()
@@ -188,6 +222,13 @@ function Matrix4()
                 Error("TRANSPOSE", arguments);
             }
         },
+        
+        /**
+         * @function    Identity: {Float32Array}
+         * @description If given a Float32Array, it resets it to an identity matrix.
+         *              If not, it simply returns a new identity matrix.
+         * @param       {Float32Array}
+         */
         Identity:
         {
             value: function Identiy()
@@ -205,6 +246,12 @@ function Matrix4()
                                        0, 0, 0, 1);
             }
         },
+        
+        /**
+         * @function    Determinant: {Number}
+         * @description Calculates the determinant of a given Float32Array.
+         * @param       {Float32Array}
+         */
         Determinant:
         {
             value: function Determinant()
@@ -234,10 +281,15 @@ function Matrix4()
                         arguments[0][3] * arguments[0][4] *  arguments[0][9] * arguments[0][14] -
                         arguments[0][3] * arguments[0][5] * arguments[0][10] * arguments[0][12] -
                         arguments[0][3] * arguments[0][6] *  arguments[0][8] * arguments[0][13];
-                
-                Error("DETERMINANT", arguments);
             }
         },
+        
+        /**
+         * @function    Inverse: {Float32Array}
+         * @description Inverts a given Float32Array when possible i.e. the determinant
+         *              is not 0.
+         * @param       {Float32Array}
+         */
         Inverse:
         {
             value: function Inverse()
@@ -349,10 +401,15 @@ function Matrix4()
                     else
                         return arguments[0];
                 }
-                
-                Error("INVERSE", arguments);
             }
         },
+        
+        /**
+         * @function    Sum: {Float32Array}
+         * @description Adds two Float32Array component-wise.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         Sum:
         {
             value: function Sum()
@@ -371,10 +428,18 @@ function Matrix4()
                                     
                                     arguments[0][12] + arguments[1][12], arguments[0][13] + arguments[1][13],
                                     arguments[0][14] + arguments[1][14], arguments[0][15] + arguments[1][15]);
-                
-                Error("SUM", arguments);
             }
         },
+        
+        /**
+         * @function    Mult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array or
+         *              multiply a Float32Array with a scalar value.
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 1]
+         * @param       {Float32Array}  [override 2]
+         * @param       {Number}        [override 2]
+         */
         Mult:
         {
             value: function Mult()
@@ -418,10 +483,16 @@ function Matrix4()
                                         arguments[0][12] * arguments[1], arguments[0][13] * arguments[1], arguments[0][14] * arguments[1], arguments[0][15] * arguments[1]);
                     }
                 }
-                
-                Error("MULT", arguments);
             }
         },
+        
+        /**
+         * @function    RevMult: {Float32Array}
+         * @description Performs a matrix multiplication on two Float32Array but
+         *              assigns the result to the second Float32Array.
+         * @param       {Float32Array}
+         * @param       {Float32Array}
+         */
         RevMult:
         {
             value: function RevMult()
@@ -452,9 +523,6 @@ function Matrix4()
                         arguments[0][12] * arguments[1][3] + arguments[0][13] * arguments[1][7] + arguments[0][14] * arguments[1][11] + arguments[0][15] * arguments[1][15]
                     );
                 }
-                
-                Error("REVMULT", arguments);
-                
             }
         } 
     });

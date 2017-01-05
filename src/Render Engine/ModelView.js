@@ -1,9 +1,20 @@
+/**
+ * @constructor ModelView
+ * @description This module handles the model view matrices of the
+ *              objects within the scene by applying the appropriate
+ *              transformations.
+ */
 function ModelView()
 {
     var _Stack  = [];
     
     Object.defineProperties(this,
     {
+        /**
+         * @function    PushMatrix: void
+         * @description Pushes a copy of the last matrix onto the stack. If the stack is
+         *              currently empty, an identity matrix is pushed.
+         */
         PushMatrix:
         {
             value: function PushMatrix()
@@ -18,6 +29,12 @@ function ModelView()
                 ));
             }
         },
+
+        /**
+         * @function    PeekMatrix: {Float32Array}
+         * @description Returns the matrix on the top of the stack. If the stack
+         *              is empty, an identity matrix is returned.
+         */
         PeekMatrix:
         {
             value: function PeekMatrix()
@@ -28,6 +45,11 @@ function ModelView()
                     return _Stack[_Stack.length - 1];
             }
         },
+
+        /**
+         * @function    PopMatrix: {Float32Array}
+         * @description Returns and removes the matrix on the top os the stack.
+         */
         PopMatrix:
         {
             value: function PopMatrix()
@@ -35,6 +57,13 @@ function ModelView()
                 return _Stack.pop();
             }
         },
+
+        /**
+         * @function    Transform: void
+         * @description Performs the appropriate matrix operations for the different
+         *              transformations on the the top matrix.
+         * @param       transform: {Transform}
+         */
         Transform:
         {
             value: function Transform(transform)
@@ -62,6 +91,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a translation matrix.
+         * @param       matrix:         {Float32Array}
+         * @param       translation:    {Float32Array}
+         */
         Translate:
         {
             value: function Translate(matrix, translation)
@@ -79,6 +115,7 @@ function ModelView()
                 );
             }
         },
+
         RotateAround:
         {
             value: function RotateAround()
@@ -86,6 +123,13 @@ function ModelView()
                 /* TODO */   
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a rotation matrix.
+         * @param       matrix:     {Float32Array}
+         * @param       rotation:   {Float32Array}
+         */
         Rotate:
         {
             value: function Rotate(matrix, rotation)
@@ -123,6 +167,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Translate: {Float32Array}
+         * @description Returns a scaler matrix.
+         * @param       matrix:     {Float32Array}
+         * @param       scalers:    {Float32Array}
+         */
         Scale:
         {
             value: function Scale(matrix, scalers)
@@ -137,6 +188,13 @@ function ModelView()
                 );
             }
         },
+
+        /**
+         * @function    Shear: {Float32Array}
+         * @description Returns a shearing matrix.
+         * @param       matrix:    {Float32Array}
+         * @param       angles:    {Float32Array}
+         */
         Shear:
         {
             value: function Shear(matrix, angles)

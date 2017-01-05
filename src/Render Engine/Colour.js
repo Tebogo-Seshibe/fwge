@@ -1,7 +1,21 @@
+/**
+ * @constructor Colour
+ * @description This module is used to create simple 3 valued arrays
+ *              representing the rgb values of colours.
+ * @module      FWGE.Render
+ */
 function Colour()
 {
     Object.defineProperties(this,
     {
+        /**
+         * @function    Create: {Float32Array}
+         * @description Creates a new Float32Array array. These arrays have R,G, and B accessors.
+         * @param       {Float32Array}  [nullable, override 1]
+         * @param       {Number}        [nullable, override 2]
+         * @param       {Number}        [nullable, override 2]
+         * @param       {Number}        [nullable, override 2]
+         */
         Create:
         {
             value: function Create()

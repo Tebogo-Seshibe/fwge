@@ -1,11 +1,11 @@
-/*!
+/**
  * @constructor DirectionalLight
  * @description Definition of a light that shines in a given direction.
  * @module      FWGE.Game.Light
- * @param       {Object: request} [nullable]
- *              > {Float32Array: colour}     [nullable]
- *              > {Number: intensity}        [nullable]
- *              > {Float32Array: direction}  [nullable]
+ * @param       request:        {Object}        [nullable]
+ *              > colour:       {Float32Array}  [nullable]
+ *              > intensity:    {Number}        [nullable]
+ *              > direction:    {Float32Array}  [nullable]
  */
 function DirectionalLight(request)
 {
@@ -17,8 +17,8 @@ function DirectionalLight(request)
 
     Object.defineProperties(this,
     {
-        /*!
-         * @property    {Float32Array: Direction}
+        /**
+         * @property    Direction: {Float32Array}
          *              > get
          *              > set
          * @description Returns the direction the light is pointing in.
@@ -26,15 +26,15 @@ function DirectionalLight(request)
         Direction:
         {
             get: function getDirection() { return _Direction; },
-            set: function setDirection(direction)
+            set: function setDirection()
             {
-                if (direction instanceof Float32Array && direction.length === 3)
-                    FWGE.Game.Maths.Vector3.Set(_Direction, direction);
+                if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
+                    FWGE.Game.Maths.Vector3.Set(_Direction, arguments[0]);
             }
         },
 
-        /*!
-         * @function    {undefined: DirectionalUpdate}
+        /**
+         * @function    DirectionalUpdate: void
          * @description Updates the lighting.
          */
         DirectionalUpdate:

@@ -1,7 +1,7 @@
-/*!
- *	@constructor	GameEngine
- *	@module			FWGE
- *	@description	Something...
+/**
+ * @constructor	GameEngine
+ * @description	Something...
+ * @module		FWGE
  */
 function GameEngine()
 {
@@ -10,20 +10,72 @@ function GameEngine()
 
 	Object.defineProperties(this,
 	{
-		GameObject: 	{value: GameObject},
-		Animation: 		{value: Animation},
-		Input: 			{value: new Input()},
-		Time: 			{value: new Time()},
-		Transform: 		{value: Transform},
-		Light: 			{value: new Light()},
-		Maths: 			{value: new Maths()},
-		ParticleSystem: {value: ParticleSystem},
-		Particle: 		{value: Particle},
-		Camera: 		{value: new Camera()},
+		/**
+		 * @property	GameObject: {Function}
+		 * @description	The GameObject constructor.
+		 * @see			FWGE.Game.GameObject
+		 */
+		GameObject: 	{ value: GameObject },
+		
+		/**
+		 * @property	Animation: {Function}
+		 * @description	The Animation constructor.
+		 * @see			FWGE.Game.Animation
+		 */
+		Animation: 		{ value: Animation },
+		
+		/**
+		 * @property	Input: {Input}
+		 * @description	The module that handles user inputs.
+		 * @see			FWGE.Game.Input
+		 */
+		Input: 			{ value: new Input() },
+		
+		/**
+		 * @property	Time: {Time}
+		 * @description	The running clock.
+		 * @see			FWGE.Game.Time
+		 */
+		Time: 			{ value: new Time() },
+		
+		/**
+		 * @property	Transform {Transform}
+		 * @description	The Transform constructor.
+		 * @see			FWGE.Game.Transform
+		 */
+		Transform: 		{ value: Transform },
+		
+		/**
+		 * @property	Light: {Light}
+		 * @description	The Light module.
+		 * @see			FWGE.Game.Light
+		 */
+		Light: 			{ value: new Light() },
+		
+		/**
+		 * @property	Maths: {Maths}
+		 * @description	The Maths module.
+		 * @see			FWGE.Game.Maths
+		 */
+		Maths: 			{ value: new Maths() },
+		
+		/**
+		 * @property	ParticleSystem: {Function}
+		 * @description	The ParticleSystem constructor.
+		 * @see			FWGE.Game.ParticleSystem
+		 */
+		ParticleSystem: { value: ParticleSystem },
+		
+		/**
+		 * @property	Camera: {Camera}
+		 * @description	The viewer.
+		 * @see			FWGE.Game.Camera
+		 */
+		Camera: 		{ value: new Camera() },
 
-        /*!
-         *  @function       {undefined: Init}
-         *  @description    Initializes the game engine
+        /**
+         * @function       	Init: void
+         * @description    	Initializes the game engine
          */
 		Init:
 		{
@@ -33,9 +85,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Run}
-         *  @description    Runs the main game loop
+        /**
+         * @function       Run: void
+         * @description    Runs the main game loop
          */
 		Run: 
 		{ 
@@ -52,9 +104,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: GameUpdate}
-         *  @description    Updates the objects
+        /**
+         * @function       GameUpdate: void
+         * @description    Updates the scene
          */
 		GameUpdate:
 		{
@@ -70,9 +122,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Start}
-         *  @description    Initiates/resumes the main game loop
+        /**
+         * @function       Start: void
+         * @description    Initiates/resumes the main game loop
          */
 		Start:
 		{
@@ -86,9 +138,9 @@ function GameEngine()
 			}
 		},
 
-        /*!
-         *  @function       {undefined: Stop}
-         *  @description    Suspends the main game loop
+        /**
+         * @function       Stop: void
+         * @description    Suspends the main game loop
          */
 		Stop:
 		{

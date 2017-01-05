@@ -1,8 +1,13 @@
+/**
+ * @constructor	Renderer
+ * @description	This module handles the actual rendering of the scene to
+ * 				the screen.
+ * @module		FWGE.Render
+ */
 function Renderer()
 {
 	var __MODELVIEW__ = new ModelView();
 	var __PROJECTION__ = new Projection();
-	__PROJECTION__.ProjectionUpdate();
 
 	Object.defineProperties(this,
 	{
@@ -21,6 +26,7 @@ function Renderer()
 				}
 			}
 		},
+
 		ClearBuffers:
 		{
 			value: function ClearBuffers()
@@ -38,6 +44,7 @@ function Renderer()
 	            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 			}
 		},
+
 		RenderObject:
 		{
 			value: function RenderObject(object)
@@ -50,9 +57,9 @@ function Renderer()
 	            while (--i >= 0)
 	                this.RenderObject(object.Children[i]);
 	            
-	            if (!!object.Mesh && !!object.Material)
+	            if (!!object.Mesh && !!object.RenderMaterial)
 	            {
-	                var shader = object.Material.Shader
+	                var shader = object.RenderMaterial.Shader
 
 	                GL.useProgram(shader.Program);
 	                
@@ -61,18 +68,18 @@ function Renderer()
 	                if (shader.Attributes.Colour !== -1) GL.enableVertexAttribArray(shader.Attributes.Colour);
 	                if (shader.Attributes.UV !== -1) GL.enableVertexAttribArray(shader.Attributes.UV);
 
-	                if (object.Material.Alpha !== 1.0)
+	                if (object.RenderMaterial.Alpha !== 1.0)
 	                {
 	                    GL.enable(GL.BLEND);
 	                    GL.disable(GL.DEPTH_TEST);
 	                    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
 	                }
 	                
-	                this.BindAttributes(object.Mesh, object.Material, object.Material.Shader.Attributes);
-	                this.SetObjectUniforms(object.Material, object.Material.Shader.Uniforms);
+	                this.BindAttributes(object.Mesh, object.RenderMaterial, object.RenderMaterial.Shader.Attributes);
+	                this.SetObjectUniforms(object.RenderMaterial, object.RenderMaterial.Shader.Uniforms);
 	                this.Draw(object.Mesh.VertexCount);
 	                
-					if (object.Material.Alpha !== 1.0)
+					if (object.RenderMaterial.Alpha !== 1.0)
 					{
 	                    GL.enable(GL.DEPTH_TEST);
 	                    GL.disable(GL.BLEND);
@@ -89,6 +96,7 @@ function Renderer()
 	            __MODELVIEW__.PopMatrix();
 			}
 		},
+
 		BindAttributes:
 		{
 			value: function BindAttributes(mesh, material, attributes)
@@ -132,6 +140,7 @@ function Renderer()
 	            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 	        }
 		},
+
 		SetObjectUniforms:
 		{
 			value: function SetObjectUniforms(material, uniforms)
@@ -172,6 +181,7 @@ function Renderer()
 	            }
 	        }
 		},
+
 		SetGlobalUniforms:
 		{
 			value: function SetGlobalUniform()
@@ -230,6 +240,7 @@ function Renderer()
 	            GL.useProgram(null);
 	        }
 		},
+
 		CalculateNormalMatrix:
 		{
 			value: function CalculateNormalMatrix()
@@ -244,6 +255,7 @@ function Renderer()
 				);
 			}
 		},
+
 		Draw:
 		{
 			value: function Draw(vertexCount)
@@ -252,6 +264,7 @@ function Renderer()
 	            GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
 	        }
 		},
+
 		FinalDraw:
 		{
 			value: function FinalDraw()
@@ -260,5 +273,7 @@ function Renderer()
 			}
 		}
 	});
+
+	__PROJECTION__.ProjectionUpdate();
 };
 

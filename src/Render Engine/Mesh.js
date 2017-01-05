@@ -1,14 +1,15 @@
 var __MESH__ = [];
 
-/*!
- *  @constructor    Mesh
- *  @description    The vertex array buffer containers 
- *  @param          {Object: request}
- *                  {Array: position}
- *                  {Array: uvs}
- *                  {Array: colours}
- *                  {Array: normals}
- *                  {Array: indices}
+/**
+ * @constructor Mesh
+ * @description The vertex array buffer containers
+ * @module      FWGE.Render
+ * @param       request:     {Object}    [nullable]
+ *              > position:  {Array}     [nullable]
+ *              > uvs:       {Array}     [nullable]
+ *              > colours:   {Array}     [nullable]
+ *              > normals:   {Array}     [nullable]
+ *              > indices:   {Array}     [nullable]
  */
 function Mesh(request)
 {   
@@ -35,39 +36,39 @@ function Mesh(request)
 
     Object.defineProperties(this,
     {
-        /*!
-         *  @property       {WebGLBuffer: PositionBuffer}
-         *  @description    Vertex buffer object for the 
+        /**
+         * @constant    PositionBuffer: {WebGLBuffer}
+         * @description Buffer containing all the vertex position vectors
          */
         PositionBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: UVBuffer}
-         *  @description    Hello
+        /**
+         * @constant    UVBuffer: {WebGLBuffer}
+         * @description Buffer containing all the uv coordinate vectors
          */
         UVBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: ColourBuffer}
-         *  @description    Hello
+        /**
+         * @constant    ColourBuffer: {WebGLBuffer}
+         * @description Buffer containing all the colour for the vertices
          */
         ColourBuffer: { value: GL.createBuffer() },
 
-        /*!
-         *  @property       {WebGLBuffer: NormalBuffer}
-         *  @description    Hello
+        /**
+         * @constant    NormalBuffer: {WebGLBuffer}
+         * @description Buffer containing all the nromal vectors
          */
         NormalBuffer: { value: GL.createBuffer() },
         
-        /*!
-         *  @property       {WebGLBuffer: IndexBuffer}
-         *  @description    Hello
+        /**
+         * @constant    IndexBuffer: {WebGLBuffer}
+         * @description Buffer containing all the indices
          */
         IndexBuffer: { value: GL.createBuffer() },
         
-        /*!
-         *  @property       {Number: VertexCount}
-         *  @description    Hello
+        /**
+         * @constant    VertexCount: {Number}
+         * @description The number of vertices in the mesh
          */
         VertexCount: { value: !!request.indices ? request.indices.length : 0 }
     });

@@ -1,11 +1,12 @@
-/*!
- *  @constructor    Transform
- *  @description    Hello
- *  @param          {Object: request}
- *                  {Array: position}
- *                  {Array: rotation}
- *                  {Array: scale}
- *                  {Array: shear}
+/**
+ * @constructor Transform
+ * @description This object contains all the transformations that 
+ *              are to be applied to the parent gameobject.
+ * @param       request:    {Object}
+ *              > position: {Array}     [nullable]
+ *              > rotation: {Array}     [nullable]
+ *              > scale:    {Array}     [nullable]
+ *              > shear:    {Array}     [nullable]
  */
 function Transform(request)
 {
@@ -16,20 +17,17 @@ function Transform(request)
     function setup(item)
     {
         if (!item || !(item instanceof Array)) item = [0,0,0];
-        if (item.length < 3)
+
+        switch (item.length)
         {
-            switch (item.length)
-            {
-                case 0: item.position[0] = 0;
-                case 1: item.position[1] = 0;
-                case 2: item.position[2] = 0;
-            }
+            case 0: item[0] = 0;
+            case 1: item[1] = 0;
+            case 2: item[2] = 0;
         }
 
         return FWGE.Game.Maths.Vector3.Create(item);
     }
     
-    var $           = this;
     var _Position   = setup(request.position);
     var _Rotation   = setup(request.rotation);
     var _Scale      = setup(request.scale);
@@ -39,11 +37,11 @@ function Transform(request)
     var _Forward    = FWGE.Game.Maths.Vector3.Create(0, 0, 1);
     var _Right      = FWGE.Game.Maths.Vector3.Create(1, 0, 0);
     
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
-        /*!
-         *  @property       {Float32Array: Position}
-         *  @description    Hello
+        /**
+         * @property    Position: {Float32Array}
+         * @description The current position of the parent of gameobject
          */
         Position:
         {
@@ -55,9 +53,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Rotation}
-         *  @description    Hello
+        /**
+         * @property    Rotation: {Float32Array}
+         * @description The current rotation of the parent of gameobject
          */           
         Rotation:
         {
@@ -69,9 +67,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Scale}
-         *  @description    Hello
+        /**
+         * @property    Scale: {Float32Array}
+         * @description The current scaling of the parent of gameobject
          */
         Scale:
         {
@@ -83,9 +81,9 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Shear}
-         *  @description    Hello
+        /**
+         * @property    Shear: {Float32Array}
+         * @description The current shearing of the parent of gameobject
          */
         Shear:
         {
@@ -97,34 +95,34 @@ function Transform(request)
             }
         },
 
-        /*!
-         *  @property       {Float32Array: Up}
-         *  @description    Hello
+        /**
+         * @property    Up: {Float32Array}
+         * @description The parent gameobject's up vector
          */
         Up:         { get: function() { return _Up; } },
         
-        /*!
-         *  @property       {Float32Array: Forward}
-         *  @description    Hello
+        /**
+         * @property    Forward: {Float32Array}
+         * @description The parent gameobject's forward vector
          */
         Forward:    { get: function() { return _Forward; } },
         
-        /*!
-         *  @property       {Float32Array: Right}
-         *  @description    Hello
+        /**
+         * @property    Right: {Float32Array}
+         * @description The parent gameobject's right vector
          */
         Right:      { get: function() { return _Right; } },
     });
     
-    $.TransformUpdate();
+    this.TransformUpdate();
 }
 Object.defineProperties(Transform.prototype,
 {
     constructor: {value: Transform},
 
-    /*!
-     *  @property       {Float32Array: Position}
-     *  @description    Hello
+    /**
+     * @property    TransformUpdate: void
+     * @description Updates the transformations
      */
     TransformUpdate:
     {

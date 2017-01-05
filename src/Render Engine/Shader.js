@@ -1,14 +1,14 @@
 var __SHADER__ = [];
 
-/*!
- *  @constructor    Shader
- *  @description    Something
- *  @param          {Object: request}
- *                  > {String: name}
- *                  > {String: vertexShader}
- *                  > {String: fragmentShader}
- *                  > {Number: width}
- *                  > {Number: height}
+/**
+ * @constructor Shader
+ * @description This object links with the vertex and fragment shaders
+ * @param       request:            {Object}
+ *              > name:             {String}
+ *              > vertexShader:     {String}
+ *              > fragmentShader:   {String}
+ *              > width:            {Number}    [nullable]
+ *              > height:           {Number}    [nullable]
  */
 function Shader(request)
 {

@@ -1,5 +1,0 @@
-function GameScreen()
-{
-    var $ = this;
-}
-
