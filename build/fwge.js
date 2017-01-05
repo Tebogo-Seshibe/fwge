@@ -1,222 +1,224 @@
 (function()
 {
 "use strict";
-	
+    
 var GL = undefined;
 
 Object.defineProperties(Math,
 {
-    cot: 	{ value: function cot(radian) 				{ return 1 / Math.tan(radian); 					} },
-    radian: { value: function radian(degree) 			{ return Math.PI / 180 * degree; 				} },
-    clamp: 	{ value: function clamp(value, min, max) 	{ return Math.max(Math.min(value, max), main); 	} }
+    cot:    { value: function cot(radian)             { return 1 / Math.tan(radian);                   } },
+    radian: { value: function radian(degree)          { return Math.PI / 180 * degree;                 } },
+    clamp:  { value: function clamp(value, min, max)  { return Math.max(Math.min(value, max), main);   } }
 });
 
 var IDCounter = new function IDCounter(){ var id = 0; this.next = function next(){ return id++ }; };
 
 
 /**
- * @constructor	GameEngine
- * @description	Something...
- * @module		FWGE
+ * @constructor GameEngine
+ * @description Something...
+ * @module      FWGE
  */
 function GameEngine()
 {
-	var _Running 		= false;
-	var _AnimationFrame = undefined;
+    var _Running = false;
+    var _AnimationFrame = undefined;
 
-	Object.defineProperties(this,
-	{
-		/**
-		 * @property	GameObject: {Function}
-		 * @description	The GameObject constructor.
-		 * @see			FWGE.Game.GameObject
-		 */
-		GameObject: 	{ value: GameObject },
-		
-		/**
-		 * @property	Animation: {Function}
-		 * @description	The Animation constructor.
-		 * @see			FWGE.Game.Animation
-		 */
-		Animation: 		{ value: Animation },
-		
-		/**
-		 * @property	Input: {Input}
-		 * @description	The module that handles user inputs.
-		 * @see			FWGE.Game.Input
-		 */
-		Input: 			{ value: new Input() },
-		
-		/**
-		 * @property	Time: {Time}
-		 * @description	The running clock.
-		 * @see			FWGE.Game.Time
-		 */
-		Time: 			{ value: new Time() },
-		
-		/**
-		 * @property	Transform {Transform}
-		 * @description	The Transform constructor.
-		 * @see			FWGE.Game.Transform
-		 */
-		Transform: 		{ value: Transform },
-		
-		/**
-		 * @property	Light: {Light}
-		 * @description	The Light module.
-		 * @see			FWGE.Game.Light
-		 */
-		Light: 			{ value: new Light() },
-		
-		/**
-		 * @property	Maths: {Maths}
-		 * @description	The Maths module.
-		 * @see			FWGE.Game.Maths
-		 */
-		Maths: 			{ value: new Maths() },
-		
-		/**
-		 * @property	ParticleSystem: {Function}
-		 * @description	The ParticleSystem constructor.
-		 * @see			FWGE.Game.ParticleSystem
-		 */
-		ParticleSystem: { value: ParticleSystem },
-		
-		/**
-		 * @property	Camera: {Camera}
-		 * @description	The viewer.
-		 * @see			FWGE.Game.Camera
-		 */
-		Camera: 		{ value: new Camera() },
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    GameObject: {Function}
+         * @description The GameObject constructor.
+         * @see         FWGE.Game.GameObject
+         */
+        GameObject:     { value: GameObject },
+        
+        /**
+         * @property    Animation: {Function}
+         * @description The Animation constructor.
+         * @see         FWGE.Game.Animation
+         */
+        Animation:      { value: Animation },
+        
+        /**
+         * @property    Input: {Input}
+         * @description The module that handles user inputs.
+         * @see         FWGE.Game.Input
+         */
+        Input:          { value: new Input() },
+        
+        /**
+         * @property    Time: {Time}
+         * @description The running clock.
+         * @see         FWGE.Game.Time
+         */
+        Time:           { value: new Time() },
+        
+        /**
+         * @property    Transform {Transform}
+         * @description The Transform constructor.
+         * @see         FWGE.Game.Transform
+         */
+        Transform:      { value: Transform },
+        
+        /**
+         * @property    Light: {Light}
+         * @description The Light module.
+         * @see         FWGE.Game.Light
+         */
+        Light:          { value: new Light() },
+        
+        /**
+         * @property    Maths: {Maths}
+         * @description The Maths module.
+         * @see         FWGE.Game.Maths
+         */
+        Maths:          { value: new Maths() },
+        
+        /**
+         * @property    ParticleSystem: {Function}
+         * @description The ParticleSystem constructor.
+         * @see         FWGE.Game.ParticleSystem
+         */
+        ParticleSystem: { value: ParticleSystem },
+        
+        /**
+         * @property    Camera: {Camera}
+         * @description The viewer.
+         * @see         FWGE.Game.Camera
+         */
+        Camera:         { value: new Camera() },
 
         /**
-         * @function       	Init: void
-         * @description    	Initializes the game engine
+         * @function    Init: void
+         * @description Initializes the game engine
          */
-		Init:
-		{
-			value: function Init()
-			{
-				// TODO
-			}
-		},
+        Init:
+        {
+            value: function Init()
+            {
+                // TODO
+            }
+        },
 
         /**
-         * @function       Run: void
-         * @description    Runs the main game loop
+         * @function    Run: void
+         * @description Runs the main game loop
          */
-		Run: 
-		{ 
-			value: function Run()
-			{
-				_AnimationFrame = window.requestAnimationFrame(FWGE.Game.Run);
+        Run: 
+        { 
+            value: function Run()
+            {
+                _AnimationFrame = window.requestAnimationFrame(FWGE.Game.Run);
 
-	            if (_Running)
-	            {   
-		            FWGE.Game.GameUpdate();
-		            FWGE.Physics.PhysicsUpdate();
-		            FWGE.Render.RenderUpdate();
-				}
-			}
-		},
+                if (_Running)
+                {   
+                    FWGE.Game.GameUpdate();
+                    FWGE.Physics.PhysicsUpdate();
+                    FWGE.Render.RenderUpdate();
+                }
+            }
+        },
 
         /**
-         * @function       GameUpdate: void
-         * @description    Updates the scene
+         * @function    GameUpdate: void
+         * @description Updates the scene
          */
-		GameUpdate:
-		{
-			value: function GameUpdate()
-			{
-	            FWGE.Game.Time.TimeUpdate();
+        GameUpdate:
+        {
+            value: function GameUpdate()
+            {
+                FWGE.Game.Time.TimeUpdate();
 
-	            var i = __OBJECT__.length;
-	            while (--i >= 0)
-	                __OBJECT__[i].ObjectUpdate();
+                var i = __OBJECT__.length;
+                while (--i >= 0)
+                    __OBJECT__[i].ObjectUpdate();
 
-	            FWGE.Game.Input.InputUpdate();
-			}
-		},
+                FWGE.Game.Input.InputUpdate();
+            }
+        },
 
         /**
-         * @function       Start: void
-         * @description    Initiates/resumes the main game loop
+         * @function    Start: void
+         * @description Initiates/resumes the main game loop
          */
-		Start:
-		{
-			value: function Start()
-			{
-				if(!_Running)
-					_Running = true;
+        Start:
+        {
+            value: function Start()
+            {
+                if(!_Running)
+                    _Running = true;
 
-				if (!_AnimationFrame)
-					this.Run();
-			}
-		},
+                if (!_AnimationFrame)
+                    this.Run();
+            }
+        },
 
         /**
-         * @function       Stop: void
-         * @description    Suspends the main game loop
+         * @function    Stop: void
+         * @description Suspends the main game loop
          */
-		Stop:
-		{
-			value: function Stop()
-			{
-				if (_Running)
-					_Running = false;
+        Stop:
+        {
+            value: function Stop()
+            {
+                if (_Running)
+                    _Running = false;
 
-				if (!!_AnimationFrame)
-				{
-					window.cancelAnimationFrame(_AnimationFrame);
-					_AnimationFrame = undefined;
-				}
-			}
-		}
-	});
+                if (!!_AnimationFrame)
+                {
+                    window.cancelAnimationFrame(_AnimationFrame);
+                    _AnimationFrame = undefined;
+                }
+            }
+        }
+    });
 };
 
 
 /**
  * @constructor Item
- * @module 		FWGE.Game
+ * @module      FWGE.Game
  * @description The base object for every item
- *				used within the game engine.
- * @param		request: 	{Object}
- *				> type: 	{String}	[nullable]
- *				> name:		{String}	[nullable]
+ *              used within the game engine.
+ * @param       request:    {Object}
+ *              > type:     {String}    [nullable]
+ *              > name:     {String}    [nullable]
  */
 function Item(request)
 {
-	if (!request) request = {};
+    if (!request) request = {};
 
-	var _Name = request.name || "Item";
+    var _Name = request.name || "Item";
 
-	Object.defineProperties(this,
-	{
+    Object.defineProperties(this,
+    {
         /**
          * @property    Type:{String}
-         *				> get
+         *              > get
          * @description A string descriptor for the type of item.
          */
-		Type: { value: request.type || "ITEM" },
+        Type: { value: request.type || "ITEM" },
 
         /**
          * @property    Name: {String}
-         *				> get
-         *				> set
+         *              > get
+         *              > set
          * @description A simple string naming the item
          */
-		Name:
-		{
-			get: function getName() { return _Name; },
-			set: function setName(name)
-			{
-				if (typeof name === 'string')
-					_Name = name;
-			}
-		}
-	});
+        Name:
+        {
+            get: function getName() { return _Name; },
+            set: function setName(name)
+            {
+                if (typeof name === 'string')
+                    _Name = name;
+            }
+        }
+    });
 }
+
+
 /**
  * @constructor GameItem
  * @description The base container for objects used within the scene.
@@ -602,206 +604,206 @@ function Camera()
     Object.defineProperties(this,
     {
         /**
-		 * @constant	PERSPECTIVE: {Number}
-		 * 				> get
-		 * @description Represents a perspective rendering mode
-		 */
-    	PERSPECTIVE:  { value: 0 },
-		
+         * @constant    PERSPECTIVE: {Number}
+         *              > get
+         * @description Represents a perspective rendering mode
+         */
+        PERSPECTIVE:  { value: 0 },
+        
         /**
-		 * @constant	ORTHOGRAPHIC: {Number}
-		 * 				> get
-		 * @description Represents an orthographic rendering mode
-		 */
-    	ORTHOGRAPHIC: { value: 1 },
+         * @constant    ORTHOGRAPHIC: {Number}
+         *              > get
+         * @description Represents an orthographic rendering mode
+         */
+        ORTHOGRAPHIC: { value: 1 },
 
         /**
-		 * @property	Mode: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the current rendering mode the camera is using
-		 */
-    	Mode:
-    	{ 
-    		get: function getMode() { return _Mode; },
-    		set: function setMode()
-    		{ 
-    			if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
-    				_Mode = arguments[0];
-    		}
-    	},
-		
+         * @property    Mode: {Number}
+         *              > get
+         *              > set
+         * @description Represent the current rendering mode the camera is using
+         */
+        Mode:
+        { 
+            get: function getMode() { return _Mode; },
+            set: function setMode()
+            { 
+                if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
+                    _Mode = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	FOV: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the current field of view of the camera
-		 */
-    	FOV:
-    	{ 
-    		get: function getFOV() { return _FOV; },
-    		set: function setFOV()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_FOV = arguments[0];
-    		}
-    	},
-		
+         * @property    FOV: {Number}
+         *              > get
+         *              > set
+         * @description Represent the current field of view of the camera
+         */
+        FOV:
+        { 
+            get: function getFOV() { return _FOV; },
+            set: function setFOV()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _FOV = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Aspect: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the aspect ratio of the camera
-		 */
-    	Aspect:
-    	{ 
-    		get: function getAspect() { return _Aspect; },
-    		set: function setAspect()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Aspect = arguments[0];
-    		}
-    	},
-		
+         * @property    Aspect: {Number}
+         *              > get
+         *              > set
+         * @description Represent the aspect ratio of the camera
+         */
+        Aspect:
+        { 
+            get: function getAspect() { return _Aspect; },
+            set: function setAspect()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Aspect = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Near: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the near clipping plane
-		 */
-    	Near:
-    	{ 
-    		get: function getNear() { return _Near; },
-    		set: function setNear()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Near = arguments[0];
-    		}
-    	},
-		
+         * @property    Near: {Number}
+         *              > get
+         *              > set
+         * @description Represent the near clipping plane
+         */
+        Near:
+        { 
+            get: function getNear() { return _Near; },
+            set: function setNear()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Near = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Far: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the far clipping plane
-		 */
-    	Far:
-    	{ 
-    		get: function getFar() { return _Far; },
-    		set: function setFar()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Far = arguments[0];
-    		}
-    	},
-		
+         * @property    Far: {Number}
+         *              > get
+         *              > set
+         * @description Represent the far clipping plane
+         */
+        Far:
+        { 
+            get: function getFar() { return _Far; },
+            set: function setFar()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Far = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Left: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the left clipping plane
-		 */
-    	Left:
-    	{ 
-    		get: function getLeft() { return _Left; },
-    		set: function setLeft()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Left = arguments[0];
-    		}
-    	},
-		
+         * @property    Left: {Number}
+         *              > get
+         *              > set
+         * @description Represent the left clipping plane
+         */
+        Left:
+        { 
+            get: function getLeft() { return _Left; },
+            set: function setLeft()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Left = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Right: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the right clipping plane
-		 */
-    	Right:
-    	{ 
-    		get: function getRight() { return _Right; },
-    		set: function setRight()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Right = arguments[0];
-    		}
-    	},
-		
+         * @property    Right: {Number}
+         *              > get
+         *              > set
+         * @description Represent the right clipping plane
+         */
+        Right:
+        { 
+            get: function getRight() { return _Right; },
+            set: function setRight()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Right = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Top: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the top clipping plane
-		 */
-    	Top:
-    	{ 
-    		get: function getTop() { return _Top; },
-    		set: function setTop()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Top = arguments[0];
-    		}
-    	},
-		
+         * @property    Top: {Number}
+         *              > get
+         *              > set
+         * @description Represent the top clipping plane
+         */
+        Top:
+        { 
+            get: function getTop() { return _Top; },
+            set: function setTop()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Top = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Bottom: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the bottom clipping plane
-		 */
-    	Bottom:
-    	{ 
-    		get: function getBottom() { return _Bottom; },
-    		set: function setBottom()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Bottom = arguments[0];
-    		}
-    	},
-		
+         * @property    Bottom: {Number}
+         *              > get
+         *              > set
+         * @description Represent the bottom clipping plane
+         */
+        Bottom:
+        { 
+            get: function getBottom() { return _Bottom; },
+            set: function setBottom()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Bottom = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Theta: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent camera's yaw around the scene
-		 */
-    	Theta:
-    	{ 
-    		get: function getTheta() { return _Theta; },
-    		set: function setTheta()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Theta = arguments[0];
-    		}
-    	},
-		
+         * @property    Theta: {Number}
+         *              > get
+         *              > set
+         * @description Represent camera's yaw around the scene
+         */
+        Theta:
+        { 
+            get: function getTheta() { return _Theta; },
+            set: function setTheta()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Theta = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	Phi: {Number}
-		 * 				> get
-		 * 				> set
-		 * @description Represent the camera's pitch around the scene
-		 */
-    	Phi:
-    	{ 
-    		get: function getPhi() { return _Phi; },
-    		set: function setPhi()
-    		{ 
-    			if (typeof arguments[0] === 'number')
-    				_Phi = arguments[0];
-    		}
-    	},
-		
+         * @property    Phi: {Number}
+         *              > get
+         *              > set
+         * @description Represent the camera's pitch around the scene
+         */
+        Phi:
+        { 
+            get: function getPhi() { return _Phi; },
+            set: function setPhi()
+            { 
+                if (typeof arguments[0] === 'number')
+                    _Phi = arguments[0];
+            }
+        },
+        
         /**
-		 * @property	CameraUpdate: void
-		 * @description Updates the camera
-		 */
+         * @property    CameraUpdate: void
+         * @description Updates the camera
+         */
         CameraUpdate:
         {
             value: function CameraUpdate()
             {
                 GL.canvas.height = GL.canvas.clientHeight;
                 GL.canvas.width = GL.canvas.clientWidth;
-				_Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
+                _Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
             }
         }
     });
@@ -809,10 +811,10 @@ function Camera()
 
 
 /**
- * @constructor	Particle
- * @description	Definition of an animator
- * @module		FWGE.Game
- * @param		request: 	{Object}
+ * @constructor Particle
+ * @description Definition of an animator
+ * @module      FWGE.Game
+ * @param       request:     {Object}
  */
 function Animation(request)
 {
@@ -990,6 +992,7 @@ Object.defineProperties(Transform.prototype,
         }
     }
 });
+
 
 /**
  * @constructor Input
@@ -1423,157 +1426,156 @@ var __LIGHT__ = new Array(12);
 
 /**
  * @constructor Light
- * @module		FWGE.Game
- * @description	This module is used to create the lights in the scene.
+ * @module      FWGE.Game
+ * @description This module is used to create the lights in the scene.
  */
 function Light()
 {
-	var _AmbientCount 		= 0;
-	var _DirectionalCount 	= 0;
-	var _PointCount 		= 0;
+    var _AmbientCount     = 0;
+    var _DirectionalCount = 0;
+    var _PointCount       = 0;
     
-    var _MAX_AMBIENT 		= 1;
-    var _MAX_DIRECTIONAL 	= 3;
-    var _MAX_POINT 			= 8;
+    var _MAX_AMBIENT      = 1;
+    var _MAX_DIRECTIONAL  = 3;
+    var _MAX_POINT        = 8;
 
     Object.defineProperties(this,
     {
-    	/**
-    	 * @function	Ambient: {AmbientLight}
-    	 * @description	Returns a new ambient light object. It is treated as a singleton,
-		 * 				i.e. there is only one ambient light object in a scene.
-		 * @see 		FWGE.Game.Light.AmbientLight
-		 * @param 		request: 		{Object}
-		 * 				> parent: 		{GameObject}
-		 * 				> colour: 		{Float32Array}	[nullable]
-		 * 				> intensity:	{Number}		[nullable]
-    	 */
+        /**
+         * @function    Ambient: {AmbientLight}
+         * @description Returns a new ambient light object. It is treated as a singleton,
+         *              i.e. there is only one ambient light object in a scene.
+         * @see         FWGE.Game.Light.AmbientLight
+         * @param       request:        {Object}
+         *              > parent:       {GameObject}
+         *              > colour:       {Float32Array}  [nullable]
+         *              > intensity:    {Number}        [nullable]
+         */
         Ambient:
         {
-        	value: function Ambient(request)
-        	{
-        		if (_AmbientCount < _MAX_AMBIENT)
-        		{
-        			__LIGHT__[0] = new AmbientLight(request);
-        			_AmbientCount++;
-        		}
-    		
-    			return __LIGHT__[0];
-        	}
+            value: function Ambient(request)
+            {
+                if (_AmbientCount < _MAX_AMBIENT)
+                {
+                    __LIGHT__[0] = new AmbientLight(request);
+                    _AmbientCount++;
+                }
+            
+                return __LIGHT__[0];
+            }
         },
 
-    	/**
-    	 * @function	Directional: {DirectionalLight}
-    	 * @description	Returns a new directional light object. There can up to three
-		 * 				directional light objects in a scene.
-		 * @see 		FWGE.Game.Light.DirectionalLight
-		 * @param 		request: 		{Object}
-		 * 				> parent: 		{GameObject}
-		 * 				> colour: 		{Float32Array}	[nullable]
-		 * 				> intensity: 	{Number}		[nullable]
-		 * 				> direction: 	{Float32Array}	[nullable]
-    	 */
+        /**
+         * @function    Directional: {DirectionalLight}
+         * @description Returns a new directional light object. There can up to three
+         *              directional light objects in a scene.
+         * @see         FWGE.Game.Light.DirectionalLight
+         * @param       request:         {Object}
+         *              > parent:        {GameObject}
+         *              > colour:        {Float32Array}  [nullable]
+         *              > intensity:     {Number}        [nullable]
+         *              > direction:     {Float32Array}  [nullable]
+         */
         Directional:
         {
-        	value: function Directional(request)
-        	{
-        		if (_DirectionalCount < _MAX_DIRECTIONAL)
-        		{
-        			for (var i = 1; i < 4; ++i)
-        			{
-        				if (__LIGHT__[i] === undefined)
-        				{
-		        			__LIGHT__[i] = new DirectionalLight(request);
-		        			_DirectionalCount++;
+            value: function Directional(request)
+            {
+                if (_DirectionalCount < _MAX_DIRECTIONAL)
+                {
+                    for (var i = 1; i < 4; ++i)
+                    {
+                        if (__LIGHT__[i] === undefined)
+                        {
+                            __LIGHT__[i] = new DirectionalLight(request);
+                            _DirectionalCount++;
 
-		        			return __LIGHT__[i];		
-        				}
-        			}
-        		}
+                            return __LIGHT__[i];        
+                        }
+                    }
+                }
 
-        		return undefined;
-        	}
+                return undefined;
+            }
         },
 
-    	/**
-    	 * @function	Point: {PointLight}
-    	 * @description	Returns a new point light object. There can up to eight
-		 * 				point light objects in a scene.
-		 * @see 		FWGE.Game.Light.PointLight
-		 * @param 		request: 		{Object}
-		 * 				> parent: 		{GameObject}
-		 * 				> colour: 		{Float32Array}	[nullable]
-		 * 				> intensity: 	{Number}		[nullable]
-		 * 				> radius: 		{Number}		[nullable]
-		 * 				> angle:		{Number}		[nullable]
-    	 * @return 		PointLight
-    	 */
+        /**
+         * @function    Point: {PointLight}
+         * @description Returns a new point light object. There can up to eight
+         *              point light objects in a scene.
+         * @see         FWGE.Game.Light.PointLight
+         * @param       request:        {Object}
+         *              > parent:       {GameObject}
+         *              > colour:       {Float32Array}  [nullable]
+         *              > intensity:    {Number}        [nullable]
+         *              > radius:       {Number}        [nullable]
+         *              > angle:        {Number}        [nullable]
+         */
         Point:
         {
-        	value: function Point(request)
-        	{
-        		if (_PointCount < _MAX_DIRECTIONAL)
-        		{
-        			for (var i = 4; i < 12; ++i)
-        			{
-        				if (__LIGHT__[i] === undefined)
-        				{
-		        			__LIGHT__[i] = new PointLight(request);
-		        			_PointCount++;
+            value: function Point(request)
+            {
+                if (_PointCount < _MAX_DIRECTIONAL)
+                {
+                    for (var i = 4; i < 12; ++i)
+                    {
+                        if (__LIGHT__[i] === undefined)
+                        {
+                            __LIGHT__[i] = new PointLight(request);
+                            _PointCount++;
 
-		        			return __LIGHT__[i];		
-        				}
-        			}
-        		}
+                            return __LIGHT__[i];        
+                        }
+                    }
+                }
 
-        		return undefined;
-        	}
+                return undefined;
+            }
         },
 
-    	/**
-    	 * @function	Remove: void
-    	 * @description	Removes a given light object from the scene.
-		 * @param 		light: 	{LightItem}
-    	 */
+        /**
+         * @function    Remove: void
+         * @description Removes a given light object from the scene.
+         * @param       light: {LightItem}
+         */
         Remove:
         {
-        	value: function Remove(light)
-        	{
-        		if (!!light)
-        		{
-        			switch (light.Type)
-        			{
-        				case "AMBIENTLIGHT":
-    						__LIGHT__[0] = undefined;
-    						--_AmbientCount;
-        				break;
+            value: function Remove(light)
+            {
+                if (!!light)
+                {
+                    switch (light.Type)
+                    {
+                        case "AMBIENTLIGHT":
+                            __LIGHT__[0] = undefined;
+                            --_AmbientCount;
+                        break;
 
-        				case "DIRECTIONALLIGHT":
-        					for (var i = 1; i < 4; ++i)
-        					{
-        						if (__LIGHT__[i] === light)
-        						{
-        							__LIGHT__[i] = undefined;
-        							--_DirectionalCount;
-        							break;
-        						}
-        					}
-        				break;
+                        case "DIRECTIONALLIGHT":
+                            for (var i = 1; i < 4; ++i)
+                            {
+                                if (__LIGHT__[i] === light)
+                                {
+                                    __LIGHT__[i] = undefined;
+                                    --_DirectionalCount;
+                                    break;
+                                }
+                            }
+                        break;
 
-        				case "POINTLIGHT":
-        					for (var i = 4; i < 12; ++i)
-        					{
-        						if (__LIGHT__[i] === light)
-        						{
-        							__LIGHT__[i] = undefined;
-        							--_PointCount;
-        							break;
-        						}
-        					}
-        				break;
-        			}
-        		}
-        	}
+                        case "POINTLIGHT":
+                            for (var i = 4; i < 12; ++i)
+                            {
+                                if (__LIGHT__[i] === light)
+                                {
+                                    __LIGHT__[i] = undefined;
+                                    --_PointCount;
+                                    break;
+                                }
+                            }
+                        break;
+                    }
+                }
+            }
         }
     });
 }
@@ -1635,7 +1637,7 @@ function LightItem(request)
  * @constructor AmbientLight
  * @description Describes a light that evenly lights the scene.
  * @module      FWGE.Game.Light
- * @param		request:        {Object}
+ * @param       request:        {Object}
  *              > colour:       {Float32Array}  [nullable]
  *              > intensity:    {Number}        [nullable]
  */
@@ -2948,8 +2950,6 @@ function Matrix4()
 
 function Quaternion()
 {
-    var $ = this;
-
     // TODO
 }
 
@@ -2962,9 +2962,7 @@ function Quaternion()
  */
 function Vector2()
 {
-    var $ = this;
-    
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
         /**
          * @function    Create: {Float32Array}
@@ -3175,7 +3173,7 @@ function Vector2()
  */
 function Vector3()
 {
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
         /**
          * @function    Create: {Float32Array}
@@ -3401,7 +3399,7 @@ function Vector3()
  */
 function Vector4()
 {
-    Object.defineProperties($,
+    Object.defineProperties(this,
     {
         /**
          * @function    Create: {Float32Array}
@@ -3620,22 +3618,22 @@ function Vector4()
 
 
 /**
- * @constructor	Particle
- * @description	Definition of a single particle.
- * @module		FWGE.Game.ParticleSystem
- * @param		request: 	{Object}
+ * @constructor Particle
+ * @description Definition of a single particle.
+ * @module      FWGE.Game.ParticleSystem
+ * @param       request:     {Object}
  */
 function Particle(request)
 {
-	if (!request) request = {};
-	request.type = "PARTICLE";
-	GameItem.call(this, request);
+    if (!request) request = {};
+    request.type = "PARTICLE";
+    GameItem.call(this, request);
 }
 /**
- * @constructor	ParticleSystem
- * @description	Definition of a particle system.
- * @module		FWGE.Game
- * @param		request: 	{Object}
+ * @constructor ParticleSystem
+ * @description Definition of a particle system.
+ * @module      FWGE.Game
+ * @param       request:     {Object}
  */
 function ParticleSystem(request)
 {
@@ -3659,27 +3657,27 @@ function PhysicsEngine()
          * @description Constructor for a Collision object.
          * @see         FWGE.Physics.Collision
          */
-        Collision:          {value: Collision},
+        Collision:      {value: Collision},
         
         /**
          * @property    Collision: {Number}
          * @description Constructor for a Physics Body.
          * @see         FWGE.Physics.PhysicsBody
          */
-        PhysicsBody:        {value: PhysicsBody},
+        PhysicsBody:    {value: PhysicsBody},
         
         /**
          * @property    Collision: {Number}
          * @description Constructor for a PhysicsMaterial.
          * @see         FWGE.Physics.PhysicsMaterial
          */
-        PhysicsMaterial:    {value: PhysicsMaterial},
+        PhysicsMaterial:{value: PhysicsMaterial},
 
         /**
          * @constant    Gravity: {Number}
          * @description Gravity in m/s
          */
-    	Gravity: { value: -9.8 },
+        Gravity:        { value: -9.8 },
 
         /**
          * @function    Init: void
@@ -3712,26 +3710,21 @@ function PhysicsEngine()
  * @constructor PhysicsItem
  * @description The physics item
  * @module      FWGE.Physics
- *	@param		request: {Object}
+ * @param       request: {Object}
  */
 function PhysicsItem(request)
 {
     if (!request) request = {};
     GameItem.call(this, request);
-
-    Object.defineProperties(this,
-    {
-        
-    });
 }
 
 
 var __PHYSICSMATERIAL__ = [];
 
 /**
- * @constructor	PhysicsMaterial
+ * @constructor PhysicsMaterial
  * @description Some words of encouragement
- * @param		request: {Object}
+ * @param       request: {Object}
  */
 function PhysicsMaterial()
 {
@@ -3749,32 +3742,32 @@ function PhysicsMaterial()
  */
 function PhysicsBody(request)
 {
-	if (request) request = {};
+    if (request) request = {};
     request.type = "PHYSICSBODY";
-	PhysicsItem.call(this, request);
+    PhysicsItem.call(this, request);
 
     var _Mass  = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
     var _LockX = typeof request.lockx === 'boolean'?  request.lockx : false;
     var _LockY = typeof request.locky === 'boolean'?  request.locky : false;
     var _LockZ = typeof request.lockz === 'boolean'?  request.lockz : false;
     
-	Object.defineProperties(this,
-	{
+    Object.defineProperties(this,
+    {
         /**
          * @property    Mass: {Number}
          *              > get
          *              > set
          * @description The mass of the gameobject this physics body is attached to.
          */
-    	Mass:
-    	{
-    		get: function getMass() { return _Mass; },
-    		set: function setMass()
-    		{
-    			if (typeof arguments[0] === 'number' && arguments[0] >= 0.0)
+        Mass:
+        {
+            get: function getMass() { return _Mass; },
+            set: function setMass()
+            {
+                if (typeof arguments[0] === 'number' && arguments[0] >= 0.0)
                     _Mass = arguments[0];
-    		},
-    	},
+            },
+        },
         
         /**
          * @property    LockX: {Boolean}
@@ -3831,8 +3824,8 @@ function PhysicsBody(request)
  * @constructor Collision
  * @description This is the base object for collision objects
  * @module      FWGE.Physics
- * @param       request: {Object}
- * 	            > parent: {PhysicsItem}
+ * @param       request:  {Object}
+ *              > parent: {PhysicsItem}
  */
 function Collision(request)
 {
@@ -3904,26 +3897,26 @@ function RenderEngine()
          *  @function       Init: void
          *  @description    Initializes the rendering engine
          */
-    	Init:
-    	{
-    		value: function Init()
-    		{
+        Init:
+        {
+            value: function Init()
+            {
                 _Renderer = new Renderer();
                 GL.enable(GL.DEPTH_TEST);
-    		}
-    	},
+            }
+        },
 
         /**
          *  @function       RenderUpdate: void
          *  @description    Updates the rendering to the screen
          */
-    	RenderUpdate:
-    	{
-    		value: function RenderUpdate()
-    		{
+        RenderUpdate:
+        {
+            value: function RenderUpdate()
+            {
                 _Renderer.Render();
-    		}
-    	}
+            }
+        }
     });
 }
 
@@ -3931,11 +3924,11 @@ function RenderEngine()
 /**
  * @constructor RenderItem
  * @description The base item regarding rendering.
- * @param 		request: {Object}
+ * @param       request: {Object}
  */
 function RenderItem(request)
 {
-	Item.call(this, request);
+    Item.call(this, request);
 }
 var __SHADER__ = [];
 
@@ -3967,7 +3960,7 @@ function Shader(request)
         RenderBuffer:     { value: GL.createRenderbuffer() }
     });
 
-    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);		 	
+    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);             
     GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
     GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, 1024, 768);
     GL.bindTexture(GL.TEXTURE_2D, this.Texture);
@@ -4156,7 +4149,7 @@ function Colour()
                 
                 Object.defineProperties($,
                 {
-                	Type: { value: "COLOUR" },
+                    Type: { value: "COLOUR" },
                     R:
                     {
                         get: function getR(){ return $[0]; },
@@ -4340,7 +4333,7 @@ function RenderMaterial(request)
     var _Diffuse     = colour(request.diffuse);
     var _Specular    = colour(request.specular);
     var _Alpha       = typeof request.alpha     === 'number' && request.alpha     >= 0 ? request.alpha     : 1.0;
-    var _Shininess	 = typeof request.shininess === 'number' && request.shininess >= 0 ? request.shininess : 5.0;
+    var _Shininess   = typeof request.shininess === 'number' && request.shininess >= 0 ? request.shininess : 5.0;
     var _Shader      = request.shader instanceof Shader ? request.shader : undefined;
     var _ImageMap    = undefined;
     var _BumpMap     = undefined;
@@ -4739,10 +4732,10 @@ function ModelView()
                 (
                     FWGE.Game.Maths.Matrix4.Create
                     (
-                                  1.0, 			   0.0, Math.tan(rho), 0.0,
-                        Math.tan(phi), 			   1.0, 		  0.0, 0.0,
-                                  0.0, Math.tan(theta), 		  1.0, 0.0,
-                                  0.0, 			   0.0, 		  0.0, 1.0
+                                  1.0,                0.0, Math.tan(rho), 0.0,
+                        Math.tan(phi),                1.0,           0.0, 0.0,
+                                  0.0, Math.tan(theta),           1.0, 0.0,
+                                  0.0,                0.0,           0.0, 1.0
                     ),
                     matrix
                 );
@@ -4776,9 +4769,9 @@ function Projection()
         (
             _Camera,
 
-                          2 / (right - left), 								 0, 		 			       0, 0,
-                                           0, 				2 / (top - bottom), 		 			 	   0, 0,
-                                        theta, 							   phi, 		   -2 / (far - near), 0,
+                          2 / (right - left),                                  0,                             0, 0,
+                                           0,                 2 / (top - bottom),                              0, 0,
+                                        theta,                                phi,            -2 / (far - near), 0,
             -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
         );
         
@@ -4847,341 +4840,344 @@ function Projection()
 
 
 /**
- * @constructor	Renderer
- * @description	This module handles the actual rendering of the scene to
- * 				the screen.
- * @module		FWGE.Render
+ * @constructor Renderer
+ * @description This module handles the actual rendering of the scene to
+ *              the screen.
+ * @module      FWGE.Render
  */
 function Renderer()
 {
-	var __MODELVIEW__ = new ModelView();
-	var __PROJECTION__ = new Projection();
+    var __MODELVIEW__ = new ModelView();
+    var __PROJECTION__ = new Projection();
 
-	Object.defineProperties(this,
-	{
-		Render:
-		{
-			value: function Render()
-			{
+    Object.defineProperties(this,
+    {
+        Render:
+        {
+            value: function Render()
+            {
                 this.ClearBuffers();
 
-				var i = __OBJECT__.length;
-				while (--i >= 0)
-				{
-                	this.SetGlobalUniforms();
-					this.RenderObject(__OBJECT__[i]);
+                var i = __OBJECT__.length;
+                while (--i >= 0)
+                {
+                    this.SetGlobalUniforms();
+                    this.RenderObject(__OBJECT__[i]);
 
-				}
-			}
-		},
+                }
+            }
+        },
 
-		ClearBuffers:
-		{
-			value: function ClearBuffers()
-			{
-	            var i = __SHADER__.length;
-	            while (--i >= 0)
-	            {
-	                GL.bindFramebuffer(GL.FRAMEBUFFER, __SHADER__[i].FrameBuffer);
-	                GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-	                GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-	            }
-	            
-	            GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-	            GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-	            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-			}
-		},
+        ClearBuffers:
+        {
+            value: function ClearBuffers()
+            {
+                var i = __SHADER__.length;
+                while (--i >= 0)
+                {
+                    GL.bindFramebuffer(GL.FRAMEBUFFER, __SHADER__[i].FrameBuffer);
+                    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+                    GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+                }
+                
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+                GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+                GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+            }
+        },
 
-		RenderObject:
-		{
-			value: function RenderObject(object)
-			{
-				
-	            __MODELVIEW__.PushMatrix();
-	            __MODELVIEW__.Transform(object.Transform);
-	            
-	            var i = object.Children.length;
-	            while (--i >= 0)
-	                this.RenderObject(object.Children[i]);
-	            
-	            if (!!object.Mesh && !!object.RenderMaterial)
-	            {
-	                var shader = object.RenderMaterial.Shader
+        RenderObject:
+        {
+            value: function RenderObject(object)
+            {
+                
+                __MODELVIEW__.PushMatrix();
+                __MODELVIEW__.Transform(object.Transform);
+                
+                var i = object.Children.length;
+                while (--i >= 0)
+                    this.RenderObject(object.Children[i]);
+                
+                if (!!object.Mesh && !!object.RenderMaterial)
+                {
+                    var shader = object.RenderMaterial.Shader
 
-	                GL.useProgram(shader.Program);
-	                
-	                GL.enableVertexAttribArray(shader.Attributes.Position);
-	                if (shader.Attributes.Normal !== -1) GL.enableVertexAttribArray(shader.Attributes.Normal);
-	                if (shader.Attributes.Colour !== -1) GL.enableVertexAttribArray(shader.Attributes.Colour);
-	                if (shader.Attributes.UV !== -1) GL.enableVertexAttribArray(shader.Attributes.UV);
+                    GL.useProgram(shader.Program);
+                    
+                    GL.enableVertexAttribArray(shader.Attributes.Position);
+                    if (shader.Attributes.Normal !== -1) GL.enableVertexAttribArray(shader.Attributes.Normal);
+                    if (shader.Attributes.Colour !== -1) GL.enableVertexAttribArray(shader.Attributes.Colour);
+                    if (shader.Attributes.UV !== -1) GL.enableVertexAttribArray(shader.Attributes.UV);
 
-	                if (object.RenderMaterial.Alpha !== 1.0)
-	                {
-	                    GL.enable(GL.BLEND);
-	                    GL.disable(GL.DEPTH_TEST);
-	                    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
-	                }
-	                
-	                this.BindAttributes(object.Mesh, object.RenderMaterial, object.RenderMaterial.Shader.Attributes);
-	                this.SetObjectUniforms(object.RenderMaterial, object.RenderMaterial.Shader.Uniforms);
-	                this.Draw(object.Mesh.VertexCount);
-	                
-					if (object.RenderMaterial.Alpha !== 1.0)
-					{
-	                    GL.enable(GL.DEPTH_TEST);
-	                    GL.disable(GL.BLEND);
-	                }
+                    if (object.RenderMaterial.Alpha !== 1.0)
+                    {
+                        GL.enable(GL.BLEND);
+                        GL.disable(GL.DEPTH_TEST);
+                        GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+                    }
+                    
+                    this.BindAttributes(object.Mesh, object.RenderMaterial, object.RenderMaterial.Shader.Attributes);
+                    this.SetObjectUniforms(object.RenderMaterial, object.RenderMaterial.Shader.Uniforms);
+                    this.Draw(object.Mesh.VertexCount);
+                    
+                    if (object.RenderMaterial.Alpha !== 1.0)
+                    {
+                        GL.enable(GL.DEPTH_TEST);
+                        GL.disable(GL.BLEND);
+                    }
             
-	                GL.disableVertexAttribArray(shader.Attributes.Position);
-	                if (shader.Attributes.Normal !== -1) GL.disableVertexAttribArray(shader.Attributes.Normal);
-	                if (shader.Attributes.Colour !== -1) GL.disableVertexAttribArray(shader.Attributes.Colour);
-	                if (shader.Attributes.UV !== -1) GL.disableVertexAttribArray(shader.Attributes.UV);
+                    GL.disableVertexAttribArray(shader.Attributes.Position);
+                    if (shader.Attributes.Normal !== -1) GL.disableVertexAttribArray(shader.Attributes.Normal);
+                    if (shader.Attributes.Colour !== -1) GL.disableVertexAttribArray(shader.Attributes.Colour);
+                    if (shader.Attributes.UV !== -1) GL.disableVertexAttribArray(shader.Attributes.UV);
 
-	                GL.useProgram(null);
-	            }
-	               
-	            __MODELVIEW__.PopMatrix();
-			}
-		},
+                    GL.useProgram(null);
+                }
+                   
+                __MODELVIEW__.PopMatrix();
+            }
+        },
 
-		BindAttributes:
-		{
-			value: function BindAttributes(mesh, material, attributes)
-	        {
-	            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer);
-	            GL.vertexAttribPointer(attributes.Position, 3, GL.FLOAT, false, 0, 0);
-	            
-	            if (attributes.UV !== -1)
-	            {
-	            	if (!!mesh.UVBuffer)
-		            {
-		                GL.bindBuffer(GL.ARRAY_BUFFER, mesh.UVBuffer);
-		                GL.vertexAttribPointer(attributes.UV, 2, GL.FLOAT, false, 0, 0);
-		            }
-		            else
-		            	GL.disableVertexAttribArray(attributes.UV);
-		        }
-	            
-	            if (attributes.Colour !== -1)
-	            {
-	            	if (!!mesh.ColourBuffer)
-	            	{
-		                GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer);
-		                GL.vertexAttribPointer(attributes.Colour, 3, GL.FLOAT, false, 0, 0);		            		
-	            	}
-		            else
-		            	GL.disableVertexAttribArray(attributes.Colour);
-	            }
-	            
-	            if (attributes.Normal !== -1)
-	            {
-	            	if (!!mesh.NormalBuffer)
-		            {
-		                GL.bindBuffer(GL.ARRAY_BUFFER, mesh.NormalBuffer);
-		                GL.vertexAttribPointer(attributes.Normal, 3, GL.FLOAT, false, 0, 0);
-		            }
-		            else
-		            	GL.disableVertexAttribArray(attributes.Normal);
-		        }
-	            
-	            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-	        }
-		},
+        BindAttributes:
+        {
+            value: function BindAttributes(mesh, material, attributes)
+            {
+                GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer);
+                GL.vertexAttribPointer(attributes.Position, 3, GL.FLOAT, false, 0, 0);
+                
+                if (attributes.UV !== -1)
+                {
+                    if (!!mesh.UVBuffer)
+                    {
+                        GL.bindBuffer(GL.ARRAY_BUFFER, mesh.UVBuffer);
+                        GL.vertexAttribPointer(attributes.UV, 2, GL.FLOAT, false, 0, 0);
+                    }
+                    else
+                        GL.disableVertexAttribArray(attributes.UV);
+                }
+                
+                if (attributes.Colour !== -1)
+                {
+                    if (!!mesh.ColourBuffer)
+                    {
+                        GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer);
+                        GL.vertexAttribPointer(attributes.Colour, 3, GL.FLOAT, false, 0, 0);                            
+                    }
+                    else
+                        GL.disableVertexAttribArray(attributes.Colour);
+                }
+                
+                if (attributes.Normal !== -1)
+                {
+                    if (!!mesh.NormalBuffer)
+                    {
+                        GL.bindBuffer(GL.ARRAY_BUFFER, mesh.NormalBuffer);
+                        GL.vertexAttribPointer(attributes.Normal, 3, GL.FLOAT, false, 0, 0);
+                    }
+                    else
+                        GL.disableVertexAttribArray(attributes.Normal);
+                }
+                
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+            }
+        },
 
-		SetObjectUniforms:
-		{
-			value: function SetObjectUniforms(material, uniforms)
-	        {
-	            GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, __MODELVIEW__.PeekMatrix());
-	            GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, this.CalculateNormalMatrix());
-	            
-	            GL.uniform3fv(uniforms.Material.Ambient, material.Ambient);
-	            GL.uniform3fv(uniforms.Material.Diffuse, material.Diffuse);
-	            GL.uniform3fv(uniforms.Material.Specular, material.Specular);
-	            GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
-	            GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
-	        
-	            if (!!material.Image)
-	            {
-	                GL.activeTexture(GL.TEXTURE0);
-	                GL.bindTexture(GL.TEXTURE_2D, material.Image);
-	                GL.uniform1i(uniforms.Material.HasImageMap, true);
-	                GL.uniform1i(uniforms.Sampler.Image, 0);
-	            }
-	            else
-	            {
-	                GL.bindTexture(GL.TEXTURE_2D, null);
-	                GL.uniform1i(uniforms.Material.HasImageMap, false);
-	            }
-	            
-	            if (!!material.Bump)
-	            {
-	                GL.activeTexture(GL.TEXTURE1);
-	                GL.bindTexture(GL.TEXTURE_2D, material.Bump);
-	                GL.uniform1i(uniforms.Material.HasBumpMap, true);
-	                GL.uniform1i(uniforms.Sampler.Bump, 1);
-	            }
-	            else
-	            {
-	                GL.bindTexture(GL.TEXTURE_2D, null);
-	                GL.uniform1i(uniforms.Material.HasBumpMap, false);
-	            }
-	        }
-		},
+        SetObjectUniforms:
+        {
+            value: function SetObjectUniforms(material, uniforms)
+            {
+                GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, __MODELVIEW__.PeekMatrix());
+                GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, this.CalculateNormalMatrix());
+                
+                GL.uniform3fv(uniforms.Material.Ambient, material.Ambient);
+                GL.uniform3fv(uniforms.Material.Diffuse, material.Diffuse);
+                GL.uniform3fv(uniforms.Material.Specular, material.Specular);
+                GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
+                GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
+            
+                if (!!material.Image)
+                {
+                    GL.activeTexture(GL.TEXTURE0);
+                    GL.bindTexture(GL.TEXTURE_2D, material.Image);
+                    GL.uniform1i(uniforms.Material.HasImageMap, true);
+                    GL.uniform1i(uniforms.Sampler.Image, 0);
+                }
+                else
+                {
+                    GL.bindTexture(GL.TEXTURE_2D, null);
+                    GL.uniform1i(uniforms.Material.HasImageMap, false);
+                }
+                
+                if (!!material.Bump)
+                {
+                    GL.activeTexture(GL.TEXTURE1);
+                    GL.bindTexture(GL.TEXTURE_2D, material.Bump);
+                    GL.uniform1i(uniforms.Material.HasBumpMap, true);
+                    GL.uniform1i(uniforms.Sampler.Bump, 1);
+                }
+                else
+                {
+                    GL.bindTexture(GL.TEXTURE_2D, null);
+                    GL.uniform1i(uniforms.Material.HasBumpMap, false);
+                }
+            }
+        },
 
-		SetGlobalUniforms:
-		{
-			value: function SetGlobalUniform()
-	        {            
-	            var i = __SHADER__.length;
-	            while (--i >= 0)
-	            {
-	                var point_count = 0;
-	                
-	                GL.useProgram(__SHADER__[i].Program);                
-	                var uniforms = __SHADER__[i].Uniforms.Light;
-	                
-	                var j = __LIGHT__.length;
-	                while (--j >= 0)
-	                {
-	                    var light = __LIGHT__[i];
-	                    
-	                    if (!!light)
-	                    {
-		                    switch (light.Type)
-		                    {
-		                        case "AMBIENTLIGHT":
-		                            GL.uniform3fv(uniforms.Ambient.Colour, light.Colour);
-		                            GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
-		                        break;
-		                            
-		                        case "DIRECTIONALLIGHT":
-		                            GL.uniform3fv(uniforms.Directional.Colour, light.Colour);
-		                            GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-		                            GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
-		                        break;
-		                            
-		                        case "POINTLIGHT":
-		                        	__MODELVIEW__.PushMatrix();
-		                        	__MODELVIEW__.Transform(light.Transform);
-		                        	var pos = __MODELVIEW__.PopMatrix();
+        SetGlobalUniforms:
+        {
+            value: function SetGlobalUniform()
+            {            
+                var i = __SHADER__.length;
+                while (--i >= 0)
+                {
+                    var point_count = 0;
+                    
+                    GL.useProgram(__SHADER__[i].Program);                
+                    var uniforms = __SHADER__[i].Uniforms.Light;
+                    
+                    var j = __LIGHT__.length;
+                    while (--j >= 0)
+                    {
+                        var light = __LIGHT__[i];
+                        
+                        if (!!light)
+                        {
+                            switch (light.Type)
+                            {
+                                case "AMBIENTLIGHT":
+                                    GL.uniform3fv(uniforms.Ambient.Colour, light.Colour);
+                                    GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+                                break;
+                                    
+                                case "DIRECTIONALLIGHT":
+                                    GL.uniform3fv(uniforms.Directional.Colour, light.Colour);
+                                    GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
+                                    GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
+                                break;
+                                    
+                                case "POINTLIGHT":
+                                    __MODELVIEW__.PushMatrix();
+                                    __MODELVIEW__.Transform(light.Transform);
+                                    var pos = __MODELVIEW__.PopMatrix();
 
-		                            GL.uniform3fv(uniforms.Point[point_count].Colour, light.Colour);
-		                            GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-		                            GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
-		                            GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-		                            GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+                                    GL.uniform3fv(uniforms.Point[point_count].Colour, light.Colour);
+                                    GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
+                                    GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
+                                    GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
+                                    GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
 
-		                            point_count++;
-		                        break;
-		                    }
-		                }
-	                }
+                                    point_count++;
+                                break;
+                            }
+                        }
+                    }
 
-	                GL.uniform1i(uniforms.PointCount, point_count);
-	                
-	                // SET UNIFORM FOR NUMBER OF POINT LIGHTS
-	                GL.uniformMatrix4fv(__SHADER__[i].Uniforms.Matrix.Projection, false, __PROJECTION__.GetViewer());
-	            }
-	            
-	            GL.useProgram(null);
-	        }
-		},
+                    GL.uniform1i(uniforms.PointCount, point_count);
+                    
+                    // SET UNIFORM FOR NUMBER OF POINT LIGHTS
+                    GL.uniformMatrix4fv(__SHADER__[i].Uniforms.Matrix.Projection, false, __PROJECTION__.GetViewer());
+                }
+                
+                GL.useProgram(null);
+            }
+        },
 
-		CalculateNormalMatrix:
-		{
-			value: function CalculateNormalMatrix()
-			{
-				var mat = __MODELVIEW__.PeekMatrix();
-				FWGE.Game.Maths.Matrix4.Inverse(mat);
-				return FWGE.Game.Maths.Matrix3.Create
-				(
-					mat.M11, mat.M21, mat.M31,
-					mat.M12, mat.M22, mat.M32,
-					mat.M13, mat.M23, mat.M33
-				);
-			}
-		},
+        CalculateNormalMatrix:
+        {
+            value: function CalculateNormalMatrix()
+            {
+                var mat = __MODELVIEW__.PeekMatrix();
+                FWGE.Game.Maths.Matrix4.Inverse(mat);
+                return FWGE.Game.Maths.Matrix3.Create
+                (
+                    mat.M11, mat.M21, mat.M31,
+                    mat.M12, mat.M22, mat.M32,
+                    mat.M13, mat.M23, mat.M33
+                );
+            }
+        },
 
-		Draw:
-		{
-			value: function Draw(vertexCount)
-	        {
-	        	console.log(vertexCount);
-	            GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
-	        }
-		},
+        Draw:
+        {
+            value: function Draw(vertexCount)
+            {
+                console.log(vertexCount);
+                GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
+            }
+        },
 
-		FinalDraw:
-		{
-			value: function FinalDraw()
-			{
+        FinalDraw:
+        {
+            value: function FinalDraw()
+            {
 
-			}
-		}
-	});
+            }
+        }
+    });
 
-	__PROJECTION__.ProjectionUpdate();
+    __PROJECTION__.ProjectionUpdate();
 };
 
 
 /**
  * @constructor FWGEPrototype
- * @module		{}
+ * @module      {}
  */
 function FWGEPrototype()
 {
-	Object.defineProperties(this,
-	{
-		/**
-		 * @property	Game: {GameEngine}
-		 * @description	The main engine. @see FWGE.Game
-		 */
-		Game: 		{value: new GameEngine()},
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    Game: {GameEngine}
+         * @description The main engine.
+		 * @see         FWGE.Game
+         */
+        Game: {value: new GameEngine()},
 
-		/**
-		 * @property	Physics: {PhysicsEngine}
-		 * @description	The physics engine. @see FWGE.Physics
-		 */
-		Physics: 	{value: new PhysicsEngine()},
+        /**
+         * @property    Physics: {PhysicsEngine}
+         * @description The physics engine.
+		 * @see         FWGE.Physics
+         */
+        Physics: {value: new PhysicsEngine()},
 
-		/**
-		 * @property	Render: {RenderEngine}
-		 * @description	The rendering engine. @see Render
-		 */
-		Render: 	{value: new RenderEngine()},
+        /**
+         * @property    Render: {RenderEngine}
+         * @description The rendering engine.
+		 * @see         Render
+         */
+        Render: {value: new RenderEngine()},
 
-		/**
-		 * @function 	Init: void
-		 * @description Initializes the webgl context and the seperate engines
-		 * @param		request: 	{Object}
-		 * 				> canvas: 	{HTMLCanvasElement}
-		 *				> height: 	{Number}				[nullable]
-		 *				> width: 	{Number}				[nullable]
-		 *				> clear: 	{Float32Array}			[nullable]
-		 */
-		Init: 
-		{
-			value: function Init(request)
-			{
-				if (!request) request = {};
-				if (!request.clear || !(request.clear instanceof Float32Array) || request.clear.length === 4)
-					request.clear = [0, 0, 0, 0];
+        /**
+         * @function    Init: void
+         * @description Initializes the webgl context and the seperate engines
+         * @param       request:     {Object}
+         *              > canvas:    {HTMLCanvasElement}
+         *              > height:    {Number}                [nullable]
+         *              > width:     {Number}                [nullable]
+         *              > clear:     {Float32Array}          [nullable]
+         */
+        Init: 
+        {
+            value: function Init(request)
+            {
+                if (!request) request = {};
+                if (!request.clear || !(request.clear instanceof Float32Array) || request.clear.length === 4)
+                    request.clear = [0, 0, 0, 0];
 
-				GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 
-				if (!GL)
-					throw "Webgl context could not be initialized.";
+                if (!GL)
+                    throw "Webgl context could not be initialized.";
 
-				GL.clearColor(request.clear[0] || 0, request.clear[1] || 0, request.clear[2] || 0, request.clear[3] || 0);
+                GL.clearColor(request.clear[0] || 0, request.clear[1] || 0, request.clear[2] || 0, request.clear[3] || 0);
 
-				this.Game.Init();
-				this.Physics.Init();
-				this.Render.Init();
-			}
-		}
-	});
+                this.Game.Init();
+                this.Physics.Init();
+                this.Render.Init();
+            }
+        }
+    });
 }
 
 window.FWGE = new FWGEPrototype();
