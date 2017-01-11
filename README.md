@@ -39,12 +39,6 @@ window.onload = function onload(e)
 
 function Start()
 {
-	FWGE.Init(
-	{
-		canvas: document.getElementById("canvas"),
-		clear: new Float32Array([0,0,0,0])
-	});
-
 	Cube = new FWGE.Game.GameObject(
 	{
 		name: 			"Spinning Colourful Cube",
