@@ -11,12 +11,15 @@
 function Transform(request)
 {
     if (!request) request = {};
-    request.type ="TRANSFORM";
+    if (!request.type) request.type = "";
+    request.type ="TRANSFORM ";
+    
     GameItem.call(this, request);
     
-    function setup(item)
+    function setup(item, one)
     {
-        if (!item || !(item instanceof Array)) item = [0,0,0];
+        if (!item || !(item instanceof Array))
+            item = !!one ? [1,1,1] : [0,0,0];
 
         switch (item.length)
         {
@@ -30,7 +33,7 @@ function Transform(request)
     
     var _Position   = setup(request.position);
     var _Rotation   = setup(request.rotation);
-    var _Scale      = setup(request.scale);
+    var _Scale      = setup(request.scale, true);
     var _Shear      = setup(request.shear);
     
     var _Up         = FWGE.Game.Maths.Vector3.Create(0, 1, 0);
@@ -48,7 +51,7 @@ function Transform(request)
             get: function getPosition() { return _Position; },
             set: function setPosition()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Position, arguments[0]);
             }
         },
@@ -62,7 +65,7 @@ function Transform(request)
             get: function getRotation() { return _Rotation; },
             set: function setRotation()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Rotation, arguments[0]);
             }
         },
@@ -76,7 +79,7 @@ function Transform(request)
             get: function getScale() { return _Scale; },
             set: function setScale()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Scale, arguments[0]);
             }
         },
@@ -90,7 +93,7 @@ function Transform(request)
             get: function getShear() { return _Shear; },
             set: function setShear()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Shear, arguments[0]);
             }
         },

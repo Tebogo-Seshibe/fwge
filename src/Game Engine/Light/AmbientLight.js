@@ -9,7 +9,8 @@
 function AmbientLight(request)
 {
     if (!request) request = {};
-    request.type = "AMBIENTLIGHT";
+    if (!request.type) request.type = "";
+    request.type += "AMBIENTLIGHT ";
 
     LightItem.call(this, request);
 }

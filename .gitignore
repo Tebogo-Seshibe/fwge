@@ -1,5 +1,8 @@
 documentation/
 node_modules/
+src/CodeTranslator.js
+src/FWGE.header.js
+src/FWGE.footer.js
 test/
 concat.js
 document.js

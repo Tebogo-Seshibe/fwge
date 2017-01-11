@@ -34,6 +34,13 @@ function Camera()
         ORTHOGRAPHIC: { value: 1 },
 
         /**
+         * @property    Transform:  {Transform}
+         *              > get
+         * @description The transform object attached to the current gameobject
+         */
+        Transform: { value: new Transform() },
+
+        /**
          * @property    Mode: {Number}
          *              > get
          *              > set
@@ -45,7 +52,10 @@ function Camera()
             set: function setMode()
             { 
                 if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
+                {
                     _Mode = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -61,7 +71,10 @@ function Camera()
             set: function setFOV()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _FOV = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -77,7 +90,10 @@ function Camera()
             set: function setAspect()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Aspect = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -93,7 +109,10 @@ function Camera()
             set: function setNear()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Near = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -109,7 +128,10 @@ function Camera()
             set: function setFar()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Far = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -125,7 +147,10 @@ function Camera()
             set: function setLeft()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Left = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -141,7 +166,10 @@ function Camera()
             set: function setRight()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Right = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -157,7 +185,10 @@ function Camera()
             set: function setTop()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Top = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -173,7 +204,10 @@ function Camera()
             set: function setBottom()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Bottom = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -189,7 +223,10 @@ function Camera()
             set: function setTheta()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Theta = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -205,7 +242,10 @@ function Camera()
             set: function setPhi()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Phi = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -217,9 +257,9 @@ function Camera()
         {
             value: function CameraUpdate()
             {
-                GL.canvas.height = GL.canvas.clientHeight;
-                GL.canvas.width = GL.canvas.clientWidth;
-                _Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
+                GL.canvas.height = window.innerHeight;
+                GL.canvas.width = window.innerWidth;
+                //_Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
             }
         }
     });

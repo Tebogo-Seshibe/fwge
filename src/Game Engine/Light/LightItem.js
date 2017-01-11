@@ -8,9 +8,12 @@
 function LightItem(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "LIGHTITEM ";
+    
     GameItem.call(this, request);
 
-    var _Colour = request.colour instanceof Float32Array ? request.colour : new Float32Array(3);
+    var _Colour = FWGE.Render.Colour.Create(request.colour instanceof Float32Array ? request.colour : new Float32Array(3));
     var _Intensity = typeof request.intensity === 'number' ? request.intensity : 1.0;
 
     Object.defineProperties(this,
@@ -36,6 +39,7 @@ function LightItem(request)
          *              > get
          *              > set
          * @description Descrbies the intensity at which the light object emits.
+         *              This ranges between: [0, 1].
          */
         Intensity:
         {
@@ -43,7 +47,7 @@ function LightItem(request)
             set: function setIntensity()
             {
                 if (typeof arguments[0] === 'number')
-                    _Intensity = Math.clamp(0, 255, arguments[0]);
+                    _Intensity = Math.clamp(arguments[0], 0, 1);
             }
         }
     });

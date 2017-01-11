@@ -19,11 +19,11 @@ function Light()
     {
         /**
          * @function    Ambient: {AmbientLight}
-         * @description Returns a new ambient light object. It is treated as a singleton,
-         *              i.e. there is only one ambient light object in a scene.
+         * @description Returns a new ambient light object. There is only one ambient
+         *              light object in a scene.
          * @see         FWGE.Game.Light.AmbientLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}
+         *              > parent:       {GameObject}    [nullable]
          *              > colour:       {Float32Array}  [nullable]
          *              > intensity:    {Number}        [nullable]
          */
@@ -34,10 +34,14 @@ function Light()
                 if (_AmbientCount < _MAX_AMBIENT)
                 {
                     __LIGHT__[0] = new AmbientLight(request);
+                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                    __LIGHT__[0].GameObject.LightItem = __LIGHT__[0];
+                    
                     _AmbientCount++;
+                    return __LIGHT__[0];
                 }
-            
-                return __LIGHT__[0];
+
+                return undefined;
             }
         },
 
@@ -47,7 +51,7 @@ function Light()
          *              directional light objects in a scene.
          * @see         FWGE.Game.Light.DirectionalLight
          * @param       request:         {Object}
-         *              > parent:        {GameObject}
+         *              > parent:        {GameObject}    [nullable]
          *              > colour:        {Float32Array}  [nullable]
          *              > intensity:     {Number}        [nullable]
          *              > direction:     {Float32Array}  [nullable]
@@ -63,8 +67,10 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new DirectionalLight(request);
-                            _DirectionalCount++;
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
+                            _DirectionalCount++;
                             return __LIGHT__[i];        
                         }
                     }
@@ -80,7 +86,7 @@ function Light()
          *              point light objects in a scene.
          * @see         FWGE.Game.Light.PointLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}
+         *              > parent:       {GameObject}    [nullable]
          *              > colour:       {Float32Array}  [nullable]
          *              > intensity:    {Number}        [nullable]
          *              > radius:       {Number}        [nullable]
@@ -97,8 +103,10 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new PointLight(request);
-                            _PointCount++;
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
+                            _PointCount++;
                             return __LIGHT__[i];        
                         }
                     }
@@ -119,7 +127,7 @@ function Light()
             {
                 if (!!light)
                 {
-                    switch (light.Type)
+                    switch (light.Type[0])
                     {
                         case "AMBIENTLIGHT":
                             __LIGHT__[0] = undefined;

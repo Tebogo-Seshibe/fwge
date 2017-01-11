@@ -10,21 +10,21 @@ function Projection()
     
     function Orthographic(left, right, top, bottom, near, far, theta, phi)
     {
-        theta = Math.cot(Math.radian(theta));
-        phi = Math.cot(Math.radian(phi));
+        theta   = Math.cot(Math.radian(theta));
+        phi     = Math.cot(Math.radian(phi));
 
-        left -= near * theta;
-        right -= near * theta;
-        top -= near * phi;
-        bottom -= near * phi;
+        left    -= near * theta;
+        right   -= near * theta;
+        top     -= near * phi;
+        bottom  -= near * phi;
 
         FWGE.Game.Maths.Matrix4.Set
         (
             _Camera,
 
-                          2 / (right - left),                                  0,                             0, 0,
-                                           0,                 2 / (top - bottom),                              0, 0,
-                                        theta,                                phi,            -2 / (far - near), 0,
+                          2 / (right - left),                                0,                            0, 0,
+                                           0,               2 / (top - bottom),                            0, 0,
+                                       theta,                              phi,            -2 / (far - near), 0,
             -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
         );
         
@@ -32,14 +32,14 @@ function Projection()
     
     function Perspective(field_of_view, aspect_ratio, near, far)
     {
-        var top = near * Math.tan(Math.radian(field_of_view));
-        var right = top * aspect_ratio;
+        var top     = near * Math.tan(Math.radian(field_of_view));
+        var right   = top * aspect_ratio;
         
-        var left = -right;
-        var bottom = -top;
-        var width = right - left;
-        var height = top - bottom;
-        var depth = far - near;
+        var left    = -right;
+        var bottom  = -top;
+        var width   = right - left;
+        var height  = top - bottom;
+        var depth   = far - near;
 
         FWGE.Game.Maths.Matrix4.Set
         (

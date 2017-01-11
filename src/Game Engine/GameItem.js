@@ -8,6 +8,9 @@
 function GameItem(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "GAMEITEM ";
+    
     Item.call(this, request);
 
     var _GameObject = request.gameobject;

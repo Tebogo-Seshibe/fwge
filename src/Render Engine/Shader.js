@@ -7,8 +7,6 @@ var __SHADER__ = [];
  *              > name:             {String}
  *              > vertexShader:     {String}
  *              > fragmentShader:   {String}
- *              > width:            {Number}    [nullable]
- *              > height:           {Number}    [nullable]
  */
 function Shader(request)
 {
@@ -16,32 +14,59 @@ function Shader(request)
     if (!request.name || typeof request.name !== 'string') return;
     if (!request.vertexShader || typeof request.vertexShader !== 'string') return;
     if (!request.fragmentShader || typeof request.fragmentShader !== 'string') return;
-    if (typeof request.width !== 'number') request.width = 512;
-    if (typeof request.height !== 'number') request.height = 512;
     
+    request.type = "SHADER ";
+    Item.call(this, request);
+
     Object.defineProperties(this,
     {
-        Name:             { value: request.name },
-        Program:          { value: GL.createProgram() },
-        Texture:          { value: GL.createTexture() },
-        FrameBuffer:      { value: GL.createFramebuffer() },
-        RenderBuffer:     { value: GL.createRenderbuffer() }
+        Program:        { value: GL.createProgram() },
+        Texture:        { value: GL.createTexture() },
+        FrameBuffer:    { value: GL.createFramebuffer() },
+        RenderBuffer:   { value: GL.createRenderbuffer() },
+        Height:         { value: 1024 },
+        Width:          { value: 1024 }
     });
 
-    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);             
+    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer); 
     GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
-    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, 1024, 768);
+    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height);
     GL.bindTexture(GL.TEXTURE_2D, this.Texture);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1024, 768, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
+    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
     GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0);
-    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer);
+    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer);  
+        
+    switch (GL.checkFramebufferStatus(GL.FRAMEBUFFER))
+    {
+        case GL.FRAMEBUFFER_COMPLETE: 
+            console.log("Complete");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
+            console.log("Incomplete Attachment");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: 
+            console.log("Missing Attachment");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: 
+            console.log("Dimensions");
+        break;
+
+        case GL.FRAMEBUFFER_UNSUPPORTED: 
+            console.log("Unsuppported");
+        break;        
+    }
+        
     GL.bindTexture(GL.TEXTURE_2D, null);
     GL.bindRenderbuffer(GL.RENDERBUFFER, null);
     GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+    
     
     var vs = GL.createShader(GL.VERTEX_SHADER);
     GL.shaderSource(vs, request.vertexShader);
@@ -67,7 +92,7 @@ function Shader(request)
     if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS)) return;
     
     GL.useProgram(this.Program);
-    
+        
     Object.defineProperties(this,
     {
         Attributes:
@@ -90,7 +115,11 @@ function Shader(request)
                     Diffuse:            GL.getUniformLocation(this.Program, "U_Material.Diffuse"),
                     Specular:           GL.getUniformLocation(this.Program, "U_Material.Specular"),
                     Shininess:          GL.getUniformLocation(this.Program, "U_Material.Shininess"),
-                    Alpha:              GL.getUniformLocation(this.Program, "U_Material.Alpha")
+                    Alpha:              GL.getUniformLocation(this.Program, "U_Material.Alpha"),
+
+                    HasImage:           GL.getUniformLocation(this.Program, "U_Material.HasImage"),
+                    HasBump:            GL.getUniformLocation(this.Program, "U_Material.HasBump"),
+                    HasSpecular:        GL.getUniformLocation(this.Program, "U_Material.HasSpecular"),
                 },
                 Matrix:
                 {
@@ -175,7 +204,8 @@ function Shader(request)
                 Sampler:
                 {
                     Image:              GL.getUniformLocation(this.Program, "U_Sampler.Image"),
-                    Bump:               GL.getUniformLocation(this.Program, "U_Sampler.Bump")
+                    Bump:               GL.getUniformLocation(this.Program, "U_Sampler.Bump"),
+                    Specular:           GL.getUniformLocation(this.Program, "U_Sampler.Specular")
                 }
             }
         }

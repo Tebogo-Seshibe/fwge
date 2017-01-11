@@ -14,7 +14,9 @@ var __MESH__ = [];
 function Mesh(request)
 {   
     if (!request) request = {};
-    request.type = "MESH";
+    if (!request.type) request.type = "";
+    request.type += "MESH ";
+    
     GameItem.call(this, request);
     
     function validate(array, constructor)

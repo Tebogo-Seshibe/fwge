@@ -10,6 +10,8 @@
 function Item(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = (request.type + "ITEM").trim().split(/\s+/);
 
     var _Name = request.name || "Item";
 
@@ -20,7 +22,7 @@ function Item(request)
          *              > get
          * @description A string descriptor for the type of item.
          */
-        Type: { value: request.type || "ITEM" },
+        Type: { value: request.type },
 
         /**
          * @property    Name: {String}
@@ -31,10 +33,10 @@ function Item(request)
         Name:
         {
             get: function getName() { return _Name; },
-            set: function setName(name)
+            set: function setName()
             {
-                if (typeof name === 'string')
-                    _Name = name;
+                if (typeof arguments[0] === 'string')
+                    _Name = arguments[0];
             }
         }
     });

@@ -1,3 +1,7 @@
+
+var __MODELVIEW__;
+var __PROJECTION__;
+
 /**
  * @constructor Renderer
  * @description This module handles the actual rendering of the scene to
@@ -6,8 +10,62 @@
  */
 function Renderer()
 {
-    var __MODELVIEW__ = new ModelView();
-    var __PROJECTION__ = new Projection();
+    var _Shader = (function()
+    {
+        var vertexShader = "attribute vec3 A_Position;\nattribute vec2 A_UV;\n\nuniform mat4 P;\nuniform mat4 MV;\n\nvarying vec2 V_UV;\n\nvoid main(void)\n{\n\tV_UV = A_UV;\n\tgl_Position = P * MV * vec4(A_Position, 1.0);\n}\n";
+        var fragmentShader = "precision mediump float;\n\nconst int MAX_SHADERS = 8;\nuniform int U_Sampler_Count;\nuniform sampler2D U_Samplers[8];\n\nvarying vec2 V_UV;\n\nvoid main(void)\n{\n\t/*for (int i = 0; i < MAX_SHADERS; ++i)\n\t{\n\t\tif (i == U_Sampler_Count) break;\n\t\tgl_FragColor *= texture2D(U_Samplers[i], V_UV);\n\t}*/\n\tgl_FragColor = vec4(1.0);\n}\n";
+
+        console.log("=======================================================\n"+vertexShader+"=======================================================\n"+fragmentShader+"=======================================================\n");
+
+        function FinalShader()
+        {
+            var vs = GL.createShader(GL.VERTEX_SHADER);
+            GL.shaderSource(vs, vertexShader);
+            GL.compileShader(vs);
+
+            var fs = GL.createShader(GL.FRAGMENT_SHADER);
+            GL.shaderSource(fs, fragmentShader);
+            GL.compileShader(fs);
+            
+            this.Program = GL.createProgram();
+
+            GL.attachShader(this.Program, vs);
+            GL.attachShader(this.Program, fs);
+            GL.linkProgram(this.Program);            
+            GL.useProgram(this.Program);
+            
+            this.PositionPointer = GL.getAttribLocation(this.Program, "A_Position");
+            GL.enableVertexAttribArray(this.PositionPointer);
+            this.UVPointer = GL.getAttribLocation(this.Program, "A_UV");
+            GL.enableVertexAttribArray(this.UVPointer);
+
+            this.Samplers = [];
+            for (var  i = 0; i < 8; ++i)
+                this.Samplers.push(GL.getUniformLocation(this.Program, "U_Samplers[" + i + "]"));
+            this.SamplerCount = GL.getUniformLocation(this.Program, "U_Sampler_Count");
+
+            this.ModelView = GL.getUniformLocation(this.Program, "MV");
+            this.Projection = GL.getUniformLocation(this.Program, "P");
+
+            this.PositionBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.PositionBuffer);
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array([ -1.0,1.0,0.0, -1.0,-1.0,0.0, 1.0,-1.0,0.0, 1.0,1.0,0.0 ]), GL.STATIC_DRAW);
+
+            this.UVBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.UVBuffer);
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array([ 0.0,1.0, 0.0,0.0, 1.0,0.0, 1.0,1.0 ]), GL.STATIC_DRAW);
+
+            this.IndexBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer);
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array([0,1,2,0,2,3]), GL.STATIC_DRAW);
+            
+            GL.useProgram(null);
+        }
+
+        return new FinalShader();
+    })();
+
+    console.log(_Shader);
 
     Object.defineProperties(this,
     {
@@ -22,8 +80,9 @@ function Renderer()
                 {
                     this.SetGlobalUniforms();
                     this.RenderObject(__OBJECT__[i]);
-
                 }
+
+                this.FinalDraw();
             }
         },
 
@@ -34,8 +93,10 @@ function Renderer()
                 var i = __SHADER__.length;
                 while (--i >= 0)
                 {
-                    GL.bindFramebuffer(GL.FRAMEBUFFER, __SHADER__[i].FrameBuffer);
-                    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+                    var shader = __SHADER__[i];
+
+                    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer);
+                    GL.viewport(0, 0, shader.Width, shader.Height);
                     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
                 }
                 
@@ -75,9 +136,9 @@ function Renderer()
                         GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
                     }
                     
-                    this.BindAttributes(object.Mesh, object.RenderMaterial, object.RenderMaterial.Shader.Attributes);
-                    this.SetObjectUniforms(object.RenderMaterial, object.RenderMaterial.Shader.Uniforms);
-                    this.Draw(object.Mesh.VertexCount);
+                    this.BindAttributes(object.Mesh, object.RenderMaterial, shader.Attributes);
+                    this.SetObjectUniforms(object.RenderMaterial, shader.Uniforms);
+                    this.Draw(object.Mesh.VertexCount, shader.FrameBuffer);
                     
                     if (object.RenderMaterial.Alpha !== 1.0)
                     {
@@ -154,30 +215,46 @@ function Renderer()
                 GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
                 GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
             
-                if (!!material.Image)
+                if (!!material.ImageMap)
                 {
                     GL.activeTexture(GL.TEXTURE0);
-                    GL.bindTexture(GL.TEXTURE_2D, material.Image);
-                    GL.uniform1i(uniforms.Material.HasImageMap, true);
+                    GL.bindTexture(GL.TEXTURE_2D, material.ImageMap);
+                    GL.uniform1i(uniforms.Material.HasImage, 1);
                     GL.uniform1i(uniforms.Sampler.Image, 0);
                 }
                 else
                 {
+                    GL.activeTexture(GL.TEXTURE0);
                     GL.bindTexture(GL.TEXTURE_2D, null);
-                    GL.uniform1i(uniforms.Material.HasImageMap, false);
+                    GL.uniform1i(uniforms.Material.HasImage, 0);
                 }
                 
-                if (!!material.Bump)
+                if (!!material.BumpMap)
                 {
                     GL.activeTexture(GL.TEXTURE1);
-                    GL.bindTexture(GL.TEXTURE_2D, material.Bump);
-                    GL.uniform1i(uniforms.Material.HasBumpMap, true);
+                    GL.bindTexture(GL.TEXTURE_2D, material.BumpMap);
+                    GL.uniform1i(uniforms.Material.HasBump, 1);
                     GL.uniform1i(uniforms.Sampler.Bump, 1);
                 }
                 else
                 {
+                    GL.activeTexture(GL.TEXTURE1);
                     GL.bindTexture(GL.TEXTURE_2D, null);
-                    GL.uniform1i(uniforms.Material.HasBumpMap, false);
+                    GL.uniform1i(uniforms.Material.HasBump, 0);
+                }
+                
+                if (!!material.SpecularMap)
+                {
+                    GL.activeTexture(GL.TEXTURE2);
+                    GL.bindTexture(GL.TEXTURE_2D, material.SpecularMap);
+                    GL.uniform1i(uniforms.Material.HasSpecular, 1);
+                    GL.uniform1i(uniforms.Sampler.Specular, 2);
+                }
+                else
+                {
+                    GL.activeTexture(GL.TEXTURE2);
+                    GL.bindTexture(GL.TEXTURE_2D, null);
+                    GL.uniform1i(uniforms.Material.HasBump, 0);
                 }
             }
         },
@@ -197,11 +274,11 @@ function Renderer()
                     var j = __LIGHT__.length;
                     while (--j >= 0)
                     {
-                        var light = __LIGHT__[i];
+                        var light = __LIGHT__[j];
                         
                         if (!!light)
                         {
-                            switch (light.Type)
+                            switch (light.Type[0])
                             {
                                 case "AMBIENTLIGHT":
                                     GL.uniform3fv(uniforms.Ambient.Colour, light.Colour);
@@ -216,7 +293,7 @@ function Renderer()
                                     
                                 case "POINTLIGHT":
                                     __MODELVIEW__.PushMatrix();
-                                    __MODELVIEW__.Transform(light.Transform);
+                                    __MODELVIEW__.Transform(light.GameObject.Transform);
                                     var pos = __MODELVIEW__.PopMatrix();
 
                                     GL.uniform3fv(uniforms.Point[point_count].Colour, light.Colour);
@@ -258,10 +335,11 @@ function Renderer()
 
         Draw:
         {
-            value: function Draw(vertexCount)
+            value: function Draw(vertexCount, framebuffer)
             {
-                console.log(vertexCount);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
                 GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
             }
         },
 
@@ -269,7 +347,37 @@ function Renderer()
         {
             value: function FinalDraw()
             {
+                GL.useProgram(_Shader.Program);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
 
+                GL.bindBuffer(GL.ARRAY_BUFFER, _Shader.PositionBuffer);
+                GL.vertexAttribPointer(_Shader.PositionPointer, 3, GL.FLOAT, false, 0, 0);
+
+                GL.bindBuffer(GL.ARRAY_BUFFER, _Shader.UVBuffer);
+                GL.vertexAttribPointer(_Shader.UVPointer, 2, GL.FLOAT, false, 0, 0);
+
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, _Shader.IndexBuffer);
+
+                GL.uniformMatrix4fv(_Shader.ModelView, false, __MODELVIEW__.PeekMatrix());
+                GL.uniformMatrix4fv(_Shader.Projection, false, __PROJECTION__.GetViewer());
+
+                var i =__SHADER__.length;
+                GL.uniform1i(_Shader.SamplerCount, 1);
+                GL.activeTexture(GL.TEXTURE0);
+                GL.bindTexture(GL.TEXTURE_2D, __SHADER__[0].Texture);
+                GL.uniform1i(_Shader.Samplers[0], 0);
+
+                /*while (--i >= 0)
+                {
+                    GL.activeTexture(GL.TEXTURE0 + i);
+                    GL.bindTexture(GL.TEXTURE_2D, __SHADER__[i].Texture);
+                    GL.uniform1i(_Shader.Samplers[i], i);
+                }*/
+                
+                GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
+                
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+                GL.useProgram(null);
             }
         }
     });

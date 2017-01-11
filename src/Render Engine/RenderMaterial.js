@@ -20,7 +20,7 @@ function RenderMaterial(request)
 {
     if (!request) request = {};
     request.type = "MATERIAL";
-    RenderItem.call(this, request);
+    Item.call(this, request);
 
     function colour(item)
     {
@@ -155,8 +155,13 @@ function RenderMaterial(request)
             get: function getImageMap() { return _ImageMap; },
             set: function setImageMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _ImageMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_ImageMap);
+                    _ImageMap = undefined;
+                }
             }
         },
 
@@ -171,8 +176,13 @@ function RenderMaterial(request)
             get: function getBumpMap() { return _BumpMap; },
             set: function setBumpMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _BumpMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_BumpMap);
+                    _BumpMap = undefined;
+                }
             }
         },
 
@@ -187,11 +197,18 @@ function RenderMaterial(request)
             get: function getSpecularMap() { return _SpecularMap; },
             set: function setSpecularMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _SpecularMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_SpecularMap);
+                    _SpecularMap = undefined;
+                }
             }
         }
     });
+
+    this.SetTextures(request);
     
     __MATERIAL__.push(this);
 }
@@ -202,26 +219,49 @@ Object.defineProperties(RenderMaterial.prototype,
     /**
      * @function    SetTextures: void
      * @description This function simply loads the appropriate textures into memory.   
-     * @param       request:     {Object}
-     *              > image:     {String}    [nullable]
-     *              > bump:      {String}    [nullable]
-     *              > specular:  {String}    [nullable]
+     * @param       request:        {Object}
+     *              > imagemap:     {String}    [nullable]
+     *              > bumpmap:      {String}    [nullable]
+     *              > specularmap:  {String}    [nullable]
      */
     SetTextures:
     {
         value: function SetTextures(request)
         {
             if (!request) request = {};
-            if (typeof request.image === 'string')      apply_image(request.image, this.ImageMap);
-            if (typeof request.bump === 'string')       apply_image(request.bump, this.BumpMap);
-            if (typeof request.specular === 'string')   apply_image(request.specular, this.Specular);
+            if (typeof request.imagemap === 'string')
+            {
+                if (!this.ImageMap)
+                    this.ImageMap = GL.createTexture();
+                apply_image(request.imagemap, this.ImageMap);
+            }
+            if (typeof request.bumpmap === 'string')
+            {
+                if (!this.BumpMap)
+                    this.BumpMap = GL.createTexture();
+                apply_image(request.bumpmap, this.BumpMap);
+            }
+            if (typeof request.specularmap === 'string')
+            {
+                if (!this.SpecularMap)
+                    this.SpecularMap = GL.createTexture();
+                apply_image(request.specularmap, this.Specular);
+            }
 
             function apply_image(src, texture)
             {
-                var img = new Image();
-                img.onload = function onload()
+                var img = new Image()
+                img.onload = function()
                 {
-                    //this.LoadImage(img, texture);
+                    GL.bindTexture(GL.TEXTURE_2D, texture);
+                    GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+                    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+                    GL.generateMipmap(GL.TEXTURE_2D);
+                    GL.bindTexture(GL.TEXTURE_2D, null);
                 };
                 img.src = src;
             }

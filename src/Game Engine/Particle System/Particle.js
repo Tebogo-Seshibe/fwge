@@ -7,6 +7,8 @@
 function Particle(request)
 {
     if (!request) request = {};
-    request.type = "PARTICLE";
-    GameItem.call(this, request);
+    if (!request.type) request.type = "";
+    request.type += "PARTICLE ";
+    
+    Item.call(this, request);
 }

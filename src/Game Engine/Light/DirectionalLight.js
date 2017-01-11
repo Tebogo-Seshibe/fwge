@@ -10,8 +10,10 @@
 function DirectionalLight(request)
 {
     if (!request) request = {};
-    request.type = "DIRECTIONALLIGHT";
-    LightObject.call(this, request);
+    if (!request.type) request.type = "";
+    request.type += "DIRECTIONALLIGHT ";
+    
+    LightItem.call(this, request);
 
     var _Direction = (request.direction instanceof Float32Array && request.direction.length === 3) ? request.direction : new Float32Array(3);
 

@@ -6,9 +6,9 @@ var GL = undefined;
 
 Object.defineProperties(Math,
 {
-    cot:    { value: function cot(radian)             { return 1 / Math.tan(radian);                   } },
-    radian: { value: function radian(degree)          { return Math.PI / 180 * degree;                 } },
-    clamp:  { value: function clamp(value, min, max)  { return Math.max(Math.min(value, max), main);   } }
+    cot:    { value: function cot(radian)             { return 1 / Math.tan(radian);                } },
+    radian: { value: function radian(degree)          { return Math.PI / 180 * degree;              } },
+    clamp:  { value: function clamp(value, min, max)  { return Math.max(Math.min(value, max), min); } }
 });
 
 var IDCounter = new function IDCounter(){ var id = 0; this.next = function next(){ return id++ }; };
@@ -23,6 +23,7 @@ function GameEngine()
 {
     var _Running = false;
     var _AnimationFrame = undefined;
+    var _Camera;
 
     Object.defineProperties(this,
     {
@@ -87,7 +88,7 @@ function GameEngine()
          * @description The viewer.
          * @see         FWGE.Game.Camera
          */
-        Camera:         { value: new Camera() },
+        Camera:         { get: function getCamera() { return _Camera; } },
 
         /**
          * @function    Init: void
@@ -97,7 +98,7 @@ function GameEngine()
         {
             value: function Init()
             {
-                // TODO
+                _Camera = new Camera();
             }
         },
 
@@ -129,6 +130,7 @@ function GameEngine()
             value: function GameUpdate()
             {
                 FWGE.Game.Time.TimeUpdate();
+                FWGE.Game.Camera.CameraUpdate();
 
                 var i = __OBJECT__.length;
                 while (--i >= 0)
@@ -188,6 +190,8 @@ function GameEngine()
 function Item(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = (request.type + "ITEM").trim().split(/\s+/);
 
     var _Name = request.name || "Item";
 
@@ -198,7 +202,7 @@ function Item(request)
          *              > get
          * @description A string descriptor for the type of item.
          */
-        Type: { value: request.type || "ITEM" },
+        Type: { value: request.type },
 
         /**
          * @property    Name: {String}
@@ -209,10 +213,10 @@ function Item(request)
         Name:
         {
             get: function getName() { return _Name; },
-            set: function setName(name)
+            set: function setName()
             {
-                if (typeof name === 'string')
-                    _Name = name;
+                if (typeof arguments[0] === 'string')
+                    _Name = arguments[0];
             }
         }
     });
@@ -229,6 +233,9 @@ function Item(request)
 function GameItem(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "GAMEITEM ";
+    
     Item.call(this, request);
 
     var _GameObject = request.gameobject;
@@ -274,21 +281,21 @@ var __OBJECT__ = [];
 function GameObject(request)
 {
     if (!request) request = {};
-    request.type = "GAMEOBJECT";
-    request.name = typeof request.name === 'string' ? request.name : "GameObject";
+    if (!request.type) request.type = "";
+    request.type = "GAMEOBJECT ";
+    
     GameItem.call(this, request);
 
     var _Children       = [];
-    var _RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
-    var _Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
-    var _PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
-    var _Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;
-    var _LightItem      = request.lightitem      instanceof LightItem       ? request.lightitem      : undefined;
-    var _ParticleSystem = request.particlesystem instanceof ParticleSystem  ? request.particlesystem : undefined;
-    
-    var _Begin  = typeof request.begin  === 'function' ? request.begin  : function Begin(){};
-    var _Update = typeof request.update === 'function' ? request.update : function Update(){};
-    var _End    = typeof request.end    === 'function' ? request.end    : function End(){};
+    var _RenderMaterial;
+    var _Mesh;
+    var _PhysicsItem;
+    var _Animation;
+    var _LightItem;
+    var _ParticleSystem;    
+    var _Begin;
+    var _Update;
+    var _End;
     
     Object.defineProperties(this,
     {
@@ -312,7 +319,7 @@ function GameObject(request)
          * @description An array of gameobjects. All children transformation will be relative to 
          *              the parent gameobject.
          */
-        Children: { get: function getChildren() { return _Children } },
+        Children: { value: [] },
 
         /**
          * @function    AddChild:   {GameObject}
@@ -326,7 +333,7 @@ function GameObject(request)
             {
                 if (gameobject instanceof GameObject)
                 {
-                    _Children.push(gameobject);
+                    this.Children.push(gameobject);
                     var index = __OBJECT__.indexOf(gameobject);
 
                     if (index !== -1)
@@ -349,11 +356,11 @@ function GameObject(request)
             {
                 if (gameobject instanceof GameObject)
                 {
-                    var index = _Children.indexOf(gameobject);
+                    var index = this.Children.indexOf(gameobject);
 
                     if (index !== -1)
                     {
-                        _Children.slice(index, 1);
+                        this.Children.slice(index, 1);
                         __OBJECT__.push(gameobject);
                     }
                 }
@@ -395,6 +402,32 @@ function GameObject(request)
         },
 
         /**
+         * @property    LightItem: {LightItem}
+         *              > get
+         *              > set
+         * @description The light item attached to this gameobject.
+         */
+        LightItem:
+        {
+            get: function getLightItem() { return _LightItem; },
+            set: function setLightItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
+                {
+                    _LightItem = arguments[0];
+                    _LightItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_LightItem)
+                        _LightItem.GameObject = undefined;
+                    _LightItem = undefined;
+                }
+            }
+        },
+
+        /**
          * @property    PhysicsItem: {PhysicsItem}
          *              > get
          *              > set
@@ -405,8 +438,18 @@ function GameObject(request)
             get: function getPhysicsItem() { return _PhysicsItem; },
             set: function setPhysicsItem()
             {
-                if (arguments[0] instanceof PhysicsItem || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
+                {
                     _PhysicsItem = arguments[0];
+                    _PhysicsItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_PhysicsItem)
+                        _PhysicsItem.GameObject = undefined;
+                    _PhysicsItem = undefined;
+                }
             }
         },
 
@@ -421,8 +464,18 @@ function GameObject(request)
             get: function getAnimation() { return _Animation; },
             set: function setAnimation()
             {
-                if (arguments[0] instanceof Animation || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
+                {
                     _Animation = arguments[0];
+                    _Animation.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_Animation)
+                        _Animation.GameObject = undefined;
+                    _Animation = undefined;
+                }
             }
         },
 
@@ -437,8 +490,18 @@ function GameObject(request)
             get: function getParticleSystem() { return _ParticleSystem; },
             set: function setParticleSystem()
             {
-                if (arguments[0] instanceof ParticleSystem || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
+                {
                     _ParticleSystem = arguments[0];
+                    _ParticleSystem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_ParticleSystem)
+                        _ParticleSystem.GameObject = undefined;
+                    _ParticleSystem = undefined;
+                }
             }
         },
 
@@ -490,8 +553,19 @@ function GameObject(request)
             }
         }
     });
+
+    this.RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
+    this.Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
+    this.PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
+    this.Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;
+    this.LightItem      = request.lightitem      instanceof LightItem       ? request.lightitem      : undefined;
+    this.ParticleSystem = request.particlesystem instanceof ParticleSystem  ? request.particlesystem : undefined;
     
+    this.Begin  = typeof request.begin  === 'function' ? request.begin  : function Begin(){};
+    this.Update = typeof request.update === 'function' ? request.update : function Update(){};
+    this.End    = typeof request.end    === 'function' ? request.end    : function End(){};
     this.Begin();
+
     __OBJECT__.push(this);
 }
 Object.defineProperties(GameObject.prototype,
@@ -575,7 +649,6 @@ Object.defineProperties(GameObject.prototype,
             this.Transform.TransformUpdate();
             if (!!this.PhysicsItem)     this.PhysicsItem.PhysicsUpdate();
             if (!!this.Animation)       this.Animation.AnimationUpdate();
-            if (!!this.LightItem)       this.LightItem.LightUpdate();
             if (!!this.ParticleSystem)  this.ParticleSystem.ParticleSystemUpdate();
         }
     }
@@ -618,6 +691,13 @@ function Camera()
         ORTHOGRAPHIC: { value: 1 },
 
         /**
+         * @property    Transform:  {Transform}
+         *              > get
+         * @description The transform object attached to the current gameobject
+         */
+        Transform: { value: new Transform() },
+
+        /**
          * @property    Mode: {Number}
          *              > get
          *              > set
@@ -629,7 +709,10 @@ function Camera()
             set: function setMode()
             { 
                 if (arguments[0] === this.PERSPECTIVE || arguments[0] === this.ORTHOGRAPHIC)
+                {
                     _Mode = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -645,7 +728,10 @@ function Camera()
             set: function setFOV()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _FOV = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -661,7 +747,10 @@ function Camera()
             set: function setAspect()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Aspect = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -677,7 +766,10 @@ function Camera()
             set: function setNear()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Near = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -693,7 +785,10 @@ function Camera()
             set: function setFar()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Far = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -709,7 +804,10 @@ function Camera()
             set: function setLeft()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Left = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -725,7 +823,10 @@ function Camera()
             set: function setRight()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Right = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -741,7 +842,10 @@ function Camera()
             set: function setTop()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Top = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -757,7 +861,10 @@ function Camera()
             set: function setBottom()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Bottom = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -773,7 +880,10 @@ function Camera()
             set: function setTheta()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Theta = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -789,7 +899,10 @@ function Camera()
             set: function setPhi()
             { 
                 if (typeof arguments[0] === 'number')
+                {
                     _Phi = arguments[0];
+                    __PROJECTION__.ProjectionUpdate();
+                }
             }
         },
         
@@ -801,9 +914,9 @@ function Camera()
         {
             value: function CameraUpdate()
             {
-                GL.canvas.height = GL.canvas.clientHeight;
-                GL.canvas.width = GL.canvas.clientWidth;
-                _Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
+                GL.canvas.height = window.innerHeight;
+                GL.canvas.width = window.innerWidth;
+                //_Aspect = GL.drawingBufferWidth/GL.drawingBufferHeight;
             }
         }
     });
@@ -819,7 +932,9 @@ function Camera()
 function Animation(request)
 {
     if (!request) request = {};
-    request.type = "ANIMATION";
+    if (!request.type) request.type = "";
+    request.type = "ANIMATION ";
+    
     GameItem.call(this, request);    
 }
 
@@ -870,12 +985,15 @@ function Time()
 function Transform(request)
 {
     if (!request) request = {};
-    request.type ="TRANSFORM";
+    if (!request.type) request.type = "";
+    request.type ="TRANSFORM ";
+    
     GameItem.call(this, request);
     
-    function setup(item)
+    function setup(item, one)
     {
-        if (!item || !(item instanceof Array)) item = [0,0,0];
+        if (!item || !(item instanceof Array))
+            item = !!one ? [1,1,1] : [0,0,0];
 
         switch (item.length)
         {
@@ -889,7 +1007,7 @@ function Transform(request)
     
     var _Position   = setup(request.position);
     var _Rotation   = setup(request.rotation);
-    var _Scale      = setup(request.scale);
+    var _Scale      = setup(request.scale, true);
     var _Shear      = setup(request.shear);
     
     var _Up         = FWGE.Game.Maths.Vector3.Create(0, 1, 0);
@@ -907,7 +1025,7 @@ function Transform(request)
             get: function getPosition() { return _Position; },
             set: function setPosition()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Position, arguments[0]);
             }
         },
@@ -921,7 +1039,7 @@ function Transform(request)
             get: function getRotation() { return _Rotation; },
             set: function setRotation()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Rotation, arguments[0]);
             }
         },
@@ -935,7 +1053,7 @@ function Transform(request)
             get: function getScale() { return _Scale; },
             set: function setScale()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Scale, arguments[0]);
             }
         },
@@ -949,7 +1067,7 @@ function Transform(request)
             get: function getShear() { return _Shear; },
             set: function setShear()
             {
-                if (arguments[0].Type === "VECTOR3")
+                if (arguments[0].Type[0] === "VECTOR3")
                     FWGE.Game.Maths.Vector3.Set(_Shear, arguments[0]);
             }
         },
@@ -1168,45 +1286,45 @@ function Input()
         KEY_9_DOWN:     { get: function get9KeyDown()  { return _Keys[57 + _DOWN ]; } },
 
 
-        KEY_NUMPAD_0_UP:       { get: function getNumpad0KeyUp()    { return _Keys[96 + _UP   ]; } },
-        KEY_NUMPAD_0_PRESS:    { get: function getNumpad0KeyPress() { return _Keys[96 + _PRESS]; } },
-        KEY_NUMPAD_0_DOWN:     { get: function getNumpad0KeyDown()  { return _Keys[96 + _DOWN ]; } },
+        NUMPAD_0_UP:       { get: function getNumpad0KeyUp()    { return _Keys[96 + _UP   ]; } },
+        NUMPAD_0_PRESS:    { get: function getNumpad0KeyPress() { return _Keys[96 + _PRESS]; } },
+        NUMPAD_0_DOWN:     { get: function getNumpad0KeyDown()  { return _Keys[96 + _DOWN ]; } },
 
-        KEY_NUMPAD_1_UP:       { get: function getNumpad1KeyUp()    { return _Keys[97 + _UP   ]; } },
-        KEY_NUMPAD_1_PRESS:    { get: function getNumpad1KeyPress() { return _Keys[97 + _PRESS]; } },
-        KEY_NUMPAD_1_DOWN:     { get: function getNumpad1KeyDown()  { return _Keys[97 + _DOWN ]; } },
+        NUMPAD_1_UP:       { get: function getNumpad1KeyUp()    { return _Keys[97 + _UP   ]; } },
+        NUMPAD_1_PRESS:    { get: function getNumpad1KeyPress() { return _Keys[97 + _PRESS]; } },
+        NUMPAD_1_DOWN:     { get: function getNumpad1KeyDown()  { return _Keys[97 + _DOWN ]; } },
 
-        KEY_NUMPAD_2_UP:       { get: function getNumpad2KeyUp()    { return _Keys[98 + _UP   ]; } },
-        KEY_NUMPAD_2_PRESS:    { get: function getNumpad2KeyPress() { return _Keys[98 + _PRESS]; } },
-        KEY_NUMPAD_2_DOWN:     { get: function getNumpad2KeyDown()  { return _Keys[98 + _DOWN ]; } },
+        NUMPAD_2_UP:       { get: function getNumpad2KeyUp()    { return _Keys[98 + _UP   ]; } },
+        NUMPAD_2_PRESS:    { get: function getNumpad2KeyPress() { return _Keys[98 + _PRESS]; } },
+        NUMPAD_2_DOWN:     { get: function getNumpad2KeyDown()  { return _Keys[98 + _DOWN ]; } },
 
-        KEY_NUMPAD_3_UP:       { get: function getNumpad3KeyUp()    { return _Keys[99 + _UP   ]; } },
-        KEY_NUMPAD_3_PRESS:    { get: function getNumpad3KeyPress() { return _Keys[99 + _PRESS]; } },
-        KEY_NUMPAD_3_DOWN:     { get: function getNumpad3KeyDown()  { return _Keys[99 + _DOWN ]; } },
+        NUMPAD_3_UP:       { get: function getNumpad3KeyUp()    { return _Keys[99 + _UP   ]; } },
+        NUMPAD_3_PRESS:    { get: function getNumpad3KeyPress() { return _Keys[99 + _PRESS]; } },
+        NUMPAD_3_DOWN:     { get: function getNumpad3KeyDown()  { return _Keys[99 + _DOWN ]; } },
 
-        KEY_NUMPAD_4_UP:       { get: function getNumpad4KeyUp()    { return _Keys[100 + _UP   ]; } },
-        KEY_NUMPAD_4_PRESS:    { get: function getNumpad4KeyPress() { return _Keys[100 + _PRESS]; } },
-        KEY_NUMPAD_4_DOWN:     { get: function getNumpad4KeyDown()  { return _Keys[100 + _DOWN ]; } },
+        NUMPAD_4_UP:       { get: function getNumpad4KeyUp()    { return _Keys[100 + _UP   ]; } },
+        NUMPAD_4_PRESS:    { get: function getNumpad4KeyPress() { return _Keys[100 + _PRESS]; } },
+        NUMPAD_4_DOWN:     { get: function getNumpad4KeyDown()  { return _Keys[100 + _DOWN ]; } },
 
-        KEY_NUMPAD_5_UP:       { get: function getNumpad5KeyUp()    { return _Keys[101 + _UP   ]; } },
-        KEY_NUMPAD_5_PRESS:    { get: function getNumpad5KeyPress() { return _Keys[101 + _PRESS]; } },
-        KEY_NUMPAD_5_DOWN:     { get: function getNumpad5KeyDown()  { return _Keys[101 + _DOWN ]; } },
+        NUMPAD_5_UP:       { get: function getNumpad5KeyUp()    { return _Keys[101 + _UP   ]; } },
+        NUMPAD_5_PRESS:    { get: function getNumpad5KeyPress() { return _Keys[101 + _PRESS]; } },
+        NUMPAD_5_DOWN:     { get: function getNumpad5KeyDown()  { return _Keys[101 + _DOWN ]; } },
 
-        KEY_NUMPAD_6_UP:       { get: function getNumpad6KeyUp()    { return _Keys[102 + _UP   ]; } },
-        KEY_NUMPAD_6_PRESS:    { get: function getNumpad6KeyPress() { return _Keys[102 + _PRESS]; } },
-        KEY_NUMPAD_6_DOWN:     { get: function getNumpad6KeyDown()  { return _Keys[102 + _DOWN ]; } },
+        NUMPAD_6_UP:       { get: function getNumpad6KeyUp()    { return _Keys[102 + _UP   ]; } },
+        NUMPAD_6_PRESS:    { get: function getNumpad6KeyPress() { return _Keys[102 + _PRESS]; } },
+        NUMPAD_6_DOWN:     { get: function getNumpad6KeyDown()  { return _Keys[102 + _DOWN ]; } },
 
-        KEY_NUMPAD_7_UP:       { get: function getNumpad7KeyUp()    { return _Keys[103 + _UP   ]; } },
-        KEY_NUMPAD_7_PRESS:    { get: function getNumpad7KeyPress() { return _Keys[103 + _PRESS]; } },
-        KEY_NUMPAD_7_DOWN:     { get: function getNumpad7KeyDown()  { return _Keys[103 + _DOWN ]; } },
+        NUMPAD_7_UP:       { get: function getNumpad7KeyUp()    { return _Keys[103 + _UP   ]; } },
+        NUMPAD_7_PRESS:    { get: function getNumpad7KeyPress() { return _Keys[103 + _PRESS]; } },
+        NUMPAD_7_DOWN:     { get: function getNumpad7KeyDown()  { return _Keys[103 + _DOWN ]; } },
 
-        KEY_NUMPAD_8_UP:       { get: function getNumpad8KeyUp()    { return _Keys[104 + _UP   ]; } },
-        KEY_NUMPAD_8_PRESS:    { get: function getNumpad8KeyPress() { return _Keys[104 + _PRESS]; } },
-        KEY_NUMPAD_8_DOWN:     { get: function getNumpad8KeyDown()  { return _Keys[104 + _DOWN ]; } },
+        NUMPAD_8_UP:       { get: function getNumpad8KeyUp()    { return _Keys[104 + _UP   ]; } },
+        NUMPAD_8_PRESS:    { get: function getNumpad8KeyPress() { return _Keys[104 + _PRESS]; } },
+        NUMPAD_8_DOWN:     { get: function getNumpad8KeyDown()  { return _Keys[104 + _DOWN ]; } },
 
-        KEY_NUMPAD_9_UP:       { get: function getNumpad9KeyUp()    { return _Keys[105 + _UP   ]; } },
-        KEY_NUMPAD_9_PRESS:    { get: function getNumpad9KeyPress() { return _Keys[105 + _PRESS]; } },
-        KEY_NUMPAD_9_DOWN:     { get: function getNumpad9KeyDown()  { return _Keys[105 + _DOWN ]; } },
+        NUMPAD_9_UP:       { get: function getNumpad9KeyUp()    { return _Keys[105 + _UP   ]; } },
+        NUMPAD_9_PRESS:    { get: function getNumpad9KeyPress() { return _Keys[105 + _PRESS]; } },
+        NUMPAD_9_DOWN:     { get: function getNumpad9KeyDown()  { return _Keys[105 + _DOWN ]; } },
 
 
         KEY_DIVIDE_UP:        { get: function getDivideKeyUp()      { return _Keys[111 + _UP   ]; } },
@@ -1443,11 +1561,11 @@ function Light()
     {
         /**
          * @function    Ambient: {AmbientLight}
-         * @description Returns a new ambient light object. It is treated as a singleton,
-         *              i.e. there is only one ambient light object in a scene.
+         * @description Returns a new ambient light object. There is only one ambient
+         *              light object in a scene.
          * @see         FWGE.Game.Light.AmbientLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}
+         *              > parent:       {GameObject}    [nullable]
          *              > colour:       {Float32Array}  [nullable]
          *              > intensity:    {Number}        [nullable]
          */
@@ -1458,10 +1576,14 @@ function Light()
                 if (_AmbientCount < _MAX_AMBIENT)
                 {
                     __LIGHT__[0] = new AmbientLight(request);
+                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                    __LIGHT__[0].GameObject.LightItem = __LIGHT__[0];
+                    
                     _AmbientCount++;
+                    return __LIGHT__[0];
                 }
-            
-                return __LIGHT__[0];
+
+                return undefined;
             }
         },
 
@@ -1471,7 +1593,7 @@ function Light()
          *              directional light objects in a scene.
          * @see         FWGE.Game.Light.DirectionalLight
          * @param       request:         {Object}
-         *              > parent:        {GameObject}
+         *              > parent:        {GameObject}    [nullable]
          *              > colour:        {Float32Array}  [nullable]
          *              > intensity:     {Number}        [nullable]
          *              > direction:     {Float32Array}  [nullable]
@@ -1487,8 +1609,10 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new DirectionalLight(request);
-                            _DirectionalCount++;
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
+                            _DirectionalCount++;
                             return __LIGHT__[i];        
                         }
                     }
@@ -1504,7 +1628,7 @@ function Light()
          *              point light objects in a scene.
          * @see         FWGE.Game.Light.PointLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}
+         *              > parent:       {GameObject}    [nullable]
          *              > colour:       {Float32Array}  [nullable]
          *              > intensity:    {Number}        [nullable]
          *              > radius:       {Number}        [nullable]
@@ -1521,8 +1645,10 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new PointLight(request);
-                            _PointCount++;
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
+                            _PointCount++;
                             return __LIGHT__[i];        
                         }
                     }
@@ -1543,7 +1669,7 @@ function Light()
             {
                 if (!!light)
                 {
-                    switch (light.Type)
+                    switch (light.Type[0])
                     {
                         case "AMBIENTLIGHT":
                             __LIGHT__[0] = undefined;
@@ -1591,9 +1717,12 @@ function Light()
 function LightItem(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "LIGHTITEM ";
+    
     GameItem.call(this, request);
 
-    var _Colour = request.colour instanceof Float32Array ? request.colour : new Float32Array(3);
+    var _Colour = FWGE.Render.Colour.Create(request.colour instanceof Float32Array ? request.colour : new Float32Array(3));
     var _Intensity = typeof request.intensity === 'number' ? request.intensity : 1.0;
 
     Object.defineProperties(this,
@@ -1619,6 +1748,7 @@ function LightItem(request)
          *              > get
          *              > set
          * @description Descrbies the intensity at which the light object emits.
+         *              This ranges between: [0, 1].
          */
         Intensity:
         {
@@ -1626,7 +1756,7 @@ function LightItem(request)
             set: function setIntensity()
             {
                 if (typeof arguments[0] === 'number')
-                    _Intensity = Math.clamp(0, 255, arguments[0]);
+                    _Intensity = Math.clamp(arguments[0], 0, 1);
             }
         }
     });
@@ -1644,7 +1774,8 @@ function LightItem(request)
 function AmbientLight(request)
 {
     if (!request) request = {};
-    request.type = "AMBIENTLIGHT";
+    if (!request.type) request.type = "";
+    request.type += "AMBIENTLIGHT ";
 
     LightItem.call(this, request);
 }
@@ -1662,8 +1793,10 @@ function AmbientLight(request)
 function DirectionalLight(request)
 {
     if (!request) request = {};
-    request.type = "DIRECTIONALLIGHT";
-    LightObject.call(this, request);
+    if (!request.type) request.type = "";
+    request.type += "DIRECTIONALLIGHT ";
+    
+    LightItem.call(this, request);
 
     var _Direction = (request.direction instanceof Float32Array && request.direction.length === 3) ? request.direction : new Float32Array(3);
 
@@ -1714,8 +1847,10 @@ function DirectionalLight(request)
 function PointLight(request)
 {
     if (!request) request = {};
-    request.type = "POINTLIGHT";
-    LightObject.call(this, request);
+    if (!request.type) request.type = "";
+    request.type = "POINTLIGHT ";
+    
+    LightItem.call(this, request);
     
     var _Radius = typeof request.radius === 'number' ? request.radius : 5;
     var _Angle = typeof request.angle  === 'number' ? request.angle : 180;
@@ -1751,7 +1886,7 @@ function PointLight(request)
             set: function setAngle()
             {
                 if (typeof arguments[0] === 'number')
-                    _Angle = Math.clamp(0, 180, arguments[0]);
+                    _Angle = Math.clamp(arguments[0], 0, 180);
             }
         }
     });
@@ -3626,8 +3761,10 @@ function Vector4()
 function Particle(request)
 {
     if (!request) request = {};
-    request.type = "PARTICLE";
-    GameItem.call(this, request);
+    if (!request.type) request.type = "";
+    request.type += "PARTICLE ";
+    
+    Item.call(this, request);
 }
 /**
  * @constructor ParticleSystem
@@ -3638,7 +3775,9 @@ function Particle(request)
 function ParticleSystem(request)
 {
     if (!request) request = {};
-    request.type = "PARTICLESYSTEM";
+    if (!request.type) request.type = "";
+    request.type = "PARTICLESYSTEM ";
+    
     GameItem.call(this, request);
 }
 
@@ -3653,21 +3792,28 @@ function PhysicsEngine()
     Object.defineProperties(this,
     {
         /**
-         * @property    Collision: {Number}
+         * @property    Collision: {Function}
          * @description Constructor for a Collision object.
          * @see         FWGE.Physics.Collision
          */
         Collision:      {value: Collision},
         
         /**
-         * @property    Collision: {Number}
+         * @property    PhysicsBody: {Function}
          * @description Constructor for a Physics Body.
          * @see         FWGE.Physics.PhysicsBody
          */
         PhysicsBody:    {value: PhysicsBody},
         
         /**
-         * @property    Collision: {Number}
+         * @property    PhysicsItem: {Function}
+         * @description Constructor for a Physics Body.
+         * @see         FWGE.Physics.PhysicsItem
+         */
+        PhysicsItem:    {value: PhysicsItem},
+        
+        /**
+         * @property    PhysicsMaterial: {Function}
          * @description Constructor for a PhysicsMaterial.
          * @see         FWGE.Physics.PhysicsMaterial
          */
@@ -3715,7 +3861,79 @@ function PhysicsEngine()
 function PhysicsItem(request)
 {
     if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "PHYSICSITEM ";
+
     GameItem.call(this, request);
+
+    var _Collision = request.collision instanceof Collision ? request.collision : undefined;
+    var _PhysicsMaterial = request.material instanceof PhysicsMaterial ? request.material : undefined;
+    
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    PhysicsBody: {PhysicsBody}
+         *              > get
+         * @description Add some words...
+         */
+        PhysicsBody: { value: request.body instanceof PhysicsBody ? request.body : new PhysicsBody() },
+
+        /**
+         * @property    Collision: {Collision}
+         *              > get
+         *              > set
+         * @description Add some words...
+         */
+        Collision:
+        {
+            get: function getCollision() { return _Collision },
+            set: function setCollision()
+            {
+                if (arguments[0] instanceof Collision)
+                {
+                    _Collision = arguments[0];
+                    _Collision.PhysicsItem = this;
+                }
+                else if (arguments[0] === undefined)
+                {
+                    _Collision.PhysicsItem = undefined;
+                    _Collision = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    PhysicsMaterial: {PhysicsMaterial}
+         *              > get
+         *              > set
+         * @description Add some words...
+         */
+        PhysicsMaterial:
+        {
+            get: function getPhysicsMaterial() { return _PhysicsMaterial },
+            set: function setPhysicsMaterial()
+            {
+                if (arguments[0] instanceof PhysicsMaterial || undefined)
+                    _PhysicsMaterial = arguments[0];
+            }
+        },
+
+        /**
+         * @property    PhysicsUpdate: {Function}
+         * @description Update the physics stuffs...
+         */
+        PhysicsUpdate:
+        {
+            value: function PhysicsUpdate()
+            {
+                if (!this.PhysicsBody.LockY)
+                {
+                    this.PhysicsBody.Velocity += (FWGE.Physics.Gravity * (FWGE.Game.Time.Delta / 1000));
+                    this.GameObject.Transform.Position.Y += this.PhysicsBody.Velocity;
+                }
+            }
+        }
+    });
 }
 
 
@@ -3726,9 +3944,13 @@ var __PHYSICSMATERIAL__ = [];
  * @description Some words of encouragement
  * @param       request: {Object}
  */
-function PhysicsMaterial()
+function PhysicsMaterial(request)
 {
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type += "PHYSICSMATERIAL ";
 
+    Item.call(this, request);
 }
 /**
  * @constructor PhysicsBody
@@ -3742,17 +3964,36 @@ function PhysicsMaterial()
  */
 function PhysicsBody(request)
 {
-    if (request) request = {};
-    request.type = "PHYSICSBODY";
-    PhysicsItem.call(this, request);
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "PHYSICSBODY ";
 
-    var _Mass  = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
-    var _LockX = typeof request.lockx === 'boolean'?  request.lockx : false;
-    var _LockY = typeof request.locky === 'boolean'?  request.locky : false;
-    var _LockZ = typeof request.lockz === 'boolean'?  request.lockz : false;
+    Item.call(this, request);
+
+    var _Mass       = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
+    var _LockX      = typeof request.lockx === 'boolean'?  request.lockx : true;
+    var _LockY      = typeof request.locky === 'boolean'?  request.locky : true;
+    var _LockZ      = typeof request.lockz === 'boolean'?  request.lockz : true;
+    var _Grounded   = false;
+    var _Velocity   = 0.0;
     
     Object.defineProperties(this,
     {
+        /**
+         * @property    Velocity: {Number}
+         *              > get
+         *              > set
+         * @description The mass of the gameobject this physics body is attached to.
+         */
+        Velocity:
+        {
+            get: function getVelocity() { return _Velocity; },
+            set: function setVelocity()
+            {
+                if (typeof arguments[0] === 'number')
+                    _Velocity = arguments[0];
+            },
+        },
         /**
          * @property    Mass: {Number}
          *              > get
@@ -3815,7 +4056,9 @@ function PhysicsBody(request)
                 if (typeof arguments[0] === 'boolean')
                     _LockZ = arguments[0];
             },
-        }
+        },
+
+        Grounded: { get: function IsGrounded() { return _Grounded; } }
     });
 }
 
@@ -3825,13 +4068,14 @@ function PhysicsBody(request)
  * @description This is the base object for collision objects
  * @module      FWGE.Physics
  * @param       request:  {Object}
- *              > parent: {PhysicsItem}
  */
 function Collision(request)
 {
     if (!request) request = {};
-    request.type = "COLLISION";
-    PhysicsItem.call(this, request);
+    if (!request.type) request.type = "";
+    request.type = "COLLISION ";
+    
+    Item.call(this, request);
 
     var _PhysicsItem = request.parent instanceof PhysicsItem ? request.parent : undefined;
 
@@ -3901,6 +4145,8 @@ function RenderEngine()
         {
             value: function Init()
             {
+                __MODELVIEW__ = new ModelView();
+                __PROJECTION__ = new Projection();
                 _Renderer = new Renderer();
                 GL.enable(GL.DEPTH_TEST);
             }
@@ -3921,15 +4167,6 @@ function RenderEngine()
 }
 
 
-/**
- * @constructor RenderItem
- * @description The base item regarding rendering.
- * @param       request: {Object}
- */
-function RenderItem(request)
-{
-    Item.call(this, request);
-}
 var __SHADER__ = [];
 
 /**
@@ -3939,8 +4176,6 @@ var __SHADER__ = [];
  *              > name:             {String}
  *              > vertexShader:     {String}
  *              > fragmentShader:   {String}
- *              > width:            {Number}    [nullable]
- *              > height:           {Number}    [nullable]
  */
 function Shader(request)
 {
@@ -3948,32 +4183,59 @@ function Shader(request)
     if (!request.name || typeof request.name !== 'string') return;
     if (!request.vertexShader || typeof request.vertexShader !== 'string') return;
     if (!request.fragmentShader || typeof request.fragmentShader !== 'string') return;
-    if (typeof request.width !== 'number') request.width = 512;
-    if (typeof request.height !== 'number') request.height = 512;
     
+    request.type = "SHADER ";
+    Item.call(this, request);
+
     Object.defineProperties(this,
     {
-        Name:             { value: request.name },
-        Program:          { value: GL.createProgram() },
-        Texture:          { value: GL.createTexture() },
-        FrameBuffer:      { value: GL.createFramebuffer() },
-        RenderBuffer:     { value: GL.createRenderbuffer() }
+        Program:        { value: GL.createProgram() },
+        Texture:        { value: GL.createTexture() },
+        FrameBuffer:    { value: GL.createFramebuffer() },
+        RenderBuffer:   { value: GL.createRenderbuffer() },
+        Height:         { value: 1024 },
+        Width:          { value: 1024 }
     });
 
-    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);             
+    GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer); 
     GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
-    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, 1024, 768);
+    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height);
     GL.bindTexture(GL.TEXTURE_2D, this.Texture);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1024, 768, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
+    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
     GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0);
-    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer);
+    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer);  
+        
+    switch (GL.checkFramebufferStatus(GL.FRAMEBUFFER))
+    {
+        case GL.FRAMEBUFFER_COMPLETE: 
+            console.log("Complete");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
+            console.log("Incomplete Attachment");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: 
+            console.log("Missing Attachment");
+        break;
+
+        case GL.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: 
+            console.log("Dimensions");
+        break;
+
+        case GL.FRAMEBUFFER_UNSUPPORTED: 
+            console.log("Unsuppported");
+        break;        
+    }
+        
     GL.bindTexture(GL.TEXTURE_2D, null);
     GL.bindRenderbuffer(GL.RENDERBUFFER, null);
     GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+    
     
     var vs = GL.createShader(GL.VERTEX_SHADER);
     GL.shaderSource(vs, request.vertexShader);
@@ -3999,7 +4261,7 @@ function Shader(request)
     if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS)) return;
     
     GL.useProgram(this.Program);
-    
+        
     Object.defineProperties(this,
     {
         Attributes:
@@ -4022,7 +4284,11 @@ function Shader(request)
                     Diffuse:            GL.getUniformLocation(this.Program, "U_Material.Diffuse"),
                     Specular:           GL.getUniformLocation(this.Program, "U_Material.Specular"),
                     Shininess:          GL.getUniformLocation(this.Program, "U_Material.Shininess"),
-                    Alpha:              GL.getUniformLocation(this.Program, "U_Material.Alpha")
+                    Alpha:              GL.getUniformLocation(this.Program, "U_Material.Alpha"),
+
+                    HasImage:           GL.getUniformLocation(this.Program, "U_Material.HasImage"),
+                    HasBump:            GL.getUniformLocation(this.Program, "U_Material.HasBump"),
+                    HasSpecular:        GL.getUniformLocation(this.Program, "U_Material.HasSpecular"),
                 },
                 Matrix:
                 {
@@ -4107,7 +4373,8 @@ function Shader(request)
                 Sampler:
                 {
                     Image:              GL.getUniformLocation(this.Program, "U_Sampler.Image"),
-                    Bump:               GL.getUniformLocation(this.Program, "U_Sampler.Bump")
+                    Bump:               GL.getUniformLocation(this.Program, "U_Sampler.Bump"),
+                    Specular:           GL.getUniformLocation(this.Program, "U_Sampler.Specular")
                 }
             }
         }
@@ -4143,13 +4410,13 @@ function Colour()
             {
                 var $ = new Float32Array(3);
 
-                $[0] = typeof arguments[0] === 'number' ? arguments[0] : arguments[0] instanceof Array && typeof arguments[0][0] === 'number' ? arguments[0][0] : 0;
-                $[1] = typeof arguments[1] === 'number' ? arguments[1] : arguments[0] instanceof Array && typeof arguments[0][1] === 'number' ? arguments[0][1] : 0;
-                $[2] = typeof arguments[2] === 'number' ? arguments[2] : arguments[0] instanceof Array && typeof arguments[0][2] === 'number' ? arguments[0][2] : 0;
-                
+                $[0] = typeof arguments[0] === 'number' ? arguments[0] : (typeof arguments[0][0] === 'number' ? arguments[0][0] : 0);
+                $[1] = typeof arguments[1] === 'number' ? arguments[1] : (typeof arguments[0][1] === 'number' ? arguments[0][1] : 0);
+                $[2] = typeof arguments[2] === 'number' ? arguments[2] : (typeof arguments[0][2] === 'number' ? arguments[0][2] : 0);
+
                 Object.defineProperties($,
                 {
-                    Type: { value: "COLOUR" },
+                    Type: { value: ["COLOUR"] },
                     R:
                     {
                         get: function getR(){ return $[0]; },
@@ -4164,7 +4431,7 @@ function Colour()
                         get: function getG(){ return $[1]; },
                         set: function setG()
                         {
-                            if (typeof arguments[1] === 'number')
+                            if (typeof arguments[0] === 'number')
                                 $[1] = Math.clamp(arguments[0], 0, 1);
                         },
                     },
@@ -4202,7 +4469,9 @@ var __MESH__ = [];
 function Mesh(request)
 {   
     if (!request) request = {};
-    request.type = "MESH";
+    if (!request.type) request.type = "";
+    request.type += "MESH ";
+    
     GameItem.call(this, request);
     
     function validate(array, constructor)
@@ -4313,7 +4582,7 @@ function RenderMaterial(request)
 {
     if (!request) request = {};
     request.type = "MATERIAL";
-    RenderItem.call(this, request);
+    Item.call(this, request);
 
     function colour(item)
     {
@@ -4448,8 +4717,13 @@ function RenderMaterial(request)
             get: function getImageMap() { return _ImageMap; },
             set: function setImageMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _ImageMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_ImageMap);
+                    _ImageMap = undefined;
+                }
             }
         },
 
@@ -4464,8 +4738,13 @@ function RenderMaterial(request)
             get: function getBumpMap() { return _BumpMap; },
             set: function setBumpMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _BumpMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_BumpMap);
+                    _BumpMap = undefined;
+                }
             }
         },
 
@@ -4480,11 +4759,18 @@ function RenderMaterial(request)
             get: function getSpecularMap() { return _SpecularMap; },
             set: function setSpecularMap()
             {
-                if (arguments[0] instanceof WebGLTexture || arguments[0] === undefined)
+                if (arguments[0] instanceof WebGLTexture)
                     _SpecularMap = arguments[0];
+                else if (arguments[0] === undefined)
+                {
+                    GL.deleteTexture(_SpecularMap);
+                    _SpecularMap = undefined;
+                }
             }
         }
     });
+
+    this.SetTextures(request);
     
     __MATERIAL__.push(this);
 }
@@ -4495,26 +4781,49 @@ Object.defineProperties(RenderMaterial.prototype,
     /**
      * @function    SetTextures: void
      * @description This function simply loads the appropriate textures into memory.   
-     * @param       request:     {Object}
-     *              > image:     {String}    [nullable]
-     *              > bump:      {String}    [nullable]
-     *              > specular:  {String}    [nullable]
+     * @param       request:        {Object}
+     *              > imagemap:     {String}    [nullable]
+     *              > bumpmap:      {String}    [nullable]
+     *              > specularmap:  {String}    [nullable]
      */
     SetTextures:
     {
         value: function SetTextures(request)
         {
             if (!request) request = {};
-            if (typeof request.image === 'string')      apply_image(request.image, this.ImageMap);
-            if (typeof request.bump === 'string')       apply_image(request.bump, this.BumpMap);
-            if (typeof request.specular === 'string')   apply_image(request.specular, this.Specular);
+            if (typeof request.imagemap === 'string')
+            {
+                if (!this.ImageMap)
+                    this.ImageMap = GL.createTexture();
+                apply_image(request.imagemap, this.ImageMap);
+            }
+            if (typeof request.bumpmap === 'string')
+            {
+                if (!this.BumpMap)
+                    this.BumpMap = GL.createTexture();
+                apply_image(request.bumpmap, this.BumpMap);
+            }
+            if (typeof request.specularmap === 'string')
+            {
+                if (!this.SpecularMap)
+                    this.SpecularMap = GL.createTexture();
+                apply_image(request.specularmap, this.Specular);
+            }
 
             function apply_image(src, texture)
             {
-                var img = new Image();
-                img.onload = function onload()
+                var img = new Image()
+                img.onload = function()
                 {
-                    //this.LoadImage(img, texture);
+                    GL.bindTexture(GL.TEXTURE_2D, texture);
+                    GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+                    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+                    GL.generateMipmap(GL.TEXTURE_2D);
+                    GL.bindTexture(GL.TEXTURE_2D, null);
                 };
                 img.src = src;
             }
@@ -4565,7 +4874,13 @@ function ModelView()
             value: function PeekMatrix()
             {
                 if (_Stack.length === 0)
-                    return FWGE.Game.Maths.Matrix4.Identity();
+                {
+                    var mat =  FWGE.Game.Maths.Matrix4.Identity();
+                    mat.M41 = -FWGE.Game.Camera.Transform.Position.X;
+                    mat.M42 = -FWGE.Game.Camera.Transform.Position.Y;
+                    mat.M43 = -FWGE.Game.Camera.Transform.Position.Z;
+                    return mat;
+                }
                 else
                     return _Stack[_Stack.length - 1];
             }
@@ -4757,21 +5072,21 @@ function Projection()
     
     function Orthographic(left, right, top, bottom, near, far, theta, phi)
     {
-        theta = Math.cot(Math.radian(theta));
-        phi = Math.cot(Math.radian(phi));
+        theta   = Math.cot(Math.radian(theta));
+        phi     = Math.cot(Math.radian(phi));
 
-        left -= near * theta;
-        right -= near * theta;
-        top -= near * phi;
-        bottom -= near * phi;
+        left    -= near * theta;
+        right   -= near * theta;
+        top     -= near * phi;
+        bottom  -= near * phi;
 
         FWGE.Game.Maths.Matrix4.Set
         (
             _Camera,
 
-                          2 / (right - left),                                  0,                             0, 0,
-                                           0,                 2 / (top - bottom),                              0, 0,
-                                        theta,                                phi,            -2 / (far - near), 0,
+                          2 / (right - left),                                0,                            0, 0,
+                                           0,               2 / (top - bottom),                            0, 0,
+                                       theta,                              phi,            -2 / (far - near), 0,
             -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
         );
         
@@ -4779,14 +5094,14 @@ function Projection()
     
     function Perspective(field_of_view, aspect_ratio, near, far)
     {
-        var top = near * Math.tan(Math.radian(field_of_view));
-        var right = top * aspect_ratio;
+        var top     = near * Math.tan(Math.radian(field_of_view));
+        var right   = top * aspect_ratio;
         
-        var left = -right;
-        var bottom = -top;
-        var width = right - left;
-        var height = top - bottom;
-        var depth = far - near;
+        var left    = -right;
+        var bottom  = -top;
+        var width   = right - left;
+        var height  = top - bottom;
+        var depth   = far - near;
 
         FWGE.Game.Maths.Matrix4.Set
         (
@@ -4839,6 +5154,10 @@ function Projection()
 }
 
 
+
+var __MODELVIEW__;
+var __PROJECTION__;
+
 /**
  * @constructor Renderer
  * @description This module handles the actual rendering of the scene to
@@ -4847,8 +5166,62 @@ function Projection()
  */
 function Renderer()
 {
-    var __MODELVIEW__ = new ModelView();
-    var __PROJECTION__ = new Projection();
+    var _Shader = (function()
+    {
+        var vertexShader = "attribute vec3 A_Position;\nattribute vec2 A_UV;\n\nuniform mat4 P;\nuniform mat4 MV;\n\nvarying vec2 V_UV;\n\nvoid main(void)\n{\n\tV_UV = A_UV;\n\tgl_Position = P * MV * vec4(A_Position, 1.0);\n}\n";
+        var fragmentShader = "precision mediump float;\n\nconst int MAX_SHADERS = 8;\nuniform int U_Sampler_Count;\nuniform sampler2D U_Samplers[8];\n\nvarying vec2 V_UV;\n\nvoid main(void)\n{\n\t/*for (int i = 0; i < MAX_SHADERS; ++i)\n\t{\n\t\tif (i == U_Sampler_Count) break;\n\t\tgl_FragColor *= texture2D(U_Samplers[i], V_UV);\n\t}*/\n\tgl_FragColor = vec4(1.0);\n}\n";
+
+        console.log("=======================================================\n"+vertexShader+"=======================================================\n"+fragmentShader+"=======================================================\n");
+
+        function FinalShader()
+        {
+            var vs = GL.createShader(GL.VERTEX_SHADER);
+            GL.shaderSource(vs, vertexShader);
+            GL.compileShader(vs);
+
+            var fs = GL.createShader(GL.FRAGMENT_SHADER);
+            GL.shaderSource(fs, fragmentShader);
+            GL.compileShader(fs);
+            
+            this.Program = GL.createProgram();
+
+            GL.attachShader(this.Program, vs);
+            GL.attachShader(this.Program, fs);
+            GL.linkProgram(this.Program);            
+            GL.useProgram(this.Program);
+            
+            this.PositionPointer = GL.getAttribLocation(this.Program, "A_Position");
+            GL.enableVertexAttribArray(this.PositionPointer);
+            this.UVPointer = GL.getAttribLocation(this.Program, "A_UV");
+            GL.enableVertexAttribArray(this.UVPointer);
+
+            this.Samplers = [];
+            for (var  i = 0; i < 8; ++i)
+                this.Samplers.push(GL.getUniformLocation(this.Program, "U_Samplers[" + i + "]"));
+            this.SamplerCount = GL.getUniformLocation(this.Program, "U_Sampler_Count");
+
+            this.ModelView = GL.getUniformLocation(this.Program, "MV");
+            this.Projection = GL.getUniformLocation(this.Program, "P");
+
+            this.PositionBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.PositionBuffer);
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array([ -1.0,1.0,0.0, -1.0,-1.0,0.0, 1.0,-1.0,0.0, 1.0,1.0,0.0 ]), GL.STATIC_DRAW);
+
+            this.UVBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.UVBuffer);
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array([ 0.0,1.0, 0.0,0.0, 1.0,0.0, 1.0,1.0 ]), GL.STATIC_DRAW);
+
+            this.IndexBuffer = GL.createBuffer();
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer);
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array([0,1,2,0,2,3]), GL.STATIC_DRAW);
+            
+            GL.useProgram(null);
+        }
+
+        return new FinalShader();
+    })();
+
+    console.log(_Shader);
 
     Object.defineProperties(this,
     {
@@ -4863,8 +5236,9 @@ function Renderer()
                 {
                     this.SetGlobalUniforms();
                     this.RenderObject(__OBJECT__[i]);
-
                 }
+
+                this.FinalDraw();
             }
         },
 
@@ -4875,8 +5249,10 @@ function Renderer()
                 var i = __SHADER__.length;
                 while (--i >= 0)
                 {
-                    GL.bindFramebuffer(GL.FRAMEBUFFER, __SHADER__[i].FrameBuffer);
-                    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+                    var shader = __SHADER__[i];
+
+                    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer);
+                    GL.viewport(0, 0, shader.Width, shader.Height);
                     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
                 }
                 
@@ -4916,9 +5292,9 @@ function Renderer()
                         GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
                     }
                     
-                    this.BindAttributes(object.Mesh, object.RenderMaterial, object.RenderMaterial.Shader.Attributes);
-                    this.SetObjectUniforms(object.RenderMaterial, object.RenderMaterial.Shader.Uniforms);
-                    this.Draw(object.Mesh.VertexCount);
+                    this.BindAttributes(object.Mesh, object.RenderMaterial, shader.Attributes);
+                    this.SetObjectUniforms(object.RenderMaterial, shader.Uniforms);
+                    this.Draw(object.Mesh.VertexCount, shader.FrameBuffer);
                     
                     if (object.RenderMaterial.Alpha !== 1.0)
                     {
@@ -4995,30 +5371,46 @@ function Renderer()
                 GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
                 GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
             
-                if (!!material.Image)
+                if (!!material.ImageMap)
                 {
                     GL.activeTexture(GL.TEXTURE0);
-                    GL.bindTexture(GL.TEXTURE_2D, material.Image);
-                    GL.uniform1i(uniforms.Material.HasImageMap, true);
+                    GL.bindTexture(GL.TEXTURE_2D, material.ImageMap);
+                    GL.uniform1i(uniforms.Material.HasImage, 1);
                     GL.uniform1i(uniforms.Sampler.Image, 0);
                 }
                 else
                 {
+                    GL.activeTexture(GL.TEXTURE0);
                     GL.bindTexture(GL.TEXTURE_2D, null);
-                    GL.uniform1i(uniforms.Material.HasImageMap, false);
+                    GL.uniform1i(uniforms.Material.HasImage, 0);
                 }
                 
-                if (!!material.Bump)
+                if (!!material.BumpMap)
                 {
                     GL.activeTexture(GL.TEXTURE1);
-                    GL.bindTexture(GL.TEXTURE_2D, material.Bump);
-                    GL.uniform1i(uniforms.Material.HasBumpMap, true);
+                    GL.bindTexture(GL.TEXTURE_2D, material.BumpMap);
+                    GL.uniform1i(uniforms.Material.HasBump, 1);
                     GL.uniform1i(uniforms.Sampler.Bump, 1);
                 }
                 else
                 {
+                    GL.activeTexture(GL.TEXTURE1);
                     GL.bindTexture(GL.TEXTURE_2D, null);
-                    GL.uniform1i(uniforms.Material.HasBumpMap, false);
+                    GL.uniform1i(uniforms.Material.HasBump, 0);
+                }
+                
+                if (!!material.SpecularMap)
+                {
+                    GL.activeTexture(GL.TEXTURE2);
+                    GL.bindTexture(GL.TEXTURE_2D, material.SpecularMap);
+                    GL.uniform1i(uniforms.Material.HasSpecular, 1);
+                    GL.uniform1i(uniforms.Sampler.Specular, 2);
+                }
+                else
+                {
+                    GL.activeTexture(GL.TEXTURE2);
+                    GL.bindTexture(GL.TEXTURE_2D, null);
+                    GL.uniform1i(uniforms.Material.HasBump, 0);
                 }
             }
         },
@@ -5038,11 +5430,11 @@ function Renderer()
                     var j = __LIGHT__.length;
                     while (--j >= 0)
                     {
-                        var light = __LIGHT__[i];
+                        var light = __LIGHT__[j];
                         
                         if (!!light)
                         {
-                            switch (light.Type)
+                            switch (light.Type[0])
                             {
                                 case "AMBIENTLIGHT":
                                     GL.uniform3fv(uniforms.Ambient.Colour, light.Colour);
@@ -5057,7 +5449,7 @@ function Renderer()
                                     
                                 case "POINTLIGHT":
                                     __MODELVIEW__.PushMatrix();
-                                    __MODELVIEW__.Transform(light.Transform);
+                                    __MODELVIEW__.Transform(light.GameObject.Transform);
                                     var pos = __MODELVIEW__.PopMatrix();
 
                                     GL.uniform3fv(uniforms.Point[point_count].Colour, light.Colour);
@@ -5099,10 +5491,11 @@ function Renderer()
 
         Draw:
         {
-            value: function Draw(vertexCount)
+            value: function Draw(vertexCount, framebuffer)
             {
-                console.log(vertexCount);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
                 GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
             }
         },
 
@@ -5110,7 +5503,37 @@ function Renderer()
         {
             value: function FinalDraw()
             {
+                GL.useProgram(_Shader.Program);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
 
+                GL.bindBuffer(GL.ARRAY_BUFFER, _Shader.PositionBuffer);
+                GL.vertexAttribPointer(_Shader.PositionPointer, 3, GL.FLOAT, false, 0, 0);
+
+                GL.bindBuffer(GL.ARRAY_BUFFER, _Shader.UVBuffer);
+                GL.vertexAttribPointer(_Shader.UVPointer, 2, GL.FLOAT, false, 0, 0);
+
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, _Shader.IndexBuffer);
+
+                GL.uniformMatrix4fv(_Shader.ModelView, false, __MODELVIEW__.PeekMatrix());
+                GL.uniformMatrix4fv(_Shader.Projection, false, __PROJECTION__.GetViewer());
+
+                var i =__SHADER__.length;
+                GL.uniform1i(_Shader.SamplerCount, 1);
+                GL.activeTexture(GL.TEXTURE0);
+                GL.bindTexture(GL.TEXTURE_2D, __SHADER__[0].Texture);
+                GL.uniform1i(_Shader.Samplers[0], 0);
+
+                /*while (--i >= 0)
+                {
+                    GL.activeTexture(GL.TEXTURE0 + i);
+                    GL.bindTexture(GL.TEXTURE_2D, __SHADER__[i].Texture);
+                    GL.uniform1i(_Shader.Samplers[i], i);
+                }*/
+                
+                GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
+                
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+                GL.useProgram(null);
             }
         }
     });

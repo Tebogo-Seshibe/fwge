@@ -18,21 +18,21 @@ var __OBJECT__ = [];
 function GameObject(request)
 {
     if (!request) request = {};
-    request.type = "GAMEOBJECT";
-    request.name = typeof request.name === 'string' ? request.name : "GameObject";
+    if (!request.type) request.type = "";
+    request.type = "GAMEOBJECT ";
+    
     GameItem.call(this, request);
 
     var _Children       = [];
-    var _RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
-    var _Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
-    var _PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
-    var _Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;
-    var _LightItem      = request.lightitem      instanceof LightItem       ? request.lightitem      : undefined;
-    var _ParticleSystem = request.particlesystem instanceof ParticleSystem  ? request.particlesystem : undefined;
-    
-    var _Begin  = typeof request.begin  === 'function' ? request.begin  : function Begin(){};
-    var _Update = typeof request.update === 'function' ? request.update : function Update(){};
-    var _End    = typeof request.end    === 'function' ? request.end    : function End(){};
+    var _RenderMaterial;
+    var _Mesh;
+    var _PhysicsItem;
+    var _Animation;
+    var _LightItem;
+    var _ParticleSystem;    
+    var _Begin;
+    var _Update;
+    var _End;
     
     Object.defineProperties(this,
     {
@@ -56,7 +56,7 @@ function GameObject(request)
          * @description An array of gameobjects. All children transformation will be relative to 
          *              the parent gameobject.
          */
-        Children: { get: function getChildren() { return _Children } },
+        Children: { value: [] },
 
         /**
          * @function    AddChild:   {GameObject}
@@ -70,7 +70,7 @@ function GameObject(request)
             {
                 if (gameobject instanceof GameObject)
                 {
-                    _Children.push(gameobject);
+                    this.Children.push(gameobject);
                     var index = __OBJECT__.indexOf(gameobject);
 
                     if (index !== -1)
@@ -93,11 +93,11 @@ function GameObject(request)
             {
                 if (gameobject instanceof GameObject)
                 {
-                    var index = _Children.indexOf(gameobject);
+                    var index = this.Children.indexOf(gameobject);
 
                     if (index !== -1)
                     {
-                        _Children.slice(index, 1);
+                        this.Children.slice(index, 1);
                         __OBJECT__.push(gameobject);
                     }
                 }
@@ -139,6 +139,32 @@ function GameObject(request)
         },
 
         /**
+         * @property    LightItem: {LightItem}
+         *              > get
+         *              > set
+         * @description The light item attached to this gameobject.
+         */
+        LightItem:
+        {
+            get: function getLightItem() { return _LightItem; },
+            set: function setLightItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
+                {
+                    _LightItem = arguments[0];
+                    _LightItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_LightItem)
+                        _LightItem.GameObject = undefined;
+                    _LightItem = undefined;
+                }
+            }
+        },
+
+        /**
          * @property    PhysicsItem: {PhysicsItem}
          *              > get
          *              > set
@@ -149,8 +175,18 @@ function GameObject(request)
             get: function getPhysicsItem() { return _PhysicsItem; },
             set: function setPhysicsItem()
             {
-                if (arguments[0] instanceof PhysicsItem || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
+                {
                     _PhysicsItem = arguments[0];
+                    _PhysicsItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_PhysicsItem)
+                        _PhysicsItem.GameObject = undefined;
+                    _PhysicsItem = undefined;
+                }
             }
         },
 
@@ -165,8 +201,18 @@ function GameObject(request)
             get: function getAnimation() { return _Animation; },
             set: function setAnimation()
             {
-                if (arguments[0] instanceof Animation || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
+                {
                     _Animation = arguments[0];
+                    _Animation.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_Animation)
+                        _Animation.GameObject = undefined;
+                    _Animation = undefined;
+                }
             }
         },
 
@@ -181,8 +227,18 @@ function GameObject(request)
             get: function getParticleSystem() { return _ParticleSystem; },
             set: function setParticleSystem()
             {
-                if (arguments[0] instanceof ParticleSystem || arguments[0] === undefined)
+                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
+                {
                     _ParticleSystem = arguments[0];
+                    _ParticleSystem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_ParticleSystem)
+                        _ParticleSystem.GameObject = undefined;
+                    _ParticleSystem = undefined;
+                }
             }
         },
 
@@ -234,8 +290,19 @@ function GameObject(request)
             }
         }
     });
+
+    this.RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
+    this.Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
+    this.PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
+    this.Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;
+    this.LightItem      = request.lightitem      instanceof LightItem       ? request.lightitem      : undefined;
+    this.ParticleSystem = request.particlesystem instanceof ParticleSystem  ? request.particlesystem : undefined;
     
+    this.Begin  = typeof request.begin  === 'function' ? request.begin  : function Begin(){};
+    this.Update = typeof request.update === 'function' ? request.update : function Update(){};
+    this.End    = typeof request.end    === 'function' ? request.end    : function End(){};
     this.Begin();
+
     __OBJECT__.push(this);
 }
 Object.defineProperties(GameObject.prototype,
@@ -319,7 +386,6 @@ Object.defineProperties(GameObject.prototype,
             this.Transform.TransformUpdate();
             if (!!this.PhysicsItem)     this.PhysicsItem.PhysicsUpdate();
             if (!!this.Animation)       this.Animation.AnimationUpdate();
-            if (!!this.LightItem)       this.LightItem.LightUpdate();
             if (!!this.ParticleSystem)  this.ParticleSystem.ParticleSystemUpdate();
         }
     }

@@ -7,7 +7,9 @@
 function ParticleSystem(request)
 {
     if (!request) request = {};
-    request.type = "PARTICLESYSTEM";
+    if (!request.type) request.type = "";
+    request.type = "PARTICLESYSTEM ";
+    
     GameItem.call(this, request);
 }
 

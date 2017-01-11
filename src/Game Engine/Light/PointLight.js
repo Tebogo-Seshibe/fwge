@@ -11,8 +11,10 @@
 function PointLight(request)
 {
     if (!request) request = {};
-    request.type = "POINTLIGHT";
-    LightObject.call(this, request);
+    if (!request.type) request.type = "";
+    request.type = "POINTLIGHT ";
+    
+    LightItem.call(this, request);
     
     var _Radius = typeof request.radius === 'number' ? request.radius : 5;
     var _Angle = typeof request.angle  === 'number' ? request.angle : 180;
@@ -48,7 +50,7 @@ function PointLight(request)
             set: function setAngle()
             {
                 if (typeof arguments[0] === 'number')
-                    _Angle = Math.clamp(0, 180, arguments[0]);
+                    _Angle = Math.clamp(arguments[0], 0, 180);
             }
         }
     });

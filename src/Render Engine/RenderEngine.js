@@ -43,6 +43,8 @@ function RenderEngine()
         {
             value: function Init()
             {
+                __MODELVIEW__ = new ModelView();
+                __PROJECTION__ = new Projection();
                 _Renderer = new Renderer();
                 GL.enable(GL.DEPTH_TEST);
             }

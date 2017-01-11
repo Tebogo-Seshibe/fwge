@@ -7,7 +7,9 @@
 function Animation(request)
 {
     if (!request) request = {};
-    request.type = "ANIMATION";
+    if (!request.type) request.type = "";
+    request.type = "ANIMATION ";
+    
     GameItem.call(this, request);    
 }
 

@@ -22,13 +22,13 @@ function Colour()
             {
                 var $ = new Float32Array(3);
 
-                $[0] = typeof arguments[0] === 'number' ? arguments[0] : arguments[0] instanceof Array && typeof arguments[0][0] === 'number' ? arguments[0][0] : 0;
-                $[1] = typeof arguments[1] === 'number' ? arguments[1] : arguments[0] instanceof Array && typeof arguments[0][1] === 'number' ? arguments[0][1] : 0;
-                $[2] = typeof arguments[2] === 'number' ? arguments[2] : arguments[0] instanceof Array && typeof arguments[0][2] === 'number' ? arguments[0][2] : 0;
-                
+                $[0] = typeof arguments[0] === 'number' ? arguments[0] : (typeof arguments[0][0] === 'number' ? arguments[0][0] : 0);
+                $[1] = typeof arguments[1] === 'number' ? arguments[1] : (typeof arguments[0][1] === 'number' ? arguments[0][1] : 0);
+                $[2] = typeof arguments[2] === 'number' ? arguments[2] : (typeof arguments[0][2] === 'number' ? arguments[0][2] : 0);
+
                 Object.defineProperties($,
                 {
-                    Type: { value: "COLOUR" },
+                    Type: { value: ["COLOUR"] },
                     R:
                     {
                         get: function getR(){ return $[0]; },
@@ -43,7 +43,7 @@ function Colour()
                         get: function getG(){ return $[1]; },
                         set: function setG()
                         {
-                            if (typeof arguments[1] === 'number')
+                            if (typeof arguments[0] === 'number')
                                 $[1] = Math.clamp(arguments[0], 0, 1);
                         },
                     },

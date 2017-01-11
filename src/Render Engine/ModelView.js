@@ -40,7 +40,13 @@ function ModelView()
             value: function PeekMatrix()
             {
                 if (_Stack.length === 0)
-                    return FWGE.Game.Maths.Matrix4.Identity();
+                {
+                    var mat =  FWGE.Game.Maths.Matrix4.Identity();
+                    mat.M41 = -FWGE.Game.Camera.Transform.Position.X;
+                    mat.M42 = -FWGE.Game.Camera.Transform.Position.Y;
+                    mat.M43 = -FWGE.Game.Camera.Transform.Position.Z;
+                    return mat;
+                }
                 else
                     return _Stack[_Stack.length - 1];
             }

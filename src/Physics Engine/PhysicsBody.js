@@ -10,17 +10,36 @@
  */
 function PhysicsBody(request)
 {
-    if (request) request = {};
-    request.type = "PHYSICSBODY";
-    PhysicsItem.call(this, request);
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "PHYSICSBODY ";
 
-    var _Mass  = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
-    var _LockX = typeof request.lockx === 'boolean'?  request.lockx : false;
-    var _LockY = typeof request.locky === 'boolean'?  request.locky : false;
-    var _LockZ = typeof request.lockz === 'boolean'?  request.lockz : false;
+    Item.call(this, request);
+
+    var _Mass       = typeof request.mass  === 'number' ?  request.mass  : 1.0; 
+    var _LockX      = typeof request.lockx === 'boolean'?  request.lockx : true;
+    var _LockY      = typeof request.locky === 'boolean'?  request.locky : true;
+    var _LockZ      = typeof request.lockz === 'boolean'?  request.lockz : true;
+    var _Grounded   = false;
+    var _Velocity   = 0.0;
     
     Object.defineProperties(this,
     {
+        /**
+         * @property    Velocity: {Number}
+         *              > get
+         *              > set
+         * @description The mass of the gameobject this physics body is attached to.
+         */
+        Velocity:
+        {
+            get: function getVelocity() { return _Velocity; },
+            set: function setVelocity()
+            {
+                if (typeof arguments[0] === 'number')
+                    _Velocity = arguments[0];
+            },
+        },
         /**
          * @property    Mass: {Number}
          *              > get
@@ -83,7 +102,9 @@ function PhysicsBody(request)
                 if (typeof arguments[0] === 'boolean')
                     _LockZ = arguments[0];
             },
-        }
+        },
+
+        Grounded: { get: function IsGrounded() { return _Grounded; } }
     });
 }
 

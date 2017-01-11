@@ -8,21 +8,28 @@ function PhysicsEngine()
     Object.defineProperties(this,
     {
         /**
-         * @property    Collision: {Number}
+         * @property    Collision: {Function}
          * @description Constructor for a Collision object.
          * @see         FWGE.Physics.Collision
          */
         Collision:      {value: Collision},
         
         /**
-         * @property    Collision: {Number}
+         * @property    PhysicsBody: {Function}
          * @description Constructor for a Physics Body.
          * @see         FWGE.Physics.PhysicsBody
          */
         PhysicsBody:    {value: PhysicsBody},
         
         /**
-         * @property    Collision: {Number}
+         * @property    PhysicsItem: {Function}
+         * @description Constructor for a Physics Body.
+         * @see         FWGE.Physics.PhysicsItem
+         */
+        PhysicsItem:    {value: PhysicsItem},
+        
+        /**
+         * @property    PhysicsMaterial: {Function}
          * @description Constructor for a PhysicsMaterial.
          * @see         FWGE.Physics.PhysicsMaterial
          */

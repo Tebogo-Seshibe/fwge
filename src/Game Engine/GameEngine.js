@@ -7,6 +7,7 @@ function GameEngine()
 {
     var _Running = false;
     var _AnimationFrame = undefined;
+    var _Camera;
 
     Object.defineProperties(this,
     {
@@ -71,7 +72,7 @@ function GameEngine()
          * @description The viewer.
          * @see         FWGE.Game.Camera
          */
-        Camera:         { value: new Camera() },
+        Camera:         { get: function getCamera() { return _Camera; } },
 
         /**
          * @function    Init: void
@@ -81,7 +82,7 @@ function GameEngine()
         {
             value: function Init()
             {
-                // TODO
+                _Camera = new Camera();
             }
         },
 
@@ -113,6 +114,7 @@ function GameEngine()
             value: function GameUpdate()
             {
                 FWGE.Game.Time.TimeUpdate();
+                FWGE.Game.Camera.CameraUpdate();
 
                 var i = __OBJECT__.length;
                 while (--i >= 0)
