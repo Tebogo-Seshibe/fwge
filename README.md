@@ -45,8 +45,8 @@ function Start()
 		clear: new Float32Array([0,0,0,0])
 	});
 
-	Cube = new FWGE.Game.GameObject
-	({
+	Cube = new FWGE.Game.GameObject(
+	{
 		name: 			"Spinning Colourful Cube",
 		mesh: 			new FWGE.Render.Mesh(
 		{
@@ -97,7 +97,7 @@ function Start()
 			shininess: 			5.0,
 			shader: 			new FWGE.Render.Shader(
 			{
-				name: 			"Basic Shader,
+				name: 			"Basic Shader",
 				vertexShader: 	"attribute vec3 A_Position;\nattribute vec3 A_Colour;\n\nstruct Matrix\n{\n\tmat4 ModelView;\n\tmat4 Projection;\n};\nuniform Matrix U_Matrix;\n\nvarying vec3 V_Colour;\n\nvoid main(void)\n{\n\tV_Colour = A_Colour;\n\tgl_Position = U_Matrix.Projection * U_Matrix.ModelView * vec4(A_Position, 1.0);\n}\n",
 				fragmentShader: "precision mediump float;\n\nvarying vec3 V_Colour;\n\nvoid main(void)\n{\n\tgl_FragColor = vec4(V_Colour, 1.0);\n}\n"
 			}),
