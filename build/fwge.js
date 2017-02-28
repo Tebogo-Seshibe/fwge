@@ -15,7 +15,7 @@ var IDCounter = new function IDCounter(){ var id = 0; this.next = function next(
 
 
 /**
- * @constructor GameEngine
+ * @name        GameEngine
  * @description Something...
  * @module      FWGE
  */
@@ -31,15 +31,25 @@ function GameEngine()
          * @property    GameObject: {Function}
          * @description The GameObject constructor.
          * @see         FWGE.Game.GameObject
+         * @param       request:        {Object}
+         *              > material:     {Material}      [nullable]
+         *              > mesh:         {Mesh}          [nullable]
+         *              > transform:    {Transform}     [nullable]
+         *              > physics:      {Physics}       [nullable]
+         *              > animation:    {Animation}     [nullable]
+         *              > lightitem:    {LightObject}   [nullable]
+         *              > begin:        {Function}      [nullable]
+         *              > update:       {Function}      [nullable]
+         *              > end:          {Function}      [nullable]
          */
-        GameObject:     { value: GameObject },
+        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments); } },
         
         /**
          * @property    Animation: {Function}
          * @description The Animation constructor.
          * @see         FWGE.Game.Animation
          */
-        Animation:      { value: Animation },
+        Animation:      { value: function CreateAnimation() { return new Animation(arguments); } },
         
         /**
          * @property    Input: {Input}
@@ -60,7 +70,7 @@ function GameEngine()
          * @description The Transform constructor.
          * @see         FWGE.Game.Transform
          */
-        Transform:      { value: Transform },
+        Transform:      { value: function CreateTransform() { return new Transform(arguments); } },
         
         /**
          * @property    Light: {Light}
@@ -81,7 +91,7 @@ function GameEngine()
          * @description The ParticleSystem constructor.
          * @see         FWGE.Game.ParticleSystem
          */
-        ParticleSystem: { value: ParticleSystem },
+        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments); } },
         
         /**
          * @property    Camera: {Camera}
@@ -179,7 +189,7 @@ function GameEngine()
 
 
 /**
- * @constructor Item
+ * @name Item
  * @module      FWGE.Game
  * @description The base object for every item
  *              used within the game engine.
@@ -224,11 +234,9 @@ function Item(request)
 
 
 /**
- * @constructor GameItem
+ * @name        GameItem
  * @description The base container for objects used within the scene.
  * @module      FWGE.Game
- * @param       request:        {Object}
- *              > gameobject:   {GameObject}    [nullable]
  */
 function GameItem(request)
 {
@@ -264,19 +272,9 @@ function GameItem(request)
 var __OBJECT__ = [];
 
 /**
- * @constructor GameObject
+ * @name GameObject
  * @description The main object container for object types.   
  * @module      FWGE.Game
- * @param       request:        {Object}
- *              > material:     {Material}      [nullable]
- *              > mesh:         {Mesh}          [nullable]
- *              > transform:    {Transform}     [nullable]
- *              > physics:      {Physics}       [nullable]
- *              > animation:    {Animation}     [nullable]
- *              > lightitem:    {LightObject}   [nullable]
- *              > begin:        {Function}      [nullable]
- *              > update:       {Function}      [nullable]
- *              > end:          {Function}      [nullable]
  */
 function GameObject(request)
 {
@@ -608,7 +606,7 @@ Object.defineProperties(GameObject.prototype,
     },
 
     /**
-     * @function    Destroy: void
+     * @function    Destroy: {undefined}
      * @description Destroys the object after a given amount of time
      * @param       timeout: {Number}
      */
@@ -638,7 +636,7 @@ Object.defineProperties(GameObject.prototype,
     },
 
     /**
-     * @function        ObjectUpdate: void
+     * @function        ObjectUpdate: {undefined}
      * @description     Updates the object
      */
     ObjectUpdate:
@@ -656,7 +654,7 @@ Object.defineProperties(GameObject.prototype,
 
 
 /**
- * @constructor Camera
+ * @name        Camera
  * @description Something...
  * @module      FWGE.Game
  */
@@ -924,10 +922,9 @@ function Camera()
 
 
 /**
- * @constructor Particle
+ * @name        Particle
  * @description Definition of an animator
  * @module      FWGE.Game
- * @param       request:     {Object}
  */
 function Animation(request)
 {
@@ -940,7 +937,7 @@ function Animation(request)
 
 
 /**
- * @constructor Time
+ * @name Time
  * @description This is the running clock that keeps track of elapsed time
  *              between render frames.
  * @module      FWGE.Game
@@ -973,7 +970,7 @@ function Time()
 
 
 /**
- * @constructor Transform
+ * @name Transform
  * @description This object contains all the transformations that 
  *              are to be applied to the parent gameobject.
  * @param       request:    {Object}
@@ -1113,7 +1110,7 @@ Object.defineProperties(Transform.prototype,
 
 
 /**
- * @constructor Input
+ * @name        Input
  * @description This module handles all user key and mouse inputs.
  * @module      FWGE.Game
  */
@@ -1543,7 +1540,7 @@ function Input()
 var __LIGHT__ = new Array(12);
 
 /**
- * @constructor Light
+ * @name        Light
  * @module      FWGE.Game
  * @description This module is used to create the lights in the scene.
  */
@@ -1576,7 +1573,7 @@ function Light()
                 if (_AmbientCount < _MAX_AMBIENT)
                 {
                     __LIGHT__[0] = new AmbientLight(request);
-                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                     __LIGHT__[0].GameObject.LightItem = __LIGHT__[0];
                     
                     _AmbientCount++;
@@ -1609,7 +1606,7 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new DirectionalLight(request);
-                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                             __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
                             _DirectionalCount++;
@@ -1645,7 +1642,7 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new PointLight(request);
-                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                             __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
                             _PointCount++;
@@ -1708,11 +1705,8 @@ function Light()
 
 
 /**
- * @constructor LightItem
+ * @name        LightItem
  * @description Base definition of an object that illuminates the scene.
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
  */
 function LightItem(request)
 {
@@ -1764,12 +1758,9 @@ function LightItem(request)
 
 
 /**
- * @constructor AmbientLight
+ * @name        AmbientLight
  * @description Describes a light that evenly lights the scene.
  * @module      FWGE.Game.Light
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
  */
 function AmbientLight(request)
 {
@@ -1782,13 +1773,9 @@ function AmbientLight(request)
 
 
 /**
- * @constructor DirectionalLight
+ * @name        DirectionalLight
  * @description Definition of a light that shines in a given direction.
  * @module      FWGE.Game.Light
- * @param       request:        {Object}        [nullable]
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
- *              > direction:    {Float32Array}  [nullable]
  */
 function DirectionalLight(request)
 {
@@ -1816,33 +1803,15 @@ function DirectionalLight(request)
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
                     FWGE.Game.Maths.Vector3.Set(_Direction, arguments[0]);
             }
-        },
-
-        /**
-         * @function    DirectionalUpdate: void
-         * @description Updates the lighting.
-         */
-        DirectionalUpdate:
-        {
-            value: function DirectionalUpdate()
-            {
-                // TODO
-                // Update the direction based on the orientation of the containing object.
-            }
         }
     });
 }
 
 
 /**
- * @constructor PointLight
+ * @name        PointLight
  * @description Defines a light Object that emits from a given point within a radius.
  * @module      FWGE.Game.Light
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
- *              > radius:       {Number}        [nullable]
- *              > angle:        {Number}        [nullable]
  */
 function PointLight(request)
 {
@@ -1894,7 +1863,7 @@ function PointLight(request)
 
 
 /**
- * @constructor Maths
+ * @name Maths
  * @description This module contains the methods required for matrix and vector
  *              operations.
  * @module      FWGE.Game
@@ -1963,7 +1932,7 @@ function Maths()
 
 
 /**
- * @constructor Matrix2
+ * @name        Matrix2
  * @description This library contains the methods for 2x2 matrix operations.
  *              2x2 matrices are represented as a Float32Array of length 4.
  * @module      FWGE.Game.Maths 
@@ -2221,7 +2190,7 @@ function Matrix2()
 
 
 /**
- * @constructor Matrix3
+ * @name Matrix3
  * @description This library contains the methods for 3x3 matrix operations.
  *              3x3 matrices are represented as a Float32Array of length 9.
  * @module      FWGE.Game.Maths 
@@ -2553,7 +2522,7 @@ function Matrix3()
 
 
 /**
- * @constructor Matrix4
+ * @name        Matrix4
  * @description This library contains the methods for 2x2 matrix operations.
  *              4x4 matrices are represented as a Float32Array of length 16.
  * @module      FWGE.Game.Maths 
@@ -3090,7 +3059,7 @@ function Quaternion()
 
 
 /**
- * @constructor Vector2
+ * @name        Vector2
  * @description This library contains the methods for 2 component vector operations.
  *              2 component vector are represented as a Float32Array of length 2.
  * @module      FWGE.Game.Maths 
@@ -3301,7 +3270,7 @@ function Vector2()
 
 
 /**
- * @constructor Vector3
+ * @name        Vector3
  * @description This library contains the methods for 2 component vector operations.
  *              3 component vector are represented as a Float32Array of length 3.
  * @module      FWGE.Game.Maths 
@@ -3527,7 +3496,7 @@ function Vector3()
 
 
 /**
- * @constructor Vector4
+ * @name        Vector4
  * @description This library contains the methods for 2 component vector operations.
  *              4 component vector are represented as a Float32Array of length 4.
  * @module      FWGE.Game.Maths 
@@ -3753,10 +3722,9 @@ function Vector4()
 
 
 /**
- * @constructor Particle
+ * @name        Particle
  * @description Definition of a single particle.
  * @module      FWGE.Game.ParticleSystem
- * @param       request:     {Object}
  */
 function Particle(request)
 {
@@ -3767,10 +3735,9 @@ function Particle(request)
     Item.call(this, request);
 }
 /**
- * @constructor ParticleSystem
+ * @name        ParticleSystem
  * @description Definition of a particle system.
  * @module      FWGE.Game
- * @param       request:     {Object}
  */
 function ParticleSystem(request)
 {
@@ -3783,7 +3750,7 @@ function ParticleSystem(request)
 
 
 /**
- * @constructor PhysicsEngine
+ * @name PhysicsEngine
  * @description Something...
  * @module      FWGE
  */
@@ -3853,7 +3820,7 @@ function PhysicsEngine()
 
 
 /**
- * @constructor PhysicsItem
+ * @name PhysicsItem
  * @description The physics item
  * @module      FWGE.Physics
  * @param       request: {Object}
@@ -3940,9 +3907,8 @@ function PhysicsItem(request)
 var __PHYSICSMATERIAL__ = [];
 
 /**
- * @constructor PhysicsMaterial
+ * @name        PhysicsMaterial
  * @description Some words of encouragement
- * @param       request: {Object}
  */
 function PhysicsMaterial(request)
 {
@@ -3953,7 +3919,7 @@ function PhysicsMaterial(request)
     Item.call(this, request);
 }
 /**
- * @constructor PhysicsBody
+ * @name PhysicsBody
  * @description This object provides the masic physical properties of an object.
  * @module      FWGE.Physics
  * @param       request:    {Object}
@@ -4064,44 +4030,7 @@ function PhysicsBody(request)
 
 
 /**
- * @constructor Collision
- * @description This is the base object for collision objects
- * @module      FWGE.Physics
- * @param       request:  {Object}
- */
-function Collision(request)
-{
-    if (!request) request = {};
-    if (!request.type) request.type = "";
-    request.type = "COLLISION ";
-    
-    Item.call(this, request);
-
-    var _PhysicsItem = request.parent instanceof PhysicsItem ? request.parent : undefined;
-
-    Object.defineProperties(this,
-    {
-        /**
-         * @property    PhysicsItem: {PhysicsItem}
-         *              > get
-         *              > set
-         * @description The physics item this collider is attached to
-         */
-        PhysicsItem:
-        {
-            get: function getPhysicsItem() { return _PhysicsItem; },
-            set: function setPhysicsItem()
-            {
-                if (arguments[0] instanceof PhysicsItem || arguments === undefined)
-                    _PhysicsItem = arguments[0];
-            }
-        }
-    });   
-}
-
-
-/**
- * @constructor RenderEngine
+ * @name RenderEngine
  * @description This module contains all the visual related aspects of the 
  *              game engine.
  * @module      FWGE 
@@ -4170,7 +4099,7 @@ function RenderEngine()
 var __SHADER__ = [];
 
 /**
- * @constructor Shader
+ * @name        Shader
  * @description This object links with the vertex and fragment shaders
  * @param       request:            {Object}
  *              > name:             {String}
@@ -4387,7 +4316,7 @@ function Shader(request)
 
 
 /**
- * @constructor Colour
+ * @name Colour
  * @description This module is used to create simple 3 valued arrays
  *              representing the rgb values of colours.
  * @module      FWGE.Render
@@ -4456,7 +4385,7 @@ function Colour()
 var __MESH__ = [];
 
 /**
- * @constructor Mesh
+ * @name Mesh
  * @description The vertex array buffer containers
  * @module      FWGE.Render
  * @param       request:     {Object}    [nullable]
@@ -4563,20 +4492,10 @@ function Mesh(request)
 var __MATERIAL__ = [];
 
 /**
- * @constructor Material
+ * @name        Material
  * @description This object defines how the mesh in a gameobject will look
  *              like when rendered to a screen.
  * @module      FWGE.Render
- * @param       request:        {Object}
- *              > ambient:      {Array}     [nullable]
- *              > diffuse:      {Array}     [nullable]
- *              > specular:     {Array}     [nullable]
- *              > alpha:        {Number}    [nullable]
- *              > shininess:    {Number}    [nullable]
- *              > shader:       {Number}    [nullable]
- *              > imagemap:     {String}    [nullable]
- *              > bumpmap:      {String}    [nullable]
- *              > specularmap:  {String}    [nullable]
  */
 function RenderMaterial(request)
 {
@@ -4833,7 +4752,7 @@ Object.defineProperties(RenderMaterial.prototype,
 
 
 /**
- * @constructor ModelView
+ * @name ModelView
  * @description This module handles the model view matrices of the
  *              objects within the scene by applying the appropriate
  *              transformations.
@@ -5061,7 +4980,7 @@ function ModelView()
 
 
 /**
- * @constructor Projection
+ * @name Projection
  * @description This module handles the matrices regarding the camera's current
  *              view mode, and its orientation within the scene.
  * @module      FWGE.Render
@@ -5159,7 +5078,7 @@ var __MODELVIEW__;
 var __PROJECTION__;
 
 /**
- * @constructor Renderer
+ * @name        Renderer
  * @description This module handles the actual rendering of the scene to
  *              the screen.
  * @module      FWGE.Render
@@ -5543,7 +5462,7 @@ function Renderer()
 
 
 /**
- * @constructor FWGEPrototype
+ * @name FWGEPrototype
  * @module      {}
  */
 function FWGEPrototype()

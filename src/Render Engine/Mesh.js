@@ -1,7 +1,7 @@
 var __MESH__ = [];
 
 /**
- * @constructor Mesh
+ * @name Mesh
  * @description The vertex array buffer containers
  * @module      FWGE.Render
  * @param       request:     {Object}    [nullable]

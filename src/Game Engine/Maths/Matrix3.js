@@ -1,5 +1,5 @@
 /**
- * @constructor Matrix3
+ * @name Matrix3
  * @description This library contains the methods for 3x3 matrix operations.
  *              3x3 matrices are represented as a Float32Array of length 9.
  * @module      FWGE.Game.Maths 

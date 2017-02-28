@@ -1,20 +1,10 @@
 var __MATERIAL__ = [];
 
 /**
- * @constructor Material
+ * @name        Material
  * @description This object defines how the mesh in a gameobject will look
  *              like when rendered to a screen.
  * @module      FWGE.Render
- * @param       request:        {Object}
- *              > ambient:      {Array}     [nullable]
- *              > diffuse:      {Array}     [nullable]
- *              > specular:     {Array}     [nullable]
- *              > alpha:        {Number}    [nullable]
- *              > shininess:    {Number}    [nullable]
- *              > shader:       {Number}    [nullable]
- *              > imagemap:     {String}    [nullable]
- *              > bumpmap:      {String}    [nullable]
- *              > specularmap:  {String}    [nullable]
  */
 function RenderMaterial(request)
 {

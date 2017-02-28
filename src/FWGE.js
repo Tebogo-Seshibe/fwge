@@ -1,6 +1,6 @@
 /**
- * @constructor FWGEPrototype
- * @module      {}
+ * @name    FWGE
+ * @module  {}
  */
 function FWGEPrototype()
 {
@@ -11,45 +11,45 @@ function FWGEPrototype()
          * @description The main engine.
 		 * @see         FWGE.Game
          */
-        Game: {value: new GameEngine()},
+        Game:       { value: new GameEngine() },
 
         /**
          * @property    Physics: {PhysicsEngine}
          * @description The physics engine.
 		 * @see         FWGE.Physics
          */
-        Physics: {value: new PhysicsEngine()},
+        Physics:    { value: new PhysicsEngine() },
 
         /**
          * @property    Render: {RenderEngine}
          * @description The rendering engine.
 		 * @see         Render
          */
-        Render: {value: new RenderEngine()},
+        Render:     { value: new RenderEngine() },
 
         /**
-         * @function    Init: void
+         * @function    Init: {undefined}
          * @description Initializes the webgl context and the seperate engines
          * @param       request:     {Object}
-         *              > canvas:    {HTMLCanvasElement}
-         *              > height:    {Number}                [nullable]
-         *              > width:     {Number}                [nullable]
-         *              > clear:     {Float32Array}          [nullable]
+         *              > Canvas:    {HTMLCanvasElement}
+         *              > Height:    {Number}                [nullable]
+         *              > Width:     {Number}                [nullable]
+         *              > Clear:     {Float32Array}          [nullable]
          */
         Init: 
         {
             value: function Init(request)
             {
                 if (!request) request = {};
-                if (!request.clear || !(request.clear instanceof Float32Array) || request.clear.length === 4)
-                    request.clear = [0, 0, 0, 0];
+                if (!request.Clear || !(request.Clear instanceof Float32Array) || request.Clear.length === 4)
+                    request.Clear = [0, 0, 0, 0];
 
-                GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                GL = Canvas.getContext("webgl") || Canvas.getContext("experimental-webgl");
 
                 if (!GL)
-                    throw "Webgl context could not be initialized.";
+                    throw new Error("Webgl context could not be initialized.");
 
-                GL.clearColor(request.clear[0] || 0, request.clear[1] || 0, request.clear[2] || 0, request.clear[3] || 0);
+                GL.clearColor(request.Clear[0] || 0, request.Clear[1] || 0, request.Clear[2] || 0, request.Clear[3] || 0);
 
                 this.Game.Init();
                 this.Physics.Init();

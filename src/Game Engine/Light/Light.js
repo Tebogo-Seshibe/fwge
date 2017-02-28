@@ -1,7 +1,7 @@
 var __LIGHT__ = new Array(12);
 
 /**
- * @constructor Light
+ * @name        Light
  * @module      FWGE.Game
  * @description This module is used to create the lights in the scene.
  */
@@ -34,7 +34,7 @@ function Light()
                 if (_AmbientCount < _MAX_AMBIENT)
                 {
                     __LIGHT__[0] = new AmbientLight(request);
-                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                    __LIGHT__[0].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                     __LIGHT__[0].GameObject.LightItem = __LIGHT__[0];
                     
                     _AmbientCount++;
@@ -67,7 +67,7 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new DirectionalLight(request);
-                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                             __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
                             _DirectionalCount++;
@@ -103,7 +103,7 @@ function Light()
                         if (__LIGHT__[i] === undefined)
                         {
                             __LIGHT__[i] = new PointLight(request);
-                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : new FWGE.Game.GameObject();
+                            __LIGHT__[i].GameObject = request.parent instanceof GameObject ? request.parent : FWGE.Game.GameObject();
                             __LIGHT__[i].GameObject.LightItem = __LIGHT__[i];
 
                             _PointCount++;

@@ -1,9 +1,6 @@
 /**
- * @constructor LightItem
+ * @name        LightItem
  * @description Base definition of an object that illuminates the scene.
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
  */
 function LightItem(request)
 {

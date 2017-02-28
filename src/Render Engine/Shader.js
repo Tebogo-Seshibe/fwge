@@ -1,7 +1,7 @@
 var __SHADER__ = [];
 
 /**
- * @constructor Shader
+ * @name        Shader
  * @description This object links with the vertex and fragment shaders
  * @param       request:            {Object}
  *              > name:             {String}
@@ -73,7 +73,7 @@ function Shader(request)
     GL.compileShader(vs);
     if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
     {
-        console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
+        throw new Error("Vertex Shader: " + GL.getShaderInfoLog(vs));
         return;
     }
     
@@ -82,7 +82,7 @@ function Shader(request)
     GL.compileShader(fs);
     if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
     {
-        console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
+        throw new Error("Fragment Shader: " + GL.getShaderInfoLog(fs));
         return;
     }        
     

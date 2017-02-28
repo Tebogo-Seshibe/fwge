@@ -1,5 +1,5 @@
 /**
- * @constructor Input
+ * @name        Input
  * @description This module handles all user key and mouse inputs.
  * @module      FWGE.Game
  */

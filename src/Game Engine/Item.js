@@ -1,5 +1,5 @@
 /**
- * @constructor Item
+ * @name Item
  * @module      FWGE.Game
  * @description The base object for every item
  *              used within the game engine.

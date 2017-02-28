@@ -1,5 +1,5 @@
 /**
- * @constructor Maths
+ * @name Maths
  * @description This module contains the methods required for matrix and vector
  *              operations.
  * @module      FWGE.Game

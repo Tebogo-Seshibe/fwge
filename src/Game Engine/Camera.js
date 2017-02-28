@@ -1,5 +1,5 @@
 /**
- * @constructor Camera
+ * @name        Camera
  * @description Something...
  * @module      FWGE.Game
  */

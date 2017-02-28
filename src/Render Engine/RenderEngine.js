@@ -1,5 +1,5 @@
 /**
- * @constructor RenderEngine
+ * @name RenderEngine
  * @description This module contains all the visual related aspects of the 
  *              game engine.
  * @module      FWGE 

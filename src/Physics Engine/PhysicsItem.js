@@ -1,5 +1,5 @@
 /**
- * @constructor PhysicsItem
+ * @name PhysicsItem
  * @description The physics item
  * @module      FWGE.Physics
  * @param       request: {Object}

@@ -1,8 +1,7 @@
 /**
- * @constructor Particle
+ * @name        Particle
  * @description Definition of an animator
  * @module      FWGE.Game
- * @param       request:     {Object}
  */
 function Animation(request)
 {

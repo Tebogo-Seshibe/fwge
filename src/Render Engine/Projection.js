@@ -1,5 +1,5 @@
 /**
- * @constructor Projection
+ * @name Projection
  * @description This module handles the matrices regarding the camera's current
  *              view mode, and its orientation within the scene.
  * @module      FWGE.Render
