@@ -1,9 +1,7 @@
 /**
- * @constructor GameItem
+ * @name        GameItem
  * @description The base container for objects used within the scene.
  * @module      FWGE.Game
- * @param       request:        {Object}
- *              > gameobject:   {GameObject}    [nullable]
  */
 function GameItem(request)
 {

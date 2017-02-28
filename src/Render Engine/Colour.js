@@ -1,5 +1,5 @@
 /**
- * @constructor Colour
+ * @name Colour
  * @description This module is used to create simple 3 valued arrays
  *              representing the rgb values of colours.
  * @module      FWGE.Render

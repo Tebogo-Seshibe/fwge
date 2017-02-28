@@ -1,19 +1,9 @@
 var __OBJECT__ = [];
 
 /**
- * @constructor GameObject
+ * @name GameObject
  * @description The main object container for object types.   
  * @module      FWGE.Game
- * @param       request:        {Object}
- *              > material:     {Material}      [nullable]
- *              > mesh:         {Mesh}          [nullable]
- *              > transform:    {Transform}     [nullable]
- *              > physics:      {Physics}       [nullable]
- *              > animation:    {Animation}     [nullable]
- *              > lightitem:    {LightObject}   [nullable]
- *              > begin:        {Function}      [nullable]
- *              > update:       {Function}      [nullable]
- *              > end:          {Function}      [nullable]
  */
 function GameObject(request)
 {
@@ -345,7 +335,7 @@ Object.defineProperties(GameObject.prototype,
     },
 
     /**
-     * @function    Destroy: void
+     * @function    Destroy: {undefined}
      * @description Destroys the object after a given amount of time
      * @param       timeout: {Number}
      */
@@ -375,7 +365,7 @@ Object.defineProperties(GameObject.prototype,
     },
 
     /**
-     * @function        ObjectUpdate: void
+     * @function        ObjectUpdate: {undefined}
      * @description     Updates the object
      */
     ObjectUpdate:

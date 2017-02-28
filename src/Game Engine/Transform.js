@@ -1,5 +1,5 @@
 /**
- * @constructor Transform
+ * @name Transform
  * @description This object contains all the transformations that 
  *              are to be applied to the parent gameobject.
  * @param       request:    {Object}

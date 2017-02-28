@@ -1,10 +1,8 @@
 /**
- * @constructor AmbientLight
- * @description Describes a light that evenly lights the scene.
+ * @name        AmbientLight
  * @module      FWGE.Game.Light
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
+ * @description This type of light is used to light the scene evenely
+ *				in one colour.
  */
 function AmbientLight(request)
 {

@@ -1,5 +1,5 @@
 /**
- * @constructor Collision
+ * @name Collision
  * @description This is the base object for collision objects
  * @module      FWGE.Physics
  * @param       request:  {Object}

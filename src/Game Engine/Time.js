@@ -1,5 +1,5 @@
 /**
- * @constructor Time
+ * @name Time
  * @description This is the running clock that keeps track of elapsed time
  *              between render frames.
  * @module      FWGE.Game

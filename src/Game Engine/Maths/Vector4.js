@@ -1,5 +1,5 @@
 /**
- * @constructor Vector4
+ * @name        Vector4
  * @description This library contains the methods for 2 component vector operations.
  *              4 component vector are represented as a Float32Array of length 4.
  * @module      FWGE.Game.Maths 

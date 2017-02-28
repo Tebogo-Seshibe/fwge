@@ -1,5 +1,5 @@
 /**
- * @constructor GameEngine
+ * @name        GameEngine
  * @description Something...
  * @module      FWGE
  */
@@ -11,19 +11,6 @@ function GameEngine()
 
     Object.defineProperties(this,
     {
-        /**
-         * @property    GameObject: {Function}
-         * @description The GameObject constructor.
-         * @see         FWGE.Game.GameObject
-         */
-        GameObject:     { value: GameObject },
-        
-        /**
-         * @property    Animation: {Function}
-         * @description The Animation constructor.
-         * @see         FWGE.Game.Animation
-         */
-        Animation:      { value: Animation },
         
         /**
          * @property    Input: {Input}
@@ -31,20 +18,6 @@ function GameEngine()
          * @see         FWGE.Game.Input
          */
         Input:          { value: new Input() },
-        
-        /**
-         * @property    Time: {Time}
-         * @description The running clock.
-         * @see         FWGE.Game.Time
-         */
-        Time:           { value: new Time() },
-        
-        /**
-         * @property    Transform {Transform}
-         * @description The Transform constructor.
-         * @see         FWGE.Game.Transform
-         */
-        Transform:      { value: Transform },
         
         /**
          * @property    Light: {Light}
@@ -61,11 +34,11 @@ function GameEngine()
         Maths:          { value: new Maths() },
         
         /**
-         * @property    ParticleSystem: {Function}
-         * @description The ParticleSystem constructor.
-         * @see         FWGE.Game.ParticleSystem
+         * @property    Time: {Time}
+         * @description The running clock.
+         * @see         FWGE.Game.Time
          */
-        ParticleSystem: { value: ParticleSystem },
+        Time:           { value: new Time() },
         
         /**
          * @property    Camera: {Camera}
@@ -73,9 +46,47 @@ function GameEngine()
          * @see         FWGE.Game.Camera
          */
         Camera:         { get: function getCamera() { return _Camera; } },
+        
+        /**
+         * @function    Animation: {Function}
+         * @description The Animation constructor.
+         * @see         FWGE.Game.Animation
+         */
+        Animation:      { value: function CreateAnimation() { return new Animation(arguments); } },
+        
+        /**
+         * @function    GameObject: {Function}
+         * @description The GameObject constructor.
+         * @see         FWGE.Game.GameObject
+         * @param       request:        {Object}
+         *              > Material:     {Material}      [nullable]
+         *              > Mesh:         {Mesh}          [nullable]
+         *              > Transform:    {Transform}     [nullable]
+         *              > Physics:      {Physics}       [nullable]
+         *              > Animation:    {Animation}     [nullable]
+         *              > LightItem:    {LightObject}   [nullable]
+         *              > Begin:        {Function}      [nullable]
+         *              > Update:       {Function}      [nullable]
+         *              > End:          {Function}      [nullable]
+         */
+        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments); } },
+        
+        /**
+         * @function    ParticleSystem: {Function}
+         * @description The ParticleSystem constructor.
+         * @see         FWGE.Game.ParticleSystem
+         */
+        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments); } },
+        
+        /**
+         * @function    Transform: {Transform}
+         * @description The Transform constructor.
+         * @see         FWGE.Game.Transform
+         */
+        Transform:      { value: function CreateTransform() { return new Transform(arguments); } },
 
         /**
-         * @function    Init: void
+         * @function    Init: {undefined}
          * @description Initializes the game engine
          */
         Init:
@@ -87,7 +98,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Run: void
+         * @function    Run: {undefined}
          * @description Runs the main game loop
          */
         Run: 
@@ -106,7 +117,7 @@ function GameEngine()
         },
 
         /**
-         * @function    GameUpdate: void
+         * @function    GameUpdate: {undefined}
          * @description Updates the scene
          */
         GameUpdate:
@@ -125,7 +136,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Start: void
+         * @function    Start: {undefined}
          * @description Initiates/resumes the main game loop
          */
         Start:
@@ -141,7 +152,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Stop: void
+         * @function    Stop: {undefined}
          * @description Suspends the main game loop
          */
         Stop:

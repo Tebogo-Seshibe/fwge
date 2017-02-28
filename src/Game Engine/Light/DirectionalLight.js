@@ -1,11 +1,7 @@
 /**
- * @constructor DirectionalLight
- * @description Definition of a light that shines in a given direction.
+ * @name        DirectionalLight
  * @module      FWGE.Game.Light
- * @param       request:        {Object}        [nullable]
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
- *              > direction:    {Float32Array}  [nullable]
+ * @description Definition of a light that shines in a given direction.
  */
 function DirectionalLight(request)
 {
@@ -32,19 +28,6 @@ function DirectionalLight(request)
             {
                 if (arguments[0] instanceof Float32Array && arguments[0].length === 3)
                     FWGE.Game.Maths.Vector3.Set(_Direction, arguments[0]);
-            }
-        },
-
-        /**
-         * @function    DirectionalUpdate: void
-         * @description Updates the lighting.
-         */
-        DirectionalUpdate:
-        {
-            value: function DirectionalUpdate()
-            {
-                // TODO
-                // Update the direction based on the orientation of the containing object.
             }
         }
     });

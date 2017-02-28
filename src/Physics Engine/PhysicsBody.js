@@ -1,5 +1,5 @@
 /**
- * @constructor PhysicsBody
+ * @name PhysicsBody
  * @description This object provides the masic physical properties of an object.
  * @module      FWGE.Physics
  * @param       request:    {Object}

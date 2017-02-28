@@ -4,6 +4,7 @@
   "description": "A webgl game engine",
   "main": "fwge.js",
   "scripts": {
+    "doc": "node documentation/server",
     "test": "node test/server"
   },
   "repository": {

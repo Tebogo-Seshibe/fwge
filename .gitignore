@@ -1,4 +1,3 @@
-documentation/
 node_modules/
 src/CodeTranslator.js
 src/FWGE.header.js

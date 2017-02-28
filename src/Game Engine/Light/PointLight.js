@@ -1,12 +1,7 @@
 /**
- * @constructor PointLight
+ * @name        PointLight
  * @description Defines a light Object that emits from a given point within a radius.
  * @module      FWGE.Game.Light
- * @param       request:        {Object}
- *              > colour:       {Float32Array}  [nullable]
- *              > intensity:    {Number}        [nullable]
- *              > radius:       {Number}        [nullable]
- *              > angle:        {Number}        [nullable]
  */
 function PointLight(request)
 {

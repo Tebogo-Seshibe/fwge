@@ -1,5 +1,5 @@
 /**
- * @constructor Matrix4
+ * @name        Matrix4
  * @description This library contains the methods for 2x2 matrix operations.
  *              4x4 matrices are represented as a Float32Array of length 16.
  * @module      FWGE.Game.Maths 

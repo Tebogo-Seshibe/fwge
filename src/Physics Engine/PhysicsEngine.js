@@ -1,5 +1,5 @@
 /**
- * @constructor PhysicsEngine
+ * @name PhysicsEngine
  * @description Something...
  * @module      FWGE
  */

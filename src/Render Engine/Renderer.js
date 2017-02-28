@@ -3,7 +3,7 @@ var __MODELVIEW__;
 var __PROJECTION__;
 
 /**
- * @constructor Renderer
+ * @name        Renderer
  * @description This module handles the actual rendering of the scene to
  *              the screen.
  * @module      FWGE.Render
