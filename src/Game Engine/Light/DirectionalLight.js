@@ -1,7 +1,7 @@
 /**
  * @name        DirectionalLight
- * @description Definition of a light that shines in a given direction.
  * @module      FWGE.Game.Light
+ * @description Definition of a light that shines in a given direction.
  */
 function DirectionalLight(request)
 {

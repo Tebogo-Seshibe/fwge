@@ -1,7 +1,8 @@
 /**
  * @name        AmbientLight
- * @description Describes a light that evenly lights the scene.
  * @module      FWGE.Game.Light
+ * @description This type of light is used to light the scene evenely
+ *				in one colour.
  */
 function AmbientLight(request)
 {
