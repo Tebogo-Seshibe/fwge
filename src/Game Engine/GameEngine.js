@@ -52,38 +52,38 @@ function GameEngine()
          * @description The Animation constructor.
          * @see         FWGE.Game.Animation
          */
-        Animation:      { value: function CreateAnimation() { return new Animation(arguments); } },
+        Animation:      { value: function CreateAnimation() { return new Animation(arguments[0]); } },
         
         /**
          * @function    GameObject: {Function}
          * @description The GameObject constructor.
          * @see         FWGE.Game.GameObject
          * @param       request:        {Object}
-         *              > Material:     {Material}      [nullable]
-         *              > Mesh:         {Mesh}          [nullable]
-         *              > Transform:    {Transform}     [nullable]
-         *              > Physics:      {Physics}       [nullable]
-         *              > Animation:    {Animation}     [nullable]
-         *              > LightItem:    {LightObject}   [nullable]
-         *              > Begin:        {Function}      [nullable]
-         *              > Update:       {Function}      [nullable]
-         *              > End:          {Function}      [nullable]
+         *              > Material:     {Material}      [null]
+         *              > Mesh:         {Mesh}          [null]
+         *              > Transform:    {Transform}     [null]
+         *              > Physics:      {Physics}       [null]
+         *              > Animation:    {Animation}     [null]
+         *              > LightItem:    {LightObject}   [null]
+         *              > Begin:        {Function}      [null]
+         *              > Update:       {Function}      [null]
+         *              > End:          {Function}      [null]
          */
-        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments); } },
+        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments[0]); } },
         
         /**
          * @function    ParticleSystem: {Function}
          * @description The ParticleSystem constructor.
          * @see         FWGE.Game.ParticleSystem
          */
-        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments); } },
+        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments[0]); } },
         
         /**
          * @function    Transform: {Transform}
          * @description The Transform constructor.
          * @see         FWGE.Game.Transform
          */
-        Transform:      { value: function CreateTransform() { return new Transform(arguments); } },
+        Transform:      { value: function CreateTransform() { return new Transform(arguments[0]); } },
 
         /**
          * @function    Init: {undefined}

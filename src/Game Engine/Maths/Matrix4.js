@@ -10,29 +10,27 @@ function Matrix4()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       m11:    {Number}        [null, override: 2]
+         * @param       m12:    {Number}        [null, override: 2]
+         * @param       m13:    {Number}        [null, override: 2]
+         * @param       m14:    {Number}        [null, override: 2]
+         * @param       m21:    {Number}        [null, override: 2]
+         * @param       m22:    {Number}        [null, override: 2]
+         * @param       m23:    {Number}        [null, override: 2]
+         * @param       m24:    {Number}        [null, override: 2]
+         * @param       m31:    {Number}        [null, override: 2]
+         * @param       m32:    {Number}        [null, override: 2]
+         * @param       m33:    {Number}        [null, override: 2]
+         * @param       m34:    {Number}        [null, override: 2]
+         * @param       m41:    {Number}        [null, override: 2]
+         * @param       m42:    {Number}        [null, override: 2]
+         * @param       m43:    {Number}        [null, override: 2]
+         * @param       m44:    {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "MATRIX4".
          *              It also has the appropriate value indexers:
-         *              M11, M12, M13, M14,
-         *              M21, M22, M23, M24,
-         *              M31, M32, M33, M34,
-         *              M41, M42, M43, M44.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              M11, M12,
+         *              M21, M22
          */
         Create:
         {
@@ -147,27 +145,27 @@ function Matrix4()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:    {Float32Array}
+         * @param       array1: {Float32Array}  [override: 1]
+         * @param       array2: {Float32Array}  [override: 1]
+         * @param       array:  {Float32Array}  [override: 2]
+         * @param       m11:    {Number}        [override: 2]
+         * @param       m12:    {Number}        [override: 2]
+         * @param       m13:    {Number}        [override: 2]
+         * @param       m14:    {Number}        [override: 2]
+         * @param       m21:    {Number}        [override: 2]
+         * @param       m22:    {Number}        [override: 2]
+         * @param       m23:    {Number}        [override: 2]
+         * @param       m24:    {Number}        [override: 2]
+         * @param       m31:    {Number}        [override: 2]
+         * @param       m32:    {Number}        [override: 2]
+         * @param       m33:    {Number}        [override: 2]
+         * @param       m34:    {Number}        [override: 2]
+         * @param       m41:    {Number}        [override: 2]
+         * @param       m42:    {Number}        [override: 2]
+         * @param       m43:    {Number}        [override: 2]
+         * @param       m44:    {Number}        [override: 2]
          * @description Assigns new to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -204,9 +202,9 @@ function Matrix4()
         },
         
         /**
-         * @function    Transpose: {Float32Array}
+         * @function    Transpose:  {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Transposes a matrix.
-         * @param       {Float32Array}
          */
         Transpose:
         {
@@ -224,10 +222,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Identity: {Float32Array}
+         * @function    Identity:   {Float32Array}
+         * @param       array:      {Float32Array}
          * @description If given a Float32Array, it resets it to an identity matrix.
          *              If not, it simply returns a new identity matrix.
-         * @param       {Float32Array}
          */
         Identity:
         {
@@ -248,9 +246,9 @@ function Matrix4()
         },
         
         /**
-         * @function    Determinant: {Number}
+         * @function    Determinant:    {Number}
+         * @param       array:          {Float32Array}
          * @description Calculates the determinant of a given Float32Array.
-         * @param       {Float32Array}
          */
         Determinant:
         {
@@ -285,10 +283,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Inverse: {Float32Array}
+         * @function    Inverse:    {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Inverts a given Float32Array when possible i.e. the determinant
          *              is not 0.
-         * @param       {Float32Array}
          */
         Inverse:
         {
@@ -405,10 +403,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:        {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -432,13 +430,13 @@ function Matrix4()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override 1]
+         * @param       array2:     {Float32Array}  [override 1]
+         * @param       array:      {Float32Array}  [override 2]
+         * @param       constant:   {Number}        [override 2]
          * @description Performs a matrix multiplication on two Float32Array or
          *              multiply a Float32Array with a scalar value.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -487,11 +485,11 @@ function Matrix4()
         },
         
         /**
-         * @function    RevMult: {Float32Array}
+         * @function    RevMult:    {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Performs a matrix multiplication on two Float32Array but
          *              assigns the result to the second Float32Array.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         RevMult:
         {

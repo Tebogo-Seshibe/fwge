@@ -27,29 +27,6 @@ function GameEngine()
 
     Object.defineProperties(this,
     {
-        /**
-         * @property    GameObject: {Function}
-         * @description The GameObject constructor.
-         * @see         FWGE.Game.GameObject
-         * @param       request:        {Object}
-         *              > material:     {Material}      [nullable]
-         *              > mesh:         {Mesh}          [nullable]
-         *              > transform:    {Transform}     [nullable]
-         *              > physics:      {Physics}       [nullable]
-         *              > animation:    {Animation}     [nullable]
-         *              > lightitem:    {LightObject}   [nullable]
-         *              > begin:        {Function}      [nullable]
-         *              > update:       {Function}      [nullable]
-         *              > end:          {Function}      [nullable]
-         */
-        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments); } },
-        
-        /**
-         * @property    Animation: {Function}
-         * @description The Animation constructor.
-         * @see         FWGE.Game.Animation
-         */
-        Animation:      { value: function CreateAnimation() { return new Animation(arguments); } },
         
         /**
          * @property    Input: {Input}
@@ -57,20 +34,6 @@ function GameEngine()
          * @see         FWGE.Game.Input
          */
         Input:          { value: new Input() },
-        
-        /**
-         * @property    Time: {Time}
-         * @description The running clock.
-         * @see         FWGE.Game.Time
-         */
-        Time:           { value: new Time() },
-        
-        /**
-         * @property    Transform {Transform}
-         * @description The Transform constructor.
-         * @see         FWGE.Game.Transform
-         */
-        Transform:      { value: function CreateTransform() { return new Transform(arguments); } },
         
         /**
          * @property    Light: {Light}
@@ -87,11 +50,11 @@ function GameEngine()
         Maths:          { value: new Maths() },
         
         /**
-         * @property    ParticleSystem: {Function}
-         * @description The ParticleSystem constructor.
-         * @see         FWGE.Game.ParticleSystem
+         * @property    Time: {Time}
+         * @description The running clock.
+         * @see         FWGE.Game.Time
          */
-        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments); } },
+        Time:           { value: new Time() },
         
         /**
          * @property    Camera: {Camera}
@@ -99,9 +62,47 @@ function GameEngine()
          * @see         FWGE.Game.Camera
          */
         Camera:         { get: function getCamera() { return _Camera; } },
+        
+        /**
+         * @function    Animation: {Function}
+         * @description The Animation constructor.
+         * @see         FWGE.Game.Animation
+         */
+        Animation:      { value: function CreateAnimation() { return new Animation(arguments[0]); } },
+        
+        /**
+         * @function    GameObject: {Function}
+         * @description The GameObject constructor.
+         * @see         FWGE.Game.GameObject
+         * @param       request:        {Object}
+         *              > Material:     {Material}      [null]
+         *              > Mesh:         {Mesh}          [null]
+         *              > Transform:    {Transform}     [null]
+         *              > Physics:      {Physics}       [null]
+         *              > Animation:    {Animation}     [null]
+         *              > LightItem:    {LightObject}   [null]
+         *              > Begin:        {Function}      [null]
+         *              > Update:       {Function}      [null]
+         *              > End:          {Function}      [null]
+         */
+        GameObject:     { value: function CreateGameObject() { return new GameObject(arguments[0]); } },
+        
+        /**
+         * @function    ParticleSystem: {Function}
+         * @description The ParticleSystem constructor.
+         * @see         FWGE.Game.ParticleSystem
+         */
+        ParticleSystem: { value: function CreateParticleSystem() { return new ParticleSystem(arguments[0]); } },
+        
+        /**
+         * @function    Transform: {Transform}
+         * @description The Transform constructor.
+         * @see         FWGE.Game.Transform
+         */
+        Transform:      { value: function CreateTransform() { return new Transform(arguments[0]); } },
 
         /**
-         * @function    Init: void
+         * @function    Init: {undefined}
          * @description Initializes the game engine
          */
         Init:
@@ -113,7 +114,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Run: void
+         * @function    Run: {undefined}
          * @description Runs the main game loop
          */
         Run: 
@@ -132,7 +133,7 @@ function GameEngine()
         },
 
         /**
-         * @function    GameUpdate: void
+         * @function    GameUpdate: {undefined}
          * @description Updates the scene
          */
         GameUpdate:
@@ -151,7 +152,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Start: void
+         * @function    Start: {undefined}
          * @description Initiates/resumes the main game loop
          */
         Start:
@@ -167,7 +168,7 @@ function GameEngine()
         },
 
         /**
-         * @function    Stop: void
+         * @function    Stop: {undefined}
          * @description Suspends the main game loop
          */
         Stop:
@@ -189,13 +190,10 @@ function GameEngine()
 
 
 /**
- * @name Item
+ * @name        Item
  * @module      FWGE.Game
  * @description The base object for every item
  *              used within the game engine.
- * @param       request:    {Object}
- *              > type:     {String}    [nullable]
- *              > name:     {String}    [nullable]
  */
 function Item(request)
 {
@@ -208,16 +206,13 @@ function Item(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Type:{String}
-         *              > get
+         * @property    Type: {String} [read]
          * @description A string descriptor for the type of item.
          */
         Type: { value: request.type },
 
         /**
-         * @property    Name: {String}
-         *              > get
-         *              > set
+         * @property    Name: {String} [read|write]
          * @description A simple string naming the item
          */
         Name:
@@ -251,9 +246,7 @@ function GameItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    GameObject: {GameObject}
-         *              > get
-         *              > set
+         * @property    GameObject: {GameObject} [read|write]
          * @description The GameObject this item is attached to.
          */
         GameObject:
@@ -297,27 +290,190 @@ function GameObject(request)
     
     Object.defineProperties(this,
     {
+
         /**
-         * @property    ID: {String}
-         *              > get
+         * @property    Children:   {Array} [read]
+         * @description An array of gameobjects. All children transformation will be relative to 
+         *              the parent gameobject.
+         */
+        Children: { value: [] },
+        /**
+         * @property    ID: {String} [read]
          * @description Unique identifier for the gameobject
          */
         ID: { value: "[go-" + IDCounter.next() + "]" },
 
         /**
-         * @property    Transform:  {Transform}
-         *              > get
+         * @property    Transform:  {Transform} [read]
          * @description The transform object attached to the current gameobject
          */
         Transform: { value: request.transform instanceof Transform ? request.transform : new Transform() },
 
         /**
-         * @property    Children:   {Array}
-         *              > get
-         * @description An array of gameobjects. All children transformation will be relative to 
-         *              the parent gameobject.
+         * @property    RenderMaterial: {RenderMaterial} [read|write]
+         * @description The render material attached to this gameobject.
          */
-        Children: { value: [] },
+        RenderMaterial:
+        {
+            get: function getRenderMaterial() { return _RenderMaterial; },
+            set: function setRenderMaterial()
+            {
+                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
+                    _RenderMaterial = arguments[0];
+            }
+        },
+
+        /**
+         * @property    Mesh: {Mesh} [read|write]
+         * @description The mesh attached to this gameobject.
+         */
+        Mesh:
+        {
+            get: function getMesh() { return _Mesh; },
+            set: function setMesh()
+            {
+                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
+                    _Mesh = arguments[0];
+            }
+        },
+
+        /**
+         * @property    LightItem: {LightItem} [read|write]
+         * @description The light item attached to this gameobject.
+         */
+        LightItem:
+        {
+            get: function getLightItem() { return _LightItem; },
+            set: function setLightItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
+                {
+                    _LightItem = arguments[0];
+                    _LightItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_LightItem)
+                        _LightItem.GameObject = undefined;
+                    _LightItem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    PhysicsItem: {PhysicsItem} [read|write]
+         * @description The physics item attached to this gameobject.
+         */
+        PhysicsItem:
+        {
+            get: function getPhysicsItem() { return _PhysicsItem; },
+            set: function setPhysicsItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
+                {
+                    _PhysicsItem = arguments[0];
+                    _PhysicsItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_PhysicsItem)
+                        _PhysicsItem.GameObject = undefined;
+                    _PhysicsItem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    Animation: {Animation} [read|write]
+         * @description The animation attached to this gameobject.
+         */
+        Animation:
+        {
+            get: function getAnimation() { return _Animation; },
+            set: function setAnimation()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
+                {
+                    _Animation = arguments[0];
+                    _Animation.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_Animation)
+                        _Animation.GameObject = undefined;
+                    _Animation = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    particlesystem: {ParticleSystem} [read|write]
+         * @description The particle system attached to this gameobject.
+         */
+        ParticleSystem:
+        {
+            get: function getParticleSystem() { return _ParticleSystem; },
+            set: function setParticleSystem()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
+                {
+                    _ParticleSystem = arguments[0];
+                    _ParticleSystem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_ParticleSystem)
+                        _ParticleSystem.GameObject = undefined;
+                    _ParticleSystem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    Begin:{Function} [read|write]
+         * @description This method is called upon object creation.
+         */
+        Begin:
+        {
+            get: function getBegin() { return _Begin; },
+            set: function setBegin()
+            {
+                if (typeof arguments[0] === 'function')
+                    _Begin = arguments[0];
+            }
+        },
+
+        /**
+         * @property    Update: {Function} [read|write]
+         * @description This method is called after each render frame
+         */
+        Update:
+        {
+            get: function getUpdate() { return _Update; },
+            set: function setUpdate()
+            {
+                if (typeof arguments[0] === 'function')
+                    _Update = arguments[0];
+            }
+        },
+
+        /**
+         * @property    End: {Function} [read|write]
+         * @description This method is called once the gameobject if destroyed.
+         */
+        End:
+        {
+            get: function getEnd() { return _End; },
+            set: function setEnd()
+            {
+                if (typeof arguments[0] === 'function')
+                    _End = arguments[0];
+            }
+        },
 
         /**
          * @function    AddChild:   {GameObject}
@@ -365,194 +521,10 @@ function GameObject(request)
 
                 return gameobject;
             }
-        },
-
-        /**
-         * @property    RenderMaterial: {RenderMaterial}
-         *              > get
-         *              > set
-         * @description The render material attached to this gameobject.
-         */
-        RenderMaterial:
-        {
-            get: function getRenderMaterial() { return _RenderMaterial; },
-            set: function setRenderMaterial()
-            {
-                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
-                    _RenderMaterial = arguments[0];
-            }
-        },
-
-        /**
-         * @property    Mesh: {Mesh}
-         *              > get
-         *              > set
-         * @description The mesh attached to this gameobject.
-         */
-        Mesh:
-        {
-            get: function getMesh() { return _Mesh; },
-            set: function setMesh()
-            {
-                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
-                    _Mesh = arguments[0];
-            }
-        },
-
-        /**
-         * @property    LightItem: {LightItem}
-         *              > get
-         *              > set
-         * @description The light item attached to this gameobject.
-         */
-        LightItem:
-        {
-            get: function getLightItem() { return _LightItem; },
-            set: function setLightItem()
-            {
-                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
-                {
-                    _LightItem = arguments[0];
-                    _LightItem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_LightItem)
-                        _LightItem.GameObject = undefined;
-                    _LightItem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    PhysicsItem: {PhysicsItem}
-         *              > get
-         *              > set
-         * @description The physics item attached to this gameobject.
-         */
-        PhysicsItem:
-        {
-            get: function getPhysicsItem() { return _PhysicsItem; },
-            set: function setPhysicsItem()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
-                {
-                    _PhysicsItem = arguments[0];
-                    _PhysicsItem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_PhysicsItem)
-                        _PhysicsItem.GameObject = undefined;
-                    _PhysicsItem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    Animation: {Animation}
-         *              > get
-         *              > set
-         * @description The animation attached to this gameobject.
-         */
-        Animation:
-        {
-            get: function getAnimation() { return _Animation; },
-            set: function setAnimation()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
-                {
-                    _Animation = arguments[0];
-                    _Animation.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_Animation)
-                        _Animation.GameObject = undefined;
-                    _Animation = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    particlesystem: {ParticleSystem}
-         *              > get
-         *              > set
-         * @description The particle system attached to this gameobject.
-         */
-        ParticleSystem:
-        {
-            get: function getParticleSystem() { return _ParticleSystem; },
-            set: function setParticleSystem()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
-                {
-                    _ParticleSystem = arguments[0];
-                    _ParticleSystem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_ParticleSystem)
-                        _ParticleSystem.GameObject = undefined;
-                    _ParticleSystem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    Begin:{Function}
-         *              > get
-         *              > set
-         * @description This method is called upon object creation.
-         */
-        Begin:
-        {
-            get: function getBegin() { return _Begin; },
-            set: function setBegin()
-            {
-                if (typeof arguments[0] === 'function')
-                    _Begin = arguments[0];
-            }
-        },
-
-        /**
-         * @property    Update: {Function}
-         *              > get
-         *              > set
-         * @description This method is called after each render frame
-         */
-        Update:
-        {
-            get: function getUpdate() { return _Update; },
-            set: function setUpdate()
-            {
-                if (typeof arguments[0] === 'function')
-                    _Update = arguments[0];
-            }
-        },
-
-        /**
-         * @property    End: {Function}
-         *              > get
-         *              > set
-         * @description This method is called once the gameobject if destroyed.
-         */
-        End:
-        {
-            get: function getEnd() { return _End; },
-            set: function setEnd()
-            {
-                if (typeof arguments[0] === 'function')
-                    _End = arguments[0];
-            }
         }
     });
 
-    this.RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
+    this.RenderMaterial = request.rendermaterial instanceof RenderMaterial  ? request.rendermaterial : undefined;
     this.Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
     this.PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
     this.Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;
@@ -675,30 +647,25 @@ function Camera()
     Object.defineProperties(this,
     {
         /**
-         * @constant    PERSPECTIVE: {Number}
-         *              > get
+         * @constant    PERSPECTIVE: {Number} [read]
          * @description Represents a perspective rendering mode
          */
         PERSPECTIVE:  { value: 0 },
         
         /**
-         * @constant    ORTHOGRAPHIC: {Number}
-         *              > get
+         * @constant    ORTHOGRAPHIC: {Number} [read]
          * @description Represents an orthographic rendering mode
          */
         ORTHOGRAPHIC: { value: 1 },
 
         /**
-         * @property    Transform:  {Transform}
-         *              > get
+         * @property    Transform:  {Transform} [read]
          * @description The transform object attached to the current gameobject
          */
         Transform: { value: new Transform() },
 
         /**
-         * @property    Mode: {Number}
-         *              > get
-         *              > set
+         * @property    Mode: {Number} [read|write]
          * @description Represent the current rendering mode the camera is using
          */
         Mode:
@@ -715,9 +682,7 @@ function Camera()
         },
         
         /**
-         * @property    FOV: {Number}
-         *              > get
-         *              > set
+         * @property    FOV: {Number} [read|write]
          * @description Represent the current field of view of the camera
          */
         FOV:
@@ -734,9 +699,7 @@ function Camera()
         },
         
         /**
-         * @property    Aspect: {Number}
-         *              > get
-         *              > set
+         * @property    Aspect: {Number} [read|write]
          * @description Represent the aspect ratio of the camera
          */
         Aspect:
@@ -753,9 +716,7 @@ function Camera()
         },
         
         /**
-         * @property    Near: {Number}
-         *              > get
-         *              > set
+         * @property    Near: {Number} [read|write]
          * @description Represent the near clipping plane
          */
         Near:
@@ -772,9 +733,7 @@ function Camera()
         },
         
         /**
-         * @property    Far: {Number}
-         *              > get
-         *              > set
+         * @property    Far: {Number} [read|write]
          * @description Represent the far clipping plane
          */
         Far:
@@ -791,9 +750,7 @@ function Camera()
         },
         
         /**
-         * @property    Left: {Number}
-         *              > get
-         *              > set
+         * @property    Left: {Number} [read|write]
          * @description Represent the left clipping plane
          */
         Left:
@@ -810,9 +767,7 @@ function Camera()
         },
         
         /**
-         * @property    Right: {Number}
-         *              > get
-         *              > set
+         * @property    Right: {Number} [read|write]
          * @description Represent the right clipping plane
          */
         Right:
@@ -829,9 +784,7 @@ function Camera()
         },
         
         /**
-         * @property    Top: {Number}
-         *              > get
-         *              > set
+         * @property    Top: {Number} [read|write]
          * @description Represent the top clipping plane
          */
         Top:
@@ -848,9 +801,7 @@ function Camera()
         },
         
         /**
-         * @property    Bottom: {Number}
-         *              > get
-         *              > set
+         * @property    Bottom: {Number} [read|write]
          * @description Represent the bottom clipping plane
          */
         Bottom:
@@ -867,9 +818,7 @@ function Camera()
         },
         
         /**
-         * @property    Theta: {Number}
-         *              > get
-         *              > set
+         * @property    Theta: {Number} [read|write]
          * @description Represent camera's yaw around the scene
          */
         Theta:
@@ -886,9 +835,7 @@ function Camera()
         },
         
         /**
-         * @property    Phi: {Number}
-         *              > get
-         *              > set
+         * @property    Phi: {Number} [read|write]
          * @description Represent the camera's pitch around the scene
          */
         Phi:
@@ -937,7 +884,7 @@ function Animation(request)
 
 
 /**
- * @name Time
+ * @name        Time
  * @description This is the running clock that keeps track of elapsed time
  *              between render frames.
  * @module      FWGE.Game
@@ -949,10 +896,29 @@ function Time()
     
     Object.defineProperties(this,
     {
+        /**
+         * @property    Delta: {Number} [read]
+         * @description Some description
+         */
         Delta:      { get: function(){ return (_Now - _Then) / 60; } },
+
+        /**
+         * @property    DeltaTime: {Number} [read]
+         * @description Some description
+         */
         DeltaTime:  { get: function(){ return _Now - _Then; } },
+
+        /**
+         * @property    Now: {Number} [read]
+         * @description Some description
+         */
         Now:        { get: function(){ return new Date(Date.now()); } },
-        TimeUpdate:
+
+        /**
+         * @property    TimeUpdate: {undefined}
+         * @description Some description
+         */
+        TimeUpdate:        
         {
             value: function TimeUpdate()
             {
@@ -970,14 +936,10 @@ function Time()
 
 
 /**
- * @name Transform
+ * @name        Transform
+ * @module      FWGE.Game
  * @description This object contains all the transformations that 
  *              are to be applied to the parent gameobject.
- * @param       request:    {Object}
- *              > position: {Array}     [nullable]
- *              > rotation: {Array}     [nullable]
- *              > scale:    {Array}     [nullable]
- *              > shear:    {Array}     [nullable]
  */
 function Transform(request)
 {
@@ -1014,7 +976,7 @@ function Transform(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Position: {Float32Array}
+         * @property    Position: {Float32Array} [read|write]
          * @description The current position of the parent of gameobject
          */
         Position:
@@ -1028,7 +990,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Rotation: {Float32Array}
+         * @property    Rotation: {Float32Array} [read|write]
          * @description The current rotation of the parent of gameobject
          */           
         Rotation:
@@ -1042,7 +1004,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Scale: {Float32Array}
+         * @property    Scale: {Float32Array} [read|write]
          * @description The current scaling of the parent of gameobject
          */
         Scale:
@@ -1056,7 +1018,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Shear: {Float32Array}
+         * @property    Shear: {Float32Array} [read|write]
          * @description The current shearing of the parent of gameobject
          */
         Shear:
@@ -1070,19 +1032,19 @@ function Transform(request)
         },
 
         /**
-         * @property    Up: {Float32Array}
+         * @property    Up: {Float32Array} [read]
          * @description The parent gameobject's up vector
          */
         Up:         { get: function() { return _Up; } },
         
         /**
-         * @property    Forward: {Float32Array}
+         * @property    Forward: {Float32Array} [read]
          * @description The parent gameobject's forward vector
          */
         Forward:    { get: function() { return _Forward; } },
         
         /**
-         * @property    Right: {Float32Array}
+         * @property    Right: {Float32Array} [read]
          * @description The parent gameobject's right vector
          */
         Right:      { get: function() { return _Right; } },
@@ -1095,7 +1057,7 @@ Object.defineProperties(Transform.prototype,
     constructor: {value: Transform},
 
     /**
-     * @property    TransformUpdate: void
+     * @property    TransformUpdate: {undefined}
      * @description Updates the transformations
      */
     TransformUpdate:
@@ -1193,335 +1155,1550 @@ function Input()
     
     Object.defineProperties(this, 
     {
+        
+        /**
+         * @property    KEY_F1_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F1_UP:      { get: function getF1KeyUp()     { return _Keys[112 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F1_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F1_PRESS:   { get: function getF1KeyPress()  { return _Keys[112 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F1_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F1_DOWN:    { get: function getF1KeyDown()   { return _Keys[112 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F2_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F2_UP:      { get: function getF2KeyUp()     { return _Keys[113 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F2_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F2_PRESS:   { get: function getF2KeyPress()  { return _Keys[113 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F2_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F2_DOWN:    { get: function getF2KeyDown()   { return _Keys[113 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F3_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F3_UP:      { get: function getF3KeyUp()     { return _Keys[114 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F3_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F3_PRESS:   { get: function getF3KeyPress()  { return _Keys[114 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F3_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F3_DOWN:    { get: function getF3KeyDown()   { return _Keys[114 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F4_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F4_UP:      { get: function getF4KeyUp()     { return _Keys[115 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F4_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F4_PRESS:   { get: function getF4KeyPress()  { return _Keys[115 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F4_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F4_DOWN:    { get: function getF4KeyDown()   { return _Keys[115 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F5_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F5_UP:      { get: function getF5KeyUp()     { return _Keys[116 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F5_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F5_PRESS:   { get: function getF5KeyPress()  { return _Keys[116 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F5_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F5_DOWN:    { get: function getF5KeyDown()   { return _Keys[116 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F6_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F6_UP:      { get: function getF6KeyUp()     { return _Keys[117 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F6_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F6_PRESS:   { get: function getF6KeyPress()  { return _Keys[117 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F6_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F6_DOWN:    { get: function getF6KeyDown()   { return _Keys[117 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F7_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F7_UP:      { get: function getF7KeyUp()     { return _Keys[118 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F7_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F7_PRESS:   { get: function getF7KeyPress()  { return _Keys[118 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F7_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F7_DOWN:    { get: function getF7KeyDown()   { return _Keys[118 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F8_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F8_UP:      { get: function getF8KeyUp()     { return _Keys[119 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F8_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F8_PRESS:   { get: function getF8KeyPress()  { return _Keys[119 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F8_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F8_DOWN:    { get: function getF8KeyDown()   { return _Keys[119 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F9_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F9_UP:      { get: function getF9KeyUp()     { return _Keys[120 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F9_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F9_PRESS:   { get: function getF9KeyPress()  { return _Keys[120 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F9_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F9_DOWN:    { get: function getF9KeyDown()   { return _Keys[120 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F10_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F10_UP:     { get: function getF10KeyUp()    { return _Keys[121 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F10_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F10_PRESS:  { get: function getF10KeyPress() { return _Keys[121 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F10_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F10_DOWN:   { get: function getF10KeyDown()  { return _Keys[121 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F11_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F11_UP:     { get: function getF11KeyUp()    { return _Keys[122 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F11_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F11_PRESS:  { get: function getF11KeyPress() { return _Keys[122 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F11_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F11_DOWN:   { get: function getF11KeyDown()  { return _Keys[122 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F12_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F12_UP:     { get: function getF12KeyUp()    { return _Keys[123 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F12_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F12_PRESS:  { get: function getF12KeyPress() { return _Keys[123 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F12_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F12_DOWN:   { get: function getF12KeyDown()  { return _Keys[123 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_0_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_0_UP:       { get: function get0KeyUp()    { return _Keys[48 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_0_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_0_PRESS:    { get: function get0KeyPress() { return _Keys[48 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_0_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_0_DOWN:     { get: function get0KeyDown()  { return _Keys[48 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_1_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_1_UP:       { get: function get1KeyUp()    { return _Keys[49 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_1_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_1_PRESS:    { get: function get1KeyPress() { return _Keys[49 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_1_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_1_DOWN:     { get: function get1KeyDown()  { return _Keys[49 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_2_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_2_UP:       { get: function get2KeyUp()    { return _Keys[50 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_2_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_2_PRESS:    { get: function get2KeyPress() { return _Keys[50 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_2_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_2_DOWN:     { get: function get2KeyDown()  { return _Keys[50 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_3_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_3_UP:       { get: function get3KeyUp()    { return _Keys[51 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_3_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_3_PRESS:    { get: function get3KeyPress() { return _Keys[51 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_3_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_3_DOWN:     { get: function get3KeyDown()  { return _Keys[51 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_4_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_4_UP:       { get: function get4KeyUp()    { return _Keys[52 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_4_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_4_PRESS:    { get: function get4KeyPress() { return _Keys[52 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_4_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_4_DOWN:     { get: function get4KeyDown()  { return _Keys[52 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_5_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_5_UP:       { get: function get5KeyUp()    { return _Keys[53 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_5_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_5_PRESS:    { get: function get5KeyPress() { return _Keys[53 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_5_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_5_DOWN:     { get: function get5KeyDown()  { return _Keys[53 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_6_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_6_UP:       { get: function get6KeyUp()    { return _Keys[54 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_6_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_6_PRESS:    { get: function get6KeyPress() { return _Keys[54 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_6_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_6_DOWN:     { get: function get6KeyDown()  { return _Keys[54 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_7_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_7_UP:       { get: function get7KeyUp()    { return _Keys[55 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_7_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_7_PRESS:    { get: function get7KeyPress() { return _Keys[55 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_7_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_7_DOWN:     { get: function get7KeyDown()  { return _Keys[55 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_8_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_8_UP:       { get: function get8KeyUp()    { return _Keys[56 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_8_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_8_PRESS:    { get: function get8KeyPress() { return _Keys[56 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_8_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_8_DOWN:     { get: function get8KeyDown()  { return _Keys[56 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_9_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_9_UP:       { get: function get9KeyUp()    { return _Keys[57 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_9_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_9_PRESS:    { get: function get9KeyPress() { return _Keys[57 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_9_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_9_DOWN:     { get: function get9KeyDown()  { return _Keys[57 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    NUMPAD_0_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_0_UP:       { get: function getNumpad0KeyUp()    { return _Keys[96 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_0_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_0_PRESS:    { get: function getNumpad0KeyPress() { return _Keys[96 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_0_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_0_DOWN:     { get: function getNumpad0KeyDown()  { return _Keys[96 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_1_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_1_UP:       { get: function getNumpad1KeyUp()    { return _Keys[97 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_1_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_1_PRESS:    { get: function getNumpad1KeyPress() { return _Keys[97 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_1_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_1_DOWN:     { get: function getNumpad1KeyDown()  { return _Keys[97 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_2_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_2_UP:       { get: function getNumpad2KeyUp()    { return _Keys[98 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_2_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_2_PRESS:    { get: function getNumpad2KeyPress() { return _Keys[98 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_2_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_2_DOWN:     { get: function getNumpad2KeyDown()  { return _Keys[98 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_3_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_3_UP:       { get: function getNumpad3KeyUp()    { return _Keys[99 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_3_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_3_PRESS:    { get: function getNumpad3KeyPress() { return _Keys[99 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_3_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_3_DOWN:     { get: function getNumpad3KeyDown()  { return _Keys[99 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_4_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_4_UP:       { get: function getNumpad4KeyUp()    { return _Keys[100 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_4_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_4_PRESS:    { get: function getNumpad4KeyPress() { return _Keys[100 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_4_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_4_DOWN:     { get: function getNumpad4KeyDown()  { return _Keys[100 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_5_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_5_UP:       { get: function getNumpad5KeyUp()    { return _Keys[101 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_5_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_5_PRESS:    { get: function getNumpad5KeyPress() { return _Keys[101 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_5_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_5_DOWN:     { get: function getNumpad5KeyDown()  { return _Keys[101 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_6_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_6_UP:       { get: function getNumpad6KeyUp()    { return _Keys[102 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_6_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_6_PRESS:    { get: function getNumpad6KeyPress() { return _Keys[102 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_6_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_6_DOWN:     { get: function getNumpad6KeyDown()  { return _Keys[102 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_7_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_7_UP:       { get: function getNumpad7KeyUp()    { return _Keys[103 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_7_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_7_PRESS:    { get: function getNumpad7KeyPress() { return _Keys[103 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_7_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_7_DOWN:     { get: function getNumpad7KeyDown()  { return _Keys[103 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_8_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_8_UP:       { get: function getNumpad8KeyUp()    { return _Keys[104 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_8_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_8_PRESS:    { get: function getNumpad8KeyPress() { return _Keys[104 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_8_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_8_DOWN:     { get: function getNumpad8KeyDown()  { return _Keys[104 + _DOWN ]; } },
 
+        
+        /**
+         * @property    NUMPAD_9_UP: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_9_UP:       { get: function getNumpad9KeyUp()    { return _Keys[105 + _UP   ]; } },
+        
+        /**
+         * @property    NUMPAD_9_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_9_PRESS:    { get: function getNumpad9KeyPress() { return _Keys[105 + _PRESS]; } },
+        
+        /**
+         * @property    NUMPAD_9_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         NUMPAD_9_DOWN:     { get: function getNumpad9KeyDown()  { return _Keys[105 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_DIVIDE_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DIVIDE_UP:        { get: function getDivideKeyUp()      { return _Keys[111 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_DIVIDE_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DIVIDE_PRESS:     { get: function getDivideKeyPress()   { return _Keys[111 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_DIVIDE_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DIVIDE_DOWN:      { get: function getDivideKeyDown()    { return _Keys[111 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_MULTIPLY_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_MULTIPLY_UP:      { get: function getMultiplyKeyUp()    { return _Keys[106 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_MULTIPLY_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_MULTIPLY_PRESS:   { get: function getMultiplyKeyPress() { return _Keys[106 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_MULTIPLY_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_MULTIPLY_DOWN:    { get: function getMultiplyKeyDown()  { return _Keys[106 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_SUBTRACT_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SUBTRACT_UP:      { get: function getSubtractKeyUp()    { return _Keys[109 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_SUBTRACT_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SUBTRACT_PRESS:   { get: function getSubtractKeyPress() { return _Keys[109 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_SUBTRACT_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SUBTRACT_DOWN:    { get: function getSubtractKeyDown()  { return _Keys[109 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_ADD_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ADD_UP:           { get: function getAddKeyUp()         { return _Keys[107 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_ADD_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ADD_PRESS:        { get: function getAddKeyPress()      { return _Keys[107 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_ADD_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ADD_DOWN:         { get: function getAddKeyDown()       { return _Keys[107 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_TAB_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_TAB_UP:          { get: function getTABKeyUp()          { return _Keys[9 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_TAB_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_TAB_PRESS:       { get: function getTABKeyPress()       { return _Keys[9 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_TAB_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_TAB_DOWN:        { get: function getTABKeyDown()        { return _Keys[9 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_CAPS_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CAPS_UP:         { get: function getCAPSKeyUp()         { return _Keys[20 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_CAPS_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CAPS_PRESS:      { get: function getCAPSKeyPress()      { return _Keys[20 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_CAPS_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CAPS_DOWN:       { get: function getCAPSKeyDown()       { return _Keys[20 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_SHIFT_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SHIFT_UP:        { get: function getSHIFTKeyUp()        { return _Keys[16 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_SHIFT_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SHIFT_PRESS:     { get: function getSHIFTKeyPress()     { return _Keys[16 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_SHIFT_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SHIFT_DOWN:      { get: function getSHIFTKeyDown()      { return _Keys[16 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_CTRL_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CTRL_UP:         { get: function getCTRLKeyUp()         { return _Keys[17 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_CTRL_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CTRL_PRESS:      { get: function getCTRLKeyPress()      { return _Keys[17 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_CTRL_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_CTRL_DOWN:       { get: function getCTRLKeyDown()       { return _Keys[17 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_ALT_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ALT_UP:          { get: function getALTKeyUp()          { return _Keys[18 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_ALT_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ALT_PRESS:       { get: function getALTKeyPress()       { return _Keys[18 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_ALT_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ALT_DOWN:        { get: function getALTKeyDown()        { return _Keys[18 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_BACKSPACE_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BACKSPACE_UP:    { get: function getBACKSPACEKeyUp()    { return _Keys[8 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_BACKSPACE_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BACKSPACE_PRESS: { get: function getBACKSPACEKeyPress() { return _Keys[8 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_BACKSPACE_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BACKSPACE_DOWN:  { get: function getBACKSPACEKeyDown()  { return _Keys[8 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_ENTER_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ENTER_UP:        { get: function getENTERKeyUp()        { return _Keys[13 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_ENTER_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ENTER_PRESS:     { get: function getENTERKeyPress()     { return _Keys[13 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_ENTER_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_ENTER_DOWN:      { get: function getENTERKeyDown()      { return _Keys[13 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_UP_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_UP_UP:       { get: function getUPKeyUp()       { return _Keys[38 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_UP_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_UP_PRESS:    { get: function getUPKeyPress()    { return _Keys[38 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_UP_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_UP_DOWN:     { get: function getUPKeyDown()     { return _Keys[38 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_LEFT_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_LEFT_UP:     { get: function getLEFTKeyUp()     { return _Keys[37 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_LEFT_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_LEFT_PRESS:  { get: function getLEFTKeyPress()  { return _Keys[37 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_LEFT_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_LEFT_DOWN:   { get: function getLEFTKeyDown()   { return _Keys[37 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_RIGHT_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_RIGHT_UP:    { get: function getRIGHTKeyUp()    { return _Keys[40 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_RIGHT_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_RIGHT_PRESS: { get: function getRIGHTKeyPress() { return _Keys[40 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_RIGHT_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_RIGHT_DOWN:  { get: function getRIGHTKeyDown()  { return _Keys[40 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_DOWN_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DOWN_UP:     { get: function getDOWNKeyUp()     { return _Keys[39 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_DOWN_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DOWN_PRESS:  { get: function getDOWNKeyPress()  { return _Keys[39 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_DOWN_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_DOWN_DOWN:   { get: function getDOWNKeyDown()   { return _Keys[39 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_BRACKET_L_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_L_UP:     { get: function getTABKeyUp()    { return _Keys[219 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_BRACKET_L_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_L_PRESS:  { get: function getTABKeyPress() { return _Keys[219 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_BRACKET_L_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_L_DOWN:   { get: function getTABKeyDown()  { return _Keys[219 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_BRACKET_R_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_R_UP:     { get: function getTABKeyUp()    { return _Keys[221 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_BRACKET_R_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_R_PRESS:  { get: function getTABKeyPress() { return _Keys[221 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_BRACKET_R_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_BRACKET_R_DOWN:   { get: function getTABKeyDown()  { return _Keys[221 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_COLON_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COLON_UP:         { get: function getTABKeyUp()    { return _Keys[186 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_COLON_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COLON_PRESS:      { get: function getTABKeyPress() { return _Keys[186 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_COLON_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COLON_DOWN:       { get: function getTABKeyDown()  { return _Keys[186 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_QUOTE_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_QUOTE_UP:         { get: function getTABKeyUp()    { return _Keys[222 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_QUOTE_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_QUOTE_PRESS:      { get: function getTABKeyPress() { return _Keys[222 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_QUOTE_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_QUOTE_DOWN:       { get: function getTABKeyDown()  { return _Keys[222 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_COMMA_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COMMA_UP:         { get: function getTABKeyUp()    { return _Keys[188 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_COMMA_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COMMA_PRESS:      { get: function getTABKeyPress() { return _Keys[188 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_COMMA_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_COMMA_DOWN:       { get: function getTABKeyDown()  { return _Keys[188 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_PERIOD_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_PERIOD_UP:        { get: function getTABKeyUp()    { return _Keys[190 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_PERIOD_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_PERIOD_PRESS:     { get: function getTABKeyPress() { return _Keys[190 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_PERIOD_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_PERIOD_DOWN:      { get: function getTABKeyDown()  { return _Keys[190 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_SLASH_F_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_F_UP:       { get: function getTABKeyUp()    { return _Keys[191 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_SLASH_F_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_F_PRESS:    { get: function getTABKeyPress() { return _Keys[191 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_SLASH_F_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_F_DOWN:     { get: function getTABKeyDown()  { return _Keys[191 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_SLASH_B_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_B_UP:       { get: function getTABKeyUp()    { return _Keys[220 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_SLASH_B_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_B_PRESS:    { get: function getTABKeyPress() { return _Keys[220 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_SLASH_B_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_SLASH_B_DOWN:     { get: function getTABKeyDown()  { return _Keys[220 + _DOWN ]; } },
 
 
+        
+        /**
+         * @property    KEY_A_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_A_UP:       { get: function getAKeyUp()     { return _Keys[65 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_A_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_A_PRESS:    { get: function getAKeyPress()  { return _Keys[65 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_A_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_A_DOWN:     { get: function getAKeyDown()   { return _Keys[65 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_B_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_B_UP:       { get: function getBKeyUp()     { return _Keys[66 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_B_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_B_PRESS:    { get: function getBKeyPress()  { return _Keys[66 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_B_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_B_DOWN:     { get: function getBKeyDown()   { return _Keys[66 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_C_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_C_UP:       { get: function getCKeyUp()     { return _Keys[67 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_C_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_C_PRESS:    { get: function getCKeyPress()  { return _Keys[67 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_C_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_C_DOWN:     { get: function getCKeyDown()   { return _Keys[67 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_D_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_D_UP:       { get: function getDKeyUp()     { return _Keys[68 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_D_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_D_PRESS:    { get: function getDKeyPress()  { return _Keys[68 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_D_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_D_DOWN:     { get: function getDKeyDown()   { return _Keys[68 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_E_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_E_UP:       { get: function getEKeyUp()     { return _Keys[69 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_E_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_E_PRESS:    { get: function getEKeyPress()  { return _Keys[69 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_E_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_E_DOWN:     { get: function getEKeyDown()   { return _Keys[69 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_F_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F_UP:       { get: function getFKeyUp()     { return _Keys[70 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_F_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F_PRESS:    { get: function getFKeyPress()  { return _Keys[70 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_F_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_F_DOWN:     { get: function getFKeyDown()   { return _Keys[70 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_G_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_G_UP:       { get: function getGKeyUp()     { return _Keys[71 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_G_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_G_PRESS:    { get: function getGKeyPress()  { return _Keys[71 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_G_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_G_DOWN:     { get: function getGKeyDown()   { return _Keys[71 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_H_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_H_UP:       { get: function getHKeyUp()     { return _Keys[72 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_H_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_H_PRESS:    { get: function getHKeyPress()  { return _Keys[72 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_H_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_H_DOWN:     { get: function getHKeyDown()   { return _Keys[72 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_I_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_I_UP:       { get: function getIKeyUp()     { return _Keys[73 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_I_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_I_PRESS:    { get: function getIKeyPress()  { return _Keys[73 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_I_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_I_DOWN:     { get: function getIKeyDown()   { return _Keys[73 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_J_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_J_UP:       { get: function getJKeyUp()     { return _Keys[74 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_J_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_J_PRESS:    { get: function getJKeyPress()  { return _Keys[74 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_J_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_J_DOWN:     { get: function getJKeyDown()   { return _Keys[74 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_K_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_K_UP:       { get: function getKKeyUp()     { return _Keys[75 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_K_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_K_PRESS:    { get: function getKKeyPress()  { return _Keys[75 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_K_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_K_DOWN:     { get: function getKKeyDown()   { return _Keys[75 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_L_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_L_UP:       { get: function getLKeyUp()     { return _Keys[76 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_L_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_L_PRESS:    { get: function getLKeyPress()  { return _Keys[76 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_L_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_L_DOWN:     { get: function getLKeyDown()   { return _Keys[76 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_M_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_M_UP:       { get: function getMKeyUp()     { return _Keys[77 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_M_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_M_PRESS:    { get: function getMKeyPress()  { return _Keys[77 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_M_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_M_DOWN:     { get: function getMKeyDown()   { return _Keys[77 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_N_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_N_UP:       { get: function getNKeyUp()     { return _Keys[78 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_N_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_N_PRESS:    { get: function getNKeyPress()  { return _Keys[78 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_N_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_N_DOWN:     { get: function getNKeyDown()   { return _Keys[78 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_O_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_O_UP:       { get: function getOKeyUp()     { return _Keys[79 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_O_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_O_PRESS:    { get: function getOKeyPress()  { return _Keys[79 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_O_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_O_DOWN:     { get: function getOKeyDown()   { return _Keys[79 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_P_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_P_UP:       { get: function getPKeyUp()     { return _Keys[80 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_P_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_P_PRESS:    { get: function getPKeyPress()  { return _Keys[80 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_P_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_P_DOWN:     { get: function getPKeyDown()   { return _Keys[80 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_Q_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Q_UP:       { get: function getQKeyUp()     { return _Keys[81 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_Q_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Q_PRESS:    { get: function getQKeyPress()  { return _Keys[81 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_Q_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Q_DOWN:     { get: function getQKeyDown()   { return _Keys[81 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_R_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_R_UP:       { get: function getRKeyUp()     { return _Keys[82 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_R_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_R_PRESS:    { get: function getRKeyPress()  { return _Keys[82 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_R_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_R_DOWN:     { get: function getRKeyDown()   { return _Keys[82 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_S_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_S_UP:       { get: function getSKeyUp()     { return _Keys[83 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_S_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_S_PRESS:    { get: function getSKeyPress()  { return _Keys[83 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_S_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_S_DOWN:     { get: function getSKeyDown()   { return _Keys[83 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_T_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_T_UP:       { get: function getTKeyUp()     { return _Keys[84 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_T_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_T_PRESS:    { get: function getTKeyPress()  { return _Keys[84 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_T_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_T_DOWN:     { get: function getTKeyDown()   { return _Keys[84 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_U_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_U_UP:       { get: function getUKeyUp()     { return _Keys[85 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_U_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_U_PRESS:    { get: function getUKeyPress()  { return _Keys[85 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_U_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_U_DOWN:     { get: function getUKeyDown()   { return _Keys[85 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_V_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_V_UP:       { get: function getVKeyUp()     { return _Keys[86 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_V_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_V_PRESS:    { get: function getVKeyPress()  { return _Keys[86 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_V_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_V_DOWN:     { get: function getVKeyDown()   { return _Keys[86 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_W_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_W_UP:       { get: function getWKeyUp()     { return _Keys[87 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_W_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_W_PRESS:    { get: function getWKeyPress()  { return _Keys[87 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_W_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_W_DOWN:     { get: function getWKeyDown()   { return _Keys[87 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_X_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_X_UP:       { get: function getXKeyUp()     { return _Keys[88 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_X_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_X_PRESS:    { get: function getXKeyPress()  { return _Keys[88 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_X_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_X_DOWN:     { get: function getXKeyDown()   { return _Keys[88 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_Y_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Y_UP:       { get: function getYKeyUp()     { return _Keys[89 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_Y_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Y_PRESS:    { get: function getYKeyPress()  { return _Keys[89 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_Y_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Y_DOWN:     { get: function getYKeyDown()   { return _Keys[89 + _DOWN ]; } },
 
+        
+        /**
+         * @property    KEY_Z_UP: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Z_UP:       { get: function getZKeyUp()     { return _Keys[90 + _UP   ]; } },
+        
+        /**
+         * @property    KEY_Z_PRESS: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Z_PRESS:    { get: function getZKeyPress()  { return _Keys[90 + _PRESS]; } },
+        
+        /**
+         * @property    KEY_Z_DOWN: {Boolean} [read]
+         * @description Some description
+         */
         KEY_Z_DOWN:     { get: function getZKeyDown()   { return _Keys[90 + _DOWN ]; } },
 
         InputUpdate:
@@ -1562,9 +2739,9 @@ function Light()
          *              light object in a scene.
          * @see         FWGE.Game.Light.AmbientLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}    [nullable]
-         *              > colour:       {Float32Array}  [nullable]
-         *              > intensity:    {Number}        [nullable]
+         *              > parent:       {GameObject}    [null]
+         *              > colour:       {Float32Array}  [null]
+         *              > intensity:    {Number}        [null]
          */
         Ambient:
         {
@@ -1590,10 +2767,10 @@ function Light()
          *              directional light objects in a scene.
          * @see         FWGE.Game.Light.DirectionalLight
          * @param       request:         {Object}
-         *              > parent:        {GameObject}    [nullable]
-         *              > colour:        {Float32Array}  [nullable]
-         *              > intensity:     {Number}        [nullable]
-         *              > direction:     {Float32Array}  [nullable]
+         *              > parent:        {GameObject}    [null]
+         *              > colour:        {Float32Array}  [null]
+         *              > intensity:     {Number}        [null]
+         *              > direction:     {Float32Array}  [null]
          */
         Directional:
         {
@@ -1625,11 +2802,11 @@ function Light()
          *              point light objects in a scene.
          * @see         FWGE.Game.Light.PointLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}    [nullable]
-         *              > colour:       {Float32Array}  [nullable]
-         *              > intensity:    {Number}        [nullable]
-         *              > radius:       {Number}        [nullable]
-         *              > angle:        {Number}        [nullable]
+         *              > parent:       {GameObject}    [null]
+         *              > colour:       {Float32Array}  [null]
+         *              > intensity:    {Number}        [null]
+         *              > radius:       {Number}        [null]
+         *              > angle:        {Number}        [null]
          */
         Point:
         {
@@ -1722,9 +2899,7 @@ function LightItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Colour: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Colour: {Float32Array} [read|write]
          * @description Descrbies the colour that the light object emits.
          */
         Colour:
@@ -1738,9 +2913,7 @@ function LightItem(request)
         },
 
         /**
-         * @property    Intensity:  {Number}
-         *              > get
-         *              > set
+         * @property    Intensity:  {Number} [read|write]s
          * @description Descrbies the intensity at which the light object emits.
          *              This ranges between: [0, 1].
          */
@@ -1759,8 +2932,9 @@ function LightItem(request)
 
 /**
  * @name        AmbientLight
- * @description Describes a light that evenly lights the scene.
  * @module      FWGE.Game.Light
+ * @description This type of light is used to light the scene evenely
+ *				in one colour.
  */
 function AmbientLight(request)
 {
@@ -1774,8 +2948,8 @@ function AmbientLight(request)
 
 /**
  * @name        DirectionalLight
- * @description Definition of a light that shines in a given direction.
  * @module      FWGE.Game.Light
+ * @description Definition of a light that shines in a given direction.
  */
 function DirectionalLight(request)
 {
@@ -1790,9 +2964,7 @@ function DirectionalLight(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Direction: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Direction: {Float32Array} [read|write]
          * @description Returns the direction the light is pointing in.
          */
         Direction:
@@ -1827,9 +2999,7 @@ function PointLight(request)
     Object.defineProperties(this, 
     {
         /**
-         * @property    Radius: {Number}
-         *              > get
-         *              > set
+         * @property    Radius: {Number} [read|write]
          * @description The range the light will illuminate 
          */
         Radius:
@@ -1843,9 +3013,7 @@ function PointLight(request)
         },
         
         /**
-         * @property    Angle: {Number}
-         *              > get
-         *              > set
+         * @property    Angle: {Number} [read|write]
          * @description The angle the light will illuminate.
          *              35 would be a spotlight while 180 would be a globe.
          */
@@ -1873,56 +3041,49 @@ function Maths()
     Object.defineProperties(this,
     {
         /**
-         * @property    Matrix2: {Matrix2}
-         *              > get
+         * @property    Matrix2: {Matrix2} [read]
          * @description Operations for 2x2 matrices.
          * @see         FWGE.Maths.Matrix2
          */
         Matrix2:      { value: new Matrix2() },
         
         /**
-         * @property    Matrix3: {Matrix3}
-         *              > get
+         * @property    Matrix3: {Matrix3} [read]
          * @description Operations for 3x3 matrices.
          * @see         FWGE.Maths.Matrix3
          */
         Matrix3:      { value: new Matrix3() },
         
         /**
-         * @property    Matrix4: {Matrix4}
-         *              > get
+         * @property    Matrix4: {Matrix4} [read]
          * @description Operations for 4x4 matrices.
          * @see         FWGE.Maths.Matrix4
          */
         Matrix4:      { value: new Matrix4() },
         
         /**
-         * @property    Vector2: {Vector2}
-         *              > get
+         * @property    Vector2: {Vector2} [read]
          * @description Operations for 2 component veectors.
          * @see         FWGE.Maths.Vector2
          */
         Vector2:      { value: new Vector2() },
         
         /**
-         * @property    Vector3: {Vector3}
-         *              > get
+         * @property    Vector3: {Vector3} [read]
          * @description Operations for 3 component veectors.
          * @see         FWGE.Maths.Vector3
          */
         Vector3:      { value: new Vector3() },
         
         /**
-         * @property    Vector4: {Vector4}
-         *              > get
+         * @property    Vector4: {Vector4} [read]
          * @description Operations for 4 component veectors.
          * @see         FWGE.Maths.Vector4
          */
         Vector4:      { value: new Vector4() },
         
         /**
-         * @property    Quaternion: {Quaternion}
-         *              > get
+         * @property    Quaternion: {Quaternion} [read]
          * @description Operations for 4 component quaternions.
          * @see         FWGE.Maths.Quaternion
          */
@@ -1943,15 +3104,15 @@ function Matrix2()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       m11:    {Number}        [null, override: 2]
+         * @param       m12:    {Number}        [null, override: 2]
+         * @param       m21:    {Number}        [null, override: 2]
+         * @param       m22:    {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "MATRIX2".
          *              It also has the appropriate value indexers:
          *              M11, M12,
-         *              M21, M22.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              M21, M22
          */
         Create:
         {
@@ -1994,15 +3155,15 @@ function Matrix2()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:    {Float32Array}
+         * @param       array1: {Float32Array}  [override: 1]
+         * @param       array2: {Float32Array}  [override: 1]
+         * @param       array:  {Float32Array}  [override: 2]
+         * @param       m11:    {Number}        [override: 2]
+         * @param       m12:    {Number}        [override: 2]
+         * @param       m21:    {Number}        [override: 2]
+         * @param       m22:    {Number}        [override: 2]
          * @description Assigns new to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -2033,9 +3194,9 @@ function Matrix2()
         },
         
         /**
-         * @function    Transpose: {Float32Array}
+         * @function    Transpose:  {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Transposes a matrix.
-         * @param       {Float32Array}
          */
         Transpose:
         {
@@ -2049,10 +3210,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Identity: {Float32Array}
+         * @function    Identity:   {Float32Array}
+         * @param       array:      {Float32Array}
          * @description If given a Float32Array, it resets it to an identity matrix.
          *              If not, it simply returns a new identity matrix.
-         * @param       {Float32Array}
          */
         Identity:
         {
@@ -2069,9 +3230,9 @@ function Matrix2()
         },
         
         /**
-         * @function    Determinant: {Number}
+         * @function    Determinant:    {Number}
+         * @param       array:          {Float32Array}
          * @description Calculates the determinant of a given Float32Array.
-         * @param       {Float32Array}
          */
         Determinant:
         {
@@ -2083,10 +3244,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Inverse: {Float32Array}
+         * @function    Inverse:    {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Inverts a given Float32Array when possible i.e. the determinant
          *              is not 0.
-         * @param       {Float32Array}
          */
         Inverse:
         {
@@ -2106,10 +3267,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:        {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -2124,13 +3285,13 @@ function Matrix2()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override 1]
+         * @param       array2:     {Float32Array}  [override 1]
+         * @param       array:      {Float32Array}  [override 2]
+         * @param       constant:   {Number}        [override 2]
          * @description Performs a matrix multiplication on two Float32Array or
          *              multiply a Float32Array with a scalar value.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -2161,11 +3322,11 @@ function Matrix2()
         },
         
         /**
-         * @function    RevMult: {Float32Array}
+         * @function    RevMult:    {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Performs a matrix multiplication on two Float32Array but
          *              assigns the result to the second Float32Array.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         RevMult:
         {
@@ -2201,21 +3362,21 @@ function Matrix3()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       m11:    {Number}        [null, override: 2]
+         * @param       m12:    {Number}        [null, override: 2]
+         * @param       m13:    {Number}        [null, override: 2]
+         * @param       m21:    {Number}        [null, override: 2]
+         * @param       m22:    {Number}        [null, override: 2]
+         * @param       m23:    {Number}        [null, override: 2]
+         * @param       m31:    {Number}        [null, override: 2]
+         * @param       m32:    {Number}        [null, override: 2]
+         * @param       m33:    {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "MATRIX3".
          *              It also has the appropriate value indexers:
-         *              M11, M12, M13,
+         *              M11, M12, M13
          *              M21, M22, M23,
-         *              M31, M32, M33.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              M31, M32, M33
          */
         Create:
         {
@@ -2288,20 +3449,20 @@ function Matrix3()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:    {Float32Array}
+         * @param       array1: {Float32Array}  [override: 1]
+         * @param       array2: {Float32Array}  [override: 1]
+         * @param       array:  {Float32Array}  [override: 2]
+         * @param       m11:    {Number}        [override: 2]
+         * @param       m12:    {Number}        [override: 2]
+         * @param       m13:    {Number}        [override: 2]
+         * @param       m21:    {Number}        [override: 2]
+         * @param       m22:    {Number}        [override: 2]
+         * @param       m23:    {Number}        [override: 2]
+         * @param       m31:    {Number}        [override: 2]
+         * @param       m32:    {Number}        [override: 2]
+         * @param       m33:    {Number}        [override: 2]
          * @description Assigns new to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -2335,9 +3496,9 @@ function Matrix3()
         },
         
         /**
-         * @function    Transpose: {Float32Array}
+         * @function    Transpose:  {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Transposes a matrix.
-         * @param       {Float32Array}
          */
         Transpose:
         {
@@ -2352,10 +3513,10 @@ function Matrix3()
         },
         
         /**
-         * @function    Identity: {Float32Array}
+         * @function    Identity:   {Float32Array}
+         * @param       array:      {Float32Array}
          * @description If given a Float32Array, it resets it to an identity matrix.
          *              If not, it simply returns a new identity matrix.
-         * @param       {Float32Array}
          */
         Identity:
         {
@@ -2374,9 +3535,9 @@ function Matrix3()
         },
         
         /**
-         * @function    Determinant: {Number}
+         * @function    Determinant:    {Number}
+         * @param       array:          {Float32Array}
          * @description Calculates the determinant of a given Float32Array.
-         * @param       {Float32Array}
          */
         Determinant:
         {
@@ -2390,10 +3551,10 @@ function Matrix3()
         },
         
         /**
-         * @function    Inverse: {Float32Array}
+         * @function    Inverse:    {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Inverts a given Float32Array when possible i.e. the determinant
          *              is not 0.
-         * @param       {Float32Array}
          */
         Inverse:
         {
@@ -2422,10 +3583,10 @@ function Matrix3()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:        {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -2441,13 +3602,13 @@ function Matrix3()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override 1]
+         * @param       array2:     {Float32Array}  [override 1]
+         * @param       array:      {Float32Array}  [override 2]
+         * @param       constant:   {Number}        [override 2]
          * @description Performs a matrix multiplication on two Float32Array or
          *              multiply a Float32Array with a scalar value.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -2487,11 +3648,11 @@ function Matrix3()
         },
         
         /**
-         * @function    RevMult: {Float32Array}
+         * @function    RevMult:    {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Performs a matrix multiplication on two Float32Array but
          *              assigns the result to the second Float32Array.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         RevMult:
         {
@@ -2533,29 +3694,27 @@ function Matrix4()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       m11:    {Number}        [null, override: 2]
+         * @param       m12:    {Number}        [null, override: 2]
+         * @param       m13:    {Number}        [null, override: 2]
+         * @param       m14:    {Number}        [null, override: 2]
+         * @param       m21:    {Number}        [null, override: 2]
+         * @param       m22:    {Number}        [null, override: 2]
+         * @param       m23:    {Number}        [null, override: 2]
+         * @param       m24:    {Number}        [null, override: 2]
+         * @param       m31:    {Number}        [null, override: 2]
+         * @param       m32:    {Number}        [null, override: 2]
+         * @param       m33:    {Number}        [null, override: 2]
+         * @param       m34:    {Number}        [null, override: 2]
+         * @param       m41:    {Number}        [null, override: 2]
+         * @param       m42:    {Number}        [null, override: 2]
+         * @param       m43:    {Number}        [null, override: 2]
+         * @param       m44:    {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "MATRIX4".
          *              It also has the appropriate value indexers:
-         *              M11, M12, M13, M14,
-         *              M21, M22, M23, M24,
-         *              M31, M32, M33, M34,
-         *              M41, M42, M43, M44.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              M11, M12,
+         *              M21, M22
          */
         Create:
         {
@@ -2670,27 +3829,27 @@ function Matrix4()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:    {Float32Array}
+         * @param       array1: {Float32Array}  [override: 1]
+         * @param       array2: {Float32Array}  [override: 1]
+         * @param       array:  {Float32Array}  [override: 2]
+         * @param       m11:    {Number}        [override: 2]
+         * @param       m12:    {Number}        [override: 2]
+         * @param       m13:    {Number}        [override: 2]
+         * @param       m14:    {Number}        [override: 2]
+         * @param       m21:    {Number}        [override: 2]
+         * @param       m22:    {Number}        [override: 2]
+         * @param       m23:    {Number}        [override: 2]
+         * @param       m24:    {Number}        [override: 2]
+         * @param       m31:    {Number}        [override: 2]
+         * @param       m32:    {Number}        [override: 2]
+         * @param       m33:    {Number}        [override: 2]
+         * @param       m34:    {Number}        [override: 2]
+         * @param       m41:    {Number}        [override: 2]
+         * @param       m42:    {Number}        [override: 2]
+         * @param       m43:    {Number}        [override: 2]
+         * @param       m44:    {Number}        [override: 2]
          * @description Assigns new to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -2727,9 +3886,9 @@ function Matrix4()
         },
         
         /**
-         * @function    Transpose: {Float32Array}
+         * @function    Transpose:  {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Transposes a matrix.
-         * @param       {Float32Array}
          */
         Transpose:
         {
@@ -2747,10 +3906,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Identity: {Float32Array}
+         * @function    Identity:   {Float32Array}
+         * @param       array:      {Float32Array}
          * @description If given a Float32Array, it resets it to an identity matrix.
          *              If not, it simply returns a new identity matrix.
-         * @param       {Float32Array}
          */
         Identity:
         {
@@ -2771,9 +3930,9 @@ function Matrix4()
         },
         
         /**
-         * @function    Determinant: {Number}
+         * @function    Determinant:    {Number}
+         * @param       array:          {Float32Array}
          * @description Calculates the determinant of a given Float32Array.
-         * @param       {Float32Array}
          */
         Determinant:
         {
@@ -2808,10 +3967,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Inverse: {Float32Array}
+         * @function    Inverse:    {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Inverts a given Float32Array when possible i.e. the determinant
          *              is not 0.
-         * @param       {Float32Array}
          */
         Inverse:
         {
@@ -2928,10 +4087,10 @@ function Matrix4()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:        {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -2955,13 +4114,13 @@ function Matrix4()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override 1]
+         * @param       array2:     {Float32Array}  [override 1]
+         * @param       array:      {Float32Array}  [override 2]
+         * @param       constant:   {Number}        [override 2]
          * @description Performs a matrix multiplication on two Float32Array or
          *              multiply a Float32Array with a scalar value.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -3010,11 +4169,11 @@ function Matrix4()
         },
         
         /**
-         * @function    RevMult: {Float32Array}
+         * @function    RevMult:    {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Performs a matrix multiplication on two Float32Array but
          *              assigns the result to the second Float32Array.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         RevMult:
         {
@@ -3070,12 +4229,12 @@ function Vector2()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       x:      {Number}        [null, override: 2]
+         * @param       y:      {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "VECTOR2".
          *              It also has the appropriate value indexers:
-         *              <X, Y>.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              <X, Y>
          */
         Create:
         {
@@ -3114,13 +4273,13 @@ function Vector2()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:        {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       x:          {Number}        [override: 2]
+         * @param       y:          {Number}        [override: 2]
          * @description Assigns new values to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -3152,8 +4311,8 @@ function Vector2()
         
         /**
          * @function    Length: {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the length of a given Float32Array.
-         * @param       {Float32Array}
          */
         Length:
         {
@@ -3165,10 +4324,10 @@ function Vector2()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:    {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -3180,10 +4339,10 @@ function Vector2()
         },
         
         /**
-         * @function    Diff: {Float32Array}
+         * @function    Diff:   {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Subtracts two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Diff:
         {
@@ -3195,13 +4354,13 @@ function Vector2()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       constant:   {Number}        [override: 2]
          * @description Multiplies two Float32Array component-wise. If the second parameter is
          *              a number, the Float32Array is scale by it.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -3218,9 +4377,9 @@ function Vector2()
         },
         
         /**
-         * @function    Dot: {Number}
+         * @function    Dot:    {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the dot product of two Float32Array objects.
-         * @param       {Float32Array}
          */
         Dot:
         {
@@ -3233,9 +4392,9 @@ function Vector2()
         },
         
         /**
-         * @function    Unit: {Float32Array}
+         * @function    Unit:   {Float32Array}
+         * @param       array:  {Float32Array}
          * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
-         * @param       {Float32Array}
          */
         Unit:
         {
@@ -3252,10 +4411,10 @@ function Vector2()
         },
         
         /**
-         * @function    Cross: {Float32Array}
+         * @function    Cross:  {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Performs a cross multiplication on two Float32Array objects
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Cross:
         {
@@ -3281,13 +4440,13 @@ function Vector3()
     {
         /**
          * @function    Create: {Float32Array}
-         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       x:      {Number}        [null, override: 2]
+         * @param       y:      {Number}        [null, override: 2]
+         * @param       z:      {Number}        [null, override: 2]
+         * @description Creates an new Float32Array with the Type set to "VECTOR3".
          *              It also has the appropriate value indexers:
-         *              <X, Y, Z>.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              <X, Y, Z>
          */
         Create:
         {
@@ -3336,14 +4495,14 @@ function Vector3()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:        {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       x:          {Number}        [override: 2]
+         * @param       y:          {Number}        [override: 2]
+         * @param       z:          {Number}        [override: 2]
          * @description Assigns new values to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -3378,8 +4537,8 @@ function Vector3()
         
         /**
          * @function    Length: {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the length of a given Float32Array.
-         * @param       {Float32Array}
          */
         Length:
         {
@@ -3391,10 +4550,10 @@ function Vector3()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:    {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -3406,10 +4565,10 @@ function Vector3()
         },
         
         /**
-         * @function    Diff: {Float32Array}
+         * @function    Diff:   {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Subtracts two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Diff:
         {
@@ -3421,13 +4580,13 @@ function Vector3()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       constant:   {Number}        [override: 2]
          * @description Multiplies two Float32Array component-wise. If the second parameter is
          *              a number, the Float32Array is scale by it.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -3444,9 +4603,9 @@ function Vector3()
         },
         
         /**
-         * @function    Dot: {Number}
+         * @function    Dot:    {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the dot product of two Float32Array objects.
-         * @param       {Float32Array}
          */
         Dot:
         {
@@ -3459,9 +4618,9 @@ function Vector3()
         },
         
         /**
-         * @function    Unit: {Float32Array}
+         * @function    Unit:   {Float32Array}
+         * @param       array:  {Float32Array}
          * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
-         * @param       {Float32Array}
          */
         Unit:
         {
@@ -3478,10 +4637,10 @@ function Vector3()
         },
         
         /**
-         * @function    Cross: {Float32Array}
+         * @function    Cross:  {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Performs a cross multiplication on two Float32Array objects
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Cross:
         {
@@ -3507,14 +4666,14 @@ function Vector4()
     {
         /**
          * @function    Create: {Float32Array}
-         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       w:      {Number}        [null, override: 2]
+         * @param       x:      {Number}        [null, override: 2]
+         * @param       y:      {Number}        [null, override: 2]
+         * @param       z:      {Number}        [null, override: 2]
+         * @description Creates an new Float32Array with the Type set to "VECTOR4".
          *              It also has the appropriate value indexers:
-         *              <W, X, Y, Z>.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              <W, X, Y, Z>
          */
         Create:
         {
@@ -3573,15 +4732,15 @@ function Vector4()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:        {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       w:          {Number}        [override: 2]
+         * @param       x:          {Number}        [override: 2]
+         * @param       y:          {Number}        [override: 2]
+         * @param       z:          {Number}        [override: 2]
          * @description Assigns new values to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -3619,8 +4778,8 @@ function Vector4()
         
         /**
          * @function    Length: {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the length of a given Float32Array.
-         * @param       {Float32Array}
          */
         Length:
         {
@@ -3632,10 +4791,10 @@ function Vector4()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:    {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -3647,10 +4806,10 @@ function Vector4()
         },
         
         /**
-         * @function    Diff: {Float32Array}
+         * @function    Diff:   {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Subtracts two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Diff:
         {
@@ -3662,13 +4821,13 @@ function Vector4()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       constant:   {Number}        [override: 2]
          * @description Multiplies two Float32Array component-wise. If the second parameter is
          *              a number, the Float32Array is scale by it.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -3685,9 +4844,9 @@ function Vector4()
         },
         
         /**
-         * @function    Dot: {Number}
+         * @function    Dot:    {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the dot product of two Float32Array objects.
-         * @param       {Float32Array}
          */
         Dot:
         {
@@ -3700,9 +4859,9 @@ function Vector4()
         },
         
         /**
-         * @function    Unit: {Float32Array}
+         * @function    Unit:   {Float32Array}
+         * @param       array:  {Float32Array}
          * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
-         * @param       {Float32Array}
          */
         Unit:
         {
@@ -3760,10 +4919,10 @@ function PhysicsEngine()
     {
         /**
          * @property    Collision: {Function}
-         * @description Constructor for a Collision object.
-         * @see         FWGE.Physics.Collision
+         * @description Constructor for a Colliders object.
+         * @see         FWGE.Physics.Colliders
          */
-        Collision:      {value: Collision},
+        Colliders:      { value: new Colliders },
         
         /**
          * @property    PhysicsBody: {Function}
@@ -3839,16 +4998,13 @@ function PhysicsItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    PhysicsBody: {PhysicsBody}
-         *              > get
+         * @property    PhysicsBody: {PhysicsBody} [read]
          * @description Add some words...
          */
         PhysicsBody: { value: request.body instanceof PhysicsBody ? request.body : new PhysicsBody() },
 
         /**
-         * @property    Collision: {Collision}
-         *              > get
-         *              > set
+         * @property    Collision: {Collision} [read|write]
          * @description Add some words...
          */
         Collision:
@@ -3870,9 +5026,7 @@ function PhysicsItem(request)
         },
 
         /**
-         * @property    PhysicsMaterial: {PhysicsMaterial}
-         *              > get
-         *              > set
+         * @property    PhysicsMaterial: {PhysicsMaterial} [read|write]
          * @description Add some words...
          */
         PhysicsMaterial:
@@ -3922,11 +5076,6 @@ function PhysicsMaterial(request)
  * @name PhysicsBody
  * @description This object provides the masic physical properties of an object.
  * @module      FWGE.Physics
- * @param       request:    {Object}
- *              > mass:     {Number}    [nullable]
- *              > lockx:    {Boolean}   [nullable]
- *              > LockY:    {Boolean}   [nullable]
- *              > lockz:    {Boolean}   [nullable]
  */
 function PhysicsBody(request)
 {
@@ -3946,9 +5095,7 @@ function PhysicsBody(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Velocity: {Number}
-         *              > get
-         *              > set
+         * @property    Velocity: {Number} [read|write]
          * @description The mass of the gameobject this physics body is attached to.
          */
         Velocity:
@@ -3961,9 +5108,7 @@ function PhysicsBody(request)
             },
         },
         /**
-         * @property    Mass: {Number}
-         *              > get
-         *              > set
+         * @property    Mass: {Number} [read|write]
          * @description The mass of the gameobject this physics body is attached to.
          */
         Mass:
@@ -3977,9 +5122,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockX: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockX: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the x-axis
          */
         LockX:
@@ -3993,9 +5136,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockY: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockY: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the y-axis
          */
         LockY:
@@ -4009,9 +5150,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockZ: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockZ: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the z-axis
          */
         LockZ:
@@ -4023,9 +5162,120 @@ function PhysicsBody(request)
                     _LockZ = arguments[0];
             },
         },
-
+        
+        /**
+         * @property    Grounded: {Boolean} [read]
+         * @description Determines whether the object is on top of another
+         */
         Grounded: { get: function IsGrounded() { return _Grounded; } }
     });
+}
+
+
+/**
+ * @name 		Colliders
+ * @description This module creates collision objects.
+ * @module      FWGE.Physics
+ */
+function Colliders()
+{
+	Object.defineProperties(this, 
+	{
+		/**
+		 * @function	BoxCollider: {BoxCollider}
+		 * @description	A cube-shaped collider	
+		 */
+		BoxCollider: { value: function CreateBoxCollider() { return new BoxCollider(arguments); } },
+
+		/**
+		 * @function	SphereCollider: {SphereCollider}
+		 * @description	A cube-shaped collider	
+		 */
+		SphereCollider: { value: function CreateSphereCollider() { return new SphereCollider(arguments); } }
+	});
+}
+/**
+ * @name        Collider
+ * @description This is the base object for collision objects
+ * @module      FWGE.Physics
+ */
+function Collider(request)
+{
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "COLLISION ";
+    
+    Item.call(this, request);
+
+    var _PhysicsItem = request.parent instanceof PhysicsItem ? request.parent : undefined;
+
+    Object.defineProperties(this,
+    {
+        /**
+         * @property    PhysicsItem: {PhysicsItem} [read|write]
+         * @description The physics item this collider is attached to
+         */
+        PhysicsItem:
+        {
+            get: function getPhysicsItem() { return _PhysicsItem; },
+            set: function setPhysicsItem()
+            {
+                if (arguments[0] instanceof PhysicsItem || arguments === undefined)
+                    _PhysicsItem = arguments[0];
+            }
+        }
+    });   
+}
+
+
+/**
+ * @name        BoxCollider
+ * @description This is a cube-shaped collision object
+ * @module      FWGE.Physics
+ */
+function BoxCollider(request)
+{
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "BOXCOLLISION ";
+    
+    Collider.call(this, request);
+
+    //define dimensions   
+}
+
+
+/**
+ * @name        SphereCollider
+ * @description This is a sphere-shaped collision object
+ * @module      FWGE.Physics
+ */
+function SphereCollider(request)
+{
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "SPHERECOLLISION ";
+    
+    Collider.call(this, request);
+
+    //define dimensions   
+}
+
+
+/**
+ * @name        CollisionEvent
+ * @description A collision event object
+ * @module      FWGE.Physics
+ */
+function CollisionEvent(request)
+{
+    if (!request) request = {};
+    if (!request.type) request.type = "";
+    request.type = "COLLISIONEVENT ";
+    
+    Item.call(this, request);
+
+    //define dimensions   
 }
 
 
@@ -4052,22 +5302,22 @@ function RenderEngine()
          * @description This is the constructor for a Mesh object.
          * @see         FWGE.Render.Mesh
          */
-        Mesh:           {value: Mesh},
+        Mesh:           {value: function createMesh(){ return new Mesh(arguments[0]); } },
         /**
-         * @property    RenderM<aterial: {Function`}
+         * @property    RenderMaterial: {Function}
          * @description This is the constructor for a Render Material.
          * @see         FWGE.Render.RenderMaterial
          */
-        RenderMaterial: {value: RenderMaterial},
+        RenderMaterial: {value: function createRenderMaterial(){ return new RenderMaterial(arguments[0]); } },
         /**
          * @property    Shader: {Function}
          * @description This is a constructor for a Shader object.
          * @see         FWGE.Render.Shader
          */
-        Shader:         {value: Shader},
+        Shader:         {value: function createShader(){ return new Shader(arguments[0]); } },
 
         /**
-         *  @function       Init: void
+         *  @function       Init: {undefined}
          *  @description    Initializes the rendering engine
          */
         Init:
@@ -4082,7 +5332,7 @@ function RenderEngine()
         },
 
         /**
-         *  @function       RenderUpdate: void
+         *  @function       RenderUpdate: {undefined}
          *  @description    Updates the rendering to the screen
          */
         RenderUpdate:
@@ -4100,11 +5350,8 @@ var __SHADER__ = [];
 
 /**
  * @name        Shader
+ * @module      FWGE.Render
  * @description This object links with the vertex and fragment shaders
- * @param       request:            {Object}
- *              > name:             {String}
- *              > vertexShader:     {String}
- *              > fragmentShader:   {String}
  */
 function Shader(request)
 {
@@ -4118,12 +5365,41 @@ function Shader(request)
 
     Object.defineProperties(this,
     {
+        /**
+         * @property    Program: {WebGLProgram} [read]
+         * @description Some description
+         */
         Program:        { value: GL.createProgram() },
+
+        /**
+         * @property    Texture: {WebGLTexture} [read]
+         * @description Some description
+         */
         Texture:        { value: GL.createTexture() },
+
+        /**
+         * @property    FrameBuffer: {WebGLFramebuffer} [read]
+         * @description Some description
+         */
         FrameBuffer:    { value: GL.createFramebuffer() },
+
+        /**
+         * @property    RenderBuffer: {WebGLRenderbuffer} [read]
+         * @description Some description
+         */
         RenderBuffer:   { value: GL.createRenderbuffer() },
+
+        /**
+         * @property    Height: {Number} [read]
+         * @description Some description
+         */
         Height:         { value: 1024 },
-        Width:          { value: 1024 }
+
+        /**
+         * @property    Width: {Number} [read]
+         * @description Some description
+         */
+        Width:          { value: 1024 }        
     });
 
     GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer); 
@@ -4171,7 +5447,7 @@ function Shader(request)
     GL.compileShader(vs);
     if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
     {
-        console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
+        throw new Error("Vertex Shader: " + GL.getShaderInfoLog(vs));
         return;
     }
     
@@ -4180,7 +5456,7 @@ function Shader(request)
     GL.compileShader(fs);
     if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
     {
-        console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
+        throw new Error("Fragment Shader: " + GL.getShaderInfoLog(fs));
         return;
     }        
     
@@ -4385,15 +5661,9 @@ function Colour()
 var __MESH__ = [];
 
 /**
- * @name Mesh
+ * @name        Mesh
  * @description The vertex array buffer containers
  * @module      FWGE.Render
- * @param       request:     {Object}    [nullable]
- *              > position:  {Array}     [nullable]
- *              > uvs:       {Array}     [nullable]
- *              > colours:   {Array}     [nullable]
- *              > normals:   {Array}     [nullable]
- *              > indices:   {Array}     [nullable]
  */
 function Mesh(request)
 {   
@@ -4423,37 +5693,37 @@ function Mesh(request)
     Object.defineProperties(this,
     {
         /**
-         * @constant    PositionBuffer: {WebGLBuffer}
+         * @constant    PositionBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the vertex position vectors
          */
         PositionBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    UVBuffer: {WebGLBuffer}
+         * @constant    UVBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the uv coordinate vectors
          */
         UVBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    ColourBuffer: {WebGLBuffer}
+         * @constant    ColourBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the colour for the vertices
          */
         ColourBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    NormalBuffer: {WebGLBuffer}
+         * @constant    NormalBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the nromal vectors
          */
         NormalBuffer: { value: GL.createBuffer() },
         
         /**
-         * @constant    IndexBuffer: {WebGLBuffer}
+         * @constant    IndexBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the indices
          */
         IndexBuffer: { value: GL.createBuffer() },
         
         /**
-         * @constant    VertexCount: {Number}
+         * @constant    VertexCount: {Number} [read]
          * @description The number of vertices in the mesh
          */
         VertexCount: { value: !!request.indices ? request.indices.length : 0 }
@@ -4530,9 +5800,7 @@ function RenderMaterial(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Ambient: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Ambient: {Float32Array} [read|write]
          * @description The colour of the material under no light
          */
         Ambient:
@@ -4546,9 +5814,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Diffuse: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Diffuse: {Float32Array} [read|write]
          * @description The colour of the object under even/flat light
          */
         Diffuse:
@@ -4562,9 +5828,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Specular: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Specular: {Float32Array} [read|write]
          * @description The colour of the object when reflection specular light
          */
         Specular:
@@ -4578,9 +5842,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Alpha: {Number}
-         *              > get
-         *              > set
+         * @property    Alpha: {Number} [read|write]
          * @description The opacity of the material
          */
         Alpha:
@@ -4594,9 +5856,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Shininess: {Number}
-         *              > get
-         *              > set
+         * @property    Shininess: {Number} [read|write]
          * @description This amount of shine the specular light shows
          */
         Shininess:
@@ -4610,9 +5870,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Shader: {Shader}
-         *              > get
-         *              > set
+         * @property    Shader: {Shader} [read|write]
          * @description The shader used to the render
          */
         Shader:
@@ -4626,9 +5884,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    ImageMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    ImageMap: {WebGLTexture} [read|write]
          * @description The texture map for the material
          */
         ImageMap:
@@ -4647,9 +5903,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    BumpMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    BumpMap: {WebGLTexture} [read|write]
          * @description The bump map for the material
          */
         BumpMap:
@@ -4668,9 +5922,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    SpecularMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    SpecularMap: {WebGLTexture} [read|write]
          * @description The specular map for the material
          */
         SpecularMap:
@@ -4701,9 +5953,9 @@ Object.defineProperties(RenderMaterial.prototype,
      * @function    SetTextures: void
      * @description This function simply loads the appropriate textures into memory.   
      * @param       request:        {Object}
-     *              > imagemap:     {String}    [nullable]
-     *              > bumpmap:      {String}    [nullable]
-     *              > specularmap:  {String}    [nullable]
+     *              > imagemap:     {String}    [null]
+     *              > bumpmap:      {String}    [null]
+     *              > specularmap:  {String}    [null]
      */
     SetTextures:
     {
@@ -4752,7 +6004,7 @@ Object.defineProperties(RenderMaterial.prototype,
 
 
 /**
- * @name ModelView
+ * @name        ModelView
  * @description This module handles the model view matrices of the
  *              objects within the scene by applying the appropriate
  *              transformations.
@@ -5157,7 +6409,7 @@ function Renderer()
                     this.RenderObject(__OBJECT__[i]);
                 }
 
-                this.FinalDraw();
+                //this.FinalDraw();
             }
         },
 
@@ -5412,7 +6664,7 @@ function Renderer()
         {
             value: function Draw(vertexCount, framebuffer)
             {
-                GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
                 GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
                 GL.bindFramebuffer(GL.FRAMEBUFFER, null);
             }
@@ -5462,8 +6714,9 @@ function Renderer()
 
 
 /**
- * @name FWGEPrototype
+ * @name        FWGE
  * @module      {}
+ * @description Some description.
  */
 function FWGEPrototype()
 {
@@ -5474,43 +6727,43 @@ function FWGEPrototype()
          * @description The main engine.
 		 * @see         FWGE.Game
          */
-        Game: {value: new GameEngine()},
+        Game:           { value: new GameEngine() },
 
         /**
          * @property    Physics: {PhysicsEngine}
          * @description The physics engine.
 		 * @see         FWGE.Physics
          */
-        Physics: {value: new PhysicsEngine()},
+        Physics:        { value: new PhysicsEngine() },
 
         /**
          * @property    Render: {RenderEngine}
          * @description The rendering engine.
 		 * @see         Render
          */
-        Render: {value: new RenderEngine()},
+        Render:         { value: new RenderEngine() },
 
         /**
-         * @function    Init: void
+         * @function    Init: {undefined}
          * @description Initializes the webgl context and the seperate engines
          * @param       request:     {Object}
-         *              > canvas:    {HTMLCanvasElement}
-         *              > height:    {Number}                [nullable]
-         *              > width:     {Number}                [nullable]
-         *              > clear:     {Float32Array}          [nullable]
+         *              > Canvas:    {HTMLCanvasElement}
+         *              > Height:    {Number}               [null]
+         *              > Width:     {Number}               [null]
+         *              > Clear:     {Float32Array}         [null]
          */
         Init: 
         {
             value: function Init(request)
             {
                 if (!request) request = {};
-                if (!request.clear || !(request.clear instanceof Float32Array) || request.clear.length === 4)
+                if (!(request.clear instanceof Float32Array) || request.clear.length === 4)
                     request.clear = [0, 0, 0, 0];
 
-                GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                GL = request.canvas.getContext("webgl") || request.canvas.getContext("experimental-webglrequest.");
 
                 if (!GL)
-                    throw "Webgl context could not be initialized.";
+                    throw new Error("Webgl context could not be initialized.");
 
                 GL.clearColor(request.clear[0] || 0, request.clear[1] || 0, request.clear[2] || 0, request.clear[3] || 0);
 
@@ -5522,9 +6775,8 @@ function FWGEPrototype()
     });
 }
 
+
 window.FWGE = new FWGEPrototype();
-
-
 
 })();
 

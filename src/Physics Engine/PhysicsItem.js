@@ -18,16 +18,13 @@ function PhysicsItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    PhysicsBody: {PhysicsBody}
-         *              > get
+         * @property    PhysicsBody: {PhysicsBody} [read]
          * @description Add some words...
          */
         PhysicsBody: { value: request.body instanceof PhysicsBody ? request.body : new PhysicsBody() },
 
         /**
-         * @property    Collision: {Collision}
-         *              > get
-         *              > set
+         * @property    Collision: {Collision} [read|write]
          * @description Add some words...
          */
         Collision:
@@ -49,9 +46,7 @@ function PhysicsItem(request)
         },
 
         /**
-         * @property    PhysicsMaterial: {PhysicsMaterial}
-         *              > get
-         *              > set
+         * @property    PhysicsMaterial: {PhysicsMaterial} [read|write]
          * @description Add some words...
          */
         PhysicsMaterial:

@@ -1,4 +1,6 @@
+.vscode/
 node_modules/
+projects/
 src/CodeTranslator.js
 src/FWGE.header.js
 src/FWGE.footer.js

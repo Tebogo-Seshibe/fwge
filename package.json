@@ -1,27 +1,34 @@
 {
-  "name": "fwge",
-  "version": "1.0.0",
-  "description": "A webgl game engine",
-  "main": "fwge.js",
-  "scripts": {
-    "doc": "node documentation/server",
-    "test": "node test/server"
+  "name":         "fwge",
+  "version":      "1.0.0",
+  "description":  "A webgl game engine",
+  "main":         "fwge.js",
+  "scripts":
+  {
+    "doc":        "node documentation/server",
+    "test":       "node test/server",
+    "proj":       "node projects/server"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Tebogo-Seshibe/FWGE.git"
+  "repository":
+  {
+    "type":       "git",
+    "url":        "git+https://github.com/Tebogo-Seshibe/FWGE.git"
   },
-  "keywords": [
+  "keywords":
+  [
     "FWGE",
     "WebGL",
     "3D",
-    "GameEngine",
-    "Javascript"
+    "Game Engine",
+    "Render Engine",
+    "Javascript",
+    "Node JS"
   ],
-  "author": "Tebogo Christopher Seshibe",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Tebogo-Seshibe/FWGE/issues"
+  "author":       "Tebogo Christopher Seshibe",
+  "license":      "ISC",
+  "bugs":
+  {
+    "url":        "https://github.com/Tebogo-Seshibe/FWGE/issues"
   },
-  "homepage": "https://github.com/Tebogo-Seshibe/FWGE#readme"
+  "homepage":     "https://github.com/Tebogo-Seshibe/FWGE#readme"
 }

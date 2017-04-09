@@ -16,9 +16,7 @@ function GameItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    GameObject: {GameObject}
-         *              > get
-         *              > set
+         * @property    GameObject: {GameObject} [read|write]
          * @description The GameObject this item is attached to.
          */
         GameObject:

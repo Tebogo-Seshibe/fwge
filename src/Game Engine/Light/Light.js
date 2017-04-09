@@ -23,9 +23,9 @@ function Light()
          *              light object in a scene.
          * @see         FWGE.Game.Light.AmbientLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}    [nullable]
-         *              > colour:       {Float32Array}  [nullable]
-         *              > intensity:    {Number}        [nullable]
+         *              > parent:       {GameObject}    [null]
+         *              > colour:       {Float32Array}  [null]
+         *              > intensity:    {Number}        [null]
          */
         Ambient:
         {
@@ -51,10 +51,10 @@ function Light()
          *              directional light objects in a scene.
          * @see         FWGE.Game.Light.DirectionalLight
          * @param       request:         {Object}
-         *              > parent:        {GameObject}    [nullable]
-         *              > colour:        {Float32Array}  [nullable]
-         *              > intensity:     {Number}        [nullable]
-         *              > direction:     {Float32Array}  [nullable]
+         *              > parent:        {GameObject}    [null]
+         *              > colour:        {Float32Array}  [null]
+         *              > intensity:     {Number}        [null]
+         *              > direction:     {Float32Array}  [null]
          */
         Directional:
         {
@@ -86,11 +86,11 @@ function Light()
          *              point light objects in a scene.
          * @see         FWGE.Game.Light.PointLight
          * @param       request:        {Object}
-         *              > parent:       {GameObject}    [nullable]
-         *              > colour:       {Float32Array}  [nullable]
-         *              > intensity:    {Number}        [nullable]
-         *              > radius:       {Number}        [nullable]
-         *              > angle:        {Number}        [nullable]
+         *              > parent:       {GameObject}    [null]
+         *              > colour:       {Float32Array}  [null]
+         *              > intensity:    {Number}        [null]
+         *              > radius:       {Number}        [null]
+         *              > angle:        {Number}        [null]
          */
         Point:
         {

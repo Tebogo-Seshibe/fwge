@@ -1,12 +1,8 @@
 /**
- * @name Transform
+ * @name        Transform
+ * @module      FWGE.Game
  * @description This object contains all the transformations that 
  *              are to be applied to the parent gameobject.
- * @param       request:    {Object}
- *              > position: {Array}     [nullable]
- *              > rotation: {Array}     [nullable]
- *              > scale:    {Array}     [nullable]
- *              > shear:    {Array}     [nullable]
  */
 function Transform(request)
 {
@@ -43,7 +39,7 @@ function Transform(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Position: {Float32Array}
+         * @property    Position: {Float32Array} [read|write]
          * @description The current position of the parent of gameobject
          */
         Position:
@@ -57,7 +53,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Rotation: {Float32Array}
+         * @property    Rotation: {Float32Array} [read|write]
          * @description The current rotation of the parent of gameobject
          */           
         Rotation:
@@ -71,7 +67,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Scale: {Float32Array}
+         * @property    Scale: {Float32Array} [read|write]
          * @description The current scaling of the parent of gameobject
          */
         Scale:
@@ -85,7 +81,7 @@ function Transform(request)
         },
 
         /**
-         * @property    Shear: {Float32Array}
+         * @property    Shear: {Float32Array} [read|write]
          * @description The current shearing of the parent of gameobject
          */
         Shear:
@@ -99,19 +95,19 @@ function Transform(request)
         },
 
         /**
-         * @property    Up: {Float32Array}
+         * @property    Up: {Float32Array} [read]
          * @description The parent gameobject's up vector
          */
         Up:         { get: function() { return _Up; } },
         
         /**
-         * @property    Forward: {Float32Array}
+         * @property    Forward: {Float32Array} [read]
          * @description The parent gameobject's forward vector
          */
         Forward:    { get: function() { return _Forward; } },
         
         /**
-         * @property    Right: {Float32Array}
+         * @property    Right: {Float32Array} [read]
          * @description The parent gameobject's right vector
          */
         Right:      { get: function() { return _Right; } },
@@ -124,7 +120,7 @@ Object.defineProperties(Transform.prototype,
     constructor: {value: Transform},
 
     /**
-     * @property    TransformUpdate: void
+     * @property    TransformUpdate: {undefined}
      * @description Updates the transformations
      */
     TransformUpdate:

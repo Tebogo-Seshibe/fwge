@@ -26,27 +26,190 @@ function GameObject(request)
     
     Object.defineProperties(this,
     {
+
         /**
-         * @property    ID: {String}
-         *              > get
+         * @property    Children:   {Array} [read]
+         * @description An array of gameobjects. All children transformation will be relative to 
+         *              the parent gameobject.
+         */
+        Children: { value: [] },
+        /**
+         * @property    ID: {String} [read]
          * @description Unique identifier for the gameobject
          */
         ID: { value: "[go-" + IDCounter.next() + "]" },
 
         /**
-         * @property    Transform:  {Transform}
-         *              > get
+         * @property    Transform:  {Transform} [read]
          * @description The transform object attached to the current gameobject
          */
         Transform: { value: request.transform instanceof Transform ? request.transform : new Transform() },
 
         /**
-         * @property    Children:   {Array}
-         *              > get
-         * @description An array of gameobjects. All children transformation will be relative to 
-         *              the parent gameobject.
+         * @property    RenderMaterial: {RenderMaterial} [read|write]
+         * @description The render material attached to this gameobject.
          */
-        Children: { value: [] },
+        RenderMaterial:
+        {
+            get: function getRenderMaterial() { return _RenderMaterial; },
+            set: function setRenderMaterial()
+            {
+                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
+                    _RenderMaterial = arguments[0];
+            }
+        },
+
+        /**
+         * @property    Mesh: {Mesh} [read|write]
+         * @description The mesh attached to this gameobject.
+         */
+        Mesh:
+        {
+            get: function getMesh() { return _Mesh; },
+            set: function setMesh()
+            {
+                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
+                    _Mesh = arguments[0];
+            }
+        },
+
+        /**
+         * @property    LightItem: {LightItem} [read|write]
+         * @description The light item attached to this gameobject.
+         */
+        LightItem:
+        {
+            get: function getLightItem() { return _LightItem; },
+            set: function setLightItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
+                {
+                    _LightItem = arguments[0];
+                    _LightItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_LightItem)
+                        _LightItem.GameObject = undefined;
+                    _LightItem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    PhysicsItem: {PhysicsItem} [read|write]
+         * @description The physics item attached to this gameobject.
+         */
+        PhysicsItem:
+        {
+            get: function getPhysicsItem() { return _PhysicsItem; },
+            set: function setPhysicsItem()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
+                {
+                    _PhysicsItem = arguments[0];
+                    _PhysicsItem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_PhysicsItem)
+                        _PhysicsItem.GameObject = undefined;
+                    _PhysicsItem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    Animation: {Animation} [read|write]
+         * @description The animation attached to this gameobject.
+         */
+        Animation:
+        {
+            get: function getAnimation() { return _Animation; },
+            set: function setAnimation()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
+                {
+                    _Animation = arguments[0];
+                    _Animation.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_Animation)
+                        _Animation.GameObject = undefined;
+                    _Animation = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    particlesystem: {ParticleSystem} [read|write]
+         * @description The particle system attached to this gameobject.
+         */
+        ParticleSystem:
+        {
+            get: function getParticleSystem() { return _ParticleSystem; },
+            set: function setParticleSystem()
+            {
+                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
+                {
+                    _ParticleSystem = arguments[0];
+                    _ParticleSystem.GameObject = this;
+                }
+
+                else if (arguments[0] === undefined)
+                {
+                    if (!!_ParticleSystem)
+                        _ParticleSystem.GameObject = undefined;
+                    _ParticleSystem = undefined;
+                }
+            }
+        },
+
+        /**
+         * @property    Begin:{Function} [read|write]
+         * @description This method is called upon object creation.
+         */
+        Begin:
+        {
+            get: function getBegin() { return _Begin; },
+            set: function setBegin()
+            {
+                if (typeof arguments[0] === 'function')
+                    _Begin = arguments[0];
+            }
+        },
+
+        /**
+         * @property    Update: {Function} [read|write]
+         * @description This method is called after each render frame
+         */
+        Update:
+        {
+            get: function getUpdate() { return _Update; },
+            set: function setUpdate()
+            {
+                if (typeof arguments[0] === 'function')
+                    _Update = arguments[0];
+            }
+        },
+
+        /**
+         * @property    End: {Function} [read|write]
+         * @description This method is called once the gameobject if destroyed.
+         */
+        End:
+        {
+            get: function getEnd() { return _End; },
+            set: function setEnd()
+            {
+                if (typeof arguments[0] === 'function')
+                    _End = arguments[0];
+            }
+        },
 
         /**
          * @function    AddChild:   {GameObject}
@@ -94,194 +257,10 @@ function GameObject(request)
 
                 return gameobject;
             }
-        },
-
-        /**
-         * @property    RenderMaterial: {RenderMaterial}
-         *              > get
-         *              > set
-         * @description The render material attached to this gameobject.
-         */
-        RenderMaterial:
-        {
-            get: function getRenderMaterial() { return _RenderMaterial; },
-            set: function setRenderMaterial()
-            {
-                if (arguments[0] instanceof RenderMaterial || arguments[0] === undefined)
-                    _RenderMaterial = arguments[0];
-            }
-        },
-
-        /**
-         * @property    Mesh: {Mesh}
-         *              > get
-         *              > set
-         * @description The mesh attached to this gameobject.
-         */
-        Mesh:
-        {
-            get: function getMesh() { return _Mesh; },
-            set: function setMesh()
-            {
-                if (arguments[0] instanceof Mesh || arguments[0] === undefined)
-                    _Mesh = arguments[0];
-            }
-        },
-
-        /**
-         * @property    LightItem: {LightItem}
-         *              > get
-         *              > set
-         * @description The light item attached to this gameobject.
-         */
-        LightItem:
-        {
-            get: function getLightItem() { return _LightItem; },
-            set: function setLightItem()
-            {
-                if (!!arguments[0] && arguments[0].Type[1] === "LIGHTITEM")
-                {
-                    _LightItem = arguments[0];
-                    _LightItem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_LightItem)
-                        _LightItem.GameObject = undefined;
-                    _LightItem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    PhysicsItem: {PhysicsItem}
-         *              > get
-         *              > set
-         * @description The physics item attached to this gameobject.
-         */
-        PhysicsItem:
-        {
-            get: function getPhysicsItem() { return _PhysicsItem; },
-            set: function setPhysicsItem()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "PHYSICSITEM")
-                {
-                    _PhysicsItem = arguments[0];
-                    _PhysicsItem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_PhysicsItem)
-                        _PhysicsItem.GameObject = undefined;
-                    _PhysicsItem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    Animation: {Animation}
-         *              > get
-         *              > set
-         * @description The animation attached to this gameobject.
-         */
-        Animation:
-        {
-            get: function getAnimation() { return _Animation; },
-            set: function setAnimation()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "ANIMATION")
-                {
-                    _Animation = arguments[0];
-                    _Animation.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_Animation)
-                        _Animation.GameObject = undefined;
-                    _Animation = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    particlesystem: {ParticleSystem}
-         *              > get
-         *              > set
-         * @description The particle system attached to this gameobject.
-         */
-        ParticleSystem:
-        {
-            get: function getParticleSystem() { return _ParticleSystem; },
-            set: function setParticleSystem()
-            {
-                if (!!arguments[0] && arguments[0].Type[0] === "PARTICLESYSTEM")
-                {
-                    _ParticleSystem = arguments[0];
-                    _ParticleSystem.GameObject = this;
-                }
-
-                else if (arguments[0] === undefined)
-                {
-                    if (!!_ParticleSystem)
-                        _ParticleSystem.GameObject = undefined;
-                    _ParticleSystem = undefined;
-                }
-            }
-        },
-
-        /**
-         * @property    Begin:{Function}
-         *              > get
-         *              > set
-         * @description This method is called upon object creation.
-         */
-        Begin:
-        {
-            get: function getBegin() { return _Begin; },
-            set: function setBegin()
-            {
-                if (typeof arguments[0] === 'function')
-                    _Begin = arguments[0];
-            }
-        },
-
-        /**
-         * @property    Update: {Function}
-         *              > get
-         *              > set
-         * @description This method is called after each render frame
-         */
-        Update:
-        {
-            get: function getUpdate() { return _Update; },
-            set: function setUpdate()
-            {
-                if (typeof arguments[0] === 'function')
-                    _Update = arguments[0];
-            }
-        },
-
-        /**
-         * @property    End: {Function}
-         *              > get
-         *              > set
-         * @description This method is called once the gameobject if destroyed.
-         */
-        End:
-        {
-            get: function getEnd() { return _End; },
-            set: function setEnd()
-            {
-                if (typeof arguments[0] === 'function')
-                    _End = arguments[0];
-            }
         }
     });
 
-    this.RenderMaterial = request.material       instanceof RenderMaterial  ? request.material       : undefined;
+    this.RenderMaterial = request.rendermaterial instanceof RenderMaterial  ? request.rendermaterial : undefined;
     this.Mesh           = request.mesh           instanceof Mesh            ? request.mesh           : undefined;
     this.PhysicsItem    = request.physicsitem    instanceof PhysicsItem     ? request.physicsitem    : undefined;
     this.Animation      = request.animation      instanceof Animation       ? request.animation      : undefined;

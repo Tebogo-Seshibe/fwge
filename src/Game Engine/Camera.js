@@ -20,30 +20,25 @@ function Camera()
     Object.defineProperties(this,
     {
         /**
-         * @constant    PERSPECTIVE: {Number}
-         *              > get
+         * @constant    PERSPECTIVE: {Number} [read]
          * @description Represents a perspective rendering mode
          */
         PERSPECTIVE:  { value: 0 },
         
         /**
-         * @constant    ORTHOGRAPHIC: {Number}
-         *              > get
+         * @constant    ORTHOGRAPHIC: {Number} [read]
          * @description Represents an orthographic rendering mode
          */
         ORTHOGRAPHIC: { value: 1 },
 
         /**
-         * @property    Transform:  {Transform}
-         *              > get
+         * @property    Transform:  {Transform} [read]
          * @description The transform object attached to the current gameobject
          */
         Transform: { value: new Transform() },
 
         /**
-         * @property    Mode: {Number}
-         *              > get
-         *              > set
+         * @property    Mode: {Number} [read|write]
          * @description Represent the current rendering mode the camera is using
          */
         Mode:
@@ -60,9 +55,7 @@ function Camera()
         },
         
         /**
-         * @property    FOV: {Number}
-         *              > get
-         *              > set
+         * @property    FOV: {Number} [read|write]
          * @description Represent the current field of view of the camera
          */
         FOV:
@@ -79,9 +72,7 @@ function Camera()
         },
         
         /**
-         * @property    Aspect: {Number}
-         *              > get
-         *              > set
+         * @property    Aspect: {Number} [read|write]
          * @description Represent the aspect ratio of the camera
          */
         Aspect:
@@ -98,9 +89,7 @@ function Camera()
         },
         
         /**
-         * @property    Near: {Number}
-         *              > get
-         *              > set
+         * @property    Near: {Number} [read|write]
          * @description Represent the near clipping plane
          */
         Near:
@@ -117,9 +106,7 @@ function Camera()
         },
         
         /**
-         * @property    Far: {Number}
-         *              > get
-         *              > set
+         * @property    Far: {Number} [read|write]
          * @description Represent the far clipping plane
          */
         Far:
@@ -136,9 +123,7 @@ function Camera()
         },
         
         /**
-         * @property    Left: {Number}
-         *              > get
-         *              > set
+         * @property    Left: {Number} [read|write]
          * @description Represent the left clipping plane
          */
         Left:
@@ -155,9 +140,7 @@ function Camera()
         },
         
         /**
-         * @property    Right: {Number}
-         *              > get
-         *              > set
+         * @property    Right: {Number} [read|write]
          * @description Represent the right clipping plane
          */
         Right:
@@ -174,9 +157,7 @@ function Camera()
         },
         
         /**
-         * @property    Top: {Number}
-         *              > get
-         *              > set
+         * @property    Top: {Number} [read|write]
          * @description Represent the top clipping plane
          */
         Top:
@@ -193,9 +174,7 @@ function Camera()
         },
         
         /**
-         * @property    Bottom: {Number}
-         *              > get
-         *              > set
+         * @property    Bottom: {Number} [read|write]
          * @description Represent the bottom clipping plane
          */
         Bottom:
@@ -212,9 +191,7 @@ function Camera()
         },
         
         /**
-         * @property    Theta: {Number}
-         *              > get
-         *              > set
+         * @property    Theta: {Number} [read|write]
          * @description Represent camera's yaw around the scene
          */
         Theta:
@@ -231,9 +208,7 @@ function Camera()
         },
         
         /**
-         * @property    Phi: {Number}
-         *              > get
-         *              > set
+         * @property    Phi: {Number} [read|write]
          * @description Represent the camera's pitch around the scene
          */
         Phi:

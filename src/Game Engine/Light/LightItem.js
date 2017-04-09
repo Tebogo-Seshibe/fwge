@@ -16,9 +16,7 @@ function LightItem(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Colour: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Colour: {Float32Array} [read|write]
          * @description Descrbies the colour that the light object emits.
          */
         Colour:
@@ -32,9 +30,7 @@ function LightItem(request)
         },
 
         /**
-         * @property    Intensity:  {Number}
-         *              > get
-         *              > set
+         * @property    Intensity:  {Number} [read|write]s
          * @description Descrbies the intensity at which the light object emits.
          *              This ranges between: [0, 1].
          */

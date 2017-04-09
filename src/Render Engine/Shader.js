@@ -2,11 +2,8 @@ var __SHADER__ = [];
 
 /**
  * @name        Shader
+ * @module      FWGE.Render
  * @description This object links with the vertex and fragment shaders
- * @param       request:            {Object}
- *              > name:             {String}
- *              > vertexShader:     {String}
- *              > fragmentShader:   {String}
  */
 function Shader(request)
 {
@@ -20,12 +17,41 @@ function Shader(request)
 
     Object.defineProperties(this,
     {
+        /**
+         * @property    Program: {WebGLProgram} [read]
+         * @description Some description
+         */
         Program:        { value: GL.createProgram() },
+
+        /**
+         * @property    Texture: {WebGLTexture} [read]
+         * @description Some description
+         */
         Texture:        { value: GL.createTexture() },
+
+        /**
+         * @property    FrameBuffer: {WebGLFramebuffer} [read]
+         * @description Some description
+         */
         FrameBuffer:    { value: GL.createFramebuffer() },
+
+        /**
+         * @property    RenderBuffer: {WebGLRenderbuffer} [read]
+         * @description Some description
+         */
         RenderBuffer:   { value: GL.createRenderbuffer() },
+
+        /**
+         * @property    Height: {Number} [read]
+         * @description Some description
+         */
         Height:         { value: 1024 },
-        Width:          { value: 1024 }
+
+        /**
+         * @property    Width: {Number} [read]
+         * @description Some description
+         */
+        Width:          { value: 1024 }        
     });
 
     GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer); 

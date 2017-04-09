@@ -1,11 +1,8 @@
 /**
- * @name Item
+ * @name        Item
  * @module      FWGE.Game
  * @description The base object for every item
  *              used within the game engine.
- * @param       request:    {Object}
- *              > type:     {String}    [nullable]
- *              > name:     {String}    [nullable]
  */
 function Item(request)
 {
@@ -18,16 +15,13 @@ function Item(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Type:{String}
-         *              > get
+         * @property    Type: {String} [read]
          * @description A string descriptor for the type of item.
          */
         Type: { value: request.type },
 
         /**
-         * @property    Name: {String}
-         *              > get
-         *              > set
+         * @property    Name: {String} [read|write]
          * @description A simple string naming the item
          */
         Name:

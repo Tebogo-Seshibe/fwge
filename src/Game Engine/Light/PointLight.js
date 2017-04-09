@@ -17,9 +17,7 @@ function PointLight(request)
     Object.defineProperties(this, 
     {
         /**
-         * @property    Radius: {Number}
-         *              > get
-         *              > set
+         * @property    Radius: {Number} [read|write]
          * @description The range the light will illuminate 
          */
         Radius:
@@ -33,9 +31,7 @@ function PointLight(request)
         },
         
         /**
-         * @property    Angle: {Number}
-         *              > get
-         *              > set
+         * @property    Angle: {Number} [read|write]
          * @description The angle the light will illuminate.
          *              35 would be a spotlight while 180 would be a globe.
          */

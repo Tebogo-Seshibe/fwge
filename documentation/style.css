@@ -50,6 +50,12 @@ table {
 }
 /* RESET DIVS */
 
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
 
 html,
 body
@@ -155,7 +161,7 @@ section#content
 
     top: 75px;
     left: 0px;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 110px);
     width: 100vw;
 }
     section#content > div#sidebar:after
@@ -207,7 +213,7 @@ section#content
         height: auto;
         width: calc(100% - 15px);
         
-        transition: all 0.2s;
+        transition: all 0.5s;
     }
         div#sidebar ul > li
         {
@@ -218,7 +224,7 @@ section#content
             left: 0px;
             width: 100%;
 
-            transition: all 0.2s;
+            transition: all 0.5s;
             z-index: 1;
         }
         div#sidebar ul.open { margin-top: 0px; }
@@ -243,7 +249,7 @@ section#content
                 width: 100%;
 
                 color: whitesmoke;
-                transition: all 0.0s;
+                transition: all 0.2s;
 
                 font-weight: bold;
                 font-size: 16px;
@@ -297,29 +303,39 @@ section#content
         width: calc(100% - 275px);
         padding: 25px 0px 0px 25px; 
 
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 
 #details,
 #functions,
 #properties
 {
+    font-weight: bold;
     margin-bottom: 35px;
     color: #272727;
+
+    margin-right: 25px;
+    padding: 5px;
+
+    /*background: white;
+
+    box-shadow: 0px 0px 2px #272727;*/
 }
 
-#details > h1   { font-size: 32px; margin-bottom: 5px; }
-#details > h3   { font-size: 26px; margin-bottom: 15px; }
-#details > p    { font-size: 18px; color: #384452; }
+#details > h1   { font-size: 32px; margin-bottom: 5px; color: darkorange; }
+#details > h3   { font-size: 26px; margin-bottom: 15px; color: deepskyblue; }
+#details > p    { font-size: 18px; font-weight: normal; color: #384452; }
 
 
 .property,
 .function-overrides
-{ margin: 15px 0px; }
-.field-name {color: seagreen;} 
-.property-name { color: violet; }
-.property-type { font-weight: bold; color: cornflowerblue; }
-.property-description { color: #384452; }
+{ 
+    margin: 15px 0px; 
+}
+.field-name { color: deepskyblue; } 
+.property-name { color: darkorange; }
+.property-type { color: #272727; }
+.property-description { font-weight: normal; color: #384452; }
 
 
 footer#links
@@ -329,7 +345,7 @@ footer#links
 
     bottom: 0px;
     left: 0px;
-    height: 25px;
+    height: 35px;
     width: 100vw;
 
     background-color: deepskyblue;

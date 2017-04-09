@@ -1,5 +1,5 @@
 /**
- * @name ModelView
+ * @name        ModelView
  * @description This module handles the model view matrices of the
  *              objects within the scene by applying the appropriate
  *              transformations.

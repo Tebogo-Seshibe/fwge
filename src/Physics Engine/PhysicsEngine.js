@@ -9,10 +9,10 @@ function PhysicsEngine()
     {
         /**
          * @property    Collision: {Function}
-         * @description Constructor for a Collision object.
-         * @see         FWGE.Physics.Collision
+         * @description Constructor for a Colliders object.
+         * @see         FWGE.Physics.Colliders
          */
-        Collision:      {value: Collision},
+        Colliders:      { value: new Colliders },
         
         /**
          * @property    PhysicsBody: {Function}

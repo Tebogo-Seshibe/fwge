@@ -1,10 +1,9 @@
 /**
- * @name Collision
+ * @name        Collider
  * @description This is the base object for collision objects
  * @module      FWGE.Physics
- * @param       request:  {Object}
  */
-function Collision(request)
+function Collider(request)
 {
     if (!request) request = {};
     if (!request.type) request.type = "";
@@ -17,9 +16,7 @@ function Collision(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    PhysicsItem: {PhysicsItem}
-         *              > get
-         *              > set
+         * @property    PhysicsItem: {PhysicsItem} [read|write]
          * @description The physics item this collider is attached to
          */
         PhysicsItem:

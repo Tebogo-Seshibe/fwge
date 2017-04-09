@@ -1,15 +1,9 @@
 var __MESH__ = [];
 
 /**
- * @name Mesh
+ * @name        Mesh
  * @description The vertex array buffer containers
  * @module      FWGE.Render
- * @param       request:     {Object}    [nullable]
- *              > position:  {Array}     [nullable]
- *              > uvs:       {Array}     [nullable]
- *              > colours:   {Array}     [nullable]
- *              > normals:   {Array}     [nullable]
- *              > indices:   {Array}     [nullable]
  */
 function Mesh(request)
 {   
@@ -39,37 +33,37 @@ function Mesh(request)
     Object.defineProperties(this,
     {
         /**
-         * @constant    PositionBuffer: {WebGLBuffer}
+         * @constant    PositionBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the vertex position vectors
          */
         PositionBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    UVBuffer: {WebGLBuffer}
+         * @constant    UVBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the uv coordinate vectors
          */
         UVBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    ColourBuffer: {WebGLBuffer}
+         * @constant    ColourBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the colour for the vertices
          */
         ColourBuffer: { value: GL.createBuffer() },
 
         /**
-         * @constant    NormalBuffer: {WebGLBuffer}
+         * @constant    NormalBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the nromal vectors
          */
         NormalBuffer: { value: GL.createBuffer() },
         
         /**
-         * @constant    IndexBuffer: {WebGLBuffer}
+         * @constant    IndexBuffer: {WebGLBuffer} [read]
          * @description Buffer containing all the indices
          */
         IndexBuffer: { value: GL.createBuffer() },
         
         /**
-         * @constant    VertexCount: {Number}
+         * @constant    VertexCount: {Number} [read]
          * @description The number of vertices in the mesh
          */
         VertexCount: { value: !!request.indices ? request.indices.length : 0 }

@@ -16,9 +16,7 @@ function DirectionalLight(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Direction: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Direction: {Float32Array} [read|write]
          * @description Returns the direction the light is pointing in.
          */
         Direction:

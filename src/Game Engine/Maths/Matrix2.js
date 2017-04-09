@@ -10,15 +10,15 @@ function Matrix2()
     {
         /**
          * @function    Create: {Float32Array}
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       m11:    {Number}        [null, override: 2]
+         * @param       m12:    {Number}        [null, override: 2]
+         * @param       m21:    {Number}        [null, override: 2]
+         * @param       m22:    {Number}        [null, override: 2]
          * @description Creates an new Float32Array with the Type set to "MATRIX2".
          *              It also has the appropriate value indexers:
          *              M11, M12,
-         *              M21, M22.
-         * @param       array: {Float32Array}  [nullable, override: 1]
-         * @param       m11: {Number}        [nullable, override: 2]
-         * @param       m12: {Number}        [nullable, override: 2]
-         * @param       m21: {Number}        [nullable, override: 2]
-         * @param       m22: {Number}        [nullable, override: 2]
+         *              M21, M22
          */
         Create:
         {
@@ -61,15 +61,15 @@ function Matrix2()
         },
         
         /**
-         * @function    Set: {Float32Array}
-         * @description Assigns new to the a given Float32Array.
+         * @function    Set:    {Float32Array}
          * @param       array1: {Float32Array}  [override: 1]
          * @param       array2: {Float32Array}  [override: 1]
-         * @param       array: {Float32Array}  [override: 2]
-         * @param       m11: {Number}        [override: 2]
-         * @param       m12: {Number}        [override: 2]
-         * @param       m21: {Number}        [override: 2]
-         * @param       m22: {Number}        [override: 2]
+         * @param       array:  {Float32Array}  [override: 2]
+         * @param       m11:    {Number}        [override: 2]
+         * @param       m12:    {Number}        [override: 2]
+         * @param       m21:    {Number}        [override: 2]
+         * @param       m22:    {Number}        [override: 2]
+         * @description Assigns new to the a given Float32Array.
          */
         Set:
         {
@@ -100,9 +100,9 @@ function Matrix2()
         },
         
         /**
-         * @function    Transpose: {Float32Array}
+         * @function    Transpose:  {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Transposes a matrix.
-         * @param       array: {Float32Array}
          */
         Transpose:
         {
@@ -116,10 +116,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Identity: {Float32Array}
+         * @function    Identity:   {Float32Array}
+         * @param       array:      {Float32Array}
          * @description If given a Float32Array, it resets it to an identity matrix.
          *              If not, it simply returns a new identity matrix.
-         * @param       array: {Float32Array}
          */
         Identity:
         {
@@ -136,9 +136,9 @@ function Matrix2()
         },
         
         /**
-         * @function    Determinant: {Number}
+         * @function    Determinant:    {Number}
+         * @param       array:          {Float32Array}
          * @description Calculates the determinant of a given Float32Array.
-         * @param       array: {Float32Array}
          */
         Determinant:
         {
@@ -150,10 +150,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Inverse: {Float32Array}
+         * @function    Inverse:    {Float32Array}
+         * @param       array:      {Float32Array}
          * @description Inverts a given Float32Array when possible i.e. the determinant
          *              is not 0.
-         * @param       array: {Float32Array}
          */
         Inverse:
         {
@@ -173,10 +173,10 @@ function Matrix2()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:        {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       array1: {Float32Array}
-         * @param       array2:Float32Array}
          */
         Sum:
         {
@@ -191,13 +191,13 @@ function Matrix2()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override 1]
+         * @param       array2:     {Float32Array}  [override 1]
+         * @param       array:      {Float32Array}  [override 2]
+         * @param       constant:   {Number}        [override 2]
          * @description Performs a matrix multiplication on two Float32Array or
          *              multiply a Float32Array with a scalar value.
-         * @param       array1: {Float32Array}  [override 1]
-         * @param       array2: {Float32Array}  [override 1]
-         * @param       array: {Float32Array}  [override 2]
-         * @param       constant: {Number}        [override 2]
          */
         Mult:
         {
@@ -228,11 +228,11 @@ function Matrix2()
         },
         
         /**
-         * @function    RevMult: {Float32Array}
+         * @function    RevMult:    {Float32Array}
+         * @param       array1:     {Float32Array}
+         * @param       array2:     {Float32Array}
          * @description Performs a matrix multiplication on two Float32Array but
          *              assigns the result to the second Float32Array.
-         * @param       array1: {Float32Array}
-         * @param       array2: {Float32Array}
          */
         RevMult:
         {

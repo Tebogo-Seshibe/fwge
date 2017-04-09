@@ -21,22 +21,22 @@ function RenderEngine()
          * @description This is the constructor for a Mesh object.
          * @see         FWGE.Render.Mesh
          */
-        Mesh:           {value: Mesh},
+        Mesh:           {value: function createMesh(){ return new Mesh(arguments[0]); } },
         /**
-         * @property    RenderM<aterial: {Function`}
+         * @property    RenderMaterial: {Function}
          * @description This is the constructor for a Render Material.
          * @see         FWGE.Render.RenderMaterial
          */
-        RenderMaterial: {value: RenderMaterial},
+        RenderMaterial: {value: function createRenderMaterial(){ return new RenderMaterial(arguments[0]); } },
         /**
          * @property    Shader: {Function}
          * @description This is a constructor for a Shader object.
          * @see         FWGE.Render.Shader
          */
-        Shader:         {value: Shader},
+        Shader:         {value: function createShader(){ return new Shader(arguments[0]); } },
 
         /**
-         *  @function       Init: void
+         *  @function       Init: {undefined}
          *  @description    Initializes the rendering engine
          */
         Init:
@@ -51,7 +51,7 @@ function RenderEngine()
         },
 
         /**
-         *  @function       RenderUpdate: void
+         *  @function       RenderUpdate: {undefined}
          *  @description    Updates the rendering to the screen
          */
         RenderUpdate:

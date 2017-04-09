@@ -82,7 +82,7 @@ function Renderer()
                     this.RenderObject(__OBJECT__[i]);
                 }
 
-                this.FinalDraw();
+                //this.FinalDraw();
             }
         },
 
@@ -337,7 +337,7 @@ function Renderer()
         {
             value: function Draw(vertexCount, framebuffer)
             {
-                GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
                 GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_SHORT, 0);
                 GL.bindFramebuffer(GL.FRAMEBUFFER, null);
             }

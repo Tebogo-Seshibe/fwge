@@ -10,13 +10,13 @@ function Vector3()
     {
         /**
          * @function    Create: {Float32Array}
-         * @description Creates an new Float32Array with the Type set to "VECTOR2".
+         * @param       array:  {Float32Array}  [null, override: 1]
+         * @param       x:      {Number}        [null, override: 2]
+         * @param       y:      {Number}        [null, override: 2]
+         * @param       z:      {Number}        [null, override: 2]
+         * @description Creates an new Float32Array with the Type set to "VECTOR3".
          *              It also has the appropriate value indexers:
-         *              <X, Y, Z>.
-         * @param       {Float32Array}  [nullable, override: 1]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
-         * @param       {Number}        [nullable, override: 2]
+         *              <X, Y, Z>
          */
         Create:
         {
@@ -65,14 +65,14 @@ function Vector3()
         },
         
         /**
-         * @function    Set: {Float32Array}
+         * @function    Set:        {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       x:          {Number}        [override: 2]
+         * @param       y:          {Number}        [override: 2]
+         * @param       z:          {Number}        [override: 2]
          * @description Assigns new values to the a given Float32Array.
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 1]
-         * @param       {Float32Array}  [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
-         * @param       {Number}        [override: 2]
          */
         Set:
         {
@@ -107,8 +107,8 @@ function Vector3()
         
         /**
          * @function    Length: {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the length of a given Float32Array.
-         * @param       {Float32Array}
          */
         Length:
         {
@@ -120,10 +120,10 @@ function Vector3()
         },
         
         /**
-         * @function    Sum: {Float32Array}
+         * @function    Sum:    {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Adds two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Sum:
         {
@@ -135,10 +135,10 @@ function Vector3()
         },
         
         /**
-         * @function    Diff: {Float32Array}
+         * @function    Diff:   {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Subtracts two Float32Array component-wise.
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Diff:
         {
@@ -150,13 +150,13 @@ function Vector3()
         },
         
         /**
-         * @function    Mult: {Float32Array}
+         * @function    Mult:       {Float32Array}
+         * @param       array1:     {Float32Array}  [override: 1]
+         * @param       array2:     {Float32Array}  [override: 1]
+         * @param       array:      {Float32Array}  [override: 2]
+         * @param       constant:   {Number}        [override: 2]
          * @description Multiplies two Float32Array component-wise. If the second parameter is
          *              a number, the Float32Array is scale by it.
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 1]
-         * @param       {Float32Array}  [override 2]
-         * @param       {Number}        [override 2]
          */
         Mult:
         {
@@ -173,9 +173,9 @@ function Vector3()
         },
         
         /**
-         * @function    Dot: {Number}
+         * @function    Dot:    {Number}
+         * @param       array:  {Float32Array}
          * @description Calculates the dot product of two Float32Array objects.
-         * @param       {Float32Array}
          */
         Dot:
         {
@@ -188,9 +188,9 @@ function Vector3()
         },
         
         /**
-         * @function    Unit: {Float32Array}
+         * @function    Unit:   {Float32Array}
+         * @param       array:  {Float32Array}
          * @description Scales the given Float32Array down to a unit vector i.e. the length is 1
-         * @param       {Float32Array}
          */
         Unit:
         {
@@ -207,10 +207,10 @@ function Vector3()
         },
         
         /**
-         * @function    Cross: {Float32Array}
+         * @function    Cross:  {Float32Array}
+         * @param       array1: {Float32Array}
+         * @param       array2: {Float32Array}
          * @description Performs a cross multiplication on two Float32Array objects
-         * @param       {Float32Array}
-         * @param       {Float32Array}
          */
         Cross:
         {

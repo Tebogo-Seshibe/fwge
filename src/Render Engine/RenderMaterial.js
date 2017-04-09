@@ -39,9 +39,7 @@ function RenderMaterial(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Ambient: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Ambient: {Float32Array} [read|write]
          * @description The colour of the material under no light
          */
         Ambient:
@@ -55,9 +53,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Diffuse: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Diffuse: {Float32Array} [read|write]
          * @description The colour of the object under even/flat light
          */
         Diffuse:
@@ -71,9 +67,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Specular: {Float32Array}
-         *              > get
-         *              > set
+         * @property    Specular: {Float32Array} [read|write]
          * @description The colour of the object when reflection specular light
          */
         Specular:
@@ -87,9 +81,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Alpha: {Number}
-         *              > get
-         *              > set
+         * @property    Alpha: {Number} [read|write]
          * @description The opacity of the material
          */
         Alpha:
@@ -103,9 +95,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Shininess: {Number}
-         *              > get
-         *              > set
+         * @property    Shininess: {Number} [read|write]
          * @description This amount of shine the specular light shows
          */
         Shininess:
@@ -119,9 +109,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    Shader: {Shader}
-         *              > get
-         *              > set
+         * @property    Shader: {Shader} [read|write]
          * @description The shader used to the render
          */
         Shader:
@@ -135,9 +123,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    ImageMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    ImageMap: {WebGLTexture} [read|write]
          * @description The texture map for the material
          */
         ImageMap:
@@ -156,9 +142,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    BumpMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    BumpMap: {WebGLTexture} [read|write]
          * @description The bump map for the material
          */
         BumpMap:
@@ -177,9 +161,7 @@ function RenderMaterial(request)
         },
 
         /**
-         * @property    SpecularMap: {WebGLTexture}
-         *              > get
-         *              > set
+         * @property    SpecularMap: {WebGLTexture} [read|write]
          * @description The specular map for the material
          */
         SpecularMap:
@@ -210,9 +192,9 @@ Object.defineProperties(RenderMaterial.prototype,
      * @function    SetTextures: void
      * @description This function simply loads the appropriate textures into memory.   
      * @param       request:        {Object}
-     *              > imagemap:     {String}    [nullable]
-     *              > bumpmap:      {String}    [nullable]
-     *              > specularmap:  {String}    [nullable]
+     *              > imagemap:     {String}    [null]
+     *              > bumpmap:      {String}    [null]
+     *              > specularmap:  {String}    [null]
      */
     SetTextures:
     {

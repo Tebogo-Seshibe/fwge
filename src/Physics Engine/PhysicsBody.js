@@ -2,11 +2,6 @@
  * @name PhysicsBody
  * @description This object provides the masic physical properties of an object.
  * @module      FWGE.Physics
- * @param       request:    {Object}
- *              > mass:     {Number}    [nullable]
- *              > lockx:    {Boolean}   [nullable]
- *              > LockY:    {Boolean}   [nullable]
- *              > lockz:    {Boolean}   [nullable]
  */
 function PhysicsBody(request)
 {
@@ -26,9 +21,7 @@ function PhysicsBody(request)
     Object.defineProperties(this,
     {
         /**
-         * @property    Velocity: {Number}
-         *              > get
-         *              > set
+         * @property    Velocity: {Number} [read|write]
          * @description The mass of the gameobject this physics body is attached to.
          */
         Velocity:
@@ -41,9 +34,7 @@ function PhysicsBody(request)
             },
         },
         /**
-         * @property    Mass: {Number}
-         *              > get
-         *              > set
+         * @property    Mass: {Number} [read|write]
          * @description The mass of the gameobject this physics body is attached to.
          */
         Mass:
@@ -57,9 +48,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockX: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockX: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the x-axis
          */
         LockX:
@@ -73,9 +62,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockY: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockY: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the y-axis
          */
         LockY:
@@ -89,9 +76,7 @@ function PhysicsBody(request)
         },
         
         /**
-         * @property    LockZ: {Boolean}
-         *              > get
-         *              > set
+         * @property    LockZ: {Boolean} [read|write]
          * @description Determines whether gravity will affect it along the z-axis
          */
         LockZ:
@@ -103,7 +88,11 @@ function PhysicsBody(request)
                     _LockZ = arguments[0];
             },
         },
-
+        
+        /**
+         * @property    Grounded: {Boolean} [read]
+         * @description Determines whether the object is on top of another
+         */
         Grounded: { get: function IsGrounded() { return _Grounded; } }
     });
 }
