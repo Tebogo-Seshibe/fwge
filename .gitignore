@@ -1,11 +1,7 @@
 .vscode/
+.tscache/
 node_modules/
 projects/
-src/CodeTranslator.js
-src/FWGE.header.js
-src/FWGE.footer.js
 test/
-concat.js
-document.js
-files.js
-template.html
+util/
+index.js

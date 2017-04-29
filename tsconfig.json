@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "allowUnreachableCode": false,
+        "alwaysStrict": true,
+        "charset": "utf-8",
+        "newLine": "CRLF",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noResolve": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "sourceMap": false,
+        "strictNullChecks": true,
+        "stripInternal": true,
+        "target": "es5",
+        "declaration": true,
+        "outDir": "./declarations",
+        "rootDir": "./src"
+    }
+}

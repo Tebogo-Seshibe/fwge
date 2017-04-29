@@ -1,0 +1,244 @@
+/* RESET DIVS */
+
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* RESET DIVS */
+
+html,
+body
+{
+	display: block;
+	position: absolute;
+
+	top: 0px;
+	left: 0px;
+	height: 100vh;
+	width: 100vw;
+
+	overflow: hidden;
+
+    background: #272727;
+}
+
+header#header
+{
+    display: block;
+    position: absolute;
+
+    top: 0px;
+    left: 35px;
+    height: 45px;
+    width: calc(100vw - 70px);
+
+    line-height: 45px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+
+    background: darkgray;
+    box-shadow: 0px 0px 2px black;
+}
+
+section#sidebar
+{
+    display: block;
+    position: absolute;
+
+    top: 80px;
+    left: 35px;
+    height: calc(100vh - 115px);
+    width: 200px;
+
+    background: gray;
+    box-shadow: 0px 0px 2px black;
+}
+    section#sidebar > div#project-list
+    {
+        display: block;
+        position: relative;
+
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width: 100%;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+        section#sidebar > div#project-list > div.project
+        {
+            display: block;
+            position: relative;
+
+            top: 0px;
+            left: 0px;
+            height: 125px;
+            width: 175px;
+
+            border: 0px;
+            padding: 0px;
+            margin: 12.5px;
+
+            transition: all 0.2s;
+
+            overflow: hidden;
+            background: #272727;
+        }
+            section#sidebar > div#project-list > div.project > h1.project-name
+            {
+                display: block;
+                position: relative;
+
+                top: 0px;
+                left: 0px;
+                height: 35px;
+                width: 100%;
+
+                top: 50%;
+                transform: translateY(-50%);
+
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                line-height: 35px;
+                text-align: center;
+                text-decoration: underline;
+                text-shadow: 0px 0px black;
+
+                transition: all 0.2s;
+            }
+            section#sidebar > div#project-list > div.project > button.project-run
+            {
+                display: block;
+                position: relative;
+
+                top: 0px;
+                left: 25px;
+                height: 35px;
+                width: 125px;
+                
+                top: 100%;
+
+                color: white;
+                font-weight: bold;
+                line-height: 35px;
+
+                border: 0px;
+                border: solid 2px white;
+                background: none;
+
+                transition: all 0.2s;
+            }
+                section#sidebar > div#project-list > div.project > button.project-run:hover
+                {
+                    color: black;
+                    background: white;
+                }
+        section#sidebar > div#project-list > div.project:hover:before
+        {
+            content: "";
+
+            display: block;
+            position: absolute;
+
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
+            section#sidebar > div#project-list > div.project:hover > h1.project-name { top: -35px; }
+            section#sidebar > div#project-list > div.project:hover > button.project-run { top: 5px; }
+
+section#content
+{
+    display: block;
+    position: absolute;
+
+    top: 85px;
+    right: 35px;
+    height: calc(100vh - 120px);
+    width: calc(100vw - 320px);
+}
+    section#content > canvas#canvas
+    {
+        display: block;
+        position: absolute;
+
+        top: 0px;
+        left: 0px;
+        height: 85%;
+        width: 100%;
+        
+        box-shadow: 0px 0px 2px black;
+    }
+    section#content > div#controls
+    {
+        display: block;
+        position: absolute;
+
+        bottom: 0px;
+        left: 0px;
+        height: 10%;
+        width: 100%;
+
+        background: silver;
+        box-shadow: 0px 0px 2px black;
+    }
+
+footer#footer
+{
+    display: block;
+    position: absolute;
+
+    bottom: 0px;
+    left: 0px;
+    height: 0vh;
+    width: 0vw;
+}

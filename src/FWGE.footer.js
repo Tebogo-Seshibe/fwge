@@ -1,4 +1,0 @@
-window.FWGE = new FWGEPrototype();
-
-})();
-
