@@ -1,24 +1,17 @@
 import { GameItem } from "../GameItem";
 import { GameObject } from "../GameObject";
 
-export interface IAnimation
+export class IAnimation
 {
-    Name?:           string;
-    GameObject?:     GameObject | null;
-
+    public Name: string | undefined;
+    public GameObject: GameObject | null | undefined;
 }
-
-/**
- * @name        Particle
- * @description Definition of an animator
- * @module      FWGE.Game
- */
 
 export class Animation extends GameItem
 {
-    constructor(request: IAnimation)
+    constructor({Name = "Animation", GameObject = null}: IAnimation)
     {
-        super(request.Name || "Animation", request.GameObject || null);
+        super(Name, GameObject);
     }
 
     public Update(): void { }

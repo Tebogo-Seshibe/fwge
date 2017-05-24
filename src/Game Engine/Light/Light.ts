@@ -1,12 +1,8 @@
-import { AmbientLight }     from "./AmbientLight";
-import { DirectionalLight } from "./DirectionalLight";
-import { PointLight }       from "./PointLight";
+import { AmbientLight, IAmbientLight } from "./AmbientLight";
+import { DirectionalLight, IDirectionalLight } from "./DirectionalLight";
+import { PointLight, IPointLight } from "./PointLight";
+import { LightItem } from "./LightItem";
 
-/**
- * @name        Light
- * @module      FWGE.Game
- * @description This module is used to create the lights in the scene.
- */
 export class Light
 {
     private AmbientCount:       number = 0;
@@ -18,24 +14,14 @@ export class Light
     private MAX_POINT:          number = 8;
     private MAX_LIGHTS:         number = 12;
 
-    public static Lights:             Array<AmbientLight | DirectionalLight | PointLight | null> = new Array();
+    public static Lights:       Array<LightItem | null> = new Array();
 
     constructor()
     {
         for (var i = 0; i < this.MAX_LIGHTS; ++i)
             Light.Lights.push(null);
     }
-
-    /**
-     * @description Returns a new ambient light object. There is only one ambient
-     *              light object in a scene.
-     * @see         {FWGE.Game.Light.AmbientLight}
-     * @param       request:            {Object}
-     * @param       request.parent:     {GameObject}
-     * @param       request.colour:     {Float32Array}
-     * @param       request.intensity:  {Number}
-     * @return      {AmbientLight}
-     */
+    
     public Ambient(request: IAmbientLight): AmbientLight | null
     {
         var light = null;
@@ -51,18 +37,7 @@ export class Light
 
         return light;
     }
-
-    /**
-     * @function    Directional: {DirectionalLight}
-     * @description Returns a new directional light object. There can up to three
-     *              directional light objects in a scene.
-     * @see         FWGE.Game.Light.DirectionalLight
-     * @param       request:         {Object}
-     *              > parent:        {GameObject}    [null]
-     *              > colour:        {Float32Array}  [null]
-     *              > intensity:     {Number}        [null]
-     *              > direction:     {Float32Array}  [null]
-     */
+    
     public Directional(request: IDirectionalLight): DirectionalLight | null
     {
         var light = null;
@@ -86,19 +61,7 @@ export class Light
 
         return light;
     }
-
-    /**
-     * @function    Point: {PointLight}
-     * @description Returns a new point light object. There can up to eight
-     *              point light objects in a scene.
-     * @see         FWGE.Game.Light.PointLight
-     * @param       request:        {Object}
-     *              > parent:       {GameObject}    [null]
-     *              > colour:       {Float32Array}  [null]
-     *              > intensity:    {Number}        [null]
-     *              > radius:       {Number}        [null]
-     *              > angle:        {Number}        [null]
-     */
+    
     public Point(request: IPointLight): PointLight | null
     {
         var light = null;
@@ -122,13 +85,8 @@ export class Light
 
         return light
     }
-
-    /**
-     * @function    Remove: void
-     * @description Removes a given light object from the scene.
-     * @param       light: {LightItem}
-     */
-    Remove(light: AmbientLight | DirectionalLight | PointLight): void
+    
+    public Remove(light: LightItem): void
     {
         for (var i in  Light.Lights)
             if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)

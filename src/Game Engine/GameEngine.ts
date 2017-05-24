@@ -1,12 +1,12 @@
-import { Input }            from './Input';
-import { Camera }           from './Camera/Camera';
-import { Light }            from './Light/Light';
-import { Maths }            from './Maths/Maths';
-import { Time }             from './Time';
-import { Transform }        from "./Transform";
-import { Animation }        from "./Animation/Animation";
-import { GameObject }       from "./GameObject";
-import { ParticleSystem }   from "./Particle System/ParticleSystem";
+import { Input }            from "./Input";
+import { Camera }           from "./Camera/Camera";
+import { Light }            from "./Light/Light";
+import { Maths }            from "./Maths/Maths";
+import { Time }             from "./Time";
+import { Transform, ITransform } from "./Transform";
+import { Animation, IAnimation } from "./Animation/Animation";
+import { GameObject, IGameObject } from "./GameObject";
+import { ParticleSystem, IParticleSystem } from "./Particle System/ParticleSystem";
 import { PhysicsEngine }    from "../Physics Engine/PhysicsEngine";
 import { RenderEngine }     from "../Render Engine/RenderEngine";
 
@@ -25,40 +25,39 @@ export class GameEngine
      * @description The module that handles user inputs.
      * @see         FWGE.Game.Input
      */
-    public readonly Input:  Input;
+    public Input:  Input;
 
     /**
      * @property    Light: {Light}
      * @description The Light module.
      * @see         FWGE.Game.Light
      */
-    public readonly Light:  Light;
+    public Light:  Light;
 
     /**
      * @property    Maths: {Maths}
      * @description The Maths module.
      * @see         FWGE.Game.Maths
      */
-    public readonly Maths:  Maths;
+    public Maths:  Maths;
 
     /**
      * @property    Time: {Time}
      * @description The running clock.
      * @see         FWGE.Game.Time
      */
-    public readonly Time:   Time;
+    public Time:   Time;
 
     /**
      * @property    Camera: {Camera}
      * @description The viewer.
      * @see         FWGE.Game.Camera
      */
-    public readonly Camera: Camera;
+    public Camera: Camera;
     
     constructor()
     {
         this.Camera = new Camera();
-        this.Input  = new Input();
         this.Light  = new Light();
         this.Maths  = new Maths();
         this.Time   = new Time();
@@ -118,13 +117,16 @@ export class GameEngine
      * @function    Init: {undefined}
      * @description Initializes the game engine
      */
-    Init(): void { }
+    Init(canvas: HTMLCanvasElement): void
+    {
+        this.Input  = new Input(canvas);
+    }
 
     /**
      * @function    Run: {undefined}
      * @description Runs the main game loop
      */
-    private Run(Game: GameEngine, Physics: PhysicsEngine, Render: RenderEngine): FrameRequestCallback
+    private Run(Game: GameEngine, Physics: PhysicsEngine, Render: RenderEngine): void
     {
         let self = this;
 

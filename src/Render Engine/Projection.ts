@@ -1,3 +1,6 @@
+import { Matrix4 } from "../Game Engine/Maths/Matrix4";
+import { Maths } from "../Game Engine/Maths/Maths";
+
 export interface ICameraUpdate
 {
     FOV?:       number;

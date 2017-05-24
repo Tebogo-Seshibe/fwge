@@ -1,3 +1,5 @@
+import { GameObject } from "../../Game Engine/GameObject";
+
 export interface ICollisionEvent
 {
     Current: GameObject;

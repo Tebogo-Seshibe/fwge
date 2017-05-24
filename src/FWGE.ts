@@ -1,9 +1,13 @@
+import { GameEngine } from "./Game Engine/GameEngine";
+import { PhysicsEngine } from "./Physics Engine/PhysicsEngine";
+import { RenderEngine } from "./Render Engine/RenderEngine";
+
 export interface IFWGE
 {
     Canvas:     HTMLCanvasElement;
     Height?:    number;
     Width?:     number;
-    Clear:      number[];
+    Clear:      Array<number>;
 }
 
 /**
@@ -67,11 +71,9 @@ export class FWGE
         FWGE.GL = _context;
         FWGE.GL.clearColor(request.Clear[0], request.Clear[1], request.Clear[2], request.Clear[3]);
 
-        this.Game.Init();
+        this.Game.Init(request.Canvas);
         this.Physics.Init();
         this.Render.Init();
-
-        console.log(this.Game.Maths.Quaternion());
     }
 
     Start(): void

@@ -1,10 +1,10 @@
-import { Vector3 } from '../Maths/Vector3';
-import { Matrix4 } from '../Maths/Matrix4';
+import { Vector3 } from "../Maths/Vector3";
+import { Matrix4 } from "../Maths/Matrix4";
 
 export interface IViewer
 {
-    Position?:  Vector3;
-    Target?:    Vector3;
+    Position:  Vector3;
+    Target:    Vector3;
 }
 
 export class Viewer
@@ -17,15 +17,10 @@ export class Viewer
     private Up:         Vector3 = Vector3.Zero;
     private Right:      Vector3 = Vector3.Zero;
 
-    constructor(request?: IViewer)
+    constructor({Position = Vector3.Zero, Target = Vector3.Zero}: IViewer)
     {
-        if (!!request)
-        {
-            if (request.Position)
-                this.Position = request.Position;
-            if (request.Target)
-                this.Target = request.Target;
-        }
+        this.Position = Position;
+        this.Target = Target;
     }
 
     public Update(): void

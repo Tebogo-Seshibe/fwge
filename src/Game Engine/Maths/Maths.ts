@@ -1,10 +1,10 @@
-import { Matrix2 } from './Matrix2';
-import { Matrix3 } from './Matrix3';
-import { Matrix4 } from './Matrix4';
-import { Vector2 } from './Vector2';
-import { Vector3 } from './Vector3';
-import { Vector4 } from './Vector4';
-import { Quaternion } from './Quaternion';
+import { Matrix2 } from "./Matrix2";
+import { Matrix3 } from "./Matrix3";
+import { Matrix4 } from "./Matrix4";
+import { Vector2 } from "./Vector2";
+import { Vector3 } from "./Vector3";
+import { Vector4 } from "./Vector4";
+import { Quaternion } from "./Quaternion";
 
 /**
  * @name Maths
@@ -66,7 +66,7 @@ export class Maths
      */
     public Vector3(...args: any[]): Vector3
     {
-        return new Vector3().Set(args);
+        return new Vector3(args);
     }
     
     /**
@@ -84,7 +84,7 @@ export class Maths
      * @description Operations for 4 component quaternions.
      * @see         FWGE.Maths.Quaternion
      */
-    public Quaternion()
+    public Quaternion(): Quaternion
     {
         return new Quaternion();
     }  

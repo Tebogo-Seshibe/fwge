@@ -1,24 +1,29 @@
 import { Item }     from "../Game Engine/Item";
 import { Colour } from "./Colour";
 import { Shader } from "./Shader";
+import { FWGE } from "../FWGE";
 
-export interface IRenderMaterial
+export class IRenderMaterial
 {
-    Name?:           string;
-    Ambient?:        Colour;
-    Diffuse?:        Colour;
-    Specular?:       Colour;
-    Alpha?:          number;
-    Shininess?:      number;
-    Shader?:         Shader | null;
+    Name:           string = '';
+    Ambient:        Colour = new Colour();
+    Diffuse:        Colour = new Colour();
+    Specular:       Colour = new Colour();
+    Alpha:          number = 1.0;
+    Shininess:      number = 32;
+    Shader:         Shader | null = null;
 }
 
 export interface ISetTexture
 {
-    ImageMap?:       string;
-    BumpMap?:        string;
-    SpecularMap?:    string;
+    ImageMap:       string;
+    BumpMap:        string;
+    SpecularMap:    string;
 }
+
+// Hillary: 081 393 0871
+// Bruce:   073 120 4773
+
 /**
  * @name        Material
  * @description This object defines how the mesh in a gameobject will look
@@ -41,9 +46,9 @@ export class RenderMaterial extends Item
     {
         super(request.Name || "Render Material");
 
-        this.Ambient = request.Ambient || new Colour().Set(0.50, 0.50, 0.50, 1.00);
-        this.Diffuse = request.Diffuse || new Colour().Set(0.75, 0.75, 0.75, 1.00);
-        this.Specular = request.Specular || new Colour().Set(1.00, 1.00, 1.00, 1.00)
+        this.Ambient = new Colour(request.Ambient) || new Colour(0.50, 0.50, 0.50, 1.00);
+        this.Diffuse = new Colour(request.Diffuse) || new Colour(0.75, 0.75, 0.75, 1.00);
+        this.Specular = new Colour(request.Specular) || new Colour(1.00, 1.00, 1.00, 1.00)
         this.Alpha = request.Alpha || 1;
         this.Shininess = request.Shininess || 5;
         this.Shader = request.Shader || null;

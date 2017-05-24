@@ -1,7 +1,11 @@
 import { RenderMaterial, IRenderMaterial } from "./RenderMaterial";
-import { Shader } from "./Shader";
+import { Shader, IShader } from "./Shader";
 import { FWGE } from "../FWGE";
 import { Mesh, IMesh } from "./Mesh";
+import { GameEngine } from "../Game Engine/GameEngine";
+import { Colour } from "./Colour";
+import { Renderer } from "./Renderer";
+import { OBJConverter } from "./Converter/OBJConverter";
 
 /**
  * @name RenderEngine
@@ -12,6 +16,7 @@ import { Mesh, IMesh } from "./Mesh";
 export class RenderEngine
 {
     private Renderer: Renderer;
+    public OBJConverter: OBJConverter;
 
     /**
      * @property    Colour: {Colour}
@@ -20,7 +25,7 @@ export class RenderEngine
      */
     public Colour(...args: any[]): Colour
     {
-        return new Colour().Set(args);
+        return new Colour(args);
     }
 
     /**
@@ -60,6 +65,7 @@ export class RenderEngine
     public Init(): void
     {
         this.Renderer = new Renderer();
+        this.OBJConverter = new OBJConverter();
         FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
     }
 

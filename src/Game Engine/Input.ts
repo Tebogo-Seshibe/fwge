@@ -38,7 +38,7 @@ export class Input
         return key;
     }
 
-    constructor()
+    constructor(canvas: HTMLCanvasElement)
     {
         for (var i = 0; i < Input.PRESS_K; ++i)
             Input.Keys.push(true);
@@ -55,7 +55,7 @@ export class Input
         for (var i = 0; i < Input.END_A; ++i)
             Input.Axis.push(undefined);
 
-        window.onkeyup = function onkeyup(e)
+        canvas.onkeyup = function onkeyup(e)
         {
             var key = Input.handle_event(e);
 
@@ -63,7 +63,7 @@ export class Input
             Input.Keys[key + Input.PRESS_K]   = false;
             Input.Keys[key + Input.DOWN_K]    = false;
         };
-        window.onkeydown = function onkeydown(e)
+        canvas.onkeydown = function onkeydown(e)
         {
             var key = Input.handle_event(e);
 
@@ -72,8 +72,8 @@ export class Input
             Input.Keys[key + Input.DOWN_K]    = true;
         };
 
-        document.body.oncontextmenu = function oncontextmenu(e) { Input.handle_event(e); return false; };
-        window.onmouseenter = function onmouseenter(e)
+        canvas.oncontextmenu = function oncontextmenu(e) { Input.handle_event(e); return false; };
+        canvas.onmouseenter = function onmouseenter(e)
         {
             Input.Axis[Input._X + Input.PREV_A] = e.clientX;
             Input.Axis[Input._Y + Input.PREV_A] = e.clientY;
@@ -84,7 +84,7 @@ export class Input
             Input.Axis[Input._X + Input.DELTA_A] = 0;
             Input.Axis[Input._Y + Input.DELTA_A] = 0;
         };
-        window.onmousemove = function onmousemove(e) 
+        canvas.onmousemove = function onmousemove(e) 
         {
             if (!Input.Axis[Input._X + Input.CURR_A] || !Input.Axis[Input._Y + Input.CURR_A])
             {
@@ -100,7 +100,7 @@ export class Input
             Input.Axis[Input._X + Input.DELTA_A] = Input.Axis[Input._X + Input.CURR_A] - Input.Axis[Input._X + Input.PREV_A];
             Input.Axis[Input._Y + Input.DELTA_A] = Input.Axis[Input._Y + Input.CURR_A] - Input.Axis[Input._Y + Input.PREV_A];
         };
-        window.onmouseleave = function onmouseleave(e)
+        canvas.onmouseleave = function onmouseleave(e)
         {
             Input.Axis[Input._X + Input.PREV_A] = undefined;
             Input.Axis[Input._Y + Input.PREV_A] = undefined;
@@ -111,7 +111,7 @@ export class Input
             Input.Axis[Input._X + Input.DELTA_A] = 0;
             Input.Axis[Input._Y + Input.DELTA_A] = 0;
         };
-        window.onmouseup = function onmouseup(e)   
+        canvas.onmouseup = function onmouseup(e)   
         {
             var key = Input.handle_event(e);
 
@@ -119,7 +119,7 @@ export class Input
             Input.Mouse[key + Input.CLICK_M] = false;
             Input.Mouse[key + Input.DOWN_M] = false;
         };
-        window.onmousedown = function onmousedown(e) 
+        canvas.onmousedown = function onmousedown(e) 
         {
             var key = Input.handle_event(e);
 
@@ -127,7 +127,7 @@ export class Input
             Input.Mouse[key + Input.CLICK_M] = true;
             Input.Mouse[key + Input.DOWN_M] = true;
         };
-        window.onmousewheel = function onmousewheel(e)
+        canvas.onmousewheel = function onmousewheel(e)
         {
             Input.Mouse[e.deltaY < 0 ? Input.WHEEL_U : Input.WHEEL_D] = true;
         };

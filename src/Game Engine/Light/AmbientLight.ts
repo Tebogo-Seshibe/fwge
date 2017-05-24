@@ -1,24 +1,12 @@
-import { LightItem }    from "./LightItem";
+import { LightItem, ILightItem } from "./LightItem";
+import { GameObject } from '../GameObject';
 
-export interface IAmbientLight extends ILightItem
-{
+export interface IAmbientLight extends ILightItem { }
 
-}
-
-/**
- * @name        {AmbientLight}
- * @module      {FWGE.Game.Light}
- * @description This type of light is used to light the scene evenly
- *				in one colour.
- */
 export class AmbientLight extends LightItem
 {
-    /**
-     * 
-     * @param request {IAmbientLight}
-     */
-    constructor(request: IAmbientLight)
+    constructor({Name = "Ambient Light", Parent, Paint, Intensity}: IAmbientLight)
     {
-        super(request)
+        super({Name, Parent, Paint, Intensity});
     }
 }

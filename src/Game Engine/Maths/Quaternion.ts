@@ -1,4 +1,6 @@
-export class Quaternion
+import { BufferedArray } from '../../Interfaces/BufferedArray';
+
+export class Quaternion extends BufferedArray<number>
 {
     [index: number]: number;
 
@@ -13,9 +15,6 @@ export class Quaternion
 
     constructor()
     {
-        this[0] = 0;
-        this[1] = 0;
-        this[2] = 0;
-        this[3] = 0;
+        super(4);
     }
 }

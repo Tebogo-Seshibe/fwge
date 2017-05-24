@@ -1,12 +1,17 @@
+import { Maths } from "../Game Engine/Maths/Maths";
+import { BufferedArray } from "../Interfaces/BufferedArray";
+
 /**
  * @name Colour
  * @description This module is used to create simple 3 valued arrays
  *              representing the rgb values of colours.
  * @module      FWGE.Render
  */
-export class Colour
+export class Colour extends BufferedArray<number>
 {
-    public Buffer: Float32Array;
+    [index: number]: number;
+    public readonly Buffer: Array<number>;
+
     get R(): number  { return this.Buffer[0]; }
     set R(r: number) { this.Buffer[0] = Maths.Clamp(r, 0, 1); }
     get G(): number  { return this.Buffer[1]; }
@@ -24,13 +29,15 @@ export class Colour
 
     public toString(): string { return this.FLOAT; }
 
-    public static GetArgs(args: any[]): number[]
+    public static GetArgs(args: any): number[]
     {
-        args = args[0];
+        if (args.length === 1)
+            args = args[0];
+        
         if (args instanceof Colour)
             return [args.R, args.G, args.B, args.A];
-        else if ((args instanceof Float32Array && args.length >= 4) || 
-                    (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number" && typeof args[3] === "number"))
+
+        else if (!!args.length && args.length === 4)
             return args;
 
         return [0, 0, 0, 0];
@@ -44,16 +51,18 @@ export class Colour
      * @param       {Number}        [nullable, override 2]
      * @param       {Number}        [nullable, override 2]
      */
-    constructor()
+    public constructor()
+    public constructor(colour: Colour | Float32Array | number[])
+    public constructor(r: number, g: number, b: number, a: number)
+    public constructor(...args: any[])
     {
-        this.Buffer = new Float32Array(4);
+        super(4);
+        this.Set(args);
     }
 
-    Set(colour: Colour): Colour;
-    Set(array: Float32Array): Colour;
-    Set(array: number[]): Colour;
-    Set(r: number, g: number, b: number, a: number): Colour;
-    Set(...args: any[]): Colour
+    public Set(colour: Colour | Float32Array | number[]): Colour;
+    public Set(r: number, g: number, b: number, a: number): Colour;
+    public Set(args: any): Colour
     {
         let [r, b, g, a] = Colour.GetArgs(args);
 

@@ -4,6 +4,8 @@ import { BoxCollider } from "./Collision/BoxCollider";
 import { PhysicsMaterial } from "./PhysicsMaterial";
 import { PhysicsBody } from "./PhysicsBody";
 import { GameObject } from "../Game Engine/GameObject";
+import { GameEngine } from "../Game Engine/GameEngine";
+import { PhysicsEngine } from "./PhysicsEngine";
 
 export interface IPhysicsItem
 {

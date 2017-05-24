@@ -1,5 +1,5 @@
-import { PhysicsBody } from "./PhysicsBody";
-import { PhysicsMaterial } from "./PhysicsMaterial";
+import { PhysicsBody, IPhysicsBody } from "./PhysicsBody";
+import { PhysicsMaterial, IPhysicsMaterial } from "./PhysicsMaterial";
 import { Colliders } from "./Collision/Colliders";
 
 /**

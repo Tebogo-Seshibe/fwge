@@ -10,6 +10,154 @@ export interface IShader
     FragmentShader: string;
 }
 
+class ShaderAttributes
+{
+    public readonly Position:   number = -1;
+    public readonly Colour:     number = -1;
+    public readonly UV:         number = -1;
+    public readonly Normal:     number = -1;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Position   = GL.getAttribLocation(Program, "A_Position");
+        this.Colour     = GL.getAttribLocation(Program, "A_Colour");
+        this.UV         = GL.getAttribLocation(Program, "A_UV");
+        this.Normal     = GL.getAttribLocation(Program, "A_Normal");
+    }
+}
+
+class MaterialUniforms
+{
+    public readonly Ambient:        WebGLUniformLocation;
+    public readonly Diffuse:        WebGLUniformLocation;
+    public readonly Specular:       WebGLUniformLocation;
+    public readonly Shininess:      WebGLUniformLocation;
+    public readonly Alpha:          WebGLUniformLocation;
+    
+    public readonly HasImage:       WebGLUniformLocation;
+    public readonly HasBump:        WebGLUniformLocation;
+    public readonly HasSpecular:    WebGLUniformLocation;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Ambient        = GL.getUniformLocation(Program, "U_Material.Ambient");
+        this.Diffuse        = GL.getUniformLocation(Program, "U_Material.Diffuse");
+        this.Specular       = GL.getUniformLocation(Program, "U_Material.Specular");
+        this.Shininess      = GL.getUniformLocation(Program, "U_Material.Shininess");
+        this.Alpha          = GL.getUniformLocation(Program, "U_Material.Alpha");
+
+        this.HasImage       = GL.getUniformLocation(Program, "U_Material.HasImage");
+        this.HasBump        = GL.getUniformLocation(Program, "U_Material.HasBump");
+        this.HasSpecular    = GL.getUniformLocation(Program, "U_Material.HasSpecular");
+    }
+}
+
+class MatrixUniforms
+{
+    public readonly ModelView:  WebGLUniformLocation;
+    public readonly Projection: WebGLUniformLocation;
+    public readonly Normal:     WebGLUniformLocation;
+ 
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.ModelView  = GL.getUniformLocation(Program, "U_Matrix.ModelView");
+        this.Projection = GL.getUniformLocation(Program, "U_Matrix.Projection");
+        this.Normal     = GL.getUniformLocation(Program, "U_Matrix.Normal");
+    }
+}
+
+class AmbientUniforms
+{
+    public readonly Colour:     WebGLUniformLocation;
+    public readonly Intensity:  WebGLUniformLocation;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Colour     = GL.getUniformLocation(Program, "U_Ambient.Colour");
+        this.Intensity  = GL.getUniformLocation(Program, "U_Ambient.Intensity");
+    }
+}
+
+class DirectionalUniforms
+{
+    public readonly Colour:     WebGLUniformLocation;
+    public readonly Intensity:  WebGLUniformLocation;
+    public readonly Direction:  WebGLUniformLocation;
+    
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Colour     = GL.getUniformLocation(Program, "U_Directional.Colour");
+        this.Intensity  = GL.getUniformLocation(Program, "U_Directional.Intensity");
+        this.Direction  = GL.getUniformLocation(Program, "U_Directional.Direction");
+    }
+}
+
+class PointUniforms
+{
+    public readonly Colour:     WebGLUniformLocation;
+    public readonly Intensity:  WebGLUniformLocation;
+    public readonly Position:   WebGLUniformLocation;
+    public readonly Radius:     WebGLUniformLocation;
+    public readonly Angle:      WebGLUniformLocation;
+    
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null, index: number)
+    {
+        this.Colour     = GL.getUniformLocation(Program, `U_Point[${index}].Colour`);
+        this.Intensity  = GL.getUniformLocation(Program, `U_Point[${index}].Intensity`);
+        this.Position   = GL.getUniformLocation(Program, `U_Point[${index}].Position`);
+        this.Radius     = GL.getUniformLocation(Program, `U_Point[${index}].Radius`);
+        this.Angle      = GL.getUniformLocation(Program, `U_Point[${index}].Angle`);
+    }
+}
+
+class LightUniforms
+{
+    public readonly Ambient:        AmbientUniforms;
+    public readonly Directional:    DirectionalUniforms;
+    public readonly Point:          Array<PointUniforms> = new Array<PointUniforms>(8);
+    public readonly PointCount:     WebGLUniformLocation;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Ambient        = new AmbientUniforms(GL, Program);
+        this.Directional    = new DirectionalUniforms(GL, Program);
+        this.PointCount     = GL.getUniformLocation(Program, `U_PointCount`);
+
+        for (var i: number = 0; i < 8; ++i)
+            this.Point[i]   = new PointUniforms(GL, Program, i);
+    }
+}
+
+class SamplerUniforms
+{
+    public readonly Image:      WebGLUniformLocation;
+    public readonly Bump:       WebGLUniformLocation;
+    public readonly Specular:   WebGLUniformLocation;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Image      = GL.getUniformLocation(Program, "U_Sampler.Image");
+        this.Bump       = GL.getUniformLocation(Program, "U_Sampler.Bump");
+        this.Specular   = GL.getUniformLocation(Program, "U_Sampler.Specular");
+    }
+}
+
+class ShaderUniforms
+{
+    public readonly Material:   MaterialUniforms;
+    public readonly Matrix:     MatrixUniforms;
+    public readonly Light:      LightUniforms;
+    public readonly Sampler:    SamplerUniforms;
+
+    constructor(GL: WebGLRenderingContext, Program: WebGLProgram | null)
+    {
+        this.Material   = new MaterialUniforms(GL,  Program);
+        this.Matrix     = new MatrixUniforms(GL,    Program);
+        this.Light      = new LightUniforms(GL,     Program);
+        this.Sampler    = new SamplerUniforms(GL,   Program);
+    }
+}
+
 /**
  * @name        Shader
  * @module      FWGE.Render
@@ -55,8 +203,20 @@ export class Shader extends Item
      */
     public readonly Width: number;
 
+    /**
+     * @property    Width: {Number} [read]
+     * @description Some description
+     */
+    public readonly Attributes: ShaderAttributes;
+    /**
+     * @property    Width: {Number} [read]
+     * @description Some description
+     */
+    public readonly Uniforms:   ShaderUniforms;
+
     constructor(request: IShader)
     {
+        console.log(request);
         super(request.Name);
 
         this.Program = FWGE.GL.createProgram();
@@ -66,12 +226,18 @@ export class Shader extends Item
         this.Height = request.Height || 1024;
         this.Width = request.Width || 1024;
 
+        if (this.Init(FWGE.GL, request.VertexShader, request.FragmentShader))
+        {
+            FWGE.GL.useProgram(this.Program);
+            this.Attributes = new ShaderAttributes(FWGE.GL, this.Program);
+            this.Uniforms = new ShaderUniforms(FWGE.GL, this.Program);   
+            FWGE.GL.useProgram(null);
+        }
+
         Shader.Shaders.push(this);
-        this.Init(FWGE.GL, request.VertexShader, request.FragmentShader);
-        console.log(this);
     };
 
-    private Init(GL: WebGLRenderingContext, vertexShader: string, fragmentShader: string): void
+    private Init(GL: WebGLRenderingContext, vertexShader: string, fragmentShader: string): boolean
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer); 
         GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
@@ -87,146 +253,32 @@ export class Shader extends Item
                     
         GL.bindTexture(GL.TEXTURE_2D, null);
         GL.bindRenderbuffer(GL.RENDERBUFFER, null);
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-        
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null);        
         
         var vs = GL.createShader(GL.VERTEX_SHADER);
         GL.shaderSource(vs, vertexShader);
         GL.compileShader(vs);
         if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
-            throw new Error("Vertex Shader: " + GL.getShaderInfoLog(vs));
+        {
+            console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
+            return false;
+        }
         
         var fs = GL.createShader(GL.FRAGMENT_SHADER);
         GL.shaderSource(fs, fragmentShader);
         GL.compileShader(fs);
         if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
-            throw new Error("Fragment Shader: " + GL.getShaderInfoLog(fs));
+        {
+            console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
+            return false;
+        }
         
         GL.attachShader(this.Program, vs);
         GL.attachShader(this.Program, fs);
         GL.linkProgram(this.Program);
-        if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS)) return;
-        
-        GL.useProgram(this.Program);
-        
-        Object.defineProperties(this,
-        {
-            Attributes:
-            { 
-                value:
-                {
-                    Position:               GL.getAttribLocation(this.Program, "A_Position"),
-                    Colour:                 GL.getAttribLocation(this.Program, "A_Colour"),
-                    UV:                     GL.getAttribLocation(this.Program, "A_UV"),
-                    Normal:                 GL.getAttribLocation(this.Program, "A_Normal")
-                }
-            },
-            Uniforms:
-            {
-                value:
-                {
-                    Material:
-                    {
-                        Ambient:            GL.getUniformLocation(this.Program, "U_Material.Ambient"),
-                        Diffuse:            GL.getUniformLocation(this.Program, "U_Material.Diffuse"),
-                        Specular:           GL.getUniformLocation(this.Program, "U_Material.Specular"),
-                        Shininess:          GL.getUniformLocation(this.Program, "U_Material.Shininess"),
-                        Alpha:              GL.getUniformLocation(this.Program, "U_Material.Alpha"),
+        if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS))
+            return false;
 
-                        HasImage:           GL.getUniformLocation(this.Program, "U_Material.HasImage"),
-                        HasBump:            GL.getUniformLocation(this.Program, "U_Material.HasBump"),
-                        HasSpecular:        GL.getUniformLocation(this.Program, "U_Material.HasSpecular"),
-                    },
-                    Matrix:
-                    {
-                        ModelView:          GL.getUniformLocation(this.Program, "U_Matrix.ModelView"),
-                        Projection:         GL.getUniformLocation(this.Program, "U_Matrix.Projection"),
-                        Normal:             GL.getUniformLocation(this.Program, "U_Matrix.Normal")
-                    },
-                    Light:
-                    {
-                        Ambient:
-                        {
-                            Colour:         GL.getUniformLocation(this.Program, "U_Ambient.Colour"),
-                            Intensity:      GL.getUniformLocation(this.Program, "U_Ambient.Intensity")
-                        },
-                        Directional:
-                        {
-                            Colour:         GL.getUniformLocation(this.Program, "U_Directional.Colour"),
-                            Intensity:      GL.getUniformLocation(this.Program, "U_Directional.Intensity"),
-                            Direction:      GL.getUniformLocation(this.Program, "U_Directional.Direction")
-                        },
-                        Point:
-                        [
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[0].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[0].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[0].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[0].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[0].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[1].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[1].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[1].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[1].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[1].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[2].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[2].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[2].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[2].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[2].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[3].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[3].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[3].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[3].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[3].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[4].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[4].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[4].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[4].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[4].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[5].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[5].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[5].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[5].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[5].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[6].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[6].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[6].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[6].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[6].Angle")
-                            },
-                            {
-                                Colour:     GL.getUniformLocation(this.Program, "U_Point[7].Colour"),
-                                Intensity:  GL.getUniformLocation(this.Program, "U_Point[7].Intensity"),
-                                Position:   GL.getUniformLocation(this.Program, "U_Point[7].Position"),
-                                Radius:     GL.getUniformLocation(this.Program, "U_Point[7].Radius"),
-                                Angle:      GL.getUniformLocation(this.Program, "U_Point[7].Angle")
-                            }
-                        ],
-                        PointCount:         GL.getUniformLocation(this.Program, "U_Point_Count"),
-                    },
-                    Sampler:
-                    {
-                        Image:              GL.getUniformLocation(this.Program, "U_Sampler.Image"),
-                        Bump:               GL.getUniformLocation(this.Program, "U_Sampler.Bump"),
-                        Specular:           GL.getUniformLocation(this.Program, "U_Sampler.Specular")
-                    }
-                }
-            }
-        });
-        
-        GL.useProgram(null);
+        return true;
     }
 }

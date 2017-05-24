@@ -1,9 +1,9 @@
 import { Item } from "../Item";
-import { IAnimationFrame } from "../Animation/AnimationFrame";
+import { Transform } from "../Transform";
+import { KeyFrame, IKeyFrame } from "../../Interfaces/KeyFrame";
 
-export interface IParticle extends IAnimationFrame
+export interface IParticle extends IKeyFrame<Transform>
 {
-    Name: string;
 }
 
 /**
@@ -11,13 +11,13 @@ export interface IParticle extends IAnimationFrame
  * @description Definition of a single particle.
  * @module      FWGE.Game.ParticleSystem
  */
-export class Particle extends Item
+export class Particle extends KeyFrame<Transform>
 {
     public Elapsed: number;
 
     constructor(request: IParticle)
     {
-        super(request.Name);
+        super(request);
 
         this.Elapsed = 0;
     }

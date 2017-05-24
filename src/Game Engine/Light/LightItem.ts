@@ -4,43 +4,22 @@ import { Colour }       from "../../Render Engine/Colour";
 
 export interface ILightItem
 {
-    Name?:       string;
-    Colour?:     Colour;
-    Intensity?:  number;
-    GameObject?: GameObject;
+    Name:       string;
+    Parent:     GameObject;
+    Paint:      number[];
+    Intensity:  number;
 }
 
-/**
- * @name        LightItem
- * @description Base definition of an object that illuminates the scene.
- */
 export class LightItem extends GameItem
 {
-    /**
-     * @property    Colour: {Float32Array} [read|write]
-     * @description Descrbies the colour that the light object emits.
-     */
     public Colour: Colour;
-    
-    /**
-     * @property    Intensity:  {Number} [read|write]s
-     * @description Descrbies the intensity at which the light object emits.
-     *              This ranges between: [0, 1].
-     */
     public Intensity: number;
 
-    /**
-     * 
-     * @param name {string}
-     * @param gameObject {GameObject}
-     * @param colour {Colour}
-     * @param intensity {number}
-     */
-    constructor(request: ILightItem)
+    constructor({Name = "Light Item", Parent = new GameObject(), Paint = [1, 1, 1, 1], Intensity = 1.0}: ILightItem)
     {
-        super(request.Name || "Light Item", request.GameObject || new GameObject({}));
+        super(Name, Parent);
 
-        this.Colour = request.Colour || new Colour();
-        this.Intensity = request.Intensity || 1.0;
+        this.Colour = new Colour(Paint);
+        this.Intensity = Intensity;
     }
 }

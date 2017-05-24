@@ -1,5 +1,6 @@
 import { GameItem } from "../GameItem";
 import { GameObject } from "../GameObject";
+import { IParticle, Particle } from "./Particle";
 
 export interface IParticleSystem
 {

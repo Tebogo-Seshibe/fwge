@@ -1,15 +1,11 @@
-import { GameItem } from './GameItem';
-import { GameObject } from "./GameObject";
 import { Vector3 } from "./Maths/Vector3";
 
-export interface ITransform
+export class ITransform
 {
-    Name?:          string;
-    GameObject?:    GameObject | null;
-    Position?:      Vector3;
-    Rotation?:      Vector3;
-    Scale?:         Vector3;
-    Shear?:         Vector3;
+    Position:   number[] = [0, 0, 0];
+    Rotation:   number[] = [0, 0, 0];
+    Scale:      number[] = [1, 1, 1];
+    Shear:      number[] = [0, 0, 0];
 }
 
 /**
@@ -18,7 +14,7 @@ export interface ITransform
  * @description This object contains all the transformations that 
  *              are to be applied to the parent gameobject.
  */
-export class Transform extends GameItem
+export class Transform
 {    
     /**
      * @property    Position: {Float32Array} [read|write]
@@ -46,30 +42,29 @@ export class Transform extends GameItem
 
     /**
      * @property    Up: {Float32Array} [read]
-     * @description The parent gameobject's up vector
+     * @description The parent gameobject"s up vector
      */
-    public readonly UP:        Vector3 = (new Vector3).Set(0, 1, 0);
+    public readonly UP:        Vector3 = new Vector3(0, 1, 0);
     
     /**
      * @property    Forward: {Float32Array} [read]
-     * @description The parent gameobject's forward vector
+     * @description The parent gameobject"s forward vector
      */
-    public readonly FORWARD:   Vector3 = (new Vector3).Set(0, 0, 1);
+    public readonly FORWARD:   Vector3 = new Vector3(0, 0, 1);
     
     /**
      * @property    Right: {Float32Array} [read]
-     * @description The parent gameobject's right vector
+     * @description The parent gameobject"s right vector
      */
-    public readonly RIGHT:     Vector3 = (new Vector3).Set(1, 0, 0);
+    public readonly RIGHT:     Vector3 = new Vector3(1, 0, 0);
 
-    constructor(request: ITransform)
+    constructor(request: ITransform | Transform)
     {
-        super(request.Name || "Transform", request.GameObject || null);
-
-        this.Position = request.Position || Vector3.Zero;
-        this.Rotation = request.Rotation || Vector3.Zero;
-        this.Scale = request.Scale || Vector3.One;
-        this.Shear = request.Shear || Vector3.Zero;
+        if (!request) request = new ITransform();
+        this.Position = new Vector3(request.Position);
+        this.Rotation = new Vector3(request.Rotation);
+        this.Scale = new Vector3(request.Scale);
+        this.Shear = new Vector3(request.Shear);
     }
     
     /**

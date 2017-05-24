@@ -1,25 +1,11 @@
-import { KeyFrame, IKeyFrame } from "./KeyFrame";
+import { KeyFrame, IKeyFrame } from "../../Interfaces/KeyFrame";
 
-interface AnimationFrameColour extends IKeyFrame<Colour> { }
-interface AnimationFrameTransform extends IKeyFrame<Transform> { }
+export interface IAnimationFrame<T> extends IKeyFrame<T> { }
 
-export interface IAnimationFrame
+export class AnimationFrame<T> extends KeyFrame<T>
 {
-    Length: number;
-    Colour: AnimationFrameColour;
-    Transform: AnimationFrameTransform;
-}
-
-export class AnimationFrame
-{
-    public Length: number;
-    public Colour: KeyFrame<Colour>;
-    public Transform: KeyFrame<Transform>;
-
-    constructor(request: IAnimationFrame)
+    constructor(request: IAnimationFrame<T>)
     {
-        this.Length     = request.Length || 1000;
-        this.Colour     = new KeyFrame<Colour>(request.Colour);
-        this.Transform  = new KeyFrame<Transform>(request.Transform);
+        super(request);
     }
 }

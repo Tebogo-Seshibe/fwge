@@ -2,7 +2,6 @@
   "name": "fwge",
   "version": "2.0.0",
   "description": "A webgl game engine",
-  "main": "index.js",
   "scripts": {
     "editor": "node editor/server",
     "test": "mocha",

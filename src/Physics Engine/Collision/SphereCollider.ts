@@ -1,4 +1,4 @@
-import { Collider } from "./Collider";
+import { Collider, ICollider } from "./Collider";
 
 export interface ISphereCollider extends ICollider
 {

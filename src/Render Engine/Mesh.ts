@@ -1,13 +1,15 @@
-import { Item } from '../Game Engine/Item';
+import { Item } from "../Game Engine/Item";
+import { FWGE } from "../FWGE";
 
-export interface IMesh
+export class IMesh
 {
-    Name?:      string;
-    Position:   Float32Array;
-    Indices:    Uint16Array;
-    UVs?:       Float32Array;
-    Colours?:   Float32Array;
-    Normals?:   Float32Array;
+    Name:      string = '';
+    Position:  Array<number> = new Array<number>();
+    Indices:   Array<number> = new Array<number>();
+    Wireframe: Array<number> = new Array<number>();
+    UVs:       Array<number> = new Array<number>();
+    Colours:   Array<number> = new Array<number>();
+    Normals:   Array<number> = new Array<number>();
 }
 
 /**
@@ -48,16 +50,29 @@ export class Mesh extends Item
     public readonly IndexBuffer: WebGLBuffer | null;
     
     /**
+     * @constant    IndexBuffer: {WebGLBuffer} [read]
+     * @description Buffer containing all the indices
+     */
+    public readonly WireframeBuffer: WebGLBuffer | null;
+    
+    /**
      * @constant    VertexCount: {Number} [read]
      * @description The number of vertices in the mesh
      */
     public readonly VertexCount: number;
-
+    
+    /**
+     * @constant    VertexCount: {Number} [read]
+     * @description The number of vertices in the mesh
+     */
+    public readonly WireframeCount: number;
+    
     constructor(request: IMesh)
     {
         super(request.Name || "Mesh");
 
         this.VertexCount = request.Indices.length;
+        this.WireframeCount = request.Wireframe ? request.Wireframe.length : 0;
 
         this.PositionBuffer = FWGE.GL.createBuffer();
         FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
@@ -66,6 +81,22 @@ export class Mesh extends Item
         this.IndexBuffer = FWGE.GL.createBuffer();
         FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer);
         FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(request.Indices), FWGE.GL.STATIC_DRAW);
+        
+        if (!request.Colours || request.Colours.length !== request.Position.length)
+            request.Colours = request.Position.map(function(){ return 1.0; });
+
+        this.ColourBuffer = FWGE.GL.createBuffer();
+        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
+        FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.Colours), FWGE.GL.STATIC_DRAW);
+
+        if (request.Wireframe)
+        {
+            this.WireframeBuffer = FWGE.GL.createBuffer();
+            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer);
+            FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(request.Wireframe), FWGE.GL.STATIC_DRAW);
+        }
+        else
+            this.WireframeBuffer = null;
 
         if (request.UVs)
         {
@@ -75,14 +106,7 @@ export class Mesh extends Item
         }
         else
             this.UVBuffer = null;
-        if (request.Colours)
-        {
-            this.ColourBuffer = FWGE.GL.createBuffer();
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.Colours), FWGE.GL.STATIC_DRAW);
-        }
-        else
-            this.ColourBuffer = null;
+
         if (request.Normals)
         {
             this.NormalBuffer = FWGE.GL.createBuffer();

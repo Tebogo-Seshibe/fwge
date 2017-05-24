@@ -11,102 +11,61 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<meta name="author" content="Tebogo Christopher Seshibe" />
 		<link rel="stylesheet" type="text/css" href="style.css" />
-		<!--script type="application/javascript" src="script.js"></script-->
 	</head>
 
 	<body>
-		<header id="header">
-		</header>
+		<header id="header"></header>
 
-		<section id="sidebar">
-			<ul class="projects">
-				<li class="project">
-					<ul class="scenes">
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-				<li class="project">
-					<ul class="scenes">
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-				<li class="project">
-					<ul class="scenes">
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-						<li class="scene">
-							<ul class="objects">
-								<li class="object"></li>
-								<li class="object"></li>
-								<li class="object"></li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-			</ul>
+		<section id="editor">
+			<div id="project">
+				<input id="search" type="text" placeholder="Search..."/>
+
+				<ul id="scenes">
+					<li class="scene open">
+						<a>Scene 1</a>
+						<ul class="things">
+							<li class="objects open">
+								<a>Objects</a>
+								<ul class="object-list">
+									<li class="object"><a> GameObject </a></li>
+									<li class="object"><a> GameObject </a></li>
+									<li class="object"><a> GameObject </a></li>
+								</ul>
+							</li>
+							<li class="lights open">
+								<a>Lights</a>
+								<ul class="light-list">
+									<li class="light"><a> Light </a></li>
+									<li class="light"><a> Light </a></li>
+									<li class="light"><a> Light </a></li>
+								</ul>
+							</li>
+							<li class="sounds open">
+								<a>Sounds</a>
+								<ul class="sound-list">
+									<li class="sound"><a> Sound </a></li>
+									<li class="sound"><a> Sound </a></li>
+									<li class="sound"><a> Sound </a></li>
+								</ul>
+							</li>
+						</ul>
+					</li> 
+				</ul>
+			</div>
+
+			<div id="renderer">
+				<canvas id="canvas"></canvas>
+				<div id="controls"></div>
+			</div>
+
+			<div id="properties"></div>
 		</section>
 
-		<section id="content">
-			<canvas id="canvas"></canvas>
-			<div id="controls"></div>
-		</section>
+		<footer id="console"></footer>
 
-
-		<footer id="footer">
-			<!--script type="application/javascript" src="fwge.js"></script>
-			<script type="application/javascript" src="editor.js"></script-->
-		</footer>
+		<div id="scripts">
+			<script type="application/javascript" src="fwge.js"></script>
+			<script type="application/javascript" src="main.js"></script>
+		</div>
 	</body>
 </html>

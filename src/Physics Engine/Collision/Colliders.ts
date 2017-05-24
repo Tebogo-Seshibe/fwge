@@ -1,5 +1,5 @@
-import { BoxCollider } from "./BoxCollider";
-import { SphereCollider } from "./SphereCollider";
+import { BoxCollider, IBoxCollider } from "./BoxCollider";
+import { SphereCollider, ISphereCollider } from "./SphereCollider";
 
 /**
  * @name 		Colliders

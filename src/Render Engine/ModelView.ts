@@ -1,3 +1,8 @@
+import { Matrix4 } from "../Game Engine/Maths/Matrix4";
+import { Vector3 } from "../Game Engine/Maths/Vector3";
+import { Maths } from "../Game Engine/Maths/Maths";
+import { Transform } from "../Game Engine/Transform";
+
 /**
  * @name        ModelView
  * @description This module handles the model view matrices of the

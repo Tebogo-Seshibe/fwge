@@ -1,23 +1,28 @@
 import { Item } from "./Item";
 import { Transform } from "./Transform";
 import { LightItem } from "./Light/LightItem";
-import { Animation } from "./Animation";
+import { Animation } from "./Animation/Animation";
 import { PhysicsItem } from "../Physics Engine/PhysicsItem";
 import { Mesh } from "../Render Engine/Mesh";
+import { RenderMaterial } from "../Render Engine/RenderMaterial";
+import { ParticleSystem } from "./Particle System/ParticleSystem";
+import { GameEngine } from "./GameEngine";
+import { PhysicsEngine } from "../Physics Engine/PhysicsEngine";
 
-export interface IGameObject
+export class IGameObject
 {
-    Name?:           string;
-    Transform?:      Transform;
-    Material?:       RenderMaterial | null;
-    Mesh?:           Mesh | null;
-    Light?:          LightItem | null;
-    Physics?:        PhysicsItem | null;
-    Animation?:      Animation | null;
-    ParticleSystem?: ParticleSystem | null;
-    Begin?:          Function;
-    Update?:         Function;
-    End?:            Function;
+    Name?:           string = "GameObject";
+    Transform?:      Transform = new Transform({Position: [0,0,0], Rotation: [0,0,0], Scale:[1,1,1], Shear: [0,0,0]});
+    Material?:       RenderMaterial | null = null;
+    Mesh?:           Mesh | null = null;
+    Light?:          LightItem | null = null;
+    Physics?:        PhysicsItem | null = null;
+    Animation?:      Animation | null = null;
+    ParticleSystem?: ParticleSystem | null = null;
+    Children?:       Array<GameObject> | null = null;
+    Begin?:          Function = new Function();
+    Update?:         Function = new Function();
+    End?:            Function = new Function();
 }
 
 /**
@@ -96,23 +101,26 @@ export class GameObject extends Item
      */
     public End: Function;
     
-    constructor(request: IGameObject)
+    constructor(request: IGameObject = new IGameObject())
     {
-        super(request.Name || "Game Object");
+        super(request.Name);
 
-        this.Transform      = new Transform(request.Transform || {});
-        this.Animation      = request.Animation      || null;
-        this.Material       = request.Material       || null;
-        this.Mesh           = request.Mesh           || null;
-        this.Physics        = request.Physics        || null;
-        this.ParticleSystem = request.ParticleSystem || null;
-        this.Light          = request.Light          || null;
+        let self = this;
+        this.Transform      = new Transform(request.Transform);
+        this.Animation      = request.Animation;
+        this.Material       = request.Material;
+        this.Mesh           = request.Mesh;
+        this.Physics        = request.Physics;
+        this.ParticleSystem = request.ParticleSystem;
+        this.Light          = request.Light;
 
-        this.Begin  = request.Begin  ||  new Function();
-        this.Update = request.Update ||  new Function();
-        this.End    = request.End    ||  new Function();
+        this.Begin  = request.Begin || new Function();
+        this.Update = request.Update || new Function();
+        this.End    = request.End || new Function();
 
         GameObject.Objects.push(this);
+        if (request.Children)
+            request.Children.forEach(function(child){ self.Add(child); });
         this.Begin();
     }
 

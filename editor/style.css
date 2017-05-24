@@ -51,6 +51,7 @@ table {
 
 /* RESET DIVS */
 
+/* FORMAT */
 html,
 body
 {
@@ -64,42 +65,35 @@ body
 
 	overflow: hidden;
 
-    background: #272727;
+    background: none;
 }
 
 header#header
 {
     display: block;
-    position: absolute;
+    position: relative;
 
     top: 0px;
-    left: 35px;
-    height: 45px;
-    width: calc(100vw - 70px);
+    left: 0px;
 
-    line-height: 45px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 18px;
+    height: 80px;
+    width: 100vw;
 
-    background: darkgray;
-    box-shadow: 0px 0px 2px black;
+    background: dimgray;
 }
 
-section#sidebar
+section#editor
 {
     display: block;
-    position: absolute;
+    position: relative;
 
-    top: 80px;
-    left: 35px;
-    height: calc(100vh - 115px);
-    width: 200px;
-
-    background: gray;
-    box-shadow: 0px 0px 2px black;
+    top: 0px;
+    left: 0px;
+    min-height: 800px;
+    height: calc(100vh - 200px);
+    width: 100vw;
 }
-    section#sidebar > div#project-list
+    section#editor > div#project
     {
         display: block;
         position: relative;
@@ -107,138 +101,157 @@ section#sidebar
         top: 0px;
         left: 0px;
         height: 100%;
-        width: 100%;
+        width: 250px;
 
-        overflow-x: hidden;
-        overflow-y: auto;
+        line-height: 30px;
+        color: white;
+        background: #171717;
+
+        font-size: 14px;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     }
-        section#sidebar > div#project-list > div.project
+        
+    section#editor > div#renderer
+    {
+        display: inline-block;
+        position: absolute;
+
+        top: 0px;
+        left: 250px;
+        height: 100%;
+        width: calc(100% - 625px);
+
+        background: #272727;
+    }
+        section#editor > div#renderer > canvas#canvas
         {
             display: block;
             position: relative;
 
             top: 0px;
             left: 0px;
-            height: 125px;
-            width: 175px;
+            height: 90%;
+            width: 100%;
 
-            border: 0px;
-            padding: 0px;
-            margin: 12.5px;
-
-            transition: all 0.2s;
-
-            overflow: hidden;
-            background: #272727;
+            background: none;
         }
-            section#sidebar > div#project-list > div.project > h1.project-name
-            {
-                display: block;
-                position: relative;
-
-                top: 0px;
-                left: 0px;
-                height: 35px;
-                width: 100%;
-
-                top: 50%;
-                transform: translateY(-50%);
-
-                color: white;
-                font-size: 18px;
-                font-weight: bold;
-                line-height: 35px;
-                text-align: center;
-                text-decoration: underline;
-                text-shadow: 0px 0px black;
-
-                transition: all 0.2s;
-            }
-            section#sidebar > div#project-list > div.project > button.project-run
-            {
-                display: block;
-                position: relative;
-
-                top: 0px;
-                left: 25px;
-                height: 35px;
-                width: 125px;
-                
-                top: 100%;
-
-                color: white;
-                font-weight: bold;
-                line-height: 35px;
-
-                border: 0px;
-                border: solid 2px white;
-                background: none;
-
-                transition: all 0.2s;
-            }
-                section#sidebar > div#project-list > div.project > button.project-run:hover
-                {
-                    color: black;
-                    background: white;
-                }
-        section#sidebar > div#project-list > div.project:hover:before
+        section#editor > div#renderer > div#controls
         {
-            content: "";
-
             display: block;
-            position: absolute;
+            position: relative;
 
             top: 0px;
             left: 0px;
-            height: 100%;
+            height: 10%;
             width: 100%;
         }
-            section#sidebar > div#project-list > div.project:hover > h1.project-name { top: -35px; }
-            section#sidebar > div#project-list > div.project:hover > button.project-run { top: 5px; }
-
-section#content
-{
-    display: block;
-    position: absolute;
-
-    top: 85px;
-    right: 35px;
-    height: calc(100vh - 120px);
-    width: calc(100vw - 320px);
-}
-    section#content > canvas#canvas
+        
+    section#editor > div#properties
     {
-        display: block;
+        display: inline-block;
         position: absolute;
 
         top: 0px;
-        left: 0px;
-        height: 85%;
-        width: 100%;
-        
-        box-shadow: 0px 0px 2px black;
-    }
-    section#content > div#controls
-    {
-        display: block;
-        position: absolute;
+        right: 0px;
+        height: 100%;
+        width: 375px;
 
-        bottom: 0px;
-        left: 0px;
-        height: 10%;
-        width: 100%;
-
-        background: silver;
-        box-shadow: 0px 0px 2px black;
+        background: darkgray;
     }
 
-footer#footer
+footer#console
 {
     display: block;
-    position: absolute;
+    position: relative;
 
-    bottom: 0px;
+    top: 0px;
     left: 0px;
-    height: 0vh;
-    width: 0vw;
+    height: 120px;
+    width: 100vw;
+
+    background: #474747;
 }
+
+div#scripts
+{
+    display: none;
+}
+/* FORMAT */
+
+/* SIDEBAR */
+section#editor > div#project > input#search
+{
+    display: block;
+    position: relative;
+
+    top: 0px;
+    left: 0px;
+    height: 45px;
+    width: calc(100% - 30px);
+
+    border: 0px;
+    padding: 0px 15px;
+    background: white;
+}
+
+section#editor > div#project ul
+{
+    display: block;
+    position: relative;
+
+    height: auto;
+    width: calc(100% - 15px);
+
+    padding-left: 15px;
+    cursor: default;
+
+    clear: both;
+}
+section#editor > div#project > ul#scenes { padding: 0; }
+
+section#editor > div#project li
+{
+    display: block;
+    position: relative;
+
+    height: auto;
+    min-height: 30px;
+    width: 100%;
+
+    cursor: default;
+
+    transition: all 0.2s;
+    clear: both;
+}
+section#editor > div#project li > img
+{
+    display: inline-block;
+    position: relative;
+
+    top: 5px;
+    left: 0px;
+    height: 20px;
+    width: 20px;
+}
+section#editor > div#project li > a
+{
+    display: inline-block;
+    position: relative;
+
+    top: 0px;
+    left: 0px;
+    height: 30px;
+    width: calc(100% - 45px);
+    padding-left: 15px;
+}
+section#editor > div#project li > a:hover
+{
+    text-decoration: underline;
+}
+
+section#editor > div#project li.closed > ul
+{
+    opacity: 0;
+}
+section#editor > div#project li.closed > ul li { position: absolute; }
+/* SIDEBAR */
