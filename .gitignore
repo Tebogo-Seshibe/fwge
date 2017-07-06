@@ -1,7 +1,0 @@
-.vscode/
-.tscache/
-node_modules/
-projects/
-test/
-util/
-index.js

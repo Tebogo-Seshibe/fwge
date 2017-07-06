@@ -4,8 +4,9 @@
   "description": "A webgl game engine",
   "scripts": {
     "editor": "node editor/server",
-    "test": "mocha",
-    "proj": "node projects/server"
+    "test": "node test/server",
+    "proj": "node projects/server",
+    "comp": "node util/compile"
   },
   "repository": {
     "type": "git",

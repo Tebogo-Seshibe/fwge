@@ -1,4691 +1,8435 @@
-(function() {
-    var __extends = (this && this.__extends) || (function() {
-        var extendStatics = Object.setPrototypeOf ||
-            ({
-                    __proto__: []
-                }
-                instanceof Array && function(d, b) {
-                    d.__proto__ = b;
-                }) ||
-            function(d, b) {
-                for (var p in b)
-                    if (b.hasOwnProperty(p)) d[p] = b[p];
-            };
-        return function(d, b) {
-            extendStatics(d, b);
+(function(window)
+{
+    "use strict";
 
-            function __() {
-                this.constructor = d;
+
+    /**
+     * @name        BufferedArray
+     * @module      FWGE.Interfaces
+     * @description This object is a base container for any fixed-lenth array with accesssors
+     */
+    
+    let BufferedArray = (function()
+    {
+        /**
+         * @param   {number}    length
+         * @param   {Function}  arraytype
+         */
+        function BufferedArray(length = 0, arraytype = Array)
+        {
+            var type = typeof length;
+            var self = this;
+    
+            if (type !== 'number')
+                throw `Expected number, ${type} found.`;
+                
+            if (length <= 0)
+                throw 'Length provided must be larger than 0';
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Buffer}
+                 * @type        {Array}
+                 */
+                Buffer: { value: new arraytype(length), configurable: false, enumerable: true, writable: false  },
+    
+                /**
+                 * @property    {length}
+                 * @type        {number}
+                 */
+                length: { value: length, configurable: false, enumerable: true, writable: false }
+            });
+    
+            for (var i = 0; i < length; ++i)
+            {
+                (function(index)
+                {
+                    Object.defineProperty(self, index,
+                    {
+                        set: function set(value) { this.Buffer[index] = value; },
+                        get: function get() { return this.Buffer[index]; },
+                        configurable: false, enumerable: true
+                    });
+                })(i);
             }
-            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-        };
-    })();
-    var BufferedArray = (function() {
-        function BufferedArray(args) {
-            this.Buffer = new Array(args);
         }
+    
+        BufferedArray.prototype = Object.create(null);
+        Object.seal(BufferedArray.prototype);
+    
         return BufferedArray;
-    }());
-    var KeyFrame = (function() {
-        function KeyFrame(request) {
-            this.Before = request.Before;
-            this.After = request.After;
-            this.Length = request.Length;
+    })();
+    Object.seal(BufferedArray);
+    
+    /**
+     * @name        Converter
+     * @module      FWGE.Game
+     * @description Base object converter
+     */
+    
+    let Converter = (function()
+    {
+        /**
+         * 
+         * @param {Function} parse 
+         * @param {Function} gameobject 
+         * @param {Function} mesh 
+         * @param {Function} rendermaterial 
+         */
+        function Converter(parse = function Parse(){}, gameobject = function GameObject(){}, mesh = function Mesh(){}, rendermaterial = function RenderMaterial(){})
+        {
+            Object.defineProperties(this,
+            {
+                /**
+                 * @function    Read
+                 * @param       {string}    path
+                 * @return      {string}
+                 */
+                Read:
+                {
+                    value: function Read(path)
+                    {
+                        let xml = new XMLHttpRequest();
+    
+                        xml.open("GET", path, false);
+                        xml.send(null);
+                        
+                        return xml.responseText;
+                    },
+                    configurable: false, enumerable: true, writable: false
+                },
+    
+                /**
+                 * @function    Parse
+                 * @return      {GameObject}
+                 */
+                Parse: { value: parse, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @function    GameObject
+                 * @return      {GameObject}
+                 */
+                GameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @function    Mesh
+                 * @return      {Mesh}
+                 */
+                Mesh: { value: mesh, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @function    RenderMaterial
+                 * @return      {RenderMaterial}
+                 */
+                RenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
+            });
         }
-        return KeyFrame;
-    }());
-    var Converter = (function() {
-        function Converter() {}
-        Converter.prototype.Read = function(path) {
-            var xml = new XMLHttpRequest();
-            xml.open('GET', path, false);
-            xml.send(null);
-            return xml.responseText;
-        };
-        Converter.prototype.Parse = function() {
-            var files = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                files[_i] = arguments[_i];
-            }
-            return;
-        };;
-        Converter.prototype.GameObject = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return;
-        };;
-        Converter.prototype.Mesh = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return;
-        };;
-        Converter.prototype.RenderMaterial = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return;
-        };;
+    
+        Converter.prototype = Object.create(null);
+        Object.seal(Converter.prototype);
+    
         return Converter;
-    }());
-    var Item = (function() {
-        function Item(name) {
-            this.Name = name;
-            this.ID = Item.hashcode(Item.ID_COUNTER++);
-        }
-        Item.hashcode = function(number) {
-            var i = 0;
-            var hash = 0;
-            var chr = 0;
-            var string = number + "";
-            for (i = 0; i < string.length; i++) {
-                chr = string.charCodeAt(i);
-                hash = ((hash << 5) - hash) + chr;
-                hash |= 0;
-            }
-            return hash;
-        };
-        return Item;
-    }());
-    Item.ID_COUNTER = 0;
-    var GameItem = (function(_super) {
-        __extends(GameItem, _super);
-
-        function GameItem(name, gameObject) {
-            var _this = _super.call(this, name) || this;
-            _this.GameObject = gameObject;
-            return _this;
-        }
-        return GameItem;
-    }(Item));
-    var ITransform = (function() {
-        function ITransform() {
-            this.Position = [0, 0, 0];
-            this.Rotation = [0, 0, 0];
-            this.Scale = [1, 1, 1];
-            this.Shear = [0, 0, 0];
-        }
-        return ITransform;
-    }());
-    var Transform = (function() {
-        function Transform(request) {
-            this.UP = new Vector3(0, 1, 0);
-            this.FORWARD = new Vector3(0, 0, 1);
-            this.RIGHT = new Vector3(1, 0, 0);
-            if (!request)
-                request = new ITransform();
-            this.Position = new Vector3(request.Position);
-            this.Rotation = new Vector3(request.Rotation);
-            this.Scale = new Vector3(request.Scale);
-            this.Shear = new Vector3(request.Shear);
-        }
-        Transform.prototype.Update = function() {};
-        return Transform;
-    }());
-    var Input = (function() {
-        function Input(canvas) {
-            for (var i = 0; i < Input.PRESS_K; ++i)
-                Input.Keys.push(true);
-            for (var i = Input.PRESS_K; i < Input.END_K; ++i)
-                Input.Keys.push(false);
-            for (var i = 0; i < Input.CLICK_M; ++i)
-                Input.Mouse.push(true);
-            for (var i = Input.CLICK_M; i < Input.END_M; ++i)
-                Input.Mouse.push(false);
-            for (var i = 0; i < Input.END_A; ++i)
-                Input.Axis.push(undefined);
-            canvas.onkeyup = function onkeyup(e) {
-                var key = Input.handle_event(e);
-                Input.Keys[key + Input.UP_K] = true;
-                Input.Keys[key + Input.PRESS_K] = false;
-                Input.Keys[key + Input.DOWN_K] = false;
-            };
-            canvas.onkeydown = function onkeydown(e) {
-                var key = Input.handle_event(e);
-                Input.Keys[key + Input.UP_K] = false;
-                Input.Keys[key + Input.PRESS_K] = true;
-                Input.Keys[key + Input.DOWN_K] = true;
-            };
-            canvas.oncontextmenu = function oncontextmenu(e) {
-                Input.handle_event(e);
-                return false;
-            };
-            canvas.onmouseenter = function onmouseenter(e) {
-                Input.Axis[Input._X + Input.PREV_A] = e.clientX;
-                Input.Axis[Input._Y + Input.PREV_A] = e.clientY;
-                Input.Axis[Input._X + Input.CURR_A] = e.clientX;
-                Input.Axis[Input._Y + Input.CURR_A] = e.clientY;
-                Input.Axis[Input._X + Input.DELTA_A] = 0;
-                Input.Axis[Input._Y + Input.DELTA_A] = 0;
-            };
-            canvas.onmousemove = function onmousemove(e) {
-                if (!Input.Axis[Input._X + Input.CURR_A] || !Input.Axis[Input._Y + Input.CURR_A]) {
-                    Input.Axis[Input._X + Input.CURR_A] = e.clientX;
-                    Input.Axis[Input._Y + Input.CURR_A] = e.clientY;
-                }
-                Input.Axis[Input._X + Input.PREV_A] = Input.Axis[Input._X + Input.CURR_A];
-                Input.Axis[Input._Y + Input.PREV_A] = Input.Axis[Input._Y + Input.CURR_A];
-                Input.Axis[Input._X + Input.CURR_A] = e.clientX;
-                Input.Axis[Input._Y + Input.CURR_A] = e.clientY;
-                Input.Axis[Input._X + Input.DELTA_A] = Input.Axis[Input._X + Input.CURR_A] - Input.Axis[Input._X + Input.PREV_A];
-                Input.Axis[Input._Y + Input.DELTA_A] = Input.Axis[Input._Y + Input.CURR_A] - Input.Axis[Input._Y + Input.PREV_A];
-            };
-            canvas.onmouseleave = function onmouseleave(e) {
-                Input.Axis[Input._X + Input.PREV_A] = undefined;
-                Input.Axis[Input._Y + Input.PREV_A] = undefined;
-                Input.Axis[Input._X + Input.CURR_A] = undefined;
-                Input.Axis[Input._Y + Input.CURR_A] = undefined;
-                Input.Axis[Input._X + Input.DELTA_A] = 0;
-                Input.Axis[Input._Y + Input.DELTA_A] = 0;
-            };
-            canvas.onmouseup = function onmouseup(e) {
-                var key = Input.handle_event(e);
-                Input.Mouse[key + Input.UP_M] = true;
-                Input.Mouse[key + Input.CLICK_M] = false;
-                Input.Mouse[key + Input.DOWN_M] = false;
-            };
-            canvas.onmousedown = function onmousedown(e) {
-                var key = Input.handle_event(e);
-                Input.Mouse[key + Input.UP_M] = false;
-                Input.Mouse[key + Input.CLICK_M] = true;
-                Input.Mouse[key + Input.DOWN_M] = true;
-            };
-            canvas.onmousewheel = function onmousewheel(e) {
-                Input.Mouse[e.deltaY < 0 ? Input.WHEEL_U : Input.WHEEL_D] = true;
-            };
-        }
-        Input.handle_event = function(e) {
-            var key = e instanceof MouseEvent ? e.button : e.which || 0;
-            e.preventDefault();
-            e.stopPropagation();
-            e.cancelBubble = true;
-            return key;
-        };
-        Object.defineProperty(Input.prototype, "KeyF1Up", {
-            get: function() {
-                return Input.Keys[112 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF1Press", {
-            get: function() {
-                return Input.Keys[112 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF1Down", {
-            get: function() {
-                return Input.Keys[112 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF2Up", {
-            get: function() {
-                return Input.Keys[113 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF2Press", {
-            get: function() {
-                return Input.Keys[113 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF2Down", {
-            get: function() {
-                return Input.Keys[113 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF3Up", {
-            get: function() {
-                return Input.Keys[114 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF3Press", {
-            get: function() {
-                return Input.Keys[114 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF3Down", {
-            get: function() {
-                return Input.Keys[114 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF4Up", {
-            get: function() {
-                return Input.Keys[115 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF4Press", {
-            get: function() {
-                return Input.Keys[115 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF4Down", {
-            get: function() {
-                return Input.Keys[115 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF5Up", {
-            get: function() {
-                return Input.Keys[116 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF5Press", {
-            get: function() {
-                return Input.Keys[116 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF5Down", {
-            get: function() {
-                return Input.Keys[116 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF6Up", {
-            get: function() {
-                return Input.Keys[117 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF6Press", {
-            get: function() {
-                return Input.Keys[117 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF6Down", {
-            get: function() {
-                return Input.Keys[117 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF7Up", {
-            get: function() {
-                return Input.Keys[118 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF7Press", {
-            get: function() {
-                return Input.Keys[118 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF7Down", {
-            get: function() {
-                return Input.Keys[118 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF8Up", {
-            get: function() {
-                return Input.Keys[119 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF8Press", {
-            get: function() {
-                return Input.Keys[119 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF8Down", {
-            get: function() {
-                return Input.Keys[119 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF9Up", {
-            get: function() {
-                return Input.Keys[120 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF9Press", {
-            get: function() {
-                return Input.Keys[120 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF9Down", {
-            get: function() {
-                return Input.Keys[120 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF10Up", {
-            get: function() {
-                return Input.Keys[121 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF10Press", {
-            get: function() {
-                return Input.Keys[121 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF10Down", {
-            get: function() {
-                return Input.Keys[121 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF11Up", {
-            get: function() {
-                return Input.Keys[122 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF11Press", {
-            get: function() {
-                return Input.Keys[122 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF11Down", {
-            get: function() {
-                return Input.Keys[122 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF12Up", {
-            get: function() {
-                return Input.Keys[123 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF12Press", {
-            get: function() {
-                return Input.Keys[123 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyF12Down", {
-            get: function() {
-                return Input.Keys[123 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key0Up", {
-            get: function() {
-                return Input.Keys[48 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key0Press", {
-            get: function() {
-                return Input.Keys[48 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key0Down", {
-            get: function() {
-                return Input.Keys[48 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key1Up", {
-            get: function() {
-                return Input.Keys[49 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key1Press", {
-            get: function() {
-                return Input.Keys[49 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key1Down", {
-            get: function() {
-                return Input.Keys[49 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key2Up", {
-            get: function() {
-                return Input.Keys[50 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key2Press", {
-            get: function() {
-                return Input.Keys[50 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key2Down", {
-            get: function() {
-                return Input.Keys[50 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key3Up", {
-            get: function() {
-                return Input.Keys[51 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key3Press", {
-            get: function() {
-                return Input.Keys[51 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key3Down", {
-            get: function() {
-                return Input.Keys[51 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key4Up", {
-            get: function() {
-                return Input.Keys[52 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key4Press", {
-            get: function() {
-                return Input.Keys[52 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key4Down", {
-            get: function() {
-                return Input.Keys[52 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key5Up", {
-            get: function() {
-                return Input.Keys[53 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key5Press", {
-            get: function() {
-                return Input.Keys[53 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key5Down", {
-            get: function() {
-                return Input.Keys[53 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key6Up", {
-            get: function() {
-                return Input.Keys[54 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key6Press", {
-            get: function() {
-                return Input.Keys[54 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key6Down", {
-            get: function() {
-                return Input.Keys[54 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key7Up", {
-            get: function() {
-                return Input.Keys[55 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key7Press", {
-            get: function() {
-                return Input.Keys[55 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key7Down", {
-            get: function() {
-                return Input.Keys[55 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key8Up", {
-            get: function() {
-                return Input.Keys[56 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key8Press", {
-            get: function() {
-                return Input.Keys[56 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key8Down", {
-            get: function() {
-                return Input.Keys[56 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key9Up", {
-            get: function() {
-                return Input.Keys[57 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key9Press", {
-            get: function() {
-                return Input.Keys[57 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Key9Down", {
-            get: function() {
-                return Input.Keys[57 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad0Up", {
-            get: function() {
-                return Input.Keys[96 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad0Press", {
-            get: function() {
-                return Input.Keys[96 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad0Down", {
-            get: function() {
-                return Input.Keys[96 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad1Up", {
-            get: function() {
-                return Input.Keys[97 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad1Press", {
-            get: function() {
-                return Input.Keys[97 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad1Down", {
-            get: function() {
-                return Input.Keys[97 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad2Up", {
-            get: function() {
-                return Input.Keys[98 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad2Press", {
-            get: function() {
-                return Input.Keys[98 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad2Down", {
-            get: function() {
-                return Input.Keys[98 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad3Up", {
-            get: function() {
-                return Input.Keys[99 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad3Press", {
-            get: function() {
-                return Input.Keys[99 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad3Down", {
-            get: function() {
-                return Input.Keys[99 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad4Up", {
-            get: function() {
-                return Input.Keys[100 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad4Press", {
-            get: function() {
-                return Input.Keys[100 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad4Down", {
-            get: function() {
-                return Input.Keys[100 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad5Up", {
-            get: function() {
-                return Input.Keys[101 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad5Press", {
-            get: function() {
-                return Input.Keys[101 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad5Down", {
-            get: function() {
-                return Input.Keys[101 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad6Up", {
-            get: function() {
-                return Input.Keys[102 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad6Press", {
-            get: function() {
-                return Input.Keys[102 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad6Down", {
-            get: function() {
-                return Input.Keys[102 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad7Up", {
-            get: function() {
-                return Input.Keys[103 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad7Press", {
-            get: function() {
-                return Input.Keys[103 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad7Down", {
-            get: function() {
-                return Input.Keys[103 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad8Up", {
-            get: function() {
-                return Input.Keys[104 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad8Press", {
-            get: function() {
-                return Input.Keys[104 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad8Down", {
-            get: function() {
-                return Input.Keys[104 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad9Up", {
-            get: function() {
-                return Input.Keys[105 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad9Press", {
-            get: function() {
-                return Input.Keys[105 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "Numpad9Down", {
-            get: function() {
-                return Input.Keys[105 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDivideUp", {
-            get: function() {
-                return Input.Keys[111 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDividePress", {
-            get: function() {
-                return Input.Keys[111 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDivideDown", {
-            get: function() {
-                return Input.Keys[111 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMultiplyUp", {
-            get: function() {
-                return Input.Keys[106 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMultiplyPress", {
-            get: function() {
-                return Input.Keys[106 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMultiplyDown", {
-            get: function() {
-                return Input.Keys[106 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySubtractUp", {
-            get: function() {
-                return Input.Keys[109 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySubtractPress", {
-            get: function() {
-                return Input.Keys[109 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySubtractDown", {
-            get: function() {
-                return Input.Keys[109 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAddUp", {
-            get: function() {
-                return Input.Keys[107 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAddPress", {
-            get: function() {
-                return Input.Keys[107 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAddDown", {
-            get: function() {
-                return Input.Keys[107 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTabUp", {
-            get: function() {
-                return Input.Keys[9 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTabPress", {
-            get: function() {
-                return Input.Keys[9 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTabDown", {
-            get: function() {
-                return Input.Keys[9 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCapsUp", {
-            get: function() {
-                return Input.Keys[20 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCapsPress", {
-            get: function() {
-                return Input.Keys[20 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCapsDown", {
-            get: function() {
-                return Input.Keys[20 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyShiftUp", {
-            get: function() {
-                return Input.Keys[16 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyShiftPress", {
-            get: function() {
-                return Input.Keys[16 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyShiftDown", {
-            get: function() {
-                return Input.Keys[16 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCtrlUp", {
-            get: function() {
-                return Input.Keys[17 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCtrlPress", {
-            get: function() {
-                return Input.Keys[17 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCtrlDown", {
-            get: function() {
-                return Input.Keys[17 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAltUp", {
-            get: function() {
-                return Input.Keys[18 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAltPress", {
-            get: function() {
-                return Input.Keys[18 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAltDown", {
-            get: function() {
-                return Input.Keys[18 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBackspaceUp", {
-            get: function() {
-                return Input.Keys[8 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBackspacePress", {
-            get: function() {
-                return Input.Keys[8 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBackspaceDown", {
-            get: function() {
-                return Input.Keys[8 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEnterUp", {
-            get: function() {
-                return Input.Keys[13 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEnterPress", {
-            get: function() {
-                return Input.Keys[13 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEnterDown", {
-            get: function() {
-                return Input.Keys[13 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUpUp", {
-            get: function() {
-                return Input.Keys[38 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUpPress", {
-            get: function() {
-                return Input.Keys[38 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUpDown", {
-            get: function() {
-                return Input.Keys[38 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLeftUp", {
-            get: function() {
-                return Input.Keys[37 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLeftPress", {
-            get: function() {
-                return Input.Keys[37 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLeftDown", {
-            get: function() {
-                return Input.Keys[37 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRightUp", {
-            get: function() {
-                return Input.Keys[39 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRightPress", {
-            get: function() {
-                return Input.Keys[39 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRightDown", {
-            get: function() {
-                return Input.Keys[39 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDownUp", {
-            get: function() {
-                return Input.Keys[40 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDownPress", {
-            get: function() {
-                return Input.Keys[40 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDownDown", {
-            get: function() {
-                return Input.Keys[40 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAUp", {
-            get: function() {
-                return Input.Keys[65 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyAPress", {
-            get: function() {
-                return Input.Keys[65 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyADown", {
-            get: function() {
-                return Input.Keys[65 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBUp", {
-            get: function() {
-                return Input.Keys[66 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBPress", {
-            get: function() {
-                return Input.Keys[66 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyBDown", {
-            get: function() {
-                return Input.Keys[66 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCUp", {
-            get: function() {
-                return Input.Keys[67 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCPress", {
-            get: function() {
-                return Input.Keys[67 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyCDown", {
-            get: function() {
-                return Input.Keys[67 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDUp", {
-            get: function() {
-                return Input.Keys[68 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDPress", {
-            get: function() {
-                return Input.Keys[68 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyDDown", {
-            get: function() {
-                return Input.Keys[68 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEUp", {
-            get: function() {
-                return Input.Keys[69 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEPress", {
-            get: function() {
-                return Input.Keys[69 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyEDown", {
-            get: function() {
-                return Input.Keys[69 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyFUp", {
-            get: function() {
-                return Input.Keys[70 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyFPress", {
-            get: function() {
-                return Input.Keys[70 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyFDown", {
-            get: function() {
-                return Input.Keys[70 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyGUp", {
-            get: function() {
-                return Input.Keys[71 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyGPress", {
-            get: function() {
-                return Input.Keys[71 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyGDown", {
-            get: function() {
-                return Input.Keys[71 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyHUp", {
-            get: function() {
-                return Input.Keys[72 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyHPress", {
-            get: function() {
-                return Input.Keys[72 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyHDown", {
-            get: function() {
-                return Input.Keys[72 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyIUp", {
-            get: function() {
-                return Input.Keys[73 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyIPress", {
-            get: function() {
-                return Input.Keys[73 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyIDown", {
-            get: function() {
-                return Input.Keys[73 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyJUp", {
-            get: function() {
-                return Input.Keys[74 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyJPress", {
-            get: function() {
-                return Input.Keys[74 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyJDown", {
-            get: function() {
-                return Input.Keys[74 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyKUp", {
-            get: function() {
-                return Input.Keys[75 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyKPress", {
-            get: function() {
-                return Input.Keys[75 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyKDown", {
-            get: function() {
-                return Input.Keys[75 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLUp", {
-            get: function() {
-                return Input.Keys[76 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLPress", {
-            get: function() {
-                return Input.Keys[76 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyLDown", {
-            get: function() {
-                return Input.Keys[76 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMUp", {
-            get: function() {
-                return Input.Keys[77 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMPress", {
-            get: function() {
-                return Input.Keys[77 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyMDown", {
-            get: function() {
-                return Input.Keys[77 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyNUp", {
-            get: function() {
-                return Input.Keys[78 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyNPress", {
-            get: function() {
-                return Input.Keys[78 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyNDown", {
-            get: function() {
-                return Input.Keys[78 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyOUp", {
-            get: function() {
-                return Input.Keys[79 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyOPress", {
-            get: function() {
-                return Input.Keys[79 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyODown", {
-            get: function() {
-                return Input.Keys[79 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyPUp", {
-            get: function() {
-                return Input.Keys[80 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyPPress", {
-            get: function() {
-                return Input.Keys[80 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyPDown", {
-            get: function() {
-                return Input.Keys[80 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyQUp", {
-            get: function() {
-                return Input.Keys[81 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyQPress", {
-            get: function() {
-                return Input.Keys[81 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyQDown", {
-            get: function() {
-                return Input.Keys[81 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRUp", {
-            get: function() {
-                return Input.Keys[82 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRPress", {
-            get: function() {
-                return Input.Keys[82 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyRDown", {
-            get: function() {
-                return Input.Keys[82 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySUp", {
-            get: function() {
-                return Input.Keys[83 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySPress", {
-            get: function() {
-                return Input.Keys[83 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeySDown", {
-            get: function() {
-                return Input.Keys[83 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTUp", {
-            get: function() {
-                return Input.Keys[84 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTPress", {
-            get: function() {
-                return Input.Keys[84 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyTDown", {
-            get: function() {
-                return Input.Keys[84 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUUp", {
-            get: function() {
-                return Input.Keys[85 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUPress", {
-            get: function() {
-                return Input.Keys[85 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyUDown", {
-            get: function() {
-                return Input.Keys[85 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyVUp", {
-            get: function() {
-                return Input.Keys[86 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyVPress", {
-            get: function() {
-                return Input.Keys[86 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyVDown", {
-            get: function() {
-                return Input.Keys[86 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyWUp", {
-            get: function() {
-                return Input.Keys[87 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyWPress", {
-            get: function() {
-                return Input.Keys[87 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyWDown", {
-            get: function() {
-                return Input.Keys[87 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyXUp", {
-            get: function() {
-                return Input.Keys[88 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyXPress", {
-            get: function() {
-                return Input.Keys[88 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyXDown", {
-            get: function() {
-                return Input.Keys[88 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyYUp", {
-            get: function() {
-                return Input.Keys[89 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyYPress", {
-            get: function() {
-                return Input.Keys[89 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyYDown", {
-            get: function() {
-                return Input.Keys[89 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyZUp", {
-            get: function() {
-                return Input.Keys[90 + Input.UP_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyZPress", {
-            get: function() {
-                return Input.Keys[90 + Input.PRESS_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "KeyZDown", {
-            get: function() {
-                return Input.Keys[90 + Input.DOWN_K];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseLeftUp", {
-            get: function() {
-                return Input.Mouse[0 + Input.UP_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseLeftClick", {
-            get: function() {
-                return Input.Mouse[0 + Input.CLICK_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseLeftDown", {
-            get: function() {
-                return Input.Mouse[0 + Input.DOWN_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseMiddleUp", {
-            get: function() {
-                return Input.Mouse[1 + Input.UP_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseMiddleClick", {
-            get: function() {
-                return Input.Mouse[1 + Input.CLICK_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseMiddleDown", {
-            get: function() {
-                return Input.Mouse[1 + Input.DOWN_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseRightUp", {
-            get: function() {
-                return Input.Mouse[2 + Input.UP_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseRightClick", {
-            get: function() {
-                return Input.Mouse[2 + Input.CLICK_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseRightDown", {
-            get: function() {
-                return Input.Mouse[2 + Input.DOWN_M];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseX", {
-            get: function() {
-                return Input.Axis[Input._X + Input.CURR_A];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseY", {
-            get: function() {
-                return Input.Axis[Input._Y + Input.CURR_A];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseDeltaX", {
-            get: function() {
-                return Input.Axis[Input._X + Input.DELTA_A];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseDeltaY", {
-            get: function() {
-                return Input.Axis[Input._Y + Input.DELTA_A];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseWheelUp", {
-            get: function() {
-                return Input.Mouse[Input.WHEEL_U];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Input.prototype, "MouseWheelDown", {
-            get: function() {
-                return Input.Mouse[Input.WHEEL_D];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Input.prototype.InputUpdate = function() {
-            for (var i = Input.PRESS_K; i < Input.DOWN_K; ++i)
-                if (Input.Keys[i])
-                    Input.Keys[i] = false;
-            for (var i = Input.CLICK_M; i < Input.DOWN_M; ++i)
-                if (Input.Mouse[i])
-                    Input.Mouse[i] = false;
-            Input.Axis[Input._X + Input.DELTA_A] = 0;
-            Input.Axis[Input._Y + Input.DELTA_A] = 0;
-            Input.Mouse[Input.WHEEL_U] = false;
-            Input.Mouse[Input.WHEEL_D] = false;
-        };
-        return Input;
-    }());
-    Input.UP_K = 0;
-    Input.PRESS_K = 128;
-    Input.DOWN_K = 256;
-    Input.END_K = 384;
-    Input.Keys = new Array();
-    Input.UP_M = 0;
-    Input.CLICK_M = 3;
-    Input.DOWN_M = 6;
-    Input.WHEEL_U = 9;
-    Input.WHEEL_D = 10;
-    Input.END_M = 11;
-    Input.Mouse = new Array();
-    Input._X = 0;
-    Input._Y = 1;
-    Input.CURR_A = 0;
-    Input.PREV_A = 2;
-    Input.DELTA_A = 4;
-    Input.END_A = 8;
-    Input.Axis = new Array();
-    var Time = (function() {
-        function Time() {}
-        Object.defineProperty(Time.prototype, "Delta", {
-            get: function() {
-                if (this.now && this.then)
-                    return (this.now - this.then) / 60;
-                return 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Time.prototype, "DeltaTime", {
-            get: function() {
-                if (this.now && this.then)
-                    return this.now - this.then;
-                return 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Time.prototype, "Now", {
-            get: function() {
-                return new Date(Date.now());
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Time.prototype.Update = function() {
-            if (!this.now && !this.then)
-                this.now = this.then = Date.now();
-            else {
-                this.then = this.now;
-                this.now = Date.now();
-            }
-        };
-        Time.prototype.Reset = function() {
-            this.now = this.then = undefined;
-        };
-        return Time;
-    }());
-    var AnimationFrame = (function(_super) {
-        __extends(AnimationFrame, _super);
-
-        function AnimationFrame(request) {
-            return _super.call(this, request) || this;
-        }
-        return AnimationFrame;
-    }(KeyFrame));
-    var ColourAnimationFrame = (function(_super) {
-        __extends(ColourAnimationFrame, _super);
-
-        function ColourAnimationFrame(request) {
-            return _super.call(this, request) || this;
-        }
-        return ColourAnimationFrame;
-    }(AnimationFrame));
-    var TransformAnimationFrame = (function(_super) {
-        __extends(TransformAnimationFrame, _super);
-
-        function TransformAnimationFrame(request) {
-            return _super.call(this, request) || this;
-        }
-        return TransformAnimationFrame;
-    }(AnimationFrame));
-    var IAnimation = (function() {
-        function IAnimation() {}
-        return IAnimation;
-    }());
-    var Animation = (function(_super) {
-        __extends(Animation, _super);
-
-        function Animation(_a) {
-            var _b = _a.Name,
-                Name = _b === void 0 ? "Animation" : _b,
-                _c = _a.GameObject,
-                GameObject = _c === void 0 ? null : _c;
-            return _super.call(this, Name, GameObject) || this;
-        }
-        Animation.prototype.Update = function() {};
-        return Animation;
-    }(GameItem));
-    var CameraMode;
-    (function(CameraMode) {
-        CameraMode[CameraMode["PERSPECTIVE"] = 0] = "PERSPECTIVE";
-        CameraMode[CameraMode["ORTHOGRAPHIC"] = 1] = "ORTHOGRAPHIC";
-    })(CameraMode || (CameraMode = {}));
-    var Camera = (function() {
-        function Camera() {
-            this.Mode = CameraMode.PERSPECTIVE;
-            this.FOV = 35;
-            this.Aspect = 16 / 9;
-            this.Near = 0.1;
-            this.Far = 900;
-            this.Left = -10;
-            this.Right = 10;
-            this.Top = 10;
-            this.Bottom = 10;
-            this.Theta = 90;
-            this.Phi = 90;
-        }
-        Camera.prototype.Update = function() {
-            if (FWGE.GL.canvas.width != FWGE.GL.canvas.clientWidth || FWGE.GL.canvas.height != FWGE.GL.canvas.clientHeight) {
-                FWGE.GL.canvas.width = FWGE.GL.canvas.clientWidth;
-                FWGE.GL.canvas.height = FWGE.GL.canvas.clientHeight;
-            }
-            this.Aspect = FWGE.GL.drawingBufferWidth / FWGE.GL.drawingBufferHeight;
-        };
-        return Camera;
-    }());
-    var Viewer = (function() {
-        function Viewer(_a) {
-            var _b = _a.Position,
-                Position = _b === void 0 ? Vector3.Zero : _b,
-                _c = _a.Target,
-                Target = _c === void 0 ? Vector3.Zero : _c;
-            this.Position = Vector3.Zero;
-            this.Target = Vector3.Zero;
-            this.Matrix = Matrix4.Identity;
-            this.Direction = Vector3.Zero;
-            this.Up = Vector3.Zero;
-            this.Right = Vector3.Zero;
-            this.Position = Position;
-            this.Target = Target;
-        }
-        Viewer.prototype.Update = function() {
-            this.Direction.Set(this.Position).Diff(this.Target).Unit();
-            this.Right.Set(this.Up).Cross(this.Direction).Unit();
-            this.Up.Set(this.Direction).Cross(this.Right).Unit();
-            this.Matrix.Set([
-                this.Right.X, this.Right.Y, this.Right.Z, 0,
-                this.Up.X, this.Up.Y, this.Up.Z, 0,
-                this.Direction.X, this.Direction.Y, this.Direction.Z, 0,
-                0, 0, 0, 1
-            ]).Mult([
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                this.Position.X, this.Position.Y, this.Position.Z, 1
-            ]);
-        };
-        return Viewer;
-    }());
-    var LightItem = (function(_super) {
-        __extends(LightItem, _super);
-
-        function LightItem(_a) {
-            var _b = _a.Name,
-                Name = _b === void 0 ? "Light Item" : _b,
-                _c = _a.Parent,
-                Parent = _c === void 0 ? new GameObject() : _c,
-                _d = _a.Paint,
-                Paint = _d === void 0 ? [1, 1, 1, 1] : _d,
-                _e = _a.Intensity,
-                Intensity = _e === void 0 ? 1.0 : _e;
-            var _this = _super.call(this, Name, Parent) || this;
-            _this.Colour = new Colour(Paint);
-            _this.Intensity = Intensity;
-            return _this;
-        }
-        return LightItem;
-    }(GameItem));
-    var AmbientLight = (function(_super) {
-        __extends(AmbientLight, _super);
-
-        function AmbientLight(_a) {
-            var _b = _a.Name,
-                Name = _b === void 0 ? "Ambient Light" : _b,
-                Parent = _a.Parent,
-                Paint = _a.Paint,
-                Intensity = _a.Intensity;
-            return _super.call(this, {
-                Name: Name,
-                Parent: Parent,
-                Paint: Paint,
-                Intensity: Intensity
-            }) || this;
-        }
-        return AmbientLight;
-    }(LightItem));
-    var DirectionalLight = (function(_super) {
-        __extends(DirectionalLight, _super);
-
-        function DirectionalLight(_a) {
-            var _b = _a.Direction,
-                Direction = _b === void 0 ? Vector3.One : _b,
-                Paint = _a.Paint,
-                Intensity = _a.Intensity,
-                Name = _a.Name,
-                Parent = _a.Parent;
-            var _this = _super.call(this, {
-                Name: Name,
-                Parent: Parent,
-                Paint: Paint,
-                Intensity: Intensity
-            }) || this;
-            _this.Direction = Direction;
-            return _this;
-        }
-        return DirectionalLight;
-    }(LightItem));
-    var PointLight = (function(_super) {
-        __extends(PointLight, _super);
-
-        function PointLight(_a) {
-            var Name = _a.Name,
-                Parent = _a.Parent,
-                Paint = _a.Paint,
-                Intensity = _a.Intensity,
-                _b = _a.Radius,
-                Radius = _b === void 0 ? 5 : _b,
-                _c = _a.Angle,
-                Angle = _c === void 0 ? 180 : _c,
-                _d = _a.Shininess,
-                Shininess = _d === void 0 ? 255 : _d;
-            var _this = _super.call(this, {
-                Name: Name,
-                Parent: Parent,
-                Paint: Paint,
-                Intensity: Intensity
-            }) || this;
-            _this.Radius = Radius;
-            _this.Angle = Angle;
-            _this.Shininess = Shininess;
-            return _this;
-        }
-        return PointLight;
-    }(LightItem));
-    var Light = (function() {
-        function Light() {
-            this.AmbientCount = 0;
-            this.DirectionalCount = 0;
-            this.PointCount = 0;
-            this.MAX_AMBIENT = 1;
-            this.MAX_DIRECTIONAL = 3;
-            this.MAX_POINT = 8;
-            this.MAX_LIGHTS = 12;
-            for (var i = 0; i < this.MAX_LIGHTS; ++i)
-                Light.Lights.push(null);
-        }
-        Light.prototype.Ambient = function(request) {
-            var light = null;
-            if (this.AmbientCount < this.MAX_AMBIENT) {
-                light = new AmbientLight(request);
-                light.GameObject.Light = light;
-                this.AmbientCount++;
-                Light.Lights[0] = light;
-            }
-            return light;
-        };
-        Light.prototype.Directional = function(request) {
-            var light = null;
-            if (this.DirectionalCount < this.MAX_DIRECTIONAL) {
-                for (var i = this.MAX_AMBIENT; i < this.MAX_DIRECTIONAL; ++i) {
-                    if (!Light.Lights[i]) {
-                        light = new DirectionalLight(request);
-                        light.GameObject.Light = light;
-                        this.DirectionalCount++;
-                        Light.Lights[i] = light;
-                        break;
-                    }
-                }
-            }
-            return light;
-        };
-        Light.prototype.Point = function(request) {
-            var light = null;
-            if (this.PointCount < this.MAX_POINT) {
-                for (var i = this.MAX_DIRECTIONAL; i < this.MAX_LIGHTS; ++i) {
-                    if (!Light.Lights[i]) {
-                        light = new PointLight(request);
-                        light.GameObject.Light = light;
-                        this.PointCount++;
-                        Light.Lights[i] = light;
-                        break;
-                    }
-                }
-            }
-            return light;
-        };
-        Light.prototype.Remove = function(light) {
-            for (var i in Light.Lights)
-                if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)
-                    Light.Lights[i] = null;
-        };
-        return Light;
-    }());
-    Light.Lights = new Array();
-    var Matrix2 = (function() {
-        function Matrix2() {
-            this.Buffer = new Float32Array(4);
-        }
-        Object.defineProperty(Matrix2.prototype, "M11", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(m11) {
-                this.Buffer[0] = m11;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix2.prototype, "M12", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(m12) {
-                this.Buffer[1] = m12;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix2.prototype, "M21", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(m21) {
-                this.Buffer[2] = m21;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix2.prototype, "M22", {
-            get: function() {
-                return this.Buffer[3];
-            },
-            set: function(m22) {
-                this.Buffer[3] = m22;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix2, "Identity", {
-            get: function() {
-                return new Matrix2().Identity();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix2.GetArgs = function(args) {
-            if (!args)
-                return [0, 0,
-                    0, 0
-                ];
-            if (args instanceof Matrix2)
-                return [args.M11, args.M12,
-                    args.M21, args.M22
-                ];
-            else if ((args instanceof Float32Array && args.length >= 4) ||
-                (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number" && typeof args[3] === "number"))
-                return args;
-            return Matrix2.GetArgs(args[0]);
-        };
-        Matrix2.prototype.Set = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix2.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m21 = _a[2],
-                m22 = _a[3];
-            this.M11 = m11;
-            this.M12 = m12;
-            this.M21 = m21;
-            this.M22 = m22;
-            return this;
-        };
-        Matrix2.prototype.Transpose = function() {
-            return this.Set(this.M11, this.M21, this.M12, this.M22);
-        };
-        Matrix2.prototype.Identity = function() {
-            return this.Set(1, 0, 0, 1);
-        };
-        Object.defineProperty(Matrix2.prototype, "Determinant", {
-            get: function() {
-                return this.M11 * this.M22 - this.M21 * this.M12;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix2.prototype.Inverse = function() {
-            var det = this.Determinant;
-            if (det !== 0)
-                this.Set(this.M22 / det, -this.M12 / det, -this.M21 / det, this.M11 / det);
-            return this;
-        };
-        Matrix2.prototype.Sum = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix2.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m21 = _a[2],
-                m22 = _a[3];
-            return this.Set(this.M11 + m11, this.M12 + m12, this.M21 + m21, this.M22 + m22);
-        };
-        Matrix2.prototype.Mult = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix2.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m21 = _a[2],
-                m22 = _a[3];
-            return this.Set(this.M11 * m11 + this.M12 * m21, this.M11 * m12 + this.M12 * m22, this.M21 * m11 + this.M22 * m21, this.M21 * m12 + this.M22 * m22);
-        };
-        Matrix2.prototype.Scale = function(scaler) {
-            return this.Set(this.M11 * scaler, this.M12 * scaler, this.M21 * scaler, this.M22 * scaler);
-        };
-        return Matrix2;
-    }());
-    var Matrix3 = (function() {
-        function Matrix3() {
-            this.Buffer = new Float32Array(9);
-        }
-        Object.defineProperty(Matrix3.prototype, "M11", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(m11) {
-                this.Buffer[0] = m11;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M12", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(m12) {
-                this.Buffer[1] = m12;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M13", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(m13) {
-                this.Buffer[2] = m13;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M21", {
-            get: function() {
-                return this.Buffer[3];
-            },
-            set: function(m21) {
-                this.Buffer[3] = m21;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M22", {
-            get: function() {
-                return this.Buffer[4];
-            },
-            set: function(m22) {
-                this.Buffer[4] = m22;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M23", {
-            get: function() {
-                return this.Buffer[5];
-            },
-            set: function(m23) {
-                this.Buffer[5] = m23;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M31", {
-            get: function() {
-                return this.Buffer[6];
-            },
-            set: function(m31) {
-                this.Buffer[6] = m31;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M32", {
-            get: function() {
-                return this.Buffer[7];
-            },
-            set: function(m32) {
-                this.Buffer[7] = m32;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3.prototype, "M33", {
-            get: function() {
-                return this.Buffer[8];
-            },
-            set: function(m33) {
-                this.Buffer[8] = m33;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix3, "Identity", {
-            get: function() {
-                return new Matrix3().Identity();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix3.GetArgs = function(args) {
-            if (!args)
-                return [0, 0, 0,
-                    0, 0, 0,
-                    0, 0, 0
-                ];
-            if (args instanceof Matrix3)
-                return [args.M11, args.M12, args.M13,
-                    args.M21, args.M22, args.M23,
-                    args.M31, args.M32, args.M33
-                ];
-            else if ((args instanceof Float32Array && args.length >= 9) ||
-                (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number" &&
-                    typeof args[3] === "number" && typeof args[4] === "number" && typeof args[5] === "number" &&
-                    typeof args[6] === "number" && typeof args[7] === "number" && typeof args[8] === "number"))
-                return args;
-            return Matrix3.GetArgs(args[0]);
-        };
-        Matrix3.prototype.Set = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix3.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m21 = _a[3],
-                m22 = _a[4],
-                m23 = _a[5],
-                m31 = _a[6],
-                m32 = _a[7],
-                m33 = _a[8];
-            this.M11 = m11;
-            this.M12 = m12;
-            this.M13 = m13;
-            this.M21 = m21;
-            this.M22 = m22;
-            this.M23 = m23;
-            this.M31 = m31;
-            this.M32 = m32;
-            this.M33 = m33;
-            return this;
-        };
-        Matrix3.prototype.Transpose = function() {
-            return this.Set(this.M11, this.M21, this.M31, this.M12, this.M22, this.M32, this.M13, this.M23, this.M33);
-        };
-        Matrix3.prototype.Identity = function() {
-            return this.Set(1, 0, 0, 0, 1, 0, 0, 0, 1);
-        };
-        Object.defineProperty(Matrix3.prototype, "Determinant", {
-            get: function() {
-                return this.M11 * (this.M22 * this.M33 - this.M23 * this.M32) -
-                    this.M12 * (this.M21 * this.M33 - this.M23 * this.M31) +
-                    this.M13 * (this.M21 * this.M32 - this.M22 * this.M31);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix3.prototype.Inverse = function() {
-            var det = this.Determinant;
-            if (det !== 0)
-                this.Set((this.M22 * this.M33 - this.M32 * this.M23) / det, -(this.M12 * this.M33 - this.M32 * this.M13) / det, (this.M12 * this.M23 - this.M22 * this.M13) / det, -(this.M21 * this.M33 - this.M31 * this.M23) / det, (this.M11 * this.M33 - this.M31 * this.M13) / det, -(this.M11 * this.M23 - this.M21 * this.M13) / det, (this.M21 * this.M32 - this.M31 * this.M22) / det, -(this.M11 * this.M32 - this.M31 * this.M12) / det, (this.M11 * this.M22 - this.M21 * this.M12) / det);
-            return this;
-        };
-        Matrix3.prototype.Sum = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix3.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m21 = _a[3],
-                m22 = _a[4],
-                m23 = _a[5],
-                m31 = _a[6],
-                m32 = _a[7],
-                m33 = _a[8];
-            return this.Set(this.M11 + m11, this.M12 + m12, this.M13 + m13, this.M21 + m21, this.M22 + m22, this.M23 + m23, this.M31 + m31, this.M32 + m32, this.M33 + m33);
-        };
-        Matrix3.prototype.Mult = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix3.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m21 = _a[3],
-                m22 = _a[4],
-                m23 = _a[5],
-                m31 = _a[6],
-                m32 = _a[7],
-                m33 = _a[8];
-            return this.Set(this.M11 * m11 + this.M12 * m21 + this.M13 * m31, this.M11 * m12 + this.M12 * m22 + this.M13 * m32, this.M11 * m13 + this.M12 * m23 + this.M13 * m33, this.M21 * m11 + this.M22 * m21 + this.M23 * m31, this.M21 * m12 + this.M22 * m22 + this.M23 * m32, this.M21 * m13 + this.M22 * m23 + this.M23 * m33, this.M31 * m11 + this.M32 * m21 + this.M33 * m31, this.M31 * m12 + this.M32 * m22 + this.M33 * m32, this.M31 * m13 + this.M32 * m23 + this.M33 * m33);
-        };
-        Matrix3.prototype.Scale = function(scaler) {
-            return this.Set(this.M11 * scaler, this.M12 * scaler, this.M13 * scaler, this.M21 * scaler, this.M22 * scaler, this.M23 * scaler, this.M31 * scaler, this.M32 * scaler, this.M33 * scaler);
-        };
-        return Matrix3;
-    }());
-    var Matrix4 = (function() {
-        function Matrix4() {
-            this.Buffer = new Float32Array(16);
-        }
-        Object.defineProperty(Matrix4.prototype, "M11", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(m11) {
-                this.Buffer[0] = m11;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M12", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(m12) {
-                this.Buffer[1] = m12;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M13", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(m13) {
-                this.Buffer[2] = m13;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M14", {
-            get: function() {
-                return this.Buffer[3];
-            },
-            set: function(m14) {
-                this.Buffer[3] = m14;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M21", {
-            get: function() {
-                return this.Buffer[4];
-            },
-            set: function(m21) {
-                this.Buffer[4] = m21;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M22", {
-            get: function() {
-                return this.Buffer[5];
-            },
-            set: function(m22) {
-                this.Buffer[5] = m22;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M23", {
-            get: function() {
-                return this.Buffer[6];
-            },
-            set: function(m23) {
-                this.Buffer[6] = m23;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M24", {
-            get: function() {
-                return this.Buffer[7];
-            },
-            set: function(m24) {
-                this.Buffer[7] = m24;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M31", {
-            get: function() {
-                return this.Buffer[8];
-            },
-            set: function(m31) {
-                this.Buffer[8] = m31;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M32", {
-            get: function() {
-                return this.Buffer[9];
-            },
-            set: function(m32) {
-                this.Buffer[9] = m32;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M33", {
-            get: function() {
-                return this.Buffer[10];
-            },
-            set: function(m33) {
-                this.Buffer[10] = m33;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M34", {
-            get: function() {
-                return this.Buffer[11];
-            },
-            set: function(m34) {
-                this.Buffer[11] = m34;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M41", {
-            get: function() {
-                return this.Buffer[12];
-            },
-            set: function(m41) {
-                this.Buffer[12] = m41;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M42", {
-            get: function() {
-                return this.Buffer[13];
-            },
-            set: function(m42) {
-                this.Buffer[13] = m42;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M43", {
-            get: function() {
-                return this.Buffer[14];
-            },
-            set: function(m43) {
-                this.Buffer[14] = m43;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4.prototype, "M44", {
-            get: function() {
-                return this.Buffer[15];
-            },
-            set: function(m44) {
-                this.Buffer[15] = m44;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix4, "Identity", {
-            get: function() {
-                return (new Matrix4()).Identity();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix4.GetArgs = function(args) {
-            if (!args)
-                return [0, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0
-                ];
-            if (args instanceof Matrix4)
-                return [args.M11, args.M12, args.M13, args.M14,
-                    args.M21, args.M22, args.M23, args.M24,
-                    args.M31, args.M32, args.M33, args.M34,
-                    args.M41, args.M42, args.M43, args.M44
-                ];
-            else if ((args instanceof Float32Array && args.length >= 16) ||
-                (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number" && typeof args[3] === "number" &&
-                    typeof args[4] === "number" && typeof args[5] === "number" && typeof args[6] === "number" && typeof args[7] === "number" &&
-                    typeof args[8] === "number" && typeof args[9] === "number" && typeof args[10] === "number" && typeof args[11] === "number" &&
-                    typeof args[12] === "number" && typeof args[13] === "number" && typeof args[14] === "number" && typeof args[15] === "number"))
-                return args;
-            return Matrix4.GetArgs(args[0]);
-        };
-        Matrix4.prototype.Set = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix4.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m14 = _a[3],
-                m21 = _a[4],
-                m22 = _a[5],
-                m23 = _a[6],
-                m24 = _a[7],
-                m31 = _a[8],
-                m32 = _a[9],
-                m33 = _a[10],
-                m34 = _a[11],
-                m41 = _a[12],
-                m42 = _a[13],
-                m43 = _a[14],
-                m44 = _a[15];
-            this.M11 = m11;
-            this.M12 = m12;
-            this.M13 = m13;
-            this.M14 = m14;
-            this.M21 = m21;
-            this.M22 = m22;
-            this.M23 = m23;
-            this.M24 = m24;
-            this.M31 = m31;
-            this.M32 = m32;
-            this.M33 = m33;
-            this.M34 = m34;
-            this.M41 = m41;
-            this.M42 = m42;
-            this.M43 = m43;
-            this.M44 = m44;
-            return this;
-        };
-        Matrix4.prototype.Transpose = function() {
-            return this.Set(this.M11, this.M21, this.M31, this.M41, this.M12, this.M22, this.M32, this.M42, this.M13, this.M23, this.M33, this.M43, this.M14, this.M24, this.M34, this.M44);
-        };
-        Matrix4.prototype.Identity = function() {
-            return this.Set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        Object.defineProperty(Matrix4.prototype, "Determinant", {
-            get: function() {
-                return this.M11 * this.M22 * this.M33 * this.M44 +
-                    this.M11 * this.M23 * this.M34 * this.M42 +
-                    this.M11 * this.M24 * this.M32 * this.M43 +
-                    this.M12 * this.M21 * this.M34 * this.M43 +
-                    this.M12 * this.M23 * this.M31 * this.M44 +
-                    this.M12 * this.M24 * this.M33 * this.M41 +
-                    this.M13 * this.M21 * this.M32 * this.M44 +
-                    this.M13 * this.M22 * this.M34 * this.M41 +
-                    this.M13 * this.M24 * this.M31 * this.M42 +
-                    this.M14 * this.M21 * this.M33 * this.M42 +
-                    this.M14 * this.M22 * this.M31 * this.M43 +
-                    this.M14 * this.M23 * this.M32 * this.M41 -
-                    this.M11 * this.M22 * this.M34 * this.M43 -
-                    this.M11 * this.M23 * this.M32 * this.M44 -
-                    this.M11 * this.M24 * this.M33 * this.M42 -
-                    this.M12 * this.M21 * this.M33 * this.M44 -
-                    this.M12 * this.M23 * this.M34 * this.M41 -
-                    this.M12 * this.M24 * this.M31 * this.M43 -
-                    this.M13 * this.M21 * this.M34 * this.M42 -
-                    this.M13 * this.M22 * this.M31 * this.M44 -
-                    this.M13 * this.M24 * this.M32 * this.M41 -
-                    this.M14 * this.M21 * this.M32 * this.M43 -
-                    this.M14 * this.M22 * this.M33 * this.M41 -
-                    this.M14 * this.M23 * this.M31 * this.M42;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix4.prototype.Inverse = function() {
-            var det = this.Determinant;
-            if (det !== 0)
-                return this.Set((this.M22 * this.M33 * this.M44 +
-                    this.M23 * this.M34 * this.M42 +
-                    this.M24 * this.M32 * this.M43 -
-                    this.M22 * this.M34 * this.M43 -
-                    this.M23 * this.M32 * this.M44 -
-                    this.M24 * this.M33 * this.M42) / det, (this.M12 * this.M34 * this.M43 +
-                    this.M13 * this.M32 * this.M44 +
-                    this.M14 * this.M33 * this.M42 -
-                    this.M12 * this.M33 * this.M44 -
-                    this.M13 * this.M34 * this.M42 -
-                    this.M14 * this.M32 * this.M43) / det, (this.M12 * this.M23 * this.M44 +
-                    this.M13 * this.M24 * this.M42 +
-                    this.M14 * this.M22 * this.M43 -
-                    this.M12 * this.M24 * this.M43 -
-                    this.M13 * this.M22 * this.M44 -
-                    this.M14 * this.M23 * this.M42) / det, (this.M12 * this.M24 * this.M33 +
-                    this.M13 * this.M22 * this.M34 +
-                    this.M14 * this.M23 * this.M32 -
-                    this.M12 * this.M23 * this.M34 -
-                    this.M13 * this.M24 * this.M32 -
-                    this.M14 * this.M22 * this.M33) / det, (this.M21 * this.M34 * this.M43 +
-                    this.M23 * this.M31 * this.M44 +
-                    this.M24 * this.M33 * this.M41 -
-                    this.M21 * this.M33 * this.M44 -
-                    this.M23 * this.M34 * this.M41 -
-                    this.M24 * this.M31 * this.M43) / det, (this.M11 * this.M33 * this.M44 +
-                    this.M13 * this.M34 * this.M41 +
-                    this.M14 * this.M31 * this.M43 -
-                    this.M11 * this.M34 * this.M43 -
-                    this.M13 * this.M31 * this.M44 -
-                    this.M14 * this.M33 * this.M41) / det, (this.M11 * this.M24 * this.M43 +
-                    this.M13 * this.M21 * this.M44 +
-                    this.M14 * this.M23 * this.M41 -
-                    this.M11 * this.M23 * this.M44 -
-                    this.M13 * this.M24 * this.M41 -
-                    this.M14 * this.M21 * this.M43) / det, (this.M11 * this.M23 * this.M34 +
-                    this.M13 * this.M24 * this.M31 +
-                    this.M14 * this.M21 * this.M33 -
-                    this.M11 * this.M24 * this.M33 -
-                    this.M13 * this.M21 * this.M34 -
-                    this.M14 * this.M23 * this.M31) / det, (this.M21 * this.M32 * this.M44 +
-                    this.M22 * this.M34 * this.M41 +
-                    this.M24 * this.M31 * this.M42 -
-                    this.M21 * this.M34 * this.M42 -
-                    this.M22 * this.M31 * this.M44 -
-                    this.M24 * this.M32 * this.M41) / det, (this.M11 * this.M34 * this.M42 +
-                    this.M12 * this.M31 * this.M44 +
-                    this.M14 * this.M32 * this.M41 -
-                    this.M11 * this.M32 * this.M44 -
-                    this.M12 * this.M34 * this.M41 -
-                    this.M14 * this.M31 * this.M42) / det, (this.M11 * this.M22 * this.M44 +
-                    this.M12 * this.M24 * this.M41 +
-                    this.M14 * this.M21 * this.M42 -
-                    this.M11 * this.M24 * this.M42 -
-                    this.M12 * this.M21 * this.M44 -
-                    this.M14 * this.M22 * this.M41) / det, (this.M11 * this.M24 * this.M32 +
-                    this.M12 * this.M21 * this.M34 +
-                    this.M14 * this.M22 * this.M31 -
-                    this.M11 * this.M22 * this.M34 -
-                    this.M12 * this.M24 * this.M31 -
-                    this.M14 * this.M21 * this.M32) / det, (this.M21 * this.M33 * this.M42 +
-                    this.M22 * this.M31 * this.M43 +
-                    this.M23 * this.M32 * this.M41 -
-                    this.M21 * this.M32 * this.M43 -
-                    this.M22 * this.M33 * this.M41 -
-                    this.M23 * this.M31 * this.M42) / det, (this.M11 * this.M32 * this.M43 +
-                    this.M12 * this.M33 * this.M41 +
-                    this.M13 * this.M31 * this.M42 -
-                    this.M11 * this.M33 * this.M42 -
-                    this.M12 * this.M31 * this.M43 -
-                    this.M13 * this.M32 * this.M41) / det, (this.M11 * this.M23 * this.M42 +
-                    this.M12 * this.M21 * this.M43 +
-                    this.M13 * this.M22 * this.M41 -
-                    this.M11 * this.M22 * this.M43 -
-                    this.M12 * this.M23 * this.M41 -
-                    this.M13 * this.M21 * this.M42) / det, (this.M11 * this.M22 * this.M33 +
-                    this.M12 * this.M23 * this.M31 +
-                    this.M13 * this.M21 * this.M32 -
-                    this.M11 * this.M23 * this.M32 -
-                    this.M12 * this.M21 * this.M33 -
-                    this.M13 * this.M22 * this.M31) / det);
-            return this;
-        };
-        Matrix4.prototype.Sum = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix4.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m14 = _a[3],
-                m21 = _a[4],
-                m22 = _a[5],
-                m23 = _a[6],
-                m24 = _a[7],
-                m31 = _a[8],
-                m32 = _a[9],
-                m33 = _a[10],
-                m34 = _a[11],
-                m41 = _a[12],
-                m42 = _a[13],
-                m43 = _a[14],
-                m44 = _a[15];
-            return this.Set(this.M11 + m11, this.M12 + m12, this.M13 + m13, this.M14 + m14, this.M21 + m21, this.M22 + m22, this.M23 + m23, this.M24 + m24, this.M31 + m31, this.M32 + m32, this.M33 + m33, this.M34 + m34, this.M41 + m41, this.M42 + m42, this.M43 + m43, this.M44 + m44);
-        };
-        Matrix4.prototype.Mult = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Matrix4.GetArgs(args),
-                m11 = _a[0],
-                m12 = _a[1],
-                m13 = _a[2],
-                m14 = _a[3],
-                m21 = _a[4],
-                m22 = _a[5],
-                m23 = _a[6],
-                m24 = _a[7],
-                m31 = _a[8],
-                m32 = _a[9],
-                m33 = _a[10],
-                m34 = _a[11],
-                m41 = _a[12],
-                m42 = _a[13],
-                m43 = _a[14],
-                m44 = _a[15];
-            return this.Set(this.M11 * m11 + this.M12 * m21 + this.M13 * m31 + this.M14 * m41, this.M11 * m12 + this.M12 * m22 + this.M13 * m32 + this.M14 * m42, this.M11 * m13 + this.M12 * m23 + this.M13 * m33 + this.M14 * m43, this.M11 * m14 + this.M12 * m24 + this.M13 * m34 + this.M14 * m44, this.M21 * m11 + this.M22 * m21 + this.M23 * m31 + this.M24 * m41, this.M21 * m12 + this.M22 * m22 + this.M23 * m32 + this.M24 * m42, this.M21 * m13 + this.M22 * m23 + this.M23 * m33 + this.M24 * m43, this.M21 * m14 + this.M22 * m24 + this.M23 * m34 + this.M24 * m44, this.M31 * m11 + this.M32 * m21 + this.M33 * m31 + this.M34 * m41, this.M31 * m12 + this.M32 * m22 + this.M33 * m32 + this.M34 * m42, this.M31 * m13 + this.M32 * m23 + this.M33 * m33 + this.M34 * m43, this.M31 * m14 + this.M32 * m24 + this.M33 * m34 + this.M34 * m44, this.M41 * m11 + this.M42 * m21 + this.M43 * m31 + this.M44 * m41, this.M41 * m12 + this.M42 * m22 + this.M43 * m32 + this.M44 * m42, this.M41 * m13 + this.M42 * m23 + this.M43 * m33 + this.M44 * m43, this.M41 * m14 + this.M42 * m24 + this.M43 * m34 + this.M44 * m44);
-        };
-        Matrix4.prototype.Scale = function(scaler) {
-            return this.Set(this.M11 * scaler, this.M12 * scaler, this.M13 * scaler, this.M14 * scaler, this.M21 * scaler, this.M22 * scaler, this.M23 * scaler, this.M24 * scaler, this.M31 * scaler, this.M32 * scaler, this.M33 * scaler, this.M34 * scaler, this.M41 * scaler, this.M42 * scaler, this.M43 * scaler, this.M44 * scaler);
-        };
-        return Matrix4;
-    }());
-    var Vector2 = (function() {
-        function Vector2() {
-            this.Buffer = new Float32Array(3);
-        }
-        Object.defineProperty(Vector2.prototype, "X", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(x) {
-                this.Buffer[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector2.prototype, "Y", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(y) {
-                this.Buffer[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector2.GetArgs = function(args) {
-            if (!args)
-                return [0, 0];
-            if (args instanceof Vector2)
-                return [args.X, args.Y];
-            else if ((args instanceof Float32Array && args.length >= 2) ||
-                (typeof args[0] === "number" && typeof args[1] === "number"))
-                return args;
-            return Vector2.GetArgs(args[0]);
-        };
-        Object.defineProperty(Vector2, "Zero", {
-            get: function() {
-                return (new Vector2).Set(0, 0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector2, "One", {
-            get: function() {
-                return (new Vector2).Set(1, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector2, "Unit", {
-            get: function() {
-                return (new Vector2).Set(Math.sqrt(1 / 2), Math.sqrt(1 / 2));
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector2.prototype.Set = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            this.X = x;
-            this.Y = y;
-            return this;
-        };
-        Object.defineProperty(Vector2.prototype, "Length", {
-            get: function() {
-                return Math.sqrt(this.X * this.X + this.Y * this.Y);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector2.prototype.Sum = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            return this.Set(this.X + x, this.Y + y);
-        };
-        Vector2.prototype.Diff = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            return this.Set(x - this.X, y - this.Y);
-        };
-        Vector2.prototype.Mult = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            return this.Set(this.X * x, this.Y * y);
-        };
-        Vector2.prototype.Scale = function(scaler) {
-            return this.Set(this.X * scaler, this.Y * scaler);
-        };
-        Vector2.prototype.Dot = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            return this.X * x + this.Y * y;
-        };
-        Vector2.prototype.Unit = function() {
-            var length = this.Length;
-            if (length !== 0)
-                this.Scale(1 / length);
-            return this;
-        };
-        Vector2.prototype.Cross = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector2.GetArgs(args),
-                x = _a[0],
-                y = _a[1];
-            return this.Set(x, y);
-        };
-        return Vector2;
-    }());
-    var Vector3 = (function(_super) {
-        __extends(Vector3, _super);
-
-        function Vector3() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _this = _super.call(this, 3) || this;
-            _this.Set(args);
-            return _this;
-        }
-        Object.defineProperty(Vector3.prototype, "X", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(x) {
-                this.Buffer[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "Y", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(y) {
-                this.Buffer[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "Z", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(z) {
-                this.Buffer[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "Length", {
-            get: function() {
-                return Vector3.Length(this);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector3.prototype.Set = function(args) {
-            return Vector3.Set(this, args);
-        };
-        Vector3.prototype.Sum = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return this.Set(this.X + x, this.Y + y, this.Z + z);
-        };
-        Vector3.prototype.Diff = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return this.Set(x - this.X, y - this.Y, z - this.Z);
-        };
-        Vector3.prototype.Mult = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return this.Set(this.X * x, this.Y * y, this.Z * z);
-        };
-        Vector3.prototype.Dot = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return this.X * x + this.Y * y + this.Z * z;
-        };
-        Vector3.prototype.Cross = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return this.Set(this.Y * z + this.Z * y, this.Z * x - this.X * z, this.X * y + this.Y * x);
-        };
-        Vector3.prototype.Scale = function(scaler) {
-            return this.Mult(scaler, scaler, scaler);
-        };
-        Vector3.prototype.Unit = function() {
-            var length = this.Length;
-            if (length !== 0)
-                this.Scale(1 / length);
-            return this;
-        };
-        Object.defineProperty(Vector3, "Zero", {
-            get: function() {
-                return new Vector3(0, 0, 0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3, "One", {
-            get: function() {
-                return new Vector3(1, 1, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector3.GetArgs = function(args) {
-            if (args === void 0) {
-                args = [];
-            }
-            if (args.length === 1)
-                args = args[0];
-            if (args instanceof Vector3)
-                return [args.X, args.Y, args.Z];
-            else if (!!args && !!args.length && args.length === 3)
-                return args;
-            return [0, 0, 0];
-        };
-        Vector3.Set = function(vector, args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            vector.X = x;
-            vector.Y = y;
-            vector.Z = z;
-            return vector;
-        };
-        Vector3.Length = function(args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return Math.sqrt(x * x + y * y + z * z);
-        };
-        Vector3.Sum = function(vector, args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return new Vector3(vector.X + x, vector.Y + y, vector.Z + z);
-        };
-        Vector3.Diff = function(vector, args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return new Vector3(x - vector.X, y - vector.Y, z - vector.Z);
-        };
-        Vector3.Mult = function(vector, args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return new Vector3(vector.X * x, vector.Y * y, vector.Z * z);
-        };
-        Vector3.Scale = function(vector, scaler) {
-            return vector.Scale(scaler);
-        };
-        Vector3.Cross = function(vector, args) {
-            var _a = Vector3.GetArgs(args),
-                x = _a[0],
-                y = _a[1],
-                z = _a[2];
-            return new Vector3(vector.Y * z + vector.Z * y, vector.Z * x - vector.X * z, vector.X * y + vector.Y * x);
-        };
-        Vector3.Unit = function(vector) {
-            var length = vector.Length;
-            if (length !== 0)
-                vector.Scale(1 / length);
-            return vector;
-        };
-        return Vector3;
-    }(BufferedArray));
-    var Vector4 = (function() {
-        function Vector4() {
-            this.Buffer = new Float32Array(4);
-        }
-        Object.defineProperty(Vector4.prototype, "W", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(w) {
-                this.Buffer[0] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "X", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(x) {
-                this.Buffer[1] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "Y", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(y) {
-                this.Buffer[2] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "Z", {
-            get: function() {
-                return this.Buffer[3];
-            },
-            set: function(z) {
-                this.Buffer[3] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.GetArgs = function(args) {
-            if (!args)
-                return [0, 0, 0, 0];
-            if (args instanceof Vector4)
-                return [args.W, args.X, args.Y, args.Z];
-            else if ((args instanceof Float32Array && args.length >= 4) ||
-                (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number" && typeof args[3] === "number"))
-                return args;
-            return Vector4.GetArgs(args[0]);
-        };
-        Object.defineProperty(Vector4, "Zero", {
-            get: function() {
-                return (new Vector4).Set(0, 0, 0, 0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4, "One", {
-            get: function() {
-                return (new Vector4).Set(1, 1, 1, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4, "Unit", {
-            get: function() {
-                return (new Vector4).Set(0.5, 0.5, 0.5, 0.5);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.prototype.Set = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector4.GetArgs(args),
-                w = _a[0],
-                x = _a[1],
-                y = _a[2],
-                z = _a[3];
-            this.W = w;
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            return this;
-        };
-        Object.defineProperty(Vector4.prototype, "Length", {
-            get: function() {
-                return Math.sqrt(this.W * this.W + this.X * this.X + this.Y * this.Y + this.Z * this.Z);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.prototype.Sum = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector4.GetArgs(args),
-                w = _a[0],
-                x = _a[1],
-                y = _a[2],
-                z = _a[3];
-            return this.Set(this.W + w, this.X + x, this.Y + y, this.Z + z);
-        };
-        Vector4.prototype.Diff = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector4.GetArgs(args),
-                w = _a[0],
-                x = _a[1],
-                y = _a[2],
-                z = _a[3];
-            return this.Set(w - this.W, x - this.X, y - this.Y, z - this.Z);
-        };
-        Vector4.prototype.Mult = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector4.GetArgs(args),
-                w = _a[0],
-                x = _a[1],
-                y = _a[2],
-                z = _a[3];
-            return this.Set(this.W * w, this.X * x, this.Y * y, this.Z * z);
-        };
-        Vector4.prototype.Scale = function(scaler) {
-            return this.Set(this.W * scaler, this.X * scaler, this.Y * scaler, this.Z * scaler);
-        };
-        Vector4.prototype.Dot = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _a = Vector4.GetArgs(args),
-                w = _a[0],
-                x = _a[1],
-                y = _a[2],
-                z = _a[3];
-            return this.W * w + this.X * x + this.Y * y + this.Z * z;
-        };
-        Vector4.prototype.Unit = function() {
-            var length = this.Length;
-            if (length !== 0)
-                this.Scale(1 / length);
-            return this;
-        };
-        return Vector4;
-    }());
-    var Quaternion = (function(_super) {
-        __extends(Quaternion, _super);
-
-        function Quaternion() {
-            return _super.call(this, 4) || this;
-        }
-        Object.defineProperty(Quaternion.prototype, "W", {
-            get: function() {
-                return this[0];
-            },
-            set: function(w) {
-                this[0] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "X", {
-            get: function() {
-                return this[1];
-            },
-            set: function(x) {
-                this[1] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "Y", {
-            get: function() {
-                return this[2];
-            },
-            set: function(y) {
-                this[2] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "Z", {
-            get: function() {
-                return this[3];
-            },
-            set: function(z) {
-                this[3] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Quaternion;
-    }(BufferedArray));
-    var Maths = (function() {
-        function Maths() {}
-        Maths.Radian = function(degree) {
-            return Math.PI / 180 * degree;
-        };
-        Maths.Cot = function(angle) {
-            return 1 / Math.tan(angle);
-        };
-        Maths.Clamp = function(value, min, max) {
-            return Math.max(Math.min(value, max), min);
-        };
-        Maths.prototype.Matrix2 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Matrix2().Set(args);
-        };
-        Maths.prototype.Matrix3 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Matrix3().Set(args);
-        };
-        Maths.prototype.Matrix4 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Matrix4().Set(args);
-        };
-        Maths.prototype.Vector2 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Vector2().Set(args);
-        };
-        Maths.prototype.Vector3 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Vector3(args);
-        };
-        Maths.prototype.Vector4 = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Vector4().Set(args);
-        };
-        Maths.prototype.Quaternion = function() {
-            return new Quaternion();
-        };
-        return Maths;
-    }());
-    var Particle = (function(_super) {
-        __extends(Particle, _super);
-
-        function Particle(request) {
-            var _this = _super.call(this, request) || this;
-            _this.Elapsed = 0;
-            return _this;
-        }
-        return Particle;
-    }(KeyFrame));
-    var ParticleSystem = (function(_super) {
-        __extends(ParticleSystem, _super);
-
-        function ParticleSystem(request) {
-            if (request === void 0) {
-                request = {
-                    Name: "Particel System",
-                    GameObject: null
-                };
-            }
-            var _this = _super.call(this, request.Name, request.GameObject) || this;
-            _this.Particle = new Particle(request.Particle);
-            return _this;
-        }
-        ParticleSystem.prototype.Update = function() {};
-        return ParticleSystem;
-    }(GameItem));
-    var IGameObject = (function() {
-        function IGameObject() {
-            this.Name = "GameObject";
-            this.Transform = new Transform({
-                Position: [0, 0, 0],
-                Rotation: [0, 0, 0],
-                Scale: [1, 1, 1],
-                Shear: [0, 0, 0]
-            });
-            this.Material = null;
-            this.Mesh = null;
-            this.Light = null;
-            this.Physics = null;
-            this.Animation = null;
-            this.ParticleSystem = null;
-            this.Children = null;
-            this.Begin = new Function();
-            this.Update = new Function();
-            this.End = new Function();
-        }
-        return IGameObject;
-    }());
-    var GameObject = (function(_super) {
-        __extends(GameObject, _super);
-
-        function GameObject(request) {
-            if (request === void 0) {
-                request = new IGameObject();
-            }
-            var _this = _super.call(this, request.Name) || this;
-            _this.Children = new Array();
-            var self = _this;
-            _this.Transform = new Transform(request.Transform);
-            _this.Animation = request.Animation;
-            _this.Material = request.Material;
-            _this.Mesh = request.Mesh;
-            _this.Physics = request.Physics;
-            _this.ParticleSystem = request.ParticleSystem;
-            _this.Light = request.Light;
-            _this.Begin = request.Begin || new Function();
-            _this.Update = request.Update || new Function();
-            _this.End = request.End || new Function();
-            GameObject.Objects.push(_this);
-            if (request.Children)
-                request.Children.forEach(function(child) {
-                    self.Add(child);
-                });
-            _this.Begin();
-            return _this;
-        }
-        GameObject.prototype.Add = function(gameObject) {
-            var self = this;
-            if (gameObject instanceof Array && gameObject.length > 0)
-                gameObject.forEach(function(element) {
-                    self.Add(element);
-                });
-            else if (gameObject instanceof GameObject && gameObject !== this) {
-                var index = GameObject.Objects.indexOf(gameObject);
-                if (index !== -1)
-                    GameObject.Objects.splice(index, 1);
-                this.Children.push(gameObject);
-            }
-        };
-        GameObject.prototype.Remove = function(gameObject) {
-            if (gameObject instanceof GameObject)
-                gameObject = this.Children.indexOf(gameObject);
-            if (gameObject >= 0) {
-                gameObject = this.Children.splice(gameObject, 1)[0];
-                GameObject.Objects.push(gameObject);
-                return gameObject;
-            }
-            return null;
-        };
-        GameObject.prototype.Clone = function() {
-            return GameObject.Clone(this);
-        };
-        GameObject.Clone = function(gameObject) {
-            var clone = new GameObject(gameObject);
-            for (var i = 0; i < gameObject.Children.length; ++i)
-                clone.Children.push(gameObject.Children[i].Clone());
-            return clone;
-        };
-        GameObject.prototype.Destroy = function(timeout) {
-            if (timeout === void 0) {
-                timeout = 0;
-            }
-            var self = this;
-            if (typeof timeout !== 'number')
-                timeout = 0;
-            this.Children.forEach(function(child) {
-                child.Destroy(timeout);
-            });
-            setTimeout(function() {
-                var i = GameObject.Objects.length;
-                while (--i >= 0) {
-                    if (GameObject.Objects[i] === self) {
-                        GameObject.Objects.splice(i, 1);
-                        break;
-                    }
-                }
-                self.End();
-            }, 1000 * timeout);
-        };
-        GameObject.prototype.ObjectUpdate = function(Game, Physics) {
-            this.Update();
-            this.Transform.Update();
-            if (!!this.Physics)
-                this.Physics.Update(Game, Physics);
-            if (!!this.Animation)
-                this.Animation.Update();
-            if (!!this.ParticleSystem)
-                this.ParticleSystem.Update();
-            this.Children.forEach(function(element) {
-                element.ObjectUpdate(Game, Physics);
-            });
-        };
-        return GameObject;
-    }(Item));
-    GameObject.Objects = new Array();
-    var GameEngine = (function() {
-        function GameEngine() {
-            this.Running = false;
-            this.AnimationFrame = -1;
-            this.Camera = new Camera();
-            this.Light = new Light();
-            this.Maths = new Maths();
-            this.Time = new Time();
-        }
-        GameEngine.prototype.Animation = function(request) {
-            return new Animation(request);
-        };
-        GameEngine.prototype.GameObject = function(request) {
-            return new GameObject(request);
-        };
-        GameEngine.prototype.ParticleSystem = function(request) {
-            return new ParticleSystem(request);
-        };
-        GameEngine.prototype.Transform = function(request) {
-            return new Transform(request);
-        };
-        GameEngine.prototype.Init = function(canvas) {
-            this.Input = new Input(canvas);
-        };
-        GameEngine.prototype.Run = function(Game, Physics, Render) {
-            var self = this;
-            this.AnimationFrame = window.requestAnimationFrame(function() {
-                self.Run(Game, Physics, Render);
-            });
-            Game.Update(Game, Physics);
-            if (this.Running) {
-                Physics.Update();
-                Render.Update(Game);
-            }
-        };
-        GameEngine.prototype.Update = function(Game, Physics) {
-            this.Time.Update();
-            this.Camera.Update();
-            var i = GameObject.Objects.length;
-            while (--i >= 0)
-                GameObject.Objects[i].ObjectUpdate(Game, Physics);
-            this.Input.InputUpdate();
-        };
-        GameEngine.prototype.Start = function(Game, Physics, Render) {
-            if (!this.Running)
-                this.Running = true;
-            if (this.AnimationFrame === -1)
-                this.Run(Game, Physics, Render);
-        };
-        GameEngine.prototype.Pause = function() {
-            if (!this.Running)
-                this.Running = false;
-        };
-        GameEngine.prototype.Stop = function() {
-            if (this.Running)
-                this.Running = false;
-            if (this.AnimationFrame !== -1) {
-                window.cancelAnimationFrame(this.AnimationFrame);
-                this.AnimationFrame = -1;
-            }
-            this.Time.Reset();
-        };
-        return GameEngine;
-    }());
-    var PhysicsBody = (function(_super) {
-        __extends(PhysicsBody, _super);
-
-        function PhysicsBody(request) {
-            var _this = _super.call(this, request.Name || "Phsyics Body") || this;
-            _this.Grounded = false;
-            _this.Velocity = 0.0;
-            _this.Mass = request.Mass || 1.0;
-            _this.LockX = request.LockX || true;
-            _this.LockY = request.LockY || true;
-            _this.LockZ = request.LockZ || true;
-            return _this;
-        }
-        return PhysicsBody;
-    }(Item));
-    var PhysicsMaterial = (function(_super) {
-        __extends(PhysicsMaterial, _super);
-
-        function PhysicsMaterial(request) {
-            return _super.call(this, request.Name || "Physics Material", request.GameObject || null) || this;
-        }
-        return PhysicsMaterial;
-    }(GameItem));
-    var PhysicsItem = (function(_super) {
-        __extends(PhysicsItem, _super);
-
-        function PhysicsItem(request) {
-            var _this = _super.call(this, request.Name || "Physics Item", request.GameObject || null) || this;
-            _this.Collider = request.Collider || null;
-            _this.Material = request.Material || null;
-            _this.Body = request.Body || new PhysicsBody({});
-            return _this;
-        }
-        PhysicsItem.prototype.Update = function(Game, Physics) {
-            if (!this.Body.LockY) {
-                this.Body.Velocity += (Physics.Gravity * (Game.Time.Delta / 1000));
-                if (this.GameObject)
-                    this.GameObject.Transform.Position.Y += this.Body.Velocity;
-            }
-        };
-        return PhysicsItem;
-    }(GameItem));
-    var Collider = (function(_super) {
-        __extends(Collider, _super);
-
-        function Collider(request) {
-            var _this = _super.call(this, request.Name || "Collider") || this;
-            _this.Position = request.Position || Vector3.Zero;
-            _this.PhysicsItem = request.PhysicsItem || null;
-            return _this;
-        }
-        return Collider;
-    }(Item));
-    var BoxCollider = (function(_super) {
-        __extends(BoxCollider, _super);
-
-        function BoxCollider(request) {
-            var _this = _super.call(this, request) || this;
-            _this.Height = request.Height || 2;
-            _this.Width = request.Width || 2;
-            _this.Breadth = request.Breadth || 2;
-            return _this;
-        }
-        return BoxCollider;
-    }(Collider));
-    var SphereCollider = (function(_super) {
-        __extends(SphereCollider, _super);
-
-        function SphereCollider(request) {
-            var _this = _super.call(this, request) || this;
-            _this.Radius = request.Radius || 2;
-            return _this;
-        }
-        return SphereCollider;
-    }(Collider));
-    var Colliders = (function() {
-        function Colliders() {}
-        Colliders.prototype.Box = function(request) {
-            return new BoxCollider(request);
-        };
-        Colliders.prototype.Sphere = function(request) {
-            return new SphereCollider(request);
-        };
-        return Colliders;
-    }());
-    var PhysicsEngine = (function() {
-        function PhysicsEngine() {
-            this.Colliders = new Colliders();
-            this.Gravity = -9.8;
-        }
-        PhysicsEngine.prototype.Init = function() {};
-        PhysicsEngine.prototype.Update = function() {};
-        PhysicsEngine.prototype.Body = function(request) {
-            return new PhysicsBody(request);
-        };
-        PhysicsEngine.prototype.Material = function(request) {
-            return new PhysicsMaterial(request);
-        };
-        return PhysicsEngine;
-    }());
-    var Colour = (function(_super) {
-        __extends(Colour, _super);
-
-        function Colour() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _this = _super.call(this, 4) || this;
-            _this.Set(args);
-            return _this;
-        }
-        Object.defineProperty(Colour.prototype, "R", {
-            get: function() {
-                return this.Buffer[0];
-            },
-            set: function(r) {
-                this.Buffer[0] = Maths.Clamp(r, 0, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "G", {
-            get: function() {
-                return this.Buffer[1];
-            },
-            set: function(g) {
-                this.Buffer[1] = Maths.Clamp(g, 0, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "B", {
-            get: function() {
-                return this.Buffer[2];
-            },
-            set: function(b) {
-                this.Buffer[2] = Maths.Clamp(b, 0, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "A", {
-            get: function() {
-                return this.Buffer[3];
-            },
-            set: function(a) {
-                this.Buffer[3] = Maths.Clamp(a, 0, 1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "BIN", {
-            get: function() {
-                return "(" + this.R.toString(2) + ", " + this.G.toString(2) + ", " + this.B.toString(2) + ", " + this.A.toString(2) + ")";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "OCT", {
-            get: function() {
-                return "(" + this.R.toString(8) + ", " + this.G.toString(8) + ", " + this.B.toString(8) + ", " + this.A.toString(8) + ")";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "HEX", {
-            get: function() {
-                return "(" + this.R.toString(16) + ", " + this.G.toString(16) + ", " + this.B.toString(16) + ", " + this.A.toString(16) + ")";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "DEC", {
-            get: function() {
-                return "(" + this.R + ",              " + this.G + ",              " + this.B + ",              " + this.A + ")";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Colour.prototype, "FLOAT", {
-            get: function() {
-                return "(" + this.R * 255 + ",        " + this.G * 255 + ",        " + this.B * 255 + ",        " + this.A * 255 + ")";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Colour.prototype.toString = function() {
-            return this.FLOAT;
-        };
-        Colour.GetArgs = function(args) {
-            if (args.length === 1)
-                args = args[0];
-            if (args instanceof Colour)
-                return [args.R, args.G, args.B, args.A];
-            else if (!!args.length && args.length === 4)
-                return args;
-            return [0, 0, 0, 0];
-        };
-        Colour.prototype.Set = function(args) {
-            var _a = Colour.GetArgs(args),
-                r = _a[0],
-                b = _a[1],
-                g = _a[2],
-                a = _a[3];
-            this.R = r;
-            this.G = g;
-            this.B = b;
-            this.A = a;
-            return this;
-        };
-        return Colour;
-    }(BufferedArray));
-    var IMesh = (function() {
-        function IMesh() {
-            this.Name = '';
-            this.Position = new Array();
-            this.Indices = new Array();
-            this.Wireframe = new Array();
-            this.UVs = new Array();
-            this.Colours = new Array();
-            this.Normals = new Array();
-        }
-        return IMesh;
-    }());
-    var Mesh = (function(_super) {
-        __extends(Mesh, _super);
-
-        function Mesh(request) {
-            var _this = _super.call(this, request.Name || "Mesh") || this;
-            _this.VertexCount = request.Indices.length;
-            _this.WireframeCount = request.Wireframe ? request.Wireframe.length : 0;
-            _this.PositionBuffer = FWGE.GL.createBuffer();
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _this.PositionBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.Position), FWGE.GL.STATIC_DRAW);
-            _this.IndexBuffer = FWGE.GL.createBuffer();
-            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, _this.IndexBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(request.Indices), FWGE.GL.STATIC_DRAW);
-            if (!request.Colours || request.Colours.length !== request.Position.length)
-                request.Colours = request.Position.map(function() {
-                    return 1.0;
-                });
-            _this.ColourBuffer = FWGE.GL.createBuffer();
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _this.ColourBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.Colours), FWGE.GL.STATIC_DRAW);
-            if (request.Wireframe) {
-                _this.WireframeBuffer = FWGE.GL.createBuffer();
-                FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, _this.WireframeBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(request.Wireframe), FWGE.GL.STATIC_DRAW);
-            } else
-                _this.WireframeBuffer = null;
-            if (request.UVs) {
-                _this.UVBuffer = FWGE.GL.createBuffer();
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _this.UVBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.UVs), FWGE.GL.STATIC_DRAW);
-            } else
-                _this.UVBuffer = null;
-            if (request.Normals) {
-                _this.NormalBuffer = FWGE.GL.createBuffer();
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _this.NormalBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(request.Normals), FWGE.GL.STATIC_DRAW);
-            } else
-                _this.NormalBuffer = null;
-            return _this;
-        }
-        return Mesh;
-    }(Item));
-    var IRenderMaterial = (function() {
-        function IRenderMaterial() {
-            this.Name = '';
-            this.Ambient = new Colour();
-            this.Diffuse = new Colour();
-            this.Specular = new Colour();
-            this.Alpha = 1.0;
-            this.Shininess = 32;
-            this.Shader = null;
-        }
-        return IRenderMaterial;
-    }());
-    var RenderMaterial = (function(_super) {
-        __extends(RenderMaterial, _super);
-
-        function RenderMaterial(request) {
-            var _this = _super.call(this, request.Name || "Render Material") || this;
-            _this.Ambient = new Colour(request.Ambient) || new Colour(0.50, 0.50, 0.50, 1.00);
-            _this.Diffuse = new Colour(request.Diffuse) || new Colour(0.75, 0.75, 0.75, 1.00);
-            _this.Specular = new Colour(request.Specular) || new Colour(1.00, 1.00, 1.00, 1.00);
-            _this.Alpha = request.Alpha || 1;
-            _this.Shininess = request.Shininess || 5;
-            _this.Shader = request.Shader || null;
-            _this.ImageMap = null;
-            _this.BumpMap = null;
-            _this.SpecularMap = null;
-            return _this;
-        }
-        RenderMaterial.prototype.SetTextures = function(request) {
-            if (!!request.ImageMap) {
-                if (!!this.ImageMap)
-                    FWGE.GL.deleteTexture(this.ImageMap);
-                apply_image(request.ImageMap, this, 'image');
-            }
-            if (!!request.BumpMap) {
-                if (!!this.BumpMap)
-                    FWGE.GL.deleteTexture(this.BumpMap);
-                apply_image(request.BumpMap, this, 'bump');
-            }
-            if (!!request.SpecularMap) {
-                if (!!this.SpecularMap)
-                    FWGE.GL.deleteTexture(this.SpecularMap);
-                apply_image(request.SpecularMap, this, 'specular');
-            }
-
-            function apply_image(src, material, type) {
-                var img = new Image();
-                var texture;
-
-                function isPowerOf2(value) {
-                    return (value & (value - 1)) == 0;
-                };
-                switch (type) {
-                    case 'image':
-                        material.ImageMap = FWGE.GL.createTexture();
-                        texture = material.ImageMap;
-                        break;
-                    case 'bump':
-                        material.BumpMap = FWGE.GL.createTexture();
-                        texture = material.BumpMap;
-                        break;
-                    case 'specular':
-                        material.SpecularMap = FWGE.GL.createTexture();
-                        texture = material.SpecularMap;
-                        break;
-                    default:
-                        texture = null;
-                }
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-                FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, 1, 1, 0, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
-                img.onload = function() {
-                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-                    FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, img);
-                    if (isPowerOf2(img.width) && isPowerOf2(img.height)) {
-                        FWGE.GL.generateMipmap(FWGE.GL.TEXTURE_2D);
-                        FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MAG_FILTER, FWGE.GL.LINEAR);
-                        FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR_MIPMAP_NEAREST);
-                    } else {
-                        FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_S, FWGE.GL.CLAMP_TO_EDGE);
-                        FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_T, FWGE.GL.CLAMP_TO_EDGE);
-                        FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR);
-                    }
-                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                };
-                img.src = src;
-            }
-        };
-        return RenderMaterial;
-    }(Item));
-    var ModelView = (function() {
-        function ModelView() {
-            this.Stack = new Array();
-        }
-        ModelView.prototype.Push = function() {
-            var matrix = this.Peek();
-            this.Stack.push(matrix);
-            return matrix;
-        };
-        ModelView.prototype.Peek = function() {
-            if (this.Stack.length === 0)
-                return (new Matrix4()).Set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-            else
-                return this.Stack[this.Stack.length - 1];
-        };
-        ModelView.prototype.Pop = function() {
-            if (this.Stack.length === 0)
-                return new Matrix4().Identity();
-            else
-                return this.Stack.pop();
-        };
-        ModelView.prototype.Transform = function(transform) {
-            this.Peek().Set(this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), transform.Position), transform.Rotation), transform.Scale), transform.Shear));
-        };
-        ModelView.prototype.Translate = function(matrix, translation) {
-            return matrix.Set(matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M11 * translation.X + matrix.M21 * translation.Y + matrix.M31 * translation.Z + matrix.M41, matrix.M12 * translation.X + matrix.M22 * translation.Y + matrix.M32 * translation.Z + matrix.M42, matrix.M13 * translation.X + matrix.M23 * translation.Y + matrix.M33 * translation.Z + matrix.M43, matrix.M14 * translation.X + matrix.M24 * translation.Y + matrix.M34 * translation.Z + matrix.M44);
-        };
-        ModelView.prototype.Rotate = function(matrix, rotation) {
-            var rot = new Matrix4().Identity();
-            var x = Maths.Radian(rotation.X);
-            var y = Maths.Radian(rotation.Y);
-            var z = Maths.Radian(rotation.Z);
-            matrix.Set(rot.Mult(Math.cos(z), -Math.sin(z), 0.0, 0.0, Math.sin(z), Math.cos(z), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(Math.cos(y), 0.0, Math.sin(y), 0.0, 0.0, 1.0, 0.0, 0.0, -Math.sin(y), 0.0, Math.cos(y), 0.0, 0.0, 0.0, 0.0, 1.0).Mult(1.0, 0.0, 0.0, 0.0, 0.0, Math.cos(x), -Math.sin(x), 0.0, 0.0, Math.sin(x), Math.cos(x), 0.0, 0.0, 0.0, 0.0, 1.0).Mult(matrix));
-            return matrix;
-        };
-        ModelView.prototype.Scale = function(matrix, scalers) {
-            return matrix.Set(matrix.M11 * scalers.X, matrix.M12 * scalers.X, matrix.M13 * scalers.X, matrix.M14 * scalers.X, matrix.M21 * scalers.Y, matrix.M22 * scalers.Y, matrix.M23 * scalers.Y, matrix.M24 * scalers.Y, matrix.M31 * scalers.Z, matrix.M32 * scalers.Z, matrix.M33 * scalers.Z, matrix.M34 * scalers.Z, matrix.M41, matrix.M42, matrix.M43, matrix.M44);
-        };
-        ModelView.prototype.Shear = function(matrix, angles) {
-            var phi = Maths.Radian(angles.X);
-            var theta = Maths.Radian(angles.Y);
-            var rho = Maths.Radian(angles.Z);
-            return new Matrix4().Set(1.0, 0.0, Math.tan(rho), 0.0, Math.tan(phi), 1.0, 0.0, 0.0, 0.0, Math.tan(theta), 1.0, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(matrix);
-        };
-        return ModelView;
-    }());
-    var Projection = (function() {
-        function Projection() {
-            this.ViewerMatrix = Matrix4.Identity;
-        }
-        Projection.prototype.Orthographic = function(left, right, top, bottom, near, far, theta, phi) {
-            theta = Maths.Cot(Maths.Radian(theta));
-            phi = Maths.Cot(Maths.Radian(phi));
-            left -= near * theta;
-            right -= near * theta;
-            top -= near * phi;
-            bottom -= near * phi;
-            this.ViewerMatrix.Set(2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, theta, phi, -2 / (far - near), 0, -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1);
-        };
-        Projection.prototype.Perspective = function(field_of_view, aspect_ratio, near, far) {
-            var top = near * Math.tan(Maths.Radian(field_of_view));
-            var right = top * aspect_ratio;
-            var left = -right;
-            var bottom = -top;
-            var width = right - left;
-            var height = top - bottom;
-            var depth = far - near;
-            this.ViewerMatrix.Set(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
-        };
-        Projection.prototype.Update = function(mode, request) {
-            switch (mode) {
-                case CameraMode.PERSPECTIVE:
-                    this.Perspective(request.FOV || 45, request.Aspect || 16 / 9, request.Near || 0.1, request.Far || 1000.1);
-                    break;
-                case CameraMode.ORTHOGRAPHIC:
-                    this.Orthographic(request.Left || -10, request.Right || 10, request.Top || 10, request.Bottom || -10, request.Near || 0, request.Far || 20, request.Theta || 90, request.Phi || 90);
-                    break;
-            }
-        };
-        return Projection;
-    }());
-    var ShaderAttributes = (function() {
-        function ShaderAttributes(GL, Program) {
-            this.Position = -1;
-            this.Colour = -1;
-            this.UV = -1;
-            this.Normal = -1;
-            this.Position = GL.getAttribLocation(Program, "A_Position");
-            this.Colour = GL.getAttribLocation(Program, "A_Colour");
-            this.UV = GL.getAttribLocation(Program, "A_UV");
-            this.Normal = GL.getAttribLocation(Program, "A_Normal");
-        }
-        return ShaderAttributes;
-    }());
-    var MaterialUniforms = (function() {
-        function MaterialUniforms(GL, Program) {
-            this.Ambient = GL.getUniformLocation(Program, "U_Material.Ambient");
-            this.Diffuse = GL.getUniformLocation(Program, "U_Material.Diffuse");
-            this.Specular = GL.getUniformLocation(Program, "U_Material.Specular");
-            this.Shininess = GL.getUniformLocation(Program, "U_Material.Shininess");
-            this.Alpha = GL.getUniformLocation(Program, "U_Material.Alpha");
-            this.HasImage = GL.getUniformLocation(Program, "U_Material.HasImage");
-            this.HasBump = GL.getUniformLocation(Program, "U_Material.HasBump");
-            this.HasSpecular = GL.getUniformLocation(Program, "U_Material.HasSpecular");
-        }
-        return MaterialUniforms;
-    }());
-    var MatrixUniforms = (function() {
-        function MatrixUniforms(GL, Program) {
-            this.ModelView = GL.getUniformLocation(Program, "U_Matrix.ModelView");
-            this.Projection = GL.getUniformLocation(Program, "U_Matrix.Projection");
-            this.Normal = GL.getUniformLocation(Program, "U_Matrix.Normal");
-        }
-        return MatrixUniforms;
-    }());
-    var AmbientUniforms = (function() {
-        function AmbientUniforms(GL, Program) {
-            this.Colour = GL.getUniformLocation(Program, "U_Ambient.Colour");
-            this.Intensity = GL.getUniformLocation(Program, "U_Ambient.Intensity");
-        }
-        return AmbientUniforms;
-    }());
-    var DirectionalUniforms = (function() {
-        function DirectionalUniforms(GL, Program) {
-            this.Colour = GL.getUniformLocation(Program, "U_Directional.Colour");
-            this.Intensity = GL.getUniformLocation(Program, "U_Directional.Intensity");
-            this.Direction = GL.getUniformLocation(Program, "U_Directional.Direction");
-        }
-        return DirectionalUniforms;
-    }());
-    var PointUniforms = (function() {
-        function PointUniforms(GL, Program, index) {
-            this.Colour = GL.getUniformLocation(Program, "U_Point[" + index + "].Colour");
-            this.Intensity = GL.getUniformLocation(Program, "U_Point[" + index + "].Intensity");
-            this.Position = GL.getUniformLocation(Program, "U_Point[" + index + "].Position");
-            this.Radius = GL.getUniformLocation(Program, "U_Point[" + index + "].Radius");
-            this.Angle = GL.getUniformLocation(Program, "U_Point[" + index + "].Angle");
-        }
-        return PointUniforms;
-    }());
-    var LightUniforms = (function() {
-        function LightUniforms(GL, Program) {
-            this.Point = new Array(8);
-            this.Ambient = new AmbientUniforms(GL, Program);
-            this.Directional = new DirectionalUniforms(GL, Program);
-            this.PointCount = GL.getUniformLocation(Program, "U_PointCount");
-            for (var i = 0; i < 8; ++i)
-                this.Point[i] = new PointUniforms(GL, Program, i);
-        }
-        return LightUniforms;
-    }());
-    var SamplerUniforms = (function() {
-        function SamplerUniforms(GL, Program) {
-            this.Image = GL.getUniformLocation(Program, "U_Sampler.Image");
-            this.Bump = GL.getUniformLocation(Program, "U_Sampler.Bump");
-            this.Specular = GL.getUniformLocation(Program, "U_Sampler.Specular");
-        }
-        return SamplerUniforms;
-    }());
-    var ShaderUniforms = (function() {
-        function ShaderUniforms(GL, Program) {
-            this.Material = new MaterialUniforms(GL, Program);
-            this.Matrix = new MatrixUniforms(GL, Program);
-            this.Light = new LightUniforms(GL, Program);
-            this.Sampler = new SamplerUniforms(GL, Program);
-        }
-        return ShaderUniforms;
-    }());
-    var Shader = (function(_super) {
-        __extends(Shader, _super);
-
-        function Shader(request) {
-            var _this = this;
-            console.log(request);
-            _this = _super.call(this, request.Name) || this;
-            _this.Program = FWGE.GL.createProgram();
-            _this.Texture = FWGE.GL.createTexture();
-            _this.FrameBuffer = FWGE.GL.createFramebuffer();
-            _this.RenderBuffer = FWGE.GL.createRenderbuffer();
-            _this.Height = request.Height || 1024;
-            _this.Width = request.Width || 1024;
-            if (_this.Init(FWGE.GL, request.VertexShader, request.FragmentShader)) {
-                FWGE.GL.useProgram(_this.Program);
-                _this.Attributes = new ShaderAttributes(FWGE.GL, _this.Program);
-                _this.Uniforms = new ShaderUniforms(FWGE.GL, _this.Program);
-                FWGE.GL.useProgram(null);
-            }
-            Shader.Shaders.push(_this);
-            return _this;
-        };
-        Shader.prototype.Init = function(GL, vertexShader, fragmentShader) {
-            GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer);
-            GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer);
-            GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height);
-            GL.bindTexture(GL.TEXTURE_2D, this.Texture);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined);
-            GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0);
-            GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer);
-            GL.bindTexture(GL.TEXTURE_2D, null);
-            GL.bindRenderbuffer(GL.RENDERBUFFER, null);
-            GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-            var vs = GL.createShader(GL.VERTEX_SHADER);
-            GL.shaderSource(vs, vertexShader);
-            GL.compileShader(vs);
-            if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS)) {
-                console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
-                return false;
-            }
-            var fs = GL.createShader(GL.FRAGMENT_SHADER);
-            GL.shaderSource(fs, fragmentShader);
-            GL.compileShader(fs);
-            if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS)) {
-                console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
-                return false;
-            }
-            GL.attachShader(this.Program, vs);
-            GL.attachShader(this.Program, fs);
-            GL.linkProgram(this.Program);
-            if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS))
-                return false;
-            return true;
-        };
-        return Shader;
-    }(Item));
-    Shader.Shaders = new Array();
-    var Renderer = (function() {
-        function Renderer() {
-            this.Projection = new Projection();
-            this.ModelView = new ModelView();
-            this.ProjectionMatrix = Matrix4.Identity;
-            this.ModelViewMatrix = Matrix4.Identity;
-            this.NormalMatrix = Matrix3.Identity;
-            this.WireframeShader = new Shader({
-                Name: "Wireframe Shader",
-                VertexShader: "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                FragmentShader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-            });
-        }
-        Renderer.prototype.Render = function() {
-            this.ClearBuffers();
-            for (var _i = 0, _a = GameObject.Objects; _i < _a.length; _i++) {
-                var gameObject = _a[_i];
-                this.SetGlobalUniforms();
-                this.RenderObject(gameObject);
-            }
-        };
-        Renderer.prototype.ClearBuffers = function() {
-            var i = Shader.Shaders.length;
-            while (--i >= 0) {
-                var shader = Shader.Shaders[i];
-                FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, shader.FrameBuffer);
-                FWGE.GL.viewport(0, 0, shader.Width, shader.Height);
-                FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
-            }
-            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-            FWGE.GL.viewport(0, 0, FWGE.GL.drawingBufferWidth, FWGE.GL.drawingBufferHeight);
-            FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
-        };
-        Renderer.prototype.RenderObject = function(gameObject) {
-            this.ModelView.Push();
-            this.ModelView.Peek();
-            this.ModelView.Transform(gameObject.Transform);
-            var mv = new Float32Array(this.ModelView.Peek().Buffer);
-            for (var i = 0; i < gameObject.Children.length; ++i)
-                this.RenderObject(gameObject.Children[i]);
-            if (!!gameObject.Mesh && !!gameObject.Material && !!gameObject.Material.Shader) {
-                var shader = gameObject.Material.Shader;
-                FWGE.GL.useProgram(shader.Program);
-                FWGE.GL.enableVertexAttribArray(shader.Attributes.Position);
-                if (shader.Attributes.Normal !== -1)
-                    FWGE.GL.enableVertexAttribArray(shader.Attributes.Normal);
-                if (shader.Attributes.Colour !== -1)
-                    FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour);
-                if (shader.Attributes.UV !== -1)
-                    FWGE.GL.enableVertexAttribArray(shader.Attributes.UV);
-                if (gameObject.Material.Alpha !== 1.0) {
-                    FWGE.GL.enable(FWGE.GL.BLEND);
-                    FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
-                    FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
-                }
-                this.BindAttributes(gameObject.Mesh, shader.Attributes);
-                this.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
-                this.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
-                if (!!gameObject.Mesh.WireframeBuffer)
-                    this.DrawWireframe(gameObject.Mesh, mv);
-                if (gameObject.Material.Alpha !== 1.0) {
-                    FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
-                    FWGE.GL.disable(FWGE.GL.BLEND);
-                }
-                FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
-                if (shader.Attributes.Normal !== -1)
-                    FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal);
-                if (shader.Attributes.Colour !== -1)
-                    FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour);
-                if (shader.Attributes.UV !== -1)
-                    FWGE.GL.disableVertexAttribArray(shader.Attributes.UV);
-                FWGE.GL.useProgram(null);
-            }
-            this.ModelView.Pop();
-        };
-        Renderer.prototype.BindAttributes = function(mesh, attributes) {
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-            FWGE.GL.vertexAttribPointer(attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
-            if (attributes.UV !== -1) {
-                if (!!mesh.UVBuffer) {
-                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.UVBuffer);
-                    FWGE.GL.vertexAttribPointer(attributes.UV, 2, FWGE.GL.FLOAT, false, 0, 0);
-                } else
-                    FWGE.GL.disableVertexAttribArray(attributes.UV);
-            }
-            if (attributes.Colour !== -1) {
-                if (!!mesh.ColourBuffer) {
-                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-                    FWGE.GL.vertexAttribPointer(attributes.Colour, 3, FWGE.GL.FLOAT, false, 0, 0);
-                } else
-                    FWGE.GL.disableVertexAttribArray(attributes.Colour);
-            }
-            if (attributes.Normal !== -1) {
-                if (!!mesh.NormalBuffer) {
-                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.NormalBuffer);
-                    FWGE.GL.vertexAttribPointer(attributes.Normal, 3, FWGE.GL.FLOAT, false, 0, 0);
-                } else
-                    FWGE.GL.disableVertexAttribArray(attributes.Normal);
-            }
-            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-        };
-        Renderer.prototype.SetObjectUniforms = function(material, uniforms, mv) {
-            FWGE.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-            FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, this.CalculateNormalMatrix().Buffer);
-            FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient.Buffer);
-            FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse.Buffer);
-            FWGE.GL.uniform4fv(uniforms.Material.Specular, material.Specular.Buffer);
-            FWGE.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
-            FWGE.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
-            if (!!material.ImageMap) {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.ImageMap);
-                FWGE.GL.uniform1i(uniforms.Material.HasImage, 1);
-                FWGE.GL.uniform1i(uniforms.Sampler.Image, 0);
-            } else {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                FWGE.GL.uniform1i(uniforms.Material.HasImage, 0);
-            }
-            if (!!material.BumpMap) {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.BumpMap);
-                FWGE.GL.uniform1i(uniforms.Material.HasBump, 1);
-                FWGE.GL.uniform1i(uniforms.Sampler.Bump, 1);
-            } else {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
-            }
-            if (!!material.SpecularMap) {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.SpecularMap);
-                FWGE.GL.uniform1i(uniforms.Material.HasSpecular, 1);
-                FWGE.GL.uniform1i(uniforms.Sampler.Specular, 2);
-            } else {
-                FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-                FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
-            }
-        };
-        Renderer.prototype.SetGlobalUniforms = function() {
-            var i = Shader.Shaders.length;
-            while (--i >= 0) {
-                var point_count = 0;
-                FWGE.GL.useProgram(Shader.Shaders[i].Program);
-                var uniforms = Shader.Shaders[i].Uniforms.Light;
-                for (var j = 0; j < Light.Lights.length; ++j) {
-                    var light = Light.Lights[j];
-                    if (light instanceof AmbientLight) {
-                        FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour.Buffer);
-                        FWGE.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
-                    } else if (light instanceof DirectionalLight) {
-                        FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour.Buffer);
-                        FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-                        FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction.Buffer);
-                    } else if (light instanceof PointLight) {
-                        this.ModelView.Push();
-                        this.ModelView.Transform(light.GameObject.Transform);
-                        var pos = this.ModelView.Pop();
-                        FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
-                        FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                        FWGE.GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
-                        FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-                        FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
-                        point_count++;
-                    }
-                }
-                FWGE.GL.uniform1i(uniforms.PointCount, point_count);
-                FWGE.GL.uniformMatrix4fv(Shader.Shaders[i].Uniforms.Matrix.Projection, false, this.Projection.ViewerMatrix.Buffer);
-            }
-            FWGE.GL.useProgram(null);
-        };
-        Renderer.prototype.CalculateNormalMatrix = function() {
-            var mat = this.ModelView.Peek();
-            mat.Inverse();
-            return new Matrix3().Set(mat.M11, mat.M21, mat.M31, mat.M12, mat.M22, mat.M32, mat.M13, mat.M23, mat.M33);
-        };
-        Renderer.prototype.Draw = function(vertexCount, framebuffer) {
-            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-            FWGE.GL.drawElements(FWGE.GL.TRIANGLES, vertexCount, FWGE.GL.UNSIGNED_SHORT, 0);
-            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-        };
-        Renderer.prototype.DrawWireframe = function(mesh, mv) {
-            FWGE.GL.useProgram(this.WireframeShader.Program);
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-            FWGE.GL.vertexAttribPointer(this.WireframeShader.Attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
-            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer);
-            FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.ModelView, false, mv);
-            FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.Projection, false, this.Projection.ViewerMatrix.Buffer);
-            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-            FWGE.GL.drawElements(FWGE.GL.LINES, mesh.WireframeCount, FWGE.GL.UNSIGNED_SHORT, 0);
-            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-            FWGE.GL.useProgram(null);
-        };
-        return Renderer;
-    }());
-    var OBJConverter = (function(_super) {
-        __extends(OBJConverter, _super);
-
-        function OBJConverter() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        OBJConverter.prototype.Parse = function(obj, mtl) {
-            var object_name = obj.split(/(\/|\\)/).filter(function(string) {
-                if (string.indexOf('.obj') !== -1)
-                    return string;
-            })[0].replace('.obj', '');
-            var self = this;
-            var OBJ = this.Read(obj).split('\n');
-            var MTL = this.Read(mtl).split('\n');
-            var Children = new Array();
-            var Materials = {};
-            var Meshes = {};
-            var curr = -1;
-            var name = "";
-            MTL.forEach(function(item, index, array) {
-                if (item.indexOf('newmtl') !== -1) {
-                    if (curr !== -1)
-                        Materials[name] = MTL.slice(curr, index).join('\n');
-                    curr = index;
-                    name = item.split(' ')[1].trim();
-                }
-                if (index === array.length - 1)
-                    Materials[name] = MTL.slice(curr, array.length).join('\n');
-            });
-            curr = -1;
-            OBJ.forEach(function(item, index, array) {
-                if (item.indexOf('o ') !== -1) {
-                    if (curr !== -1)
-                        Meshes[name] = OBJ.slice(curr, index).join('\n');
-                    curr = index;
-                    name = item.split(' ')[1].trim();
-                }
-                if (index === array.length - 1)
-                    Meshes[name] = OBJ.slice(curr, array.length).join('\n');
-            });
-            Object.keys(Materials).forEach(function(key, index, array) {
-                Materials[key] = self.RenderMaterial(Materials[key]);
-            });
-            Object.keys(Meshes).forEach(function(key, index, array) {
-                var mesh = self.Mesh(Meshes[key]);
-                var material = Meshes[key].split('\n').filter(function(item) {
-                    if (item.indexOf('usemtl ') !== -1)
-                        return item;
-                }).join('').replace('usemtl ', '');
-                Children.push(new GameObject({
-                    Name: mesh.Name,
-                    Mesh: mesh,
-                    Material: Materials[material]
-                }));
-            });
-            if (Children.length === 1)
-                return Children.pop();
-            return new GameObject({
-                Name: object_name,
-                Children: Children
-            });
-        };
-        OBJConverter.prototype.GameObject = function(mesh, materials, meshes) {
-            return new GameObject();
-        };
-        OBJConverter.prototype.Mesh = function(obj) {
-            var lines = obj.split('\n');
-            var vertices = [];
-            var normals = [];
-            var uvs = [];
-            var request = new IMesh();
-            var face_offset = 0;
-            var wireframe_offset = 0;
-            for (var i = 0; i < lines.length; ++i) {
-                var line = lines[i];
-                var type = line.split(' ')[0];
-                var value = line.substring(type.length).trim();
-                var values = value.split(' ');
-                switch (type) {
-                    case "o":
-                        request.Name = value;
-                        break;
-                    case "v":
-                        vertices.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                        break;
-                    case "vn":
-                        normals.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                        break;
-                    case "vt":
-                        uvs.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                        break;
-                    case "f":
-                        values.forEach(function(face, index, array) {
-                            var face_i = face.split('/').map(function(item) {
-                                var val = parseInt(item);
-                                if (!isNaN(val))
-                                    return val - 1;
-                                return NaN;
-                            });
-                            if (!isNaN(face_i[0]))
-                                request.Position = request.Position.concat(vertices[face_i[0]]);
-                            if (!isNaN(face_i[1]))
-                                request.UVs = request.UVs.concat(uvs[face_i[1]]);
-                            if (!isNaN(face_i[2]))
-                                request.Normals = request.Normals.concat(normals[face_i[2]]);
-                            if (index >= 2)
-                                request.Indices.push(face_offset, face_offset + index - 1, face_offset + index);
-                        });
-                        for (var j = 0; j < values.length; ++j) {
-                            if (j === values.length - 1)
-                                request.Wireframe.push(wireframe_offset + j, wireframe_offset);
-                            else
-                                request.Wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
+    })();
+    Object.seal(Converter);
+    
+    /**
+     * @name        OBJConverter
+     * @module      FWGE.Render
+     * @description Some description
+     */
+    
+    window.OBJConverter = (function()
+    {
+        function OBJConverter()
+        {
+            Converter.call(this,
+                function Parse(obj, mtl)
+                {
+                    var object_name = obj.split(/(\/|\\)/).filter(function(string){if (string.indexOf('.obj') !== -1) return string;})[0].replace('.obj', '');
+                    var self = this;
+                    var OBJ = this.Read(obj).split('\n');
+                    var MTL = this.Read(mtl).split('\n');
+                    var Children = new Array();
+                    var Materials = {};
+                    var Meshes = {};
+    
+                    var curr = -1;
+                    var name = "";
+                    MTL.forEach(function(item, index, array)
+                    {
+                        if (item.indexOf('newmtl') !== -1)
+                        {
+                            if (curr !== -1)
+                                Materials[name] = MTL.slice(curr, index).join('\n');
+    
+                            curr = index;
+                            name = item.split(' ')[1].trim();
                         }
-                        wireframe_offset += values.length;
-                        face_offset += values.length;
-                        break;
+    
+                        if (index === array.length - 1)
+                            Materials[name] = MTL.slice(curr, array.length).join('\n');
+                    });
+    
+                    curr = -1;
+                    OBJ.forEach(function(item, index, array)
+                    {
+                        if (item.indexOf('o ') !== -1)
+                        {
+                            if (curr !== -1)
+                                Meshes[name] = OBJ.slice(curr, index).join('\n');
+    
+                            curr = index;
+                            name = item.split(' ')[1].trim();
+                        }
+    
+                        if (index === array.length - 1)
+                            Meshes[name] = OBJ.slice(curr, array.length).join('\n');
+                    });
+    
+                    Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.RenderMaterial(Materials[key]); });
+                    Object.keys(Meshes).forEach(function(key, index, array)
+                    {
+                        var mesh = self.Mesh(Meshes[key]);
+                        var material = Meshes[key].split('\n').filter(function(item){if(item.indexOf('usemtl ')!==-1)return item;}).join('').replace('usemtl ', '');
+    
+                        Children.push(new GameObject(
+                        {
+                            Name: mesh.Name,
+                            Mesh: mesh,
+                            Material: Materials[material]
+                        }));
+                    });
+    
+                    if (Children.length === 1)
+                        return Children.pop();
+    
+                    return new GameObject(
+                    {
+                        Name: object_name,
+                        Children: Children
+                    });
+                },
+                
+                function GameObject(mesh, materials, meshes)
+                {
+                    return new GameObject();
+                },
+    
+                function Mesh(obj)
+                {
+                    var lines = obj.split('\n');
+                    var vertices = [];
+                    var normals = [];
+                    var uvs = [];
+                    var request = {};
+                    var face_offset = 0;
+                    var wireframe_offset = 0;
+                    
+                    for (var i = 0; i < lines.length; ++i)
+                    {
+                        var line = lines[i];
+                        var type = line.split(' ')[0];
+                        var value = line.substring(type.length).trim();
+                        var values = value.split(' ');
+    
+                        switch (type)
+                        {
+                            case "o":
+                                request.Name = value;
+                            break;
+                            
+                            case "v":
+                                vertices.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
+                            break;
+                            
+                            case "vn":
+                                normals.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
+                            break;
+                            
+                            case "vt":
+                                uvs.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
+                            break;
+    
+                            case "f":
+                                values.forEach(function(face, index, array)
+                                {
+                                    var face_i = face.split('/').map(function(item)
+                                    { 
+                                        var val = parseInt(item);
+                                        
+                                        if (!isNaN(val))
+                                            return val - 1;
+    
+                                        return NaN;
+                                    });
+    
+                                    if (!isNaN(face_i[0]))
+                                        request.Position = request.Position.concat(vertices[face_i[0]]);
+                                    
+                                    if (!isNaN(face_i[1]))
+                                        request.UVs = request.UVs.concat(uvs[face_i[1]]);
+                                    
+                                    if (!isNaN(face_i[2]))
+                                        request.Normals = request.Normals.concat(normals[face_i[2]]);
+    
+                                    if (index >= 2)
+                                        request.Indices.push(face_offset, face_offset + index - 1, face_offset + index);
+                                });
+                                
+                                for (var j = 0; j < values.length; ++j)
+                                {
+                                    if (j === values.length - 1)
+                                        request.Wireframe.push(wireframe_offset + j, wireframe_offset);
+                                    else
+                                        request.Wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
+                                }
+                                wireframe_offset += values.length;
+                                face_offset += values.length;
+                            break;
+                        }
+                    }
+    
+                    return new Mesh(request);
+                },
+                
+                function RenderMaterial(mtl)
+                {
+                    var lines = mtl.split('\n');
+                    var request = {};
+    
+                    for (var i = 0; i < lines.length; ++i)
+                    {
+                        var line = lines[i];
+                        var type = line.split(' ')[0];
+                        var value = line.substring(type.length).trim();
+                        var values = value.split(' ');
+    
+                        switch (type)
+                        {
+                            case 'newmtl':
+                                request.Name = value;
+                            break;
+    
+                            case 'Ns':
+                                request.Shininess = parseFloat(value);
+                            break;
+    
+                            case 'Ka':
+                                request.Ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            break;
+    
+                            case 'Kd':
+                                request.Diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            break;
+    
+                            case 'Ks':
+                                request.Specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            break;
+                            
+                            case 'd':
+                                request.Alpha = parseFloat(value);
+                            break;
+    
+                            case 'Tr':
+                                request.Alpha = 1 - parseFloat(value);
+                            break;
+                        }
+                    }
+    
+                    return new RenderMaterial(request);
                 }
-            }
-            return new Mesh(request);
-        };
-        OBJConverter.prototype.RenderMaterial = function(mtl) {
-            var lines = mtl.split('\n');
-            var request = new IRenderMaterial();
-            for (var i = 0; i < lines.length; ++i) {
-                var line = lines[i];
-                var type = line.split(' ')[0];
-                var value = line.substring(type.length).trim();
-                var values = value.split(' ');
-                switch (type) {
-                    case 'newmtl':
-                        request.Name = value;
-                        break;
-                    case 'Ns':
-                        request.Shininess = parseFloat(value);
-                        break;
-                    case 'Ka':
-                        request.Ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                        break;
-                    case 'Kd':
-                        request.Diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                        break;
-                    case 'Ks':
-                        request.Specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                        break;
-                    case 'd':
-                        request.Alpha = parseFloat(value);
-                        break;
-                    case 'Tr':
-                        request.Alpha = 1 - parseFloat(value);
-                        break;
-                }
-            }
-            return new RenderMaterial(request);
-        };
-        return OBJConverter;
-    }(Converter));
-    var RenderEngine = (function() {
-        function RenderEngine() {}
-        RenderEngine.prototype.Colour = function() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return new Colour(args);
-        };
-        RenderEngine.prototype.Mesh = function(request) {
-            return new Mesh(request);
-        };
-        RenderEngine.prototype.RenderMaterial = function(request) {
-            return new RenderMaterial(request);
-        };
-        RenderEngine.prototype.Shader = function(request) {
-            return new Shader(request);
-        };
-        RenderEngine.prototype.Init = function() {
-            this.Renderer = new Renderer();
-            this.OBJConverter = new OBJConverter();
-            FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
-        };
-        RenderEngine.prototype.Update = function(Game) {
-            this.Renderer.Render();
-            this.Renderer.Projection.Update(Game.Camera.Mode, Game.Camera);
-        };
-        return RenderEngine;
-    }());
-    var FWGE = (function() {
-        function FWGE() {
-            this.Game = new GameEngine();
-            this.Physics = new PhysicsEngine();
-            this.Render = new RenderEngine();
+            );
+    
+            Object.seal(this);
         }
-        FWGE.prototype.Init = function(request) {
-            if (!request.Canvas)
-                throw new Error("HTMLCanvasElement field (canvas) required");
-            var _context = request.Canvas.getContext("webgl") || request.Canvas.getContext("experimental-webgl");
-            if (!_context)
-                throw new Error("Webgl context could not be initialized.");
-            FWGE.GL = _context;
-            FWGE.GL.clearColor(request.Clear[0], request.Clear[1], request.Clear[2], request.Clear[3]);
-            this.Game.Init(request.Canvas);
-            this.Physics.Init();
-            this.Render.Init();
+    
+        OBJConverter.prototype = Object.create(null);
+        Object.seal(OBJConverter.prototype);
+    
+        return new OBJConverter();
+    })();
+    Object.seal(OBJConverter);
+    
+    /**
+     * @name        KeyFrame
+     * @module      FWGE.Interface
+     * @description SOme description
+     */
+    
+    let KeyFrame = (function()
+    {
+        /**
+         * 
+         * @param {Function}    T 
+         * @param {T}           before 
+         * @param {T}           after 
+         * @param {number}      length 
+         */
+        function KeyFrame(T, before, after, length)
+        {
+            var _Current = new T();
+            var _Offset = new T();
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Before}
+                 * @type        {T}
+                 */
+                Before: { value: before, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {After}
+                 * @type        {T}
+                 */
+                After: { value: after, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Length}
+                 * @type        {number}
+                 */
+                Length: { value: length, configurable: false, enumerable: true, writable: false }
+            });
+        }
+    
+        return KeyFrame;
+    })();
+    Object.seal(KeyFrame);
+    
+    /**
+     * @name        Animation
+     * @module      FWGE.Game
+     * @description An animation object
+     */
+    
+    window.Animation = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {string}    request.name
+         */
+        function Animation({name = "Animation"} = {})
+        {
+            Item.call(this, name);
+            Object.seal(this);
+        }
+    
+        Animation.prototype = Object.create(null);
+        Object.seal(Animation.prototype);
+    
+        return Animation;
+    })();
+    Object.seal(Animation);
+    
+    /**
+     * @name        AnimationFrame
+     * @module      FWGE.Game
+     * @description The base animation frame object
+     */
+    
+    let AnimationFrame = (function()
+    {
+        /** 
+         * @param {Function}    T 
+         * @param {T}           before 
+         * @param {T}           after 
+         * @param {number}      length 
+         */
+        function AnimationFrame(T, before, after, length)
+        {
+            KeyFrame.call(this, T, before, after, length);
+        }
+    
+        AnimationFrame.prototype = Object.create(null);
+        Object.seal(AnimationFrame.prototype);
+    
+        return AnimationFrame;
+    })();
+    Object.seal(AnimationFrame);
+    
+    /**
+     * @name        ColourAnimationFrame
+     * @module      FWGE.Game
+     * @description An animation frame that changes the colour of the object.
+     */
+    
+    window.ColourAnimationFrame = (function()
+    {
+        /**
+         * @param   {Object}    equest
+         * @param   {Colour}    request.before 
+         * @param   {Colour}    request.after 
+         * @param   {number}    request.length 
+         */
+        function ColourAnimationFrame({before = new Colour(), after = new Colour(), length = 0} = {})
+        {
+            AnimationFrame.call(this, Colour, before, after, length);
+            Object.seal(this);
+        }
+    
+        ColourAnimationFrame.prototype = Object.create(null);
+        Object.seal(ColourAnimationFrame.prototype);
+    
+    
+        return ColourAnimationFrame;
+    })();
+    Object.seal(ColourAnimationFrame);
+    
+    /**
+     * @name        TransformAnimationFrame
+     * @module      FWGE.Game
+     * @description An animation frame thay changes the transform attributes of an object
+     */
+    
+    window.TransformAnimationFrame = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {Transform} request.before
+         * @param   {Transform} request.after
+         * @param   {number}    request.length
+         */
+        function TransformAnimationFrame({before = new Transform(), after = new Transform(), length = 0} = {})
+        {
+            AnimationFrame.call(this, Transform, before, after, length);
+            Object.seal(this);
+        }
+    
+        TransformAnimationFrame.prototype = Object.create(null);
+        Object.seal(TransformAnimationFrame.prototype);
+    
+    
+        return TransformAnimationFrame;
+    })();
+    Object.seal(TransformAnimationFrame);
+    
+    /**
+     * @name        Camera
+     * @module      FWGE.Game
+     * @description Something...
+     */
+    
+    let Camera = (function()
+    {
+        function Camera()
+        {
+            var _Mode = 0;
+            var _FOV = 35;
+            var _Aspect = 16/9;
+            var _Near = 0.1;
+            var _Far = 900;
+            var _Left = -10;
+            var _Right = 10;
+            var _Top = 10;
+            var _Bottom = 10;
+            var _Theta = 90;
+            var _Phi = 90;
+    
+            Object.defineProperties(this, 
+            {
+                constructor: Camera,
+    
+                //Transform: { value : new Transform(), configurable: false, enumerable: true,  writable: false },
+                CameraMode: { value: 0, configurable: false, enumerable: true, writable: true },
+    
+                Mode:
+                { 
+                    get: function get() { return _Mode; },
+                    set: function set(m)
+                    {
+                        switch (m)
+                        {
+                            case 0:
+                            case 1:
+                                _Mode = m;
+                            break;
+                        }
+                    }
+                },
+    
+                FOV: 
+                {
+                    get: function get() { return _FOV; },
+                    set: function set(f) { if (typeof f === 'number') _FOV = f; }
+                },
+                Aspect: 
+                {
+                    get: function get() { return _Aspect; },
+                    set: function set(a) { if (typeof a === 'number') _Aspect = a; }
+                },
+                Near: 
+                {
+                    get: function get() { return _Near; },
+                    set: function set(n) { if (typeof n === 'number') _Near = n; }
+                },
+                Far: 
+                {
+                    get: function get() { return _Far; },
+                    set: function set(f) { if (typeof f === 'number') _Far = f; }
+                },
+                Left: 
+                {
+                    get: function get() { return _Left; },
+                    set: function set(l) { if (typeof l === 'number') _Left = l; }
+                },
+                Right: 
+                {
+                    get: function get() { return _Right; },
+                    set: function set(r) { if (typeof r === 'number') _Right = r; }
+                },
+                Top: 
+                {
+                    get: function get() { return _Top; },
+                    set: function set(t) { if (typeof t === 'number') _Top = t; }
+                },
+                Bottom: 
+                {
+                    get: function get() { return _Bottom; },
+                    set: function set(b) { if (typeof b === 'number') _Bottom = b; }
+                },
+                Theta: 
+                {
+                    get: function get() { return _Theta; },
+                    set: function set(t) { if (typeof t === 'number') _Theta = t; }
+                },
+                Phi: 
+                {
+                    get: function get() { return _Phi; },
+                    set: function set(p) { if (typeof p === 'number') _Phi = p; }
+                },
+                
+                Update:
+                {
+                    value: function Update()
+                    {
+                        if (FWGE.GL.canvas.width != FWGE.GL.canvas.clientWidth || FWGE.GL.canvas.height != FWGE.GL.canvas.clientHeight)
+                        {
+                            FWGE.GL.canvas.width  = FWGE.GL.canvas.clientWidth;
+                            FWGE.GL.canvas.height = FWGE.GL.canvas.clientHeight;
+                        }
+                        
+                        this.Aspect = FWGE.GL.drawingBufferWidth / FWGE.GL.drawingBufferHeight;
+                    }
+                }
+            });
+        }
+        Camera.prototype = Object.create(null);
+    
+        return new Camera();
+    })();
+    /**
+     * @name        CameraMode
+     * @description ...
+     */
+    
+    window.CameraMode = (function()
+    {
+        function CameraMode()
+        {
+            Object.defineProperties(this,
+            {
+                PERSPECTIVE:    { value: 0, configurable: false, enumerable: true, writable: false },
+                ORTHOGRAPHIC:   { value: 1, configurable: false, enumerable: true, writable: false },
+                '0': { value: 'PERSPECTIVE', configurable: false, enumerable: true, writable: false },
+                '1': { value: 'ORTHOGRAPHIC', configurable: false, enumerable: true, writable: false }
+            });
+    
+            Object.seal(this);
+        }
+    
+        CameraMode.prototype = Object.create(null);
+        Object.seal(CameraMode.prototype);
+    
+        return new CameraMode();
+    })();
+    Object.seal(CameraMode);
+    /**
+     * @name        Viewer
+     * @module      FWGE.Game.Camera
+     * @description This represnent an eye within the scene. Rendeering to the screen is
+     *              based on what any viewer in the scene "sees"."
+     */
+    
+    window.Viewer = (function()
+    {
+        /**
+         * @param {Object}  request 
+         * @param {Array}   request.position
+         * @param {Array}   request.target
+         */
+        function Viewer({position = Vector3.Zero.Buffer, target = Vector3.Zero.Buffer} = {})
+        {
+            var _Direction = Vector3.Zero;
+            var _Up = Vector3.Zero;
+            var _Right = Vector3.Zero;
+                
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Position}
+                 * @type        {Vector3}
+                 */
+                Position: { value: new Vector3(position), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Target}
+                 * @type        {Vector3}
+                 */
+                Target: { value: new Vector3(target), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Matrix}
+                 * @type        {Matrix4}
+                 */
+                Matrix: { value: Matrix4.Identity, configurable: false, enumerable: false, writable: false },
+    
+                /**
+                 * @function    Update
+                 * @return      {undefined}
+                 */
+                Update:
+                {
+                    value: function Update()
+                    {
+                        _Direction.Set(_Position).Diff(this.Target).Unit();
+                        _Right.Set(_Up).Cross(_Direction).Unit();
+                        _Up.Set(_Direction).Cross(_Right).Unit();
+    
+                        this.Matrix.Set(
+                        [
+                            _Right.X,       _Right.Y,       _Right.Z,       0,
+                            _Up.X,          _Up.Y,          _Up.Z,          0,
+                            _Direction.X,   _Direction.Y,   _Direction.Z,   0,
+                            0,                  0,                  0,                  1
+                        ]).Mult(
+                        [
+                            1,                  0,                  0,                  0,
+                            0,                  1,                  0,                  0,
+                            0,                  0,                  1,                  0,
+                            _Position.X,    _Position.Y,    this.Position.Z,    1
+                        ]);
+                    },
+                    configurable: false, enumerable: false, writable: false
+                }
+            });
+            
+            Object.seal(this);
+        }
+    
+        Viewer.prototype = Object.create(null);
+        Object.seal(Viewer.prototype);
+    
+        return Viewer;
+    })();
+    Object.seal(Viewer);
+    
+    /**
+     * @name        GameEngine
+     * @module      FWGE
+     * @description Something...
+     */
+    
+    let GameEngine = (function()
+    {
+        function GameEngine()
+        {
+            let self = this;
+            let _Running  = false;
+            let _AnimationFrame = -1;
+    
+            /**
+             * @function    Run
+             * @return      {undefined}
+             * @description Runs the main game loop
+             */
+            function _Run()
+            {
+                _AnimationFrame = window.requestAnimationFrame(_Run);
+    
+                self.Update();
+    
+                if (_Running)
+                {
+                    PhysicsEngine.Update();
+                    RenderEngine.Update();
+                }
+            }
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @function    GameUpdate
+                 * @return      {undefined}
+                 */
+                Update:
+                {
+                    value: function Update()
+                    {
+                        Time.Update();
+                        Camera.Update();
+    
+                        var i = GameObject.Objects.length;
+                        while (--i >= 0)
+                            GameObject.Objects[i].ObjectUpdate();
+    
+                        Input.InputUpdate();
+                    },
+                    configurableL:false, configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @function    Start
+                 * @return      {undefined}
+                 */
+                Start:
+                {
+                    value: function Start()
+                    {
+                        if(!_Running)
+                            _Running = true;
+    
+                        if (_AnimationFrame === -1)
+                            _Run();
+                    },
+                    configurable: false, configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @function    Pause
+                 * @return      {undefined}
+                 */
+                Pause:
+                {
+                    value: function Pause()
+                    {
+                        if (!_Running)
+                            _Running = false;
+                    },
+                    configurable:false, configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @function    Stop
+                 * @return      {undefined}
+                 */
+                Stop:
+                {
+                    value: function Stop()
+                    {
+                        if (_Running)
+                            _Running = false;
+    
+                        if (_AnimationFrame !== -1)
+                        {
+                            window.cancelAnimationFrame(_AnimationFrame);
+                            _AnimationFrame = -1;
+                        }
+    
+                        Time.Reset();
+                    },
+                    configurable:false, configurable: false, enumerable: true
+                }
+            });
+    
+            Object.seal(this);
+        }
+    
+        GameEngine.prototype = Object.create(null);
+        Object.seal(GameEngine.prototype);
+    
+        return new GameEngine();
+    })();
+    Object.seal(GameEngine);
+    
+    /**
+     * @name        GameItem
+     * @module      FWGE.Game
+     */
+    
+    let GameItem = (function()
+    {
+        /**
+         * @param   {string}        name
+         * @param   {GameObject}    gameobject
+         */
+        function GameItem(name, gameobject)
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {GameObject}
+                 * @type        {GameObject}
+                 */
+                GameObject: { value: gameobject, configurable: false, enumerable: true, writable: false }
+            });
+        }
+    
+        GameItem.prototype = Object.create(null);
+        Object.seal(GameItem.prototype);
+    
+        return GameItem;
+    })();
+    Object.seal(GameItem);
+    
+    /**
+     * @name GameObject
+     * @description The main object container for object types.   
+     * @module      FWGE.Game
+     */
+    
+    window.GameObject = (function()
+    {
+        /**
+         * 
+         */
+        function GameObject({name, transform, material, mesh, physics, animation, begin, update, end, children} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Children}
+                 * @type        {Array<GameObject>}
+                 */
+                Children: { value: [], configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Transform}
+                 * @type        {Transform}
+                 */
+                Transform: { value: transform instanceof Transform ? transform : new Transform(transform), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {RenderMaterial}
+                 * @type        {RenderMaterial}
+                 */
+                Material: { value: material instanceof RenderMaterial ? material : new RenderMaterial(material), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Mesh}
+                 * @type        {Mesh}
+                 */
+                Mesh: { value: mesh instanceof Mesh ? mesh : new Mesh(mesh), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Light}
+                 * @type        {LightItem}
+                 */
+                Light: { value: undefined, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {PhysicsItem}
+                 * @type        {PhysicsItem}
+                 */
+                Physics: { value: physics instanceof PhysicsItem ? physics : new PhysicsItem(physics), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Animation}
+                 * @type        {Animation}
+                 */
+                Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Begin}
+                 * @type        {Function}
+                 */
+                Begin: { value: begin, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {Update}
+                 * @type        {Function}
+                 */
+                Update: { value: update, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {End}
+                 * @type        {Function}
+                 */
+                End: { value: end, configurable: false, enumerable: true, writable: true }
+            });
+            
+            GameObject.Objects.push(this);
+    
+            if (children)
+                children.forEach(function(child){ self.Add(child); });
+    
+            this.Begin();
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(GameObject,
+        {
+            /**
+             * @property    {Objects}
+             * @type        {Array}
+             * @description List of all the objects in the scene
+             */
+            Objects: { value: [], configurable: false, enumerable: false, writable: false },
+    
+            /**
+             * @function    Clone
+             * @param       {GameObject} gameobject
+             * @return      {GameObject}
+             * @description Creates a clone of a gameobject. If no gameobject is provided,
+             *              it creates a clone of the calling gameobject.
+             */
+            Clone:
+            { 
+                value: function Clone(gameObject)
+                {
+                    var clone = new GameObject(gameObject.Name, gameObject.Transform);;
+                    
+                    for (var i = 0; i < gameObject.Children.length; ++i)
+                        clone.Children.push(gameObject.Children[i].Clone());
+                    
+                    return clone;
+                }
+            }
+        });
+    
+        GameObject.prototype = Object.create(null);
+        Object.defineProperties(GameObject.prototype,
+        {
+            constructor: { value: GameObject },
+            
+            /**
+             * @function    Add
+             * @param       {GameObject}    gameobject
+             * @return      {undefined}
+             */
+            Add:
+            {
+                value: function Add(gameObject)
+                {
+                    let self = this;
+    
+                    if (gameObject instanceof Array  && gameObject.length > 0)
+                        gameObject.forEach(function(element) { self.Add(element); });
+    
+                    else if (gameObject instanceof GameObject && gameObject !== this)
+                    {
+                        var index = GameObject.Objects.indexOf(gameObject);
+    
+                        if (index !== -1)
+                            GameObject.Objects.splice(index, 1);
+    
+                        this.Children.push(gameObject);
+                    }
+                }
+            },
+    
+            /**
+             * @function    Remove
+             * @param       {GameObject}    gameobject
+             * @return      {GameObject}
+             */
+            Remove:
+            {
+                value: function Remove(gameObject)
+                {
+                    if (gameObject instanceof GameObject)
+                        gameObject = this.Children.indexOf(gameObject);
+                        
+                    if (gameObject >= 0)
+                    {
+                        gameObject = this.Children.splice(gameObject, 1)[0];
+                        GameObject.Objects.push(gameObject);
+    
+                        return gameObject;
+                    }
+                    
+                    return null;
+                }
+            },
+            
+            /**
+             * @function    Clone
+             * @return      {GameObject}
+             */
+            Clone:
+            {
+                value: function Clone()
+                {
+                    return GameObject.Clone(this);
+                }
+            },
+            
+    
+            /**
+             * @function    Destroy
+             * @param       {number} timeout
+             * @return      {undefined}
+             */
+            Destroy:
+            {
+                value: function Destroy(timeout)
+                {
+                    var self = this;
+    
+                    if (typeof timeout !== 'number')
+                        timeout = 0;
+    
+                    this.Children.forEach(child => {child.Destroy(timeout); });
+    
+                    setTimeout(function()
+                    {
+                        var i = GameObject.Objects.indexOf(self);
+                        
+                        if (i + -1)
+                            GameObject.Objects.splice(i, 1);
+    
+                        self.End();
+                    }, 1000 * timeout);
+                }
+            },
+    
+            /**
+             * @function        ObjectUpdate
+             * @param           {GameEngine}    Game
+             * @param           {PhysicsEngine} Physics
+             * @return          {undefined}
+             */        
+            ObjectUpdate:
+            {
+                value: function ObjectUpdate(Game, Physics)
+                {
+                    this.Update();
+                    this.Children.forEach(child => { child.ObjectUpdate(Game, Physics); });
+                }
+            }
+        });
+        Object.seal(GameObject.prototype);
+    
+        return GameObject;
+    })();
+    Object.seal(GameObject);
+    
+    /**
+     * @name        Input
+     * @module      FWGE.Game
+     * @description This module handles all user key and mouse inputs.
+     */
+    
+    /**
+     * @param   {HTMLCanvasElement} canvas
+     */
+    
+    window.Input = (function()
+    {
+        function Input()
+        {
+            const _UP_K     = 0;
+            const _PRESS_K  = 128;
+            const _DOWN_K   = 256;
+            const _END_K    = 384;
+            let _Keys       = new Array(_END_K);
+    
+            const _UP_M     = 0;
+            const _CLICK_M  = 3;
+            const _DOWN_M   = 6;
+            const _WHEEL_U  = 9;
+            const _WHEEL_D  = 10;
+            const _END_M    = 11;
+            let _Mouse      = new Array(_END_M);
+    
+            const _X        = 0;
+            const _Y        = 1;
+            const _CURR_A   = 0;
+            const _PREV_A   = 2;
+            const _DELTA_A  = 4;
+            const _END_A    = 8;
+            let _Axis       = new Array(_END_A);
+            
+            function _handle_event(e)
+            {
+                var key = e instanceof MouseEvent ? e.button :  e.which || 0;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                e.cancelBubble = true;
+    
+                return key;
+            }
+    
+            for (var i = 0; i < _PRESS_K; ++i)
+                _Keys[i] = true;
+    
+            for (var i = _PRESS_K; i < _END_K; ++i)
+                _Keys[i] = false;
+    
+            for (var i = 0; i < _CLICK_M; ++i)
+                _Mouse[i] = true;
+    
+            for (var i = _CLICK_M; i < _END_M; ++i)
+                _Mouse[i] = false;
+    
+            for (var i = 0; i < _END_A; ++i)
+                _Axis[i] = undefined;
+            
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {KEY_F1_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF1Up: { get: function get() { return _Keys[112 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F1_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF1Press: { get: function get() { return _Keys[112 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F1_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF1Down: { get: function get() { return _Keys[112 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F2_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF2Up: { get: function get() { return _Keys[113 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F2_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF2Press: { get: function get() { return _Keys[113 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F2_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF2Down: { get: function get() { return _Keys[113 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F3_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF3Up: { get: function get() { return _Keys[114 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F3_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF3Press: { get: function get() { return _Keys[114 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F3_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF3Down: { get: function get() { return _Keys[114 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F4_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF4Up: { get: function get() { return _Keys[115 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F4_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF4Press: { get: function get() { return _Keys[115 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F4_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF4Down: { get: function get() { return _Keys[115 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F5_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF5Up: { get: function get() { return _Keys[116 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F5_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF5Press: { get: function get() { return _Keys[116 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F5_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF5Down: { get: function get() { return _Keys[116 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F6_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF6Up: { get: function get() { return _Keys[117 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F6_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF6Press: { get: function get() { return _Keys[117 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F6_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF6Down: { get: function get() { return _Keys[117 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F7_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF7Up: { get: function get() { return _Keys[118 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F7_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF7Press: { get: function get() { return _Keys[118 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F7_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF7Down: { get: function get() { return _Keys[118 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F8_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF8Up: { get: function get() { return _Keys[119 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F8_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF8Press: { get: function get() { return _Keys[119 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F8_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF8Down: { get: function get() { return _Keys[119 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F9_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF9Up: { get: function get() { return _Keys[120 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F9_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF9Press: { get: function get() { return _Keys[120 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F9_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF9Down: { get: function get() { return _Keys[120 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F10_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF10Up: { get: function get() { return _Keys[121 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F10_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF10Press: { get: function get() { return _Keys[121 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F10_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF10Down: { get: function get() { return _Keys[121 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F11_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF11Up: { get: function get() { return _Keys[122 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F11_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF11Press: { get: function get() { return _Keys[122 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F11_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF11Down: { get: function get() { return _Keys[122 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F12_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF12Up: { get: function get() { return _Keys[123 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F12_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF12Press: { get: function get() { return _Keys[123 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F12_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyF12Down: { get: function get() { return _Keys[123 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+    
+            
+                /**
+                 * @property    {KEY_0_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key0Up: { get: function get() { return _Keys[48 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_0_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key0Press: { get: function get() { return _Keys[48 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_0_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key0Down: { get: function get() { return _Keys[48 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_1_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key1Up: { get: function get() { return _Keys[49 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_1_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key1Press: { get: function get() { return _Keys[49 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_1_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key1Down: { get: function get() { return _Keys[49 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_2_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key2Up: { get: function get() { return _Keys[50 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_2_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key2Press: { get: function get() { return _Keys[50 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_2_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key2Down: { get: function get() { return _Keys[50 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_3_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key3Up: { get: function get() { return _Keys[51 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_3_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key3Press: { get: function get() { return _Keys[51 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_3_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key3Down: { get: function get() { return _Keys[51 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_4_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key4Up: { get: function get() { return _Keys[52 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_4_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key4Press: { get: function get() { return _Keys[52 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_4_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key4Down: { get: function get() { return _Keys[52 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_5_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key5Up: { get: function get() { return _Keys[53 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_5_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key5Press: { get: function get() { return _Keys[53 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_5_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key5Down: { get: function get() { return _Keys[53 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_6_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key6Up: { get: function get() { return _Keys[54 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_6_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key6Press: { get: function get() { return _Keys[54 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_6_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key6Down: { get: function get() { return _Keys[54 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_7_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key7Up: { get: function get() { return _Keys[55 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_7_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key7Press: { get: function get() { return _Keys[55 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_7_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key7Down: { get: function get() { return _Keys[55 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_8_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key8Up: { get: function get() { return _Keys[56 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_8_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key8Press: { get: function get() { return _Keys[56 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_8_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key8Down: { get: function get() { return _Keys[56 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_9_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key9Up: { get: function get() { return _Keys[57 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_9_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key9Press: { get: function get() { return _Keys[57 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_9_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Key9Down: { get: function get() { return _Keys[57 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+    
+            
+                /**
+                 * @property    {NUMPAD_0_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad0Up: { get: function get() { return _Keys[96 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_0_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad0Press: { get: function get() { return _Keys[96 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_0_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad0Down: { get: function get() { return _Keys[96 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_1_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad1Up: { get: function get() { return _Keys[97 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_1_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad1Press: { get: function get() { return _Keys[97 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_1_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad1Down: { get: function get() { return _Keys[97 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_2_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad2Up: { get: function get() { return _Keys[98 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_2_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad2Press: { get: function get() { return _Keys[98 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_2_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad2Down: { get: function get() { return _Keys[98 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_3_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad3Up: { get: function get() { return _Keys[99 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_3_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad3Press: { get: function get() { return _Keys[99 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_3_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad3Down: { get: function get() { return _Keys[99 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_4_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad4Up: { get: function get() { return _Keys[100 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_4_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad4Press: { get: function get() { return _Keys[100 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_4_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad4Down: { get: function get() { return _Keys[100 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_5_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad5Up: { get: function get() { return _Keys[101 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_5_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad5Press: { get: function get() { return _Keys[101 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_5_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad5Down: { get: function get() { return _Keys[101 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_6_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad6Up: { get: function get() { return _Keys[102 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_6_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad6Press: { get: function get() { return _Keys[102 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_6_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad6Down: { get: function get() { return _Keys[102 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_7_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad7Up: { get: function get() { return _Keys[103 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_7_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad7Press: { get: function get() { return _Keys[103 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_7_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad7Down: { get: function get() { return _Keys[103 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_8_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad8Up: { get: function get() { return _Keys[104 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_8_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad8Press: { get: function get() { return _Keys[104 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_8_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad8Down: { get: function get() { return _Keys[104 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {NUMPAD_9_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad9Up: { get: function get() { return _Keys[105 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_9_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad9Press: { get: function get() { return _Keys[105 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {NUMPAD_9_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                Numpad9Down: { get: function get() { return _Keys[105 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+    
+            
+                /**
+                 * @property    {KEY_DIVIDE_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDivideUp: { get: function get() { return _Keys[111 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_DIVIDE_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDividePress: { get: function get() { return _Keys[111 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_DIVIDE_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDivideDown: { get: function get() { return _Keys[111 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_MULTIPLY_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMultiplyUp: { get: function get() { return _Keys[106 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_MULTIPLY_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMultiplyPress: { get: function get() { return _Keys[106 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_MULTIPLY_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMultiplyDown: { get: function get() { return _Keys[106 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_SUBTRACT_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySubtractUp: { get: function get() { return _Keys[109 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_SUBTRACT_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySubtractPress: { get: function get() { return _Keys[109 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_SUBTRACT_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySubtractDown: { get: function get() { return _Keys[109 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_ADD_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAddUp: { get: function get() { return _Keys[107 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ADD_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAddPress: { get: function get() { return _Keys[107 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ADD_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAddDown: { get: function get() { return _Keys[107 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+    
+            
+                /**
+                 * @property    {KEY_TAB_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTabUp: { get: function get() { return _Keys[9 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_TAB_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTabPress: { get: function get() { return _Keys[9 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_TAB_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTabDown: { get: function get() { return _Keys[9 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_CAPS_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCapsUp: { get: function get() { return _Keys[20 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_CAPS_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCapsPress: { get: function get() { return _Keys[20 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_CAPS_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCapsDown: { get: function get() { return _Keys[20 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_SHIFT_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyShiftUp: { get: function get() { return _Keys[16 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_SHIFT_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyShiftPress: { get: function get() { return _Keys[16 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_SHIFT_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyShiftDown: { get: function get() { return _Keys[16 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_CTRL_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCtrlUp: { get: function get() { return _Keys[17 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_CTRL_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCtrlPress: { get: function get() { return _Keys[17 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_CTRL_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCtrlDown: { get: function get() { return _Keys[17 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_ALT_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAltUp: { get: function get() { return _Keys[18 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ALT_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAltPress: { get: function get() { return _Keys[18 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ALT_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAltDown: { get: function get() { return _Keys[18 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_BACKSPACE_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBackspaceUp: { get: function get() { return _Keys[8 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_BACKSPACE_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBackspacePress: { get: function get() { return _Keys[8 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_BACKSPACE_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBackspaceDown: { get: function get() { return _Keys[8 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_ENTER_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEnterUp: { get: function get() { return _Keys[13 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ENTER_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEnterPress: { get: function get() { return _Keys[13 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_ENTER_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEnterDown: { get: function get() { return _Keys[13 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+    
+            
+                /**
+                 * @property    {KEY_UP_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUpUp: { get: function get() { return _Keys[38 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_UP_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUpPress: { get: function get() { return _Keys[38 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_UP_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUpDown: { get: function get() { return _Keys[38 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_LEFT_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLeftUp: { get: function get() { return _Keys[37 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_LEFT_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLeftPress: { get: function get() { return _Keys[37 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_LEFT_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLeftDown: { get: function get() { return _Keys[37 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_RIGHT_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRightUp: { get: function get() { return _Keys[39 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_RIGHT_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRightPress: { get: function get() { return _Keys[39 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_RIGHT_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRightDown: { get: function get() { return _Keys[39 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_DOWN_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDownUp: { get: function get() { return _Keys[40 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_DOWN_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDownPress: { get: function get() { return _Keys[40 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_DOWN_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDownDown: { get: function get() { return _Keys[40 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_A_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAUp: { get: function get() { return _Keys[65 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_A_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyAPress: { get: function get() { return _Keys[65 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_A_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyADown: { get: function get() { return _Keys[65 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_B_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBUp: { get: function get() { return _Keys[66 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_B_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBPress: { get: function get() { return _Keys[66 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_B_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyBDown: { get: function get() { return _Keys[66 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_C_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCUp: { get: function get() { return _Keys[67 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_C_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCPress: { get: function get() { return _Keys[67 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_C_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyCDown: { get: function get() { return _Keys[67 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_D_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDUp: { get: function get() { return _Keys[68 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_D_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDPress: { get: function get() { return _Keys[68 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_D_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyDDown: { get: function get() { return _Keys[68 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_E_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEUp: { get: function get() { return _Keys[69 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_E_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEPress: { get: function get() { return _Keys[69 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_E_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyEDown: { get: function get() { return _Keys[69 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_F_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyFUp: { get: function get() { return _Keys[70 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyFPress: { get: function get() { return _Keys[70 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_F_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyFDown: { get: function get() { return _Keys[70 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_G_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyGUp: { get: function get() { return _Keys[71 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_G_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyGPress: { get: function get() { return _Keys[71 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_G_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyGDown: { get: function get() { return _Keys[71 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_H_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyHUp: { get: function get() { return _Keys[72 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_H_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyHPress: { get: function get() { return _Keys[72 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_H_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyHDown: { get: function get() { return _Keys[72 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_I_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyIUp: { get: function get() { return _Keys[73 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_I_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyIPress: { get: function get() { return _Keys[73 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_I_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyIDown: { get: function get() { return _Keys[73 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_J_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyJUp: { get: function get() { return _Keys[74 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_J_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyJPress: { get: function get() { return _Keys[74 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_J_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyJDown: { get: function get() { return _Keys[74 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_K_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyKUp: { get: function get() { return _Keys[75 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_K_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyKPress: { get: function get() { return _Keys[75 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_K_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyKDown: { get: function get() { return _Keys[75 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_L_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLUp: { get: function get() { return _Keys[76 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_L_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLPress: { get: function get() { return _Keys[76 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_L_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyLDown: { get: function get() { return _Keys[76 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_M_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMUp: { get: function get() { return _Keys[77 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_M_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMPress: { get: function get() { return _Keys[77 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_M_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyMDown: { get: function get() { return _Keys[77 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_N_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyNUp: { get: function get() { return _Keys[78 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_N_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyNPress: { get: function get() { return _Keys[78 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_N_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyNDown: { get: function get() { return _Keys[78 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_O_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyOUp: { get: function get() { return _Keys[79 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_O_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyOPress: { get: function get() { return _Keys[79 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_O_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyODown: { get: function get() { return _Keys[79 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_P_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyPUp: { get: function get() { return _Keys[80 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_P_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyPPress: { get: function get() { return _Keys[80 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_P_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyPDown: { get: function get() { return _Keys[80 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_Q_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyQUp: { get: function get() { return _Keys[81 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Q_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyQPress: { get: function get() { return _Keys[81 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Q_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyQDown: { get: function get() { return _Keys[81 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_R_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRUp: { get: function get() { return _Keys[82 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_R_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRPress: { get: function get() { return _Keys[82 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_R_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyRDown: { get: function get() { return _Keys[82 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_S_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySUp: { get: function get() { return _Keys[83 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_S_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySPress: { get: function get() { return _Keys[83 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_S_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeySDown: { get: function get() { return _Keys[83 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_T_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTUp: { get: function get() { return _Keys[84 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_T_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTPress: { get: function get() { return _Keys[84 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_T_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyTDown: { get: function get() { return _Keys[84 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_U_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUUp: { get: function get() { return _Keys[85 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_U_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUPress: { get: function get() { return _Keys[85 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_U_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyUDown: { get: function get() { return _Keys[85 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_V_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyVUp: { get: function get() { return _Keys[86 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_V_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyVPress: { get: function get() { return _Keys[86 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_V_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyVDown: { get: function get() { return _Keys[86 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_W_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyWUp: { get: function get() { return _Keys[87 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_W_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyWPress: { get: function get() { return _Keys[87 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_W_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyWDown: { get: function get() { return _Keys[87 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_X_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyXUp: { get: function get() { return _Keys[88 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_X_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyXPress: { get: function get() { return _Keys[88 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_X_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyXDown: { get: function get() { return _Keys[88 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_Y_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyYUp: { get: function get() { return _Keys[89 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Y_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyYPress: { get: function get() { return _Keys[89 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Y_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyYDown: { get: function get() { return _Keys[89 + _DOWN_K]; }, configurable: false, enumerable: true },
+    
+            
+                /**
+                 * @property    {KEY_Z_UP}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyZUp: { get: function get() { return _Keys[90 + _UP_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Z_PRESS}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyZPress: { get: function get() { return _Keys[90 + _PRESS_K]; }, configurable: false, enumerable: true },
+            
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                KeyZDown: { get: function get() { return _Keys[90 + _DOWN_K]; }, configurable: false, enumerable: true },
+            
+    
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseLeftUp: { get: function get() { return _Mouse[0 + _UP_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseLeftClick: { get: function get() { return _Mouse[0 + _CLICK_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseLeftDown: { get: function get() { return _Mouse[0 + _DOWN_M]; }, configurable: false, enumerable: true },
+    
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseMiddleUp: { get: function get() { return _Mouse[1 + _UP_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseMiddleClick: { get: function get() { return _Mouse[1 + _CLICK_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseMiddleDown: { get: function get() { return _Mouse[1 + _DOWN_M]; }, configurable: false, enumerable: true },
+    
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseRightUp: { get: function get() { return _Mouse[2 + _UP_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseRightClick: { get: function get() { return _Mouse[2 + _CLICK_M]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseRightDown: { get: function get() { return _Mouse[2 + _DOWN_M]; }, configurable: false, enumerable: true },
+    
+    
+    
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseX: { get: function get() { return _Axis[_X + _CURR_A]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseY: { get: function get() { return _Axis[_Y + _CURR_A]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseDeltaX: { get: function get() { return _Axis[_X + _DELTA_A]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseDeltaY: { get: function get() { return _Axis[_Y + _DELTA_A]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseWheelUp: { get: function get() { return _Mouse[_WHEEL_U]; }, configurable: false, enumerable: true },
+    
+                /**
+                 * @property    {KEY_Z_DOWN}
+                 * @type        {Boolean}
+                 * @description Some description
+                 */
+                MouseWheelDown: { get: function get() { return _Mouse[_WHEEL_D]; }, configurable: false, enumerable: true },
+    
+    
+                Init:
+                {
+                    value: function Init(canvas)
+                    {                
+                        canvas.onkeyup = function onkeyup(e)
+                        {
+                            var key = _handle_event(e);
+    
+                            _Keys[key + _UP_K]      = true;
+                            _Keys[key + _PRESS_K]   = false;
+                            _Keys[key + _DOWN_K]    = false;
+                        };
+                        canvas.onkeydown = function onkeydown(e)
+                        {
+                            var key = _handle_event(e);
+    
+                            _Keys[key + _UP_K]      = false;
+                            _Keys[key + _PRESS_K]   = true;
+                            _Keys[key + _DOWN_K]    = true;
+                        };
+    
+                        canvas.oncontextmenu = function oncontextmenu(e) { _handle_event(e); return false; };
+                        canvas.onmouseenter = function onmouseenter(e)
+                        {
+                            _Axis[_X + _PREV_A] = e.clientX;
+                            _Axis[_Y + _PREV_A] = e.clientY;
+                            
+                            _Axis[_X + _CURR_A] = e.clientX;
+                            _Axis[_Y + _CURR_A] = e.clientY;
+    
+                            _Axis[_X + _DELTA_A] = 0;
+                            _Axis[_Y + _DELTA_A] = 0;
+                        };
+                        canvas.onmousemove = function onmousemove(e) 
+                        {
+                            if (!_Axis[_X + _CURR_A] || !_Axis[_Y + _CURR_A])
+                            {
+                                _Axis[_X + _CURR_A] = e.clientX;
+                                _Axis[_Y + _CURR_A] = e.clientY;
+                            }
+    
+                            _Axis[_X + _PREV_A] = _Axis[_X + _CURR_A];
+                            _Axis[_Y + _PREV_A] = _Axis[_Y + _CURR_A];
+                            _Axis[_X + _CURR_A] = e.clientX;
+                            _Axis[_Y + _CURR_A] = e.clientY;
+    
+                            _Axis[_X + _DELTA_A] = _Axis[_X + _CURR_A] - _Axis[_X + _PREV_A];
+                            _Axis[_Y + _DELTA_A] = _Axis[_Y + _CURR_A] - _Axis[_Y + _PREV_A];
+                        };
+                        canvas.onmouseleave = function onmouseleave(e)
+                        {
+                            _Axis[_X + _PREV_A] = undefined;
+                            _Axis[_Y + _PREV_A] = undefined;
+                            
+                            _Axis[_X + _CURR_A] = undefined;
+                            _Axis[_Y + _CURR_A] = undefined;
+    
+                            _Axis[_X + _DELTA_A] = 0;
+                            _Axis[_Y + _DELTA_A] = 0;
+                        };
+                        canvas.onmouseup = function onmouseup(e)   
+                        {
+                            var key = _handle_event(e);
+    
+                            _Mouse[key + _UP_M] = true;
+                            _Mouse[key + _CLICK_M] = false;
+                            _Mouse[key + _DOWN_M] = false;
+                        };
+                        canvas.onmousedown = function onmousedown(e) 
+                        {
+                            var key = _handle_event(e);
+    
+                            _Mouse[key + _UP_M] = false;
+                            _Mouse[key + _CLICK_M] = true;
+                            _Mouse[key + _DOWN_M] = true;
+                        };
+                        canvas.onmousewheel = function onmousewheel(e)
+                        {
+                            _Mouse[e.deltaY < 0 ? _WHEEL_U : _WHEEL_D] = true;
+                        };
+                    }
+                },
+    
+                /**
+                 * @function    InputUpdate
+                 * @return      {udefined}
+                 */
+                InputUpdate:
+                {
+                    value: function InputUpdate()
+                    {
+                        for (var i = _PRESS_K; i < _DOWN_K; ++i)
+                            if (_Keys[i])
+                                _Keys[i] = false;
+    
+                        for (var i = _CLICK_M; i < _DOWN_M; ++i)
+                            if (_Mouse[i])
+                                _Mouse[i] = false;
+    
+                        _Axis[_X + _DELTA_A] = 0;
+                        _Axis[_Y + _DELTA_A] = 0;
+                        _Mouse[_WHEEL_U] = false;
+                        _Mouse[_WHEEL_D] = false;
+                    }
+                }
+            });
+    
+            Object.seal(this);
+        }
+    
+        Input.prototype = Object.create(null);
+        Object.seal(Input.prototype);
+    
+        return new Input();
+    })();
+    Object.seal(Input);
+    
+    /**
+     * @name        Item
+     * @module      FWGE.Game
+     * @description The {Item} object is the base item for all usable item in the system.
+    */
+    
+    let Item = (function()
+    {
+        /**
+         * @param   {string} Name
+         */
+        function Item(name = "Item")
+        {
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {ID}
+                 * @type        {number}
+                 */
+                ID: { value: Item.hashcode(Item.ID_COUNTER++), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Name}
+                 * @type        {String}
+                 */
+                Name: { value: name, configurable: false, enumerable: true, writable: true }
+            });
+        }
+        Object.defineProperties(Item,
+        {
+            /**
+             * @property    {ID_COUNTER}
+             * @type        {number}
+             */
+            ID_COUNTER: { value: 0, configurable: false, enumerable: false, writable: true },
+    
+            /**
+             * @function    hashcode
+             * @param       {number} number
+             * @return      {number}
+             */
+            hashcode:
+            {
+                value: function hashcode(number)
+                {
+                    var i = 0;
+                    var hash = 0;
+                    var chr = 0;
+                    var string = number + "";
+    
+                    for (i = 0; i < string.length; i++)
+                    {
+                        chr   = string.charCodeAt(i);
+                        hash  = ((hash << 5) - hash) + chr;
+                        hash |= 0;
+                    }
+    
+                    return hash;
+                },
+                configurable: false, enumerable: false, writable: false
+            }
+        });
+    
+        Item.prototype = Object.create(null);
+        Object.seal(Item.prototype);
+    
+        return Item;
+    })();
+    Object.seal(Item);
+    
+    /**
+     * @name        AmbienLight
+     * @module      FWGE.Game
+     * @description Represents a light object that illumnintates the scene evenly with a specific colour
+     */
+    
+    window.AmbientLight = (function()
+    {
+        /** 
+         * @param {Object} request 
+         * @param {string} request.name 
+         * @param {GameObject} request.gameobject 
+         * @param {Array} request.colour
+         * @param {number} request.intensity
+         */
+        function AmbientLight({name = "Ambient Light", gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0} = {})
+        {
+            LightItem.call(this, name, gameobject, colour, intensity);
+            Object.seal(this);
+        }
+    
+        AmbientLight.prototype = Object.create(null);
+        Object.seal(AmbientLight.prototype);
+    
+        return AmbientLight;
+    })();
+    Object.seal(AmbientLight);
+    
+    /**
+     * @name        DirectionalLight
+     * @module      FWGE.Game.Light
+     * @description This light illuminates the scene in a given direction, similar that to the sun
+    */
+    
+    window.DirectionalLight = (function()
+    {
+        /**
+         * @param {Object}      request
+         * @param {string}      request.name
+         * @param {GameObject}  request.gameobject
+         * @param {Array}       request.colour
+         * @param {number}      request.intensity
+         * @param {Array}       request.direction
+         */
+        function DirectionalLight({name = 'Directional Light', gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
+        {
+            LightItem.call(this, name, gameobject, colour, intensity)
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Direction}
+                 * @type        {Vector3}
+                 */
+                Direction: { value: new Vector3(direction[0], direction[1], direction[2]), configurable: false, enumerable: true, writable: false }
+            });
+    
+            Object.seal(this);
+        }
+    
+        DirectionalLight.prototype = Object.create(null);
+        Object.seal(DirectionalLight.prototype);
+    
+        return DirectionalLight;
+    })();
+    Object.seal(DirectionalLight);
+    
+    /**
+     * @name        Light
+     * @module      FWGE.Game
+     * @description Module used to create lightobject in the scene.
+     *              There can only be 12 lights at a given time:
+     *              1: Ambient Light
+     *              3: Directional Lights
+     *              8: Point Lights
+     */
+    
+    function Light()
+    {
+        var AmbientCount = 0;
+        var DirectionalCount = 0;
+        var PointCount = 0;
+        
+        const MAX_AMBIENT = 1;
+        const MAX_DIRECTIONAL = 3;
+        const MAX_POINT = 8;
+        const MAX_LIGHTS = 12;
+    
+        Object.defineProperties(this,
+        {    
+            /**
+             * @function    Ambient
+             * @param       {Object} request 
+             * @param       {string} request.name 
+             * @param       {GameObject | undefined} request.gameobject 
+             * @param       {Array | undefined} request.colour
+             * @param       {number | undefined} request.intensity
+             * @return      {AmbientLight | undefined}
+             */        
+            Ambient:
+            {
+                value: function Ambient(request)
+                {
+                    var light = null;
+    
+                    if (this.AmbientCount < this.MAX_AMBIENT)
+                    {
+                        light = new AmbientLight(request);
+                        light.GameObject.Light = light;
+                        
+                        this.AmbientCount++;
+                        Light.Lights[0] = light;
+                    }
+    
+                    return light;
+                }
+            },
+            
+            /**
+             * @function    Ambient
+             * @param       {Object} request 
+             * @param       {string} request.name
+             * @param       {GameObject | null | undefined} request.gameobject
+             * @param       {Array} request.colour
+             * @param       {number} request.intensity
+             * @param       {Array} request.direction
+             * @return      {AmbientLight | undefined}
+             */ 
+            Directional:
+            {
+                value: function Directional(request)
+                {
+                    var light = null;
+    
+                    if (this.DirectionalCount < this.MAX_DIRECTIONAL)
+                    {
+                        for (var i = this.MAX_AMBIENT; i < this.MAX_DIRECTIONAL; ++i)
+                        {
+                            if (!Light.Lights[i])
+                            {
+                                light = new DirectionalLight(request);
+                                light.GameObject.Light = light;
+    
+                                this.DirectionalCount++;
+                                Light.Lights[i] = light;
+    
+                                break;
+                            }
+                        }
+                    }
+    
+                    return light;
+                }
+            },
+            
+            /**
+             * @function    Ambient
+             * @param       {Object} request 
+             * @param       {string} request.name 
+             * @param       {GameObject | undefined} request.gameobject 
+             * @param       {Array | undefined} request.colour
+             * @param       {number | undefined} request.intensity
+             * @return      {AmbientLight | undefined}
+             */ 
+            Point:
+            {
+                value: function Point(request)
+                {
+                    var light = null;
+    
+                    if (this.PointCount < this.MAX_POINT)
+                    {
+                        for (var i = this.MAX_DIRECTIONAL; i < this.MAX_LIGHTS; ++i)
+                        {
+                            if (!Light.Lights[i])
+                            {
+                                light = new PointLight(request);
+                                light.GameObject.Light = light;
+    
+                                this.PointCount++;
+                                Light.Lights[i] = light;
+    
+                                break;
+                            }
+                        }
+                    }
+    
+                    return light
+                }
+            },
+            
+            /**
+             * @function    Ambient
+             * @param       {AmbientLight | DirectionalLight | PointLight} light 
+             * @return      {AmbientLight | DirectionalLight | PointLight}
+             * @description Removes a light from the given scene.
+             */ 
+            Remove:
+            {
+                valeu: function Remove(light)
+                {
+                    for (var i in  Light.Lights)
+                        if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)
+                            Light.Lights[i] = null;
+    
+                    return light;
+                }
+            }
+        });
+    }
+    Light.prototype = Object.create(null);
+    Object.defineProperties(Light,
+    {    
+        Lights: { value: new Array(12), configurable: false, enumerable: true, writable: false }
+    });
+    
+    /**
+     * @name        LightItem
+     * @module      FWGE.Game.Light
+     * @description This is the base definition of a light oject within the scene
+     */
+    
+    let LightItem = (function()
+    {
+        /**
+         * @param {string} name 
+         * @param {GameObject} gameobject 
+         * @param {Array} colour 
+         * @param {number} intensity 
+         */
+        function LightItem(name, gameobject, colour, intensity)
+        {
+            GameItem.call(this, name, gameobject);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Colour}
+                 * @type        {Colour}
+                 */
+                Colour: { value: new Colour(colour[0], colour[1], colour[2], colour[3]), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Intensity}
+                 * @type        {number}
+                 */
+                Intensity: { value: intensity, configurable: false, enumerable: true, writable: false }
+            });
+    
+            Object.seal(this);
+        }
+    
+        LightItem.prototype = Object.create(null);
+    
+        return LightItem;
+    })();
+    Object.seal(LightItem);
+    
+    /**
+     * @name        PointLight
+     * @module      FWGE.Game
+     * @description Represents a light object that illumntes froma fixed point in space,
+     *              within a given radius.
+     */
+    
+    window.PointLight = (function()
+    {
+        /** 
+         * @param {Object}      request 
+         * @param {string}      request.name 
+         * @param {GameOject}   request.gameobject 
+         * @param {Array}       request.colour 
+         * @param {number}      request.intensity 
+         * @param {number}      request.radius 
+         * @param {number}      request.angle 
+         * @param {number}      request.ahininess 
+         */
+        function PointLight({name = "Point Light", gameobject = undefined, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
+        {
+            LightItem.call(this, name, gameobject, colour, intensity);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Radius}
+                 * @type        {number}
+                 */
+                Radius: { value: radius, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {Angle}
+                 * @type        {number}
+                 */
+                Angle: { value: angle, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {Shininess}
+                 * @type        {number}
+                 */
+                Shininess: { value: ahininess, configurable: false, enumerable: true, writable: true },
+            });
+    
+            Object.seal(this);
+        }
+    
+        PointLight.prototype = Object.create(null);
+        Object.seal(PointLight.prototype);
+    
+        return PointLight;
+    })();
+    Object.seal(PointLight);
+    /**
+     * @name Maths
+     * @description This module contains the methods required for matrix and vector
+     *              operations.
+     * @module      FWGE.Game
+     */
+    
+    window.Maths = (function()
+    {
+        function Maths()
+        {
+            Object.defineProperties(this,
+            {
+                Radian: { value: function Radian(degree)            { return Math.PI / 180 * degree; } },
+                Cot:    { value: function Cot(angle)                { return 1 / Math.tan(angle)} },
+                Clamp:  { value: function Clamp(value, min, max)    { return Math.max(Math.min(value, max), min); } }
+            });
+        }
+    
+        return new Maths();
+    })();
+    /**
+     * @name        Matrix2
+     * @module      FWGE.Game.Maths 
+     * @description This library contains the methods for 2x2 matrix operations.
+     *              2x2 matrices are represented as a Matrix2 of length 4.
+     */
+    
+    window.Matrix2 = (function()
+    {
+        /**
+         * @param   {number} m11
+         * @param   {number} m12
+         * @param   {number} m21
+         * @param   {number} m22
+         */
+        function Matrix2(m11 = 0, m12 = 0, m21 = 0, m22 = 0)
+        {
+            BufferedArray.call(this, 4, Matrix2);
+            this.Set(m11, m12, m21, m22);
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(Matrix2,
+        {
+            /**
+             * @property    {Identity}
+             * @type        {Matrix2}
+             */
+            Identity:
+            {
+                get: function get() { return new Matrix2(1, 0, 0, 1); },
+                configurable: false, enumerable: true
+            },
+    
+            /**
+             * @function    Set
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2}
+             */
+            Set:
+            {
+                value: function Set(matrix, m11, m12, m21, m22)
+                {
+                    matrix.M11 = m11;
+                    matrix.M12 = m12;
+                    matrix.M21 = m21;
+                    matrix.M22 = m22;
+    
+                    return matrix;
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Transpose
+             * @param       {Matrix2} array
+             * @return      {Matrix2}
+             */
+            Transpose:
+            {
+                value: function Transpose(matrix)
+                {
+                    return new Matrix2(matrix.M11, matrix.M21, matrix.M12, matrix.M22);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Determinant
+             * @param       {Matrix2}  array
+             * @return      {number}
+             */
+            Determinant:
+            {
+                value: function Determinant(m11, m12, m21, m22)
+                {
+                    return m11 * m22 - m21 * m12;
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Inverse
+             * @param       {Matrix2}  array
+             * @return      {Matrix2}
+             */
+            Inverse:
+            {
+                value: function Inverse(matrix)
+                {
+                    let det = matrix.Determinant;
+    
+                    if (det === 0)
+                        det = 1;
+    
+                    return new Matrix2(matrix.M22 / det, -matrix.M12 / det, -matrix.M21 / det,  matrix.M11 / det);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2} 
+             */
+            Sum:
+            {
+                value: function Sum(matrix, m11, m12, m21, m22)
+                {
+                    return new Matrix2(matrix.M11 + m11, matrix.M12 + m12, matrix.M21 + m21, matrix.M22 + m22);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2}
+             */
+            Mult:
+            {
+                value: function Mult(matrix, m11, m12, m21, m22)
+                {
+                    return new Matrix2
+                    (
+                        matrix.M11 * m11 + matrix.M12 * m21,
+                        matrix.M11 * m12 + matrix.M12 * m22,                
+                        matrix.M21 * m11 + matrix.M22 * m21,
+                        matrix.M21 * m12 + matrix.M22 * m22
+                    );
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Scale
+             * @param       {number}   scalar
+             * @return      {Matrix2}
+             */
+            Scale:
+            {
+                value: function Scale(matrix, scaler)
+                {
+                    return Matrix2.Mult(matrix, scaler, scaler, scaler, scaler);
+                },
+                configurable: false, enumerable: true, writable: false
+            }    
+        });
+    
+        Matrix2.prototype = Object.create(null);
+        Object.defineProperties(Matrix2.prototype,
+        {
+            constructor: { value: Matrix2 },
+    
+            /**
+             * @property    {M11}
+             * @type        {number}
+             */
+            M11:
+            {
+                get: function get() { return this.Buffer[0]; },
+                set: function set(m11) { this.Buffer[0] = m11; },
+                configurable: false, enumerable: true
+            },
+    
+            /**
+             * @property    {M12}
+             * @type        {number}
+             */
+            M12:
+            {
+                get: function get() { return this.Buffer[1]; },
+                set: function set(m12) { this.Buffer[1] = m12; },
+                configurable: false, enumerable: true
+            },
+    
+            /**
+             * @property    {M21}
+             * @type        {number}
+             */
+            M21:
+            {
+                get: function get() { return this.Buffer[2]; },
+                set: function set(m21) { this.Buffer[2] = m21; },
+                configurable: false, enumerable: true
+            },
+    
+            /**
+             * @property    {M22}
+             * @type        {number}
+             */
+            M22:
+            {
+                get: function get() { return this.Buffer[3]; },
+                set: function set(m22) { this.Buffer[3] = m22; },
+                configurable: false, enumerable: true
+            },
+    
+    
+            /**
+             * @function    Set
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2}
+             */
+            Set:
+            {
+                value: function Set(m11, m12, m21, m22)
+                {
+                    return Matrix2.Set(this, m11, m12, m21, m22);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Transpose
+             * @param       {Matrix2} array
+             * @return      {Matrix2}
+             */
+            Transpose:
+            {
+                value: function Transpose()
+                {
+                    return Matrix2.Set(this, this.M11, this.M21, this.M12, this.M22);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Identity
+             * @param       {Matrix2} array
+             * @return      {Matrix2}
+             */
+            Identity:
+            {
+                value: function Identity()
+                {
+                    return Matrix2.Set(this, 1, 0, 0, 1);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Determinant
+             * @param       {Matrix2}  array
+             * @return      {number}
+             */
+            Determinant:
+            {
+                get: function Determinant()
+                {
+                    return Matrix2.Determinant(this.M11, this.M12, this.M21, this.M22);
+                },
+                configurable: false, enumerable: true
+            },
+            
+            /**
+             * @function    Inverse
+             * @param       {Matrix2}  array
+             * @return      {Matrix2}
+             */
+            Inverse:
+            {
+                value: function Inverse()
+                {
+                    let det = matrix.Determinant;
+    
+                    if (det === 0)
+                        det = 1;
+    
+                    return Matrix2.Set
+                    (
+                        this,
+                        this.M22 / det,
+                        -this.M12 / det,
+                        -this.M21 / det,
+                        this.M11 / det
+                    );
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2} 
+             */
+            Sum:
+            {
+                value: function Sum(m11, m12, m21, m22)
+                {
+                    return Matrix2.Set
+                    (
+                        this,
+                        this.M11 + m11,
+                        this.M12 + m12,
+                        this.M21 + m21,
+                        this.M22 + m22
+                    );
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {number} m11
+             * @param       {number} m12
+             * @param       {number} m21
+             * @param       {number} m22
+             * @return      {Matrix2}
+             */
+            Mult:
+            {
+                value: function Mult(m11, m12, m21, m22)
+                {
+                    return Matrix2.Set
+                    (
+                        this,
+                        this.M11 * m11 + this.M12 * m21,
+                        this.M11 * m12 + this.M12 * m22,                
+                        this.M21 * m11 + this.M22 * m21,
+                        this.M21 * m12 + this.M22 * m22
+                    );
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Scale
+             * @param       {number}   scalar
+             * @return      {Matrix2}
+             */
+            Scale:
+            {
+                value: function Scale(scaler)
+                {
+                    return this.Mult(scaler, scaler, scaler, scaler);
+                },
+                configurable: false, enumerable: true, writable: false
+            }
+        });
+        Object.seal(Matrix2.prototype);
+    
+        return Matrix2;
+    })();
+    Object.seal(Matrix2);
+    
+    /**
+     * @name        Matrix3
+     * @module      FWGE.Game.Maths
+     * @description This library contains the methods for 3x3 matrix operations.
+     *              3x3 matrices are represented as a Float32Array of length 9.
+     */
+    
+    window.Matrix3 = (function()
+    {
+        /**
+         * @param       {number}    m11
+         * @param       {number}    m12
+         * @param       {number}    m13
+         * @param       {number}    m21
+         * @param       {number}    m22
+         * @param       {number}    m23
+         * @param       {number}    m31
+         * @param       {number}    m32
+         * @param       {number}    m33
+         */
+        function Matrix3(m11 = 0, m12 = 0, m13 = 0, m21 = 0, m22 = 0, m23 = 0, m31 = 0, m32 = 0, m33 = 0)
+        {
+            BufferedArray.call(this, 9, Float32Array);
+            this.Set(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(Matrix3,
+        {
+            Identity: { get Identity() { return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1); } },
+                
+            /**
+             * @function    Set
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {Matrix3}
+             */
+            Set:
+            {
+                value: function Set(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {
+                    if (m11 instanceof Matrix3)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Array)
+                    {
+                        m33 = m11[8]; m32 = m11[7]; m31 = m11[6];
+                        m23 = m11[5]; m22 = m11[4]; m21 = m11[3];
+                        m13 = m11[2]; m12 = m11[1]; m11 = m11[0];
+                    }
+    
+                    matrix.M11 = m11; matrix.M12 = m12; matrix.M13 = m13;
+                    matrix.M21 = m21; matrix.M22 = m22; matrix.M23 = m23;
+                    matrix.M31 = m31; matrix.M32 = m32; matrix.M33 = m33;
+    
+                    return matrix;
+                }
+            },
+            
+            /**
+             * @function    Transpose
+             * @param       {Matrix3}   matrix
+             * @param       {Matrix3}
+             */
+            Transpose:
+            {
+                value: function Transpose(matrix)
+                {
+                    return new Matrix3
+                    (
+                        matrix.M11, matrix.M21, matrix.M31,
+                        matrix.M12, matrix.M22, matrix.M32,
+                        matrix.M13, matrix.M23, matrix.M33
+                    );
+                }
+            },
+    
+            /**
+             * @function    Determinant
+             * @param       {Matrix3}   matrix
+             * @return      {number}
+             */
+            Determinant:
+            {
+                value: function Determinant(matrix)
+                {
+                    return  matrix.M11 * (matrix.M22 * matrix.M33 - matrix.M23 * matrix.M32) -
+                            matrix.M12 * (matrix.M21 * matrix.M33 - matrix.M23 * matrix.M31) + 
+                            matrix.M13 * (matrix.M21 * matrix.M32 - matrix.M22 * matrix.M31);
+                }
+            },
+            
+            /**
+             * @function    Inverse
+             * @param       {Matrix3}   matrix
+             * @return      {Matrixs}
+             */
+            Inverse:
+            {
+                value: function Inverse(matrix)
+                {
+                    let det = this.Determinant;
+    
+                    if (det !== 0)
+                        det = 1;
+    
+                    new Matrix3
+                    (
+                        (this.M22 * this.M33 - this.M32 * this.M23) / det,
+                        -(this.M12 * this.M33 - this.M32 * this.M13) / det,
+                        (this.M12 * this.M23 - this.M22 * this.M13) / det,
+    
+                        -(this.M21 * this.M33 - this.M31 * this.M23) / det,
+                        (this.M11 * this.M33 - this.M31 * this.M13) / det,
+                        -(this.M11 * this.M23 - this.M21 * this.M13) / det,
+    
+                        (this.M21 * this.M32 - this.M31 * this.M22) / det,
+                        -(this.M11 * this.M32 - this.M31 * this.M12) / det,
+                        (this.M11 * this.M22 - this.M21 * this.M12) / det
+                    );
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {Matrix3}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @return      {Matrix3}
+             */
+            Sum:
+            {
+                value: function Sum(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {
+                    return new Matrix3
+                    (
+                        matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13,
+                        matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23,
+                        matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33
+                    );
+                }
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {Matrix3}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @return      {Matrix3}
+             */
+            Mult:
+            {
+                value: function Mult(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {    
+                    return new Matrix3
+                    (
+                        matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31,
+                        matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32,
+                        matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33,
+                        
+                        matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31,
+                        matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32,
+                        matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33,
+                        
+                        matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31,
+                        matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32,
+                        matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33
+                    ); 
+                }
+            },
+    
+            Scale:
+            {
+                value: function Scale(scalar)
+                {
+                    return Matrix3.Mult(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+                }
+            }
+        });
+    
+        Object.defineProperties(Matrix3.prototype,
+        {
+            M11:
+            {
+                get: function M11()  { return this.Buffer[0]; },
+                set: function M11(m11) { this.Buffer[0] = m11;  }
+            },
+            M12:
+            {
+                get: function M12()  { return this.Buffer[1]; },
+                set: function M12(m12) { this.Buffer[1] = m12;  }
+            },
+            M13:
+            {
+                get: function M13()  { return this.Buffer[2]; },
+                set: function M13(m13) { this.Buffer[2] = m13;  }
+            },
+            M21:
+            {
+                get: function M21()  { return this.Buffer[3]; },
+                set: function M21(m21) { this.Buffer[3] = m21;  }
+            },
+            M22:
+            {
+                get: function M22()  { return this.Buffer[4]; },
+                set: function M22(m22) { this.Buffer[4] = m22;  }
+            },
+            M23:
+            {
+                get: function M23()  { return this.Buffer[5]; },
+                set: function M23(m23) { this.Buffer[5] = m23;  }
+            },
+            M31:
+            {
+                get: function M31()  { return this.Buffer[6]; },
+                set: function M31(m31) { this.Buffer[6] = m31;  }
+            },
+            M32:
+            {
+                get: function M32()  { return this.Buffer[7]; },
+                set: function M32(m32) { this.Buffer[7] = m32;  }
+            },
+            M33:
+            {
+                get: function M33()  { return this.Buffer[8]; },
+                set: function M33(m33) { this.Buffer[8] = m33;  }
+            },
+            
+            /**
+             * @function    Set
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {Matrix3}
+             */
+            Set:
+            {
+                value: function Set(m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {
+                    return Matrix3.Set(this, m11 instanceof Array || m11 instanceof Matrix3 ? m11 : [m11, m12, m13, m21, m22, m23, m31, m32, m33]);
+                }
+            },
+            
+            /**
+             * @function    Transpose
+             * @param       {Matrix3}   matrix
+             * @param       {Matrix3}
+             */
+            Transpose:
+            {
+                value: function Transpose()
+                {
+                    return this.Set
+                    (
+                        this.M11, this.M21, this.M31,
+                        this.M12, this.M22, this.M32,
+                        this.M13, this.M23, this.M33
+                    );
+                }
+            },
+    
+            /**
+             * @function    Determinant
+             * @param       {Matrix3}   matrix
+             * @return      {number}
+             */
+            Determinant:
+            {
+                get: function Determinant()
+                {
+                    return Matrix3.Determinant(this);
+                }
+            },
+            
+            /**
+             * @function    Inverse
+             * @param       {Matrix3}   matrix
+             * @return      {Matrixs}
+             */
+            Inverse:
+            {
+                value: function Inverse()
+                {
+                    let det = this.Determinant;
+    
+                    if (det !== 0)
+                        det = 1;
+    
+                    return this.Set
+                    (
+                        (this.M22 * this.M33 - this.M32 * this.M23) / det,
+                        -(this.M12 * this.M33 - this.M32 * this.M13) / det,
+                        (this.M12 * this.M23 - this.M22 * this.M13) / det,
+    
+                        -(this.M21 * this.M33 - this.M31 * this.M23) / det,
+                        (this.M11 * this.M33 - this.M31 * this.M13) / det,
+                        -(this.M11 * this.M23 - this.M21 * this.M13) / det,
+    
+                        (this.M21 * this.M32 - this.M31 * this.M22) / det,
+                        -(this.M11 * this.M32 - this.M31 * this.M12) / det,
+                        (this.M11 * this.M22 - this.M21 * this.M12) / det
+                    );
+                }
+            },
+    
+            /**
+             * @function    Identity
+             * @return      {Matrix3}
+             */
+            Identity:
+            {
+                value: function Identity()
+                {
+                    return this.Set
+                    (
+                        1, 0, 0,
+                        0, 1, 0,
+                        0, 0, 1
+                    );
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {Matrix3}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @return      {Matrix3}
+             */
+            Sum:
+            {
+                value: function Sum(m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {
+                    return this.Set
+                    (
+                        this.M11 + m11, this.M12 + m12, this.M13 + m13,
+                        this.M21 + m21, this.M22 + m22, this.M23 + m23,
+                        this.M31 + m31, this.M32 + m32, this.M33 + m33
+                    );
+                }
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {Matrix3}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @return      {Matrix3}
+             */
+            Mult:
+            {
+                value: function Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33)
+                {    
+                    return this.Set
+                    (
+                        this.M11 * m11 + this.M12 * m21 + this.M13 * m31,
+                        this.M11 * m12 + this.M12 * m22 + this.M13 * m32,
+                        this.M11 * m13 + this.M12 * m23 + this.M13 * m33,
+                        
+                        this.M21 * m11 + this.M22 * m21 + this.M23 * m31,
+                        this.M21 * m12 + this.M22 * m22 + this.M23 * m32,
+                        this.M21 * m13 + this.M22 * m23 + this.M23 * m33,
+                        
+                        this.M31 * m11 + this.M32 * m21 + this.M33 * m31,
+                        this.M31 * m12 + this.M32 * m22 + this.M33 * m32,
+                        this.M31 * m13 + this.M32 * m23 + this.M33 * m33
+                    ); 
+                }
+            },
+    
+            Scale:
+            {
+                value: function Scale(scalar)
+                {
+                    return this.Mult(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+                }
+            }
+        });
+        Object.seal(Matrix3.prototype);
+    
+        return Matrix3;
+    })();
+    Object.seal(Matrix3);
+    
+    /**
+     * @name        Matrix4
+     * @module      FWGE.Game.Maths
+     * @description This library contains the methods for 2x2 matrix operations.
+     *              4x4 matrices are represented as a Float32Array of length 16.
+     */
+    
+    window.Matrix4 = (function()
+    {
+        /**
+         * @param   {number}    m11
+         * @param   {number}    m12
+         * @param   {number}    m13
+         * @param   {number}    m14
+         * @param   {number}    m21
+         * @param   {number}    m22
+         * @param   {number}    m23
+         * @param   {number}    m24
+         * @param   {number}    m31
+         * @param   {number}    m32
+         * @param   {number}    m33
+         * @param   {number}    m34
+         * @param   {number}    m41
+         * @param   {number}    m42
+         * @param   {number}    m43
+         * @param   {number}    m44
+         */
+        function Matrix4(m11 = 0, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 0, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 0, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 0)
+        {
+            BufferedArray.call(this, 16, Float32Array);
+            this.Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    
+            Object.seal(this);
+        }
+    
+        Object.defineProperties(Matrix4,
+        {
+            Identity: { get: function Identity() { return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } },
+            
+            /**
+             * @function    Set
+             * @param       {Matrix4}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Set:
+            {
+                value: function Set(matrix, m11 = 0, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 0, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 0, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 0)
+                {
+                    if (m11 instanceof Matrix4)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Float32Array || m11 instanceof Array)
+                    {
+                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
+                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
+                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
+                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
+                    }
+    
+                    matrix.M11 = m11; matrix.M12 = m12; matrix.M13 = m13; matrix.M14 = m14;
+                    matrix.M21 = m21; matrix.M22 = m22; matrix.M23 = m23; matrix.M24 = m24;
+                    matrix.M31 = m31; matrix.M32 = m32; matrix.M33 = m33; matrix.M34 = m34;
+                    matrix.M41 = m41; matrix.M42 = m42; matrix.M43 = m43; matrix.M44 = m44;
+    
+                    return matrix;
+                }
+            },    
+            /**
+             * @function    Transpose
+             * @return      {Matrix4}
+             */
+            Transpose:
+            {
+                value: function Transpose(matrix)
+                {
+                    return new Matrix4
+                    (
+                        matrix.M11, matrix.M21, matrix.M31, matrix.M41,
+                        matrix.M12, matrix.M22, matrix.M32, matrix.M42,
+                        matrix.M13, matrix.M23, matrix.M33, matrix.M43,
+                        matrix.M14, matrix.M24, matrix.M34, matrix.M44
+                    );
+                }
+            },
+            
+            /**
+             * @function    Determinant
+             * @param       {Matrix4} matrix
+             * @return      {Matrix4}
+             */
+            Determinant:
+            {
+                value: function Determinant(matrix)
+                {
+                    return  matrix.M11 * matrix.M22 * matrix.M33 * matrix.M44 +
+                            matrix.M11 * matrix.M23 * matrix.M34 * matrix.M42 +
+                            matrix.M11 * matrix.M24 * matrix.M32 * matrix.M43 +
+                            matrix.M12 * matrix.M21 * matrix.M34 * matrix.M43 +
+                            matrix.M12 * matrix.M23 * matrix.M31 * matrix.M44 +
+                            matrix.M12 * matrix.M24 * matrix.M33 * matrix.M41 +
+                            matrix.M13 * matrix.M21 * matrix.M32 * matrix.M44 +
+                            matrix.M13 * matrix.M22 * matrix.M34 * matrix.M41 +
+                            matrix.M13 * matrix.M24 * matrix.M31 * matrix.M42 +
+                            matrix.M14 * matrix.M21 * matrix.M33 * matrix.M42 +
+                            matrix.M14 * matrix.M22 * matrix.M31 * matrix.M43 +
+                            matrix.M14 * matrix.M23 * matrix.M32 * matrix.M41 -
+                            matrix.M11 * matrix.M22 * matrix.M34 * matrix.M43 -
+                            matrix.M11 * matrix.M23 * matrix.M32 * matrix.M44 -
+                            matrix.M11 * matrix.M24 * matrix.M33 * matrix.M42 -
+                            matrix.M12 * matrix.M21 * matrix.M33 * matrix.M44 -
+                            matrix.M12 * matrix.M23 * matrix.M34 * matrix.M41 -
+                            matrix.M12 * matrix.M24 * matrix.M31 * matrix.M43 -
+                            matrix.M13 * matrix.M21 * matrix.M34 * matrix.M42 -
+                            matrix.M13 * matrix.M22 * matrix.M31 * matrix.M44 -
+                            matrix.M13 * matrix.M24 * matrix.M32 * matrix.M41 -
+                            matrix.M14 * matrix.M21 * matrix.M32 * matrix.M43 -
+                            matrix.M14 * matrix.M22 * matrix.M33 * matrix.M41 -
+                            matrix.M14 * matrix.M23 * matrix.M31 * matrix.M42;
+                }
+            },
+            
+            /**
+             * @function    Inverse
+             * @param       {Matrix4}   matrix
+             * @return      {Matrix4}
+             */
+            Inverse:
+            {
+                value: function Inverse(matrix)
+                {
+                    var det = matrix.Determinant;
+    
+                    if (det !== 0)
+                        det = 1;
+    
+                    return new Matrix4
+                    (
+                        (matrix.M22 * matrix.M33 * matrix.M44 +
+                        matrix.M23 * matrix.M34 * matrix.M42 +
+                        matrix.M24 * matrix.M32 * matrix.M43 -
+                        matrix.M22 * matrix.M34 * matrix.M43 -
+                        matrix.M23 * matrix.M32 * matrix.M44 -
+                        matrix.M24 * matrix.M33 * matrix.M42) / det,
+                        (matrix.M12 * matrix.M34 * matrix.M43 +
+                        matrix.M13 * matrix.M32 * matrix.M44 +
+                        matrix.M14 * matrix.M33 * matrix.M42 -
+                        matrix.M12 * matrix.M33 * matrix.M44 -
+                        matrix.M13 * matrix.M34 * matrix.M42 -
+                        matrix.M14 * matrix.M32 * matrix.M43) / det,
+                        (matrix.M12 * matrix.M23 * matrix.M44 +
+                        matrix.M13 * matrix.M24 * matrix.M42 +
+                        matrix.M14 * matrix.M22 * matrix.M43 -
+                        matrix.M12 * matrix.M24 * matrix.M43 -
+                        matrix.M13 * matrix.M22 * matrix.M44 -
+                        matrix.M14 * matrix.M23 * matrix.M42) / det,
+                        (matrix.M12 * matrix.M24 * matrix.M33 +
+                        matrix.M13 * matrix.M22 * matrix.M34 +
+                        matrix.M14 * matrix.M23 * matrix.M32 -
+                        matrix.M12 * matrix.M23 * matrix.M34 -
+                        matrix.M13 * matrix.M24 * matrix.M32 -
+                        matrix.M14 * matrix.M22 * matrix.M33) / det,
+                    
+                        (matrix.M21 * matrix.M34 * matrix.M43 +
+                        matrix.M23 * matrix.M31 * matrix.M44 +
+                        matrix.M24 * matrix.M33 * matrix.M41 -
+                        matrix.M21 * matrix.M33 * matrix.M44 -
+                        matrix.M23 * matrix.M34 * matrix.M41 -
+                        matrix.M24 * matrix.M31 * matrix.M43) / det,
+                        (matrix.M11 * matrix.M33 * matrix.M44 +
+                        matrix.M13 * matrix.M34 * matrix.M41 +
+                        matrix.M14 * matrix.M31 * matrix.M43 -
+                        matrix.M11 * matrix.M34 * matrix.M43 -
+                        matrix.M13 * matrix.M31 * matrix.M44 -
+                        matrix.M14 * matrix.M33 * matrix.M41) / det,
+                        (matrix.M11 * matrix.M24 * matrix.M43 +
+                        matrix.M13 * matrix.M21 * matrix.M44 +
+                        matrix.M14 * matrix.M23 * matrix.M41 -
+                        matrix.M11 * matrix.M23 * matrix.M44 -
+                        matrix.M13 * matrix.M24 * matrix.M41 -
+                        matrix.M14 * matrix.M21 * matrix.M43) / det,
+                        (matrix.M11 * matrix.M23 * matrix.M34 +
+                        matrix.M13 * matrix.M24 * matrix.M31 +
+                        matrix.M14 * matrix.M21 * matrix.M33 -
+                        matrix.M11 * matrix.M24 * matrix.M33 -
+                        matrix.M13 * matrix.M21 * matrix.M34 -
+                        matrix.M14 * matrix.M23 * matrix.M31) / det,
+                    
+                        (matrix.M21 *  matrix.M32 * matrix.M44 +
+                        matrix.M22 * matrix.M34 * matrix.M41 +
+                        matrix.M24 * matrix.M31 * matrix.M42 -
+                        matrix.M21 * matrix.M34 * matrix.M42 -
+                        matrix.M22 * matrix.M31 * matrix.M44 -
+                        matrix.M24 * matrix.M32 * matrix.M41) / det,
+                        (matrix.M11 * matrix.M34 * matrix.M42 +
+                        matrix.M12 * matrix.M31 * matrix.M44 +
+                        matrix.M14 * matrix.M32 * matrix.M41 -
+                        matrix.M11 * matrix.M32 * matrix.M44 -
+                        matrix.M12 * matrix.M34 * matrix.M41 -
+                        matrix.M14 * matrix.M31 * matrix.M42) / det,
+                        (matrix.M11 * matrix.M22 * matrix.M44 +
+                        matrix.M12 * matrix.M24 * matrix.M41 +
+                        matrix.M14 * matrix.M21 * matrix.M42 -
+                        matrix.M11 * matrix.M24 * matrix.M42 -
+                        matrix.M12 * matrix.M21 * matrix.M44 -
+                        matrix.M14 * matrix.M22 * matrix.M41) / det,
+                        (matrix.M11 * matrix.M24 * matrix.M32 +
+                        matrix.M12 * matrix.M21 * matrix.M34 +
+                        matrix.M14 * matrix.M22 * matrix.M31 -
+                        matrix.M11 * matrix.M22 * matrix.M34 -
+                        matrix.M12 * matrix.M24 * matrix.M31 -
+                        matrix.M14 * matrix.M21 * matrix.M32) / det,
+                    
+                        (matrix.M21 * matrix.M33 * matrix.M42 +
+                        matrix.M22 * matrix.M31 * matrix.M43 +
+                        matrix.M23 * matrix.M32 * matrix.M41 -
+                        matrix.M21 * matrix.M32 * matrix.M43 -
+                        matrix.M22 * matrix.M33 * matrix.M41 -
+                        matrix.M23 * matrix.M31 * matrix.M42) / det,
+                        (matrix.M11 * matrix.M32 * matrix.M43 +
+                        matrix.M12 * matrix.M33 * matrix.M41 +
+                        matrix.M13 * matrix.M31 * matrix.M42 -
+                        matrix.M11 * matrix.M33 * matrix.M42 -
+                        matrix.M12 * matrix.M31 * matrix.M43 -
+                        matrix.M13 * matrix.M32 * matrix.M41) / det,
+                        (matrix.M11 * matrix.M23 * matrix.M42 +
+                        matrix.M12 * matrix.M21 * matrix.M43 +
+                        matrix.M13 * matrix.M22 * matrix.M41 -
+                        matrix.M11 * matrix.M22 * matrix.M43 -
+                        matrix.M12 * matrix.M23 * matrix.M41 -
+                        matrix.M13 * matrix.M21 * matrix.M42) / det,
+                        (matrix.M11 * matrix.M22 * matrix.M33 +
+                        matrix.M12 * matrix.M23 * matrix.M31 +
+                        matrix.M13 * matrix.M21 * matrix.M32 -
+                        matrix.M11 * matrix.M23 * matrix.M32 -
+                        matrix.M12 * matrix.M21 * matrix.M33 -
+                        matrix.M13 * matrix.M22 * matrix.M31) / det
+                    );
+                }
+            },
+    
+            /**
+             * @function    Sum
+             * @param       {Matrix4}   matrix    
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Sum:
+            {   
+                value: function Sum(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+                {
+                    if (m11 instanceof Matrix4)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Float32Array || m11 instanceof Array)
+                    {
+                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
+                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
+                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
+                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
+                    }
+    
+                    return new Matrix4
+                    (
+                        matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M14 + m14,
+                        matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M24 + m24,
+                        matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33, matrix.M34 + m34,
+                        matrix.M41 + m41, matrix.M42 + m42, matrix.M43 + m43, matrix.M44 + m44
+                    );
+                }
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Mult:
+            {
+                value: function Mult(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+                {
+                    if (m11 instanceof Matrix4)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Float32Array || m11 instanceof Array)
+                    {
+                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
+                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
+                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
+                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
+                    }
+                    return new Matrix4
+                    (
+                        matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31 + matrix.M14 * m41,
+                        matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32 + matrix.M14 * m42,
+                        matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33 + matrix.M14 * m43,
+                        matrix.M11 * m14 + matrix.M12 * m24 + matrix.M13 * m34 + matrix.M14 * m44,
+                        
+                        matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31 + matrix.M24 * m41,
+                        matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32 + matrix.M24 * m42,
+                        matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33 + matrix.M24 * m43,
+                        matrix.M21 * m14 + matrix.M22 * m24 + matrix.M23 * m34 + matrix.M24 * m44,
+                        
+                        matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31 + matrix.M34 * m41,
+                        matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32 + matrix.M34 * m42,
+                        matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33 + matrix.M34 * m43,
+                        matrix.M31 * m14 + matrix.M32 * m24 + matrix.M33 * m34 + matrix.M34 * m44,
+                        
+                        matrix.M41 * m11 + matrix.M42 * m21 + matrix.M43 * m31 + matrix.M44 * m41,
+                        matrix.M41 * m12 + matrix.M42 * m22 + matrix.M43 * m32 + matrix.M44 * m42,
+                        matrix.M41 * m13 + matrix.M42 * m23 + matrix.M43 * m33 + matrix.M44 * m43,
+                        matrix.M41 * m14 + matrix.M42 * m24 + matrix.M43 * m34 + matrix.M44 * m44
+                    ); 
+                }
+            },
+    
+            Scale:
+            {
+                value: function Scale(matrix, scaler)
+                {
+                    return Matrix4.Mult
+                    (
+                        matrix,
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler
+                    );
+                }
+            }
+        });
+    
+        Object.defineProperties(Matrix4.prototype,
+        {
+            M11:
+            {
+                get: function M11() { return this.Buffer[0];  },
+                set: function M11(m11) { this.Buffer[0] = m11;   }
+            },
+            M12:
+            {
+                get: function M12() { return this.Buffer[1];  },
+                set: function M12(m12) { this.Buffer[1] = m12;   }
+            },
+            M13:
+            {
+                get: function M13() { return this.Buffer[2];  },
+                set: function M13(m13) { this.Buffer[2] = m13;   }
+            },
+            M14:
+            {
+                get: function M14() { return this.Buffer[3];  },
+                set: function M14(m14) { this.Buffer[3] = m14;   }
+            },
+            M21:
+            {
+                get: function M21() { return this.Buffer[4];  },
+                set: function M21(m21) { this.Buffer[4] = m21;   }
+            },
+            M22:
+            {
+                get: function M22() { return this.Buffer[5];  },
+                set: function M22(m22) { this.Buffer[5] = m22;   }
+            },
+            M23:
+            {
+                get: function M23() { return this.Buffer[6];  },
+                set: function M23(m23) { this.Buffer[6] = m23;   }
+            },
+            M24:
+            {
+                get: function M24() { return this.Buffer[7];  },
+                set: function M24(m24) { this.Buffer[7] = m24;   }
+            },
+            M31:
+            {
+                get: function M31() { return this.Buffer[8];  },
+                set: function M31(m31) { this.Buffer[8] = m31;   }
+            },
+            M32:
+            {
+                get: function M32() { return this.Buffer[9];  },
+                set: function M32(m32) { this.Buffer[9] = m32;   }
+            },
+            M33:
+            {
+                get: function M33() { return this.Buffer[10]; },
+                set: function M33(m33) { this.Buffer[10] = m33;  }
+            },
+            M34:
+            {
+                get: function M34() { return this.Buffer[11]; },
+                set: function M34(m34) { this.Buffer[11] = m34;  }
+            },
+            M41:
+            {
+                get: function M41() { return this.Buffer[12]; },
+                set: function M41(m41) { this.Buffer[12] = m41;  }
+            },
+            M42:
+            {
+                get: function M42() { return this.Buffer[13]; },
+                set: function M42(m42) { this.Buffer[13] = m42;  }
+            },
+            M43:
+            {
+                get: function M43() { return this.Buffer[14]; },
+                set: function M43(m43) { this.Buffer[14] = m43;  }
+            },
+            M44:
+            {
+                get: function M44() { return this.Buffer[15]; },
+                set: function M44(m44) { this.Buffer[15] = m44;  }
+            },
+    
+    
+            /**
+             * @function    Set
+             * @param       {Matrix4}   matrix
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Set:
+            {
+                value: function Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+                {
+                    return Matrix4.Set(this, m11 instanceof Array || m11 instanceof Float32Array || m11 instanceof Matrix4 ? m11 : [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]);
+                }
+            },
+    
+            /**
+             * @function    Transpose
+             * @return      {Matrix4}
+             */
+            Transpose:
+            {
+                value: function Transpose()
+                {
+                    return this.Set
+                    (
+                        this.M11, this.M21, this.M31, this.M41,
+                        this.M12, this.M22, this.M32, this.M42,
+                        this.M13, this.M23, this.M33, this.M43,
+                        this.M14, this.M24, this.M34, this.M44
+                    );
+                }
+            },
+            
+            /**
+             * @function    Identity
+             * @return      {Matrix4}
+             */
+            Identity:
+            {
+                value: function Identity()
+                {
+                    return this.Set
+                    (
+                        1, 0, 0, 0,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1
+                    );
+                }
+            },
+    
+            /**
+             * @function    Determinant
+             * @return      {Matrix4}
+             */
+            Determinant:
+            {
+                get: function Determinant()
+                {
+                    return Matrix4.Determinant(this);
+                }
+            },
+    
+            /**
+             * @function    Inverse
+             * @return      {Matrix4}
+             */
+            Inverse:
+            {
+                value: function Inverse()
+                {
+                    var det = this.Determinant;
+    
+                    if (det !== 0)
+                        det = 1;
+    
+                    return this.Set
+                    (
+                        (this.M22 * this.M33 * this.M44 +
+                        this.M23 * this.M34 * this.M42 +
+                        this.M24 * this.M32 * this.M43 -
+                        this.M22 * this.M34 * this.M43 -
+                        this.M23 * this.M32 * this.M44 -
+                        this.M24 * this.M33 * this.M42) / det,
+                        (this.M12 * this.M34 * this.M43 +
+                        this.M13 * this.M32 * this.M44 +
+                        this.M14 * this.M33 * this.M42 -
+                        this.M12 * this.M33 * this.M44 -
+                        this.M13 * this.M34 * this.M42 -
+                        this.M14 * this.M32 * this.M43) / det,
+                        (this.M12 * this.M23 * this.M44 +
+                        this.M13 * this.M24 * this.M42 +
+                        this.M14 * this.M22 * this.M43 -
+                        this.M12 * this.M24 * this.M43 -
+                        this.M13 * this.M22 * this.M44 -
+                        this.M14 * this.M23 * this.M42) / det,
+                        (this.M12 * this.M24 * this.M33 +
+                        this.M13 * this.M22 * this.M34 +
+                        this.M14 * this.M23 * this.M32 -
+                        this.M12 * this.M23 * this.M34 -
+                        this.M13 * this.M24 * this.M32 -
+                        this.M14 * this.M22 * this.M33) / det,
+                    
+                        (this.M21 * this.M34 * this.M43 +
+                        this.M23 * this.M31 * this.M44 +
+                        this.M24 * this.M33 * this.M41 -
+                        this.M21 * this.M33 * this.M44 -
+                        this.M23 * this.M34 * this.M41 -
+                        this.M24 * this.M31 * this.M43) / det,
+                        (this.M11 * this.M33 * this.M44 +
+                        this.M13 * this.M34 * this.M41 +
+                        this.M14 * this.M31 * this.M43 -
+                        this.M11 * this.M34 * this.M43 -
+                        this.M13 * this.M31 * this.M44 -
+                        this.M14 * this.M33 * this.M41) / det,
+                        (this.M11 * this.M24 * this.M43 +
+                        this.M13 * this.M21 * this.M44 +
+                        this.M14 * this.M23 * this.M41 -
+                        this.M11 * this.M23 * this.M44 -
+                        this.M13 * this.M24 * this.M41 -
+                        this.M14 * this.M21 * this.M43) / det,
+                        (this.M11 * this.M23 * this.M34 +
+                        this.M13 * this.M24 * this.M31 +
+                        this.M14 * this.M21 * this.M33 -
+                        this.M11 * this.M24 * this.M33 -
+                        this.M13 * this.M21 * this.M34 -
+                        this.M14 * this.M23 * this.M31) / det,
+                    
+                        (this.M21 *  this.M32 * this.M44 +
+                        this.M22 * this.M34 * this.M41 +
+                        this.M24 * this.M31 * this.M42 -
+                        this.M21 * this.M34 * this.M42 -
+                        this.M22 * this.M31 * this.M44 -
+                        this.M24 * this.M32 * this.M41) / det,
+                        (this.M11 * this.M34 * this.M42 +
+                        this.M12 * this.M31 * this.M44 +
+                        this.M14 * this.M32 * this.M41 -
+                        this.M11 * this.M32 * this.M44 -
+                        this.M12 * this.M34 * this.M41 -
+                        this.M14 * this.M31 * this.M42) / det,
+                        (this.M11 * this.M22 * this.M44 +
+                        this.M12 * this.M24 * this.M41 +
+                        this.M14 * this.M21 * this.M42 -
+                        this.M11 * this.M24 * this.M42 -
+                        this.M12 * this.M21 * this.M44 -
+                        this.M14 * this.M22 * this.M41) / det,
+                        (this.M11 * this.M24 * this.M32 +
+                        this.M12 * this.M21 * this.M34 +
+                        this.M14 * this.M22 * this.M31 -
+                        this.M11 * this.M22 * this.M34 -
+                        this.M12 * this.M24 * this.M31 -
+                        this.M14 * this.M21 * this.M32) / det,
+                    
+                        (this.M21 * this.M33 * this.M42 +
+                        this.M22 * this.M31 * this.M43 +
+                        this.M23 * this.M32 * this.M41 -
+                        this.M21 * this.M32 * this.M43 -
+                        this.M22 * this.M33 * this.M41 -
+                        this.M23 * this.M31 * this.M42) / det,
+                        (this.M11 * this.M32 * this.M43 +
+                        this.M12 * this.M33 * this.M41 +
+                        this.M13 * this.M31 * this.M42 -
+                        this.M11 * this.M33 * this.M42 -
+                        this.M12 * this.M31 * this.M43 -
+                        this.M13 * this.M32 * this.M41) / det,
+                        (this.M11 * this.M23 * this.M42 +
+                        this.M12 * this.M21 * this.M43 +
+                        this.M13 * this.M22 * this.M41 -
+                        this.M11 * this.M22 * this.M43 -
+                        this.M12 * this.M23 * this.M41 -
+                        this.M13 * this.M21 * this.M42) / det,
+                        (this.M11 * this.M22 * this.M33 +
+                        this.M12 * this.M23 * this.M31 +
+                        this.M13 * this.M21 * this.M32 -
+                        this.M11 * this.M23 * this.M32 -
+                        this.M12 * this.M21 * this.M33 -
+                        this.M13 * this.M22 * this.M31) / det);
+                }
+            },
+    
+            /**
+             * @function    Sum
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Sum:
+            {   
+                value: function Sum(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+                {
+                    if (m11 instanceof Matrix4)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Array)
+                    {
+                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
+                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
+                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
+                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
+                    }
+    
+                    return this.Set
+                    (
+                        this.M11 + m11, this.M12 + m12, this.M13 + m13, this.M14 + m14,
+                        this.M21 + m21, this.M22 + m22, this.M23 + m23, this.M24 + m24,
+                        this.M31 + m31, this.M32 + m32, this.M33 + m33, this.M34 + m34,
+                        this.M41 + m41, this.M42 + m42, this.M43 + m43, this.M44 + m44
+                    );
+                }
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {number}    m11
+             * @param       {number}    m12
+             * @param       {number}    m13
+             * @param       {number}    m14
+             * @param       {number}    m21
+             * @param       {number}    m22
+             * @param       {number}    m23
+             * @param       {number}    m24
+             * @param       {number}    m31
+             * @param       {number}    m32
+             * @param       {number}    m33
+             * @param       {number}    m34
+             * @param       {number}    m41
+             * @param       {number}    m42
+             * @param       {number}    m43
+             * @param       {number}    m44
+             * @return      {Matrix4}
+             */
+            Mult:
+            {
+                value: function Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+                {
+                    if (m11 instanceof Matrix4)
+                        m11 = m11.Buffer;
+    
+                    if (m11 instanceof Float32Array || m11 instanceof Array)
+                    {
+                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
+                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
+                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
+                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
+                    }
+                    return this.Set
+                    (
+                        this.M11 * m11 + this.M12 * m21 + this.M13 * m31 + this.M14 * m41,
+                        this.M11 * m12 + this.M12 * m22 + this.M13 * m32 + this.M14 * m42,
+                        this.M11 * m13 + this.M12 * m23 + this.M13 * m33 + this.M14 * m43,
+                        this.M11 * m14 + this.M12 * m24 + this.M13 * m34 + this.M14 * m44,
+                        
+                        this.M21 * m11 + this.M22 * m21 + this.M23 * m31 + this.M24 * m41,
+                        this.M21 * m12 + this.M22 * m22 + this.M23 * m32 + this.M24 * m42,
+                        this.M21 * m13 + this.M22 * m23 + this.M23 * m33 + this.M24 * m43,
+                        this.M21 * m14 + this.M22 * m24 + this.M23 * m34 + this.M24 * m44,
+                        
+                        this.M31 * m11 + this.M32 * m21 + this.M33 * m31 + this.M34 * m41,
+                        this.M31 * m12 + this.M32 * m22 + this.M33 * m32 + this.M34 * m42,
+                        this.M31 * m13 + this.M32 * m23 + this.M33 * m33 + this.M34 * m43,
+                        this.M31 * m14 + this.M32 * m24 + this.M33 * m34 + this.M34 * m44,
+                        
+                        this.M41 * m11 + this.M42 * m21 + this.M43 * m31 + this.M44 * m41,
+                        this.M41 * m12 + this.M42 * m22 + this.M43 * m32 + this.M44 * m42,
+                        this.M41 * m13 + this.M42 * m23 + this.M43 * m33 + this.M44 * m43,
+                        this.M41 * m14 + this.M42 * m24 + this.M43 * m34 + this.M44 * m44
+                    ); 
+                }
+            },
+    
+            Scale:
+            {
+                value: function Scale(scaler)
+                {
+                    return this.Mult
+                    (
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler,
+                        scaler, scaler, scaler, scaler
+                    );
+                }
+            }
+        });
+        Object.seal(Matrix4.prototype);
+    
+        return Matrix4;
+    })();
+    Object.seal(Matrix4);
+    
+    /**
+     * @name        Quaternion
+     * @module      FWGE.Maths
+     * @description ...
+     */
+    
+    /**
+     * @param {number}  w
+     * @param {number}  x
+     * @param {number}  y
+     * @param {number}  z
+     */
+    function Quaternion(w, x, y, z)
+    {
+        Vector4.call(this, w, x, y, z);
+    }
+    
+    /**
+     * @name        Vector2
+     * @module      FWGE.Game.Maths 
+     * @description This library contains the methods for 2 component vector operations.
+     *              2 component vector are represented as a Float32Array of length 2.
+     */
+    
+    window.Vector2 = (function()
+    {
+        /**
+         * @param   {number}    x
+         * @param   {number}    y
+         */
+        function Vector2(x = 0, y = 0)
+        {
+            BufferedArray.call(this, 2, Float32Array);
+            this.Set(x, y);
+    
+            Object.seal(this);
+        }
+        Vector2.prototype = Object.create(null);
+    
+        Object.defineProperties(Vector2,
+        {
+            /**
+             * @property    {Zero}
+             * @type        {Vector2}
+             */
+            Zero: { get Zero()   { return new Vector2(0, 0); } },
+            
+            /**
+             * @property    {One}
+             * @type        {Vector2}
+             */
+            One: { get One()    { return new Vector2(1, 1); } },
+            
+            /**
+             * @property    {Unit}
+             * @type        {Vector2}
+             */
+            Unit: { get Unit()   { return new Vector2(Math.sqrt(1/2), Math.sqrt(1/2)); } },
+            
+    
+            /**
+             * @function    Length
+             * @param       {Vector2}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {number}
+             */
+            Length:
+            {
+                value: function Length(x, y)
+                {
+                    return Math.sqrt(x * x + y * y);
+                }
+            },
+    
+            /**
+             * @function    Set
+             * @param       {Vector2}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Set:
+            {
+                value: function Set(vector, x, y)
+                {
+                    vector.X = x;
+                    vector.Y = y;
+    
+                    return vector;
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {Vector}    vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Sum:
+            {
+                value: function Sum(vector, x, y)
+                {   
+                    return new Vector2(vector.X + x, vector.Y + y);
+                }
+            },
+            
+            /**
+             * @function    Diff
+             * @param       {Vector}    vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Diff:
+            {
+                value: function Diff(vector, x, y)
+                {   
+                    return new Vector2(x - vector.X, y - vector.Y);
+                }
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {Vector}    vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Mult:
+            {
+                value: function Mult(vector, x, y)
+                {   
+                    return new Vector2(vector.X * x, vector.Y * y);
+                }
+            },
+            
+            /**
+             * @function    Scale
+             * @param       {Vector}    vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Scale:
+            {
+                value: function Scale(vector, scalar)
+                {   
+                    return Vector2.Mult(vector, scalar, scalar);
+                }
+            },
+            
+            /**
+             * @function    Dot
+             * @param       {Vector2}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {number}
+             */
+            Dot:
+            {
+                value: function Dot(vector, x, y)
+                {
+                    return vector.X * x + vector.Y * y;
+                }
+            },
+            
+            /**
+             * @function    Unit
+             * @param       {Vector2} vector
+             * @return      {Vector2}
+             */
+            Unit:
+            {
+                value: function Unit(vector)
+                {
+                    let length = vector.Length;
+    
+                    if (length !== 0)
+                        length = 1;
+    
+                    return Vector2.Scale(vector, 1 / length);
+                }
+            }
+        });
+    
+        Object.defineProperties(Vector2.prototype,
+        {
+            constructor: { value: Vector2 },
+    
+            /**
+             * @property    {X}
+             * @type        {number}
+             */
+            X:
+            {
+                get: function X()  { return this.Buffer[0]; },
+                set: function X(x) { this.Buffer[0] = x;    }
+            },
+    
+            /**
+             * @property    {Y}
+             * @type        {number}
+             */
+            Y:
+            {
+                get: function Y()  { return this.Buffer[1]; },
+                set: function Y(y) { this.Buffer[1] = y;    }
+            },
+    
+            /**
+             * @function    Length
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {number}
+             */
+            Length:
+            {
+                get: function Length()
+                {
+                    return Vector2.Length(this.X, this.Y);
+                }
+            },
+            
+            /**
+             * @function    Set
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Set:
+            {
+                value: function Set(x, y)
+                {
+                    return Vector2.Set(this, x, y);
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Sum:
+            {
+                value: function Sum(x, y)
+                {   
+                    return Vector2.Set(this, this.X + x, this.Y + y);
+                }
+            },
+            
+            
+            /**
+             * @function    Diff
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Diff:
+            {
+                value: function Diff(x, y)
+                {   
+                    return Vector2.Set(this, x - this.X, y - this.Y);
+                }
+            },
+            
+    
+            /**
+             * @function    Mult
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {Vector2}
+             */
+            Mult:
+            {
+                value: function Mult(x, y)
+                {   
+                    return Vector2.Set(this, this.X * x, this.Y * y);
+                }
+            },
+            
+    
+            /**
+             * @function    Scale
+             * @param       {number}    scalar
+             * @return      {Vector2}
+             */
+            Scale:
+            {
+                value: function Scale(scalar)
+                {   
+                    return this.Mult(scalar, scalar);
+                }
+            },
+            
+            
+            /**
+             * @function    Dot
+             * @param       {number}    x
+             * @param       {number}    y
+             * @return      {number}
+             */
+            Dot:
+            {
+                value: function Dot(x, y)
+                {
+                    return Vector2.Dot(this, x, y);
+                }
+            },
+    
+            
+            /**
+             * @function    Unit
+             * @return      {Vector2}
+             */
+            Unit:
+            {
+                value: function Unit()
+                {
+                    let length = this.Length;
+    
+                    if (length !== 0)
+                        length = 1;
+    
+                    return this.Scale(1 / length);
+                }
+            }
+        });
+        Object.seal(Vector2.prototype);
+    
+        return Vector2;
+    })();
+    Object.seal(Vector2);
+    
+    
+    /**
+     * @name        Vector3
+     * @module      FWGE.Game.Maths
+     * @description  MathsTHis object represents a 3-valued vector.
+     */
+    
+    window.Vector3 = (function()
+    {
+        /**
+         * @param {number}  x 
+         * @param {number}  y 
+         * @param {number}  z 
+         */
+        function Vector3(x = 0, y = 0, z = 0)
+        {
+            BufferedArray.call(this, 3, Float32Array);
+            this.Set(x, y, z);
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(Vector3,
+        {
+            /**
+             * @property    {Zero}
+             * @type        {Vector3}
+             */
+            Zero: { get: function Zero() { return new Vector3(0, 0, 0); } },
+    
+            /**
+             * @property    {One}
+             * @type        {Vector3}
+             */
+            One: { get: function One() { return new Vector3(1, 1, 1); } },
+    
+            /**
+             * @property    {Unit}
+             * @type        {Vector3}
+             */
+            Unit: { get Unit()   { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); } },
+            
+    
+            /**
+             * @function    Set
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             */
+            Set: 
+            { 
+                value: function Set(vector, x, y, z)
+                {        
+                    vector.X = x;
+                    vector.Y = y;
+                    vector.Z = z;
+    
+                    return vector;
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Length
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {numbers}
+             * @description ...
+             */
+            Length:
+            {
+                value: function Length(x, y, z)
+                {
+                    return Math.sqrt(x * x + y * y + z * z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Sum
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Sum:
+            {
+                value: function Sum(vector, x, y, z)
+                {
+                    return new Vector3(vector.X + x, vector.Y + y, vector.Z + z)
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Diff
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Diff:
+            {
+                value: function Diff(vector, x, y, z)
+                {
+                    return new Vector3(x - vector.X, y - vector.Y, z - vector.Z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Mult
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Mult:
+            {
+                value: function Mult(vector, x, y, z)
+                {
+                    return new Vector3(vector.X * x, vector.Y * y, vector.Z * z)
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Scale
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Scale:
+            {
+                value: function Scale(vector, scaler)
+                {
+                    return Vector3.Mult(vector, scaler, scaler, scaler);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Dot
+             * @param       {Vector3} vector
+             * @param       {number} x
+             * @param       {number} x
+             * @param       {number} x
+             */
+            Dot:
+            {
+                value: function Dot(vector, x, y, z)
+                {
+                    return vector.X * x + vector.Y * y + vector.Z * z;
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Cross
+             * @param       {Vector3}   vector
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Cross:
+            {
+                value: function Cross(vector, x, y, z)
+                {
+                    return new Vector3(vector.Y * z + vector.Z * y, vector.Z * x - vector.X * z, vector.X * y + vector.Y * x);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Unit
+             * @param       {Vector3}   vector
+             * @return      {Vector3}
+             * @description ...
+             */
+            Unit:
+            {
+                value: function Unit(vector)
+                {
+                    var length = vector.Length;
+    
+                    if (length !== 0)
+                        length = 1;
+    
+                    return Vector3.Scale(vector, 1 / length);
+                },
+                configurable: false, enumerable: true, writable: false
+            }
+        });
+    
+        Vector3.prototype = Object.create(null);
+        Object.defineProperties(Vector3.prototype,
+        {    
+            /**
+             * @property    {X}
+             * @type        {number}
+             * @description Returns a zero-valued vector
+             */
+            X:
+            {
+                get: function get()  { return this.Buffer[0]; },
+                set: function set(x) { this.Buffer[0] = x; },
+                configurable: false, enumerable: true
+            },
+            /**
+             * @property    {Y}
+             * @type        {number}
+             * @description Returns a zero-valued vector
+             */
+            Y:
+            {
+                get: function get()  { return this.Buffer[1]; },
+                set: function set(y) { this.Buffer[1] = y; },
+                configurable: false, enumerable: true
+            },
+            /**
+             * @property    {Z}
+             * @type        {number}
+             * @description Returns a zero-valued vector
+             */
+            Z:
+            {
+                get: function get()  { return this.Buffer[2]; },
+                set: function set(z) { this.Buffer[2] = z; },
+                configurable: false, enumerable: true
+            },
+                
+            /**
+             * @property    {Length}
+             * @type        {number}
+             * @description Returns a zero-valued vector
+             */
+            Length:
+            {
+                get: function get() { return Vector3.Length(this.X, this.Y, this.Z); },
+                configurable: false, enumerable: true
+            },
+            
+            
+            /**
+             * @function    Cross
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Set:
+            {
+                value: function Set(x, y, z)
+                {
+                    return Vector3.Set(this, x, y, z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Cross
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Sum:
+            {
+                value: function Sum(x, y, z)
+                {
+                    return Vector3.Set(this, this.X + x, this.Y + y, this.Z + z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Diff
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Diff:
+            {
+                value: function Diff(x, y, z)
+                {
+                    return Vector3.Set(this, x - this.X, y - this.Y, z - this.Z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Mult
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Mult:
+            {
+                value: function Mult(x, y, z)
+                {        
+                    return Vector3.Set(this.X * x, this.Y * y, this.Z * z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Dot
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {number}
+             * @description ...
+             */
+            Dot:
+            {
+                value: function Dot(x, y, z)
+                {
+                    return Vector3.Dot(this, x, y, Z);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Cross
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector3}
+             * @description ...
+             */
+            Cross:
+            {     
+                value: function Cross(x, y, z)
+                {
+                    return Vector3.Set(this, this.Y * z + this.Z * y, this.Z * x - this.X * z, this.X * y + this.Y * x);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+    
+            /**
+             * @function    Scale
+             * @param       {number}    scalar
+             * @return      {Vector3}
+             * @description ...
+             */
+            Scale:
+            {
+                value: function Scale(scaler)
+                {
+                    return Vector3.Set(this, this.X * scaler, this.Y * scaler, this.Z * scaler);
+                },
+                configurable: false, enumerable: true, writable: false
+            },
+            
+            /**
+             * @function    Unit
+             * @return      {Vector3}
+             * @description ...
+             */
+            Unit:
+            {
+                value: function Unit()
+                {
+                    var length = this.Length;
+    
+                    if (length !== 0)
+                        Vector3.Scale(this, 1 / length);
+    
+                    return this;
+                },
+                configurable: false, enumerable: true, writable: false
+            }
+        });
+        Object.seal(Vector3.prototype);
+    
+        return Vector3;
+    })();
+    Object.seal(Vector3);
+    
+    /**
+     * @name        Vector4
+     * @module      FWGE.Game.Maths 
+     * @description vector library contains the methods for 2 component vector operations.
+     *              4 component vector are represented as a Float32Array of length 4.
+     */
+    
+    window.Vector4 = (function()
+    {
+        /**
+         * @param   {number}    w
+         * @param   {number}    x
+         * @param   {number}    y
+         * @param   {number}    z
+         */
+        function Vector4(w = 0, x = 0, y = 0, z = 0)
+        {
+            BufferedArray.call(this, 4, Float32Array);
+            this.Set(w, x, y, z);
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(Vector4,
+        {
+            
+            Zero: { get: function Zero() { return new Vector4(0, 0, 0, 0); } },
+            One: { get: function One() { return new Vector4(1, 1, 1, 1); } },
+            Unit: { get: function Unit()  { return new Vector4(0.5, 0.5, 0.5, 0.5); } },
+    
+            /**
+             * @function    Set
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Set:
+            {
+                value: function Set(vector, w, x, y, z)
+                {
+                    vector.W = w;
+                    vector.X = x;
+                    vector.Y = y;
+                    vector.Z = z;
+    
+                    return vector;
+                }
+            },
+            
+            /**
+             * @function    Length
+             * @param       {Vector4}   vector
+             * @return      {number}
+             */
+            Length:
+            {
+                value: function Length(vector)
+                {
+                    return Math.sqrt(vector.W * vector.W + vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Sum:
+            {
+                value: function Sum(vector, w, x, y, z)
+                {
+                    return new Vector4(vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
+                }
+            },
+            
+            /**
+             * @function    Diff
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Diff:
+            {
+                value: function Diff(vector, w, x, y, z)
+                {
+                    return new Vector4(w - vector.W, x - vector.X, y - vector.Y, z - vector.Z);
+                }
+            },
+    
+            /**
+             * @function    Mult
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @param       {Vector4}
+             */
+            Mult:
+            {
+                value: function Mult(vector, w, x, y, z)
+                {
+                    return new Vector4(vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
+                }
+            },
+    
+            /**
+             * @function    Scale
+             * @param       {Vector4}   vector
+             * @param       {number}    scalar
+             * @return      {Vector4}
+             */
+            Scale:
+            {
+                value: function Scale(vector, scaler)
+                {
+                    return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
+                }
+            },
+            
+            /**
+             * @function    Dot
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Dot:
+            {
+                value: function Dot(vector, w, x, y, z)
+                {
+                    return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+                }
+            },
+    
+            /**
+             * @function    Unit
+             * @param       {Vector4}   vector
+             * @return      {Vector4}
+             */
+            Unit:
+            {
+                value: function Unit(vector)
+                {   
+                    let length = vector.Length;
+    
+                    if (length !== 0)
+                        length = 1;
+    
+                    return Vector4.Scale(vector, 1 / length);
+                }
+            }
+        });
+    
+        Object.defineProperties(Vector4.prototype,
+        {
+            constructor: { value: Vector4 },
+    
+            W:
+            {
+                get: function W()  { return this.Buffer[0]; },
+                set: function W(w) { this.Buffer[0] = w;    }
+            },
+            
+            X:
+            {
+                get: function X()  { return this.Buffer[1]; },
+                set: function X(x) { this.Buffer[1] = x;    }
+            },
+    
+            Y:
+            {
+                get: function Y()  { return this.Buffer[2]; },
+                set: function Y(y) { this.Buffer[2] = y;    }
+            },
+            
+            Z:
+            {
+                get: function Z()  { return this.Buffer[3]; },
+                set: function Z(z) { this.Buffer[3] = z;    }
+            },
+    
+            /**
+             * @function    Set
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Set:
+            {
+                value: function Set(w, x, y, z)
+                {
+                    return Vector4.Set(this, w, x, y, z);
+                }
+            },
+            
+            /**
+             * @function    Length
+             * @param       {Vector4}   vector
+             * @return      {number}
+             */
+            Length:
+            {
+                get: function Length()
+                {
+                    return Vector4.Length(this);
+                }
+            },
+            
+            /**
+             * @function    Sum
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Sum:
+            {
+                value: function Sum(w, x, y, z)
+                {
+                    return new Vector4(this.W + w, this.X + x, this.Y + y, this.Z + z);
+                }
+            },
+            
+            /**
+             * @function    Diff
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Diff:
+            {
+                value: function Diff(w, x, y, z)
+                {
+                    return new Vector4(w - this.W, x - this.X, y - this.Y, z - this.Z);
+                }
+            },
+    
+            /**
+             * @function    Mult
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @param       {Vector4}
+             */
+            Mult:
+            {
+                value: function Mult(w, x, y, z)
+                {
+                    return new Vector4(this.W * w, this.X * x, this.Y * y, this.Z * z);
+                }
+            },
+    
+            /**
+             * @function    Scale
+             * @param       {Vector4}   vector
+             * @param       {number}    scalar
+             * @return      {Vector4}
+             */
+            Scale:
+            {
+                value: function Scale(scaler)
+                {
+                    return this.Mult(scaler, scaler, scaler, scaler);
+                }
+            },
+            
+            /**
+             * @function    Dot
+             * @param       {Vector4}   vector
+             * @param       {number}    w
+             * @param       {number}    x
+             * @param       {number}    y
+             * @param       {number}    z
+             * @return      {Vector4}
+             */
+            Dot:
+            {
+                value: function Dot(w, x, y, z)
+                {
+                    return Vector4.Dot(this, w, x, y, z);
+                }
+            },
+    
+            /**
+             * @function    Unit
+             * @param       {Vector4}   vector
+             * @return      {Vector4}
+             */
+            Unit:
+            {
+                value: function Unit(vector)
+                {   
+                    let length = vector.Length;
+    
+                    if (length !== 0)
+                        length = 1;
+    
+                    return this.Scale(vector, 1 / length);
+                }
+            }
+        });
+        Object.seal(Vector4.prototype);
+    
+        return Vector4;
+    })();
+    Object.seal(Vector4);
+    
+    /**
+     * @name        Particle
+     * @module      FWGE.Game.ParticleSystem
+     * @description Definition of a single particle.
+     */
+    
+    window.Particle = (function()
+    {
+        /**
+         * @param   {object}    request
+         * @param   {string}    request.name
+         */
+        function Particle({before = new Transform(), after = new Transform(), length = 0})
+        {
+            KeyFrame.call(this, Transform, before, after, length);
+    
+            Object.seal(this);
+        }
+    
+        Particle.prototype = Object.create(null);
+        Object.seal(Particle.prototype);
+    
+        return Particle;
+    })();
+    Object.seal(Particle);
+    
+    /**
+     * @name        ParticleSystem
+     * @module      FWGE.Game
+     * @description Definition of a particle system.
+     */
+    
+    window.ParticleSystem = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {string}    request.name
+         * @param   {Particle}  request.particle
+         */
+        function ParticleSystem({name = "Particle System", particle = {}} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Particle}
+                 * @type        {Particle}
+                 */
+                Particle:  { value: new Particle(particle), configurable: false, enumerable: true, writable: true }
+            });
+    
+            Object.seal(this);
+        }
+    
+        ParticleSystem.prototype = Object.create(null);
+        Object.seal(ParticleSystem.prototype);
+    
+        return ParticleSystem;
+    })();
+    Object.seal(ParticleSystem);
+    
+    /**
+     * @name        Time
+     * @module      FWGE.Game
+     * @description This is the running clock that keeps track of elapsed time
+     *              between render frames.
+     */
+    
+    window.Time = (function()
+    {
+        function Time()
+        {
+            var _now = undefined;
+            var _then = undefined;
+    
+            Object.defineProperties(this,
+            {    
+                /**
+                 * @property    {Delta}
+                 * @type        {number}
+                 */
+                Delta:
+                {
+                    get: function get()
+                    {
+                        if (_now && _then)
+                            return (_now - _then) / 60;
+                        return 0;
+                    },
+                    configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @property    {DeltaTime}
+                 * @type        {number}
+                 */
+                DeltaTime:
+                {
+                    get: function get()
+                    {
+                        if (_now && _then)
+                            return _now - _then;
+                        return 0;
+                    },
+                    configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @property    {Now}
+                 * @type        {Date}
+                 */
+                Now:
+                {
+                    get: function get()
+                    {
+                        return new Date(Date.now());
+                    },
+                    configurable: false, enumerable: true
+                },
+    
+                /**
+                 * @property    {TimeUpdate}
+                 * @return      {undefined}
+                 */
+                Update:
+                {
+                    value: function Update()
+                    {
+                        if (!_now && !_then)
+                            _now = _then = Date.now();
+                        else
+                        {
+                            _then = _now;
+                            _now = Date.now();
+                        }
+                    },
+                    configurable: false, enumerable: false, writable: false
+                },
+    
+                /**
+                 * @property    {Reset}
+                 * @return      {undefined}
+                 */
+                Reset:
+                {
+                    value: function Reset()
+                    {
+                        _now = _then = undefined;
+                    },
+                    configurable: false, enumerable: false, writable: false
+                }
+            });
+            
+            Object.seal(this);
+        }
+    
+        Time.prototype = Object.create(null);
+        Object.seal(Time.prototype);
+    
+        return new Time();
+    })();
+    Object.seal(Time);
+    
+    /**
+     * @name        Transform
+     * @module      FWGE.Game
+     * @description This object contains all the transformations that 
+     *              are to be applied to the parent gameobject.
+     */
+    
+    window.Transform = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {Array}     request.position
+         * @param   {Array}     request.rotation
+         * @param   {Array}     request.scale
+         * @param   {Array}     request.shear
+         */
+        function Transform({position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0]} = {})
+        {
+            Object.defineProperties(this,
+            {        
+                /**
+                 * @property    {Position}
+                 * @type        {Vector3}
+                 */
+                Position: { value: new Vector3(position[0], position[1], position[2]), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Rotation}
+                 * @type        {Vector3}
+                 */           
+                Rotation: { value: new Vector3(rotation[0], rotation[1], rotation[2]), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Scale}
+                 * @type        {Vector3}
+                 */
+                Scale: { value: new Vector3(scale[0], scale[1], scale[2]), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {Shear}
+                 * @type        {Vector3}
+                 */
+                Shear: { value: new Vector3(shear[0], shear[1], shear[2]), configurable: false, enumerable: true, writable: false }
+            });
+    
+            Object.seal(this);
+        }
+    
+        Transform.prototype = Object.create(null);
+        Object.defineProperties(Transform.prototype,
+        {
+            /**
+             * @property    {UP}
+             * @type        {Vector3}
+             */
+            UP: { value: new Vector3(0, 1, 0), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {FORWARD}
+             * @type        {Vector3}
+             */
+            FORWARD: { value: new Vector3(0, 0, 1), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {RIGHT}
+             * @type        {Vector3}
+             */
+            RIGHT: { value: new Vector3(1, 0, 0), configurable: false, enumerable: true, writable: false },
+    
+        });
+        Object.seal(Transform.prototype);
+    
+        return Transform;
+    })();
+    Object.seal(Transform);
+    
+    /**
+     * @name        BoxCollider
+     * @module      FWGE.Physics
+     * @description This is a cube-shaped collision object
+     */
+    
+    window.BoxCollider = (function()
+    {
+        /**
+         * @param   {Object}  request
+         * @param   {string}  request.name
+         * @param   {Array}   request.position
+         * @param   {number}  request.height
+         * @param   {number}  request.width
+         * @param   {number}  request.breadth
+         */
+        function BoxCollider({name = "Box Collider", position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
+        {
+            Collider.call(this, name, position);
+            
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Height}
+                 * @type        {number}
+                 */
+                Height: { value: height, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {Width}
+                 * @type        {number}
+                 */
+                Width: { value: width, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {Breadth}
+                 * @type        {number}
+                 */
+                Breadth: { value: breadth, configurable: false, enumerable: true, writable: true }
+            });    
+    
+            Object.seal(this);
+        }
+    
+        BoxCollider.prototype = Object.create(null);
+        Object.seal(BoxCollider.prototype);
+    
+        return BoxCollider;
+    })();
+    Object.seal(BoxCollider);
+    
+    /**
+     * @name        Collider
+     * @module      FWGE.Physics
+     * @description This is the base object for collision objects
+     */
+    
+    let Collider = (function()
+    {
+        /**
+         * @param   {string}        name
+         * @param   {Vector3}       position
+         * @param   {PhysicsItem}   physicsitem
+         */
+        function Collider(name = "Collider", position = Vector3.Zero, physicsitem = undefined)
+        {
+            Item.call(this, name);   
+            
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Position}
+                 * @type        {Vector3}
+                 */
+                Position: { value: position, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {PhysicsItem}
+                 * @type        {PhysicsItem}
+                 */
+                PhysicsItem: { value: physicsitem, configurable: false, enumerable: true, writable: true }
+            });
+        }
+    
+        Collider.prototype = Object.create(null);
+        Object.seal(Collider.prototype);
+    
+        return Collider;
+    })();
+    Object.seal(Collider);
+    
+    /**
+     * @name        CollisionEvent
+     * @module      FWGE.Physics
+     * @description A collision event object
+     */
+    
+    let CollisionEvent = (function()
+    {
+        /**
+         * @param   {GameObject}    current
+         * @param   {GameObject}    other
+         * @param   {string}        type
+         */
+        function CollisionEvent(current, other, type)
+        {
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Current}
+                 * @type        {GameObject}
+                 */
+                Current: { value: current, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Other}
+                 * @type        {GameObject}
+                 */
+                Other: { value: other, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Type}
+                 * @type        {string}
+                 */
+                Type: { value: type, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {TimeStamp}
+                 * @type        {string}
+                 */
+                TimeStamp: { value: new Date(Date.now()).toDateString(), configurable: false, enumerable: true, writable: false }
+            });
+    
+            Object.seal(this);
+        }
+    
+        CollisionEvent.prototype = Object.create(null);
+        Object.seal(CollisionEvent.prototype);
+    
+        return CollisionEvent;
+    })();
+    Object.seal(CollisionEvent);
+    
+    /**
+     * @name        SphereCollider
+     * @module      FWGE.Physics
+     * @description This is a sphere-shaped collision object
+     */
+    
+    window.SphereCollider = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {string}    request.name
+         * @param   {Array}     request.position
+         * @param   {number}    request.radius
+         */
+        function SphereCollider({name = "Sphere Collider", position = Vector3.Zero, radius = 2} = {})
+        {
+            Collider.call(this, name, position);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Radius}
+                 * @type        {number}
+                 */
+                Radius:  { value: radius, configurable: false, enumerable: true, writable: true }
+            });
+    
+            Object.seal(this);
+        }
+    
+        SphereCollider.prototype = Object.create(null);
+        Object.seal(SphereCollider.prototype);
+    
+        return SphereCollider;
+    })();
+    Object.seal(SphereCollider);
+    
+    /**
+     * @name        PhysicsBody
+     * @module      FWGE.Physics
+     * @description This object provides the masic physical properties of an object.
+     */
+    
+    window.PhysicsBody = (function()
+    {
+        /**
+         * @param    {Object}   requext
+         * @param    {string}   requext.name
+         * @param    {number}   requext.mass
+         * @param    {boolean}  requext.lockx
+         * @param    {boolean}  requext.locky
+         * @param    {boolean}  requext.lockz
+         */
+        function PhysicsBody({name = "Physics Body", mass = 1, lockx = true, locky = true, lockz = true} = {})
+        {
+            Item.call(this, name);
+    
+            var _Grounded = true;
+            var _Velocity = 0;
+                
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Mass}
+                 * @type        {Number}
+                 */
+                Mass: { value: mass, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {LockX}
+                 * @type        {Boolean}
+                 */
+                LockX: { value: lockx, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {LockY} 
+                 * @type        {Boolean}
+                 */
+                LockY: { value: locky, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {LockZ}
+                 * @type        {Boolean}
+                 */
+                LockZ: { value: lockz, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {Grounded}
+                 * @type        {Boolean}
+                 */
+                Grounded: { get: function get() { return _Grounded; } },
+                
+                /**
+                 * @property    {Velocity}
+                 * @type        {Number}
+                 */
+                Velocity: { get: function get() { return _Velocity; } }    
+            });
+    
+            Object.seal(this);
+        }
+    
+        PhysicsBody.prototype = Object.create(null);
+        Object.seal(PhysicsBody.prototype);
+    
+        return PhysicsBody;
+    })();
+    Object.seal(PhysicsBody);
+    
+    /**
+     * @name        PhysicsEngine
+     * @module      FWGE
+     * @description Something...
+     */
+    
+    let PhysicsEngine = (function()
+    {
+        function PhysicsEngine()
+        {
+            Object.defineProperties(this,
+            {        
+                /**
+                 * @property    {Gravity}
+                 * @type        {Number}
+                 * @description Gravity in m/s
+                 */
+                Gravity: { value: -9.8, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @function    PhysicsUpdate
+                 * @return      {undefined}
+                 * @description Initializes the physics engine
+                 */
+                Update: { value: function Update(){}, configurable: false, enumerable: false, writable: false },
+            });
+        }
+        
+        PhysicsEngine.prototype = Object.create(null);
+        Object.seal(PhysicsEngine.prototype);
+    
+        return new PhysicsEngine()
+    })();
+    Object.seal(PhysicsEngine);
+    
+    /**
+     * @name        PhysicsItem
+     * @module      FWGE.Physics
+     * @description Some random container
+     */
+    
+    window.PhysicsItem = (function()
+    {
+        /**
+         * @param   {Object}            request
+         * @param   {string}            request.name
+         * @param   {GameObject}        request.parent
+         * @param   {PhysicsBody}       request.body
+         * @param   {Collider}          request.collider
+         * @param   {PhysicsMaterial}   request.material
+         */
+        function PhysicsItem({name = "Physics Item", parent = undefined, body = new PhysicsBody(), collider = undefined, material = undefined} = {})
+        {
+            GameItem.call(this, name, parent);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Collider}
+                 * @type        {Collider}
+                 */
+                Collider: { value: collider, configurable: false, enumerable: true, writable: true },
+    
+                /**
+                 * @property    {Material}
+                 * @type        {PhysicsMaterial}
+                 */
+                Material: { value: material, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {Body}
+                 * @type        {PhysicsBody}
+                 */
+                Body: { value: new PhysicsBody(body), configurable: false, enumerable: true, writable: true },
+            });
+    
+            Object.seal(this);
+        }
+    
+        PhysicsItem.prototype = Object.create(null);
+        Object.seal(PhysicsItem.prototype);
+    
+        return PhysicsItem;
+    })();
+    Object.seal(PhysicsItem);
+    
+    /**
+     * @name        PhysicsMaterial
+     * @module      FWGE.Game
+     * @description Some words of encouragement
+     */
+    
+    window.PhysicsMaterial = (function()
+    {
+        /**
+         * @param   {Object} request
+         * @param   {string} request.name
+         */
+        function PhysicsMaterial({name = "Physics Material"} = {})
+        {
+            Item.call(this, name);
+    
+            // TODO
+    
+            Object.seal(this);
+        }
+    
+        PhysicsMaterial.prototype = Object.create(null);
+        Object.seal(PhysicsMaterial.prototype);
+    
+        return PhysicsMaterial;
+    })();
+    Object.seal(PhysicsMaterial);
+    
+    /**
+     * @name        Colour
+     * @module      FWGE.Render
+     * @description This module is used to create simple 3 valued arrays
+     *              representing the rgb values of colours.
+     */
+    
+    window.Colour = (function()
+    {
+        /**
+         * @param   {number} red
+         * @param   {number} green
+         * @param   {number} blue
+         * @param   {number} alpha
+         */
+        function Colour(red = 1, green = 1, blue = 1, alpha = 1)
+        {
+            BufferedArray.call(this, 4, Float32Array);
+            this.Set(red, green, blue, alpha);
+    
+            Object.seal(this);
+        }
+        Object.defineProperties(Colour,
+        {
+            /**
+             * @function    Clamp
+             * @param       {number}    value
+             * @return      {number}
+             */
+            Clamp: 
+            {
+                value: function Clamp(value)
+                {
+                    return value > 1 ? 1 : value < 0 ? 0 : value;
+                },
+                configurable: false, enumerable: false, writable: false
+            },
+    
+            /**
+             * @function    Set
+             * @param       {Colour}    colour
+             * @param       {number}    red
+             * @param       {number}    green
+             * @param       {number}    blue
+             * @param       {number}    alpha
+             * @return      {Colour}   
+             */
+            Set:
+            {
+                value: function Set(colour, red, green, blue, alpha)
+                {
+                    colour.R = red;
+                    colour.G = green;
+                    colour.B = blue;
+                    colour.A = alpha;
+    
+                    return colour;
+                }
+            }
+        });
+    
+        Colour.prototype = Object.create(null);
+        Object.defineProperties(Colour.prototype,
+        {
+            constructor: { value: Colour },
+    
+            /**
+             * @property    {R}
+             * @type        {number}
+             */
+            R:
+            { 
+                get: function get() { return this.Buffer[0]; },
+                set: function set(red) { this.Buffer[0] = Colour.Clamp(red); },
+                configurable: false, enumerable: false
+            },
+            
+            /**
+             * @property    {G}
+             * @type        {number}
+             */
+            G:
+            { 
+                get: function get() { return this.Buffer[1]; },
+                set: function set(green) { this.Buffer[1] = Colour.Clamp(green); },
+                configurable: false, enumerable: false
+            },
+            
+            /**
+             * @property    {B}
+             * @type        {number}
+             */
+            B:
+            { 
+                get: function get() { return this.Buffer[2]; },
+                set: function set(blue) { this.Buffer[2] = Colour.Clamp(blue); },
+                configurable: false, enumerable: false
+            },
+            
+            /**
+             * @property    {A}
+             * @type        {number}
+             */
+            A:
+            { 
+                get: function get() { return this.Buffer[3]; },
+                set: function set(alpha) { this.Buffer[3] = Colour.Clamp(alpha); },
+                configurable: false, enumerable: false
+            },
+    
+            /**
+             * @function    Set
+             * @param       {number}    red
+             * @param       {number}    green
+             * @param       {number}    blue
+             * @param       {number}    alpha
+             * @return      {Colour}
+             */
+            Set:
+            {
+                value: function Set(red, green, blue, alpha)
+                {
+                    return Colour.Set(this, red, green, blue, alpha);
+                }
+            }
+        });
+        Object.seal(Colour.prototype);
+    
+        return Colour;
+    })();
+    Object.seal(Colour);
+    
+    /**
+     * @name        Mesh
+     * @module      FWGE.Render
+     * @description The vertex array buffer containers
+     */
+    
+    window.Mesh = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {string}    request.name
+         * @param   {Array}     request.position
+         * @param   {Array}     request.uv
+         * @param   {Array}     request.colouur
+         * @param   {Array}     request.normal
+         * @param   {Array}     request.index
+         * @param   {Array}     request.wireframe
+         */
+        function Mesh({name = "Mesh", position = undefined, uv = undefined, colour = undefined, normal = undefined, index = undefined, wireframe = undefined} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @constant    {PositionBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                PositionBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @constant    {UVBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                UVBuffer: { value: uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @constant    {ColourBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                ColourBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @constant    {NormalBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                NormalBuffer: { value: normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @constant    {IndexBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                IndexBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @constant    {IndexBuffer}
+                 * @type        {WebGLBuffer}
+                 */
+                WireframeBuffer: { value: wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @constant    {VertexCount}
+                 * @type        {number}
+                 */
+                VertexCount: { value: index ? index.length : 0, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @constant    {VertexCount}
+                 * @type        {number}
+                 */
+                WireframeCount: { value: wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false }
+            });
+    
+            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
+            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(position), FWGE.GL.STATIC_DRAW);
+            
+            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer);
+            FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), FWGE.GL.STATIC_DRAW);
+            
+            if (!colour || colour.length !== position.length)
+                colour = position.map(function(){ return 1.0; });
+    
+            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
+            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(colour), FWGE.GL.STATIC_DRAW);
+    
+            if (this.WireframeBuffer)
+            {
+                FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer);
+                FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(wireframe), FWGE.GL.STATIC_DRAW);
+            }
+    
+            if (this.UVBuffer)
+            {
+                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.UVBuffer);
+                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(uv), FWGE.GL.STATIC_DRAW);
+            }
+    
+            if (this.NormalBuffer)
+            {
+                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.NormalBuffer);
+                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER,new Float32Array(normal), FWGE.GL.STATIC_DRAW);
+            }
+    
+            Object.seal(this);
+        }
+    
+        Mesh.prototype = Object.create(null);
+        Object.seal(Mesh.prototype);
+    
+        return Mesh;
+    })();
+    Object.seal(Mesh);
+    
+    /**
+     * @name        ModelView
+     * @description This module handles the model view matrices of the
+     *              objects within the scene by applying the appropriate
+     *              transformations.
+     */
+    
+    let ModelView = (function()
+    {
+        function ModelView()
+        {
+            var _Stack = new Array();
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @function    PushMatrix
+                 * @return      {undefined}
+                 */
+                Push: 
+                {
+                    value: function Push()
+                    {
+                        _Stack.push(this.Peek());
+                    }
+                },
+    
+                /**
+                 * @function    Peek
+                 * @return      {Matrix4}
+                 */
+                Peek:
+                {
+                    value: function Peek()
+                    {
+                        if (_Stack.length === 0)
+                            return Matrix4.Identity;
+                        else
+                            return _Stack[_Stack.length - 1];
+                    }
+                },
+    
+                /**
+                 * @function    Pop
+                 * @return      {Matrix4}
+                 */
+                Pop:
+                {
+                    value: function Pop()
+                    {
+                        if (_Stack.length === 0)
+                            return Matrix4.Identity;
+                        else
+                            return _Stack.pop();
+                    }
+                },
+    
+                /**
+                 * @function    Transform
+                 * @param       {transform}
+                 * @return      {undefined}
+                 */
+                Transform:
+                {
+                    value: function Transform(transform)
+                    {
+                        this.Peek().Set
+                        (
+                            this.Shear
+                            (
+                                this.Scale
+                                (
+                                    this.Rotate
+                                    (
+                                        this.Translate
+                                        (
+                                            this.Peek(),
+                                            transform.Position
+                                        ),
+                                        transform.Rotation
+                                    ),
+                                    transform.Scale
+                                ),
+                                transform.Shear
+                            )
+                        );
+                    }
+                },
+    
+                /**
+                 * @function    Translate: {Float32Array}
+                 * @description Returns a translation matrix.
+                 * @param       matrix:         {Float32Array}
+                 * @param       translation:    {Float32Array}
+                 */
+                Translate:
+                {
+                    value: function Translate(matrix, translation)
+                    {
+                        return new Matrix4
+                        (
+                            matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                            matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                            matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+    
+                            matrix.M11 * translation.X + matrix.M21 * translation.Y + matrix.M31 * translation.Z + matrix.M41,
+                            matrix.M12 * translation.X + matrix.M22 * translation.Y + matrix.M32 * translation.Z + matrix.M42,
+                            matrix.M13 * translation.X + matrix.M23 * translation.Y + matrix.M33 * translation.Z + matrix.M43,
+                            matrix.M14 * translation.X + matrix.M24 * translation.Y + matrix.M34 * translation.Z + matrix.M44
+                        );
+                    }
+                },
+    
+                /**
+                 * @function    Rotate: {Float32Array}
+                 * @description Returns a rotation matrix.
+                 * @param       matrix:     {Float32Array}
+                 * @param       rotation:   {Float32Array}
+                 */
+                Rotate:
+                {
+                    value: function Rotate(matrix, rotation)
+                    {    
+                        var rot = Matrix4.Identity;
+                        let x = Maths.Radian(rotation.X);
+                        let y = Maths.Radian(rotation.Y);
+                        let z = Maths.Radian(rotation.Z);
+    
+                        return new Matrix4
+                        (
+                            Matrix4.Mult
+                            (
+                                Matrix4.Identity,
+                                Math.cos(z), -Math.sin(z), 0.0, 0.0,
+                                Math.sin(z),  Math.cos(z), 0.0, 0.0,
+                                        0.0,          0.0, 1.0, 0.0,
+                                        0.0,          0.0, 0.0, 1.0
+                            ).Mult
+                            (
+                                Math.cos(y), 0.0, Math.sin(y), 0.0,
+                                        0.0, 1.0,         0.0, 0.0,
+                               -Math.sin(y), 0.0, Math.cos(y), 0.0,
+                                        0.0, 0.0,         0.0, 1.0
+    
+                            ).Mult
+                            (
+                            
+                                1.0,         0.0,          0.0, 0.0,
+                                0.0, Math.cos(x), -Math.sin(x), 0.0,
+                                0.0, Math.sin(x),  Math.cos(x), 0.0,
+                                0.0,         0.0,          0.0, 1.0
+                            ).Mult(matrix)
+                        );
+                    }
+                },
+    
+                /**
+                 * @function    Scale: {Float32Array}
+                 * @description Returns a scaler matrix.
+                 * @param       matrix:     {Float32Array}
+                 * @param       scalers:    {Float32Array}
+                 */
+                Scale:
+                {
+                    value: function Scale(matrix, scalers)
+                    {                    
+                        return new Matrix4
+                        (
+                            matrix.M11 * scalers.X, matrix.M12 * scalers.X, matrix.M13 * scalers.X, matrix.M14 * scalers.X,
+                            matrix.M21 * scalers.Y, matrix.M22 * scalers.Y, matrix.M23 * scalers.Y, matrix.M24 * scalers.Y,
+                            matrix.M31 * scalers.Z, matrix.M32 * scalers.Z, matrix.M33 * scalers.Z, matrix.M34 * scalers.Z,
+                                        matrix.M41,             matrix.M42,             matrix.M43,             matrix.M44
+                        );
+                    }
+                },
+    
+                /**
+                 * @function    Shear: {Float32Array}
+                 * @description Returns a shearing matrix.
+                 * @param       matrix:    {Float32Array}
+                 * @param       angles:    {Float32Array}
+                 */
+                Shear:
+                {
+                    value: function Shear(matrix, angles)
+                    {
+                        var phi   = Maths.Radian(angles.X);
+                        var theta = Maths.Radian(angles.Y);
+                        var rho   = Maths.Radian(angles.Z);
+    
+                        return new Matrix4
+                        (
+                                      1.0,             0.0, Math.tan(rho), 0.0,
+                            Math.tan(phi),             1.0,           0.0, 0.0,
+                                      0.0, Math.tan(theta),           1.0, 0.0,
+                                      0.0,             0.0,           0.0, 1.0
+                        ).Mult(matrix);
+                    }
+                }
+            });
+        }
+        ModelView.prototype = Object.create(null);
+    
+        return new ModelView();
+    })();
+    Object.seal(ModelView);
+    /**
+     * @name Projection
+     * @description This module handles the matrices regarding the camera's current
+     *              view mode, and its orientation within the scene.
+     * @module      FWGE.Render
+     */
+    
+    let Projection = (function()
+    {
+        function Projection()
+        {
+            let self = this;
+    
+            function _Orthographic(left, right, top, bottom, near, far, theta, phi)
+            {
+                theta   = Maths.Cot(Maths.Radian(theta));
+                phi     = Maths.Cot(Maths.Radian(phi));
+    
+                left    -= near * theta;
+                right   -= near * theta;
+                top     -= near * phi;
+                bottom  -= near * phi;
+    
+                self.ViewerMatrix.Set
+                (
+    
+                                2 / (right - left),                                0,                            0, 0,
+                                                0,               2 / (top - bottom),                            0, 0,
+                                            theta,                              phi,            -2 / (far - near), 0,
+                    -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
+                );
+                
+            }
+            
+            function _Perspective(field_of_view, aspect_ratio, near, far)
+            {
+                var top     = near * Math.tan(Maths.Radian(field_of_view));
+                var right   = top * aspect_ratio;
+                
+                var left    = -right;
+                var bottom  = -top;
+                var width   = right - left;
+                var height  = top - bottom;
+                var depth   = far - near;
+    
+                self.ViewerMatrix.Set
+                (
+    
+                        2 * near / width,                       0,                         0,  0,
+                                        0,       2 * near / height,                         0,  0,
+                    (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
+                                        0,                       0, -(2 * far * near) / depth,  1
+                );
+            }
+            Object.defineProperties(this,
+            {
+                ViewerMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
+                
+                
+                Update:
+                {
+                    value: function Update(mode, request)
+                    {                            
+                        switch (mode)
+                        {
+                            case CameraMode.PERSPECTIVE:
+                                _Perspective
+                                (
+                                    request.FOV     ||  45,
+                                    request.Aspect  ||  16 / 9,
+                                    request.Near    ||  0.1,
+                                    request.Far     ||  1000.1
+                                );
+                            break;
+    
+                            case CameraMode.ORTHOGRAPHIC:
+                                _Orthographic
+                                (
+                                    request.Left    || -10,
+                                    request.Right   ||  10,
+                                    request.Top     ||  10,
+                                    request.Bottom  || -10,
+                                    request.Near    ||  0,
+                                    request.Far     ||  20,
+                                    request.Theta   ||  90,
+                                    request.Phi     ||  90
+                                );
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+    
+        Projection.prototype = Object.create(null);
+    
+        return new Projection();
+    })();
+    Object.seal(Projection);
+    /**
+     * @name RenderEngine
+     * @module      FWGE 
+     * @description This module contains all the visual related aspects of the 
+     *              game engine.
+     */
+    
+    let RenderEngine = (function()
+    {
+        function RenderEngine()
+        {
+            Object.defineProperties(this,
+            {
+                /**
+                 *  @function       RenderUpdate: {undefined}
+                 *  @description    Updates the rendering to the screen
+                 */
+                Update:
+                {
+                    value: function Update()
+                    {
+                        Renderer.Render();
+                        Projection.Update(Camera.Mode, Camera)
+                    }
+                }
+            });
+        }
+    
+        RenderEngine.prototype = Object.create(null);
+        Object.seal(RenderEngine.prototype);
+    
+        return new RenderEngine();
+    })();
+    Object.seal(RenderEngine);
+    
+    /**
+     * @name        Renderer
+     * @module      FWGE.Render
+     * @description This module handles the actual rendering of the scene to
+     *              the screen.
+     */
+    
+    let Renderer = (function()
+    {
+        function Renderer()
+        {
+            Object.defineProperties(this,
+            {
+                ProjectionMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
+                ModelViewMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
+                NormalMatrix: { value: Matrix3.Identity, configurable: false, enumerable: true, writable: true },
+    
+                WireframeShader:
+                {
+                    value:`
+                        "Wireframe Shader",
+                        512,
+                        512,
+                        "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                        "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                    `,
+                    configurable: false, enumerable: true, writable: true
+                },
+                CombinedShader:
+                {
+                    value: `                
+                        "CombinedShader Shader",
+                        512,
+                        512,
+                        "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                        "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                    `,
+                    configurable: false, enumerable: true, writable: true
+                },
+    
+                Render:
+                {
+                    value: function Render()
+                    {
+                        this.ClearBuffers();
+    
+                        for (var  i = 0, arr = GameObject.Objects; i < arr.length; ++i)
+                        {
+                            this.SetGlobalUniforms();
+                            this.RenderObject(arr[i]);
+                        }
+    
+                        //this.FinalDraw();
+                    }
+                },
+                
+                ClearBuffers:
+                {
+                    value: function ClearBuffers()
+                    {
+                        var i = Shader.Shaders.length;
+                        while (--i >= 0)
+                        {
+                            var shader = Shader.Shaders[i];
+    
+                            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, shader.FrameBuffer);
+                            FWGE.GL.viewport(0, 0, shader.Width, shader.Height);
+                            FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
+                        }
+                        
+                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                        FWGE.GL.viewport(0, 0, FWGE.GL.drawingBufferWidth, FWGE.GL.drawingBufferHeight);
+                        FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
+                    }
+                },
+                
+                RenderObject:
+                {
+                    value: function RenderObject(gameObject)
+                    {
+                        ModelView.Push();
+                        ModelView.Transform(gameObject.Transform);
+                        var mv = new Float32Array(ModelView.Peek().Buffer);
+    
+                        for (var i = 0; i < gameObject.Children.length; ++i)
+                            this.RenderObject(gameObject.Children[i]);
+                        
+                        if (!!gameObject.Mesh && !!gameObject.Material && !!gameObject.Material.Shader)
+                        {
+                            var shader = gameObject.Material.Shader;
+    
+                            FWGE.GL.useProgram(shader.Program);
+                            
+                            FWGE.GL.enableVertexAttribArray(shader.Attributes.Position);
+                            if (shader.Attributes.Normal !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Normal);
+                            if (shader.Attributes.Colour !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour);
+                            if (shader.Attributes.UV !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.UV);
+    
+                            if (gameObject.Material.Alpha !== 1.0)
+                            {
+                                FWGE.GL.enable(FWGE.GL.BLEND);
+                                FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
+                                FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
+                            }
+                            
+                            this.BindAttributes(gameObject.Mesh, shader.Attributes);
+                            this.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
+                            this.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
+                            //if (!!gameObject.Mesh.WireframeBuffer) this.DrawWireframe(gameObject.Mesh, mv);
+                            
+                            if (gameObject.Material.Alpha !== 1.0)
+                            {
+                                FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
+                                FWGE.GL.disable(FWGE.GL.BLEND);
+                            }
+                    
+                            FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
+                            if (shader.Attributes.Normal !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal);
+                            if (shader.Attributes.Colour !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour);
+                            if (shader.Attributes.UV !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.UV);
+    
+                            FWGE.GL.useProgram(null);
+                        }
+                            
+                        ModelView.Pop();
+                    }
+                },
+    
+                BindAttributes:
+                {
+                    value: function BindAttributes(mesh, attributes)
+                    {
+                        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
+                        FWGE.GL.vertexAttribPointer(attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
+                        
+                        if (attributes.UV !== -1)
+                        {
+                            if (!!mesh.UVBuffer)
+                            {
+                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.UVBuffer);
+                                FWGE.GL.vertexAttribPointer(attributes.UV, 2, FWGE.GL.FLOAT, false, 0, 0);
+                            }
+                            else
+                                FWGE.GL.disableVertexAttribArray(attributes.UV);
+                        }
+                        
+                        if (attributes.Colour !== -1)
+                        {
+                            if (!!mesh.ColourBuffer)
+                            {
+                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.ColourBuffer);
+                                FWGE.GL.vertexAttribPointer(attributes.Colour, 3, FWGE.GL.FLOAT, false, 0, 0);                            
+                            }
+                            else
+                                FWGE.GL.disableVertexAttribArray(attributes.Colour);
+                        }
+                        
+                        if (attributes.Normal !== -1)
+                        {
+                            if (!!mesh.NormalBuffer)
+                            {
+                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.NormalBuffer);
+                                FWGE.GL.vertexAttribPointer(attributes.Normal, 3, FWGE.GL.FLOAT, false, 0, 0);
+                            }
+                            else
+                                FWGE.GL.disableVertexAttribArray(attributes.Normal);
+                        }
+                        
+                        FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+                    }
+                },
+    
+                SetObjectUniforms:
+                {
+                    value: function SetObjectUniforms(material, uniforms, mv)
+                    {
+                        FWGE.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
+                        FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, this.CalculateNormalMatrix().Buffer);
+    
+                        FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient.Buffer);
+                        FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse.Buffer);
+                        FWGE.GL.uniform4fv(uniforms.Material.Specular, material.Specular.Buffer);
+                        FWGE.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
+                        FWGE.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
+                    
+                        if (!!material.ImageMap)
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.ImageMap);
+                            FWGE.GL.uniform1i(uniforms.Material.HasImage, 1);
+                            FWGE.GL.uniform1i(uniforms.Sampler.Image, 0);
+                        }
+                        else
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
+                            FWGE.GL.uniform1i(uniforms.Material.HasImage, 0);
+                        }
+                        
+                        if (!!material.BumpMap)
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.BumpMap);
+                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 1);
+                            FWGE.GL.uniform1i(uniforms.Sampler.Bump, 1);
+                        }
+                        else
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
+                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
+                        }
+                        
+                        if (!!material.SpecularMap)
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.SpecularMap);
+                            FWGE.GL.uniform1i(uniforms.Material.HasSpecular, 1);
+                            FWGE.GL.uniform1i(uniforms.Sampler.Specular, 2);
+                        }
+                        else
+                        {
+                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
+                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
+                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
+                        }
+                    }
+                },
+    
+                SetGlobalUniforms:
+                {
+                    value: function SetGlobalUniforms()
+                    {            
+                        var i = Shader.Shaders.length;
+                        while (--i >= 0)
+                        {
+                            var point_count = 0;
+                            
+                            FWGE.GL.useProgram(Shader.Shaders[i].Program);
+                            var uniforms = Shader.Shaders[i].Uniforms.Light;
+                            
+                            for (var j = 0; j < Light.Lights.length; ++j)
+                            {
+                                var light = Light.Lights[j];
+                                
+                                if (light instanceof AmbientLight)
+                                {
+                                    FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour.Buffer);
+                                    FWGE.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+                                }
+                                else if (light instanceof DirectionalLight)
+                                {
+                                    FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour.Buffer);
+                                    FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
+                                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction.Buffer);
+                                }
+                                else if (light instanceof PointLight)
+                                {
+                                    ModelView.Push();
+                                    ModelView.Transform(light.GameObject.Transform);
+                                    var pos = ModelView.Pop();
+    
+                                    FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
+                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
+                                    FWGE.GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
+                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
+                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+    
+                                    point_count++;
+                                }
+                            }
+    
+                            FWGE.GL.uniform1i(uniforms.PointCount, point_count);
+                            
+                            // SET UNIFORM FOR NUMBER OF POINT LIGHTS
+                            FWGE.GL.uniformMatrix4fv(Shader.Shaders[i].Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer);
+                        }
+                        
+                        FWGE.GL.useProgram(null);
+                    }
+                },
+    
+                CalculateNormalMatrix:
+                {
+                    value: function CalculateNormalMatrix()
+                    {
+                        var mat = ModelView.Peek();
+                        mat.Inverse();
+    
+                        return new Matrix3().Set
+                        (
+                            mat.M11, mat.M21, mat.M31,
+                            mat.M12, mat.M22, mat.M32,
+                            mat.M13, mat.M23, mat.M33
+                        );
+                    }
+                },
+    
+                Draw:
+                {
+                    value: function Draw(vertexCount, framebuffer)
+                    {
+                        //FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, framebuffer);
+                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                        FWGE.GL.drawElements(FWGE.GL.TRIANGLES, vertexCount, FWGE.GL.UNSIGNED_SHORT, 0);
+                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                    }
+                },
+                    
+                DrawWireframe:
+                {
+                    value: function DrawWireframe(mesh, mv)
+                    {
+                        FWGE.GL.useProgram(this.WireframeShader.Program);
+                        
+                        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
+                        FWGE.GL.vertexAttribPointer(this.WireframeShader.Attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
+                        FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer);
+                        
+                        FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.ModelView, false, mv);
+                        FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer);
+                        //FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, framebuffer);
+                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                        FWGE.GL.drawElements(FWGE.GL.LINES, mesh.WireframeCount, FWGE.GL.UNSIGNED_SHORT, 0);
+                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                        FWGE.GL.useProgram(null);
+                    }
+                }
+                /*FinalDraw(): void
+                {
+                    FWGE.GL.useProgram(_Shader.Program);
+                    FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+    
+                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _Shader.PositionBuffer);
+                    FWGE.GL.vertexAttribPointer(_Shader.PositionPointer, 3, FWGE.GL.FLOAT, false, 0, 0);
+    
+                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _Shader.UVBuffer);
+                    FWGE.GL.vertexAttribPointer(_Shader.UVPointer, 2, FWGE.GL.FLOAT, false, 0, 0);
+    
+                    FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, _Shader.IndexBuffer);
+    
+                    FWGE.GL.uniformMatrix4fv(_Shader.ModelView, false, ModelView.Peek().Buffer);
+                    FWGE.GL.uniformMatrix4fv(_Shader.Projection, false, Projection.GetViewer());
+    
+                    var i =Shader.Shaders.length;
+                    FWGE.GL.uniform1i(_Shader.SamplerCount, 1);
+                    FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
+                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, Shader.Shaders[0].Texture);
+                    FWGE.GL.uniform1i(_Shader.Samplers[0], 0);
+    
+                    while (--i >= 0)
+                    {
+                        FWGE.GL.activeTexture(FWGE.GL.TEXTURE0 + i);
+                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, Shader.Shaders[i].Texture);
+                        FWGE.GL.uniform1i(_Shader.Samplers[i], i);
+                    }
+                    
+                    FWGE.GL.drawElements(FWGE.GL.TRIANGLES, 6, FWGE.GL.UNSIGNED_SHORT, 0);
+                    
+                    FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+                    FWGE.GL.useProgram(null);
+                }*/
+            });
+        }
+        Renderer.prototype = Object.create(null);
+    
+        return new Renderer();
+    })();
+    Object.seal(Renderer);
+    /**
+     * @name        Material
+     * @module      FWGE.Render
+     * @description This object defines how the mesh in a gameobject will look
+     *              like when rendered to a screen.
+     */
+    
+    window.RenderMaterial = (function()
+    {
+        /**
+         * @param   {Object}    request
+         * @param   {string}    request.name
+         * @param   {Array}     request.ambient
+         * @param   {Array}     request.diffuse
+         * @param   {Array}     request.specular
+         * @param   {number}    request.alpha
+         * @param   {number}    request.shininess
+         * @param   {Shader}    request.shader
+         */
+        function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Ambient}
+                 * @type        {Colour}
+                 */
+                Ambient: { value: new Colour(ambient[0], ambient[1], ambient[2], ambient[3]), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Diffuse}
+                 * @type        {Colour}
+                 */
+                Diffuse: { value: new Colour(diffuse[0], diffuse[1], diffuse[2], diffuse[3]), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Specular}
+                 * @type        {Colour}
+                 */
+                Specular: { value: new Colour(specular[0], specular[1], specular[2], specular[3]), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Alpha}
+                 * @type        {number}
+                 */
+                Alpha: { value: alpha, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {Shininess}
+                 * @type        {number}
+                 */
+                Shininess: { value: shininess, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {Shader}
+                 * @type        {Shader}
+                 */
+                Shader: { value: shader, configurable: false, enumerable: true, writable: true },
+    
+                
+                /**
+                 * @property    {ImageMap}
+                 * @type        {WebGLTexture}
+                 */
+                ImageMap: { value: null, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {BumpMap}
+                 * @type        {WebGLTexture}
+                 */
+                BumpMap: { value: null, configurable: false, enumerable: true, writable: true },
+                
+                /**
+                 * @property    {SpecularMap}
+                 * @type        {WebGLTexture}
+                 */
+                SpecularMap: { value: null, configurable: false, enumerable: true, writable: true },
+            });
+    
+        Object.seal(this); 
+        }
+        Object.defineProperties(RenderMaterial,
+        {
+            /**
+             * @function    IsPowerOf2
+             * @param       {number}    value
+             * @return      {boolean}
+             */
+            IsPowerOf2:
+            {
+                value: function IsPowerOf2(value)
+                {
+                    return (value & (value - 1)) == 0;
+                }
+            },
+    
+            /**
+             * @function    ApplyImage
+             * @param       {string}            src
+             * @param       {RenderMaterial}    material
+             * @param       {string}            type
+             * @return      {undefined}
+             */
+            ApplyImage:
+            {
+                value: function ApplyImage(src, material, type)
+                {
+                    var img = new Image();
+                    var texture = null;
+    
+                    switch(type)
+                    {
+                        case 'image':
+                            material.ImageMap = FWGE.GL.createTexture();
+                            texture = material.ImageMap;
+                        break;
+    
+                        case 'bump':
+                            material.BumpMap = FWGE.GL.createTexture();
+                            texture = material.BumpMap;
+                        break;
+    
+                        case 'specular':
+                            material.SpecularMap = FWGE.GL.createTexture();
+                            texture = material.SpecularMap;
+                        break;
+    
+                        default: texture = null;
+                    }
+    
+                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
+                    FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, 1, 1, 0, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+    
+                    img.onload = function()
+                    {
+                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
+                        FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, img);
+    
+                        // then either generate mips if the image uses power-of-2 dimensions or 
+                        // set the filtering correctly for non-power-of-2 images.
+                        if (RenderMaterial.IsPowerOf2(img.width) && RenderMaterial.IsPowerOf2(img.height))
+                        {
+                            FWGE.GL.generateMipmap(FWGE.GL.TEXTURE_2D);
+                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MAG_FILTER, FWGE.GL.LINEAR);
+                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR_MIPMAP_NEAREST);
+                        }
+                        else
+                        {
+                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_S, FWGE.GL.CLAMP_TO_EDGE);
+                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_T, FWGE.GL.CLAMP_TO_EDGE);
+                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR);
+                        }
+    
+                        //FWGE.GL.pixelStorei(FWGE.GL.UNPACK_FLIP_Y_WEBGL, true);                
+                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
+                    };
+                    img.src = src;
+                }
+            }
+        });
+    
+        RenderMaterial.prototype = Object.create(null);
+        Object.defineProperties(RenderMaterial.prototype,
+        {
+            /**
+             * @function    SetTextures
+             * @param       {Object}    request
+             * @param       {String}    request.imagemap
+             * @param       {String}    request.bumpmap
+             * @param       {String}    request.specularmap
+             * @return      {undefined}
+             */
+            SetTextures: 
+            { 
+                value: function SetTextures({imagemap = undefined, bumpmap = undefined, specularmap = undefined} = {})
+                {
+                    if (!!imagemap)
+                    {
+                        if (!!this.ImageMap)
+                            FWGE.GL.deleteTexture(this.ImageMap);
+    
+                        RenderMaterial.ApplyImage(imagemap, this, 'image');
+                    }
+                    if (!!bumpmap)
+                    {
+                        if (!!this.BumpMap)
+                            FWGE.GL.deleteTexture(this.BumpMap);
+    
+                        RenderMaterial.ApplyImage(bumpmap, this, 'bump');
+                    }
+                    if (!!specularmap)
+                    {
+                        if (!!this.SpecularMap)
+                            FWGE.GL.deleteTexture(this.SpecularMap);
+    
+                        RenderMaterial.ApplyImage(specularmap, this, 'specular');
+                    }
+                }
+            }
+        });
+        Object.seal(RenderMaterial.prototype);
+    
+        return RenderMaterial;
+    })();
+    Object.seal(RenderMaterial);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL 
+     * @param {WebGLProgram}            Program 
+     */
+    function ShaderAttributes(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Position}
+             * @type        {number}
+             */
+            Position:   { value: GL.getAttribLocation(Program, "A_Position"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Colour}
+             * @type        {number}
+             */
+            Colour:     { value: GL.getAttribLocation(Program, "A_Colour"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {UV}
+             * @type        {number}
+             */
+            UV:         { value: GL.getAttribLocation(Program, "A_UV"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Normal}
+             * @type        {number}
+             */
+            Normal:     { value: GL.getAttribLocation(Program, "A_Normal"), configurable: false, enumerable: true, writable: false },
+        });
+    
+        Object.seal(this);
+    }
+    Object.seal(ShaderAttributes);
+    
+    ShaderAttributes.prototype = Object.create(null);
+    Object.seal(ShaderAttributes.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     */
+    function ShaderUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Material}
+             * @type        {WebGLUniformLocations}
+             */
+            Material:   { value:  new MaterialUniforms(GL,  Program), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Matrix}
+             * @type        {WebGLUniformLocations}
+             */
+            Matrix: { value:  new MatrixUniforms(GL,    Program), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Light}
+             * @type        {WebGLUniformLocations}
+             */
+            Light:  { value:  new LightUniforms(GL,     Program), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Sampler}
+             * @type        {WebGLUniformLocations}
+             */
+            Sampler:    { value:  new SamplerUniforms(GL,   Program), configurable: false, enumerable: true, writable: false }
+        });
+     
+        Object.seal(this);
+    }
+    Object.seal(ShaderUniforms);
+    
+    ShaderUniforms.prototype = Object.create(null);
+    Object.seal(ShaderUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     */
+    function AmbientUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Colour}
+             * @type        {WebGLUniformLocations}
+             */
+            Colour: {value: GL.getUniformLocation(Program, "U_Ambient.Colour"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Intensity}
+             * @type        {WebGLUniformLocations}
+             */
+            Intensity: {value: GL.getUniformLocation(Program, "U_Ambient.Intensity"), configurable: false, enumerable: true, writable: false }
+        });
+     
+        Object.seal(this);
+    }
+    Object.seal(AmbientUniforms);
+    
+    AmbientUniforms.prototype = Object.create(null);
+    Object.seal(AmbientUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     */
+    function DirectionalUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Colour}
+             * @type        {WebGLUniformLocations}
+             */
+            Colour: { value: GL.getUniformLocation(Program, "U_Directional.Colour"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Intensity}
+             * @type        {WebGLUniformLocations}
+             */
+            Intensity: { value: GL.getUniformLocation(Program, "U_Directional.Intensity"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Direction}
+             * @type        {WebGLUniformLocations}
+             */
+            Direction: { value: GL.getUniformLocation(Program, "U_Directional.Direction"), configurable: false, enumerable: true, writable: false }
+        });
+     
+        Object.seal(this);
+    }
+    Object.seal(DirectionalUniforms);
+    
+    DirectionalUniforms.prototype = Object.create(null);
+    Object.seal(DirectionalUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     */
+    function LightUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Ambient}
+             * @type        {WebGLUniformLocations}s
+             */
+            Ambient: { value: new AmbientUniforms(GL, Program), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Directional}
+             * @type        {WebGLUniformLocations}
+             */
+            Directional: { value: new DirectionalUniforms(GL, Program), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {PointCount}
+             * @type        {WebGLUniformLocations}
+             */
+            PointCount: { value: GL.getUniformLocation(Program, `U_PointCount`), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Point}
+             * @type        {WebGLUniformLocations}
+             */
+            Point: { value: [], configurable: false, enumerable: true, writable: false }
+    
+        });
+    
+        for (var i = 0; i < 8; ++i)
+            this.Point.push(new PointUniforms(GL, Program, i));
+     
+        Object.seal(this);
+    }
+    Object.seal(LightUniforms);
+    
+    LightUniforms.prototype = Object.create(null);
+    Object.seal(LightUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     * @param {number}                  index
+     */
+    function PointUniforms(GL, Program, index)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Colour}
+             * @type        {WebGLUniformLocations}
+             */
+            Colour: { value: GL.getUniformLocation(Program, `U_Point[${index}].Colour`), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Intensity}
+             * @type        {WebGLUniformLocations}
+             */
+            Intensity:  { value: GL.getUniformLocation(Program, `U_Point[${index}].Intensity`), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Position}
+             * @type        {WebGLUniformLocations}
+             */
+            Position:   { value: GL.getUniformLocation(Program, `U_Point[${index}].Position`), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Radius}
+             * @type        {WebGLUniformLocations}
+             */
+            Radius: { value: GL.getUniformLocation(Program, `U_Point[${index}].Radius`), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Angle}
+             * @type        {WebGLUniformLocations}
+             */
+            Angle:  { value: GL.getUniformLocation(Program, `U_Point[${index}].Angle`), configurable: false, enumerable: true, writable: false }
+        });
+     
+        Object.seal(this);
+    }
+    Object.seal(PointUniforms);
+    
+    PointUniforms.prototype = Object.create(null);
+    Object.seal(PointUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL 
+     * @param {WebGLProgram}            Program 
+     */
+    function MaterialUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Ambient}
+             * @type        {WebGLUniformLocations}
+             */
+            Ambient:    { value: GL.getUniformLocation(Program, "U_Material.Ambient"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Diffuse}
+             * @type        {WebGLUniformLocations}
+             */
+            Diffuse:    { value: GL.getUniformLocation(Program, "U_Material.Diffuse"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Specular}
+             * @type        {WebGLUniformLocations}
+             */
+            Specular:   { value: GL.getUniformLocation(Program, "U_Material.Specular"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Shininess}
+             * @type        {WebGLUniformLocations}
+             */
+            Shininess:  { value: GL.getUniformLocation(Program, "U_Material.Shininess"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Alpha}
+             * @type        {WebGLUniformLocations}
+             */
+            Alpha:      { value: GL.getUniformLocation(Program, "U_Material.Alpha"), configurable: false, enumerable: true, writable: false },
+    
+            
+            /**
+             * @property    {HasImage}
+             * @type        {WebGLUniformLocations}
+             */
+            HasImage:    { value: GL.getUniformLocation(Program, "U_Material.HasImage"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {HasBump}
+             * @type        {WebGLUniformLocations}
+             */
+            HasBump:     { value: GL.getUniformLocation(Program, "U_Material.HasBump"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {HasSpecular}
+             * @type        {WebGLUniformLocations}
+             */
+            HasSpecular: { value: GL.getUniformLocation(Program, "U_Material.HasSpecular"), configurable: false, enumerable: true, writable: false }
+        });
+        
+        Object.seal(this);
+    }
+    Object.seal(MaterialUniforms);
+    
+    MaterialUniforms.prototype = Object.create(null);
+    Object.seal(MaterialUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL 
+     * @param {WebGLProgram}            Program 
+     */
+    function MatrixUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {ModelView}
+             * @type        {WebGLUniformLocations}
+             */
+            ModelView:  { value: GL.getUniformLocation(Program, "U_Matrix.ModelView"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Projection}
+             * @type        {WebGLUniformLocations}
+             */
+            Projection: { value: GL.getUniformLocation(Program, "U_Matrix.Projection"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Normal}
+             * @type        {WebGLUniformLocations}
+             */
+            Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false }
+        });
+        
+        Object.seal(this);
+    }
+    Object.seal(MatrixUniforms);
+    
+    MatrixUniforms.prototype = Object.create(null);
+    Object.seal(MatrixUniforms.prototype);
+    
+    /**
+     * @param {WebGLRenderingContext}   GL
+     * @param {WebGLProgram}            Program
+     */
+    function SamplerUniforms(GL, Program)
+    {
+        Object.defineProperties(this,
+        {
+            /**
+             * @property    {Image}
+             * @type        {WebGLUniformLocations}
+             */
+            Image:  { value: GL.getUniformLocation(Program, "U_Sampler.Image"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Bump}
+             * @type        {WebGLUniformLocations}
+             */
+            Bump:   { value: GL.getUniformLocation(Program, "U_Sampler.Bump"), configurable: false, enumerable: true, writable: false },
+            
+            /**
+             * @property    {Specular}
+             * @type        {WebGLUniformLocations}
+             */
+            Specular:   { value: GL.getUniformLocation(Program, "U_Sampler.Specular"), configurable: false, enumerable: true, writable: false }
+        });
+     
+        Object.seal(this);
+    }
+    Object.seal(SamplerUniforms);
+    
+    SamplerUniforms.prototype = Object.create(null);
+    Object.seal(SamplerUniforms.prototype);
+    
+    /**
+     * @name        Shader
+     * @module      FWGE.Render
+     * @description This object links with the vertex and fragment shaders
+     */
+    
+    window.Shader = (function()
+    {
+        /**
+         * @param       {Object}    request
+         * @param       {string}    request.name
+         * @param       {number}    request.height
+         * @param       {number}    request.width
+         * @param       {string}    request.vertexshader
+         * @param       {string}    request.fragemntshader
+         */
+        function Shader({name = "Shader", height = 1024, width = 1024, vertexshader = "", fragmentshader = ""} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {Program}
+                 * @type        {WebGLProgram}
+                 */
+                Program: { value: FWGE.GL.createProgram(), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Texture}
+                 * @type        {WebGLTexture}
+                 */
+                Texture: { value: FWGE.GL.createTexture(), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {FrameBuffer}
+                 * @type        {WebGLFramebuffer}
+                 */
+                FrameBuffer: { value: FWGE.GL.createFramebuffer(), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {RenderBuffer}
+                 * @type        {WebGLRenderbuffer}
+                 */
+                RenderBuffer: { value: FWGE.GL.createRenderbuffer(), configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Height}
+                 * @type        {Number}
+                 */
+                Height: { value: height, configurable: false, enumerable: true, writable: false },
+                
+                /**
+                 * @property    {Width}
+                 * @type        {Number}
+                 */
+                Width: { value: width, configurable: false, enumerable: true, writable: false },
+            });
+    
+            if (Shader.Init(this, FWGE.GL, vertexshader, fragmentshader))
+            {
+                FWGE.GL.useProgram(this.Program);
+    
+                Object.defineProperties(this,
+                {
+                    /**
+                     * @property    {Attributes}
+                     * @type        {ShaderAttributes}
+                     */
+                    Attributes: { value: new ShaderAttributes(FWGE.GL, this.Program), configurable: false, enumerable: true, writable: false },
+    
+                    /**
+                     * @property    {Uniforms}
+                     * @type        {ShaderUniforms}
+                     */
+                    Uniforms: { value: new ShaderUniforms(FWGE.GL, this.Program), configurable: false, enumerable: true, writable: false }
+                });
+    
+                FWGE.GL.useProgram(null);
+            }
+    
+            Shader.Shaders.push(this);
+        
+            Object.seal(this);
         };
-        FWGE.prototype.Start = function() {
-            this.Game.Start(this.Game, this.Physics, this.Render);
-        };
-        FWGE.prototype.Pause = function() {
-            this.Game.Pause();
-        };
-        FWGE.prototype.Stop = function() {
-            this.Game.Stop();
-        };
-        return FWGE;
-    }());
-    //# sourceMappingURL=fwge.js.map
-    window.FWGE = new FWGE;
-})();
+        Object.defineProperties(Shader,
+        {
+            Shaders: { value: new Array(), configurable: false, enumerable: false, writable: false },
+            
+            /**
+             * @function    Init
+             * @param       {Shader}                shader
+             * @param       {WebGLRenderingContext} GL
+             * @param       {string}                vertexshader
+             * @param       {string}                fragmentshader
+             * @return      {boolean}
+             */
+            Init:
+            {
+                value: function Init(shader, GL, vertexShader, fragmentShader)
+                {
+                    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer); 
+                    GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer);
+                    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height);
+                    GL.bindTexture(GL.TEXTURE_2D, shader.Texture);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+                    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined);
+                    GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0);
+                    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer);  
+                                
+                    GL.bindTexture(GL.TEXTURE_2D, null);
+                    GL.bindRenderbuffer(GL.RENDERBUFFER, null);
+                    GL.bindFramebuffer(GL.FRAMEBUFFER, null);        
+                    
+                    var vs = GL.createShader(GL.VERTEX_SHADER);
+                    GL.shaderSource(vs, vertexShader);
+                    GL.compileShader(vs);
+                    if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
+                    {
+                        console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
+                        return false;
+                    }
+                    
+                    var fs = GL.createShader(GL.FRAGMENT_SHADER);
+                    GL.shaderSource(fs, fragmentShader);
+                    GL.compileShader(fs);
+                    if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
+                    {
+                        console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
+                        return false;
+                    }
+                    
+                    GL.attachShader(shader.Program, vs);
+                    GL.attachShader(shader.Program, fs);
+                    GL.linkProgram(shader.Program);
+                    if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS))
+                        return false;
+    
+                    return true;
+                },
+                configurable: false, enumerable: false, writable: false
+            }
+        });
+    
+        Shader.prototype = Object.create(null);
+        Object.seal(Shader.prototype);
+    
+        return Shader;
+    })();
+    Object.seal(Shader);
+    
+    /**
+     * @name        FWGE
+     * @module      window
+     * @description This is the main object used to handle the system.
+     *              All control, of the game, rendering, and physcis engines are through
+     *              this obejct.
+     */
+    
+    window.FWGE = (function()
+    {
+        function FWGE()
+        {
+            let _GL = undefined;
+    
+            Object.defineProperties(this,
+            {
+                /**
+                 * @property    {GL}
+                 * @type        {WebGLRenderingContext}
+                 */
+                GL: { get: function get() { return _GL; }, configurable: false, enumerable: false },
+    
+                /**
+                 * @function    Init
+                 * @param       {Object}            request
+                 * @param       {HTMLCanvasElement} request.canvas
+                 * @param       {number}            request.height
+                 * @param       {number}            request.width
+                 * @param       {Array<number>}     request.clear
+                 * @return      {undefined}
+                 */
+                Init:
+                {
+                    value: function Init({canvas = undefined, height = 480, width = 640, clear = [0, 0, 0, 1]} = {})
+                    {
+                        if (!canvas)
+                            throw new Error("Field {canvas: HTMLCanvasElement} is required");
+    
+                        _GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    
+                        if (!_GL)
+                            throw new Error("Webgl context could not be initialized.");
+                        
+                        Input.Init(canvas);
+                        _GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
+    
+                        console.log(this.GL);
+                    },
+                    configurable: false, enumerable: true, writable: false
+                },
+    
+                /**
+                 * @function    Start
+                 * @return      {undefined}
+                 */
+                Start:
+                {
+                    value: function Start()
+                    {
+                        GameEngine.Start();
+                    },
+                    configurable: false, enumerable: true, writable: false
+                },
+    
+                /**
+                 * @function    Pause
+                 * @return      {undefined}
+                 */
+                Pause:
+                {
+                    value: function Pause()
+                    {
+                        GameEngine.Pause();
+                    },
+                    configurable: false, enumerable: true, writable: false
+                },
+    
+                /**
+                 * @function    Stop
+                 * @return      {undefined}
+                 */
+                Stop:
+                {
+                    value: function Stop()
+                    {
+                        GameEngine.Stop();
+                    },
+                    configurable: false, enumerable: true, writable: false
+                }        
+            });
+    
+            Object.seal(this);
+        }
+    
+        FWGE.prototype = Object.create(null);
+        Object.seal(FWGE.prototype);
+        
+        return new FWGE();
+    })();
+    Object.seal(FWGE);
+    
+
+})(window);

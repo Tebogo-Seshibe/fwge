@@ -1,1 +1,0 @@
-build\fwge.ts --sourcemap --removeComments --target ES5
