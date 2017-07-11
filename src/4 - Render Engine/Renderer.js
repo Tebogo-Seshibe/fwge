@@ -17,24 +17,26 @@ let Renderer = (function()
 
             WireframeShader:
             {
-                value:`
-                    "Wireframe Shader",
-                    512,
-                    512,
-                    "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                    "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                `,
+                value:
+                {
+                    name:           "Wireframe Shader",
+                    height:         512,
+                    width:          512,
+                    vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                    fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                },
                 configurable: false, enumerable: true, writable: true
             },
             CombinedShader:
             {
-                value: `                
-                    "CombinedShader Shader",
-                    512,
-                    512,
-                    "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                    "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                `,
+                value:
+                {
+                    name:           "CombinedShader Shader",
+                    height:         512,
+                    width:          512,
+                    vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                    fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                },
                 configurable: false, enumerable: true, writable: true
             },
 
@@ -51,6 +53,18 @@ let Renderer = (function()
                     }
 
                     //this.FinalDraw();
+                }
+            },
+
+            Init:
+            {
+                value: function Init()
+                {
+                    this.WireframeShader = new Shader(this.WireframeShader);    Shader.Shaders.pop();
+                    this.CombinedShader = new Shader(this.CombinedShader);      Shader.Shaders.pop();
+            
+                    FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
+                    FWGE.GL.disable(FWGE.GL.BLEND);
                 }
             },
             
@@ -106,7 +120,7 @@ let Renderer = (function()
                         this.BindAttributes(gameObject.Mesh, shader.Attributes);
                         this.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
                         this.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
-                        //if (!!gameObject.Mesh.WireframeBuffer) this.DrawWireframe(gameObject.Mesh, mv);
+                        if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) this.DrawWireframe(gameObject.Mesh, mv);
                         
                         if (gameObject.Material.Alpha !== 1.0)
                         {
@@ -239,9 +253,9 @@ let Renderer = (function()
                         FWGE.GL.useProgram(Shader.Shaders[i].Program);
                         var uniforms = Shader.Shaders[i].Uniforms.Light;
                         
-                        for (var j = 0; j < Light.Lights.length; ++j)
+                        for (var j = 0; j < Lights.length; ++j)
                         {
-                            var light = Light.Lights[j];
+                            var light = Lights[j];
                             
                             if (light instanceof AmbientLight)
                             {
@@ -256,13 +270,9 @@ let Renderer = (function()
                             }
                             else if (light instanceof PointLight)
                             {
-                                ModelView.Push();
-                                ModelView.Transform(light.GameObject.Transform);
-                                var pos = ModelView.Pop();
-
                                 FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
                                 FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                                FWGE.GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
+                                FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position.Buffer);
                                 FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
                                 FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
 
@@ -284,10 +294,10 @@ let Renderer = (function()
             {
                 value: function CalculateNormalMatrix()
                 {
-                    var mat = ModelView.Peek();
+                    let mat = new Matrix4(ModelView.Peek());
                     mat.Inverse();
 
-                    return new Matrix3().Set
+                    return new Matrix3
                     (
                         mat.M11, mat.M21, mat.M31,
                         mat.M12, mat.M22, mat.M32,

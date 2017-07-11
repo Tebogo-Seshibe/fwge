@@ -49,7 +49,7 @@ let GameEngine = (function()
 
                     Input.InputUpdate();
                 },
-                configurableL:false, configurable: false, enumerable: true
+                configurable: false, configurable: false, enumerable: true
             },
 
             /**

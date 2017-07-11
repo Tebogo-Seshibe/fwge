@@ -22,7 +22,13 @@ function MatrixUniforms(GL, Program)
          * @property    {Normal}
          * @type        {WebGLUniformLocations}
          */
-        Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false }
+        Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false },
+
+        /**
+         * @property    {Camera}
+         * @type        {WebGLUniformLocations}
+         */
+        Camera:     { value: GL.getUniformLocation(Program, "U_Matrix.Camera"), configurable: false, enumerable: true, writable: false }
     });
     
     Object.seal(this);

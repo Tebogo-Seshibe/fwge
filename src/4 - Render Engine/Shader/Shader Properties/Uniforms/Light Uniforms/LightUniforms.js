@@ -22,7 +22,7 @@ function LightUniforms(GL, Program)
          * @property    {PointCount}
          * @type        {WebGLUniformLocations}
          */
-        PointCount: { value: GL.getUniformLocation(Program, `U_PointCount`), configurable: false, enumerable: true, writable: false },
+        PointCount: { value: GL.getUniformLocation(Program, `U_Point_Count`), configurable: false, enumerable: true, writable: false },
         
         /**
          * @property    {Point}

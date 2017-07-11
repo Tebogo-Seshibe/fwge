@@ -1788,8 +1788,8 @@ window.Input = (function()
             Init:
             {
                 value: function Init(canvas)
-                {                
-                    canvas.onkeyup = function onkeyup(e)
+                {
+                    document.body.onkeyup = function onkeyup(e)
                     {
                         var key = _handle_event(e);
 
@@ -1797,7 +1797,7 @@ window.Input = (function()
                         _Keys[key + _PRESS_K]   = false;
                         _Keys[key + _DOWN_K]    = false;
                     };
-                    canvas.onkeydown = function onkeydown(e)
+                    document.body.onkeydown = function onkeydown(e)
                     {
                         var key = _handle_event(e);
 

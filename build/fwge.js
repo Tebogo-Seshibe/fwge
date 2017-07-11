@@ -77,7 +77,7 @@
          * @param {Function} mesh 
          * @param {Function} rendermaterial 
          */
-        function Converter(parse = function Parse(){}, gameobject = function GameObject(){}, mesh = function Mesh(){}, rendermaterial = function RenderMaterial(){})
+        function Converter(parse = function Parse(){}, gameobject = function ParseGameObject(){}, mesh = function ParseMesh(){}, rendermaterial = function ParseRenderMaterial(){})
         {
             Object.defineProperties(this,
             {
@@ -110,19 +110,19 @@
                  * @function    GameObject
                  * @return      {GameObject}
                  */
-                GameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
+                ParseGameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
                 
                 /**
                  * @function    Mesh
                  * @return      {Mesh}
                  */
-                Mesh: { value: mesh, configurable: false, enumerable: true, writable: false },
+                ParseMesh: { value: mesh, configurable: false, enumerable: true, writable: false },
                 
                 /**
                  * @function    RenderMaterial
                  * @return      {RenderMaterial}
                  */
-                RenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
+                ParseRenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
             });
         }
     
@@ -187,42 +187,52 @@
                             Meshes[name] = OBJ.slice(curr, array.length).join('\n');
                     });
     
-                    Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.RenderMaterial(Materials[key]); });
+                    Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.ParseRenderMaterial(Materials[key]); });
                     Object.keys(Meshes).forEach(function(key, index, array)
                     {
-                        var mesh = self.Mesh(Meshes[key]);
+                        var mesh = self.ParseMesh(Meshes[key]);
                         var material = Meshes[key].split('\n').filter(function(item){if(item.indexOf('usemtl ')!==-1)return item;}).join('').replace('usemtl ', '');
     
                         Children.push(new GameObject(
                         {
-                            Name: mesh.Name,
-                            Mesh: mesh,
-                            Material: Materials[material]
+                            name:       mesh.Name,
+                            mesh:       mesh,
+                            material:   Materials[material]
                         }));
                     });
+    
+                    var result = undefined;
     
                     if (Children.length === 1)
                         return Children.pop();
     
                     return new GameObject(
                     {
-                        Name: object_name,
-                        Children: Children
+                        name:       object_name,
+                        children:   Children
                     });
                 },
                 
-                function GameObject(mesh, materials, meshes)
+                function ParseGameObject(ParseMesh, materials, meshes)
                 {
                     return new GameObject();
                 },
     
-                function Mesh(obj)
+                function ParseMesh(obj)
                 {
-                    var lines = obj.split('\n');
+                    var lines = obj.split("\n");
                     var vertices = [];
                     var normals = [];
                     var uvs = [];
-                    var request = {};
+                    var request =
+                    {
+                        position:   [],
+                        normal:     [],
+                        uv:         [],
+                        colour:     [],
+                        index:      [],
+                        wireframe:  []
+                    };
                     var face_offset = 0;
                     var wireframe_offset = 0;
                     
@@ -233,10 +243,11 @@
                         var value = line.substring(type.length).trim();
                         var values = value.split(' ');
     
+    
                         switch (type)
                         {
                             case "o":
-                                request.Name = value;
+                                request.name = value;
                             break;
                             
                             case "v":
@@ -265,24 +276,24 @@
                                     });
     
                                     if (!isNaN(face_i[0]))
-                                        request.Position = request.Position.concat(vertices[face_i[0]]);
+                                        request.position = request.position.concat(vertices[face_i[0]]);
                                     
                                     if (!isNaN(face_i[1]))
-                                        request.UVs = request.UVs.concat(uvs[face_i[1]]);
+                                        request.uv = request.uv.concat(uvs[face_i[1]]);
                                     
                                     if (!isNaN(face_i[2]))
-                                        request.Normals = request.Normals.concat(normals[face_i[2]]);
+                                        request.normal = request.normal.concat(normals[face_i[2]]);
     
                                     if (index >= 2)
-                                        request.Indices.push(face_offset, face_offset + index - 1, face_offset + index);
+                                        request.index.push(face_offset, face_offset + index - 1, face_offset + index);
                                 });
                                 
                                 for (var j = 0; j < values.length; ++j)
                                 {
                                     if (j === values.length - 1)
-                                        request.Wireframe.push(wireframe_offset + j, wireframe_offset);
+                                        request.wireframe.push(wireframe_offset + j, wireframe_offset);
                                     else
-                                        request.Wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
+                                        request.wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
                                 }
                                 wireframe_offset += values.length;
                                 face_offset += values.length;
@@ -293,9 +304,9 @@
                     return new Mesh(request);
                 },
                 
-                function RenderMaterial(mtl)
+                function ParseRenderMaterial(mtl)
                 {
-                    var lines = mtl.split('\n');
+                    var lines = mtl.split("\n");
                     var request = {};
     
                     for (var i = 0; i < lines.length; ++i)
@@ -308,31 +319,31 @@
                         switch (type)
                         {
                             case 'newmtl':
-                                request.Name = value;
+                                request.name = value;
                             break;
     
                             case 'Ns':
-                                request.Shininess = parseFloat(value);
+                                request.shininess = parseFloat(value);
                             break;
     
                             case 'Ka':
-                                request.Ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                                request.ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                             break;
     
                             case 'Kd':
-                                request.Diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                                request.diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                             break;
     
                             case 'Ks':
-                                request.Specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                                request.specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                             break;
                             
                             case 'd':
-                                request.Alpha = parseFloat(value);
+                                request.alpha = parseFloat(value);
                             break;
     
                             case 'Tr':
-                                request.Alpha = 1 - parseFloat(value);
+                                request.alpha = 1 - parseFloat(value);
                             break;
                         }
                     }
@@ -775,7 +786,7 @@
     
                         Input.InputUpdate();
                     },
-                    configurableL:false, configurable: false, enumerable: true
+                    configurable: false, configurable: false, enumerable: true
                 },
     
                 /**
@@ -885,7 +896,7 @@
         /**
          * 
          */
-        function GameObject({name, transform, material, mesh, physics, animation, begin, update, end, children} = {})
+        function GameObject({name, transform, material, mesh, physics, animation, begin = function Begin(){}, update = function Update(){}, end = function End(){}, children} = {})
         {
             Item.call(this, name);
     
@@ -907,31 +918,25 @@
                  * @property    {RenderMaterial}
                  * @type        {RenderMaterial}
                  */
-                Material: { value: material instanceof RenderMaterial ? material : new RenderMaterial(material), configurable: false, enumerable: true, writable: false },
+                Material: { value: material instanceof RenderMaterial ? material : undefined, configurable: false, enumerable: true, writable: true },
     
                 /**
                  * @property    {Mesh}
                  * @type        {Mesh}
                  */
-                Mesh: { value: mesh instanceof Mesh ? mesh : new Mesh(mesh), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Light}
-                 * @type        {LightItem}
-                 */
-                Light: { value: undefined, configurable: false, enumerable: true, writable: false },
+                Mesh: { value: mesh instanceof Mesh ? mesh : undefined, configurable: false, enumerable: true, writable: true },
     
                 /**
                  * @property    {PhysicsItem}
                  * @type        {PhysicsItem}
                  */
-                Physics: { value: physics instanceof PhysicsItem ? physics : new PhysicsItem(physics), configurable: false, enumerable: true, writable: false },
+                Physics: { value: physics instanceof PhysicsItem ? physics : undefined, configurable: false, enumerable: true, writable: true },
     
                 /**
                  * @property    {Animation}
                  * @type        {Animation}
                  */
-                Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: false },
+                Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: true },
     
                 /**
                  * @property    {Begin}
@@ -981,7 +986,23 @@
             { 
                 value: function Clone(gameObject)
                 {
-                    var clone = new GameObject(gameObject.Name, gameObject.Transform);;
+                    var clone = new GameObject(
+                    {
+                        name:       gameObject.Name,
+                        transform:  new Transform(
+                        {
+                            position:   gameObject.Transform.Position.Buffer,
+                            rotation:   gameObject.Transform.Rotation.Buffer,
+                            scale:      gameObject.Transform.Scale.Buffer,
+                            shear:      gameObject.Transform.Shear.Buffer
+                        }),
+                        mesh:       gameObject.Mesh,
+                        material:   gameObject.Material,
+                        physics:    gameObject.Physics,
+                        begin:      gameObject.Begin,
+                        update:     gameObject.Update,
+                        end:        gameObject.End
+                    });
                     
                     for (var i = 0; i < gameObject.Children.length; ++i)
                         clone.Children.push(gameObject.Children[i].Clone());
@@ -1024,7 +1045,7 @@
     
             /**
              * @function    Remove
-             * @param       {GameObject}    gameobject
+             * @param       {GameObject | number}    gameobject
              * @return      {GameObject}
              */
             Remove:
@@ -2898,8 +2919,8 @@
                 Init:
                 {
                     value: function Init(canvas)
-                    {                
-                        canvas.onkeyup = function onkeyup(e)
+                    {
+                        document.body.onkeyup = function onkeyup(e)
                         {
                             var key = _handle_event(e);
     
@@ -2907,7 +2928,7 @@
                             _Keys[key + _PRESS_K]   = false;
                             _Keys[key + _DOWN_K]    = false;
                         };
-                        canvas.onkeydown = function onkeydown(e)
+                        document.body.onkeydown = function onkeydown(e)
                         {
                             var key = _handle_event(e);
     
@@ -3097,9 +3118,11 @@
          * @param {Array} request.colour
          * @param {number} request.intensity
          */
-        function AmbientLight({name = "Ambient Light", gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0} = {})
+        function AmbientLight({name = "Ambient Light", colour = [1, 1, 1, 1], intensity = 1.0} = {})
         {
-            LightItem.call(this, name, gameobject, colour, intensity);
+            LightItem.call(this, name, colour, intensity);
+            
+            Lights.push(this);
             Object.seal(this);
         }
     
@@ -3126,9 +3149,9 @@
          * @param {number}      request.intensity
          * @param {Array}       request.direction
          */
-        function DirectionalLight({name = 'Directional Light', gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
+        function DirectionalLight({name = 'Directional Light', colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
         {
-            LightItem.call(this, name, gameobject, colour, intensity)
+            LightItem.call(this, name, colour, intensity)
     
             Object.defineProperties(this,
             {
@@ -3139,6 +3162,7 @@
                 Direction: { value: new Vector3(direction[0], direction[1], direction[2]), configurable: false, enumerable: true, writable: false }
             });
     
+            Lights.push(this);
             Object.seal(this);
         }
     
@@ -3149,155 +3173,159 @@
     })();
     Object.seal(DirectionalLight);
     
-    /**
-     * @name        Light
-     * @module      FWGE.Game
-     * @description Module used to create lightobject in the scene.
-     *              There can only be 12 lights at a given time:
-     *              1: Ambient Light
-     *              3: Directional Lights
-     *              8: Point Lights
-     */
+        /**
+         * @name        Light
+         * @module      FWGE.Game
+         * @description Module used to create lightobject in the scene.
+         *              There can only be 12 lights at a given time:
+         *              1: Ambient Light
+         *              3: Directional Lights
+         *              8: Point Lights
+         */
     
-    function Light()
+    let Lights = new Array();
+    
+    (function()
     {
-        var AmbientCount = 0;
-        var DirectionalCount = 0;
-        var PointCount = 0;
-        
-        const MAX_AMBIENT = 1;
-        const MAX_DIRECTIONAL = 3;
-        const MAX_POINT = 8;
-        const MAX_LIGHTS = 12;
+        function Light()
+        {
+            var AmbientCount = 0;
+            var DirectionalCount = 0;
+            var PointCount = 0;
+            
+            const MAX_AMBIENT = 1;
+            const MAX_DIRECTIONAL = 3;
+            const MAX_POINT = 8;
+            const MAX_LIGHTS = 12;
     
-        Object.defineProperties(this,
+            Object.defineProperties(this,
+            {    
+                /**
+                 * @function    Ambient
+                 * @param       {Object} request 
+                 * @param       {string} request.name 
+                 * @param       {GameObject | undefined} request.gameobject 
+                 * @param       {Array | undefined} request.colour
+                 * @param       {number | undefined} request.intensity
+                 * @return      {AmbientLight | undefined}
+                 */        
+                Ambient:
+                {
+                    value: function Ambient(request)
+                    {
+                        var light = null;
+    
+                        if (this.AmbientCount < this.MAX_AMBIENT)
+                        {
+                            light = new AmbientLight(request);
+                            light.GameObject.Light = light;
+                            
+                            this.AmbientCount++;
+                            Light.Lights[0] = light;
+                        }
+    
+                        return light;
+                    }
+                },
+                
+                /**
+                 * @function    Ambient
+                 * @param       {Object} request 
+                 * @param       {string} request.name
+                 * @param       {GameObject | null | undefined} request.gameobject
+                 * @param       {Array} request.colour
+                 * @param       {number} request.intensity
+                 * @param       {Array} request.direction
+                 * @return      {AmbientLight | undefined}
+                 */ 
+                Directional:
+                {
+                    value: function Directional(request)
+                    {
+                        var light = null;
+    
+                        if (this.DirectionalCount < this.MAX_DIRECTIONAL)
+                        {
+                            for (var i = this.MAX_AMBIENT; i < this.MAX_DIRECTIONAL; ++i)
+                            {
+                                if (!Light.Lights[i])
+                                {
+                                    light = new DirectionalLight(request);
+                                    light.GameObject.Light = light;
+    
+                                    this.DirectionalCount++;
+                                    Light.Lights[i] = light;
+    
+                                    break;
+                                }
+                            }
+                        }
+    
+                        return light;
+                    }
+                },
+                
+                /**
+                 * @function    Ambient
+                 * @param       {Object} request 
+                 * @param       {string} request.name 
+                 * @param       {GameObject | undefined} request.gameobject 
+                 * @param       {Array | undefined} request.colour
+                 * @param       {number | undefined} request.intensity
+                 * @return      {AmbientLight | undefined}
+                 */ 
+                Point:
+                {
+                    value: function Point(request)
+                    {
+                        var light = null;
+    
+                        if (this.PointCount < this.MAX_POINT)
+                        {
+                            for (var i = this.MAX_DIRECTIONAL; i < this.MAX_LIGHTS; ++i)
+                            {
+                                if (!Light.Lights[i])
+                                {
+                                    light = new PointLight(request);
+                                    light.GameObject.Light = light;
+    
+                                    this.PointCount++;
+                                    Light.Lights[i] = light;
+    
+                                    break;
+                                }
+                            }
+                        }
+    
+                        return light
+                    }
+                },
+                
+                /**
+                 * @function    Ambient
+                 * @param       {AmbientLight | DirectionalLight | PointLight} light 
+                 * @return      {AmbientLight | DirectionalLight | PointLight}
+                 * @description Removes a light from the given scene.
+                 */ 
+                Remove:
+                {
+                    valeu: function Remove(light)
+                    {
+                        for (var i in  Light.Lights)
+                            if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)
+                                Light.Lights[i] = null;
+    
+                        return light;
+                    }
+                }
+            });
+        }
+        Light.prototype = Object.create(null);
+        Object.defineProperties(Light,
         {    
-            /**
-             * @function    Ambient
-             * @param       {Object} request 
-             * @param       {string} request.name 
-             * @param       {GameObject | undefined} request.gameobject 
-             * @param       {Array | undefined} request.colour
-             * @param       {number | undefined} request.intensity
-             * @return      {AmbientLight | undefined}
-             */        
-            Ambient:
-            {
-                value: function Ambient(request)
-                {
-                    var light = null;
-    
-                    if (this.AmbientCount < this.MAX_AMBIENT)
-                    {
-                        light = new AmbientLight(request);
-                        light.GameObject.Light = light;
-                        
-                        this.AmbientCount++;
-                        Light.Lights[0] = light;
-                    }
-    
-                    return light;
-                }
-            },
-            
-            /**
-             * @function    Ambient
-             * @param       {Object} request 
-             * @param       {string} request.name
-             * @param       {GameObject | null | undefined} request.gameobject
-             * @param       {Array} request.colour
-             * @param       {number} request.intensity
-             * @param       {Array} request.direction
-             * @return      {AmbientLight | undefined}
-             */ 
-            Directional:
-            {
-                value: function Directional(request)
-                {
-                    var light = null;
-    
-                    if (this.DirectionalCount < this.MAX_DIRECTIONAL)
-                    {
-                        for (var i = this.MAX_AMBIENT; i < this.MAX_DIRECTIONAL; ++i)
-                        {
-                            if (!Light.Lights[i])
-                            {
-                                light = new DirectionalLight(request);
-                                light.GameObject.Light = light;
-    
-                                this.DirectionalCount++;
-                                Light.Lights[i] = light;
-    
-                                break;
-                            }
-                        }
-                    }
-    
-                    return light;
-                }
-            },
-            
-            /**
-             * @function    Ambient
-             * @param       {Object} request 
-             * @param       {string} request.name 
-             * @param       {GameObject | undefined} request.gameobject 
-             * @param       {Array | undefined} request.colour
-             * @param       {number | undefined} request.intensity
-             * @return      {AmbientLight | undefined}
-             */ 
-            Point:
-            {
-                value: function Point(request)
-                {
-                    var light = null;
-    
-                    if (this.PointCount < this.MAX_POINT)
-                    {
-                        for (var i = this.MAX_DIRECTIONAL; i < this.MAX_LIGHTS; ++i)
-                        {
-                            if (!Light.Lights[i])
-                            {
-                                light = new PointLight(request);
-                                light.GameObject.Light = light;
-    
-                                this.PointCount++;
-                                Light.Lights[i] = light;
-    
-                                break;
-                            }
-                        }
-                    }
-    
-                    return light
-                }
-            },
-            
-            /**
-             * @function    Ambient
-             * @param       {AmbientLight | DirectionalLight | PointLight} light 
-             * @return      {AmbientLight | DirectionalLight | PointLight}
-             * @description Removes a light from the given scene.
-             */ 
-            Remove:
-            {
-                valeu: function Remove(light)
-                {
-                    for (var i in  Light.Lights)
-                        if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)
-                            Light.Lights[i] = null;
-    
-                    return light;
-                }
-            }
+            Lights: { value: new Array(12), configurable: false, enumerable: true, writable: false }
         });
-    }
-    Light.prototype = Object.create(null);
-    Object.defineProperties(Light,
-    {    
-        Lights: { value: new Array(12), configurable: false, enumerable: true, writable: false }
-    });
-    
+    })();
     /**
      * @name        LightItem
      * @module      FWGE.Game.Light
@@ -3312,9 +3340,9 @@
          * @param {Array} colour 
          * @param {number} intensity 
          */
-        function LightItem(name, gameobject, colour, intensity)
+        function LightItem(name, colour, intensity)
         {
-            GameItem.call(this, name, gameobject);
+            Item.call(this, name);
     
             Object.defineProperties(this,
             {
@@ -3330,8 +3358,6 @@
                  */
                 Intensity: { value: intensity, configurable: false, enumerable: true, writable: false }
             });
-    
-            Object.seal(this);
         }
     
         LightItem.prototype = Object.create(null);
@@ -3359,12 +3385,18 @@
          * @param {number}      request.angle 
          * @param {number}      request.ahininess 
          */
-        function PointLight({name = "Point Light", gameobject = undefined, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
+        function PointLight({name = "Point Light", position = Vector3.Zero, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
         {
-            LightItem.call(this, name, gameobject, colour, intensity);
+            LightItem.call(this, name, colour, intensity);
     
             Object.defineProperties(this,
             {
+                /**
+                 * @property    {Position}
+                 * @type        {Vector3}
+                 */
+                Position: { value: position, configurable: false, enumerable: true, writable: true },
+    
                 /**
                  * @property    {Radius}
                  * @type        {number}
@@ -3381,9 +3413,10 @@
                  * @property    {Shininess}
                  * @type        {number}
                  */
-                Shininess: { value: ahininess, configurable: false, enumerable: true, writable: true },
+                Shininess: { value: shininess, configurable: false, enumerable: true, writable: true },
             });
     
+            Lights.push(this);
             Object.seal(this);
         }
     
@@ -3575,8 +3608,6 @@
         Matrix2.prototype = Object.create(null);
         Object.defineProperties(Matrix2.prototype,
         {
-            constructor: { value: Matrix2 },
-    
             /**
              * @property    {M11}
              * @type        {number}
@@ -3634,7 +3665,7 @@
             {
                 value: function Set(m11, m12, m21, m22)
                 {
-                    return Matrix2.Set(this, m11, m12, m21, m22);
+                    return Matrix2.Set(this, m11 instanceof Matrix2 || m11 instanceof Float32Array ? m11 : [m11, m12, m21, m22]);
                 },
                 configurable: false, enumerable: true, writable: false
             },
@@ -3697,11 +3728,11 @@
     
                     return Matrix2.Set
                     (
-                        this,
-                        this.M22 / det,
+                         this,
+                         this.M22 / det,
                         -this.M12 / det,
                         -this.M21 / det,
-                        this.M11 / det
+                         this.M11 / det
                     );
                 },
                 configurable: false, enumerable: true, writable: false
@@ -5342,19 +5373,19 @@
              * @property    {Zero}
              * @type        {Vector3}
              */
-            Zero: { get: function Zero() { return new Vector3(0, 0, 0); } },
+            Zero: { get: function Zero() { return new Vector3(0, 0, 0); }, configurable: false, enumerable: true },
     
             /**
              * @property    {One}
              * @type        {Vector3}
              */
-            One: { get: function One() { return new Vector3(1, 1, 1); } },
+            One: { get: function One() { return new Vector3(1, 1, 1); }, configurable: false, enumerable: true },
     
             /**
              * @property    {Unit}
              * @type        {Vector3}
              */
-            Unit: { get Unit()   { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); } },
+            Unit: { get Unit() { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); }, configurable: false, enumerable: true },
             
     
             /**
@@ -5536,6 +5567,7 @@
                 set: function set(x) { this.Buffer[0] = x; },
                 configurable: false, enumerable: true
             },
+    
             /**
              * @property    {Y}
              * @type        {number}
@@ -5547,6 +5579,7 @@
                 set: function set(y) { this.Buffer[1] = y; },
                 configurable: false, enumerable: true
             },
+    
             /**
              * @property    {Z}
              * @type        {number}
@@ -5577,7 +5610,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {Vector3}
-             * @description ...
              */
             Set:
             {
@@ -5594,7 +5626,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {Vector3}
-             * @description ...
              */
             Sum:
             {
@@ -5611,7 +5642,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {Vector3}
-             * @description ...
              */
             Diff:
             {
@@ -5628,7 +5658,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {Vector3}
-             * @description ...
              */
             Mult:
             {
@@ -5645,7 +5674,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {number}
-             * @description ...
              */
             Dot:
             {
@@ -5662,7 +5690,6 @@
              * @param       {number}    y
              * @param       {number}    z
              * @return      {Vector3}
-             * @description ...
              */
             Cross:
             {     
@@ -5677,7 +5704,6 @@
              * @function    Scale
              * @param       {number}    scalar
              * @return      {Vector3}
-             * @description ...
              */
             Scale:
             {
@@ -5691,7 +5717,6 @@
             /**
              * @function    Unit
              * @return      {Vector3}
-             * @description ...
              */
             Unit:
             {
@@ -6814,7 +6839,7 @@
                  * @constant    {UVBuffer}
                  * @type        {WebGLBuffer}
                  */
-                UVBuffer: { value: uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+                UVBuffer: { value: !!uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
     
                 /**
                  * @constant    {ColourBuffer}
@@ -6826,7 +6851,7 @@
                  * @constant    {NormalBuffer}
                  * @type        {WebGLBuffer}
                  */
-                NormalBuffer: { value: normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+                NormalBuffer: { value: !!normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
                 
                 /**
                  * @constant    {IndexBuffer}
@@ -6838,19 +6863,25 @@
                  * @constant    {IndexBuffer}
                  * @type        {WebGLBuffer}
                  */
-                WireframeBuffer: { value: wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+                WireframeBuffer: { value: !!wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
                 
                 /**
                  * @constant    {VertexCount}
                  * @type        {number}
                  */
-                VertexCount: { value: index ? index.length : 0, configurable: false, enumerable: true, writable: false },
+                VertexCount: { value: !!index ? index.length : 0, configurable: false, enumerable: true, writable: false },
                 
                 /**
                  * @constant    {VertexCount}
                  * @type        {number}
                  */
-                WireframeCount: { value: wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false }
+                WireframeCount: { value: !!wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false },
+    
+                /**
+                 * @property    {DrawWireframe}
+                 * @type        {boolean}
+                 */
+                DrawWireframe: { value: true, configurable: false, enumerable: true, writable: true }
             });
     
             FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
@@ -6865,24 +6896,24 @@
             FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
             FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(colour), FWGE.GL.STATIC_DRAW);
     
-            if (this.WireframeBuffer)
+            if (!!this.WireframeBuffer)
             {
                 FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer);
                 FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(wireframe), FWGE.GL.STATIC_DRAW);
             }
     
-            if (this.UVBuffer)
+            if (!!this.UVBuffer)
             {
                 FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.UVBuffer);
                 FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(uv), FWGE.GL.STATIC_DRAW);
             }
     
-            if (this.NormalBuffer)
+            if (!!this.NormalBuffer)
             {
                 FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.NormalBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER,new Float32Array(normal), FWGE.GL.STATIC_DRAW);
+                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(normal), FWGE.GL.STATIC_DRAW);
             }
-    
+            
             Object.seal(this);
         }
     
@@ -7252,24 +7283,26 @@
     
                 WireframeShader:
                 {
-                    value:`
-                        "Wireframe Shader",
-                        512,
-                        512,
-                        "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                    `,
+                    value:
+                    {
+                        name:           "Wireframe Shader",
+                        height:         512,
+                        width:          512,
+                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                    },
                     configurable: false, enumerable: true, writable: true
                 },
                 CombinedShader:
                 {
-                    value: `                
-                        "CombinedShader Shader",
-                        512,
-                        512,
-                        "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                    `,
+                    value:
+                    {
+                        name:           "CombinedShader Shader",
+                        height:         512,
+                        width:          512,
+                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
+                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                    },
                     configurable: false, enumerable: true, writable: true
                 },
     
@@ -7286,6 +7319,18 @@
                         }
     
                         //this.FinalDraw();
+                    }
+                },
+    
+                Init:
+                {
+                    value: function Init()
+                    {
+                        this.WireframeShader = new Shader(this.WireframeShader);    Shader.Shaders.pop();
+                        this.CombinedShader = new Shader(this.CombinedShader);      Shader.Shaders.pop();
+                
+                        FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
+                        FWGE.GL.disable(FWGE.GL.BLEND);
                     }
                 },
                 
@@ -7341,7 +7386,7 @@
                             this.BindAttributes(gameObject.Mesh, shader.Attributes);
                             this.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
                             this.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
-                            //if (!!gameObject.Mesh.WireframeBuffer) this.DrawWireframe(gameObject.Mesh, mv);
+                            if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) this.DrawWireframe(gameObject.Mesh, mv);
                             
                             if (gameObject.Material.Alpha !== 1.0)
                             {
@@ -7474,9 +7519,9 @@
                             FWGE.GL.useProgram(Shader.Shaders[i].Program);
                             var uniforms = Shader.Shaders[i].Uniforms.Light;
                             
-                            for (var j = 0; j < Light.Lights.length; ++j)
+                            for (var j = 0; j < Lights.length; ++j)
                             {
-                                var light = Light.Lights[j];
+                                var light = Lights[j];
                                 
                                 if (light instanceof AmbientLight)
                                 {
@@ -7491,13 +7536,9 @@
                                 }
                                 else if (light instanceof PointLight)
                                 {
-                                    ModelView.Push();
-                                    ModelView.Transform(light.GameObject.Transform);
-                                    var pos = ModelView.Pop();
-    
                                     FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
                                     FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                                    FWGE.GL.uniform3f(uniforms.Point[point_count].Position, pos.M41, pos.M42, pos.M43);
+                                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position.Buffer);
                                     FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
                                     FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
     
@@ -7519,10 +7560,10 @@
                 {
                     value: function CalculateNormalMatrix()
                     {
-                        var mat = ModelView.Peek();
+                        let mat = new Matrix4(ModelView.Peek());
                         mat.Inverse();
     
-                        return new Matrix3().Set
+                        return new Matrix3
                         (
                             mat.M11, mat.M21, mat.M31,
                             mat.M12, mat.M22, mat.M32,
@@ -7976,7 +8017,7 @@
              * @property    {PointCount}
              * @type        {WebGLUniformLocations}
              */
-            PointCount: { value: GL.getUniformLocation(Program, `U_PointCount`), configurable: false, enumerable: true, writable: false },
+            PointCount: { value: GL.getUniformLocation(Program, `U_Point_Count`), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Point}
@@ -8132,7 +8173,13 @@
              * @property    {Normal}
              * @type        {WebGLUniformLocations}
              */
-            Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false }
+            Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false },
+    
+            /**
+             * @property    {Camera}
+             * @type        {WebGLUniformLocations}
+             */
+            Camera:     { value: GL.getUniformLocation(Program, "U_Matrix.Camera"), configurable: false, enumerable: true, writable: false }
         });
         
         Object.seal(this);
@@ -8374,9 +8421,8 @@
                             throw new Error("Webgl context could not be initialized.");
                         
                         Input.Init(canvas);
+                        Renderer.Init();
                         _GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
-    
-                        console.log(this.GL);
                     },
                     configurable: false, enumerable: true, writable: false
                 },

@@ -2,6 +2,8 @@
 
 <!-- 
 - Author: Tebogo Christopher Seshibe
+- Wethinkcode(.co.za)
+- Joburg CBD
 -->
 
 <html lang="en">
@@ -15,26 +17,41 @@
 
 	<body>
         <canvas id="canvas"></canvas>
-        <script type="application/javascript" src="../build/fwge.js"></script>
+        <script type="application/javascript" src="fwge.js"></script>
         <script type="application/javascript">
-		window.object = undefined;
+		let send = (function()
+		{
+			function Send(request)
+			{
+				let xml = new XMLHttpRequest();
+
+				xml.open("POST", "/", false);
+				xml.setRequestHeader("Content-type", "application/json");
+				xml.send(JSON.stringify(request));
+
+				return JSON.parse(xml.responseText);
+			}
+			return Send;
+		})();
+
+		let object = undefined;
 
 		window.onload = function onload(e)
 		{
-			var canvas = document.getElementById("canvas");
+			var texture = send({type: "SHADER", name: "texture"});
 			try
 			{
 				FWGE.Init(
 				{
-					canvas: canvas,
-					clear: [0,0,0,0]
+					canvas:	document.getElementById("canvas"),
+					clear:	[0, 0, 0, 0]
 				});
 
 				let shader = new Shader(
 				{
 					name: 			"Texture Shader",
-					vertexshader:	"attribute vec3 A_Position;attribute vec3 A_Colour;attribute vec3 A_Normal;attribute vec2 A_UV;struct Matrix{mat4 ModelView;mat4 Projection; mat3 Normal;};uniform Matrix U_Matrix;varying vec4 V_Position;varying vec3 V_Normal;varying vec2 V_UV;varying vec3 V_Colour;void main(void){V_Position=U_Matrix.ModelView*vec4(A_Position,1.0);V_Normal=U_Matrix.Normal*A_Normal;V_Colour=A_Colour;V_UV=vec2(A_UV.s,1.0-A_UV.t);gl_Position=U_Matrix.Projection*V_Position;gl_PointSize=5.0;}",
-					fragmentshader:	"precision mediump float;const int MAX_POINT=8;struct Material{vec4 Ambient;vec4 Diffuse;vec4 Specular;float Shininess;float Alpha;bool HasImage;bool HasBump;bool HasSpecular;};uniform Material U_Material;struct AmbientLight{vec4 Colour;float Intensity;};uniform AmbientLight U_Ambient;struct DirectionalLight{vec4 Colour;float Intensity;vec3 Direction;};uniform DirectionalLight U_Directional;struct PointLight{vec4 Colour;float Intensity;vec3 Position;float Radius;float Angle;};uniform PointLight U_Point[MAX_POINT];uniform int U_Point_Count;struct Sampler{sampler2D Image;sampler2D Bump;sampler2D Specular;};uniform Sampler U_Sampler;varying vec4 V_Position;varying vec3 V_Normal;varying vec2 V_UV;varying vec3 V_Colour;vec3 Directional(in vec3 normal){float weight=max(dot(normal,normalize(U_Directional.Direction)),0.0);vec3 colour=U_Material.Diffuse.rgb*(U_Directional.Colour.rgb*weight);return colour*U_Directional.Intensity;}vec3 Point(in vec3 normal,in float intensity){vec3 points=vec3(0.0);for(int i=0;i<MAX_POINT;++i){if(i<U_Point_Count){PointLight point=U_Point[i];float distance=length(point.Position-V_Position.xyz);if(distance<point.Radius){vec3 colour=vec3(0.0);vec3 direction=normalize(point.Position-V_Position.xyz);vec3 eyeVector=normalize(-normal.xyz);vec3 reflection=reflect(direction,normal);float diffuse_weight=max(dot(normal,direction),0.0);float specular_weight=pow(max(dot(reflection,eyeVector),0.0),U_Material.Shininess*intensity);colour=(U_Material.Diffuse.rgb*point.Colour.rgb*diffuse_weight+U_Material.Specular.rgb*specular_weight);colour=colour*(1.0-(distance/point.Radius));colour=colour*point.Intensity;points+=colour;}}}return points;}vec3 Light(){vec3 Normal=V_Normal;float intensity=1.0;if(U_Material.HasBump)Normal*=texture2D(U_Sampler.Bump,vec2(V_UV.s,V_UV.t)).xyz;if(U_Material.HasSpecular)intensity=texture2D(U_Sampler.Specular,vec2(V_UV.s,V_UV.t)).r;Normal=normalize(Normal);vec3 ambient=U_Ambient.Colour.rgb*U_Ambient.Intensity;return ambient+Directional(Normal)+Point(Normal,intensity);}vec4 Colour(){vec4 colour=vec4(U_Material.Ambient.rgb,1.0);if(U_Material.HasImage)colour*=texture2D(U_Sampler.Image,vec2(V_UV.s,V_UV.t));return colour;}void main(void){vec4 colour=Colour();vec3 light=Light();gl_FragColor=vec4(colour.rgb*light,0.0);}"
+					vertexshader: 	texture.vertexshader,
+					fragmentshader:	texture.fragmentshader
 				});
 
 				let green = new Shader(	
@@ -48,26 +65,29 @@
 				{
 					name: 		"Cube Mesh",
 					position: 	[-0.5,0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5,0.5,-0.5,-0.5,-0.5,0.5,-0.5,-0.5,0.5,-0.5,0.5,-0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5],
-					normals: 	[0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0],
-					colours: 	[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+					normal: 	[0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0],
+					colour: 	[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+					uv:			[0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0],
 					index: 		[0,1,2,0,2,3,4,5,6,4,6,7,8,9,10,8,10,11,12,13,14,12,14,15,16,17,18,16,18,19,20,21,22,20,22,23],
-					wireframe: 	[0,1,1,2,2,3,3,0, 4,5,5,6,6,7,7,4, 8,9,9,10,10,11,11,8, 12,13,13,14,14,15,15,12, 16,17,17,18,18,19,19,16, 20,21,21,22,22,23,23,20]
+					wireframe: 	[0,1,1,2,2,3,3,0,4,5,5,6,6,7,7,4,8,9,9,10,10,11,11,8,12,13,13,14,14,15,15,12,16,17,17,18,18,19,19,16,20,21,21,22,22,23,23,20]
 				});
 
 				let material = new RenderMaterial(
 				{
 					name: 		"Cube Material",
-					ambient: 	[0.5, 0.5, 0.5, 1],
-					diffuse: 	[0.75, 0.75, 0.75, 1],
-					specular: 	[1, 1, 1, 1],
-					alpha: 		1,
-					shininess: 	5,
-					shader: 	green //shader
+					ambient: 	[0.00, 0.00, 0.00, 1.00],
+					diffuse: 	[0.50, 0.50, 0.50, 1.00],
+					specular: 	[0.75, 0.75, 0.75, 1.00],
+					alpha: 		1.00,
+					shininess: 	5.00,
+					shader: 	shader
 				});
+
+				material.SetTextures({ imagemap: "retrorabbit.png" });
 
 				let transform = new Transform(
 				{
-					position:	[0 ,0, -8]
+					position:	[0, 0, -4]
 				});
 
 				object = new GameObject(
@@ -77,13 +97,55 @@
 					mesh:		mesh,
 					material:	material,
 
-					begin:		function Begin() { console.log("Started"); },
-					update:		function Update() { this.Transform.Rotation.Y += Time.Delta; },
-					end:		function End() { console.log("Ended"); }
+					begin:		function Begin() 	{ console.log("Started"); },
+					update:		function Update()
+					{
+						if (Input.MouseLeftDown)
+						{
+							let y = Input.MouseDeltaX * Time.Delta;
+							let x = Input.MouseDeltaY * Time.Delta;
+
+							this.Transform.Rotation.Y = Maths.Clamp(this.Transform.Rotation.Y - y, -90, 90);
+							this.Transform.Rotation.X = Maths.Clamp(this.Transform.Rotation.X - x, -90, 90);
+						}
+
+						if (Input.KeyF5Press || (Input.KeyRPress && Input.KeyCtrlDown))
+							window.location.reload();
+					},
+					end: function End() { console.log("Ended"); }
+				});
+
+				let clone = object.Clone();
+				clone.Transform.Position.X = 2;
+				object.Transform.Position.X = -2;
+
+				/*object = OBJConverter.Parse("Cube.obj", "Cube.mtl");
+				object.Material.Shader = shader;
+				object.Transform.Position.Z = -4;
+				object.Update = function Update()
+				{
+					if (Input.MouseLeftDown)
+					{
+						let y = Input.MouseDeltaX * Time.Delta;
+						let x = Input.MouseDeltaY * Time.Delta;
+
+						this.Transform.Rotation.Y = Maths.Clamp(this.Transform.Rotation.Y - y, -90, 90);
+						this.Transform.Rotation.X = Maths.Clamp(this.Transform.Rotation.X - x, -90, 90);
+					}
+				};
+				object.Mesh = mesh;
+				object.Material = material;*/
+
+				//let a = new AmbientLight(); console.log(a);
+
+				//let directional = new DirectionalLight({ colour: [1, 1, 1, 1], intensity: 1.0, direction: [0, 0, 1] });
+
+				let point = new PointLight(
+				{
+					position: new Vector3(0,0,0)
 				});
 
 				FWGE.Start();
-				console.log(shader, mesh, material, object);
 			}
 			catch (e)
 			{

@@ -51,8 +51,8 @@ uniform Sampler U_Sampler;
 
 varying vec4 V_Position;
 varying vec3 V_Normal;
-varying vec2 V_UV;
 varying vec3 V_Colour;
+varying vec2 V_UV;
 
 vec3 Directional(in vec3 normal)
 {
@@ -99,51 +99,33 @@ vec3 Point(in vec3 normal, in float intensity)
 vec3 Light()
 {
     vec3 Normal = V_Normal;
-    float intensity = 1.0;
+    float Intensity = 1.0;
 
     if (U_Material.HasBump)
         Normal *= texture2D(U_Sampler.Bump, vec2(V_UV.s, V_UV.t)).xyz;
 
     if (U_Material.HasSpecular)
-        intensity = texture2D(U_Sampler.Specular, vec2(V_UV.s, V_UV.t)).r;
+        Intensity = texture2D(U_Sampler.Specular, vec2(V_UV.s, V_UV.t)).r;
 
     Normal = normalize(Normal);
     
-    vec3 ambient = (U_Ambient.Colour.rgb * U_Ambient.Intensity);
+    vec3 Ambient = (U_Ambient.Colour.rgb * U_Ambient.Intensity);
     
-    return ambient + Directional(Normal) + Point(Normal, intensity);
+    return Ambient + Directional(Normal) + Point(Normal, Intensity);
 }
 
-float Toon(in float c)
+vec4 Colour(in vec3 light)
 {
-    if (c == 1.0)
-        return 1.0;
-    else if (c >= 0.8)
-        return 0.8;
-    else if (c >= 0.6)
-        return 0.6;
-    else if (c >= 0.4)
-        return 0.4;
-    else if (c >= 0.2)
-        return 0.2;
-    else
-        return 0.0;
-}
-
-vec4 Colour()
-{
-    vec4 colour = vec4(U_Material.Ambient.rgb, 1.0);
-
     if (U_Material.HasImage)
-        colour *= texture2D(U_Sampler.Image, vec2(V_UV.s, V_UV.t));
+        return texture2D(U_Sampler.Image, vec2(V_UV.s, V_UV.t)) * vec4(light, 1.0);
 
-    return colour;
+	return U_Material.Ambient + vec4(light, 0.0);
 }
 
 void main(void)
 {
-    vec4 colour = Colour();
     vec3 light  = Light();
+    vec4 colour = Colour(light);
     
-    gl_FragColor = vec4(colour.rgb * light, U_Material.Alpha * colour.a);
+    gl_FragColor = vec4(colour.rgb, U_Material.Alpha * colour.a);
 }

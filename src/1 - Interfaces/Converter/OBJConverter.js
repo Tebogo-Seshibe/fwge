@@ -52,42 +52,52 @@ window.OBJConverter = (function()
                         Meshes[name] = OBJ.slice(curr, array.length).join('\n');
                 });
 
-                Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.RenderMaterial(Materials[key]); });
+                Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.ParseRenderMaterial(Materials[key]); });
                 Object.keys(Meshes).forEach(function(key, index, array)
                 {
-                    var mesh = self.Mesh(Meshes[key]);
+                    var mesh = self.ParseMesh(Meshes[key]);
                     var material = Meshes[key].split('\n').filter(function(item){if(item.indexOf('usemtl ')!==-1)return item;}).join('').replace('usemtl ', '');
 
                     Children.push(new GameObject(
                     {
-                        Name: mesh.Name,
-                        Mesh: mesh,
-                        Material: Materials[material]
+                        name:       mesh.Name,
+                        mesh:       mesh,
+                        material:   Materials[material]
                     }));
                 });
+
+                var result = undefined;
 
                 if (Children.length === 1)
                     return Children.pop();
 
                 return new GameObject(
                 {
-                    Name: object_name,
-                    Children: Children
+                    name:       object_name,
+                    children:   Children
                 });
             },
             
-            function GameObject(mesh, materials, meshes)
+            function ParseGameObject(ParseMesh, materials, meshes)
             {
                 return new GameObject();
             },
 
-            function Mesh(obj)
+            function ParseMesh(obj)
             {
-                var lines = obj.split('\n');
+                var lines = obj.split("\n");
                 var vertices = [];
                 var normals = [];
                 var uvs = [];
-                var request = {};
+                var request =
+                {
+                    position:   [],
+                    normal:     [],
+                    uv:         [],
+                    colour:     [],
+                    index:      [],
+                    wireframe:  []
+                };
                 var face_offset = 0;
                 var wireframe_offset = 0;
                 
@@ -98,10 +108,11 @@ window.OBJConverter = (function()
                     var value = line.substring(type.length).trim();
                     var values = value.split(' ');
 
+
                     switch (type)
                     {
                         case "o":
-                            request.Name = value;
+                            request.name = value;
                         break;
                         
                         case "v":
@@ -130,24 +141,24 @@ window.OBJConverter = (function()
                                 });
 
                                 if (!isNaN(face_i[0]))
-                                    request.Position = request.Position.concat(vertices[face_i[0]]);
+                                    request.position = request.position.concat(vertices[face_i[0]]);
                                 
                                 if (!isNaN(face_i[1]))
-                                    request.UVs = request.UVs.concat(uvs[face_i[1]]);
+                                    request.uv = request.uv.concat(uvs[face_i[1]]);
                                 
                                 if (!isNaN(face_i[2]))
-                                    request.Normals = request.Normals.concat(normals[face_i[2]]);
+                                    request.normal = request.normal.concat(normals[face_i[2]]);
 
                                 if (index >= 2)
-                                    request.Indices.push(face_offset, face_offset + index - 1, face_offset + index);
+                                    request.index.push(face_offset, face_offset + index - 1, face_offset + index);
                             });
                             
                             for (var j = 0; j < values.length; ++j)
                             {
                                 if (j === values.length - 1)
-                                    request.Wireframe.push(wireframe_offset + j, wireframe_offset);
+                                    request.wireframe.push(wireframe_offset + j, wireframe_offset);
                                 else
-                                    request.Wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
+                                    request.wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
                             }
                             wireframe_offset += values.length;
                             face_offset += values.length;
@@ -158,9 +169,9 @@ window.OBJConverter = (function()
                 return new Mesh(request);
             },
             
-            function RenderMaterial(mtl)
+            function ParseRenderMaterial(mtl)
             {
-                var lines = mtl.split('\n');
+                var lines = mtl.split("\n");
                 var request = {};
 
                 for (var i = 0; i < lines.length; ++i)
@@ -173,31 +184,31 @@ window.OBJConverter = (function()
                     switch (type)
                     {
                         case 'newmtl':
-                            request.Name = value;
+                            request.name = value;
                         break;
 
                         case 'Ns':
-                            request.Shininess = parseFloat(value);
+                            request.shininess = parseFloat(value);
                         break;
 
                         case 'Ka':
-                            request.Ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            request.ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                         break;
 
                         case 'Kd':
-                            request.Diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            request.diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                         break;
 
                         case 'Ks':
-                            request.Specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                            request.specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
                         break;
                         
                         case 'd':
-                            request.Alpha = parseFloat(value);
+                            request.alpha = parseFloat(value);
                         break;
 
                         case 'Tr':
-                            request.Alpha = 1 - parseFloat(value);
+                            request.alpha = 1 - parseFloat(value);
                         break;
                     }
                 }

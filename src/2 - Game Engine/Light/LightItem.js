@@ -12,9 +12,9 @@ let LightItem = (function()
      * @param {Array} colour 
      * @param {number} intensity 
      */
-    function LightItem(name, gameobject, colour, intensity)
+    function LightItem(name, colour, intensity)
     {
-        GameItem.call(this, name, gameobject);
+        Item.call(this, name);
 
         Object.defineProperties(this,
         {
@@ -30,8 +30,6 @@ let LightItem = (function()
              */
             Intensity: { value: intensity, configurable: false, enumerable: true, writable: false }
         });
-
-        Object.seal(this);
     }
 
     LightItem.prototype = Object.create(null);

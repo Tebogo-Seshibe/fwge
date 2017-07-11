@@ -24,19 +24,19 @@ window.Vector3 = (function()
          * @property    {Zero}
          * @type        {Vector3}
          */
-        Zero: { get: function Zero() { return new Vector3(0, 0, 0); } },
+        Zero: { get: function Zero() { return new Vector3(0, 0, 0); }, configurable: false, enumerable: true },
 
         /**
          * @property    {One}
          * @type        {Vector3}
          */
-        One: { get: function One() { return new Vector3(1, 1, 1); } },
+        One: { get: function One() { return new Vector3(1, 1, 1); }, configurable: false, enumerable: true },
 
         /**
          * @property    {Unit}
          * @type        {Vector3}
          */
-        Unit: { get Unit()   { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); } },
+        Unit: { get Unit() { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); }, configurable: false, enumerable: true },
         
 
         /**
@@ -218,6 +218,7 @@ window.Vector3 = (function()
             set: function set(x) { this.Buffer[0] = x; },
             configurable: false, enumerable: true
         },
+
         /**
          * @property    {Y}
          * @type        {number}
@@ -229,6 +230,7 @@ window.Vector3 = (function()
             set: function set(y) { this.Buffer[1] = y; },
             configurable: false, enumerable: true
         },
+
         /**
          * @property    {Z}
          * @type        {number}
@@ -259,7 +261,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {Vector3}
-         * @description ...
          */
         Set:
         {
@@ -276,7 +277,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {Vector3}
-         * @description ...
          */
         Sum:
         {
@@ -293,7 +293,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {Vector3}
-         * @description ...
          */
         Diff:
         {
@@ -310,7 +309,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {Vector3}
-         * @description ...
          */
         Mult:
         {
@@ -327,7 +325,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {number}
-         * @description ...
          */
         Dot:
         {
@@ -344,7 +341,6 @@ window.Vector3 = (function()
          * @param       {number}    y
          * @param       {number}    z
          * @return      {Vector3}
-         * @description ...
          */
         Cross:
         {     
@@ -359,7 +355,6 @@ window.Vector3 = (function()
          * @function    Scale
          * @param       {number}    scalar
          * @return      {Vector3}
-         * @description ...
          */
         Scale:
         {
@@ -373,7 +368,6 @@ window.Vector3 = (function()
         /**
          * @function    Unit
          * @return      {Vector3}
-         * @description ...
          */
         Unit:
         {

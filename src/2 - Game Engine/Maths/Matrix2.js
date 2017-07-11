@@ -159,8 +159,6 @@ window.Matrix2 = (function()
     Matrix2.prototype = Object.create(null);
     Object.defineProperties(Matrix2.prototype,
     {
-        constructor: { value: Matrix2 },
-
         /**
          * @property    {M11}
          * @type        {number}
@@ -218,7 +216,7 @@ window.Matrix2 = (function()
         {
             value: function Set(m11, m12, m21, m22)
             {
-                return Matrix2.Set(this, m11, m12, m21, m22);
+                return Matrix2.Set(this, m11 instanceof Matrix2 || m11 instanceof Float32Array ? m11 : [m11, m12, m21, m22]);
             },
             configurable: false, enumerable: true, writable: false
         },
@@ -281,11 +279,11 @@ window.Matrix2 = (function()
 
                 return Matrix2.Set
                 (
-                    this,
-                    this.M22 / det,
+                     this,
+                     this.M22 / det,
                     -this.M12 / det,
                     -this.M21 / det,
-                    this.M11 / det
+                     this.M11 / det
                 );
             },
             configurable: false, enumerable: true, writable: false

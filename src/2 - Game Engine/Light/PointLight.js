@@ -17,12 +17,18 @@ window.PointLight = (function()
      * @param {number}      request.angle 
      * @param {number}      request.ahininess 
      */
-    function PointLight({name = "Point Light", gameobject = undefined, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
+    function PointLight({name = "Point Light", position = Vector3.Zero, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
     {
-        LightItem.call(this, name, gameobject, colour, intensity);
+        LightItem.call(this, name, colour, intensity);
 
         Object.defineProperties(this,
         {
+            /**
+             * @property    {Position}
+             * @type        {Vector3}
+             */
+            Position: { value: position, configurable: false, enumerable: true, writable: true },
+
             /**
              * @property    {Radius}
              * @type        {number}
@@ -39,9 +45,10 @@ window.PointLight = (function()
              * @property    {Shininess}
              * @type        {number}
              */
-            Shininess: { value: ahininess, configurable: false, enumerable: true, writable: true },
+            Shininess: { value: shininess, configurable: false, enumerable: true, writable: true },
         });
 
+        Lights.push(this);
         Object.seal(this);
     }
 

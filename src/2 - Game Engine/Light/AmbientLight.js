@@ -13,9 +13,11 @@ window.AmbientLight = (function()
      * @param {Array} request.colour
      * @param {number} request.intensity
      */
-    function AmbientLight({name = "Ambient Light", gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0} = {})
+    function AmbientLight({name = "Ambient Light", colour = [1, 1, 1, 1], intensity = 1.0} = {})
     {
-        LightItem.call(this, name, gameobject, colour, intensity);
+        LightItem.call(this, name, colour, intensity);
+        
+        Lights.push(this);
         Object.seal(this);
     }
 

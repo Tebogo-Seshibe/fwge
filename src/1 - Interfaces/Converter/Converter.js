@@ -13,7 +13,7 @@ let Converter = (function()
      * @param {Function} mesh 
      * @param {Function} rendermaterial 
      */
-    function Converter(parse = function Parse(){}, gameobject = function GameObject(){}, mesh = function Mesh(){}, rendermaterial = function RenderMaterial(){})
+    function Converter(parse = function Parse(){}, gameobject = function ParseGameObject(){}, mesh = function ParseMesh(){}, rendermaterial = function ParseRenderMaterial(){})
     {
         Object.defineProperties(this,
         {
@@ -46,19 +46,19 @@ let Converter = (function()
              * @function    GameObject
              * @return      {GameObject}
              */
-            GameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
+            ParseGameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
             
             /**
              * @function    Mesh
              * @return      {Mesh}
              */
-            Mesh: { value: mesh, configurable: false, enumerable: true, writable: false },
+            ParseMesh: { value: mesh, configurable: false, enumerable: true, writable: false },
             
             /**
              * @function    RenderMaterial
              * @return      {RenderMaterial}
              */
-            RenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
+            ParseRenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
         });
     }
 

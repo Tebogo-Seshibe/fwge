@@ -9,7 +9,7 @@ window.GameObject = (function()
     /**
      * 
      */
-    function GameObject({name, transform, material, mesh, physics, animation, begin, update, end, children} = {})
+    function GameObject({name, transform, material, mesh, physics, animation, begin = function Begin(){}, update = function Update(){}, end = function End(){}, children} = {})
     {
         Item.call(this, name);
 
@@ -31,31 +31,25 @@ window.GameObject = (function()
              * @property    {RenderMaterial}
              * @type        {RenderMaterial}
              */
-            Material: { value: material instanceof RenderMaterial ? material : new RenderMaterial(material), configurable: false, enumerable: true, writable: false },
+            Material: { value: material instanceof RenderMaterial ? material : undefined, configurable: false, enumerable: true, writable: true },
 
             /**
              * @property    {Mesh}
              * @type        {Mesh}
              */
-            Mesh: { value: mesh instanceof Mesh ? mesh : new Mesh(mesh), configurable: false, enumerable: true, writable: false },
-
-            /**
-             * @property    {Light}
-             * @type        {LightItem}
-             */
-            Light: { value: undefined, configurable: false, enumerable: true, writable: false },
+            Mesh: { value: mesh instanceof Mesh ? mesh : undefined, configurable: false, enumerable: true, writable: true },
 
             /**
              * @property    {PhysicsItem}
              * @type        {PhysicsItem}
              */
-            Physics: { value: physics instanceof PhysicsItem ? physics : new PhysicsItem(physics), configurable: false, enumerable: true, writable: false },
+            Physics: { value: physics instanceof PhysicsItem ? physics : undefined, configurable: false, enumerable: true, writable: true },
 
             /**
              * @property    {Animation}
              * @type        {Animation}
              */
-            Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: false },
+            Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: true },
 
             /**
              * @property    {Begin}
@@ -105,7 +99,23 @@ window.GameObject = (function()
         { 
             value: function Clone(gameObject)
             {
-                var clone = new GameObject(gameObject.Name, gameObject.Transform);;
+                var clone = new GameObject(
+                {
+                    name:       gameObject.Name,
+                    transform:  new Transform(
+                    {
+                        position:   gameObject.Transform.Position.Buffer,
+                        rotation:   gameObject.Transform.Rotation.Buffer,
+                        scale:      gameObject.Transform.Scale.Buffer,
+                        shear:      gameObject.Transform.Shear.Buffer
+                    }),
+                    mesh:       gameObject.Mesh,
+                    material:   gameObject.Material,
+                    physics:    gameObject.Physics,
+                    begin:      gameObject.Begin,
+                    update:     gameObject.Update,
+                    end:        gameObject.End
+                });
                 
                 for (var i = 0; i < gameObject.Children.length; ++i)
                     clone.Children.push(gameObject.Children[i].Clone());
@@ -148,7 +158,7 @@ window.GameObject = (function()
 
         /**
          * @function    Remove
-         * @param       {GameObject}    gameobject
+         * @param       {GameObject | number}    gameobject
          * @return      {GameObject}
          */
         Remove:

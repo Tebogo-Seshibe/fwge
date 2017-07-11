@@ -42,9 +42,8 @@ window.FWGE = (function()
                         throw new Error("Webgl context could not be initialized.");
                     
                     Input.Init(canvas);
+                    Renderer.Init();
                     _GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
-
-                    console.log(this.GL);
                 },
                 configurable: false, enumerable: true, writable: false
             },

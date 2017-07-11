@@ -8,6 +8,7 @@ struct Matrix
     mat4 ModelView;
     mat4 Projection;
     mat3 Normal;
+	mat4 Camera;
 };
 uniform Matrix U_Matrix;
 
@@ -24,5 +25,5 @@ void main(void)
     V_UV = vec2(A_UV.s, 1.0 - A_UV.t);
 
     gl_Position = U_Matrix.Projection * V_Position;
-    gl_PointSize = 5.0;
+    gl_PointSize = 50.0;
 }

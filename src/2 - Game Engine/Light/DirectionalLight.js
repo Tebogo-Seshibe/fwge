@@ -14,9 +14,9 @@ window.DirectionalLight = (function()
      * @param {number}      request.intensity
      * @param {Array}       request.direction
      */
-    function DirectionalLight({name = 'Directional Light', gameobject = undefined, colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
+    function DirectionalLight({name = 'Directional Light', colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
     {
-        LightItem.call(this, name, gameobject, colour, intensity)
+        LightItem.call(this, name, colour, intensity)
 
         Object.defineProperties(this,
         {
@@ -27,6 +27,7 @@ window.DirectionalLight = (function()
             Direction: { value: new Vector3(direction[0], direction[1], direction[2]), configurable: false, enumerable: true, writable: false }
         });
 
+        Lights.push(this);
         Object.seal(this);
     }
 

@@ -32,7 +32,7 @@ window.Mesh = (function()
              * @constant    {UVBuffer}
              * @type        {WebGLBuffer}
              */
-            UVBuffer: { value: uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+            UVBuffer: { value: !!uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
 
             /**
              * @constant    {ColourBuffer}
@@ -44,7 +44,7 @@ window.Mesh = (function()
              * @constant    {NormalBuffer}
              * @type        {WebGLBuffer}
              */
-            NormalBuffer: { value: normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+            NormalBuffer: { value: !!normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
             
             /**
              * @constant    {IndexBuffer}
@@ -56,19 +56,25 @@ window.Mesh = (function()
              * @constant    {IndexBuffer}
              * @type        {WebGLBuffer}
              */
-            WireframeBuffer: { value: wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
+            WireframeBuffer: { value: !!wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
             
             /**
              * @constant    {VertexCount}
              * @type        {number}
              */
-            VertexCount: { value: index ? index.length : 0, configurable: false, enumerable: true, writable: false },
+            VertexCount: { value: !!index ? index.length : 0, configurable: false, enumerable: true, writable: false },
             
             /**
              * @constant    {VertexCount}
              * @type        {number}
              */
-            WireframeCount: { value: wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false }
+            WireframeCount: { value: !!wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false },
+
+            /**
+             * @property    {DrawWireframe}
+             * @type        {boolean}
+             */
+            DrawWireframe: { value: true, configurable: false, enumerable: true, writable: true }
         });
 
         FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
@@ -83,24 +89,24 @@ window.Mesh = (function()
         FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
         FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(colour), FWGE.GL.STATIC_DRAW);
 
-        if (this.WireframeBuffer)
+        if (!!this.WireframeBuffer)
         {
             FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer);
             FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(wireframe), FWGE.GL.STATIC_DRAW);
         }
 
-        if (this.UVBuffer)
+        if (!!this.UVBuffer)
         {
             FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.UVBuffer);
             FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(uv), FWGE.GL.STATIC_DRAW);
         }
 
-        if (this.NormalBuffer)
+        if (!!this.NormalBuffer)
         {
             FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.NormalBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER,new Float32Array(normal), FWGE.GL.STATIC_DRAW);
+            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(normal), FWGE.GL.STATIC_DRAW);
         }
-
+        
         Object.seal(this);
     }
 
