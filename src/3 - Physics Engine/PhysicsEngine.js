@@ -22,7 +22,28 @@ let PhysicsEngine = (function()
              * @return      {undefined}
              * @description Initializes the physics engine
              */
-            Update: { value: function Update(){}, configurable: false, enumerable: false, writable: false },
+            Update:
+            { 
+                value: function Update()
+                {
+                    var self = this;
+                    GameObject.Objects.forEach(function(gameobject)
+                    {
+                        if (!!gameobject.Physics)
+                        {
+                            let body = gameobject.Physics.Body;
+                            let material = gameobject.Physics.Material;
+                            let collider = gameobject.Physics.Collider;
+
+                            if (!body.Geounded && !body.LockY)
+                            {
+                                let delta = (Time.Delta * self.Gravity) * 0.01;
+                                gameobject.Transform.Position.Y += delta;
+                            }
+                        }   
+                    });
+                },
+                configurable: false, enumerable: false, writable: false },
         });
     }
     

@@ -17,7 +17,7 @@ window.RenderMaterial = (function()
      * @param   {number}    request.shininess
      * @param   {Shader}    request.shader
      */
-    function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined} = {})
+    function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined, texture = undefined} = {})
     {
         Item.call(this, name);
 
@@ -79,7 +79,8 @@ window.RenderMaterial = (function()
             SpecularMap: { value: null, configurable: false, enumerable: true, writable: true },
         });
 
-    Object.seal(this); 
+        Object.seal(this);
+        this.SetTextures(texture);
     }
     Object.defineProperties(RenderMaterial,
     {

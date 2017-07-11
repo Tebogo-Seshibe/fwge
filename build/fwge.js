@@ -420,9 +420,16 @@
          * @param   {Object}    request
          * @param   {string}    request.name
          */
-        function Animation({name = "Animation"} = {})
+        function Animation({name = "Animation", particle = undefined, frames = [], length = 0} = {})
         {
             Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                Frames:     { value: [], configurable: false, enumerable: true, writable: true },
+                Parctle:    { value: particle instanceof Particle ? particle : undefined, configurable: false, enumerable: true, writable: true },
+                Length:     { value: length, configurable: false, enumerable: true, writable: true }
+            });
             Object.seal(this);
         }
     
@@ -486,6 +493,39 @@
         return ColourAnimationFrame;
     })();
     Object.seal(ColourAnimationFrame);
+    
+    /**
+     * @name        Particle
+     * @module      GameEngine
+     * @description ...
+     */
+    
+    window.Particle = (function()
+    {
+        /**
+         * @param   {Object}            request
+         * @param   {string}            request.name
+         * @param   {Mesh}              request.mesh
+         * @param   {RenderMaterial}    request.material
+         */
+        function Particle({name = "Particle", mesh = undefined, material = undefined} = {})
+        {
+            Item.call(this, name);
+    
+            Object.defineProperties(this,
+            {
+                Mesh:       { value: mesh instanceof Mesh ? mesh : undefined, configurable: false, enumerable: true, writable: true },
+                Material:   { value: material instanceof RenderMaterial ? material : undefined, configurable: false, enumerable: true, writable: true}
+            });
+            Object.seal(this);
+        }
+    
+        Particle.prototype = Object.create(null);
+        Object.seal(Particle.prototype);
+    
+        return Particle;
+    })();
+    Object.seal(Particle);
     
     /**
      * @name        TransformAnimationFrame
@@ -6583,7 +6623,28 @@
                  * @return      {undefined}
                  * @description Initializes the physics engine
                  */
-                Update: { value: function Update(){}, configurable: false, enumerable: false, writable: false },
+                Update:
+                { 
+                    value: function Update()
+                    {
+                        var self = this;
+                        GameObject.Objects.forEach(function(gameobject)
+                        {
+                            if (!!gameobject.Physics)
+                            {
+                                let body = gameobject.Physics.Body;
+                                let material = gameobject.Physics.Material;
+                                let collider = gameobject.Physics.Collider;
+    
+                                if (!body.Geounded && !body.LockY)
+                                {
+                                    let delta = (Time.Delta * self.Gravity) * 0.01;
+                                    gameobject.Transform.Position.Y += delta;
+                                }
+                            }   
+                        });
+                    },
+                    configurable: false, enumerable: false, writable: false },
             });
         }
         
@@ -6610,7 +6671,7 @@
          * @param   {Collider}          request.collider
          * @param   {PhysicsMaterial}   request.material
          */
-        function PhysicsItem({name = "Physics Item", parent = undefined, body = new PhysicsBody(), collider = undefined, material = undefined} = {})
+        function PhysicsItem({name = "Physics Item", parent = undefined, body = undefined, collider = undefined, material = undefined} = {})
         {
             GameItem.call(this, name, parent);
     
@@ -6881,7 +6942,7 @@
                  * @property    {DrawWireframe}
                  * @type        {boolean}
                  */
-                DrawWireframe: { value: true, configurable: false, enumerable: true, writable: true }
+                DrawWireframe: { value: false, configurable: false, enumerable: true, writable: true }
             });
     
             FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
@@ -7662,7 +7723,7 @@
          * @param   {number}    request.shininess
          * @param   {Shader}    request.shader
          */
-        function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined} = {})
+        function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined, texture = undefined} = {})
         {
             Item.call(this, name);
     
@@ -7724,7 +7785,8 @@
                 SpecularMap: { value: null, configurable: false, enumerable: true, writable: true },
             });
     
-        Object.seal(this); 
+            Object.seal(this);
+            this.SetTextures(texture);
         }
         Object.defineProperties(RenderMaterial,
         {

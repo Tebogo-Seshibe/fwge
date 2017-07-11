@@ -1,0 +1,8 @@
+.old
+.tscache
+.vscode
+editor
+node_modules
+test
+util
+package.json

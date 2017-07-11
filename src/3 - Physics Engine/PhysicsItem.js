@@ -14,7 +14,7 @@ window.PhysicsItem = (function()
      * @param   {Collider}          request.collider
      * @param   {PhysicsMaterial}   request.material
      */
-    function PhysicsItem({name = "Physics Item", parent = undefined, body = new PhysicsBody(), collider = undefined, material = undefined} = {})
+    function PhysicsItem({name = "Physics Item", parent = undefined, body = undefined, collider = undefined, material = undefined} = {})
     {
         GameItem.call(this, name, parent);
 

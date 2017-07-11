@@ -74,7 +74,7 @@ window.Mesh = (function()
              * @property    {DrawWireframe}
              * @type        {boolean}
              */
-            DrawWireframe: { value: true, configurable: false, enumerable: true, writable: true }
+            DrawWireframe: { value: false, configurable: false, enumerable: true, writable: true }
         });
 
         FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);

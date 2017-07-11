@@ -36,9 +36,20 @@
 
 		let object = undefined;
 
+		function movable_cube()
+		{
+			if (Input.MouseLeftDown)
+			{
+				let x = Input.MouseDeltaY * Time.Delta;
+				let y = Input.MouseDeltaX * Time.Delta;
+
+				this.Transform.Rotation.X = Maths.Clamp(this.Transform.Rotation.X - x, -90, 90);
+				this.Transform.Rotation.Y = Maths.Clamp(this.Transform.Rotation.Y - y, -90, 90);
+			}
+		}
+
 		window.onload = function onload(e)
 		{
-			var texture = send({type: "SHADER", name: "texture"});
 			try
 			{
 				FWGE.Init(
@@ -47,18 +58,12 @@
 					clear:	[0, 0, 0, 0]
 				});
 
+				let texture = send({type: "SHADER", name: "texture"});	
 				let shader = new Shader(
 				{
 					name: 			"Texture Shader",
 					vertexshader: 	texture.vertexshader,
 					fragmentshader:	texture.fragmentshader
-				});
-
-				let green = new Shader(	
-				{
-					name: 			"Green Shader",
-					vertexshader: 	"attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-					fragmentshader:	"precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
 				});
 
 				let mesh = new Mesh(
@@ -83,41 +88,65 @@
 					shader: 	shader
 				});
 
-				material.SetTextures({ imagemap: "retrorabbit.png" });
-
-				let transform = new Transform(
+				let floor = new GameObject(
 				{
-					position:	[0, 0, -4]
-				});
-
-				object = new GameObject(
-				{
-					name:		"Cube",
-					transform:	transform,
+					name: 		"Floor",
 					mesh:		mesh,
 					material:	material,
-
-					begin:		function Begin() 	{ console.log("Started"); },
-					update:		function Update()
+					transform: 	new Transform(
 					{
-						if (Input.MouseLeftDown)
-						{
-							let y = Input.MouseDeltaX * Time.Delta;
-							let x = Input.MouseDeltaY * Time.Delta;
-
-							this.Transform.Rotation.Y = Maths.Clamp(this.Transform.Rotation.Y - y, -90, 90);
-							this.Transform.Rotation.X = Maths.Clamp(this.Transform.Rotation.X - x, -90, 90);
-						}
-
-						if (Input.KeyF5Press || (Input.KeyRPress && Input.KeyCtrlDown))
-							window.location.reload();
-					},
-					end: function End() { console.log("Ended"); }
+						position:	 	[0,-1,0],
+						scale: 			[10,0.01,10]
+					})
 				});
 
-				let clone = object.Clone();
-				clone.Transform.Position.X = 2;
-				object.Transform.Position.X = -2;
+
+				/*let me = new GameObject(
+				{
+					name: 		"Me",
+					mesh:		mesh,
+					material:	new RenderMaterial(
+					{
+						texture:
+						{
+							imagemap: "me.jpg"
+						},
+						shader: shader
+					}),
+					transform: 	new Transform(
+					{
+						position:	 	[-2, 1, -4],
+					}),
+					update: movable_cube,
+					physics: new PhysicsItem(
+					{
+						body:
+						{
+							locky: true
+						}	
+					})
+				});*/
+
+				let rabbit = new GameObject(
+				{
+					name: 		"Rabbit",
+					mesh:		mesh,
+					material:	new RenderMaterial(
+					{
+						texture:
+						{
+							imagemap: "retrorabbit.png"
+						},
+						shader: shader
+					}),
+					transform: 	new Transform(
+					{
+						position:	 	[2, 1, -4],
+					}),
+					update: movable_cube
+				});
+
+				//console.log(floor);
 
 				/*object = OBJConverter.Parse("Cube.obj", "Cube.mtl");
 				object.Material.Shader = shader;
@@ -140,11 +169,13 @@
 
 				//let directional = new DirectionalLight({ colour: [1, 1, 1, 1], intensity: 1.0, direction: [0, 0, 1] });
 
-				let point = new PointLight(
-				{
-					position: new Vector3(0,0,0)
-				});
+				let point = new PointLight({ position: new Vector3(0,1,-4) });
 
+				new GameObject().Update = function()
+				{
+					if ((Input.KeyCtrlDown && Input.KeyRPress) || Input.KeyF5Press)
+						window.location.reload();
+				};
 				FWGE.Start();
 			}
 			catch (e)
