@@ -1,17 +1,24 @@
-/**
- * @name GameObject
- * @description The main object container for object types.   
- * @module      FWGE.Game
- */
+import GameItem from "./GameItem";
 
-window.GameObject = (function()
+export interface IGameObject
 {
-    /**
-     * 
-     */
-    function GameObject({name, transform, material, mesh, physics, animation, begin = function Begin(){}, update = function Update(){}, end = function End(){}, children} = {})
+    name?: string
+    transform?: string
+    material?: string
+    mesh?: string
+    physics?: string
+    animation?: string
+    begin?: Function
+    update?: Function
+    end?: Function
+    children?: GameObject[]
+}
+
+export default class GameObject extends GameItem
+{
+    constructor({name, transform, material, mesh, physics, animation, begin, update, end, children}: IGameObject?)
     {
-        Item.call(this, name);
+        super(name);
 
         Object.defineProperties(this,
         {
