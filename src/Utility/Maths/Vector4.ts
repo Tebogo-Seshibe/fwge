@@ -84,7 +84,7 @@ export default class Vector4 extends Float32Array
     {
         return Vector4.Set(this, w, x, y, z)
     }
-    s
+    
     static Set(vector: Vector4,  w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
     {
         if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
