@@ -1,3 +1,4 @@
+import Maths from '../Maths/Maths'
 export default class Vector3 extends Float32Array
 {
     constructor(x?: Vector3 | Float32Array | number[] | number, y?: number, z?: number)
@@ -15,7 +16,7 @@ export default class Vector3 extends Float32Array
 
     set X(x: number)
     {
-        this[0] = x
+        this[0] = Maths.CleanFloat(x)
     }
 
     get Y(): number
@@ -25,7 +26,7 @@ export default class Vector3 extends Float32Array
 
     set Y(y: number)
     {
-        this[1] = y
+        this[1] = Maths.CleanFloat(y)
     }
 
     get Z(): number
@@ -35,7 +36,7 @@ export default class Vector3 extends Float32Array
 
     set Z(z: number)
     {
-        this[2] = z
+        this[2] = Maths.CleanFloat(z)
     }
 
     static get ZERO(): Vector3
@@ -65,7 +66,7 @@ export default class Vector3 extends Float32Array
             [ x, y, z ] = x
         }
 
-        return Math.sqrt(x ** 2 + y ** 2 + z ** 2)
+        return Maths.CleanFloat(Math.sqrt(x ** 2 + y ** 2 + z ** 2))
     }
 
 
@@ -74,16 +75,16 @@ export default class Vector3 extends Float32Array
         return Vector3.Set(this, x, y, z)
     }
 
-    static Set(vector: Vector3, x?: Float32Array | number[] | number, y?: number, z?: number): Vector3
+    static Set(vector: Vector3, x: Float32Array | number[] | number, y: number, z: number): Vector3
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
             [ x, y, z ] = x
         }
 
-        vector.X = x | vector.X
-        vector.Y = y | vector.Y
-        vector.Z = z | vector.Z
+        vector.X = x
+        vector.Y = y
+        vector.Z = z
 
         return vector
     }
@@ -100,7 +101,7 @@ export default class Vector3 extends Float32Array
             [ x, y, z ] = x
         }
 
-        return Vector3.Set(vector, vector.X + (x | 0), vector.Y + (y | 0), vector.Z + (z | 0))
+        return Vector3.Set(vector, vector.X + x, vector.Y + y, vector.Z + z)
     }
     
     Diff(x?: Vector3 | Float32Array | number[] | number, y?: number, z?: number): Vector3
@@ -160,7 +161,7 @@ export default class Vector3 extends Float32Array
             [ x, y, z ] = x
         }
 
-        return vector.X * x + vector.Y * y + vector.Z * z
+        return Maths.CleanFloat(vector.X * x + vector.Y * y + vector.Z * z)
     }
 
     Cross(x?: Vector3 | Float32Array | number[] | number, y?: number, z?: number): Vector3
@@ -173,9 +174,9 @@ export default class Vector3 extends Float32Array
         if (x instanceof Float32Array || x instanceof Array)
         {
             [ x, y, z ] = x
-        }
+        }   
 
-        return Vector3.Set(vector, vector.Y * z + vector.Z * y, vector.Z * x - vector.X * z, vector.X * y + vector.Y * x)
+        return Vector3.Set(vector, vector.Y * z - vector.Z * y, vector.Z * x - vector.X * z, vector.X * y - vector.Y * x)
     }
 
     Unit(): Vector3
@@ -193,5 +194,15 @@ export default class Vector3 extends Float32Array
         }
 
         return vector
+    }
+
+    toString(): string
+    {
+        return `<${this.X}, ${this.Y}, ${this.Z}>`
+    }
+
+    toLocaleString(): string
+    {
+        return this.toString()
     }
 }

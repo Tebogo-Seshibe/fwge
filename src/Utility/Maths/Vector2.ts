@@ -1,3 +1,5 @@
+import Maths from "./Maths";
+
 export default class Vector2 extends Float32Array
 {
     constructor(x?: Vector2 | Float32Array | number[] | number, y?: number)
@@ -14,7 +16,7 @@ export default class Vector2 extends Float32Array
     }
     set X(x: number)
     {
-        this[0] = x
+        this[0] = Maths.CleanFloat(x)
     }
 
     get Y(): number
@@ -23,7 +25,7 @@ export default class Vector2 extends Float32Array
     }
     set Y(y: number)
     {
-        this[1] = y
+        this[1] = Maths.CleanFloat(y)
     }
 
     static get ZERO(): Vector2
@@ -41,7 +43,7 @@ export default class Vector2 extends Float32Array
         return new Vector2(Math.sqrt(1/2), Math.sqrt(1/2))
     }
 
-    get Length():number
+    get Length(): number
     {
         return Vector2.Length(this)
     }
@@ -50,10 +52,10 @@ export default class Vector2 extends Float32Array
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
 
-        return Math.sqrt(x ** 2 + y ** 2)
+        return Maths.CleanFloat(Math.sqrt(x ** 2 + y ** 2))
     }
 
 
@@ -62,16 +64,16 @@ export default class Vector2 extends Float32Array
         return Vector2.Set(this, x, y)
     }
 
-    static Set(vector: Vector2, x?: Vector2 | Float32Array | number[] | number, y?: number): Vector2
+    static Set(vector: Vector2, x: Vector2 | Float32Array | number[] | number | undefined, y?: number): Vector2
     {
-        if (x instanceof Float32Array || x instanceof Array)
+        if (x instanceof Vector2 || x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
 
-        vector.X = x | vector.X
-        vector.Y = y | vector.Y
-
+        vector.X = x
+        vector.Y = y
+        
         return vector
     }
 
@@ -84,7 +86,7 @@ export default class Vector2 extends Float32Array
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
 
         return Vector2.Set(vector, vector.X + x, vector.Y + y)
@@ -99,10 +101,10 @@ export default class Vector2 extends Float32Array
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
 
-        return Vector2.Set(vector, vector.X - x,vector.Y - y)
+        return Vector2.Set(vector, vector.X - x, vector.Y - y)
     }
 
     Mult(x?: Vector2 | Float32Array | number[] | number, y?: number): Vector2
@@ -114,8 +116,9 @@ export default class Vector2 extends Float32Array
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
+
         return Vector2.Set(vector, vector.X * x, vector.Y * y)
     }
 
@@ -138,10 +141,10 @@ export default class Vector2 extends Float32Array
     {
         if (x instanceof Float32Array || x instanceof Array)
         {
-            [ x, y ] = x
+            [ x, y ] = [ x[0], x[1] ]
         }
 
-        return vector.X * x + vector.Y * y
+        return Maths.CleanFloat(vector.X * x + vector.Y * y)
     }
 
     Unit(): Vector2
@@ -151,11 +154,23 @@ export default class Vector2 extends Float32Array
 
     static Unit(vector: Vector2): Vector2
     {
-        let length = vector.Length;
+        let length = vector.Length
 
         if (length !== 0)
-            length = 1;
+        {
+            Vector2.Scale(vector, Maths.CleanFloat(1 / length))
+        }
 
-        return Vector2.Scale(vector, 1 / length);
+        return vector
+    }
+
+    toString(): string
+    {
+        return `<${this.X}, ${this.Y}>`
+    }
+
+    toLocaleString(): string
+    {
+        return toString()
     }
 }

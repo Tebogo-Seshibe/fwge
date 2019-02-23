@@ -15,7 +15,7 @@ export default class Transform
     Scale: Vector3
     Shear: Vector3
 
-    constructor({position, rotation, scale, shear}: ITransform)
+    constructor({position, rotation, scale, shear}: ITransform = new ITransform)
     {
         this.Position = new Vector3(position)
         this.Rotation = new Vector3(rotation)
