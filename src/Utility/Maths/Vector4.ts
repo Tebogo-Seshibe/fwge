@@ -1,3 +1,6 @@
+import Maths from "./Maths";
+import Vector3 from "./Vector3";
+
 /**
  * @name        Vector4
  * @module      FWGE.Game.Maths 
@@ -20,7 +23,7 @@ export default class Vector4 extends Float32Array
     }
     set W(w: number)
     {
-        this[0] = w
+        this[0] = Maths.CleanFloat(w)
     }
     
     get X(): number
@@ -29,7 +32,7 @@ export default class Vector4 extends Float32Array
     }
     set X(x: number)
     {
-        this[1] = x
+        this[1] = Maths.CleanFloat(x)
     }
     
     get Y(): number
@@ -38,7 +41,7 @@ export default class Vector4 extends Float32Array
     }
     set Y(y: number)
     {
-        this[2] = y
+        this[2] = Maths.CleanFloat(y)
     }
     
     get Z(): number
@@ -47,7 +50,7 @@ export default class Vector4 extends Float32Array
     }
     set Z(z: number)
     {
-        this[3] = z
+        this[3] = Maths.CleanFloat(z)
     }
 
     get Length(): number
@@ -62,7 +65,7 @@ export default class Vector4 extends Float32Array
             [ w, x, y, z ] = w
         }
 
-        return Math.sqrt(w ** 2 + x ** 2 + y ** 2 + z ** 2)
+        return Maths.CleanFloat(Math.sqrt(w ** 2 + x ** 2 + y ** 2 + z ** 2))
     }
     
     get ZERO(): Vector4
@@ -89,114 +92,107 @@ export default class Vector4 extends Float32Array
     {
         if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
         {
-            [ w, x, y, z ] = w
+            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
         }
 
-        vector.W = w | vector.W
-        vector.X = x | vector.X
-        vector.Y = y | vector.Y
-        vector.Z = z | vector.Z
+        vector.W = Maths.CleanFloat(w)
+        vector.X = Maths.CleanFloat(x)
+        vector.Y = Maths.CleanFloat(y)
+        vector.Z = Maths.CleanFloat(z)
 
         return vector;
     }
-        
-        
-        /**
-         * @function    Sum
-         * @param       {Vector4}   vector
-         * @param       {number}    w
-         * @param       {number}    x
-         * @param       {number}    y
-         * @param       {number}    z
-         * @return      {Vector4}
-         */
-        Sum:
-        {
-            value: function Sum(vector, w, x, y, z)
-            {
-                return new Vector4(vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
-            }
-        },
-        
-        /**
-         * @function    Diff
-         * @param       {Vector4}   vector
-         * @param       {number}    w
-         * @param       {number}    x
-         * @param       {number}    y
-         * @param       {number}    z
-         * @return      {Vector4}
-         */
-        Diff:
-        {
-            value: function Diff(vector, w, x, y, z)
-            {
-                return new Vector4(w - vector.W, x - vector.X, y - vector.Y, z - vector.Z);
-            }
-        },
+    
+    Sum(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        return Vector4.Sum(this, w, x, y, z)
+    }
 
-        /**
-         * @function    Mult
-         * @param       {Vector4}   vector
-         * @param       {number}    w
-         * @param       {number}    x
-         * @param       {number}    y
-         * @param       {number}    z
-         * @param       {Vector4}
-         */
-        Mult:
+    static Sum(vector: Vector4, w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
         {
-            value: function Mult(vector, w, x, y, z)
-            {
-                return new Vector4(vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
-            }
-        },
-
-        /**
-         * @function    Scale
-         * @param       {Vector4}   vector
-         * @param       {number}    scalar
-         * @return      {Vector4}
-         */
-        Scale:
-        {
-            value: function Scale(vector, scaler)
-            {
-                return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
-            }
-        },
-        
-        /**
-         * @function    Dot
-         * @param       {Vector4}   vector
-         * @param       {number}    w
-         * @param       {number}    x
-         * @param       {number}    y
-         * @param       {number}    z
-         * @return      {Vector4}
-         */
-        Dot:
-        {
-            value: function Dot(vector, w, x, y, z)
-            {
-                return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
-            }
-        },
-
-        /**
-         * @function    Unit
-         * @param       {Vector4}   vector
-         * @return      {Vector4}
-         */
-        Unit:
-        {
-            value: function Unit(vector)
-            {   
-                let length = vector.Length;
-
-                if (length !== 0)
-                    length = 1;
-
-                return Vector4.Scale(vector, 1 / length);
-            }
+            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
         }
+
+        return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
+    }
+    
+    Diff(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        return Vector4.Diff(this, w, x, y, z)
+    }
+
+    static Diff(vector: Vector4, w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
+        {
+            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
+        }
+
+        return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
+    }
+    
+    Mult(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        return Vector4.Mult(this, w, x, y, z)
+    }
+
+    static Mult(vector: Vector4, w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
+        {
+            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
+        }
+
+        return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
+    }
+    
+    static Scale(vector: Vector4, scaler: number): Vector4
+    {
+
+        return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
+    }
+    
+    Dot(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): number
+    {
+        return Vector4.Dot(this, w, x, y, z)
+    }
+
+    static Dot(vector: Vector4, w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): number
+    {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
+        {
+            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
+        }
+
+        return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+    }
+    
+    Unit(): Vector4
+    {
+        return Vector4.Unit(this)
+    }
+
+    static Unit(vector: Vector4): Vector4
+    {   
+        let length = vector.Length;
+
+        if (length !== 0)
+        {
+            Vector4.Scale(vector, 1 / length)
+        }
+
+        return vector
+    }
+
+    toString(): string
+    {
+        return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`
+    }
+
+    toLocaleString(): string
+    {
+        return this.toString()
+    }
+}

@@ -52,14 +52,22 @@ export default class Colour4 extends Float32Array
         this[3] = Maths.CleanFloat(Maths.Clamp(alpha, 0, 1))
     }
 
+    get BIN(): string
+    {
+        return 'b' + this.map(i => i.toString(2)).join()
+    }
+    get OCT(): string
+    {
+        return 'o' + this.map(i => i.toString(8)).join()
+    }
     get HEX(): string
     {
-        return ''        
+        return '#' + this.map(i => i.toString(16)).join()
     }
 
     Set(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
     {
-        Colour4.Set(this, r, b, g, a)
+        return Colour4.Set(this, r, b, g, a)
     }
 
     static Set(colour: Colour4, r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
@@ -68,9 +76,22 @@ export default class Colour4 extends Float32Array
         {
             [ r, g, b, a ] = [ r[0], r[1], r[2], r[3] ]
         }
-        else if (typeof r == 'string')
+        else if (typeof(r) === 'string')
         {
-            if ()
+            if (r.match(/#[0-9A-F]{3}/i))
+            {
+                [r, b, g, a] = r.substring(1)
+                                .toUpperCase()
+                                .split('')
+                                .map(c => parseInt(c, 16))
+            }
+            else if (r.match(/#[0-9A-F]{6}/i))
+            {
+                [r, b, g, a] = r.substring(1)
+                                .toUpperCase()
+                                .split(/(?=(?:..)*$)/)
+                                .map(c => parseInt(c, 16))
+            }
         }
 
         colour.R = r
