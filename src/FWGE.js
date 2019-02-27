@@ -34,12 +34,12 @@ window.FWGE = (function()
                 value: function Init({canvas = undefined, height = 480, width = 640, clear = [0, 0, 0, 1]} = {})
                 {
                     if (!canvas)
-                        throw new Error("Field {canvas: HTMLCanvasElement} is required");
+                        throw new Error('Field {canvas: HTMLCanvasElement} is required');
 
-                    _GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                    _GL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
                     if (!_GL)
-                        throw new Error("Webgl context could not be initialized.");
+                        throw new Error('Webgl context could not be initialized.');
                     
                     Input.Init(canvas);
                     Renderer.Init();

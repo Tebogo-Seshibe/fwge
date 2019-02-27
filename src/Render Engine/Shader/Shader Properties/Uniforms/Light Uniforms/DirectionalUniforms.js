@@ -10,19 +10,19 @@ function DirectionalUniforms(GL, Program)
          * @property    {Colour}
          * @type        {WebGLUniformLocations}
          */
-        Colour: { value: GL.getUniformLocation(Program, "U_Directional.Colour"), configurable: false, enumerable: true, writable: false },
+        Colour: { value: GL.getUniformLocation(Program, 'U_Directional.Colour'), configurable: false, enumerable: true, writable: false },
         
         /**
          * @property    {Intensity}
          * @type        {WebGLUniformLocations}
          */
-        Intensity: { value: GL.getUniformLocation(Program, "U_Directional.Intensity"), configurable: false, enumerable: true, writable: false },
+        Intensity: { value: GL.getUniformLocation(Program, 'U_Directional.Intensity'), configurable: false, enumerable: true, writable: false },
         
         /**
          * @property    {Direction}
          * @type        {WebGLUniformLocations}
          */
-        Direction: { value: GL.getUniformLocation(Program, "U_Directional.Direction"), configurable: false, enumerable: true, writable: false }
+        Direction: { value: GL.getUniformLocation(Program, 'U_Directional.Direction'), configurable: false, enumerable: true, writable: false }
     });
  
     Object.seal(this);

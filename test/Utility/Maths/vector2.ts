@@ -14,7 +14,7 @@ export default () => {
                 expect(vector.X).eq(5)
                 expect(vector.Y).eq(-7)
             })
-            it('toString() should be "<5, -7>"', () => expect(vector.toString()).is.eq('<5, -7>'))
+            it('toString() should be '<5, -7>'', () => expect(vector.toString()).is.eq('<5, -7>'))
         })
 
         describe('Properties', () => {

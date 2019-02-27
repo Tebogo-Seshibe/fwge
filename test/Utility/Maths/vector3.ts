@@ -10,12 +10,12 @@ export default () => {
             let vector = new Vector3(5, -7, 3.5)                
             
             it('Should not be null', () => expect(vector).is.not.null)
-            it('Should be set to <5, -7, 3.5s>', () => {
+            it('Should be set to <5, -7, 3.5>', () => {
                 expect(vector.X).eq(5)
                 expect(vector.Y).eq(-7)
                 expect(vector.Z).eq(3.5)
             })
-            it('toString() should be "<5, -7, 3.5>"', () => expect(vector.toString()).is.eq('<5, -7, 3.5>'))
+            it('toString() should be '<5, -7, 3.5>'', () => expect(vector.toString()).is.eq('<5, -7, 3.5>'))
         })
 
         describe('Properties', () => {

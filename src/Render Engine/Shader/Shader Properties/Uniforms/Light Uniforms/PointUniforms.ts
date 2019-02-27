@@ -1,10 +1,10 @@
-/**
- * @param {WebGLRenderingContext}   GL
- * @param {WebGLProgram}            Program
- * @param {number}                  index
- */
-function PointUniforms(GL, Program, index)
+export default class PointUniforms
 {
+    constructor(GL, Program, index)
+    {
+
+    }
+    
     Object.defineProperties(this,
     {
         /**

@@ -1,14 +1,14 @@
-import List from "./List";
+import List from './List';
 
 export class TreeNode<T>
 {
     public Value: T
-    public Children: List<T>
+    public Children: List<TreeNode<T>>
 
     constructor(children: number, value?: T)
     {
         this.Value = value
-        this.Children = new List<T>(children)
+        this.Children = new List<TreeNode<T>>(children)
     }
 }
 
@@ -35,7 +35,15 @@ export default class Tree<T>
         let curr: TreeNode<T> = this.root
         while (curr)
         {
-            // do the thing
+            if (curr.Children.Length === 0)
+            {
+                curr.Children.Add(node)
+                curr
+            }
+            else
+            {
+
+            }
             curr = null
         }
     }

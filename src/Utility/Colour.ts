@@ -1,4 +1,4 @@
-import Maths from "./Maths/Maths";
+import Maths from './Maths/Maths';
 
 export default class Colour4 extends Float32Array
 {
@@ -54,15 +54,24 @@ export default class Colour4 extends Float32Array
 
     get BIN(): string
     {
-        return 'b' + this.map(i => i.toString(2)).join()
+        let str = 'b'
+        this.forEach(i => str += i.toString(2))
+
+        return str
     }
     get OCT(): string
     {
-        return 'o' + this.map(i => i.toString(8)).join()
+        let str = 'o'
+        this.forEach(i => str += i.toString(8))
+
+        return str
     }
     get HEX(): string
     {
-        return '#' + this.map(i => i.toString(16)).join()
+        let str = '#' 
+        this.forEach(i => str += i.toString(16))
+
+        return str
     }
 
     Set(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
@@ -75,10 +84,11 @@ export default class Colour4 extends Float32Array
         if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array)
         {
             [ r, g, b, a ] = [ r[0], r[1], r[2], r[3] ]
+
         }
         else if (typeof(r) === 'string')
         {
-            if (r.match(/#[0-9A-F]{3}/i))
+            if (r.match(/#([0-9A-F]{3}){1,2}/i))
             {
                 [r, b, g, a] = r.substring(1)
                                 .toUpperCase()
@@ -91,6 +101,10 @@ export default class Colour4 extends Float32Array
                                 .toUpperCase()
                                 .split(/(?=(?:..)*$)/)
                                 .map(c => parseInt(c, 16))
+            }
+            else
+            {
+                r = 0
             }
         }
 
