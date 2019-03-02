@@ -1,4 +1,4 @@
-import Vector3 from "./Maths/Vector3";
+import Vector3 from './Maths/Vector3'
 
 class ITransform
 {
