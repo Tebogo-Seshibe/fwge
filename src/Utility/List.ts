@@ -12,21 +12,32 @@ class ListNode<T>
     }
 }
 
-class ListIterator<T> implements Iterator<ListNode<T>>
+class ListIterator<T> implements IterableIterator<T>
 {
-    next(node?: ListNode<T>): IteratorResult<ListNode<T>>
+    [Symbol.iterator](): IterableIterator<T>
     {
-        return {
-            done: !node,
-            value: node.Next
-        }   
+        throw new Error("Method not implemented.");
+    }   
+    next(value?: any): IteratorResult<T>
+    {
+        throw new Error("Method not implemented.");
     }
+    return?(value?: any): IteratorResult<T>
+    {
+        throw new Error("Method not implemented.");
+    }
+    throw?(e?: any): IteratorResult<T>
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    
 }
 
 
 export default class List<T> implements Iterable<T>
 {
-    [key: number]: T
+    [index: number]: T
 
     public readonly Size: number
     private head: ListNode<T>
@@ -153,7 +164,7 @@ export default class List<T> implements Iterable<T>
         return array
     }
 
-    [Symbol.iterator](): any
+    [Symbol.iterator](): IterableIterator<T>
     {
         return new ListIterator<T>()
     }

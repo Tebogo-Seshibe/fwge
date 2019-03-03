@@ -1,4 +1,5 @@
 import Cloneable from "../Interfaces/Cloneable"
+import List from "../Utility/List";
 
 export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 {
@@ -107,8 +108,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     constructor(matrix: Matrix3)
     constructor(array: Float32Array)
     constructor(array: Array<number>)
+    constructor(list: List<number>)
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
-    constructor(m11?: Matrix3 | Float32Array | Array<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
+    constructor(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
     {
         super(4)
 
@@ -127,8 +129,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     Set(matrix: Matrix3): Matrix3
     Set(array: Float32Array): Matrix3
     Set(array: Array<number>): Matrix3
+    Set(array: List<number>): Matrix3
     Set(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
-    Set(m11?: Matrix3 | Float32Array | Array<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    Set(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
     {
         return Matrix3.Set
         (
@@ -139,9 +142,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         )
     }
 
-    static Set(matrix: Matrix3, m11?: Matrix3 | Float32Array | Array<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    static Set(matrix: Matrix3, m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
     {
-        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array)
+        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
         {
             [ 
                 m11, m12, m33,
@@ -186,9 +189,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         return Matrix3.Determinant(this)
     }
 
-    static Determinant(m11?: Matrix3 | Float32Array | Array<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number
+    static Determinant(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number
     {
-        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array)
+        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
         {
             [ 
                 m11, m12, m33,
@@ -216,17 +219,18 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
             Matrix3.Set
             (
                 matrix,
-                 (matrix.M22 * matrix.M33 - matrix.M32 * matrix.M23) / det,
-                -(matrix.M12 * matrix.M33 - matrix.M32 * matrix.M13) / det,
-                 (matrix.M12 * matrix.M23 - matrix.M22 * matrix.M13) / det,
 
-                -(matrix.M21 * matrix.M33 - matrix.M31 * matrix.M23) / det,
-                 (matrix.M11 * matrix.M33 - matrix.M31 * matrix.M13) / det,
-                -(matrix.M11 * matrix.M23 - matrix.M21 * matrix.M13) / det,
+                (matrix.M22 * matrix.M33 - matrix.M32 * matrix.M23) / det,
+                (matrix.M32 * matrix.M13 - matrix.M12 * matrix.M33) / det,
+                (matrix.M12 * matrix.M23 - matrix.M22 * matrix.M13) / det,
 
-                 (matrix.M21 * matrix.M32 - matrix.M31 * matrix.M22) / det,
-                -(matrix.M11 * matrix.M32 - matrix.M31 * matrix.M12) / det,
-                 (matrix.M11 * matrix.M22 - matrix.M21 * matrix.M12) / det
+                (matrix.M31 * matrix.M23 - matrix.M21 * matrix.M33) / det,
+                (matrix.M11 * matrix.M33 - matrix.M31 * matrix.M13) / det,
+                (matrix.M21 * matrix.M13 - matrix.M11 * matrix.M23) / det,
+
+                (matrix.M21 * matrix.M32 - matrix.M31 * matrix.M22) / det,
+                (matrix.M31 * matrix.M12 - matrix.M11 * matrix.M32) / det,
+                (matrix.M11 * matrix.M22 - matrix.M21 * matrix.M12) / det
             )
         }
 
@@ -262,9 +266,18 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         return Matrix3.Set
         (
             matrix,
-            matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13,
-            matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23,
-            matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33
+
+            matrix.M11 + m11,
+            matrix.M12 + m12,
+            matrix.M13 + m13,
+            
+            matrix.M21 + m21,
+            matrix.M22 + m22,
+            matrix.M23 + m23,
+            
+            matrix.M31 + m31,
+            matrix.M32 + m32,
+            matrix.M33 + m33
         )
     }
     
@@ -322,6 +335,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         return Matrix3.Set
         (
             matrix,
+            
             matrix.M11 * scaler,
             matrix.M12 * scaler,
             matrix.M13 * scaler,
