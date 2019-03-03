@@ -1,5 +1,7 @@
 import Cloneable from '../Interfaces/Cloneable'
-import List from '../Utility/List';
+import List from '../Utility/List'
+import Matrix3 from './Matrix3';
+import Matrix4 from './Matrix4';
 
 export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 {
@@ -64,6 +66,8 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
     constructor()
     constructor(matrix: Matrix2)
+    constructor(matrix: Matrix3)
+    constructor(matrix: Matrix4)
     constructor(array: Float32Array)
     constructor(array: Array<number>)
     constructor(list: List<number>)
@@ -82,8 +86,10 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
             )
         }
     }
-    
+
     Set(matrix: Matrix2): Matrix2
+    Set(matrix: Matrix3): Matrix2
+    Set(matrix: Matrix4): Matrix2
     Set(array: Float32Array): Matrix2
     Set(array: Array<number>): Matrix2
     Set(list: List<number>): Matrix2
@@ -98,9 +104,20 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         )
     }
 
-    static Set(matrix: Matrix2, m11: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    static Set(matrix: Matrix2, m11: Matrix2 | Matrix4 | Matrix4 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
-        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
+        
+        if (m11 instanceof Matrix2 || m11 instanceof Matrix3 || m11 instanceof Matrix4)
+        {
+            [
+                m11, m12,
+                m21, m22 
+            ] = [
+                m11.M11, m11.M12,
+                m11.M21, m11.M22
+            ]
+        }
+        else if (m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
         {
             [
                 m11, m12,
@@ -166,7 +183,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
         return matrix
     }
-    
+
     Sum(matrix: Matrix2): Matrix2
     Sum(array: Float32Array): Matrix2
     Sum(array: Array<number>): Matrix2
@@ -231,7 +248,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
             matrix.M21 * m12 + matrix.M22 * m22
         );
     }
-    
+
     Scale(scaler: number): Matrix2
     {
         return Matrix2.Scale(this, scaler)
