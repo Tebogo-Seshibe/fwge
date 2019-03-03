@@ -1,5 +1,5 @@
-import Item from '../Item'
-import Transform from '../Transform';
+import Item from './Item'
+import Transform from './Transform';
 
 type Particle = Transform
 

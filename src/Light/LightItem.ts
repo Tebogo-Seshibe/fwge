@@ -1,5 +1,5 @@
-import Colour4 from "../../Utility/Colour"
-import Item from "../Item";
+import Colour4 from '../../Colour'
+import Item from '../Item';
 
 export class ILightItem
 {

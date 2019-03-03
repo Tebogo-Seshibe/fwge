@@ -1,18 +1,10 @@
-/**
- * @name        CollisionEvent
- * @module      FWGE.Physics
- * @description A collision event object
- */
+export default class CollisionEvent extends FWGEEvent
 
-let CollisionEvent = (function()
-{
-    /**
-     * @param   {GameObject}    current
-     * @param   {GameObject}    other
-     * @param   {string}        type
-     */
-    function CollisionEvent(current, other, type)
+    constructor()
     {
+        super()
+    }
+}
         Object.defineProperties(this,
         {
             /**

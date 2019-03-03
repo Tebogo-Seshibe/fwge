@@ -112,7 +112,7 @@ export default class List<T> implements Iterable<T>
         return node
     }
 
-    Remove(value: T | number): ListNode<T>
+    Remove(value: T | number): T
     {
         let node: ListNode<T> = null
 
@@ -138,7 +138,7 @@ export default class List<T> implements Iterable<T>
             node.Next = null
         }
         
-        return node
+        return node.Value
     }
 
     ToArray(): Array<T>

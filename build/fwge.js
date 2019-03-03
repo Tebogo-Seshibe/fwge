@@ -1,6 +1,6 @@
 (function(window)
 {
-    "use strict";
+    'use strict';
 
 
     /**
@@ -92,7 +92,7 @@
                     {
                         let xml = new XMLHttpRequest();
     
-                        xml.open("GET", path, false);
+                        xml.open('GET', path, false);
                         xml.send(null);
                         
                         return xml.responseText;
@@ -155,7 +155,7 @@
                     var Meshes = {};
     
                     var curr = -1;
-                    var name = "";
+                    var name = '';
                     MTL.forEach(function(item, index, array)
                     {
                         if (item.indexOf('newmtl') !== -1)
@@ -220,7 +220,7 @@
     
                 function ParseMesh(obj)
                 {
-                    var lines = obj.split("\n");
+                    var lines = obj.split('\n');
                     var vertices = [];
                     var normals = [];
                     var uvs = [];
@@ -246,23 +246,23 @@
     
                         switch (type)
                         {
-                            case "o":
+                            case 'o':
                                 request.name = value;
                             break;
                             
-                            case "v":
+                            case 'v':
                                 vertices.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                             break;
                             
-                            case "vn":
+                            case 'vn':
                                 normals.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                             break;
                             
-                            case "vt":
+                            case 'vt':
                                 uvs.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                             break;
     
-                            case "f":
+                            case 'f':
                                 values.forEach(function(face, index, array)
                                 {
                                     var face_i = face.split('/').map(function(item)
@@ -306,7 +306,7 @@
                 
                 function ParseRenderMaterial(mtl)
                 {
-                    var lines = mtl.split("\n");
+                    var lines = mtl.split('\n');
                     var request = {};
     
                     for (var i = 0; i < lines.length; ++i)
@@ -420,7 +420,7 @@
          * @param   {Object}    request
          * @param   {string}    request.name
          */
-        function Animation({name = "Animation", particle = undefined, frames = [], length = 0} = {})
+        function Animation({name = 'Animation', particle = undefined, frames = [], length = 0} = {})
         {
             Item.call(this, name);
     
@@ -508,7 +508,7 @@
          * @param   {Mesh}              request.mesh
          * @param   {RenderMaterial}    request.material
          */
-        function Particle({name = "Particle", mesh = undefined, material = undefined} = {})
+        function Particle({name = 'Particle', mesh = undefined, material = undefined} = {})
         {
             Item.call(this, name);
     
@@ -699,7 +699,7 @@
      * @name        Viewer
      * @module      FWGE.Game.Camera
      * @description This represnent an eye within the scene. Rendeering to the screen is
-     *              based on what any viewer in the scene "sees"."
+     *              based on what any viewer in the scene 'sees'.'
      */
     
     window.Viewer = (function()
@@ -3084,7 +3084,7 @@
         /**
          * @param   {string} Name
          */
-        function Item(name = "Item")
+        function Item(name = 'Item')
         {
             Object.defineProperties(this,
             {
@@ -3121,7 +3121,7 @@
                     var i = 0;
                     var hash = 0;
                     var chr = 0;
-                    var string = number + "";
+                    var string = number + '';
     
                     for (i = 0; i < string.length; i++)
                     {
@@ -3158,7 +3158,7 @@
          * @param {Array} request.colour
          * @param {number} request.intensity
          */
-        function AmbientLight({name = "Ambient Light", colour = [1, 1, 1, 1], intensity = 1.0} = {})
+        function AmbientLight({name = 'Ambient Light', colour = [1, 1, 1, 1], intensity = 1.0} = {})
         {
             LightItem.call(this, name, colour, intensity);
             
@@ -3425,7 +3425,7 @@
          * @param {number}      request.angle 
          * @param {number}      request.ahininess 
          */
-        function PointLight({name = "Point Light", position = Vector3.Zero, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
+        function PointLight({name = 'Point Light', position = Vector3.Zero, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
         {
             LightItem.call(this, name, colour, intensity);
     
@@ -6146,7 +6146,7 @@
          * @param   {string}    request.name
          * @param   {Particle}  request.particle
          */
-        function ParticleSystem({name = "Particle System", particle = {}} = {})
+        function ParticleSystem({name = 'Particle System', particle = {}} = {})
         {
             Item.call(this, name);
     
@@ -6363,7 +6363,7 @@
          * @param   {number}  request.width
          * @param   {number}  request.breadth
          */
-        function BoxCollider({name = "Box Collider", position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
+        function BoxCollider({name = 'Box Collider', position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
         {
             Collider.call(this, name, position);
             
@@ -6411,7 +6411,7 @@
          * @param   {Vector3}       position
          * @param   {PhysicsItem}   physicsitem
          */
-        function Collider(name = "Collider", position = Vector3.Zero, physicsitem = undefined)
+        function Collider(name = 'Collider', position = Vector3.Zero, physicsitem = undefined)
         {
             Item.call(this, name);   
             
@@ -6504,7 +6504,7 @@
          * @param   {Array}     request.position
          * @param   {number}    request.radius
          */
-        function SphereCollider({name = "Sphere Collider", position = Vector3.Zero, radius = 2} = {})
+        function SphereCollider({name = 'Sphere Collider', position = Vector3.Zero, radius = 2} = {})
         {
             Collider.call(this, name, position);
     
@@ -6543,7 +6543,7 @@
          * @param    {boolean}  requext.locky
          * @param    {boolean}  requext.lockz
          */
-        function PhysicsBody({name = "Physics Body", mass = 1, lockx = true, locky = true, lockz = true} = {})
+        function PhysicsBody({name = 'Physics Body', mass = 1, lockx = true, locky = true, lockz = true} = {})
         {
             Item.call(this, name);
     
@@ -6671,7 +6671,7 @@
          * @param   {Collider}          request.collider
          * @param   {PhysicsMaterial}   request.material
          */
-        function PhysicsItem({name = "Physics Item", parent = undefined, body = undefined, collider = undefined, material = undefined} = {})
+        function PhysicsItem({name = 'Physics Item', parent = undefined, body = undefined, collider = undefined, material = undefined} = {})
         {
             GameItem.call(this, name, parent);
     
@@ -6718,7 +6718,7 @@
          * @param   {Object} request
          * @param   {string} request.name
          */
-        function PhysicsMaterial({name = "Physics Material"} = {})
+        function PhysicsMaterial({name = 'Physics Material'} = {})
         {
             Item.call(this, name);
     
@@ -6884,7 +6884,7 @@
          * @param   {Array}     request.index
          * @param   {Array}     request.wireframe
          */
-        function Mesh({name = "Mesh", position = undefined, uv = undefined, colour = undefined, normal = undefined, index = undefined, wireframe = undefined} = {})
+        function Mesh({name = 'Mesh', position = undefined, uv = undefined, colour = undefined, normal = undefined, index = undefined, wireframe = undefined} = {})
         {
             Item.call(this, name);
     
@@ -7346,11 +7346,11 @@
                 {
                     value:
                     {
-                        name:           "Wireframe Shader",
+                        name:           'Wireframe Shader',
                         height:         512,
                         width:          512,
-                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                        vertexshader:   'attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}',
+                        fragmentshader: 'precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}'
                     },
                     configurable: false, enumerable: true, writable: true
                 },
@@ -7358,11 +7358,11 @@
                 {
                     value:
                     {
-                        name:           "CombinedShader Shader",
+                        name:           'CombinedShader Shader',
                         height:         512,
                         width:          512,
-                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
+                        vertexshader:   'attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}',
+                        fragmentshader: 'precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}'
                     },
                     configurable: false, enumerable: true, writable: true
                 },
@@ -7925,25 +7925,25 @@
              * @property    {Position}
              * @type        {number}
              */
-            Position:   { value: GL.getAttribLocation(Program, "A_Position"), configurable: false, enumerable: true, writable: false },
+            Position:   { value: GL.getAttribLocation(Program, 'A_Position'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Colour}
              * @type        {number}
              */
-            Colour:     { value: GL.getAttribLocation(Program, "A_Colour"), configurable: false, enumerable: true, writable: false },
+            Colour:     { value: GL.getAttribLocation(Program, 'A_Colour'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {UV}
              * @type        {number}
              */
-            UV:         { value: GL.getAttribLocation(Program, "A_UV"), configurable: false, enumerable: true, writable: false },
+            UV:         { value: GL.getAttribLocation(Program, 'A_UV'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Normal}
              * @type        {number}
              */
-            Normal:     { value: GL.getAttribLocation(Program, "A_Normal"), configurable: false, enumerable: true, writable: false },
+            Normal:     { value: GL.getAttribLocation(Program, 'A_Normal'), configurable: false, enumerable: true, writable: false },
         });
     
         Object.seal(this);
@@ -8005,13 +8005,13 @@
              * @property    {Colour}
              * @type        {WebGLUniformLocations}
              */
-            Colour: {value: GL.getUniformLocation(Program, "U_Ambient.Colour"), configurable: false, enumerable: true, writable: false },
+            Colour: {value: GL.getUniformLocation(Program, 'U_Ambient.Colour'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Intensity}
              * @type        {WebGLUniformLocations}
              */
-            Intensity: {value: GL.getUniformLocation(Program, "U_Ambient.Intensity"), configurable: false, enumerable: true, writable: false }
+            Intensity: {value: GL.getUniformLocation(Program, 'U_Ambient.Intensity'), configurable: false, enumerable: true, writable: false }
         });
      
         Object.seal(this);
@@ -8033,19 +8033,19 @@
              * @property    {Colour}
              * @type        {WebGLUniformLocations}
              */
-            Colour: { value: GL.getUniformLocation(Program, "U_Directional.Colour"), configurable: false, enumerable: true, writable: false },
+            Colour: { value: GL.getUniformLocation(Program, 'U_Directional.Colour'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Intensity}
              * @type        {WebGLUniformLocations}
              */
-            Intensity: { value: GL.getUniformLocation(Program, "U_Directional.Intensity"), configurable: false, enumerable: true, writable: false },
+            Intensity: { value: GL.getUniformLocation(Program, 'U_Directional.Intensity'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Direction}
              * @type        {WebGLUniformLocations}
              */
-            Direction: { value: GL.getUniformLocation(Program, "U_Directional.Direction"), configurable: false, enumerable: true, writable: false }
+            Direction: { value: GL.getUniformLocation(Program, 'U_Directional.Direction'), configurable: false, enumerable: true, writable: false }
         });
      
         Object.seal(this);
@@ -8158,50 +8158,50 @@
              * @property    {Ambient}
              * @type        {WebGLUniformLocations}
              */
-            Ambient:    { value: GL.getUniformLocation(Program, "U_Material.Ambient"), configurable: false, enumerable: true, writable: false },
+            Ambient:    { value: GL.getUniformLocation(Program, 'U_Material.Ambient'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Diffuse}
              * @type        {WebGLUniformLocations}
              */
-            Diffuse:    { value: GL.getUniformLocation(Program, "U_Material.Diffuse"), configurable: false, enumerable: true, writable: false },
+            Diffuse:    { value: GL.getUniformLocation(Program, 'U_Material.Diffuse'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Specular}
              * @type        {WebGLUniformLocations}
              */
-            Specular:   { value: GL.getUniformLocation(Program, "U_Material.Specular"), configurable: false, enumerable: true, writable: false },
+            Specular:   { value: GL.getUniformLocation(Program, 'U_Material.Specular'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Shininess}
              * @type        {WebGLUniformLocations}
              */
-            Shininess:  { value: GL.getUniformLocation(Program, "U_Material.Shininess"), configurable: false, enumerable: true, writable: false },
+            Shininess:  { value: GL.getUniformLocation(Program, 'U_Material.Shininess'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Alpha}
              * @type        {WebGLUniformLocations}
              */
-            Alpha:      { value: GL.getUniformLocation(Program, "U_Material.Alpha"), configurable: false, enumerable: true, writable: false },
+            Alpha:      { value: GL.getUniformLocation(Program, 'U_Material.Alpha'), configurable: false, enumerable: true, writable: false },
     
             
             /**
              * @property    {HasImage}
              * @type        {WebGLUniformLocations}
              */
-            HasImage:    { value: GL.getUniformLocation(Program, "U_Material.HasImage"), configurable: false, enumerable: true, writable: false },
+            HasImage:    { value: GL.getUniformLocation(Program, 'U_Material.HasImage'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {HasBump}
              * @type        {WebGLUniformLocations}
              */
-            HasBump:     { value: GL.getUniformLocation(Program, "U_Material.HasBump"), configurable: false, enumerable: true, writable: false },
+            HasBump:     { value: GL.getUniformLocation(Program, 'U_Material.HasBump'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {HasSpecular}
              * @type        {WebGLUniformLocations}
              */
-            HasSpecular: { value: GL.getUniformLocation(Program, "U_Material.HasSpecular"), configurable: false, enumerable: true, writable: false }
+            HasSpecular: { value: GL.getUniformLocation(Program, 'U_Material.HasSpecular'), configurable: false, enumerable: true, writable: false }
         });
         
         Object.seal(this);
@@ -8223,25 +8223,25 @@
              * @property    {ModelView}
              * @type        {WebGLUniformLocations}
              */
-            ModelView:  { value: GL.getUniformLocation(Program, "U_Matrix.ModelView"), configurable: false, enumerable: true, writable: false },
+            ModelView:  { value: GL.getUniformLocation(Program, 'U_Matrix.ModelView'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Projection}
              * @type        {WebGLUniformLocations}
              */
-            Projection: { value: GL.getUniformLocation(Program, "U_Matrix.Projection"), configurable: false, enumerable: true, writable: false },
+            Projection: { value: GL.getUniformLocation(Program, 'U_Matrix.Projection'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Normal}
              * @type        {WebGLUniformLocations}
              */
-            Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false },
+            Normal:     { value: GL.getUniformLocation(Program, 'U_Matrix.Normal'), configurable: false, enumerable: true, writable: false },
     
             /**
              * @property    {Camera}
              * @type        {WebGLUniformLocations}
              */
-            Camera:     { value: GL.getUniformLocation(Program, "U_Matrix.Camera"), configurable: false, enumerable: true, writable: false }
+            Camera:     { value: GL.getUniformLocation(Program, 'U_Matrix.Camera'), configurable: false, enumerable: true, writable: false }
         });
         
         Object.seal(this);
@@ -8263,19 +8263,19 @@
              * @property    {Image}
              * @type        {WebGLUniformLocations}
              */
-            Image:  { value: GL.getUniformLocation(Program, "U_Sampler.Image"), configurable: false, enumerable: true, writable: false },
+            Image:  { value: GL.getUniformLocation(Program, 'U_Sampler.Image'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Bump}
              * @type        {WebGLUniformLocations}
              */
-            Bump:   { value: GL.getUniformLocation(Program, "U_Sampler.Bump"), configurable: false, enumerable: true, writable: false },
+            Bump:   { value: GL.getUniformLocation(Program, 'U_Sampler.Bump'), configurable: false, enumerable: true, writable: false },
             
             /**
              * @property    {Specular}
              * @type        {WebGLUniformLocations}
              */
-            Specular:   { value: GL.getUniformLocation(Program, "U_Sampler.Specular"), configurable: false, enumerable: true, writable: false }
+            Specular:   { value: GL.getUniformLocation(Program, 'U_Sampler.Specular'), configurable: false, enumerable: true, writable: false }
         });
      
         Object.seal(this);
@@ -8301,7 +8301,7 @@
          * @param       {string}    request.vertexshader
          * @param       {string}    request.fragemntshader
          */
-        function Shader({name = "Shader", height = 1024, width = 1024, vertexshader = "", fragmentshader = ""} = {})
+        function Shader({name = 'Shader', height = 1024, width = 1024, vertexshader = '', fragmentshader = ''} = {})
         {
             Item.call(this, name);
     
@@ -8407,7 +8407,7 @@
                     GL.compileShader(vs);
                     if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
                     {
-                        console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
+                        console.error(new Error('Vertex Shader: ' + GL.getShaderInfoLog(vs)));
                         return false;
                     }
                     
@@ -8416,7 +8416,7 @@
                     GL.compileShader(fs);
                     if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
                     {
-                        console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
+                        console.error(new Error('Fragment Shader: ' + GL.getShaderInfoLog(fs)));
                         return false;
                     }
                     
@@ -8475,12 +8475,12 @@
                     value: function Init({canvas = undefined, height = 480, width = 640, clear = [0, 0, 0, 1]} = {})
                     {
                         if (!canvas)
-                            throw new Error("Field {canvas: HTMLCanvasElement} is required");
+                            throw new Error('Field {canvas: HTMLCanvasElement} is required');
     
-                        _GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                        _GL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     
                         if (!_GL)
-                            throw new Error("Webgl context could not be initialized.");
+                            throw new Error('Webgl context could not be initialized.');
                         
                         Input.Init(canvas);
                         Renderer.Init();

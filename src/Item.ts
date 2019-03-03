@@ -17,7 +17,7 @@ function Hashcode(number: number): number
     var i = 0;
     var hash = 0;
     var chr = 0;
-    var string = number + "";
+    var string = number + '';
 
     for (i = 0; i < string.length; i++)
     {

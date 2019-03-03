@@ -14,7 +14,7 @@ window.BoxCollider = (function()
      * @param   {number}  request.width
      * @param   {number}  request.breadth
      */
-    function BoxCollider({name = "Box Collider", position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
+    function BoxCollider({name = 'Box Collider', position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
     {
         Collider.call(this, name, position);
         

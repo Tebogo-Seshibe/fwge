@@ -1,22 +1,18 @@
-/**
- * @name        Viewer
- * @module      FWGE.Game.Camera
- * @description This represnent an eye within the scene. Rendeering to the screen is
- *              based on what any viewer in the scene "sees"."
- */
+import Vector3 from '../Maths/Vector3'
 
-window.Viewer = (function()
+export class IViewer
 {
-    /**
-     * @param {Object}  request 
-     * @param {Array}   request.position
-     * @param {Array}   request.target
-     */
-    function Viewer({position = Vector3.Zero.Buffer, target = Vector3.Zero.Buffer} = {})
+    position: Vector3 = Vector3.ZERO
+    target: Vector3 = Vector3.ZERO
+}
+
+export default class Viewer
+{
+    constructor({position, target}: IViewer = new IViewer)
     {
-        var _Direction = Vector3.Zero;
-        var _Up = Vector3.Zero;
-        var _Right = Vector3.Zero;
+        var _Direction = Vector3.ZERO;
+        var _Up = Vector3.ZERO;
+        var _Right = Vector3.ZERO;
             
         Object.defineProperties(this,
         {
@@ -70,10 +66,4 @@ window.Viewer = (function()
         
         Object.seal(this);
     }
-
-    Viewer.prototype = Object.create(null);
-    Object.seal(Viewer.prototype);
-
-    return Viewer;
-})();
-Object.seal(Viewer);
+}
