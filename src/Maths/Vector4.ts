@@ -1,53 +1,67 @@
-import Maths from "./Maths";
-import Vector3 from "./Vector3";
-
-/**
- * @name        Vector4
- * @module      FWGE.Game.Maths 
- * @description vector library contains the methods for 2 component vector operations.
- *              4 component vector are represented as a Float32Array of length 4.
- */
+import Maths from "./Maths"
+import Vector2 from "./Vector2"
+import Vector3 from "./Vector3"
+import List from "../Utility/List"
 
 export default class Vector4 extends Float32Array
 {
-    constructor(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number)
+    constructor()
+    constructor(vector: Vector2)
+    constructor(vector?: Vector3)
+    constructor(vector?: Vector4)
+    constructor(array: Float32Array)
+    constructor(array: Array<number>)
+    constructor(list: List<number>)
+    constructor(w: number, x: number, y: number, z: number)
+    constructor(w?: Vector2 | Vector3 | Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number)
     {
         super(4)
 
-        this.Set(w, x, y, z);
+        if (w)
+        {
+            Vector4.Set
+            (
+                this,
+                w, x, y, z
+            );
+        }
     }
 
     get W(): number
     {
         return this[0]
     }
+
     set W(w: number)
     {
         this[0] = Maths.CleanFloat(w)
     }
-    
+
     get X(): number
     {
         return this[1]
     }
+
     set X(x: number)
     {
         this[1] = Maths.CleanFloat(x)
     }
-    
+
     get Y(): number
     {
         return this[2]
     }
+
     set Y(y: number)
     {
         this[2] = Maths.CleanFloat(y)
     }
-    
+
     get Z(): number
     {
         return this[3]
     }
+
     set Z(z: number)
     {
         this[3] = Maths.CleanFloat(z)
@@ -58,9 +72,9 @@ export default class Vector4 extends Float32Array
         return Vector4.Length(this)   
     }
 
-    static Length(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): number
+    static Length(w?: Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number): number
     {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List)
         {
             [ w, x, y, z ] = w
         }
@@ -83,16 +97,35 @@ export default class Vector4 extends Float32Array
         return new Vector4(0.5, 0.5, 0.5, 0.5)
     }
 
-    Set(w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    Set(vector: Vector2): Vector4
+    Set(vector?: Vector3): Vector4
+    Set(vector?: Vector4): Vector4
+    Set(array: Float32Array): Vector4
+    Set(array: Array<number>): Vector4
+    Set(list: List<number>): Vector4
+    Set(w: number, x: number, y: number, z: number): Vector4
+    Set(w?: Vector2 | Vector3 | Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number): Vector4
     {
-        return Vector4.Set(this, w, x, y, z)
+        return Vector4.Set
+        (
+            this,
+            w, x, y, z
+        )
     }
     
-    static Set(vector: Vector4,  w?: Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number): Vector4
+    static Set(vector: Vector4,  w: Vector2 | Vector3 | Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number): Vector4
     {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array)
+        if (w instanceof Vector2)
         {
-            [ w, x, y, z ] = [ w[0], w[1], w[2], w[3] ]
+            [ w, x, y, z ] = [ 0, w.X, w.Y, 0 ]
+        }
+        else if (w instanceof Vector3)
+        {
+            [ w, x, y, z ] = [ 0, w.X, w.Y, w.Z ]
+        }
+        else  if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List)
+        {
+            [ w, x, y, z ] = w
         }
 
         vector.W = Maths.CleanFloat(w)

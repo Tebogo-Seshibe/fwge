@@ -1,10 +1,35 @@
 import Cloneable from "../Interfaces/Cloneable"
 import List from "../Utility/List"
-import Matrix2 from "./Matrix2";
-import Matrix4 from "./Matrix4";
+import Matrix2 from "./Matrix2"
+import Matrix4 from "./Matrix4"
 
 export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 {
+    constructor()
+    constructor(matrix: Matrix2)
+    constructor(matrix: Matrix3)
+    constructor(matrix: Matrix4)
+    constructor(array: Float32Array)
+    constructor(array: Array<number>)
+    constructor(list: List<number>)
+    constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
+    constructor(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
+    {
+        super(4)
+
+        if (m11)
+        {
+            Matrix3.Set
+            (
+                this,
+                m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33
+            )
+        }
+    }
+
+
     get M11(): number
     {
         return this[0]
@@ -105,30 +130,6 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1)
     }
 
-
-    constructor()
-    constructor(matrix: Matrix2)
-    constructor(matrix: Matrix3)
-    constructor(matrix: Matrix4)
-    constructor(array: Float32Array)
-    constructor(array: Array<number>)
-    constructor(list: List<number>)
-    constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
-    constructor(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
-    {
-        super(4)
-
-        if (m11)
-        {
-            Matrix3.Set
-            (
-                this,
-                m11, m12, m13,
-                m21, m22, m23,
-                m31, m32, m33
-            )
-        }
-    }
 
     Set(matrix: Matrix2): Matrix3
     Set(matrix: Matrix3): Matrix3

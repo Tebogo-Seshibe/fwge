@@ -5,6 +5,25 @@ import Matrix3 from "./Matrix3"
 
 export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 {
+    constructor()
+    constructor(matrix: Matrix2)
+    constructor(matrix: Matrix3)
+    constructor(matrix: Matrix4)
+    constructor(array: Float32Array)
+    constructor(array: Array<number>)
+    constructor(list: List<number>)
+    constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
+    constructor(m11?: Matrix4 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number)
+    {
+        super(16)
+
+        if (m11)
+        {
+            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+        }
+    }
+
+    
 	get M11(): number
 	{ 
 		return this[0]
@@ -174,24 +193,6 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
         return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
     }
 
-
-    constructor()
-    constructor(matrix: Matrix2)
-    constructor(matrix: Matrix3)
-    constructor(matrix: Matrix4)
-    constructor(array: Float32Array)
-    constructor(array: Array<number>)
-    constructor(list: List<number>)
-    constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
-    constructor(m11?: Matrix4 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number)
-    {
-        super(16)
-
-        if (m11)
-        {
-            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-        }
-    }   
 
     Set(matrix: Matrix2): Matrix4
     Set(matrix: Matrix3): Matrix4
