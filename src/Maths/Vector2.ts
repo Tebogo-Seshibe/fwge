@@ -1,6 +1,7 @@
 import Maths from "./Maths";
+import Cloneable from "../Interfaces/Cloneable"
 
-export default class Vector2 extends Float32Array
+export default class Vector2 extends Float32Array implements Cloneable<Vector2>
 {
     constructor(x?: Vector2 | Float32Array | number[] | number, y?: number)
     {
@@ -8,7 +9,6 @@ export default class Vector2 extends Float32Array
 
         this.Set(x, y)
     }
-
 
     get X(): number
     {
@@ -172,5 +172,10 @@ export default class Vector2 extends Float32Array
     toLocaleString(): string
     {
         return toString()
+    }
+    
+    Clone(): Vector2
+    {
+        return new Vector2(this)
     }
 }

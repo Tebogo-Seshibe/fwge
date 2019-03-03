@@ -1,4 +1,6 @@
 import Vector3 from '../Maths/Vector3'
+import Matrix4 from '../Maths/Matrix4';
+import Updateable from '../Interfaces/Updateable'
 
 export class IViewer
 {
@@ -6,64 +8,37 @@ export class IViewer
     target: Vector3 = Vector3.ZERO
 }
 
-export default class Viewer
+export default class Viewer implements Updateable
 {
+    public Position: Vector3
+    public Target: Vector3
+    protected Matrix: Matrix4
+    
     constructor({position, target}: IViewer = new IViewer)
     {
-        var _Direction = Vector3.ZERO;
-        var _Up = Vector3.ZERO;
-        var _Right = Vector3.ZERO;
+        this.Position = new Vector3(position)
+        this.Target = new Vector3(target)
+        this.Matrix = Matrix4.IDENTITY
             
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Position}
-             * @type        {Vector3}
-             */
-            Position: { value: new Vector3(position), configurable: false, enumerable: true, writable: false },
+    }
 
-            /**
-             * @property    {Target}
-             * @type        {Vector3}
-             */
-            Target: { value: new Vector3(target), configurable: false, enumerable: true, writable: false },
+    Update(): void
+    {
+        let direction = this.Position.Clone().Diff(this.Target).Unit()
+        let right = up.Cross(direction).Unit()
+        let up = direction.Cross(right).Unit()
 
-            /**
-             * @property    {Matrix}
-             * @type        {Matrix4}
-             */
-            Matrix: { value: Matrix4.Identity, configurable: false, enumerable: false, writable: false },
-
-            /**
-             * @function    Update
-             * @return      {undefined}
-             */
-            Update:
-            {
-                value: function Update()
-                {
-                    _Direction.Set(_Position).Diff(this.Target).Unit();
-                    _Right.Set(_Up).Cross(_Direction).Unit();
-                    _Up.Set(_Direction).Cross(_Right).Unit();
-
-                    this.Matrix.Set(
-                    [
-                        _Right.X,       _Right.Y,       _Right.Z,       0,
-                        _Up.X,          _Up.Y,          _Up.Z,          0,
-                        _Direction.X,   _Direction.Y,   _Direction.Z,   0,
-                        0,                  0,                  0,                  1
-                    ]).Mult(
-                    [
-                        1,                  0,                  0,                  0,
-                        0,                  1,                  0,                  0,
-                        0,                  0,                  1,                  0,
-                        _Position.X,    _Position.Y,    this.Position.Z,    1
-                    ]);
-                },
-                configurable: false, enumerable: false, writable: false
-            }
-        });
+        this.Matrix.Set(
         
-        Object.seal(this);
+            right.X,       right.Y,       right.Z,       0,
+            up.X,          up.Y,          up.Z,          0,
+            direction.X,   direction.Y,   direction.Z,   0,
+            0,                  0,                  0,                  1
+        ).Mult(
+            1,                  0,                  0,                  0,
+            0,                  1,                  0,                  0,
+            0,                  0,                  1,                  0,
+            this.Position.X,    this.Position.Y,    this.Position.Z,    1
+        );
     }
 }

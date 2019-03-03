@@ -2,8 +2,9 @@ import Maths from "./Maths"
 import Vector2 from "./Vector2"
 import Vector3 from "./Vector3"
 import List from "../Utility/List"
+import Cloneable from "../Interfaces/Cloneable"
 
-export default class Vector4 extends Float32Array
+export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 {
     constructor()
     constructor(vector: Vector2)
@@ -227,5 +228,11 @@ export default class Vector4 extends Float32Array
     toLocaleString(): string
     {
         return this.toString()
+    }
+    
+    
+    Clone(): Vector4
+    {
+        return new Vector4(this)
     }
 }

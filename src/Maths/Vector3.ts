@@ -1,5 +1,7 @@
 import Maths from '../Maths/Maths'
-export default class Vector3 extends Float32Array
+import Cloneable from '../Interfaces/Cloneable'
+
+export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 {
     constructor(x?: Vector3 | Float32Array | number[] | number, y?: number, z?: number)
     {
@@ -204,5 +206,10 @@ export default class Vector3 extends Float32Array
     toLocaleString(): string
     {
         return this.toString()
+    }
+    
+    Clone(): Vector3
+    {
+        return new Vector3(this)
     }
 }

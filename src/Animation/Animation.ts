@@ -9,7 +9,7 @@ export class IAnimation
     name: string = 'Animation'
     mesh: any = undefined
     material: any = undefined
-    frames: Array<AnimationFrame<Frame>> | List<AnimationFrame<Frame>> = []
+    frames?: Array<AnimationFrame<Frame>> | List<AnimationFrame<Frame>>
     length = 0
 }
 
@@ -46,7 +46,7 @@ export default class Animation extends Item implements Updateable
         }
     }
 
-    Update(event: FWGEEvent): void
+    Update(): void
     {
         throw new Error('Method not implemented.')
     }

@@ -1,5 +1,5 @@
 import Item from '../Item'
-import Updateable from '../Interfaces/Updateable';
+import Updateable from '../Interfaces/Updateable'
 
 export enum ViewMode
 {
