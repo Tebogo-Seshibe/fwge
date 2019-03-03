@@ -1,6 +1,6 @@
-import Item from '../../Game Engine/Item'
-import ShaderAttributes from './Shader Properties/ShaderAttributes'
-import ShaderUniforms from './Shader Properties/ShaderUniforms'
+import Item from '../Item'
+import ShaderAttributes from './ShaderAttributes'
+import ShaderUniforms from './ShaderUniforms'
 
 class IShader
 {
