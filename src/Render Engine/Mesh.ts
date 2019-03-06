@@ -4,6 +4,8 @@ import List from "../Utility/List"
 import Vector2 from "../Maths/Vector2"
 import Vector3 from "../Maths/Vector3"
 import Vector4 from "../Maths/Vector4"
+import ArrayUtiils from "../Utility/ArrayUtils";
+import ListUtiils from "../Utility/ListUtils";
 
 export class BufferType
 {
@@ -24,38 +26,47 @@ export class IMesh
 
 export default class Mesh extends Item
 {
-    protected PositionBuffer: WebGLBuffer
-    protected UVBuffer: WebGLBuffer
-    protected ColourBuffer: WebGLBuffer
-    protected NormalBuffer: WebGLBuffer
-    protected IndexBuffer: WebGLBuffer
-    protected WireframeBuffer: WebGLBuffer
-    protected VertexCount: number
+    public PositionBuffer: WebGLBuffer
+    public UVBuffer: WebGLBuffer
+    public ColourBuffer: WebGLBuffer
+    public NormalBuffer: WebGLBuffer
+    public IndexBuffer: WebGLBuffer
+    public WireframeBuffer: WebGLBuffer
+    public VertexCount: number
 
     constructor({name, position, uv, colour, normal, index, wireframe}: IMesh = new IMesh)
     {
         super(name)
 
-        this.Bind(FWGE.GL, BufferType.POSITION, this.PositionBuffer, position)
-        this.Bind(FWGE.GL, BufferType.POSITION, this.UVBuffer, uv)
-        this.Bind(FWGE.GL, BufferType.POSITION, this.ColourBuffer, colour)
-        this.Bind(FWGE.GL, BufferType.POSITION, this.NormalBuffer, normal)
-        this.Bind(FWGE.GL, BufferType.INDEX, this.IndexBuffer, index)
-        this.Bind(FWGE.GL, BufferType.INDEX, this.WireframeBuffer, wireframe)
+        this.PositionBuffer = this.Bind(FWGE.GL, BufferType.POSITION, position)
+        this.UVBuffer = this.Bind(FWGE.GL, BufferType.POSITION, uv)
+        this.ColourBuffer = this.Bind(FWGE.GL, BufferType.POSITION, colour)
+        this.NormalBuffer = this.Bind(FWGE.GL, BufferType.POSITION, normal)
+        this.IndexBuffer = this.Bind(FWGE.GL, BufferType.INDEX, index)
+        this.WireframeBuffer = this.Bind(FWGE.GL, BufferType.INDEX, wireframe)
     }
 
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Array<Vector2> | List<Vector2> | Float32Array | Array<number> | List<number>): void
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Array<Vector3> | List<Vector3> | Float32Array | Array<number> | List<number>): void
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Array<Vector4> | List<Vector4> | Float32Array | Array<number> | List<number>): void
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Uint8Array | Array<number> | List<number>): void
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Array<number> | List<number>): void
-    Bind(gl: WebGLRenderingContext, type: number, buffer: WebGLBuffer, data?: Array<Vector4> | List<Vector4> | Array<Vector3> | List<Vector3> | Array<Vector2> | List<Vector2> | Float32Array | Uint8Array | Array<number> | List<number>): void 
+    Bind(gl: WebGLRenderingContext, type: number, data?: Array<Vector2> | List<Vector2> | Float32Array | Array<number> | List<number>): WebGLBuffer
+    Bind(gl: WebGLRenderingContext, type: number, data?: Array<Vector3> | List<Vector3> | Float32Array | Array<number> | List<number>): WebGLBuffer
+    Bind(gl: WebGLRenderingContext, type: number, data?: Array<Vector4> | List<Vector4> | Float32Array | Array<number> | List<number>): WebGLBuffer
+    Bind(gl: WebGLRenderingContext, type: number, data?: Uint8Array | Array<number> | List<number>): WebGLBuffer
+    Bind(gl: WebGLRenderingContext, type: number, data?: Array<number> | List<number>): WebGLBuffer
+    Bind(gl: WebGLRenderingContext, type: number, data?: Array<Vector4> | List<Vector4> | Array<Vector3> | List<Vector3> | Array<Vector2> | List<Vector2> | Float32Array | Uint8Array | Array<number> | List<number>): WebGLBuffer
     {
         if (!data)
-            return
+            return null
 
-        gl.deleteBuffer(buffer)
-        buffer = gl.createBuffer()
+        let buffer = gl.createBuffer()
+        
+        if (data instanceof Array)
+        {
+            data = ArrayUtiils.FlattenVector(data)
+        }
+
+        if (data instanceof List)
+        {
+            data = ListUtiils.FlattenVector(data)
+        }
 
         switch (type)
         {
@@ -70,5 +81,12 @@ export default class Mesh extends Item
                 gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
 
         }
+
+        return buffer
+    }
+
+    Unbind(gl: WebGLRenderingContext, buffer: WebGLBuffer): void
+    {
+        gl.deleteBuffer(buffer)
     }
 }

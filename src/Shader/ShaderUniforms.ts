@@ -1,7 +1,7 @@
-import MaterialUniforms from './Uniforms/MaterialUniforms'
-import MatrixUniforms from './Uniforms/MatrixUniforms'
-import LightUniforms from './Uniforms/Light Uniforms/LightUniforms'
-import SamplerUniforms from './Uniforms/SamplerUniforms'
+import MaterialUniforms from './MaterialUniforms'
+import MatrixUniforms from './MatrixUniforms'
+import LightUniforms from './LightUniforms'
+import SamplerUniforms from './SamplerUniforms'
 
 export default class ShaderUniforms
 {
