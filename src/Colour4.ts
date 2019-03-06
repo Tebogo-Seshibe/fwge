@@ -1,17 +1,7 @@
 import Maths from './Maths/Maths';
 
 export default class Colour4 extends Float32Array
-{
-    constructor(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number)
-    {
-        super(4)
-
-        this.Set(r, g, b, a);
-
-        Object.seal(this);
-    }
-    
-    
+{    
     get R(): number
     {
         return this[0]
@@ -59,6 +49,7 @@ export default class Colour4 extends Float32Array
 
         return str
     }
+
     get OCT(): string
     {
         let str = 'o'
@@ -66,12 +57,27 @@ export default class Colour4 extends Float32Array
 
         return str
     }
+
     get HEX(): string
     {
         let str = '#' 
         this.forEach(i => str += i.toString(16))
 
         return str
+    }
+
+    
+    constructor()
+    constructor(hex: string)
+    constructor(colour: Colour4 | Float32Array | number[])
+    constructor(r: number, g: number, b: number, a: number)
+    constructor(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number)
+    {
+        super(4)
+
+        this.Set(r, g, b, a);
+
+        Object.seal(this);
     }
 
     Set(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
@@ -114,5 +120,35 @@ export default class Colour4 extends Float32Array
         colour.A = a
 
         return colour;
+    }
+
+    static FromBin(bin: string): Colour4
+    {
+        return null
+    }
+
+    static ToBin(bin: Colour4 | Float32Array | Array<number>): string
+    {
+        return ''
+    }
+    
+    static FromOct(oct: string): Colour4
+    {
+        return null
+    }
+
+    static ToOct(oct: Colour4 | Float32Array | Array<number>): string
+    {
+        return ''
+    }
+    
+    static FromHex(hex: string): Colour4
+    {
+        return null
+    }
+
+    static ToHex(hex: Colour4 | Float32Array | Array<number>): string
+    {
+        return ''
     }
 }

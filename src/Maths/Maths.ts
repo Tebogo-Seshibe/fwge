@@ -21,4 +21,9 @@ export default class Maths
     {
         return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES)
     }
+
+    static IsPowerOf2(value: number): boolean
+    {
+        return (value & (value - 1)) === 0
+    }
 }
