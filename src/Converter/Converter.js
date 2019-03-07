@@ -28,7 +28,7 @@ let Converter = (function()
                 {
                     let xml = new XMLHttpRequest();
 
-                    xml.open("GET", path, false);
+                    xml.open('GET', path, false);
                     xml.send(null);
                     
                     return xml.responseText;

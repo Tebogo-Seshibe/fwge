@@ -1,4 +1,4 @@
-import LightItem, { ILightItem } from "./LightItem"
+import LightItem, { ILightItem } from './LightItem'
 
 class IAmbientLight extends ILightItem { }
 

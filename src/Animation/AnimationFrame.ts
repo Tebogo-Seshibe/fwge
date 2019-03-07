@@ -1,4 +1,4 @@
-import Colour4 from '../Colour'
+import Colour4 from '../Colour4'
 import Transform from '../Transform'
 
 export type Frame = Colour4 | Transform

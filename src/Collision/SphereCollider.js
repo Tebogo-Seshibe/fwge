@@ -12,7 +12,7 @@ window.SphereCollider = (function()
      * @param   {Array}     request.position
      * @param   {number}    request.radius
      */
-    function SphereCollider({name = "Sphere Collider", position = Vector3.Zero, radius = 2} = {})
+    function SphereCollider({name = 'Sphere Collider', position = Vector3.Zero, radius = 2} = {})
     {
         Collider.call(this, name, position);
 

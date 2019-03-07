@@ -1,8 +1,8 @@
-import Colour4 from "../Colour4";
-import Shader from "../Shader/Shader";
-import Item from "../Item";
-import FWGE from "../FWGE";
-import Maths from "../Maths/Maths";
+import Colour4 from '../Colour4';
+import Shader from '../Shader/Shader';
+import Item from '../Item';
+import FWGE from '../FWGE';
+import Maths from '../Maths/Maths';
 
 export class IRenderMaterial
 {

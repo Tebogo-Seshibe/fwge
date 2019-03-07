@@ -20,7 +20,7 @@ window.OBJConverter = (function()
                 var Meshes = {};
 
                 var curr = -1;
-                var name = "";
+                var name = '';
                 MTL.forEach(function(item, index, array)
                 {
                     if (item.indexOf('newmtl') !== -1)
@@ -85,7 +85,7 @@ window.OBJConverter = (function()
 
             function ParseMesh(obj)
             {
-                var lines = obj.split("\n");
+                var lines = obj.split('\n');
                 var vertices = [];
                 var normals = [];
                 var uvs = [];
@@ -111,23 +111,23 @@ window.OBJConverter = (function()
 
                     switch (type)
                     {
-                        case "o":
+                        case 'o':
                             request.name = value;
                         break;
                         
-                        case "v":
+                        case 'v':
                             vertices.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                         break;
                         
-                        case "vn":
+                        case 'vn':
                             normals.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                         break;
                         
-                        case "vt":
+                        case 'vt':
                             uvs.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
                         break;
 
-                        case "f":
+                        case 'f':
                             values.forEach(function(face, index, array)
                             {
                                 var face_i = face.split('/').map(function(item)
@@ -171,7 +171,7 @@ window.OBJConverter = (function()
             
             function ParseRenderMaterial(mtl)
             {
-                var lines = mtl.split("\n");
+                var lines = mtl.split('\n');
                 var request = {};
 
                 for (var i = 0; i < lines.length; ++i)

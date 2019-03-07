@@ -1,7 +1,7 @@
-import Cloneable from "../Interfaces/Cloneable"
-import List from "../Utility/List"
-import Matrix2 from "./Matrix2"
-import Matrix3 from "./Matrix3"
+import Cloneable from '../Interfaces/Cloneable'
+import List from '../Utility/List'
+import Matrix2 from './Matrix2'
+import Matrix3 from './Matrix3'
 
 export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 {
@@ -183,12 +183,12 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 		this[15] = m44
 	}
 
-    get ZERO()
+    static get ZERO()
     {
         return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     }
 
-    get IDENTITY()
+    static get IDENTITY()
     {
         return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
     }

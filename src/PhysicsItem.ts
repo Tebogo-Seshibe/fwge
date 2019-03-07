@@ -2,7 +2,7 @@ import GameItem from './GameItem'
 
 export class IPhysicsItem
 {
-    name = "Physics Item", parent = undefined, body = undefined, collider = undefined, material = undefined
+    name = 'Physics Item', parent = undefined, body = undefined, collider = undefined, material = undefined
 }
 
 export default class PhysicsItem implements GameItem

@@ -10,7 +10,7 @@ window.PhysicsMaterial = (function()
      * @param   {Object} request
      * @param   {string} request.name
      */
-    function PhysicsMaterial({name = "Physics Material"} = {})
+    function PhysicsMaterial({name = 'Physics Material'} = {})
     {
         Item.call(this, name);
 

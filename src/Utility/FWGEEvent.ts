@@ -1,4 +1,4 @@
-import GameItem from "../GameItem";
+import GameItem from '../GameItem';
 
 export default class FWGEEvent
 {

@@ -1,8 +1,8 @@
-import Maths from "./Maths"
-import Vector2 from "./Vector2"
-import Vector3 from "./Vector3"
-import List from "../Utility/List"
-import Cloneable from "../Interfaces/Cloneable"
+import Maths from './Maths'
+import Vector2 from './Vector2'
+import Vector3 from './Vector3'
+import List from '../Utility/List'
+import Cloneable from '../Interfaces/Cloneable'
 
 export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 {

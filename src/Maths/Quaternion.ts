@@ -1,4 +1,4 @@
-import Vector4 from "./Vector4";
+import Vector4 from './Vector4';
 
 export default class Quaternion extends Vector4
 {

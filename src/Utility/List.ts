@@ -16,19 +16,19 @@ class ListIterator<T> implements IterableIterator<T>
 {
     [Symbol.iterator](): IterableIterator<T>
     {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }   
     next(value?: any): IteratorResult<T>
     {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     return?(value?: any): IteratorResult<T>
     {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     throw?(e?: any): IteratorResult<T>
     {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 
     

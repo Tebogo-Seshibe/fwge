@@ -14,7 +14,7 @@ window.PhysicsBody = (function()
      * @param    {boolean}  requext.locky
      * @param    {boolean}  requext.lockz
      */
-    function PhysicsBody({name = "Physics Body", mass = 1, lockx = true, locky = true, lockz = true} = {})
+    function PhysicsBody({name = 'Physics Body', mass = 1, lockx = true, locky = true, lockz = true} = {})
     {
         Item.call(this, name);
 

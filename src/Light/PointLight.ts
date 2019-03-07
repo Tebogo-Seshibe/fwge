@@ -1,9 +1,9 @@
-import LightItem, { ILightItem } from "./LightItem"
-import Vector3 from "../../Utility/Maths/Vector3"
+import LightItem, { ILightItem } from './LightItem'
+import Vector3 from '../../Utility/Maths/Vector3'
 
 export class IPointLight extends ILightItem
 {
-    name = "Point Light"
+    name = 'Point Light'
     position: Vector3 | Float32Array | number[] = Vector3.ZERO
     radius: number = 5
     angle: number = 180

@@ -1,5 +1,5 @@
-import Maths from "./Maths";
-import Cloneable from "../Interfaces/Cloneable"
+import Maths from './Maths';
+import Cloneable from '../Interfaces/Cloneable'
 
 export default class Vector2 extends Float32Array implements Cloneable<Vector2>
 {

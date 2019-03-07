@@ -1,7 +1,7 @@
 import Item from './Item'
 import GameItem from './GameItem'
 import Transform from './Transform'
-import List from './Utility/List';
+import List from './Utility/List'
 
 export interface IGameObject
 {
