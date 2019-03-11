@@ -1,5 +1,6 @@
-import Colour4 from '../../Colour'
-import Item from '../Item';
+import Colour4 from '../Colour4'
+import Item from '../Item'
+import Light from './Light';
 
 export class ILightItem
 {
@@ -19,5 +20,7 @@ export default class LightItem extends Item
 
         this.Colour = new Colour4(colour)
         this.Intensity = intensity
+
+        Light
     }
 }

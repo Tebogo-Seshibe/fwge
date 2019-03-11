@@ -66,8 +66,13 @@ export default class List<T> implements Iterable<T>
         return count
     }
 
-    Add(value: ListNode<T> | T, index?:  number): void
+    Add(value: ListNode<T> | T, index?:  number): boolean
     {
+        if (this.Length == this.Size)
+        {
+            return false
+        }
+            
         if (value instanceof ListNode)
         {
             value = value.Value
@@ -81,6 +86,8 @@ export default class List<T> implements Iterable<T>
         let parent = this.Get(index - 1)
         let node = new ListNode<T>(value, parent, parent.Next)
         parent.Next = node
+
+        return true
     }
 
     AddAll(values: List<T> | Array<T>): void
@@ -123,6 +130,18 @@ export default class List<T> implements Iterable<T>
         return node
     }
 
+    IndexOf(value: T): number
+    {
+        let index = 0
+
+        for (let curr: ListNode<T> = this.head; curr && curr.Value != value; curr = curr.Next)
+        {
+            ++index
+        }
+
+        return index === this.Length ? -1 : index
+    }
+
     Remove(value: T | number): T
     {
         let node: ListNode<T> = null
@@ -147,9 +166,13 @@ export default class List<T> implements Iterable<T>
 
             node.Previous = null
             node.Next = null
+            
+            return node.Value
         }
-        
-        return node.Value
+        else
+        {
+            return null
+        }
     }
 
     ToArray(): Array<T>
