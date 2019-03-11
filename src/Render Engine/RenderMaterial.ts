@@ -9,11 +9,11 @@ export class IRenderMaterial
     name: string = 'Render Material'
     ambient: Colour4 | Array<number> = [0.50, 0.50, 0.50, 1.00]
     diffuse: Colour4 | Array<number> = [0.75, 0.75, 0.75, 1.00]
-    specular = [1.00, 1.00, 1.00, 1.00]
+    specular: Colour4 | Array<number> = [1.00, 1.00, 1.00, 1.00]
     alpha = 1
     shininess = 5
-    shader: Shader = undefined
-    texture: any = undefined
+    shader?: Shader
+    texture?: any
 }
 
 export default class RenderMaterial extends Item

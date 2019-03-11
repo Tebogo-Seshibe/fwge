@@ -90,6 +90,14 @@ export default class List<T> implements Iterable<T>
         return true
     }
 
+    AddMany(...values: ListNode<T>[] | T[] ): void
+    {
+        for (let value of values)
+        {
+            this.Add(value)
+        }
+    }
+
     AddAll(values: List<T> | Array<T>): void
     {
         for (let value of values)
