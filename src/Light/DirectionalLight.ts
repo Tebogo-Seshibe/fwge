@@ -1,5 +1,5 @@
-import LightItem, { ILightItem } from './LightItem';
-import Vector3 from '../../Utility/Maths/Vector3';
+import LightItem, { ILightItem } from './LightItem'
+import Vector3 from '../Maths/Vector3'
 
 export class IDirectionalLight extends ILightItem
 {

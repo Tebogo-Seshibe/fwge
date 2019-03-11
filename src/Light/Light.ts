@@ -1,7 +1,7 @@
-import LightItem from './LightItem'
-import List from '../Utility/List'
 import AmbientLight from './AmbientLight'
 import DirectionalLight from './DirectionalLight'
+import LightItem from './LightItem'
+import List from '../Utility/List'
 import PointLight from './PointLight'
 
 

@@ -1,6 +1,6 @@
 import Colour4 from '../Colour4'
 import Item from '../Item'
-import Light from './Light';
+import Light from './Light'
 
 export class ILightItem
 {
