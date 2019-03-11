@@ -1,5 +1,6 @@
-import Vector3 from '../Maths/Vector3'
-import GameItem from '../GameItem'
+import Vector3 from '../../Maths/Vector3'
+import Item from '../../Item'
+import PhysicsItem from '../PhysicsItem'
 
 export class ICollider
 {
@@ -8,13 +9,16 @@ export class ICollider
     physicsitem: any = undefined
 }
 
-export default class Collider implements GameItem
+export default class Collider extends Item
 {
+    public Position: Vector3
+    public PhysicsItem: PhysicsItem
+    
     constructor({name, position, physicsitem}: ICollider)
     {
         super(name)
 
         this.Position = new Vector3(position)
-        this.PhysicsItem = undefined // physicsitem
+        this.PhysicsItem = physicsitem
     }
 }
