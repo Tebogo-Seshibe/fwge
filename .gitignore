@@ -1,7 +1,6 @@
 .old
 .tscache
 .vscode
-editor
+build
 node_modules
 util
-package.json
