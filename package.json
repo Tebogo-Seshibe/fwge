@@ -1,0 +1,22 @@
+{
+  "name": "fwge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tebogo-Seshibe/FWGE.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tebogo-Seshibe/FWGE/issues"
+  },
+  "homepage": "https://github.com/Tebogo-Seshibe/FWGE#readme"
+}
