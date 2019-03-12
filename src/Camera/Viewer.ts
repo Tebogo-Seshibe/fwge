@@ -12,33 +12,34 @@ export default class Viewer implements Updateable
 {
     public Position: Vector3
     public Target: Vector3
+    public Up: Vector3
     protected Matrix: Matrix4
     
     constructor({position, target}: IViewer = new IViewer)
     {
         this.Position = new Vector3(position)
         this.Target = new Vector3(target)
+        this.Up = new Vector3(0, 1, 0)
         this.Matrix = Matrix4.IDENTITY
-            
     }
 
     Update(): void
     {
-        let direction = this.Position.Clone().Diff(this.Target).Unit()
-        let right = up.Cross(direction).Unit()
-        let up = direction.Cross(right).Unit()
+        let n = this.Position.Clone().Diff(this.Target).Unit()
+        let u = this.Up.Clone().Cross(n).Unit()
+        let v = n.Clone().Cross(u).Unit()
+        let p = this.Position
 
         this.Matrix.Set(
-        
-            right.X,       right.Y,       right.Z,       0,
-            up.X,          up.Y,          up.Z,          0,
-            direction.X,   direction.Y,   direction.Z,   0,
-            0,                  0,                  0,                  1
+            v.X, v.Y, v.Z, 0,
+            u.X, u.Y, u.Z, 0,
+            n.X, n.Y, n.Z, 0,
+              0,   0,   0, 1
         ).Mult(
-            1,                  0,                  0,                  0,
-            0,                  1,                  0,                  0,
-            0,                  0,                  1,                  0,
-            this.Position.X,    this.Position.Y,    this.Position.Z,    1
+              1,   0,   0, 0,
+              0,   1,   0, 0,
+              0,   0,   1, 0,
+            p.X, p.Y, p.Z, 1
         );
     }
 }

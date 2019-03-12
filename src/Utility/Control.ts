@@ -13,25 +13,25 @@ export default class Control implements Updateable
     {
         this.AnimationFrame = window.requestAnimationFrame(this.Run)
 
-        self.Update();
+        this.Update();
 
-        if (this.Running)
+        /*if (this.Running)
         {
             PhysicsEngine.Update();
             RenderEngine.Update();
-        }
+        }*/
     }
 
     public Update(): void
     {
-        Time.Update();
+        /*Time.Update();
         Camera.Update();
 
         var i = GameObject.Objects.length;
         while (--i >= 0)
             GameObject.Objects[i].ObjectUpdate();
 
-        Input.InputUpdate();
+        Input.InputUpdate();*/
     }
         
     Start(): void

@@ -1,4 +1,5 @@
 import FWGE from '../FWGE'
+import Light from '../Light/Light'
 import Shader, { Shaders } from '../Shader/Shader'
 import GameObject from '../GameObject'
 import ModelView from './ModelView'
@@ -19,23 +20,23 @@ export default class Renderer
     {
         Renderer.ClearBuffers();
 
-        for (var  i = 0, arr = Objects; i < arr.length; ++i)
+        /*for (var  i = 0, arr = GameObject.Objects; i < arr.length; ++i)
         {
             Renderer.SetGlobalUniforms();
             Renderer.RenderObject(arr[i]);
-        }
+        }*/
 
         //Renderer.FinalDraw();
     }
     
-    public static Init(): void
+    /*public static Init(): void
     {
         Renderer.WireframeShader = new Shader(Renderer.WireframeShader);    Shaders.pop();
         Renderer.CombinedShader = new Shader(Renderer.CombinedShader);      Shaders.pop();
 
         FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
         FWGE.GL.disable(FWGE.GL.BLEND);
-    }
+    }*/
     
     public static ClearBuffers(): void
     {
@@ -58,12 +59,12 @@ export default class Renderer
     {
         ModelView.Push();
         ModelView.Transform(gameObject.Transform);
-        var mv = new Float32Array(ModelView.Peek().Buffer);
+        var mv: Matrix4 = ModelView.Peek()
 
-        for (var i = 0; i < gameObject.Children.length; ++i)
-            Renderer.RenderObject(gameObject.Children[i]);
+        for (var i = 0; i < gameObject.Children.Length; ++i)
+            Renderer.RenderObject(gameObject.Children.Get(i).Value)
         
-        if (!!gameObject.Mesh && !!gameObject.Material && !!gameObject.Material.Shader)
+        if (gameObject.Mesh && gameObject.Material && gameObject.Material.Shader)
         {
             var shader = gameObject.Material.Shader;
 
@@ -81,10 +82,10 @@ export default class Renderer
                 FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
             }
             
-            Renderer.BindAttributes(gameObject.Mesh, shader.Attributes);
-            Renderer.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
-            Renderer.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
-            if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) Renderer.DrawWireframe(gameObject.Mesh, mv);
+            Renderer.BindAttributes(gameObject.Mesh, shader.Attributes)
+            Renderer.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv)
+            Renderer.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer)
+            // if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) Renderer.DrawWireframe(gameObject.Mesh, mv);
             
             if (gameObject.Material.Alpha !== 1.0)
             {
@@ -93,9 +94,9 @@ export default class Renderer
             }
     
             FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal);
-            if (shader.Attributes.Colour !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour);
-            if (shader.Attributes.UV !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.UV);
+            if (shader.Attributes.Normal !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal)
+            if (shader.Attributes.Colour !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour)
+            if (shader.Attributes.UV !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.UV)
 
             FWGE.GL.useProgram(null);
         }
@@ -105,15 +106,15 @@ export default class Renderer
     
     private static BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
     {
-        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-        FWGE.GL.vertexAttribPointer(attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
+        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer)
+        FWGE.GL.vertexAttribPointer(attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0)
         
         if (attributes.UV !== -1)
         {
-            if (!!mesh.UVBuffer)
+            if (mesh.UVBuffer)
             {
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.UVBuffer);
-                FWGE.GL.vertexAttribPointer(attributes.UV, 2, FWGE.GL.FLOAT, false, 0, 0);
+                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.UVBuffer)
+                FWGE.GL.vertexAttribPointer(attributes.UV, 2, FWGE.GL.FLOAT, false, 0, 0)
             }
             else
                 FWGE.GL.disableVertexAttribArray(attributes.UV);
@@ -121,10 +122,10 @@ export default class Renderer
         
         if (attributes.Colour !== -1)
         {
-            if (!!mesh.ColourBuffer)
+            if (mesh.ColourBuffer)
             {
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-                FWGE.GL.vertexAttribPointer(attributes.Colour, 3, FWGE.GL.FLOAT, false, 0, 0);                            
+                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.ColourBuffer)
+                FWGE.GL.vertexAttribPointer(attributes.Colour, 3, FWGE.GL.FLOAT, false, 0, 0)
             }
             else
                 FWGE.GL.disableVertexAttribArray(attributes.Colour);
@@ -147,15 +148,15 @@ export default class Renderer
     private static SetObjectUniforms(material: RenderMaterial, uniforms: ShaderUniforms, mv: Matrix4): void
     {
         FWGE.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-        FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, Renderer.CalculateNormalMatrix().Buffer);
+        //FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, Renderer.CalculateNormalMatrix());
 
-        FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient.Buffer);
-        FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse.Buffer);
-        FWGE.GL.uniform4fv(uniforms.Material.Specular, material.Specular.Buffer);
+        FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient)
+        FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse)
+        FWGE.GL.uniform4fv(uniforms.Material.Specular, material.Specular)
         FWGE.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
         FWGE.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
     
-        if (!!material.ImageMap)
+        if (material.ImageMap)
         {
             FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
             FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.ImageMap);
@@ -166,70 +167,71 @@ export default class Renderer
         {
             FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
             FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-            FWGE.GL.uniform1i(uniforms.Material.HasImage, 0);
+            FWGE.GL.uniform1i(uniforms.Material.HasImage, 0)
         }
         
-        if (!!material.BumpMap)
+        if (material.BumpMap)
         {
-            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.BumpMap);
-            FWGE.GL.uniform1i(uniforms.Material.HasBump, 1);
-            FWGE.GL.uniform1i(uniforms.Sampler.Bump, 1);
+            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1)
+            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.BumpMap)
+            FWGE.GL.uniform1i(uniforms.Material.HasBump, 1)
+            FWGE.GL.uniform1i(uniforms.Sampler.Bump, 1)
         }
         else
         {
-            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
+            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1)
+            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null)
+            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0)
         }
         
-        if (!!material.SpecularMap)
+        if (material.SpecularMap)
         {
-            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.SpecularMap);
-            FWGE.GL.uniform1i(uniforms.Material.HasSpecular, 1);
-            FWGE.GL.uniform1i(uniforms.Sampler.Specular, 2);
+            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2)
+            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.SpecularMap)
+            FWGE.GL.uniform1i(uniforms.Material.HasSpecular, 1)
+            FWGE.GL.uniform1i(uniforms.Sampler.Specular, 2)
         }
         else
         {
-            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
+            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2)
+            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null)
+            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0)
         }
     }
     
     private static SetGlobalUniforms(): void
     {
-        var i = Shaders.length;
+        var i = Shaders.length
+
         while (--i >= 0)
         {
-            var point_count = 0;
+            var point_count = 0
             
             FWGE.GL.useProgram(Shaders[i].Program);
             var uniforms = Shaders[i].Uniforms.Light;
             
-            for (var j = 0; j < Lights.length; ++j)
+            for (var j = 0; j < Light.Lights.Length; ++j)
             {
-                var light = Lights[j];
+                var light = Light.Lights[j]
                 
                 if (light instanceof AmbientLight)
                 {
-                    FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour.Buffer);
-                    FWGE.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+                    FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour)
+                    FWGE.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity)
                 }
                 else if (light instanceof DirectionalLight)
                 {
-                    FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour.Buffer);
-                    FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction.Buffer);
+                    FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour)
+                    FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity)
+                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction)
                 }
                 else if (light instanceof PointLight)
                 {
-                    FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
-                    FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position.Buffer);
-                    FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-                    FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+                    FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour)
+                    FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity)
+                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position)
+                    FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius)
+                    FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle)
 
                     point_count++;
                 }
@@ -238,7 +240,7 @@ export default class Renderer
             FWGE.GL.uniform1i(uniforms.PointCount, point_count);
             
             // SET UNIFORM FOR NUMBER OF POINT LIGHTS
-            FWGE.GL.uniformMatrix4fv(Shaders[i].Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer);
+            FWGE.GL.uniformMatrix4fv(Shaders[i].Uniforms.Matrix.Projection, false, new Float32Array(0))// Projection.ViewerMatrix);
         }
         
         FWGE.GL.useProgram(null);

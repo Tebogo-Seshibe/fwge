@@ -2,8 +2,11 @@ import Item from './Item'
 import GameItem from './GameItem'
 import Transform from './Transform'
 import List from './Utility/List'
+import RenderMaterial from './Render/RenderMaterial';
+import Mesh from './Render/Mesh';
+import PhysicsMaterial from './Physics/PhysicsMaterial';
 
-export interface IGameObject
+export class IGameObject
 {
     name?: string
     transform?: Transform
@@ -30,7 +33,7 @@ export default class GameObject extends Item
     End: Function
     Children: List<GameObject>
 
-    constructor({name, transform, material, mesh, physics, animation, begin, update, end, children}: IGameObject?)
+    constructor({name, transform, material, mesh, physics, animation, begin, update, end, children}: IGameObject = new IGameObject)
     {
         super(name);
     
@@ -38,7 +41,7 @@ export default class GameObject extends Item
         this.Update = update.bind(this)
         this.End = end.bind(this)
 
-        this.AttachMany(transform, material, mesh, physics, animation)
+        // this.AttachMany(transform, material, mesh, physics, animation)
     }
 
     Attach(item: GameItem): void

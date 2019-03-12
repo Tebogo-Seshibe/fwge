@@ -32,16 +32,16 @@ export default class FWGE
     
     Start(): void
     {
-        GameEngine.Start();
+        // GameEngine.Start();
     }
     
     Pause(): void
     {
-        GameEngine.Pause();
+        // GameEngine.Pause();
     }
     
     Stop(): void
     {
-        GameEngine.Stop();
+        // GameEngine.Stop();
     }
 }

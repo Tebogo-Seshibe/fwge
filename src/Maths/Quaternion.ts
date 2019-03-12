@@ -4,6 +4,8 @@ export default class Quaternion extends Vector4
 {
     constructor(w?: Quaternion | Vector4 | Float32Array | number[] | number, x?: number, y?: number, z?: number)
     {
-        super(w, x, y, z)
+        super()
+
+        Vector4.Set(this, w, x, y, z)
     }
 }

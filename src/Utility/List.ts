@@ -20,18 +20,22 @@ class ListIterator<T> implements IterableIterator<T>
     }   
     next(value?: any): IteratorResult<T>
     {
-        throw new Error('Method not implemented.');
+        return {
+            done: !value,
+            value
+        }
     }
     return?(value?: any): IteratorResult<T>
     {
-        throw new Error('Method not implemented.');
+        return {
+            done: !value,
+            value
+        }
     }
     throw?(e?: any): IteratorResult<T>
     {
-        throw new Error('Method not implemented.');
-    }
-
-    
+        throw new Error(e)
+    }    
 }
 
 

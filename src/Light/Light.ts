@@ -15,7 +15,7 @@ export default class Light
     public static readonly MAX_DIRECTIONAL: number = 3
     public static readonly MAX_POINT: number = 8
     public static readonly MAX_LIGHTS: number = 12
-    private static Lights: List<LightItem> = new List(12)
+    public static Lights: List<LightItem> = new List(12)
 
     static Add(light: LightItem): void
     {

@@ -60,26 +60,25 @@ export default class Mesh extends Item
         
         if (data instanceof Array)
         {
-            data = ArrayUtiils.FlattenVector(data)
+            data = ArrayUtiils.FlattenVector(data as Array<Vector4>)
         }
 
         if (data instanceof List)
         {
-            data = ListUtiils.FlattenVector(data)
+            data = ListUtiils.FlattenVector(data as List<Vector4>)
         }
 
         switch (type)
         {
             case BufferType.INDEX:
-
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW)
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW)
+            break
 
             case BufferType.POSITION:
-
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
-
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+            break
         }
 
         return buffer
