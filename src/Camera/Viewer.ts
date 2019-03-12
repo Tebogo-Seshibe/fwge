@@ -1,6 +1,6 @@
-import Vector3 from '../Maths/Vector3'
-import Matrix4 from '../Maths/Matrix4';
+import Matrix4 from '../Maths/Matrix4'
 import Updateable from '../Interfaces/Updateable'
+import Vector3 from '../Maths/Vector3'
 
 export class IViewer
 {
@@ -15,7 +15,7 @@ export default class Viewer implements Updateable
     public Up: Vector3
     protected Matrix: Matrix4
     
-    constructor({position, target}: IViewer = new IViewer)
+    constructor({ position, target }: IViewer = new IViewer)
     {
         this.Position = new Vector3(position)
         this.Target = new Vector3(target)
@@ -40,6 +40,6 @@ export default class Viewer implements Updateable
               0,   1,   0, 0,
               0,   0,   1, 0,
             p.X, p.Y, p.Z, 1
-        );
+        )
     }
 }

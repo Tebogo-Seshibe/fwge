@@ -1,17 +1,17 @@
-import Colour4 from '../Colour4';
-import Shader from '../Shader/Shader';
-import Item from '../Item';
-import FWGE from '../FWGE';
-import Maths from '../Maths/Maths';
+import Colour4 from './Colour4'
+import FWGE from '../FWGE'
+import Item from '../Item'
+import Maths from '../Maths/Maths'
+import Shader from '../Shader/Shader'
 
 export class IRenderMaterial
 {
-    name: string = 'Render Material'
-    ambient: Colour4 | Array<number> = [0.50, 0.50, 0.50, 1.00]
-    diffuse: Colour4 | Array<number> = [0.75, 0.75, 0.75, 1.00]
-    specular: Colour4 | Array<number> = [1.00, 1.00, 1.00, 1.00]
-    alpha = 1
-    shininess = 5
+    name?: string = 'Render Material'
+    ambient?: Colour4 | Array<number> = [0.50, 0.50, 0.50, 1.00]
+    diffuse?: Colour4 | Array<number> = [0.75, 0.75, 0.75, 1.00]
+    specular?: Colour4 | Array<number> = [1.00, 1.00, 1.00, 1.00]
+    alpha?: number = 1
+    shininess?: number = 5
     shader?: Shader
     texture?: any
 }

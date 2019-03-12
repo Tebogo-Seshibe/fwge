@@ -1,11 +1,11 @@
+import ArrayUtiils from '../Utility/ArrayUtils'
 import FWGE from '../FWGE'
 import Item from '../Item'
 import List from '../Utility/List'
+import ListUtiils from '../Utility/ListUtils'
 import Vector2 from '../Maths/Vector2'
 import Vector3 from '../Maths/Vector3'
 import Vector4 from '../Maths/Vector4'
-import ArrayUtiils from '../Utility/ArrayUtils';
-import ListUtiils from '../Utility/ListUtils';
 
 export class BufferType
 {
@@ -34,7 +34,7 @@ export default class Mesh extends Item
     public WireframeBuffer: WebGLBuffer
     public VertexCount: number
 
-    constructor({name, position, uv, colour, normal, index, wireframe}: IMesh = new IMesh)
+    constructor({ name, position, uv, colour, normal, index, wireframe }: IMesh = new IMesh)
     {
         super(name)
 

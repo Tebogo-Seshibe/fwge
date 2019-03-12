@@ -10,9 +10,9 @@ export default class SphereCollider extends Collider
 {
     public Radius: number
 
-    constructor({name, position, radius, physicsitem}: ISphereCollider = new ISphereCollider)
+    constructor({ name, position, radius, physicsitem }: ISphereCollider = new ISphereCollider)
     {
-        super({name, position, physicsitem})
+        super({ name, position, physicsitem })
 
         this.Radius = radius
     }

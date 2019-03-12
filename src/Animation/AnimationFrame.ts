@@ -1,4 +1,4 @@
-import Colour4 from '../Colour4'
+import Colour4 from '../Render/Colour4'
 import Transform from '../Transform'
 
 export type Frame = Colour4 | Transform
@@ -16,7 +16,7 @@ export default class AnimationFrame<Frame>
     public After: Frame
     public Length: number
 
-    constructor({before, after, length}: IAnimationFrame<Frame>)
+    constructor({ before, after, length }: IAnimationFrame<Frame>)
     {
         this.Before = before
         this.After = after

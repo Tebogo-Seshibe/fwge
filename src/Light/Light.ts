@@ -4,7 +4,6 @@ import LightItem from './LightItem'
 import List from '../Utility/List'
 import PointLight from './PointLight'
 
-
 export default class Light
 {
     public static AmbientCount: number = 0

@@ -14,9 +14,9 @@ export default class BoxCollider extends Collider
     public Width: number
     public Breadth: number
     
-    constructor({name, physicsitem, position, height, width, breadth}: IBoxCollider = new IBoxCollider)
+    constructor({ name, physicsitem, position, height, width, breadth }: IBoxCollider = new IBoxCollider)
     {
-        super({name, position, physicsitem})
+        super({ name, position, physicsitem })
 
         this.Height = height
         this.Width = width

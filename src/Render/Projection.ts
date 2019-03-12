@@ -14,12 +14,11 @@ export default class Projection
 
         return new Matrix4
         (
-                            2 / (right - left),                                0,                            0, 0,
-                                            0,               2 / (top - bottom),                            0, 0,
-                                        theta,                              phi,            -2 / (far - near), 0,
+                          2 / (right - left),                                0,                            0, 0,
+                                           0,               2 / (top - bottom),                            0, 0,
+                                       theta,                              phi,            -2 / (far - near), 0,
             -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
-        );
-        
+        )
     }
     
     public static Perspective(field_of_view: number, aspect_ratio: number, near: number, far: number): Matrix4
@@ -34,10 +33,10 @@ export default class Projection
 
         return new Matrix4
         (
-                    2 * near / width,                       0,                         0,  0,
-                                    0,       2 * near / height,                         0,  0,
+                  2 * near / width,                       0,                         0,  0,
+                                 0,       2 * near / height,                         0,  0,
             (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
-                                    0,                       0, -(2 * far * near) / depth,  1
-        );
+                                 0,                       0, -(2 * far * near) / depth,  1
+        )
     }
 }

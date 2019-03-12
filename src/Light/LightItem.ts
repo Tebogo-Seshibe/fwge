@@ -1,4 +1,4 @@
-import Colour4 from '../Colour4'
+import Colour4 from '../Render/Colour4'
 import Item from '../Item'
 import Light from './Light'
 
@@ -14,13 +14,11 @@ export default class LightItem extends Item
     public Colour: Colour4
     public Intensity: number
 
-    constructor({name, colour, intensity}: ILightItem = new ILightItem)
+    constructor({ name, colour, intensity }: ILightItem = new ILightItem)
     {
         super(name)
 
         this.Colour = new Colour4(colour)
         this.Intensity = intensity
-
-        Light
     }
 }

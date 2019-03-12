@@ -7,6 +7,7 @@ export default class Control implements Updateable
 
     constructor()
     {
+        
     }
     
     private Run(): void

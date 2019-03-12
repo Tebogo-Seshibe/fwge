@@ -1,8 +1,3 @@
-export class IAttachable
-{
-
-}
-
 export default interface Attachable<T>
 {
     Attach(t: T): void

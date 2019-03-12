@@ -15,17 +15,17 @@ export default class ModelView
     static Peek(): Matrix4
     {
         if (ModelView.Stack.length === 0)
-            return Matrix4.IDENTITY;
+            return Matrix4.IDENTITY
         else
-            return ModelView.Stack[ModelView.Stack.length - 1];
+            return ModelView.Stack[ModelView.Stack.length - 1]
     }
     
     static Pop(): Matrix4
     {
         if (ModelView.Stack.length === 0)
-            return Matrix4.IDENTITY;
+            return Matrix4.IDENTITY
         else
-            return ModelView.Stack.pop();
+            return ModelView.Stack.pop()
     }
     
     public static Transform(transform: Transform): void
@@ -69,9 +69,9 @@ export default class ModelView
     
     private static Rotate(matrix: Matrix4, rotation: Vector3): Matrix4
     {
-        let x = Maths.Radian(rotation.X);
-        let y = Maths.Radian(rotation.Y);
-        let z = Maths.Radian(rotation.Z);
+        let x = Maths.Radian(rotation.X)
+        let y = Maths.Radian(rotation.Y)
+        let z = Maths.Radian(rotation.Z)
 
         return new Matrix4
         (
@@ -79,15 +79,13 @@ export default class ModelView
             Math.sin(z),  Math.cos(z), 0.0, 0.0,
                     0.0,          0.0, 1.0, 0.0,
                     0.0,          0.0, 0.0, 1.0
-        ).Mult
-        (
-                Math.cos(y), 0.0, Math.sin(y), 0.0,
-                        0.0, 1.0,         0.0, 0.0,
+        ).Mult(
+             Math.cos(y), 0.0, Math.sin(y), 0.0,
+                     0.0, 1.0,         0.0, 0.0,
             -Math.sin(y), 0.0, Math.cos(y), 0.0,
-                        0.0, 0.0,         0.0, 1.0
+                     0.0, 0.0,         0.0, 1.0
 
-        ).Mult
-        (
+        ).Mult(
             1.0,         0.0,          0.0, 0.0,
             0.0, Math.cos(x), -Math.sin(x), 0.0,
             0.0, Math.sin(x),  Math.cos(x), 0.0,

@@ -1,4 +1,4 @@
-import Colour4 from '../../Colour4'
+import Colour4 from '../../Render/Colour4'
 import Converter from './Converter'
 import GameObject from '../../GameObject'
 import List from '../List'

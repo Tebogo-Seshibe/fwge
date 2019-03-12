@@ -36,10 +36,10 @@ export default class Camera extends Item implements Updateable
     public Top: number
     public Bottom: number
 
-    public HorizontalTilt: number = 90; // Theta
-    public VericalTilt: number = 90; // Phi
+    public HorizontalTilt: number // Theta
+    public VericalTilt: number // Phi
     
-    constructor({mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt}: ICamera)
+    constructor({ mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt }: ICamera)
     {
         super(name)
 

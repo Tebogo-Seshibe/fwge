@@ -17,13 +17,13 @@ function Hashcode(number: number): number
     var i = 0;
     var hash = 0;
     var chr = 0;
-    var string = number + '';
+    var string = number + ''
 
     for (i = 0; i < string.length; i++)
     {
-        chr = string.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0;
+        chr = string.charCodeAt(i)
+        hash = ((hash << 5) - hash) + chr
+        hash |= 0
     }
 
     return hash;

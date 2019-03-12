@@ -1,6 +1,6 @@
-import Vector3 from '../../Maths/Vector3'
 import Item from '../../Item'
 import PhysicsItem from '../PhysicsItem'
+import Vector3 from '../../Maths/Vector3'
 
 export class ICollider
 {
@@ -14,7 +14,7 @@ export default class Collider extends Item
     public Position: Vector3
     public PhysicsItem: PhysicsItem
     
-    constructor({name, position, physicsitem}: ICollider)
+    constructor({ name, position, physicsitem }: ICollider)
     {
         super(name)
 

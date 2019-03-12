@@ -2,10 +2,10 @@ import Vector3 from './Maths/Vector3'
 
 class ITransform
 {
-    position?: Float32Array | number[] = Vector3.ZERO
-    rotation?: Float32Array | number[] = Vector3.ZERO
-    scale?: Float32Array | number[] = Vector3.ONE
-    shear?: Float32Array | number[] = Vector3.ZERO
+    position?: Vector3 | Float32Array | number[] = Vector3.ZERO
+    rotation?: Vector3 | Float32Array | number[] = Vector3.ZERO
+    scale?: Vector3 | Float32Array | number[] = Vector3.ONE
+    shear?: Vector3 | Float32Array | number[] = Vector3.ZERO
 }
 
 export default class Transform

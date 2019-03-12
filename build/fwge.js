@@ -8,129 +8,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-define("Maths/Maths", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const SIGNIFICANT_FIGURES = Math.pow(10, 6);
-    class Maths {
-        static Radian(degree) {
-            return Math.PI / 180 * degree;
-        }
-        static Cot(angle) {
-            return 1 / Math.tan(angle);
-        }
-        static Clamp(value, min, max) {
-            return Math.max(Math.min(value, max), min);
-        }
-        static CleanFloat(value) {
-            return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES);
-        }
-        static IsPowerOf2(value) {
-            return (value & (value - 1)) === 0;
-        }
-    }
-    exports.default = Maths;
-});
-define("Colour4", ["require", "exports", "Maths/Maths"], function (require, exports, Maths_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    Maths_1 = __importDefault(Maths_1);
-    class Colour4 extends Float32Array {
-        get R() {
-            return this[0];
-        }
-        set R(red) {
-            this[0] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(red, 0, 1));
-        }
-        get G() {
-            return this[1];
-        }
-        set G(green) {
-            this[1] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(green, 0, 1));
-        }
-        get B() {
-            return this[2];
-        }
-        set B(blue) {
-            this[2] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(blue, 0, 1));
-        }
-        get A() {
-            return this[3];
-        }
-        set A(alpha) {
-            this[3] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(alpha, 0, 1));
-        }
-        get BIN() {
-            let str = 'b';
-            this.forEach(i => str += i.toString(2));
-            return str;
-        }
-        get OCT() {
-            let str = 'o';
-            this.forEach(i => str += i.toString(8));
-            return str;
-        }
-        get HEX() {
-            let str = '#';
-            this.forEach(i => str += i.toString(16));
-            return str;
-        }
-        constructor(r, g, b, a) {
-            super(4);
-            this.Set(r, g, b, a);
-            Object.seal(this);
-        }
-        Set(r, g, b, a) {
-            return Colour4.Set(this, r, b, g, a);
-        }
-        static Set(colour, r, g, b, a) {
-            if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array) {
-                [r, g, b, a] = [r[0], r[1], r[2], r[3]];
-            }
-            else if (typeof (r) === 'string') {
-                if (r.match(/#([0-9A-F]{3}){1,2}/i)) {
-                    [r, b, g, a] = r.substring(1)
-                        .toUpperCase()
-                        .split('')
-                        .map(c => parseInt(c, 16));
-                }
-                else if (r.match(/#[0-9A-F]{6}/i)) {
-                    [r, b, g, a] = r.substring(1)
-                        .toUpperCase()
-                        .split(/(?=(?:..)*$)/)
-                        .map(c => parseInt(c, 16));
-                }
-                else {
-                    r = 0;
-                }
-            }
-            colour.R = r;
-            colour.G = g;
-            colour.B = b;
-            colour.A = a;
-            return colour;
-        }
-        static FromBin(bin) {
-            return null;
-        }
-        static ToBin(bin) {
-            return '';
-        }
-        static FromOct(oct) {
-            return null;
-        }
-        static ToOct(oct) {
-            return '';
-        }
-        static FromHex(hex) {
-            return null;
-        }
-        static ToHex(hex) {
-            return '';
-        }
-    }
-    exports.default = Colour4;
-});
 define("FWGE", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -193,9 +70,281 @@ define("Item", ["require", "exports"], function (require, exports) {
         return hash;
     }
 });
+define("Interfaces/Destroyable", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("Utility/List", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class ListNode {
+        constructor(value, next, previous) {
+            this.Value = value;
+            this.Next = next;
+            this.Previous = previous;
+        }
+    }
+    class ListIterator {
+        [Symbol.iterator]() {
+            throw new Error('Method not implemented.');
+        }
+        next(value) {
+            return {
+                done: !value,
+                value
+            };
+        }
+        return(value) {
+            return {
+                done: !value,
+                value
+            };
+        }
+        throw(e) {
+            throw new Error(e);
+        }
+    }
+    class List {
+        constructor(size = Number.MAX_SAFE_INTEGER, buffer) {
+            this.Size = size;
+            if (buffer) {
+                this.AddAll(buffer);
+            }
+        }
+        get Length() {
+            let node = this.head;
+            let count = 0;
+            while (node) {
+                node = node.Next;
+                count++;
+            }
+            return count;
+        }
+        Add(value, index) {
+            if (this.Length == this.Size) {
+                return false;
+            }
+            if (value instanceof ListNode) {
+                value = value.Value;
+            }
+            if (!Number.isSafeInteger(index) || index < 0 || index > this.Length) {
+                index = this.Length;
+            }
+            let parent = this.Get(index - 1);
+            let node = new ListNode(value, parent, parent.Next);
+            parent.Next = node;
+            return true;
+        }
+        AddMany(...values) {
+            for (let value of values) {
+                this.Add(value);
+            }
+        }
+        AddAll(values) {
+            for (let value of values) {
+                this.Add(value);
+            }
+        }
+        Get(index) {
+            if (index < 0 || index > this.Length) {
+                return null;
+            }
+            let node = this.head;
+            while (--index > 0) {
+                node = node.Next;
+            }
+            return node;
+        }
+        Find(value) {
+            let node = null;
+            for (let curr = this.head; curr && !node; curr = curr.Next) {
+                if (curr.Value === value) {
+                    node = curr;
+                }
+            }
+            return node;
+        }
+        IndexOf(value) {
+            let index = 0;
+            for (let curr = this.head; curr && curr.Value != value; curr = curr.Next) {
+                ++index;
+            }
+            return index === this.Length ? -1 : index;
+        }
+        Remove(value) {
+            let node = null;
+            if (typeof value === 'number') {
+                node = this.Get(value);
+            }
+            else {
+                node = this.head;
+                while (node && node.Value != value) {
+                    node = node.Next;
+                }
+            }
+            if (node) {
+                node.Previous.Next = node.Next;
+                node.Previous = null;
+                node.Next = null;
+                return node.Value;
+            }
+            else {
+                return null;
+            }
+        }
+        ToArray() {
+            let array = new Array(this.Length);
+            for (let curr = this.head; curr; curr = curr.Next) {
+                array.push(curr.Value);
+            }
+            return array;
+        }
+        [Symbol.iterator]() {
+            return new ListIterator();
+        }
+    }
+    exports.default = List;
+});
 define("Interfaces/Cloneable", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("Maths/Maths", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const SIGNIFICANT_FIGURES = Math.pow(10, 6);
+    class Maths {
+        static Radian(degree) {
+            return Math.PI / 180 * degree;
+        }
+        static Cot(angle) {
+            return 1 / Math.tan(angle);
+        }
+        static Clamp(value, min, max) {
+            return Math.max(Math.min(value, max), min);
+        }
+        static CleanFloat(value) {
+            return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES);
+        }
+        static IsPowerOf2(value) {
+            return (value & (value - 1)) === 0;
+        }
+    }
+    exports.default = Maths;
+});
+define("Maths/Vector2", ["require", "exports", "Maths/Maths"], function (require, exports, Maths_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    Maths_1 = __importDefault(Maths_1);
+    class Vector2 extends Float32Array {
+        constructor(x, y) {
+            super(2);
+            this.Set(x, y);
+        }
+        get X() {
+            return this[0];
+        }
+        set X(x) {
+            this[0] = Maths_1.default.CleanFloat(x);
+        }
+        get Y() {
+            return this[1];
+        }
+        set Y(y) {
+            this[1] = Maths_1.default.CleanFloat(y);
+        }
+        static get ZERO() {
+            return new Vector2(0, 0);
+        }
+        static get ONE() {
+            return new Vector2(1, 1);
+        }
+        static get UNIT() {
+            return new Vector2(Math.sqrt(1 / 2), Math.sqrt(1 / 2));
+        }
+        get Length() {
+            return Vector2.Length(this);
+        }
+        static Length(x, y) {
+            if (x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+        }
+        Set(x, y) {
+            return Vector2.Set(this, x, y);
+        }
+        static Set(vector, x, y) {
+            if (x instanceof Vector2 || x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            vector.X = x;
+            vector.Y = y;
+            return vector;
+        }
+        Sum(x, y) {
+            return Vector2.Sum(this, x, y);
+        }
+        static Sum(vector, x, y) {
+            if (x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            return Vector2.Set(vector, vector.X + x, vector.Y + y);
+        }
+        Diff(x, y) {
+            return Vector2.Diff(this, x, y);
+        }
+        static Diff(vector, x, y) {
+            if (x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            return Vector2.Set(vector, vector.X - x, vector.Y - y);
+        }
+        Mult(x, y) {
+            return Vector2.Mult(this, x, y);
+        }
+        static Mult(vector, x, y) {
+            if (x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            return Vector2.Set(vector, vector.X * x, vector.Y * y);
+        }
+        Scale(scalar) {
+            return Vector2.Scale(this, scalar);
+        }
+        static Scale(vector, scalar) {
+            return Vector2.Mult(vector, scalar, scalar);
+        }
+        Dot(x, y) {
+            return Vector2.Dot(this, x, y);
+        }
+        static Dot(vector, x, y) {
+            if (x instanceof Float32Array || x instanceof Array) {
+                [x, y] = [x[0], x[1]];
+            }
+            return Maths_1.default.CleanFloat(vector.X * x + vector.Y * y);
+        }
+        Unit() {
+            return Vector2.Unit(this);
+        }
+        static Unit(vector) {
+            let length = vector.Length;
+            if (length !== 0) {
+                Vector2.Scale(vector, Maths_1.default.CleanFloat(1 / length));
+            }
+            return vector;
+        }
+        toString() {
+            return `<${this.X}, ${this.Y}>`;
+        }
+        toLocaleString() {
+            return toString();
+        }
+        Clone() {
+            return new Vector2(this);
+        }
+    }
+    exports.default = Vector2;
 });
 define("Maths/Vector3", ["require", "exports", "Maths/Maths"], function (require, exports, Maths_2) {
     "use strict";
@@ -330,167 +479,344 @@ define("Maths/Vector3", ["require", "exports", "Maths/Maths"], function (require
     }
     exports.default = Vector3;
 });
-define("Transform", ["require", "exports", "Maths/Vector3"], function (require, exports, Vector3_1) {
+define("Maths/Vector4", ["require", "exports", "Utility/List", "Maths/Maths", "Maths/Vector2", "Maths/Vector3"], function (require, exports, List_1, Maths_3, Vector2_1, Vector3_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    List_1 = __importDefault(List_1);
+    Maths_3 = __importDefault(Maths_3);
+    Vector2_1 = __importDefault(Vector2_1);
     Vector3_1 = __importDefault(Vector3_1);
-    class ITransform {
-        constructor() {
-            this.position = Vector3_1.default.ZERO;
-            this.rotation = Vector3_1.default.ZERO;
-            this.scale = Vector3_1.default.ONE;
-            this.shear = Vector3_1.default.ZERO;
-        }
-    }
-    class Transform {
-        constructor({ position, rotation, scale, shear } = new ITransform) {
-            this.Position = new Vector3_1.default(position);
-            this.Rotation = new Vector3_1.default(rotation);
-            this.Scale = new Vector3_1.default(scale);
-            this.Shear = new Vector3_1.default(shear);
-        }
-        get UP() {
-            return new Vector3_1.default(0, 1, 0);
-        }
-        get FORWARD() {
-            return new Vector3_1.default(0, 0, 1);
-        }
-        get RIGHT() {
-            return new Vector3_1.default(1, 0, 0);
-        }
-    }
-    exports.default = Transform;
-});
-define("Utility/List", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class ListNode {
-        constructor(value, next, previous) {
-            this.Value = value;
-            this.Next = next;
-            this.Previous = previous;
-        }
-    }
-    class ListIterator {
-        [Symbol.iterator]() {
-            throw new Error('Method not implemented.');
-        }
-        next(value) {
-            return {
-                done: !value,
-                value
-            };
-        }
-        return(value) {
-            return {
-                done: !value,
-                value
-            };
-        }
-        throw(e) {
-            throw new Error(e);
-        }
-    }
-    class List {
-        constructor(size = Number.MAX_SAFE_INTEGER, buffer) {
-            this.Size = size;
-            if (buffer) {
-                this.AddAll(buffer);
+    class Vector4 extends Float32Array {
+        constructor(w, x, y, z) {
+            super(4);
+            if (w) {
+                Vector4.Set(this, w, x, y, z);
             }
+        }
+        get W() {
+            return this[0];
+        }
+        set W(w) {
+            this[0] = Maths_3.default.CleanFloat(w);
+        }
+        get X() {
+            return this[1];
+        }
+        set X(x) {
+            this[1] = Maths_3.default.CleanFloat(x);
+        }
+        get Y() {
+            return this[2];
+        }
+        set Y(y) {
+            this[2] = Maths_3.default.CleanFloat(y);
+        }
+        get Z() {
+            return this[3];
+        }
+        set Z(z) {
+            this[3] = Maths_3.default.CleanFloat(z);
         }
         get Length() {
-            let node = this.head;
-            let count = 0;
-            while (node) {
-                node = node.Next;
-                count++;
-            }
-            return count;
+            return Vector4.Length(this);
         }
-        Add(value, index) {
-            if (this.Length == this.Size) {
-                return false;
+        static Length(w, x, y, z) {
+            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
+                [w, x, y, z] = w;
             }
-            if (value instanceof ListNode) {
-                value = value.Value;
-            }
-            if (!Number.isSafeInteger(index) || index < 0 || index > this.Length) {
-                index = this.Length;
-            }
-            let parent = this.Get(index - 1);
-            let node = new ListNode(value, parent, parent.Next);
-            parent.Next = node;
-            return true;
+            return Maths_3.default.CleanFloat(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
         }
-        AddMany(...values) {
-            for (let value of values) {
-                this.Add(value);
-            }
+        get ZERO() {
+            return new Vector4(0, 0, 0, 0);
         }
-        AddAll(values) {
-            for (let value of values) {
-                this.Add(value);
-            }
+        get ONE() {
+            return new Vector4(1, 1, 1, 1);
         }
-        Get(index) {
-            if (index < 0 || index > this.Length) {
-                return null;
-            }
-            let node = this.head;
-            while (--index > 0) {
-                node = node.Next;
-            }
-            return node;
+        get UNIT() {
+            return new Vector4(0.5, 0.5, 0.5, 0.5);
         }
-        Find(value) {
-            let node = null;
-            for (let curr = this.head; curr && !node; curr = curr.Next) {
-                if (curr.Value === value) {
-                    node = curr;
-                }
-            }
-            return node;
+        Set(w, x, y, z) {
+            return Vector4.Set(this, w, x, y, z);
         }
-        IndexOf(value) {
-            let index = 0;
-            for (let curr = this.head; curr && curr.Value != value; curr = curr.Next) {
-                ++index;
+        static Set(vector, w, x, y, z) {
+            if (w instanceof Vector2_1.default) {
+                [w, x, y, z] = [0, w.X, w.Y, 0];
             }
-            return index === this.Length ? -1 : index;
+            else if (w instanceof Vector3_1.default) {
+                [w, x, y, z] = [0, w.X, w.Y, w.Z];
+            }
+            else if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
+                [w, x, y, z] = w;
+            }
+            vector.W = Maths_3.default.CleanFloat(w);
+            vector.X = Maths_3.default.CleanFloat(x);
+            vector.Y = Maths_3.default.CleanFloat(y);
+            vector.Z = Maths_3.default.CleanFloat(z);
+            return vector;
         }
-        Remove(value) {
-            let node = null;
-            if (typeof value === 'number') {
-                node = this.Get(value);
-            }
-            else {
-                node = this.head;
-                while (node && node.Value != value) {
-                    node = node.Next;
-                }
-            }
-            if (node) {
-                node.Previous.Next = node.Next;
-                node.Previous = null;
-                node.Next = null;
-                return node.Value;
-            }
-            else {
-                return null;
-            }
+        Sum(w, x, y, z) {
+            return Vector4.Sum(this, w, x, y, z);
         }
-        ToArray() {
-            let array = new Array(this.Length);
-            for (let curr = this.head; curr; curr = curr.Next) {
-                array.push(curr.Value);
+        static Sum(vector, w, x, y, z) {
+            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
             }
-            return array;
+            return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
         }
-        [Symbol.iterator]() {
-            return new ListIterator();
+        Diff(w, x, y, z) {
+            return Vector4.Diff(this, w, x, y, z);
+        }
+        static Diff(vector, w, x, y, z) {
+            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+            }
+            return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
+        }
+        Mult(w, x, y, z) {
+            return Vector4.Mult(this, w, x, y, z);
+        }
+        static Mult(vector, w, x, y, z) {
+            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+            }
+            return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
+        }
+        static Scale(vector, scaler) {
+            return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
+        }
+        Dot(w, x, y, z) {
+            return Vector4.Dot(this, w, x, y, z);
+        }
+        static Dot(vector, w, x, y, z) {
+            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+            }
+            return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+        }
+        Unit() {
+            return Vector4.Unit(this);
+        }
+        static Unit(vector) {
+            let length = vector.Length;
+            if (length !== 0) {
+                Vector4.Scale(vector, 1 / length);
+            }
+            return vector;
+        }
+        toString() {
+            return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`;
+        }
+        toLocaleString() {
+            return this.toString();
+        }
+        Clone() {
+            return new Vector4(this);
         }
     }
-    exports.default = List;
+    exports.default = Vector4;
+});
+define("Utility/ArrayUtils", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class ArrayUtiils {
+        static FlattenVector(list) {
+            let flattened = new Array();
+            for (let list_item of list) {
+                flattened.unshift(...list_item);
+            }
+            return flattened;
+        }
+    }
+    exports.default = ArrayUtiils;
+});
+define("Utility/ListUtils", ["require", "exports", "Utility/List"], function (require, exports, List_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    List_2 = __importDefault(List_2);
+    class ListUtiils {
+        static FlattenVector(list) {
+            let flattened = new List_2.default();
+            for (let list_item of list) {
+                flattened.AddAll([...list_item]);
+            }
+            return flattened;
+        }
+    }
+    exports.default = ListUtiils;
+});
+define("Render/Mesh", ["require", "exports", "Utility/ArrayUtils", "FWGE", "Item", "Utility/List", "Utility/ListUtils"], function (require, exports, ArrayUtils_1, FWGE_1, Item_1, List_3, ListUtils_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    ArrayUtils_1 = __importDefault(ArrayUtils_1);
+    FWGE_1 = __importDefault(FWGE_1);
+    Item_1 = __importDefault(Item_1);
+    List_3 = __importDefault(List_3);
+    ListUtils_1 = __importDefault(ListUtils_1);
+    class BufferType {
+    }
+    BufferType.INDEX = 0;
+    BufferType.POSITION = 1;
+    exports.BufferType = BufferType;
+    class IMesh {
+        constructor() {
+            this.name = 'Mesh';
+        }
+    }
+    exports.IMesh = IMesh;
+    class Mesh extends Item_1.default {
+        constructor({ name, position, uv, colour, normal, index, wireframe } = new IMesh) {
+            super(name);
+            this.PositionBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, position);
+            this.UVBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, uv);
+            this.ColourBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, colour);
+            this.NormalBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, normal);
+            this.IndexBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, index);
+            this.WireframeBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, wireframe);
+        }
+        Bind(gl, type, data) {
+            if (!data)
+                return null;
+            let buffer = gl.createBuffer();
+            if (data instanceof Array) {
+                data = ArrayUtils_1.default.FlattenVector(data);
+            }
+            if (data instanceof List_3.default) {
+                data = ListUtils_1.default.FlattenVector(data);
+            }
+            switch (type) {
+                case BufferType.INDEX:
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+                    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
+                    break;
+                case BufferType.POSITION:
+                    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+                    break;
+            }
+            return buffer;
+        }
+        Unbind(gl, buffer) {
+            gl.deleteBuffer(buffer);
+        }
+    }
+    exports.default = Mesh;
+});
+define("Physics/PhysicsMaterial", ["require", "exports", "Item"], function (require, exports, Item_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    Item_2 = __importDefault(Item_2);
+    class IPhysicsMaterial {
+        constructor() {
+            this.name = 'Physics Material';
+        }
+    }
+    exports.IPhysicsMaterial = IPhysicsMaterial;
+    class PhysicsMaterial extends Item_2.default {
+        constructor({ name } = new IPhysicsMaterial) {
+            super(name);
+        }
+    }
+    exports.default = PhysicsMaterial;
+});
+define("Render/Colour4", ["require", "exports", "Maths/Maths"], function (require, exports, Maths_4) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    Maths_4 = __importDefault(Maths_4);
+    class Colour4 extends Float32Array {
+        get R() {
+            return this[0];
+        }
+        set R(red) {
+            this[0] = Maths_4.default.CleanFloat(Maths_4.default.Clamp(red, 0, 1));
+        }
+        get G() {
+            return this[1];
+        }
+        set G(green) {
+            this[1] = Maths_4.default.CleanFloat(Maths_4.default.Clamp(green, 0, 1));
+        }
+        get B() {
+            return this[2];
+        }
+        set B(blue) {
+            this[2] = Maths_4.default.CleanFloat(Maths_4.default.Clamp(blue, 0, 1));
+        }
+        get A() {
+            return this[3];
+        }
+        set A(alpha) {
+            this[3] = Maths_4.default.CleanFloat(Maths_4.default.Clamp(alpha, 0, 1));
+        }
+        get BIN() {
+            let str = 'b';
+            this.forEach(i => str += i.toString(2));
+            return str;
+        }
+        get OCT() {
+            let str = 'o';
+            this.forEach(i => str += i.toString(8));
+            return str;
+        }
+        get HEX() {
+            let str = '#';
+            this.forEach(i => str += i.toString(16));
+            return str;
+        }
+        constructor(r, g, b, a) {
+            super(4);
+            this.Set(r, g, b, a);
+            Object.seal(this);
+        }
+        Set(r, g, b, a) {
+            return Colour4.Set(this, r, b, g, a);
+        }
+        static Set(colour, r, g, b, a) {
+            if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array) {
+                [r, g, b, a] = [r[0], r[1], r[2], r[3]];
+            }
+            else if (typeof (r) === 'string') {
+                if (r.match(/#([0-9A-F]{3}){1,2}/i)) {
+                    [r, b, g, a] = r.substring(1)
+                        .toUpperCase()
+                        .split('')
+                        .map(c => parseInt(c, 16));
+                }
+                else if (r.match(/#[0-9A-F]{6}/i)) {
+                    [r, b, g, a] = r.substring(1)
+                        .toUpperCase()
+                        .split(/(?=(?:..)*$)/)
+                        .map(c => parseInt(c, 16));
+                }
+                else {
+                    r = 0;
+                }
+            }
+            colour.R = r;
+            colour.G = g;
+            colour.B = b;
+            colour.A = a;
+            return colour;
+        }
+        static FromBin(bin) {
+            return null;
+        }
+        static ToBin(bin) {
+            return '';
+        }
+        static FromOct(oct) {
+            return null;
+        }
+        static ToOct(oct) {
+            return '';
+        }
+        static FromHex(hex) {
+            return null;
+        }
+        static ToHex(hex) {
+            return '';
+        }
+    }
+    exports.default = Colour4;
 });
 define("Shader/ShaderAttributes", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -621,10 +947,10 @@ define("Shader/ShaderUniforms", ["require", "exports", "Shader/MaterialUniforms"
     }
     exports.default = ShaderUniforms;
 });
-define("Shader/Shader", ["require", "exports", "Item", "Shader/ShaderAttributes", "Shader/ShaderUniforms"], function (require, exports, Item_1, ShaderAttributes_1, ShaderUniforms_1) {
+define("Shader/Shader", ["require", "exports", "Item", "Shader/ShaderAttributes", "Shader/ShaderUniforms"], function (require, exports, Item_3, ShaderAttributes_1, ShaderUniforms_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    Item_1 = __importDefault(Item_1);
+    Item_3 = __importDefault(Item_3);
     ShaderAttributes_1 = __importDefault(ShaderAttributes_1);
     ShaderUniforms_1 = __importDefault(ShaderUniforms_1);
     class IShader {
@@ -637,7 +963,7 @@ define("Shader/Shader", ["require", "exports", "Item", "Shader/ShaderAttributes"
         }
     }
     exports.Shaders = [];
-    class Shader extends Item_1.default {
+    class Shader extends Item_3.default {
         constructor({ name, height, width, vertexshader, fragmentshader, gl }) {
             super(name);
             this.Program = gl.createProgram();
@@ -690,12 +1016,12 @@ define("Shader/Shader", ["require", "exports", "Item", "Shader/ShaderAttributes"
     }
     exports.default = Shader;
 });
-define("Render/RenderMaterial", ["require", "exports", "Item", "FWGE", "Maths/Maths"], function (require, exports, Item_2, FWGE_1, Maths_3) {
+define("Render/RenderMaterial", ["require", "exports", "FWGE", "Item", "Maths/Maths"], function (require, exports, FWGE_2, Item_4, Maths_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    Item_2 = __importDefault(Item_2);
-    FWGE_1 = __importDefault(FWGE_1);
-    Maths_3 = __importDefault(Maths_3);
+    FWGE_2 = __importDefault(FWGE_2);
+    Item_4 = __importDefault(Item_4);
+    Maths_5 = __importDefault(Maths_5);
     class IRenderMaterial {
         constructor() {
             this.name = 'Render Material';
@@ -707,7 +1033,7 @@ define("Render/RenderMaterial", ["require", "exports", "Item", "FWGE", "Maths/Ma
         }
     }
     exports.IRenderMaterial = IRenderMaterial;
-    class RenderMaterial extends Item_2.default {
+    class RenderMaterial extends Item_4.default {
         constructor({ name, ambient, diffuse, specular, alpha, shininess, shader, texture } = new IRenderMaterial) {
             super(name);
         }
@@ -720,413 +1046,91 @@ define("Render/RenderMaterial", ["require", "exports", "Item", "FWGE", "Maths/Ma
             let texture = null;
             switch (type) {
                 case 'image':
-                    material.ImageMap = FWGE_1.default.GL.createTexture();
+                    material.ImageMap = FWGE_2.default.GL.createTexture();
                     texture = material.ImageMap;
                     break;
                 case 'bump':
-                    material.BumpMap = FWGE_1.default.GL.createTexture();
+                    material.BumpMap = FWGE_2.default.GL.createTexture();
                     texture = material.BumpMap;
                     break;
                 case 'specular':
-                    material.SpecularMap = FWGE_1.default.GL.createTexture();
+                    material.SpecularMap = FWGE_2.default.GL.createTexture();
                     texture = material.SpecularMap;
                     break;
                 default: texture = null;
             }
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
-            FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, 1, 1, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+            FWGE_2.default.GL.bindTexture(FWGE_2.default.GL.TEXTURE_2D, texture);
+            FWGE_2.default.GL.texImage2D(FWGE_2.default.GL.TEXTURE_2D, 0, FWGE_2.default.GL.RGBA, 1, 1, 0, FWGE_2.default.GL.RGBA, FWGE_2.default.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
             img.onload = function () {
-                FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
-                FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, img);
+                FWGE_2.default.GL.bindTexture(FWGE_2.default.GL.TEXTURE_2D, texture);
+                FWGE_2.default.GL.texImage2D(FWGE_2.default.GL.TEXTURE_2D, 0, FWGE_2.default.GL.RGBA, FWGE_2.default.GL.RGBA, FWGE_2.default.GL.UNSIGNED_BYTE, img);
                 // then either generate mips if the image uses power-of-2 dimensions or 
                 // set the filtering correctly for non-power-of-2 images.
-                if (Maths_3.default.IsPowerOf2(img.width) && Maths_3.default.IsPowerOf2(img.height)) {
-                    FWGE_1.default.GL.generateMipmap(FWGE_1.default.GL.TEXTURE_2D);
-                    FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MAG_FILTER, FWGE_1.default.GL.LINEAR);
-                    FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR_MIPMAP_NEAREST);
+                if (Maths_5.default.IsPowerOf2(img.width) && Maths_5.default.IsPowerOf2(img.height)) {
+                    FWGE_2.default.GL.generateMipmap(FWGE_2.default.GL.TEXTURE_2D);
+                    FWGE_2.default.GL.texParameteri(FWGE_2.default.GL.TEXTURE_2D, FWGE_2.default.GL.TEXTURE_MAG_FILTER, FWGE_2.default.GL.LINEAR);
+                    FWGE_2.default.GL.texParameteri(FWGE_2.default.GL.TEXTURE_2D, FWGE_2.default.GL.TEXTURE_MIN_FILTER, FWGE_2.default.GL.LINEAR_MIPMAP_NEAREST);
                 }
                 else {
-                    FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_S, FWGE_1.default.GL.CLAMP_TO_EDGE);
-                    FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_T, FWGE_1.default.GL.CLAMP_TO_EDGE);
-                    FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR);
+                    FWGE_2.default.GL.texParameteri(FWGE_2.default.GL.TEXTURE_2D, FWGE_2.default.GL.TEXTURE_WRAP_S, FWGE_2.default.GL.CLAMP_TO_EDGE);
+                    FWGE_2.default.GL.texParameteri(FWGE_2.default.GL.TEXTURE_2D, FWGE_2.default.GL.TEXTURE_WRAP_T, FWGE_2.default.GL.CLAMP_TO_EDGE);
+                    FWGE_2.default.GL.texParameteri(FWGE_2.default.GL.TEXTURE_2D, FWGE_2.default.GL.TEXTURE_MIN_FILTER, FWGE_2.default.GL.LINEAR);
                 }
                 //FWGE.GL.pixelStorei(FWGE.GL.UNPACK_FLIP_Y_WEBGL, true);                
-                FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+                FWGE_2.default.GL.bindTexture(FWGE_2.default.GL.TEXTURE_2D, null);
             };
             img.src = src;
         }
         SetTextures({ imagemap = 'undefined', bumpmap = 'undefined', specularmap = 'undefined' } = {}) {
             if (!!imagemap) {
                 if (!!this.ImageMap)
-                    FWGE_1.default.GL.deleteTexture(this.ImageMap);
+                    FWGE_2.default.GL.deleteTexture(this.ImageMap);
                 RenderMaterial.ApplyImage(imagemap, this, 'image');
             }
             if (!!bumpmap) {
                 if (!!this.BumpMap)
-                    FWGE_1.default.GL.deleteTexture(this.BumpMap);
+                    FWGE_2.default.GL.deleteTexture(this.BumpMap);
                 RenderMaterial.ApplyImage(bumpmap, this, 'bump');
             }
             if (!!specularmap) {
                 if (!!this.SpecularMap)
-                    FWGE_1.default.GL.deleteTexture(this.SpecularMap);
+                    FWGE_2.default.GL.deleteTexture(this.SpecularMap);
                 RenderMaterial.ApplyImage(specularmap, this, 'specular');
             }
         }
     }
     exports.default = RenderMaterial;
 });
-define("Maths/Vector2", ["require", "exports", "Maths/Maths"], function (require, exports, Maths_4) {
+define("Transform", ["require", "exports", "Maths/Vector3"], function (require, exports, Vector3_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    Maths_4 = __importDefault(Maths_4);
-    class Vector2 extends Float32Array {
-        constructor(x, y) {
-            super(2);
-            this.Set(x, y);
-        }
-        get X() {
-            return this[0];
-        }
-        set X(x) {
-            this[0] = Maths_4.default.CleanFloat(x);
-        }
-        get Y() {
-            return this[1];
-        }
-        set Y(y) {
-            this[1] = Maths_4.default.CleanFloat(y);
-        }
-        static get ZERO() {
-            return new Vector2(0, 0);
-        }
-        static get ONE() {
-            return new Vector2(1, 1);
-        }
-        static get UNIT() {
-            return new Vector2(Math.sqrt(1 / 2), Math.sqrt(1 / 2));
-        }
-        get Length() {
-            return Vector2.Length(this);
-        }
-        static Length(x, y) {
-            if (x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            return Maths_4.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-        }
-        Set(x, y) {
-            return Vector2.Set(this, x, y);
-        }
-        static Set(vector, x, y) {
-            if (x instanceof Vector2 || x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            vector.X = x;
-            vector.Y = y;
-            return vector;
-        }
-        Sum(x, y) {
-            return Vector2.Sum(this, x, y);
-        }
-        static Sum(vector, x, y) {
-            if (x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            return Vector2.Set(vector, vector.X + x, vector.Y + y);
-        }
-        Diff(x, y) {
-            return Vector2.Diff(this, x, y);
-        }
-        static Diff(vector, x, y) {
-            if (x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            return Vector2.Set(vector, vector.X - x, vector.Y - y);
-        }
-        Mult(x, y) {
-            return Vector2.Mult(this, x, y);
-        }
-        static Mult(vector, x, y) {
-            if (x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            return Vector2.Set(vector, vector.X * x, vector.Y * y);
-        }
-        Scale(scalar) {
-            return Vector2.Scale(this, scalar);
-        }
-        static Scale(vector, scalar) {
-            return Vector2.Mult(vector, scalar, scalar);
-        }
-        Dot(x, y) {
-            return Vector2.Dot(this, x, y);
-        }
-        static Dot(vector, x, y) {
-            if (x instanceof Float32Array || x instanceof Array) {
-                [x, y] = [x[0], x[1]];
-            }
-            return Maths_4.default.CleanFloat(vector.X * x + vector.Y * y);
-        }
-        Unit() {
-            return Vector2.Unit(this);
-        }
-        static Unit(vector) {
-            let length = vector.Length;
-            if (length !== 0) {
-                Vector2.Scale(vector, Maths_4.default.CleanFloat(1 / length));
-            }
-            return vector;
-        }
-        toString() {
-            return `<${this.X}, ${this.Y}>`;
-        }
-        toLocaleString() {
-            return toString();
-        }
-        Clone() {
-            return new Vector2(this);
-        }
-    }
-    exports.default = Vector2;
-});
-define("Maths/Vector4", ["require", "exports", "Maths/Maths", "Maths/Vector2", "Maths/Vector3", "Utility/List"], function (require, exports, Maths_5, Vector2_1, Vector3_2, List_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    Maths_5 = __importDefault(Maths_5);
-    Vector2_1 = __importDefault(Vector2_1);
     Vector3_2 = __importDefault(Vector3_2);
-    List_1 = __importDefault(List_1);
-    class Vector4 extends Float32Array {
-        constructor(w, x, y, z) {
-            super(4);
-            if (w) {
-                Vector4.Set(this, w, x, y, z);
-            }
-        }
-        get W() {
-            return this[0];
-        }
-        set W(w) {
-            this[0] = Maths_5.default.CleanFloat(w);
-        }
-        get X() {
-            return this[1];
-        }
-        set X(x) {
-            this[1] = Maths_5.default.CleanFloat(x);
-        }
-        get Y() {
-            return this[2];
-        }
-        set Y(y) {
-            this[2] = Maths_5.default.CleanFloat(y);
-        }
-        get Z() {
-            return this[3];
-        }
-        set Z(z) {
-            this[3] = Maths_5.default.CleanFloat(z);
-        }
-        get Length() {
-            return Vector4.Length(this);
-        }
-        static Length(w, x, y, z) {
-            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
-                [w, x, y, z] = w;
-            }
-            return Maths_5.default.CleanFloat(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
-        }
-        get ZERO() {
-            return new Vector4(0, 0, 0, 0);
-        }
-        get ONE() {
-            return new Vector4(1, 1, 1, 1);
-        }
-        get UNIT() {
-            return new Vector4(0.5, 0.5, 0.5, 0.5);
-        }
-        Set(w, x, y, z) {
-            return Vector4.Set(this, w, x, y, z);
-        }
-        static Set(vector, w, x, y, z) {
-            if (w instanceof Vector2_1.default) {
-                [w, x, y, z] = [0, w.X, w.Y, 0];
-            }
-            else if (w instanceof Vector3_2.default) {
-                [w, x, y, z] = [0, w.X, w.Y, w.Z];
-            }
-            else if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
-                [w, x, y, z] = w;
-            }
-            vector.W = Maths_5.default.CleanFloat(w);
-            vector.X = Maths_5.default.CleanFloat(x);
-            vector.Y = Maths_5.default.CleanFloat(y);
-            vector.Z = Maths_5.default.CleanFloat(z);
-            return vector;
-        }
-        Sum(w, x, y, z) {
-            return Vector4.Sum(this, w, x, y, z);
-        }
-        static Sum(vector, w, x, y, z) {
-            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-            }
-            return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
-        }
-        Diff(w, x, y, z) {
-            return Vector4.Diff(this, w, x, y, z);
-        }
-        static Diff(vector, w, x, y, z) {
-            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-            }
-            return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
-        }
-        Mult(w, x, y, z) {
-            return Vector4.Mult(this, w, x, y, z);
-        }
-        static Mult(vector, w, x, y, z) {
-            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-            }
-            return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
-        }
-        static Scale(vector, scaler) {
-            return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
-        }
-        Dot(w, x, y, z) {
-            return Vector4.Dot(this, w, x, y, z);
-        }
-        static Dot(vector, w, x, y, z) {
-            if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-                [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-            }
-            return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
-        }
-        Unit() {
-            return Vector4.Unit(this);
-        }
-        static Unit(vector) {
-            let length = vector.Length;
-            if (length !== 0) {
-                Vector4.Scale(vector, 1 / length);
-            }
-            return vector;
-        }
-        toString() {
-            return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`;
-        }
-        toLocaleString() {
-            return this.toString();
-        }
-        Clone() {
-            return new Vector4(this);
-        }
-    }
-    exports.default = Vector4;
-});
-define("Utility/ArrayUtils", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class ArrayUtiils {
-        static FlattenVector(list) {
-            let flattened = new Array();
-            for (let list_item of list) {
-                flattened.unshift(...list_item);
-            }
-            return flattened;
-        }
-    }
-    exports.default = ArrayUtiils;
-});
-define("Utility/ListUtils", ["require", "exports", "Utility/List"], function (require, exports, List_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    List_2 = __importDefault(List_2);
-    class ListUtiils {
-        static FlattenVector(list) {
-            let flattened = new List_2.default();
-            for (let list_item of list) {
-                flattened.AddAll([...list_item]);
-            }
-            return flattened;
-        }
-    }
-    exports.default = ListUtiils;
-});
-define("Render/Mesh", ["require", "exports", "FWGE", "Item", "Utility/List", "Utility/ArrayUtils", "Utility/ListUtils"], function (require, exports, FWGE_2, Item_3, List_3, ArrayUtils_1, ListUtils_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    FWGE_2 = __importDefault(FWGE_2);
-    Item_3 = __importDefault(Item_3);
-    List_3 = __importDefault(List_3);
-    ArrayUtils_1 = __importDefault(ArrayUtils_1);
-    ListUtils_1 = __importDefault(ListUtils_1);
-    class BufferType {
-    }
-    BufferType.INDEX = 0;
-    BufferType.POSITION = 1;
-    exports.BufferType = BufferType;
-    class IMesh {
+    class ITransform {
         constructor() {
-            this.name = 'Mesh';
+            this.position = Vector3_2.default.ZERO;
+            this.rotation = Vector3_2.default.ZERO;
+            this.scale = Vector3_2.default.ONE;
+            this.shear = Vector3_2.default.ZERO;
         }
     }
-    exports.IMesh = IMesh;
-    class Mesh extends Item_3.default {
-        constructor({ name, position, uv, colour, normal, index, wireframe } = new IMesh) {
-            super(name);
-            this.PositionBuffer = this.Bind(FWGE_2.default.GL, BufferType.POSITION, position);
-            this.UVBuffer = this.Bind(FWGE_2.default.GL, BufferType.POSITION, uv);
-            this.ColourBuffer = this.Bind(FWGE_2.default.GL, BufferType.POSITION, colour);
-            this.NormalBuffer = this.Bind(FWGE_2.default.GL, BufferType.POSITION, normal);
-            this.IndexBuffer = this.Bind(FWGE_2.default.GL, BufferType.INDEX, index);
-            this.WireframeBuffer = this.Bind(FWGE_2.default.GL, BufferType.INDEX, wireframe);
+    class Transform {
+        constructor({ position, rotation, scale, shear } = new ITransform) {
+            this.Position = new Vector3_2.default(position);
+            this.Rotation = new Vector3_2.default(rotation);
+            this.Scale = new Vector3_2.default(scale);
+            this.Shear = new Vector3_2.default(shear);
         }
-        Bind(gl, type, data) {
-            if (!data)
-                return null;
-            let buffer = gl.createBuffer();
-            if (data instanceof Array) {
-                data = ArrayUtils_1.default.FlattenVector(data);
-            }
-            if (data instanceof List_3.default) {
-                data = ListUtils_1.default.FlattenVector(data);
-            }
-            switch (type) {
-                case BufferType.INDEX:
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-                    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
-                    break;
-                case BufferType.POSITION:
-                    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-                    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-                    break;
-            }
-            return buffer;
+        get UP() {
+            return new Vector3_2.default(0, 1, 0);
         }
-        Unbind(gl, buffer) {
-            gl.deleteBuffer(buffer);
+        get FORWARD() {
+            return new Vector3_2.default(0, 0, 1);
+        }
+        get RIGHT() {
+            return new Vector3_2.default(1, 0, 0);
         }
     }
-    exports.default = Mesh;
-});
-define("Physics/PhysicsMaterial", ["require", "exports", "Item"], function (require, exports, Item_4) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    Item_4 = __importDefault(Item_4);
-    class IPhysicsMaterial {
-        constructor() {
-            this.name = 'Physics Material';
-        }
-    }
-    exports.IPhysicsMaterial = IPhysicsMaterial;
-    class PhysicsMaterial extends Item_4.default {
-        constructor({ name } = new IPhysicsMaterial) {
-            super(name);
-        }
-    }
-    exports.default = PhysicsMaterial;
+    exports.default = Transform;
 });
 define("GameObject", ["require", "exports", "Item", "Transform"], function (require, exports, Item_5, Transform_1) {
     "use strict";
@@ -1189,20 +1193,7 @@ define("GameObject", ["require", "exports", "Item", "Transform"], function (requ
     }
     exports.default = GameObject;
 });
-define("Utility/FWGEEvent", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class FWGEEvent {
-        constructor() {
-        }
-    }
-    exports.default = FWGEEvent;
-});
 define("Interfaces/Updateable", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-});
-define("Interfaces/Destroyable", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
@@ -1252,8 +1243,6 @@ define("Animation/Animation", ["require", "exports", "Animation/AnimationFrame",
     class IAnimation {
         constructor() {
             this.name = 'Animation';
-            this.mesh = undefined;
-            this.material = undefined;
             this.length = 0;
         }
     }
@@ -1310,8 +1299,6 @@ define("Camera/Camera", ["require", "exports", "Item"], function (require, expor
     class Camera extends Item_8.default {
         constructor({ mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt }) {
             super(name);
-            this.HorizontalTilt = 90; // Theta
-            this.VericalTilt = 90; // Phi
             this.Mode = mode;
             this.FieldOfView = fieldOfView;
             this.AspectRatio = aspectRatio;
@@ -2016,11 +2003,11 @@ define("Maths/Matrix4", ["require", "exports", "Utility/List", "Maths/Matrix2", 
     }
     exports.default = Matrix4;
 });
-define("Camera/Viewer", ["require", "exports", "Maths/Vector3", "Maths/Matrix4"], function (require, exports, Vector3_3, Matrix4_3) {
+define("Camera/Viewer", ["require", "exports", "Maths/Matrix4", "Maths/Vector3"], function (require, exports, Matrix4_3, Vector3_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    Vector3_3 = __importDefault(Vector3_3);
     Matrix4_3 = __importDefault(Matrix4_3);
+    Vector3_3 = __importDefault(Vector3_3);
     class IViewer {
         constructor() {
             this.position = Vector3_3.default.ZERO;
@@ -2048,9 +2035,6 @@ define("Camera/Viewer", ["require", "exports", "Maths/Vector3", "Maths/Matrix4"]
 define("Interfaces/Attachable", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class IAttachable {
-    }
-    exports.IAttachable = IAttachable;
 });
 define("Light/DirectionalLight", ["require", "exports", "Light/LightItem", "Maths/Vector3"], function (require, exports, LightItem_1, Vector3_4) {
     "use strict";
@@ -2146,12 +2130,11 @@ define("Light/Light", ["require", "exports", "Light/AmbientLight", "Light/Direct
     Light.Lights = new List_7.default(12);
     exports.default = Light;
 });
-define("Light/LightItem", ["require", "exports", "Colour4", "Item", "Light/Light"], function (require, exports, Colour4_1, Item_9, Light_1) {
+define("Light/LightItem", ["require", "exports", "Render/Colour4", "Item"], function (require, exports, Colour4_1, Item_9) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     Colour4_1 = __importDefault(Colour4_1);
     Item_9 = __importDefault(Item_9);
-    Light_1 = __importDefault(Light_1);
     class ILightItem {
         constructor() {
             this.name = 'Light';
@@ -2163,7 +2146,6 @@ define("Light/LightItem", ["require", "exports", "Colour4", "Item", "Light/Light
             super(name);
             this.Colour = new Colour4_1.default(colour);
             this.Intensity = intensity;
-            Light_1.default;
         }
     }
     exports.default = LightItem;
@@ -2226,11 +2208,11 @@ define("Physics/PhysicsBody", ["require", "exports", "Item"], function (require,
     }
     exports.default = PhysicsBody;
 });
-define("Physics/Collision/Collider", ["require", "exports", "Maths/Vector3", "Item"], function (require, exports, Vector3_6, Item_11) {
+define("Physics/Collision/Collider", ["require", "exports", "Item", "Maths/Vector3"], function (require, exports, Item_11, Vector3_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    Vector3_6 = __importDefault(Vector3_6);
     Item_11 = __importDefault(Item_11);
+    Vector3_6 = __importDefault(Vector3_6);
     class ICollider {
         constructor() {
             this.name = 'Collider';
@@ -2255,9 +2237,6 @@ define("Physics/PhysicsItem", ["require", "exports", "Item"], function (require,
     class IPhysicsItem {
         constructor() {
             this.name = 'Physics Item';
-            this.body = undefined;
-            this.collider = undefined;
-            this.material = undefined;
         }
     }
     exports.IPhysicsItem = IPhysicsItem;
@@ -2403,17 +2382,17 @@ define("Render/Projection", ["require", "exports", "Maths/Maths", "Maths/Matrix4
     }
     exports.default = Projection;
 });
-define("Render/Renderer", ["require", "exports", "FWGE", "Light/Light", "Shader/Shader", "Render/ModelView", "Maths/Matrix4", "Light/AmbientLight", "Light/DirectionalLight", "Light/PointLight", "Maths/Matrix3"], function (require, exports, FWGE_3, Light_2, Shader_1, ModelView_1, Matrix4_6, AmbientLight_2, DirectionalLight_2, PointLight_2, Matrix3_3) {
+define("Render/Renderer", ["require", "exports", "Light/AmbientLight", "Light/DirectionalLight", "FWGE", "Light/Light", "Render/ModelView", "Maths/Matrix3", "Maths/Matrix4", "Light/PointLight", "Shader/Shader"], function (require, exports, AmbientLight_2, DirectionalLight_2, FWGE_3, Light_1, ModelView_1, Matrix3_3, Matrix4_6, PointLight_2, Shader_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    FWGE_3 = __importDefault(FWGE_3);
-    Light_2 = __importDefault(Light_2);
-    ModelView_1 = __importDefault(ModelView_1);
-    Matrix4_6 = __importDefault(Matrix4_6);
     AmbientLight_2 = __importDefault(AmbientLight_2);
     DirectionalLight_2 = __importDefault(DirectionalLight_2);
-    PointLight_2 = __importDefault(PointLight_2);
+    FWGE_3 = __importDefault(FWGE_3);
+    Light_1 = __importDefault(Light_1);
+    ModelView_1 = __importDefault(ModelView_1);
     Matrix3_3 = __importDefault(Matrix3_3);
+    Matrix4_6 = __importDefault(Matrix4_6);
+    PointLight_2 = __importDefault(PointLight_2);
     class Renderer {
         static Render() {
             Renderer.ClearBuffers();
@@ -2561,8 +2540,8 @@ define("Render/Renderer", ["require", "exports", "FWGE", "Light/Light", "Shader/
                 var point_count = 0;
                 FWGE_3.default.GL.useProgram(Shader_1.Shaders[i].Program);
                 var uniforms = Shader_1.Shaders[i].Uniforms.Light;
-                for (var j = 0; j < Light_2.default.Lights.Length; ++j) {
-                    var light = Light_2.default.Lights[j];
+                for (var j = 0; j < Light_1.default.Lights.Length; ++j) {
+                    var light = Light_1.default.Lights[j];
                     if (light instanceof AmbientLight_2.default) {
                         FWGE_3.default.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
                         FWGE_3.default.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
@@ -2604,6 +2583,52 @@ define("Render/Renderer", ["require", "exports", "FWGE", "Light/Light", "Shader/
         }
     }
     exports.default = Renderer;
+});
+define("Utility/Tree", ["require", "exports", "Utility/List"], function (require, exports, List_8) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    List_8 = __importDefault(List_8);
+    class TreeNode {
+        constructor(children, value) {
+            this.Value = value;
+            this.Children = new List_8.default(children);
+        }
+    }
+    exports.TreeNode = TreeNode;
+    class Tree {
+        constructor(size = 1) {
+            this.size = size;
+            this.root = null;
+        }
+        Add(value) {
+            if (value instanceof TreeNode) {
+                value = value.Value;
+            }
+            let node = new TreeNode(this.size, value);
+            let curr = this.root;
+            while (curr) {
+                if (curr.Children.Length === 0) {
+                    curr.Children.Add(node);
+                    curr;
+                }
+                else {
+                }
+                curr = null;
+            }
+        }
+    }
+    exports.default = Tree;
+});
+define("Utility/BinaryTree", ["require", "exports", "Utility/Tree"], function (require, exports, Tree_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    Tree_1 = __importDefault(Tree_1);
+    class BinaryTree extends Tree_1.default {
+        constructor() {
+            super(2);
+        }
+    }
+    exports.default = BinaryTree;
 });
 define("Utility/Control", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -2654,6 +2679,15 @@ define("Utility/Control", ["require", "exports"], function (require, exports) {
     }
     exports.default = Control;
 });
+define("Utility/FWGEEvent", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class FWGEEvent {
+        constructor() {
+        }
+    }
+    exports.default = FWGEEvent;
+});
 define("Utility/Time", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2683,41 +2717,6 @@ define("Utility/Time", ["require", "exports"], function (require, exports) {
     }
     exports.default = Time;
 });
-define("Utility/Tree", ["require", "exports", "Utility/List"], function (require, exports, List_8) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    List_8 = __importDefault(List_8);
-    class TreeNode {
-        constructor(children, value) {
-            this.Value = value;
-            this.Children = new List_8.default(children);
-        }
-    }
-    exports.TreeNode = TreeNode;
-    class Tree {
-        constructor(size = 1) {
-            this.size = size;
-            this.root = null;
-        }
-        Add(value) {
-            if (value instanceof TreeNode) {
-                value = value.Value;
-            }
-            let node = new TreeNode(this.size, value);
-            let curr = this.root;
-            while (curr) {
-                if (curr.Children.Length === 0) {
-                    curr.Children.Add(node);
-                    curr;
-                }
-                else {
-                }
-                curr = null;
-            }
-        }
-    }
-    exports.default = Tree;
-});
 define("Utility/Converter/Converter", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2726,7 +2725,7 @@ define("Utility/Converter/Converter", ["require", "exports"], function (require,
     }
     exports.default = Converter;
 });
-define("Utility/Converter/OBJConverter", ["require", "exports", "Colour4", "GameObject", "Utility/List", "Render/Mesh", "Render/RenderMaterial", "Maths/Vector2", "Maths/Vector3"], function (require, exports, Colour4_2, GameObject_1, List_9, Mesh_1, RenderMaterial_1, Vector2_2, Vector3_7) {
+define("Utility/Converter/OBJConverter", ["require", "exports", "Render/Colour4", "GameObject", "Utility/List", "Render/Mesh", "Render/RenderMaterial", "Maths/Vector2", "Maths/Vector3"], function (require, exports, Colour4_2, GameObject_1, List_9, Mesh_1, RenderMaterial_1, Vector2_2, Vector3_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     Colour4_2 = __importDefault(Colour4_2);

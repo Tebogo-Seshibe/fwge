@@ -1,5 +1,5 @@
-
 let GL: WebGLRenderingContext
+
 export class  IFWGE
 {
     canvas: HTMLCanvasElement
@@ -27,6 +27,7 @@ export default class FWGE
         {
             throw new Error('Webgl context could not be initialized.')
         }
+        
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
     }
     

@@ -1,10 +1,10 @@
-import Item from './Item'
 import GameItem from './GameItem'
-import Transform from './Transform'
+import Item from './Item'
 import List from './Utility/List'
-import RenderMaterial from './Render/RenderMaterial';
-import Mesh from './Render/Mesh';
-import PhysicsMaterial from './Physics/PhysicsMaterial';
+import Mesh from './Render/Mesh'
+import PhysicsMaterial from './Physics/PhysicsMaterial'
+import RenderMaterial from './Render/RenderMaterial'
+import Transform from './Transform'
 
 export class IGameObject
 {
@@ -33,7 +33,7 @@ export default class GameObject extends Item
     End: Function
     Children: List<GameObject>
 
-    constructor({name, transform, material, mesh, physics, animation, begin, update, end, children}: IGameObject = new IGameObject)
+    constructor({ name, transform, material, mesh, physics, animation, begin, update, end, children }: IGameObject = new IGameObject)
     {
         super(name);
     

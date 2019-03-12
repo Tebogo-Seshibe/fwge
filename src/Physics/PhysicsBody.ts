@@ -18,7 +18,7 @@ export default class PhysicsBody extends Item
     Velocity: number = 0
     Speed: number = 0
     
-    constructor({name, mass, lockx, locky, lockz}: IPhysicsBody = new IPhysicsBody)
+    constructor({ name, mass, lockx, locky, lockz }: IPhysicsBody = new IPhysicsBody)
     {
         super(name)
 
