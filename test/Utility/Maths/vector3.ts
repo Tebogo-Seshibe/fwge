@@ -1,5 +1,5 @@
-import Vector3 from '../../../src/Utility/Maths/Vector3'
-import Maths from '../../../src/Utility/Maths/Maths'
+import Vector3 from '../../../src/Maths/Vector3'
+import Maths from '../../../src/Maths/Maths'
 
 import { expect } from 'chai'
 import 'mocha'
@@ -15,7 +15,7 @@ export default () => {
                 expect(vector.Y).eq(-7)
                 expect(vector.Z).eq(3.5)
             })
-            it('toString() should be '<5, -7, 3.5>'', () => expect(vector.toString()).is.eq('<5, -7, 3.5>'))
+            it('toString() should be "<5, -7, 3.5>"', () => expect(vector.toString()).is.eq('<5, -7, 3.5>'))
         })
 
         describe('Properties', () => {
