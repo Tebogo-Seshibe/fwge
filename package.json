@@ -7,6 +7,8 @@
     "test": "test"
   },
   "scripts": {
+    "build": "browserify ./src/index.ts -p [ tsify --noImplicitAny --target ES6 ] > fwge.js",
+    "run": "echo \"Error: no test specified\" && exit 1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +20,12 @@
   "bugs": {
     "url": "https://github.com/Tebogo-Seshibe/FWGE/issues"
   },
-  "homepage": "https://github.com/Tebogo-Seshibe/FWGE#readme"
+  "homepage": "https://github.com/Tebogo-Seshibe/FWGE#readme",
+  "dependencies": {
+    "@types/express": "^4.16.1",
+    "express": "^4.16.4",
+    "systemjs": "^3.0.1",
+    "tsify": "^4.0.1",
+    "typescript": "^3.3.3333"
+  }
 }

@@ -15,7 +15,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
     constructor(m11?: Matrix3 | Float32Array | Array<number> | List<number> | number, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
     {
-        super(4)
+        super(9)
 
         if (m11)
         {

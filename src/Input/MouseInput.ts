@@ -1,4 +1,4 @@
-import { InputState } from "./Input"
+import { InputState } from "./InputState"
 import Vector2 from "../Maths/Vector2"
 
 export default class MouseInput

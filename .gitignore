@@ -1,6 +1,1 @@
-.old
-.tscache
-.vscode
-build/*
 node_modules
-util

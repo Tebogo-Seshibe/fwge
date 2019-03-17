@@ -1,4 +1,4 @@
-export enum ButtonState
+export enum InputState
 {
     UP,
     PRESSED,
