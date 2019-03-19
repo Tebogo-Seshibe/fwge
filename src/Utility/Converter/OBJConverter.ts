@@ -32,12 +32,12 @@ export default class OBJConverter implements Converter
 
         let { name, position, normal, uv, colour, index, wireframe }: IMesh = new IMesh
 
-        position = new List<Vector3>()
-        normal = new List<Vector3>()
-        uv = new List<Vector2>()
-        colour = new List<Vector4>()
-        index = new List<number>()
-        wireframe = new List<number>()
+        position = new Array<Vector3>()
+        normal = new Array<Vector3>()
+        uv = new Array<Vector2>()
+        colour = new Array<Vector4>()
+        index = []
+        wireframe = []
         
         for (var i = 0; i < lines.length; ++i)
         {
@@ -72,22 +72,22 @@ export default class OBJConverter implements Converter
 
                         if (!isNaN(faces[0]))
                         {
-                            position.Add(vertices.Get(faces[0]))
+                            position.push(vertices[faces[0]])
                         }
                         
                         if (!isNaN(faces[1]))
                         {
-                            uv.Add(uvs.Get(faces[1]))
+                            uv.push(uvs[faces[1]])
                         }
                         
                         if (!isNaN(faces[2]))
                         {
-                            normal.Add(normals.Get(faces[2]))
+                            normal.push(normals[faces[2]])
                         }
 
                         if (i >= 2)
                         {
-                            index.AddMany(face_offset, face_offset + i - 1, face_offset + i)
+                            index.concat([face_offset, face_offset + i - 1, face_offset + i])
                         }
                     }
                     
@@ -95,11 +95,11 @@ export default class OBJConverter implements Converter
                     {
                         if (i === values.length - 1)
                         {
-                            wireframe.AddMany(wireframe_offset + i, wireframe_offset)
+                            wireframe.concat([wireframe_offset + i, wireframe_offset])
                         }
                         else
                         {
-                            wireframe.AddMany(wireframe_offset + i, wireframe_offset + i + 1)
+                            wireframe.concat([wireframe_offset + i, wireframe_offset + i + 1])
                         }
                     }
 

@@ -1,66 +1,53 @@
-import Updateable from '../Interfaces/Updateable'
+import Time from './Time'
+import { GameObjects } from '../GameObject'
+import Renderer from '../Render/Renderer'
 
-export default class Control implements Updateable
+export default class Control
 {
-    public Running: boolean = false
-    private AnimationFrame: number = -1
+    public static Running: boolean = false
+    private static AnimationFrame: number = -1
 
-    constructor()
+    public static Init(renderUpdate: number, physicsUpdate: number): void
     {
-        
+        Time.RenderUpdate = renderUpdate
+        Time.PhysicsUpdate = physicsUpdate
+
+        Renderer.Init()
     }
     
-    private Run(): void
+    public static Start(): void
     {
-        this.AnimationFrame = window.requestAnimationFrame(this.Run)
-
-        this.Update();
-
-        /*if (this.Running)
+        if (Control.AnimationFrame !== -1)
         {
-            PhysicsEngine.Update();
-            RenderEngine.Update();
-        }*/
-    }
-
-    public Update(): void
-    {
-        /*Time.Update();
-        Camera.Update();
-
-        var i = GameObject.Objects.length;
-        while (--i >= 0)
-            GameObject.Objects[i].ObjectUpdate();
-
-        Input.InputUpdate();*/
-    }
-        
-    Start(): void
-    {
-        if(!this.Running)
-            this.Running = true;
-
-        if (this.AnimationFrame === -1)
-            this.Run();
-    }
-    
-    Pause(): void
-    {
-        if (!this.Running)
-            this.Running = false;
-    }
-    
-    Stop(): void
-    {
-        if (this.Running)
-            this.Running = false;
-
-        if (this.AnimationFrame !== -1)
-        {
-            window.cancelAnimationFrame(this.AnimationFrame);
-            this.AnimationFrame = -1;
+            window.cancelAnimationFrame(Control.AnimationFrame)
         }
 
-        //Time.Reset();
+        Control.Run()
+    }
+    
+    public static Stop(): void
+    {
+        if (Control.AnimationFrame !== -1)
+        {
+            window.cancelAnimationFrame(Control.AnimationFrame)
+        }
+    }
+    
+    private static Run(): void
+    {
+        Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
+
+        Time.Update()
+        // Camera.Update()
+
+        for (let gameObject of GameObjects)
+        {
+            gameObject.Update()
+        }
+
+        // Input.Update()
+
+        // PhysicsEngine.Update();
+        Renderer.Update()
     }
 }

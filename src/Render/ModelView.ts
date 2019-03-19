@@ -7,49 +7,39 @@ export default class ModelView
 {
     private static Stack: Array<Matrix4> = new Array()
 
-    static Push(): void
+    public static Push(transform: Transform): Matrix4
     {
-        ModelView.Stack.push(ModelView.Peek());
+        ModelView.Stack.push(this.Transform(transform))
+        return ModelView.Peek()
     }
         
-    static Peek(): Matrix4
+    public static Peek(): Matrix4
     {
         if (ModelView.Stack.length === 0)
+        {
             return Matrix4.IDENTITY
+        }
         else
+        {
             return ModelView.Stack[ModelView.Stack.length - 1]
+        }
     }
     
-    static Pop(): Matrix4
+    public static Pop(): Matrix4
     {
         if (ModelView.Stack.length === 0)
+        {
             return Matrix4.IDENTITY
+        }
         else
+        {
             return ModelView.Stack.pop()
+        }
     }
     
-    public static Transform(transform: Transform): void
+    private static Transform({ Position, Rotation, Scale, Shear }: Transform): Matrix4
     {
-        this.Peek().Set
-        (
-            this.Shear
-            (
-                this.Scale
-                (
-                    this.Rotate
-                    (
-                        this.Translate
-                        (
-                            this.Peek(),
-                            transform.Position
-                        ),
-                        transform.Rotation
-                    ),
-                    transform.Scale
-                ),
-                transform.Shear
-            )
-        );
+        return this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), Position), Rotation), Scale), Shear)
     }
         
     private static Translate(matrix: Matrix4, translation: Vector3): Matrix4

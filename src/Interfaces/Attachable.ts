@@ -1,7 +1,7 @@
 export default interface Attachable<T>
 {
     Attach(t: T): void
-    AttachAll(...t: T[]): void
+    AttachMany(...t: T[]): void
     Detach(t: T): void
-    DetachAll(...t: T[]): void
+    DetachMany(...t: T[]): void
 }

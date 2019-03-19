@@ -1,3 +1,4 @@
+import FWGE from '../FWGE'
 import Item from '../Item'
 import Updateable from '../Interfaces/Updateable'
 
@@ -9,17 +10,18 @@ export enum ViewMode
 
 export class ICamera
 {
-    mode: ViewMode = ViewMode.PERSPECTIVE
-    fieldOfView: number = 35
-    aspectRatio: number = 16/9
-    nearClipping: number = 0.01
-    farClipping: number = 900
-    left: number = -10
-    right: number = 10
-    top: number = 10
-    bottom: number = -10
-    horizontalTilt: number = 90
-    vericalTilt: number = 90
+    name?: string
+    mode?: ViewMode
+    fieldOfView?: number
+    aspectRatio?: number
+    nearClipping?: number
+    farClipping?: number
+    left?: number
+    right?: number
+    top?: number
+    bottom?: number
+    horizontalTilt?: number
+    vericalTilt?: number
 }
 
 export default class Camera extends Item implements Updateable
@@ -39,7 +41,7 @@ export default class Camera extends Item implements Updateable
     public HorizontalTilt: number // Theta
     public VericalTilt: number // Phi
     
-    constructor({ mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt }: ICamera)
+    constructor(name: string, mode: ViewMode = ViewMode.PERSPECTIVE, fieldOfView: number = 35, aspectRatio: number = 16/9, nearClipping: number = 0.001, farClipping: number = 10000, left: number = -10, right: number = 10, top: number = 10, bottom: number = -10, horizontalTilt: number = 90, vericalTilt: number = 90)
     {
         super(name)
 
@@ -57,14 +59,14 @@ export default class Camera extends Item implements Updateable
         
     }
     
-    Update(): void
+    public Update(): void
     {
-        /*if (FWGE.GL.canvas.width != FWGE.GL.canvas.clientWidth || FWGE.GL.canvas.height != FWGE.GL.canvas.clientHeight)
+        if (FWGE.GL.canvas.width !== FWGE.GL.canvas.clientWidth || FWGE.GL.canvas.height !== FWGE.GL.canvas.clientHeight)
         {
-            FWGE.GL.canvas.width  = FWGE.GL.canvas.clientWidth;
-            FWGE.GL.canvas.height = FWGE.GL.canvas.clientHeight;
+            FWGE.GL.canvas.width  = FWGE.GL.canvas.clientWidth
+            FWGE.GL.canvas.height = FWGE.GL.canvas.clientHeight
         }
         
-        this.Aspect = FWGE.GL.drawingBufferWidth / FWGE.GL.drawingBufferHeight;*/
+        this.AspectRatio = FWGE.GL.drawingBufferWidth / FWGE.GL.drawingBufferHeight
     }
 }

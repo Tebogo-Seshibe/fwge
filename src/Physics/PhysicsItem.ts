@@ -5,7 +5,7 @@ import PhysicsMaterial from './PhysicsMaterial'
 
 export class IPhysicsItem
 {
-    name?: string = 'Physics Item'
+    name?: string
     body?: PhysicsBody
     collider?: Collider
     material?: PhysicsMaterial
@@ -17,7 +17,7 @@ export default class PhysicsItem extends Item
     public Material: PhysicsMaterial
     public Body: PhysicsBody
     
-    constructor({ name, body, collider, material }: IPhysicsItem = new IPhysicsItem)
+    constructor({ name = 'Physics Item', body, collider, material }: IPhysicsItem = new IPhysicsItem())
     {
         super(name)
 

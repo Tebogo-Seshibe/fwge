@@ -7,9 +7,12 @@
     "test": "test"
   },
   "scripts": {
-    "build": "browserify ./src/index.ts -p [ tsify --noImplicitAny --target ES6 ] > fwge.js",
+    "build": "npm run build:fwge && npm run build:app",
+    "build:fwge": "browserify ./src/index.ts -p [ tsify --noImplicitAny --target ES6 ] > ./build/fwge.js",
+    "build:app": "browserify ./app/scripts/index.ts -p [ tsify --noImplicitAny --target ES6 ] > ./build/script.js",
+    "start": "node ./app/app.js",
     "run": "echo \"Error: no test specified\" && exit 1",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./test/test.ts"
   },
   "repository": {
     "type": "git",

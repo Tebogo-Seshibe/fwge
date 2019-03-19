@@ -7,7 +7,7 @@ export class IAnimationFrame<Frame>
 {
     before: Frame
     after: Frame
-    length: number = 0
+    length: number
 }
 
 export default class AnimationFrame<Frame>

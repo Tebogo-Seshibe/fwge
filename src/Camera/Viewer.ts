@@ -1,30 +1,38 @@
+import Camera, { ICamera } from './Camera'
 import Matrix4 from '../Maths/Matrix4'
 import Updateable from '../Interfaces/Updateable'
 import Vector3 from '../Maths/Vector3'
 
-export class IViewer
+export class IViewer extends ICamera
 {
     position: Vector3 = Vector3.ZERO
     target: Vector3 = Vector3.ZERO
 }
 
-export default class Viewer implements Updateable
+export default class Viewer extends Camera implements Updateable
 {
     public Position: Vector3
     public Target: Vector3
-    public Up: Vector3
-    protected Matrix: Matrix4
-    
-    constructor({ position, target }: IViewer = new IViewer)
+    private Up: Vector3 = new Vector3(0, 1, 0)
+    private Matrix: Matrix4 = Matrix4.IDENTITY
+
+    public get ViewMatrix(): Matrix4
     {
+        return this.Matrix.Clone()
+    }
+    
+    constructor({ name = 'Viewer', mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt, position, target }: IViewer = new IViewer)
+    {
+        super(name, mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt)
+
         this.Position = new Vector3(position)
         this.Target = new Vector3(target)
-        this.Up = new Vector3(0, 1, 0)
-        this.Matrix = Matrix4.IDENTITY
     }
 
-    Update(): void
+    public Update(): void
     {
+        super.Update()
+
         let n = this.Position.Clone().Diff(this.Target).Unit()
         let u = this.Up.Clone().Cross(n).Unit()
         let v = n.Clone().Cross(u).Unit()

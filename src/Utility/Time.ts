@@ -1,47 +1,40 @@
-import Updateable from '../Interfaces/Updateable'
-
-export default class Time implements Updateable
+export default class Time
 {
-    private _now: number
-    private _then: number
+    private static _now: number
+    private static _then: number
 
-    public RenderUpdate: number
-    public PhysicsUpdate: number
+    public static RenderUpdate: number
+    public static PhysicsUpdate: number
 
 
-    get Delta(): number
+    static get Delta(): number
     {
-        if (this._now && this._then)
-        {
-            return (this._now - this._then)
-        }
-
-        return 0
+        return (Time._now && Time._then) ? (Time._now - Time._then) : 0
     }
     
-    get RenderDelta(): number
+    static get RenderDelta(): number
     {
-        return this.Delta / this.RenderUpdate
+        return Time.Delta / Time.RenderUpdate
     }
     
-    get PhysicsDelta(): number
+    static get PhysicsDelta(): number
     {
-        return this.Delta / this.PhysicsUpdate
+        return Time.Delta / Time.PhysicsUpdate
     }
     
-    get Now(): Date
+    static get Now(): Date
     {
         return new Date(Date.now())
     }
     
-    Update(): void
+    static Update(): void
     {
-        if (!this._now)
+        if (!Time._now)
         {
-            this._now = Date.now()
+            Time._now = Date.now()
         }
         
-        this._then = this._now
-        this._now = Date.now()
+        Time._then = Time._now
+        Time._now = Date.now()
     }
 }

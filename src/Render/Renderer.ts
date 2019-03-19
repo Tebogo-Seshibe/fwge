@@ -1,7 +1,7 @@
 import AmbientLight from '../Light/AmbientLight'
 import DirectionalLight from '../Light/DirectionalLight'
 import FWGE from '../FWGE'
-import GameObject from '../GameObject'
+import GameObject, { GameObjects } from '../GameObject'
 import Light from '../Light/Light'
 import ModelView from './ModelView'
 import Matrix3 from '../Maths/Matrix3'
@@ -16,34 +16,30 @@ import ShaderAttributes from '../Shader/ShaderAttributes'
 
 export default class Renderer
 {
-    public static Render(): void
+    public static Init(): void
     {
-        Renderer.ClearBuffers();
-
-        /*for (var  i = 0, arr = GameObject.Objects; i < arr.length; ++i)
-        {
-            Renderer.SetGlobalUniforms();
-            Renderer.RenderObject(arr[i]);
-        }*/
-
-        //Renderer.FinalDraw();
-    }
-    
-    /*public static Init(): void
-    {
-        Renderer.WireframeShader = new Shader(Renderer.WireframeShader);    Shaders.pop();
-        Renderer.CombinedShader = new Shader(Renderer.CombinedShader);      Shaders.pop();
+        /*Renderer.WireframeShader = new Shader(Renderer.WireframeShader);    Shaders.pop();
+        Renderer.CombinedShader = new Shader(Renderer.CombinedShader);      Shaders.pop();*/
 
         FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
         FWGE.GL.disable(FWGE.GL.BLEND);
-    }*/
+    }
     
+    public static Update():void
+    {
+        Renderer.ClearBuffers()
+        Renderer.SetGlobalUniforms()
+        
+        for (let gameObject of GameObjects)
+        {
+            Renderer.RenderObject(gameObject)
+        }
+    }
+
     public static ClearBuffers(): void
     {
-        var i = Shaders.length;
-        while (--i >= 0)
+        for (let shader of Shaders)
         {
-            var shader = Shaders[i];
 
             FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, shader.FrameBuffer);
             FWGE.GL.viewport(0, 0, shader.Width, shader.Height);
@@ -55,18 +51,18 @@ export default class Renderer
         FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
     }
     
-    public static RenderObject(gameObject: GameObject): void
+    private static RenderObject({ Children, Mesh, Material, Transform }: GameObject): void
     {
-        ModelView.Push();
-        ModelView.Transform(gameObject.Transform);
-        var mv: Matrix4 = ModelView.Peek()
+        let mv: Matrix4 = ModelView.Push(Transform)
 
-        for (var i = 0; i < gameObject.Children.Length; ++i)
-            Renderer.RenderObject(gameObject.Children.Get(i).Value)
-        
-        if (gameObject.Mesh && gameObject.Material && gameObject.Material.Shader)
+        for (let child of Children)
         {
-            var shader = gameObject.Material.Shader;
+            Renderer.RenderObject(child)
+        }
+        
+        if (Mesh && Material && Material.Shader)
+        {
+            var shader = Material.Shader;
 
             FWGE.GL.useProgram(shader.Program);
             
@@ -75,28 +71,36 @@ export default class Renderer
             if (shader.Attributes.Colour !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour);
             if (shader.Attributes.UV !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.UV);
 
-            if (gameObject.Material.Alpha !== 1.0)
+            if (Material.Alpha !== 1.0)
             {
                 FWGE.GL.enable(FWGE.GL.BLEND);
                 FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
                 FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
             }
             
-            Renderer.BindAttributes(gameObject.Mesh, shader.Attributes)
-            Renderer.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv)
-            Renderer.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer)
-            // if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) Renderer.DrawWireframe(gameObject.Mesh, mv);
+            Renderer.BindAttributes(Mesh, shader.Attributes)
+            Renderer.SetObjectUniforms(Material, shader.Uniforms, mv)
+            Renderer.Draw(Mesh.VertexCount, shader.FrameBuffer)
             
-            if (gameObject.Material.Alpha !== 1.0)
+            if (Material.Alpha !== 1.0)
             {
                 FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
                 FWGE.GL.disable(FWGE.GL.BLEND);
             }
     
             FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal)
-            if (shader.Attributes.Colour !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour)
-            if (shader.Attributes.UV !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.UV)
+            if (shader.Attributes.Normal !== -1)
+            {
+                FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal)
+            }
+            if (shader.Attributes.Colour !== -1)
+            {
+                FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour)
+            }
+            if (shader.Attributes.UV !== -1)
+            {
+                FWGE.GL.disableVertexAttribArray(shader.Attributes.UV)
+            }
 
             FWGE.GL.useProgram(null);
         }
@@ -148,7 +152,7 @@ export default class Renderer
     private static SetObjectUniforms(material: RenderMaterial, uniforms: ShaderUniforms, mv: Matrix4): void
     {
         FWGE.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-        //FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, Renderer.CalculateNormalMatrix());
+        FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3(mv.Clone().Inverse()));
 
         FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient)
         FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse)
@@ -203,17 +207,16 @@ export default class Renderer
     {
         var i = Shaders.length
 
-        while (--i >= 0)
+        for (let shader of Shaders)
         {
-            var point_count = 0
+            FWGE.GL.useProgram(shader.Program)
             
-            FWGE.GL.useProgram(Shaders[i].Program);
-            var uniforms = Shaders[i].Uniforms.Light;
+            let point_count = 0
+            let matrix = shader.Uniforms.Matrix
+            let uniforms = shader.Uniforms.Light
             
-            for (var j = 0; j < Light.Lights.Length; ++j)
-            {
-                var light = Light.Lights[j]
-                
+            for (let light of Light.Lights)
+            {                
                 if (light instanceof AmbientLight)
                 {
                     FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour)
@@ -237,36 +240,22 @@ export default class Renderer
                 }
             }
 
-            FWGE.GL.uniform1i(uniforms.PointCount, point_count);
-            
-            // SET UNIFORM FOR NUMBER OF POINT LIGHTS
-            FWGE.GL.uniformMatrix4fv(Shaders[i].Uniforms.Matrix.Projection, false, new Float32Array(0))// Projection.ViewerMatrix);
+            FWGE.GL.uniform1i(uniforms.PointCount, point_count)
+            FWGE.GL.uniformMatrix4fv(matrix.Projection, false, Projection.Perspective(35, 16/9, 0.001, 10000))
         }
         
-        FWGE.GL.useProgram(null);
-    }
-    
-    CalculateNormalMatrix(): Matrix3
-    {
-        let mat = new Matrix4(ModelView.Peek());
-
-        return new Matrix3(mat.Inverse())
-        /*(
-            mat.M11, mat.M21, mat.M31,
-            mat.M12, mat.M22, mat.M32,
-            mat.M13, mat.M23, mat.M33
-        );*/
+        FWGE.GL.useProgram(null)
     }
     
     private static Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
     {
         //FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, framebuffer);
-        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-        FWGE.GL.drawElements(FWGE.GL.TRIANGLES, vertexCount, FWGE.GL.UNSIGNED_SHORT, 0);
-        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
+        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null)
+        FWGE.GL.drawElements(FWGE.GL.TRIANGLES, vertexCount, FWGE.GL.UNSIGNED_BYTE, 0)
+        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null)
     }
     
-    /*private static DrawWireframe(mesh: Mesh, mv: Matrix4): void
+    /*private static DrawWirefra0me(mesh: Mesh, mv: Matrix4): void
     {
         FWGE.GL.useProgram(Renderer.WireframeShader.Program);
         

@@ -9,14 +9,14 @@ export default class LightUniforms
     public readonly Ambient: AmbientUniforms
     public readonly Directional: DirectionalUniforms
     public readonly PointCount: WebGLUniformLocation
-    public readonly Point: PointUniform[]
+    public readonly Point: Array<PointUniform>
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {
         this.Ambient = new AmbientUniforms(gl, program)
         this.Directional = new DirectionalUniforms(gl, program)
         this.PointCount = gl.getUniformLocation(program, `U_Point_Count`)
-        this.Point
+        this.Point = new Array<PointUniform>(LightUniforms.MAX_LIGHT)
         
         for (var i = 0; i < LightUniforms.MAX_LIGHT; ++i)
         {

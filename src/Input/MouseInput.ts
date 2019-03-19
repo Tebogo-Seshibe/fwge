@@ -1,5 +1,5 @@
-import { InputState } from "./InputState"
-import Vector2 from "../Maths/Vector2"
+import { InputState } from './InputState'
+import Vector2 from '../Maths/Vector2'
 
 export default class MouseInput
 {
@@ -16,7 +16,7 @@ export default class MouseInput
 
         element.onmousedown = (e: MouseEvent) =>
         {
-            if (MouseInput.Buttons[e.button] == InputState.CLICKED)
+            if (MouseInput.Buttons[e.button] === InputState.CLICKED)
             {
                 MouseInput.Buttons[e.button] = InputState.DOWN
             }

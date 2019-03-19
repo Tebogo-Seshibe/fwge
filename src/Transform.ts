@@ -2,20 +2,20 @@ import Vector3 from './Maths/Vector3'
 
 class ITransform
 {
-    position?: Vector3 | Float32Array | number[] = Vector3.ZERO
-    rotation?: Vector3 | Float32Array | number[] = Vector3.ZERO
-    scale?: Vector3 | Float32Array | number[] = Vector3.ONE
-    shear?: Vector3 | Float32Array | number[] = Vector3.ZERO
+    position?: Vector3 | Float32Array | Array<number>
+    rotation?: Vector3 | Float32Array | Array<number>
+    scale?: Vector3 | Float32Array | Array<number>
+    shear?: Vector3 | Float32Array | Array<number>
 }
 
 export default class Transform
 {
-    Position: Vector3
-    Rotation: Vector3
-    Scale: Vector3
-    Shear: Vector3
+    public Position: Vector3
+    public Rotation: Vector3
+    public Scale: Vector3
+    public Shear: Vector3
 
-    constructor({position, rotation, scale, shear}: ITransform = new ITransform)
+    constructor({ position = Vector3.ZERO, rotation = Vector3.ZERO, scale = Vector3.ONE, shear = Vector3.ZERO }: ITransform = new ITransform)
     {
         this.Position = new Vector3(position)
         this.Rotation = new Vector3(rotation)
@@ -24,17 +24,17 @@ export default class Transform
     }
 
 
-    get UP(): Vector3
+    static get UP(): Vector3
     {
         return new Vector3(0, 1, 0)
     }
 
-    get FORWARD(): Vector3
+    static get FORWARD(): Vector3
     {
         return new Vector3(0, 0, 1)
     }
 
-    get RIGHT(): Vector3
+    static get RIGHT(): Vector3
     {
         return new Vector3(1, 0, 0)
     }

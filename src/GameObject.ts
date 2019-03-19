@@ -6,18 +6,20 @@ import PhysicsMaterial from './Physics/PhysicsMaterial'
 import RenderMaterial from './Render/RenderMaterial'
 import Transform from './Transform'
 
+export let GameObjects: Array<GameObject> = []
+
 export class IGameObject
 {
     name?: string
-    transform?: Transform
+    transform?: Transform = new Transform()
     material?: RenderMaterial
     mesh?: Mesh
     physics?: PhysicsMaterial
     animation?: Animation
-    begin?: Function
-    update?: Function
-    end?: Function
-    children?: List<GameObject>
+    begin?: Function = (): void => undefined
+    update?: Function = (): void => undefined
+    end?: Function = (): void => undefined
+    children?: Array<GameObject> = []
 }
 
 export default class GameObject extends Item
@@ -31,7 +33,7 @@ export default class GameObject extends Item
     Begin: Function
     Update: Function
     End: Function
-    Children: List<GameObject>
+    Children: Array<GameObject>
 
     constructor({ name, transform, material, mesh, physics, animation, begin, update, end, children }: IGameObject = new IGameObject)
     {
@@ -42,9 +44,23 @@ export default class GameObject extends Item
         this.End = end.bind(this)
 
         // this.AttachMany(transform, material, mesh, physics, animation)
+
+        this.Transform = transform
+        this.Mesh = mesh
+        this.Material = material
+        this.Physics = physics
+        this.Animation = animation
+
+        this.Children = []
+        for (let child of children)
+        {
+            this.Children.push(child)
+        }
+
+        GameObjects.push(this)
     }
 
-    Attach(item: GameItem): void
+    /*Attach(item: GameItem): void
     {
         if (item instanceof GameObject)
         {
@@ -74,7 +90,7 @@ export default class GameObject extends Item
     DetachMany(...items: GameItem[]): void
     {
         items.filter(item => item !== null && item !== undefined).forEach(item => this.Attach(item))
-    }
+    }*/
 
     Clone(): GameObject
     {
@@ -82,8 +98,10 @@ export default class GameObject extends Item
     }
 
     static Clone(gameObject: GameObject): GameObject
-    {
-        var clone = new GameObject(
+    {   
+        let children = gameObject.Children.map(child => child.Clone())
+
+        return new GameObject(
         {
             name:       gameObject.Name,
             transform:  new Transform(
@@ -98,11 +116,8 @@ export default class GameObject extends Item
             physics:    gameObject.Physics,
             begin:      gameObject.Begin,
             update:     gameObject.Update,
-            end:        gameObject.End
+            end:        gameObject.End,
+            children
         });
-        
-        clone.Children.AddAll(gameObject.Children.ToArray().map(child => child.Clone()))
-        
-        return clone;
     }
 }

@@ -5,14 +5,14 @@ type Particle = Transform
 
 class IParticleSystem
 {
-    name: string = 'Particle System'
+    name: string
 }
 
 export default class ParticleSystem extends Item
 {
     public readonly Particles: Particle[]
 
-    constructor({ name }: IParticleSystem)
+    constructor({ name = 'Particle System' }: IParticleSystem = new IParticleSystem())
     {
         super(name)
     }

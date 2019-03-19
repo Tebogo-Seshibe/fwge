@@ -1,27 +1,26 @@
 import AnimationFrame, { Frame } from './AnimationFrame'
 import Item from '../Item'
-import List from '../Utility/List'
 import Mesh from '../Render/Mesh'
 import RenderMaterial from '../Render/RenderMaterial'
 import Updateable from '../Interfaces/Updateable'
 
 export class IAnimation
 {
-    name: string = 'Animation'
+    name?: string
     mesh?: Mesh
     material?: RenderMaterial
-    frames?: Array<AnimationFrame<Frame>> | List<AnimationFrame<Frame>>
-    length: number = 0
+    frames?: Array<AnimationFrame<Frame>>
+    length?: number
 }
 
 export default class Animation extends Item implements Updateable
 {
-    public Frames: List<AnimationFrame<Frame>>
+    public Frames: Array<AnimationFrame<Frame>>
     public Mesh: Mesh
     public Material: RenderMaterial
     public Length: number
 
-    constructor({ name, mesh, material, frames, length }: IAnimation = new IAnimation)
+    constructor({ name = 'Animation', mesh, material, frames = [], length = 0 }: IAnimation = new IAnimation())
     {
         super(name)
         
@@ -29,26 +28,11 @@ export default class Animation extends Item implements Updateable
         this.Material = material
         this.Length = length
 
-        if (frames)
-        {
-            this.Add(frames)
-        }
+        frames.forEach(frame => this.Frames.push(frame))
     }
 
-    Add(frame: List<AnimationFrame<Frame>> | Array<AnimationFrame<Frame>> | AnimationFrame<Frame>): void
+    public Update(): void
     {
-        if (frame instanceof AnimationFrame)
-        {
-            this.Frames.Add
-        }
-        else
-        {
-            this.Frames.AddAll(frame)            
-        }
-    }
-
-    Update(): void
-    {
-        throw new Error('Method not implemented.')
+        console.log('Do the thing.')
     }
 }

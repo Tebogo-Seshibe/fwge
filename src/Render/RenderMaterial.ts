@@ -6,14 +6,13 @@ import Shader from '../Shader/Shader'
 
 export class IRenderMaterial
 {
-    name?: string = 'Render Material'
-    ambient?: Colour4 | Array<number> = [0.50, 0.50, 0.50, 1.00]
-    diffuse?: Colour4 | Array<number> = [0.75, 0.75, 0.75, 1.00]
-    specular?: Colour4 | Array<number> = [1.00, 1.00, 1.00, 1.00]
-    alpha?: number = 1
-    shininess?: number = 5
+    name?: string
+    ambient?: Colour4 | Array<number>
+    diffuse?: Colour4 | Array<number>
+    specular?: Colour4 | Array<number>
+    alpha?: number
+    shininess?: number
     shader?: Shader
-    texture?: any
 }
 
 export default class RenderMaterial extends Item
@@ -31,19 +30,18 @@ export default class RenderMaterial extends Item
 
     public Shader: Shader
 
-    constructor({name, ambient, diffuse, specular, alpha, shininess, shader, texture}: IRenderMaterial = new IRenderMaterial)
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader}: IRenderMaterial = new IRenderMaterial)
     {
         super(name)
-    }
 
-    AttachShader(shader: Shader): void
-    {
+        this.Ambient = new Colour4(ambient)
+        this.Diffuse = new Colour4(diffuse)
+        this.Specular = new Colour4(specular)
 
-    }
+        this.Alpha = alpha
+        this.Shininess = shininess
 
-    static BindMap(): void
-    {
-
+        this.Shader = shader
     }
 
     static ApplyImage(src: string, material: RenderMaterial, type: string): void

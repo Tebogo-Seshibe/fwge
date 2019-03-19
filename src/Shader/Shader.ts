@@ -1,15 +1,15 @@
 import Item from '../Item'
 import ShaderAttributes from './ShaderAttributes'
 import ShaderUniforms from './ShaderUniforms'
+import FWGE from '../FWGE';
 
 class IShader
 {
-    name: string = 'Shader'
-    height: number = 1024
-    width: number = 1024
-    vertexshader: string = ''
-    fragmentshader: string = ''
-    gl: WebGLRenderingContext
+    name?: string
+    height?: number
+    width?: number
+    vertexshader: string
+    fragmentshader: string
 }
 
 export let Shaders: Shader[] = []
@@ -26,9 +26,11 @@ export default class Shader extends Item
     public Height: number
     public Width: number
 
-    constructor({ name, height, width, vertexshader, fragmentshader, gl }: IShader)
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader}: IShader)
     {
         super(name)
+
+        let gl: WebGLRenderingContext = FWGE.GL
 
         this.Program = gl.createProgram()
         this.Texture = gl.createTexture()
@@ -36,13 +38,14 @@ export default class Shader extends Item
         this.RenderBuffer = gl.createRenderbuffer()
         this.Height = height
         this.Width = width
+        
+        Shader.Init(this, gl, vertexshader, fragmentshader)
 
         this.Attributes = new ShaderAttributes(gl, this.Program)
         this.Uniforms = new ShaderUniforms(gl, this.Program)
         
-        Shader.Init(this, new WebGLRenderingContext, vertexshader, fragmentshader)
         Shaders.push(this);
-    };
+    }
 
 
     static Init(shader: Shader, gl: WebGLRenderingContext, vertexshader: string, fragmentshader: string): void
@@ -87,8 +90,13 @@ export default class Shader extends Item
         gl.attachShader(shader.Program, fs);
         gl.linkProgram(shader.Program);
         if (!gl.getProgramParameter(shader.Program, gl.LINK_STATUS))
+        {
             errorLog.push(gl.getProgramInfoLog(shader.Program))
-
-        throw errorLog
+        }
+        
+        if (errorLog.length > 0)
+        {
+            throw errorLog
+        }
     }
 }

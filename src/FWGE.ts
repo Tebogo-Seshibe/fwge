@@ -1,12 +1,15 @@
+import Control from './Utility/Control'
+
 let GL: WebGLRenderingContext
 
 export class  IFWGE
 {
     canvas: HTMLCanvasElement
-    renderUpdate = 60
-    physcisUpdate = 30
-    clear: Float32Array | Array<number> = [0, 0, 0, 1]
+    renderupdate?: number
+    physcisupdate?: number
+    clear?: Float32Array | Array<number>
 }
+
 export default class FWGE
 {
     static get GL()
@@ -14,7 +17,7 @@ export default class FWGE
         return GL
     }
             
-    static Init({canvas, renderUpdate, physcisUpdate, clear}: IFWGE): void
+    static Init({ canvas, renderupdate = 60, physcisupdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
     {
         if (!canvas)
         {
@@ -29,20 +32,7 @@ export default class FWGE
         }
         
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
-    }
-    
-    Start(): void
-    {
-        // GameEngine.Start();
-    }
-    
-    Pause(): void
-    {
-        // GameEngine.Pause();
-    }
-    
-    Stop(): void
-    {
-        // GameEngine.Stop();
+
+        Control.Init(renderupdate, physcisupdate)
     }
 }
