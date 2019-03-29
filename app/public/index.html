@@ -21,19 +21,47 @@
                 padding: 0;
                 border: 0;
                 background: #272727;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
             canvas#canvas {
                 display: block;
                 position: absolute;
-                top: 2.5vh;
-                left: 5vw;
-                height: 95vh;
-                width: 90vw;
+                top: 5vh;
+                left: 2.5vw;
+                height: 90vh;
+                width: 75vw;
                 background: #272727;
+            }
+            div#controls {
+                display: block;
+                position: absolute;
+
+                top: 5vh;
+                left: 77.5vw;
+                height: 90vh;
+                width: 20vw;
+            }
+            button.button {
+                display: block;
+                position: relative;
+                top: 0px;
+                left: 5%;
+                height: 50px;
+                width: 90%;
+                margin-top: 10px;
+                border: 0;
+                text-align: center;
+                line-height: 50px;
+                color: #ffffff;
             }
         </style>
     </head>
     <body>
         <canvas height="1080" width="1920" id="canvas"></canvas>
+        <div id="controls">
+            <button class="button" style="background: #2ec169" id="play" onclick="Control.Start()">Start</button>
+            <button class="button" style="background: #d1bf3e" id="pause" onclick="Control.Pause()">Pause</button>
+            <button class="button" style="background: #bf4242" id="stop" onclick="Control.Stop()">Stop</button>
+        </div>
     </body>
 </html>

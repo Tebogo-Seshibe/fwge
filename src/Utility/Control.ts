@@ -9,9 +9,7 @@ export default class Control
 
     public static Init(renderUpdate: number, physicsUpdate: number): void
     {
-        Time.RenderUpdate = renderUpdate
-        Time.PhysicsUpdate = physicsUpdate
-
+        Time.Init(renderUpdate, physicsUpdate)
         Renderer.Init()
     }
     
@@ -22,6 +20,8 @@ export default class Control
             window.cancelAnimationFrame(Control.AnimationFrame)
         }
 
+        Time.Render.Reset()
+        Time.Physics.Reset()
         Control.Run()
     }
     
@@ -48,6 +48,9 @@ export default class Control
         // Input.Update()
 
         // PhysicsEngine.Update();
-        Renderer.Update()
+        if (Time.Render.Ready)
+        {
+            Renderer.Update()
+        }
     }
 }

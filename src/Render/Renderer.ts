@@ -13,6 +13,7 @@ import RenderMaterial from './RenderMaterial'
 import Shader, { Shaders } from '../Shader/Shader'
 import ShaderUniforms from '../Shader/ShaderUniforms'
 import ShaderAttributes from '../Shader/ShaderAttributes'
+import Camera from '../Camera/Camera';
 
 export default class Renderer
 {
@@ -240,8 +241,10 @@ export default class Renderer
                 }
             }
 
+            let main = Camera.Main;
+
             FWGE.GL.uniform1i(uniforms.PointCount, point_count)
-            FWGE.GL.uniformMatrix4fv(matrix.Projection, false, Projection.Perspective(35, 16/9, 0.001, 10000))
+            FWGE.GL.uniformMatrix4fv(matrix.Projection, false, Projection.Perspective(main.FieldOfView, main.AspectRatio, main.NearClipping, main.FarClipping))
         }
         
         FWGE.GL.useProgram(null)

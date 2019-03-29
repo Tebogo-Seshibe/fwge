@@ -45,7 +45,7 @@ export default class Colour4 extends Float32Array
     get BIN(): string
     {
         let str = 'b'
-        this.forEach(i => str += i.toString(2))
+        this.forEach(i => str += Math.round(i * 255).toString(2))
 
         return str
     }
@@ -53,7 +53,15 @@ export default class Colour4 extends Float32Array
     get OCT(): string
     {
         let str = 'o'
-        this.forEach(i => str += i.toString(8))
+        this.forEach(i => str += Math.round(i * 255).toString(8))
+
+        return str
+    }
+
+    get DEC(): string
+    {
+        let str = 'o'
+        this.forEach(i => str += Math.round(i * 255).toString(10))
 
         return str
     }
@@ -61,7 +69,7 @@ export default class Colour4 extends Float32Array
     get HEX(): string
     {
         let str = '#' 
-        this.forEach(i => str += i.toString(16))
+        this.forEach(i => str += Math.round(i * 255).toString(16))
 
         return str
     }

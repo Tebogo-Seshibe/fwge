@@ -13,6 +13,7 @@ export class IRenderMaterial
     alpha?: number
     shininess?: number
     shader?: Shader
+    imagemap: string
 }
 
 export default class RenderMaterial extends Item
@@ -30,7 +31,7 @@ export default class RenderMaterial extends Item
 
     public Shader: Shader
 
-    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader}: IRenderMaterial = new IRenderMaterial)
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader, imagemap }: IRenderMaterial = new IRenderMaterial)
     {
         super(name)
 
@@ -42,9 +43,14 @@ export default class RenderMaterial extends Item
         this.Shininess = shininess
 
         this.Shader = shader
+
+        if (imagemap)
+        {
+            RenderMaterial.ApplyImage(this, imagemap, 'image')
+        }
     }
 
-    static ApplyImage(src: string, material: RenderMaterial, type: string): void
+    static ApplyImage(material: RenderMaterial, src: string, type: string): void
     {
         let img: HTMLImageElement = new Image()
         let texture: WebGLTexture = null
@@ -94,10 +100,11 @@ export default class RenderMaterial extends Item
 
             //FWGE.GL.pixelStorei(FWGE.GL.UNPACK_FLIP_Y_WEBGL, true);                
             FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-        };
-        img.src = src;
-    }
+        }
 
+        img.src = src
+    }
+/*
     SetTextures({imagemap = 'undefined', bumpmap = 'undefined', specularmap = 'undefined'} = {}): void
     {
         if (!!imagemap)
@@ -121,5 +128,5 @@ export default class RenderMaterial extends Item
 
             RenderMaterial.ApplyImage(specularmap, this, 'specular');
         }
-    }
+    }*/
 }

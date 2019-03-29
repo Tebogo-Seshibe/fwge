@@ -4,6 +4,9 @@ import Item from '../Item'
 import Vector2 from '../Maths/Vector2'
 import Vector3 from '../Maths/Vector3'
 import Vector4 from '../Maths/Vector4'
+import { isNumber } from 'util';
+
+type VectorArray = Array<Vector2 | Vector3 | Vector4> 
 
 export enum BufferType
 {
@@ -36,6 +39,21 @@ export default class Mesh extends Item
     {
         super(name)
 
+        if (colour && colour.length === 0)
+        {
+            colour = undefined
+        }
+
+        if (uv && uv.length === 0)
+        {
+            uv = undefined
+        }
+
+        if (wireframe && wireframe.length === 0)
+        {
+            wireframe = undefined
+        }
+
         this.PositionBuffer = this.Bind(FWGE.GL, BufferType.POSITION, position)
         this.UVBuffer = this.Bind(FWGE.GL, BufferType.POSITION, uv)
         this.ColourBuffer = this.Bind(FWGE.GL, BufferType.POSITION, colour)
@@ -46,45 +64,38 @@ export default class Mesh extends Item
         this.VertexCount = index.length
     }
 
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector2> | Float32Array | Array<number>): WebGLBuffer
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector3> | Float32Array | Array<number>): WebGLBuffer
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Float32Array | Array<number>): WebGLBuffer
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Uint8Array | Array<number>): WebGLBuffer
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<number>): WebGLBuffer
-    Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Array<Vector3> | Array<Vector2> | Float32Array | Uint8Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Uint8Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Float32Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector2> | Float32Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector3> | Float32Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Float32Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Array<Vector3> | Array<Vector2> | Float32Array | Uint8Array | Array<number>): WebGLBuffer
     {
         if (!data)
-            return null
-
-        let buffer = gl.createBuffer()
-        
-        /*if (data instanceof Array)
         {
-            data = ArrayUtiils.FlattenVector(data as Array<Vector4>)
+            return null
         }
 
-        if (data instanceof List)
-        {
-            data = ListUtiils.FlattenVector(data as List<Vector4>)
-        }*/
+        let buffer = gl.createBuffer()
+        data = ArrayUtiils.Flatten(data)        
 
         switch (type)
         {
             case BufferType.INDEX:
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array((<any>data)), gl.STATIC_DRAW)
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW)
             break
 
             case BufferType.POSITION:
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array((<any>data)), gl.STATIC_DRAW)
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
             break
         }
 
         return buffer
     }
 
-    Unbind(gl: WebGLRenderingContext, buffer: WebGLBuffer): void
+    private Unbind(gl: WebGLRenderingContext, buffer: WebGLBuffer): void
     {
         gl.deleteBuffer(buffer)
     }

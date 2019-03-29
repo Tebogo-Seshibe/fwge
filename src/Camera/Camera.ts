@@ -40,6 +40,18 @@ export default class Camera extends Item implements Updateable
 
     public HorizontalTilt: number // Theta
     public VericalTilt: number // Phi
+
+    public static Cameras: Array<Camera> = [new Camera('Main Camera')]
+    
+    static get Main(): Camera
+    {
+        return Camera.Cameras[0]
+    }
+
+    static set Main(camera: Camera)
+    {
+        Camera.Cameras[0] = camera
+    }
     
     constructor(name: string, mode: ViewMode = ViewMode.PERSPECTIVE, fieldOfView: number = 35, aspectRatio: number = 16/9, nearClipping: number = 0.001, farClipping: number = 10000, left: number = -10, right: number = 10, top: number = 10, bottom: number = -10, horizontalTilt: number = 90, vericalTilt: number = 90)
     {

@@ -16,10 +16,10 @@ export class IGameObject
     mesh?: Mesh
     physics?: PhysicsMaterial
     animation?: Animation
-    begin?: Function = (): void => undefined
-    update?: Function = (): void => undefined
-    end?: Function = (): void => undefined
-    children?: Array<GameObject> = []
+    begin?: Function
+    update?: Function
+    end?: Function
+    children?: Array<GameObject>
 }
 
 export default class GameObject extends Item
@@ -35,7 +35,7 @@ export default class GameObject extends Item
     End: Function
     Children: Array<GameObject>
 
-    constructor({ name, transform, material, mesh, physics, animation, begin, update, end, children }: IGameObject = new IGameObject)
+    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = (): void => undefined, update = (): void => undefined, end = (): void => undefined, children = [] }: IGameObject = new IGameObject)
     {
         super(name);
     

@@ -16,20 +16,13 @@ export default class MouseInput
 
         element.onmousedown = (e: MouseEvent) =>
         {
-            if (MouseInput.Buttons[e.button] === InputState.CLICKED)
-            {
-                MouseInput.Buttons[e.button] = InputState.DOWN
-            }
-            else
-            {
-                MouseInput.Buttons[e.button] = InputState.CLICKED
-            }
+            MouseInput.Buttons[e.button] = InputState.DOWN
         }
 
         element.onmousemove = (e: MouseEvent) =>
         {
+            MouseInput.Delta.Set(e.clientX - MouseInput.Axes.X, e.clientY - MouseInput.Axes.Y)
             MouseInput.Axes.Set(e.clientX, e.clientY)
-            MouseInput.Delta.Set(e.movementX, e.movementY)
         }
     }
 }

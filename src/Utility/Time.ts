@@ -1,40 +1,66 @@
-export default class Time
+import Updateable from '../Interfaces/Updateable'
+
+class TimeKeep implements Updateable
 {
-    private static _now: number
-    private static _then: number
+    private Now: number
+    private Then: number
 
-    public static RenderUpdate: number
-    public static PhysicsUpdate: number
+    public Delta: number
+    public Period: number
+    public Ready: boolean
 
+    constructor(period: number)
+    {
+        this.Period = 1000 / period
+        this.Reset()
+    }
 
-    static get Delta(): number
+    public Reset(): void
     {
-        return (Time._now && Time._then) ? (Time._now - Time._then) : 0
+        this.Ready = false
+        this.Then = this.Now = Date.now()
+        this.Delta = 0
     }
-    
-    static get RenderDelta(): number
+
+    public Update(): void
     {
-        return Time.Delta / Time.RenderUpdate
-    }
-    
-    static get PhysicsDelta(): number
-    {
-        return Time.Delta / Time.PhysicsUpdate
-    }
-    
-    static get Now(): Date
-    {
-        return new Date(Date.now())
-    }
-    
-    static Update(): void
-    {
-        if (!Time._now)
+        this.Then = this.Now
+        this.Now = Date.now()
+
+        if (this.Ready)
         {
-            Time._now = Date.now()
+            this.Delta = this.Now - this.Then
+        }
+        else
+        {
+            this.Delta += this.Now - this.Then
         }
         
-        Time._then = Time._now
-        Time._now = Date.now()
+        if (this.Delta > this.Period)
+        {
+            this.Ready = true
+        }
+        else
+        {
+            this.Ready = false
+        }
+    }
+}
+
+export default class Time
+{
+    public static Render: TimeKeep
+    public static Physics: TimeKeep
+
+    static Init(render: number, physics: number)
+    {
+        Time.Render = new TimeKeep(render)
+        Time.Physics = new TimeKeep(physics)
+    }
+
+    static Update(): void
+    {
+        Time.Render.Update()
+        Time.Physics.Update()
     }
 }
