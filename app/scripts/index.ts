@@ -1,6 +1,7 @@
 import FWGE from '../../src/FWGE'
 import Control from '../../src/Utility/Control'
 import OBJConverter from '../../src/Utility/Converter/OBJConverter'
+import GameObject from '../../src/GameObject';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -23,7 +24,7 @@ async function makeCube()
 {    
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
-    
+
     /*let shader = new Shader(
     {
         name: 'Just another shader',

@@ -13,7 +13,9 @@ export class IRenderMaterial
     alpha?: number
     shininess?: number
     shader?: Shader
-    imagemap: string
+    imagemap?: string
+    normalmap?: string
+    specularmap?: string
 }
 
 export default class RenderMaterial extends Item

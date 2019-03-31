@@ -6,6 +6,8 @@ import PhysicsMaterial from './Physics/PhysicsMaterial'
 import RenderMaterial from './Render/RenderMaterial'
 import Transform from './Transform'
 
+type GameObjectFunction = (this: GameObject) => void
+
 export let GameObjects: Array<GameObject> = []
 
 export class IGameObject
@@ -16,9 +18,9 @@ export class IGameObject
     mesh?: Mesh
     physics?: PhysicsMaterial
     animation?: Animation
-    begin?: Function
-    update?: Function
-    end?: Function
+    begin?: GameObjectFunction
+    update?: GameObjectFunction
+    end?: GameObjectFunction
     children?: Array<GameObject>
 }
 
@@ -30,9 +32,9 @@ export default class GameObject extends Item
     Mesh: Mesh
     Physics: PhysicsMaterial
     Animation: Animation
-    Begin: Function
-    Update: Function
-    End: Function
+    Begin: GameObjectFunction
+    Update: GameObjectFunction
+    End: GameObjectFunction
     Children: Array<GameObject>
 
     constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = (): void => undefined, update = (): void => undefined, end = (): void => undefined, children = [] }: IGameObject = new IGameObject)

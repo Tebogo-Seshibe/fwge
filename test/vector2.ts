@@ -1,23 +1,27 @@
-import Vector2 from '../../../src/Maths/Vector2'
-import Maths from '../../../src/Maths/Maths'
-
+import Vector2 from '../src/Maths/Vector2'
+import Maths from '../src/Maths/Maths'
 import { expect } from 'chai'
-import 'mocha'
+import { describe , it } from 'mocha'
 
-export default () => {    
-    describe('Vector2', () => {
-        describe('Constructor', () => {
+export default () =>
+{
+    describe('Vector2', () =>
+    {
+        describe('Constructor', () =>
+        {
             let vector = new Vector2(5, -7)                
             
             it('Should not be null', () => expect(vector).is.not.null)
-            it('Should be set to <5, -7>', () => {
+            it('Should be set to <5, -7>', () =>
+            {
                 expect(vector.X).eq(5)
                 expect(vector.Y).eq(-7)
             })
             it('toString() should be "<5, -7>"', () => expect(vector.toString()).is.eq('<5, -7>'))
         })
 
-        describe('Properties', () => {
+        describe('Properties', () =>
+        {
             let zero = Maths.CleanFloat(0)
             let one = Maths.CleanFloat(1)
             let rt1_2 = Maths.CleanFloat(Math.sqrt(1/2))
@@ -32,7 +36,8 @@ export default () => {
             it(`Vector.UNIT.Length \t= ${one}`,     () => expect(Vector2.UNIT.Length).is.eq(one))
         })
         
-        describe('Methods', () => {
+        describe('Methods', () =>
+        {
             let rt1_2 = Maths.CleanFloat(Math.sqrt(1/2))
 
             it(`Set:    <3, 2>          = <3, 2>`,      () => expect(Vector2.ONE.Set(3, 2)) .is.eql(new Float32Array([3, 2])))

@@ -2066,7 +2066,7 @@ class OBJConverter {
         let curr;
         while (start !== -1 && !kind) {
             text = text.substring(start);
-            start = text.search(/[a-z]+/);
+            start = text.search(/\w+/);
             curr = text.substring(start, text.search(/\s/));
             if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#'].includes(curr)) {
                 kind = curr;

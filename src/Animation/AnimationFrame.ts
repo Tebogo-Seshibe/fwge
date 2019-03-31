@@ -3,23 +3,26 @@ import Transform from '../Transform'
 
 export type Frame = Colour4 | Transform
 
+export class AnimationFrameGroup
+{
+    Colour: Colour4
+    Transform: Transform
+}
+
 export class IAnimationFrame<Frame>
 {
-    before: Frame
-    after: Frame
-    length: number
+    frame: Frame
+    time: number
 }
 
 export default class AnimationFrame<Frame>
 {
-    public Before: Frame
-    public After: Frame
-    public Length: number
+    public Frame: Frame
+    public Time: number
 
-    constructor({ before, after, length }: IAnimationFrame<Frame>)
+    constructor({ frame, time }: IAnimationFrame<Frame>)
     {
-        this.Before = before
-        this.After = after
-        this.Length = length
+        this.Frame = frame
+        this.Time = time
     }
 }
