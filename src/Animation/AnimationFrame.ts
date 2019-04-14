@@ -11,18 +11,18 @@ export class AnimationFrameGroup
 
 export class IAnimationFrame<Frame>
 {
-    frame: Frame
+    value: Frame
     time: number
 }
 
-export default class AnimationFrame<Frame>
+export default class AnimationFrame<Value>
 {
-    public Frame: Frame
+    public Value: Value
     public Time: number
 
-    constructor({ frame, time }: IAnimationFrame<Frame>)
+    constructor({ value, time }: IAnimationFrame<Value>)
     {
-        this.Frame = frame
+        this.Value = value
         this.Time = time
     }
 }

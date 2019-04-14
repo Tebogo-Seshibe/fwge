@@ -15,10 +15,10 @@ export default () =>
             {
                 frames:
                 [
-                    new AnimationFrame<Colour4>({ before: new Colour4(), after: new Colour4(), time: 1 }),
-                    new AnimationFrame<Colour4>({ before: new Colour4(), after: new Colour4(), time: 2 }),
-                    new AnimationFrame<Colour4>({ before: new Colour4(), after: new Colour4(), time: 3 }),
-                    new AnimationFrame<Colour4>({ before: new Colour4(), after: new Colour4(), time: 4 })
+                    new AnimationFrame<Colour4>({ value: new Colour4(), time: 1 }),
+                    new AnimationFrame<Colour4>({ value: new Colour4(), time: 2 }),
+                    new AnimationFrame<Colour4>({ value: new Colour4(), time: 3 }),
+                    new AnimationFrame<Colour4>({ value: new Colour4(), time: 4 })
                 ],
 
                 mesh: null,
