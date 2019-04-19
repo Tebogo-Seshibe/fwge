@@ -1,9 +1,9 @@
 import FWGE from '../src/FWGE'
 import { expect } from 'chai'
-import { JSDOM } from  'jsdom'
+//import { JSDOM } from  'jsdom'
 import { describe , it } from 'mocha'
 
-let dom = new JSDOM(
+/*let dom = new JSDOM(
 `<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -15,7 +15,7 @@ let dom = new JSDOM(
     <body>
         <canvas height="1080" width="1920" id="canvas"></canvas>
     </body>
-</html>`)
+</html>`)*/
 
 export default () =>
 {
