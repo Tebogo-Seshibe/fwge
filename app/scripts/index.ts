@@ -25,6 +25,8 @@ async function makeCube()
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
 
+
+    console.log('did the thing')
     /*let shader = new Shader(
     {
         name: 'Just another shader',

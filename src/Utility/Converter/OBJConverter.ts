@@ -2,7 +2,7 @@ import Converter from './Converter'
 import Vector2 from '../../Maths/Vector2'
 import Vector3 from '../../Maths/Vector3'
 
-type ObjKeyword = 'mtllib' | 'g' | 'o' | 'v' | 'vn' | 'vt' | 'usemtl' | 'f' | '#'
+type ObjKeyword = 'mtllib' | 'g' | 'o' | 'v' | 'vn' | 'vt' | 'usemtl' | 's' | 'f' | '#'
 
 class IObjMesh
 {
@@ -10,6 +10,7 @@ class IObjMesh
     vn: Array<Vector3> = []
     vt: Array<Vector2> = []
     usemtl: string
+    s: string
     f: Array<Array<number>> = []
 }
 
@@ -193,10 +194,8 @@ export default class OBJConverter implements Converter
 
     //#region obj state machine
     private static ObjNext(text: string, start: number): [ number, ObjKeyword  ]
-    {        
-        debugger
-
-        let index: number = 0
+    {
+        let index: number = start
         let kind: ObjKeyword = undefined
         let curr: string
         
@@ -205,22 +204,20 @@ export default class OBJConverter implements Converter
             text = text.substring(start)
             start = text.search(/\w+/)
             curr = text.substring(start, text.search(/\s/))
+            index += curr.length
             
-            if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#'].includes(curr))
+            if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#', 's'].includes(curr))
             {
                 kind = <ObjKeyword>curr
-                index = start +  curr.length
             }
         }
 
-        console.table([ index, kind ])
-        
         return [ index, kind ]
     }
 
     static ParseObj(input: string): void
     {
-        console.log(OBJConverter.obj(input))
+        OBJConverter.obj(input)
     }
     
     private static obj(input: string): IObj
@@ -230,9 +227,9 @@ export default class OBJConverter implements Converter
         let kind: ObjKeyword
 
         do
-        {
-            
+        {            
             [ index, kind ] = OBJConverter.ObjNext(input, index)
+            debugger
 
             switch (kind)
             {
@@ -248,6 +245,8 @@ export default class OBJConverter implements Converter
                     [ index, result.o ] = OBJConverter.o(input, index)
                 break
             }
+            
+            console.log([ index, kind, result ])
         }
         while (index !== -1)
 
@@ -281,6 +280,7 @@ export default class OBJConverter implements Converter
         let vn: Vector3
         let vt: Vector2
         let usemtl: string
+        let s: string
         let f: Array<number>
 
         for (let char: string = ''; char !== '\n'; char = input[++index])
@@ -314,11 +314,17 @@ export default class OBJConverter implements Converter
                     [ index, usemtl ] = OBJConverter.usemtl(input, index)
                 break
 
+                case 's':
+                    [ index, s ] = OBJConverter.usemtl(input, index)
+                break
+
                 case 'f':
                     [ index, f ] = OBJConverter.f(input, index)
                     result.f.push(f)
                 break
             }
+            
+            console.log([ index, kind, v, vn, vt, usemtl, s, f ])
         }
         while (index !== -1)
 
@@ -339,7 +345,7 @@ export default class OBJConverter implements Converter
             v += float
         }
 
-        return [ index, new Vector3(v.split('\s+').map(val => +(val.trim()))) ]
+        return [ index, new Vector3(v.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
     }
 
     private static vn(input: string, index: number): [ number, Vector3 ]
@@ -351,7 +357,7 @@ export default class OBJConverter implements Converter
             vn += float
         }
 
-        return [ index, new Vector3(vn.split('\s+').map(val => +(val.trim()))) ]
+        return [ index, new Vector3(vn.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
     }
 
     private static vt(input: string, index: number): [ number, Vector2 ]
@@ -363,31 +369,40 @@ export default class OBJConverter implements Converter
             vt += float
         }
 
-        return [ index, new Vector2(vt.split('\s+').map(val => +(val.trim()))) ]
+        return [ index, new Vector2(vt.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
     }
 
     private static usemtl(input: string, index: number): [ number, string ]
     {
-        let usemtl: string = ''
-
-        for (let char: string = ''; char !== '\n' && (index + 1) < input.length; char = input[++index])
-        {
-            usemtl += char
-        }
+        let [usemtl, i] = OBJConverter.readToEnd(input, index)
 
         return [ index, usemtl.trim() ]
     }
 
+    private static s(input: string, index: number): [ number, string ]
+    {
+        let [s, i] = OBJConverter.readToEnd(input, index)
+
+        return [ i, s.trim() ]
+    }
+
     private static f(input: string, index: number): [ number, Array<number> ]
     {
-        let f: string = ''
+        let [f, i] = OBJConverter.readToEnd(input, index)
 
-        for (let float: string = ''; float !== '\n' && (index + 1) < input.length; float = input[++index])
+        return [ i, f.split(/\s+/).map(val => +(val.trim())) ]
+    }
+    
+    private static readToEnd(input: string, index: number): [string, number]
+    {
+        let str = ''
+        
+        for (let char: string = ''; char !== '\n' && (index + 1) < input.length; char = input[++index])
         {
-            f += float
-        }
+            str += char
+        }    
 
-        return [ index, f.split('\s+').map(val => +(val.trim())) ]
+        return [str, index]
     }
     //#endregion
 }

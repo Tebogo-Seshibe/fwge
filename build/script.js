@@ -31,6 +31,7 @@ function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
         let obj = yield (yield fetch('/res/Objects/Cube/Cube.obj')).text();
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
+        console.log('did the thing');
         fwge.object = OBJConverter_1.default.Parse(obj, mtl);
     });
 }
@@ -2060,24 +2061,22 @@ class OBJConverter {
         OBJConverter.ParseObj(obj);
     }
     static ObjNext(text, start) {
-        debugger;
-        let index = 0;
+        let index = start;
         let kind = undefined;
         let curr;
         while (start !== -1 && !kind) {
             text = text.substring(start);
             start = text.search(/\w+/);
             curr = text.substring(start, text.search(/\s/));
+            index += curr.length;
             if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#'].includes(curr)) {
                 kind = curr;
-                index = start + curr.length;
             }
         }
-        console.table([index, kind]);
         return [index, kind];
     }
     static ParseObj(input) {
-        console.log(OBJConverter.obj(input));
+        OBJConverter.obj(input);
     }
     static obj(input) {
         let result = new IObj;
@@ -2085,6 +2084,7 @@ class OBJConverter {
         let kind;
         do {
             [index, kind] = OBJConverter.ObjNext(input, index);
+            debugger;
             switch (kind) {
                 case 'mtllib':
                     [index, result.mtllib] = OBJConverter.mtllib(input, index);
@@ -2096,6 +2096,7 @@ class OBJConverter {
                     [index, result.o] = OBJConverter.o(input, index);
                     break;
             }
+            console.log([index, kind, result]);
         } while (index !== -1);
         return result;
     }
@@ -2145,6 +2146,7 @@ class OBJConverter {
                     result.f.push(f);
                     break;
             }
+            console.log([index, kind, v, vn, vt, usemtl, f]);
         } while (index !== -1);
         if (usemtl) {
             result.usemtl = usemtl.trim();
@@ -2156,21 +2158,21 @@ class OBJConverter {
         for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
             v += float;
         }
-        return [index, new Vector3_1.default(v.split('\s+').map(val => +(val.trim())))];
+        return [index, new Vector3_1.default(v.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
     }
     static vn(input, index) {
         let vn = '';
         for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
             vn += float;
         }
-        return [index, new Vector3_1.default(vn.split('\s+').map(val => +(val.trim())))];
+        return [index, new Vector3_1.default(vn.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
     }
     static vt(input, index) {
         let vt = '';
         for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
             vt += float;
         }
-        return [index, new Vector2_1.default(vt.split('\s+').map(val => +(val.trim())))];
+        return [index, new Vector2_1.default(vt.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
     }
     static usemtl(input, index) {
         let usemtl = '';
@@ -2184,7 +2186,7 @@ class OBJConverter {
         for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
             f += float;
         }
-        return [index, f.split('\s+').map(val => +(val.trim()))];
+        return [index, f.split(/\s+/).map(val => +(val.trim()))];
     }
 }
 exports.default = OBJConverter;
