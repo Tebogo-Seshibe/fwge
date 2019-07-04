@@ -1,51 +1,25 @@
 import Converter from './Converter'
 import Vector2 from '../../Maths/Vector2'
 import Vector3 from '../../Maths/Vector3'
-
-type ObjKeyword = 'mtllib' | 'g' | 'o' | 'v' | 'vn' | 'vt' | 'usemtl' | 's' | 'f' | '#'
-
-class IObjMesh
-{
-    v: Array<Vector3> = []
-    vn: Array<Vector3> = []
-    vt: Array<Vector2> = []
-    usemtl: string
-    s: string
-    f: Array<Array<number>> = []
-}
-
-class IObjectMesh extends IObjMesh
-{
-    o: string
-}
-
-class IGroupMesh extends IObjMesh
-{
-    g: string
-}
-
-class IObj
-{
-    mtllib: string
-    g: IGroupMesh
-    o: IObjectMesh
-}
+import Vector4 from '../../Maths/Vector4'
+import Mesh, { IMesh } from '../../Render/Mesh'
+import GameObject from '../../GameObject'
+import Colour4 from '../../Render/Colour4'
+import RenderMaterial, { IRenderMaterial } from '../../Render/RenderMaterial'
 
 
 export default class OBJConverter implements Converter
 {
-    static Parse(obj: string, mtl: string): void //GameObject
+    static Parse(obj: string, mtl: string): GameObject
     {
-        OBJConverter.ParseObj(obj)
-        /*
         return new GameObject(
         {
             mesh: OBJConverter.ParseMesh(obj),
             material: OBJConverter.ParseRenderMaterial(mtl)
-        })*/
+        })
     }    
 
-    /*static ParseMesh(obj: string): Mesh
+    static ParseMesh(obj: string): Mesh
     {
         let lines: string[] = obj.split('\n')
         
@@ -190,219 +164,5 @@ export default class OBJConverter implements Converter
         }
 
         return new RenderMaterial({ name, shininess, ambient, diffuse, specular, alpha, imagemap })
-    }*/
-
-    //#region obj state machine
-    private static ObjNext(text: string, start: number): [ number, ObjKeyword  ]
-    {
-        let index: number = start
-        let kind: ObjKeyword = undefined
-        let curr: string
-        
-        while (start !== -1 && !kind)
-        {
-            text = text.substring(start)
-            start = text.search(/\w+/)
-            curr = text.substring(start, text.search(/\s/))
-            index += curr.length
-            
-            if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#', 's'].includes(curr))
-            {
-                kind = <ObjKeyword>curr
-            }
-        }
-
-        return [ index, kind ]
     }
-
-    static ParseObj(input: string): void
-    {
-        OBJConverter.obj(input)
-    }
-    
-    private static obj(input: string): IObj
-    {
-        let result: IObj = new IObj
-        let index: number = 0
-        let kind: ObjKeyword
-
-        do
-        {            
-            [ index, kind ] = OBJConverter.ObjNext(input, index)
-            debugger
-
-            switch (kind)
-            {
-                case 'mtllib':
-                    [ index, result.mtllib ] = OBJConverter.mtllib(input, index)
-                break
-
-                case 'g':
-                    [ index, result.g ] = OBJConverter.g(input, index)
-                break
-
-                case 'o':
-                    [ index, result.o ] = OBJConverter.o(input, index)
-                break
-            }
-            
-            console.log([ index, kind, result ])
-        }
-        while (index !== -1)
-
-        return result
-    }
-
-    private static mtllib(input: string, index: number): [ number, string ]
-    {
-        let mtllib: string = ''
-
-        for (let char: string = ''; char !== '\n' && (index + 1) < input.length; char = input[++index])
-        {
-            mtllib += char
-        }
-
-        return [ index, mtllib.trim() ]
-    }
-
-    private static g(input: string, index: number): [ number, IGroupMesh ]
-    {
-        return null
-    }
-
-    private static o(input: string, index: number): [ number, IObjectMesh ]
-    {
-        let result: IObjectMesh = new IObjectMesh
-        let kind: ObjKeyword
-
-        let o: string = ''
-        let v: Vector3
-        let vn: Vector3
-        let vt: Vector2
-        let usemtl: string
-        let s: string
-        let f: Array<number>
-
-        for (let char: string = ''; char !== '\n'; char = input[++index])
-        {
-            o += char
-        }
-        result.o = o.trim()
-
-        do
-        {
-            [ index, kind ] = OBJConverter.ObjNext(input, index)
-
-            switch (kind)
-            {
-                case 'v':
-                    [ index, v ] = OBJConverter.v(input, index)
-                    result.v.push(v)
-                break
-
-                case 'vn':
-                    [ index, vn ] = OBJConverter.vn(input, index)
-                    result.vn.push(vn)
-                break
-
-                case 'vt':
-                    [ index, vt ] = OBJConverter.vt(input, index)
-                    result.vt.push(vt)
-                break
-
-                case 'usemtl':
-                    [ index, usemtl ] = OBJConverter.usemtl(input, index)
-                break
-
-                case 's':
-                    [ index, s ] = OBJConverter.usemtl(input, index)
-                break
-
-                case 'f':
-                    [ index, f ] = OBJConverter.f(input, index)
-                    result.f.push(f)
-                break
-            }
-            
-            console.log([ index, kind, v, vn, vt, usemtl, s, f ])
-        }
-        while (index !== -1)
-
-        if (usemtl)
-        {
-            result.usemtl = usemtl.trim()
-        }
-        
-        return [ index, result ]
-    }
-
-    private static v(input: string, index: number): [ number, Vector3 ]
-    {
-        let v: string = ''
- 
-        for (let float: string = ''; float !== '\n' && (index + 1) < input.length; float = input[++index])
-        {
-            v += float
-        }
-
-        return [ index, new Vector3(v.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
-    }
-
-    private static vn(input: string, index: number): [ number, Vector3 ]
-    {
-        let vn: string = ''
-
-        for (let float: string = ''; float !== '\n' && (index + 1) < input.length; float = input[++index])
-        {
-            vn += float
-        }
-
-        return [ index, new Vector3(vn.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
-    }
-
-    private static vt(input: string, index: number): [ number, Vector2 ]
-    {
-        let vt: string = ''
-
-        for (let float: string = ''; float !== '\n' && (index + 1) < input.length; float = input[++index])
-        {
-            vt += float
-        }
-
-        return [ index, new Vector2(vt.trim().split(/\s+/).map(val => parseFloat(val.trim()))) ]
-    }
-
-    private static usemtl(input: string, index: number): [ number, string ]
-    {
-        let [usemtl, i] = OBJConverter.readToEnd(input, index)
-
-        return [ index, usemtl.trim() ]
-    }
-
-    private static s(input: string, index: number): [ number, string ]
-    {
-        let [s, i] = OBJConverter.readToEnd(input, index)
-
-        return [ i, s.trim() ]
-    }
-
-    private static f(input: string, index: number): [ number, Array<number> ]
-    {
-        let [f, i] = OBJConverter.readToEnd(input, index)
-
-        return [ i, f.split(/\s+/).map(val => +(val.trim())) ]
-    }
-    
-    private static readToEnd(input: string, index: number): [string, number]
-    {
-        let str = ''
-        
-        for (let char: string = ''; char !== '\n' && (index + 1) < input.length; char = input[++index])
-        {
-            str += char
-        }    
-
-        return [str, index]
-    }
-    //#endregion
 }

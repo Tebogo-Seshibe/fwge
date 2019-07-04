@@ -1,10 +1,16 @@
 import FWGE from '../../src/FWGE'
 import Control from '../../src/Utility/Control'
 import OBJConverter from '../../src/Utility/Converter/OBJConverter'
-import GameObject from '../../src/GameObject';
+import GameObject from '../../src/GameObject'
+import Shader from '../../src/Shader/Shader'
+import Time from '../../src/Utility/Time'
+import Camera from '../../src/Camera/Camera'
+import ParticleSystem from '../../src/ParticleSystem'
 
 let fwge = <any>window
 fwge.Control = Control
+fwge.Camera = Camera
+fwge.FWGE = FWGE
 
 window.onload = () => {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -14,7 +20,7 @@ window.onload = () => {
         canvas,
         clear: [0, 0, 0, 0],
         physcisupdate: 30,
-        renderupdate: 60
+        renderupdate: 75
     })
 
     makeCube()
@@ -24,10 +30,9 @@ async function makeCube()
 {    
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
+    let system: ParticleSystem
 
-
-    console.log('did the thing')
-    /*let shader = new Shader(
+    let shader = new Shader(
     {
         name: 'Just another shader',
         vertexshader: `
@@ -203,13 +208,22 @@ async function makeCube()
             }`,
         height: 1920,
         width: 1080
-    })*/
+    })
 
-    fwge.object = OBJConverter.Parse(obj, mtl)
-    /*
-    fwge.object.Material.Shader = shader
-    fwge.object.Transform.Position.Z = -5
-    fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
+    fwge.mesh = OBJConverter.ParseMesh(obj)
+    fwge.material = OBJConverter.ParseRenderMaterial(mtl)
+    fwge.material.Shader = shader
 
-    Control.Start()*/
+    fwge.system = new ParticleSystem(
+    {
+        name: 'Example',  
+        mesh: fwge.mesh,
+        material: fwge.material,
+        length: 1,
+        details: null
+    })
+    //fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
+
+
+    Control.Start()
 }

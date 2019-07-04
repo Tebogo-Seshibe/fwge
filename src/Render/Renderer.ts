@@ -14,6 +14,14 @@ import Shader, { Shaders } from '../Shader/Shader'
 import ShaderUniforms from '../Shader/ShaderUniforms'
 import ShaderAttributes from '../Shader/ShaderAttributes'
 import Camera from '../Camera/Camera';
+import ParticleSystem, { ParticleSystems } from '../ParticleSystem';
+import Transform from '../Transform';
+
+type Renderable = 
+{
+    mesh: Mesh
+    material: RenderMaterial
+}
 
 export default class Renderer
 {
@@ -24,6 +32,7 @@ export default class Renderer
 
         FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
         FWGE.GL.disable(FWGE.GL.BLEND);
+        FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
     }
     
     public static Update():void
@@ -33,7 +42,12 @@ export default class Renderer
         
         for (let gameObject of GameObjects)
         {
-            Renderer.RenderObject(gameObject)
+            this.Render(gameObject)
+        }
+        
+        for (let particleSystem of ParticleSystems)
+        {
+            this.Render(particleSystem)
         }
     }
 
@@ -52,61 +66,93 @@ export default class Renderer
         FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
     }
     
-    private static RenderObject({ Children, Mesh, Material, Transform }: GameObject): void
+    private static Render(particleSystem: ParticleSystem):void
+    private static Render(gameObject: GameObject):void
+    private static Render(item: ParticleSystem | GameObject):void
     {
-        let mv: Matrix4 = ModelView.Push(Transform)
-
-        for (let child of Children)
+        if (item instanceof ParticleSystem)
         {
-            Renderer.RenderObject(child)
+            for (var particle of item.Particles)
+            {
+                ModelView.Push(particle)
+
+                this.RenderObject(
+                {
+                    material: item.Material,
+                    mesh: item.Mesh
+                })
+            }
+
+        }
+        else if (item instanceof GameObject)
+        {
+            if (item.Children.length > 0)
+            {
+                ModelView.Push(item.Transform)
+                item.Children.forEach(child => this.Render(child))
+            }
+
+            ModelView.Push(item.Transform)
+            this.RenderObject(
+            {
+                material: item.Material,
+                mesh: item.Mesh
+            })
+        }
+    }
+    
+    private static RenderObject({ mesh, material }: Renderable): void
+    {
+        let modelView: Matrix4 = ModelView.Pop()
+        let shader: Shader = material.Shader;
+
+        FWGE.GL.useProgram(shader.Program);
+        
+        FWGE.GL.enableVertexAttribArray(shader.Attributes.Position);
+        if (shader.Attributes.Normal !== -1) 
+        {
+            FWGE.GL.enableVertexAttribArray(shader.Attributes.Normal)
+        }
+        if (shader.Attributes.Colour !== -1) 
+        {
+            FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour)
+        }
+        if (shader.Attributes.UV !== -1) 
+        {
+            FWGE.GL.enableVertexAttribArray(shader.Attributes.UV)
+        }
+
+        if (material.Alpha !== 1.0)
+        {
+            FWGE.GL.enable(FWGE.GL.BLEND);
+            FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
         }
         
-        if (Mesh && Material && Material.Shader)
+        Renderer.BindAttributes(mesh, shader.Attributes)
+        Renderer.SetObjectUniforms(material, shader.Uniforms, modelView)
+        Renderer.Draw(mesh.VertexCount, shader.FrameBuffer)
+        
+        if (material.Alpha !== 1.0)
         {
-            var shader = Material.Shader;
-
-            FWGE.GL.useProgram(shader.Program);
-            
-            FWGE.GL.enableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Normal);
-            if (shader.Attributes.Colour !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour);
-            if (shader.Attributes.UV !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.UV);
-
-            if (Material.Alpha !== 1.0)
-            {
-                FWGE.GL.enable(FWGE.GL.BLEND);
-                FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
-                FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
-            }
-            
-            Renderer.BindAttributes(Mesh, shader.Attributes)
-            Renderer.SetObjectUniforms(Material, shader.Uniforms, mv)
-            Renderer.Draw(Mesh.VertexCount, shader.FrameBuffer)
-            
-            if (Material.Alpha !== 1.0)
-            {
-                FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
-                FWGE.GL.disable(FWGE.GL.BLEND);
-            }
-    
-            FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1)
-            {
-                FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal)
-            }
-            if (shader.Attributes.Colour !== -1)
-            {
-                FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour)
-            }
-            if (shader.Attributes.UV !== -1)
-            {
-                FWGE.GL.disableVertexAttribArray(shader.Attributes.UV)
-            }
-
-            FWGE.GL.useProgram(null);
+            FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
+            FWGE.GL.disable(FWGE.GL.BLEND);
         }
-            
-        ModelView.Pop();
+
+        FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
+        if (shader.Attributes.Normal !== -1)
+        {
+            FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal)
+        }
+        if (shader.Attributes.Colour !== -1)
+        {
+            FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour)
+        }
+        if (shader.Attributes.UV !== -1)
+        {
+            FWGE.GL.disableVertexAttribArray(shader.Attributes.UV)
+        }
+
+        FWGE.GL.useProgram(null);
     }
     
     private static BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void

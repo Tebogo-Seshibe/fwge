@@ -93,11 +93,7 @@ class Camera extends Item_1.default {
         Camera.Cameras[0] = camera;
     }
     Update() {
-        if (FWGE_1.default.GL.canvas.width !== FWGE_1.default.GL.canvas.clientWidth || FWGE_1.default.GL.canvas.height !== FWGE_1.default.GL.canvas.clientHeight) {
-            FWGE_1.default.GL.canvas.width = FWGE_1.default.GL.canvas.clientWidth;
-            FWGE_1.default.GL.canvas.height = FWGE_1.default.GL.canvas.clientHeight;
-        }
-        this.AspectRatio = FWGE_1.default.GL.drawingBufferWidth / FWGE_1.default.GL.drawingBufferHeight;
+        this.AspectRatio = FWGE_1.default.GL.canvas.clientWidth / FWGE_1.default.GL.canvas.clientHeight;
     }
 }
 Camera.Cameras = [new Camera('Main Camera')];
@@ -1597,11 +1593,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("./Item"));
+exports.ParticleSystems = [];
 class IParticleSystem {
 }
 class ParticleSystem extends Item_1.default {
-    constructor({ name = 'Particle System' } = new IParticleSystem()) {
+    constructor({ name = 'Particle System', mesh } = new IParticleSystem) {
         super(name);
+        this.Mesh = mesh;
+        exports.ParticleSystems.push(this);
+    }
+    Update() {
+        for (let particle of this.Particles) {
+        }
     }
 }
 exports.default = ParticleSystem;
@@ -2050,11 +2053,18 @@ exports.default = RenderMaterial;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const AmbientLight_1 = __importDefault(require("../Light/AmbientLight"));
 const DirectionalLight_1 = __importDefault(require("../Light/DirectionalLight"));
 const FWGE_1 = __importDefault(require("../FWGE"));
-const GameObject_1 = require("../GameObject");
+const GameObject_1 = __importStar(require("../GameObject"));
 const Light_1 = __importDefault(require("../Light/Light"));
 const ModelView_1 = __importDefault(require("./ModelView"));
 const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
@@ -2062,6 +2072,7 @@ const PointLight_1 = __importDefault(require("../Light/PointLight"));
 const Projection_1 = __importDefault(require("./Projection"));
 const Shader_1 = require("../Shader/Shader");
 const Camera_1 = __importDefault(require("../Camera/Camera"));
+const ParticleSystem_1 = require("../ParticleSystem");
 class Renderer {
     static Init() {
         FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
@@ -2072,6 +2083,9 @@ class Renderer {
         Renderer.SetGlobalUniforms();
         for (let gameObject of GameObject_1.GameObjects) {
             Renderer.RenderObject(gameObject);
+        }
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            Renderer.RenderParticleSystem(particleSystem);
         }
     }
     static ClearBuffers() {
@@ -2084,10 +2098,19 @@ class Renderer {
         FWGE_1.default.GL.viewport(0, 0, FWGE_1.default.GL.drawingBufferWidth, FWGE_1.default.GL.drawingBufferHeight);
         FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
     }
+    static RenderParticleSystem(particleSystem) {
+        var gameObject = new GameObject_1.default({ mesh: particleSystem.Mesh });
+        for (var particle of particleSystem.Particles) {
+            gameObject.Transform = particle;
+            this.RenderObject(gameObject);
+        }
+    }
     static RenderObject({ Children, Mesh, Material, Transform }) {
         let mv = ModelView_1.default.Push(Transform);
-        for (let child of Children) {
-            Renderer.RenderObject(child);
+        if (Children) {
+            for (let child of Children) {
+                Renderer.RenderObject(child);
+            }
         }
         if (Mesh && Material && Material.Shader) {
             var shader = Material.Shader;
@@ -2236,7 +2259,7 @@ class Renderer {
 }
 exports.default = Renderer;
 
-},{"../Camera/Camera":3,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":15,"../Light/DirectionalLight":16,"../Light/Light":17,"../Light/PointLight":19,"../Maths/Matrix3":22,"../Shader/Shader":47,"./ModelView":36,"./Projection":37}],40:[function(require,module,exports){
+},{"../Camera/Camera":3,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":15,"../Light/DirectionalLight":16,"../Light/Light":17,"../Light/PointLight":19,"../Maths/Matrix3":22,"../ParticleSystem":27,"../Shader/Shader":47,"./ModelView":36,"./Projection":37}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -2510,6 +2533,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Time_1 = __importDefault(require("./Time"));
 const GameObject_1 = require("../GameObject");
 const Renderer_1 = __importDefault(require("../Render/Renderer"));
+const Camera_1 = __importDefault(require("../Camera/Camera"));
 class Control {
     static Init(renderUpdate, physicsUpdate) {
         Time_1.default.Init(renderUpdate, physicsUpdate);
@@ -2531,6 +2555,7 @@ class Control {
     static Run() {
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run);
         Time_1.default.Update();
+        Camera_1.default.Main.Update();
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
         }
@@ -2543,164 +2568,137 @@ Control.Running = false;
 Control.AnimationFrame = -1;
 exports.default = Control;
 
-},{"../GameObject":6,"../Render/Renderer":39,"./Time":58}],54:[function(require,module,exports){
+},{"../Camera/Camera":3,"../GameObject":6,"../Render/Renderer":39,"./Time":58}],54:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Vector2_1 = __importDefault(require("../../Maths/Vector2"));
 const Vector3_1 = __importDefault(require("../../Maths/Vector3"));
-class IObjMesh {
-    constructor() {
-        this.v = [];
-        this.vn = [];
-        this.vt = [];
-        this.f = [];
-    }
-}
-class IObjectMesh extends IObjMesh {
-}
-class IGroupMesh extends IObjMesh {
-}
-class IObj {
-}
+const Mesh_1 = __importDefault(require("../../Render/Mesh"));
+const GameObject_1 = __importDefault(require("../../GameObject"));
+const Colour4_1 = __importDefault(require("../../Render/Colour4"));
+const RenderMaterial_1 = __importStar(require("../../Render/RenderMaterial"));
 class OBJConverter {
     static Parse(obj, mtl) {
-        OBJConverter.ParseObj(obj);
+        return new GameObject_1.default({
+            mesh: OBJConverter.ParseMesh(obj),
+            material: OBJConverter.ParseRenderMaterial(mtl)
+        });
     }
-    static ObjNext(text, start) {
-        let index = start;
-        let kind = undefined;
-        let curr;
-        while (start !== -1 && !kind) {
-            text = text.substring(start);
-            start = text.search(/\w+/);
-            curr = text.substring(start, text.search(/\s/));
-            index += curr.length;
-            if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#'].includes(curr)) {
-                kind = curr;
-            }
-        }
-        return [index, kind];
-    }
-    static ParseObj(input) {
-        OBJConverter.obj(input);
-    }
-    static obj(input) {
-        let result = new IObj;
-        let index = 0;
-        let kind;
-        do {
-            [index, kind] = OBJConverter.ObjNext(input, index);
-            debugger;
-            switch (kind) {
-                case 'mtllib':
-                    [index, result.mtllib] = OBJConverter.mtllib(input, index);
-                    break;
-                case 'g':
-                    [index, result.g] = OBJConverter.g(input, index);
-                    break;
+    static ParseMesh(obj) {
+        let lines = obj.split('\n');
+        let vertices = [];
+        let normals = [];
+        let uvs = [];
+        let face_offset = 0;
+        let wireframe_offset = 0;
+        let { name, position, normal, uv, colour, index, wireframe } = {
+            position: new Array(),
+            normal: new Array(),
+            uv: new Array(),
+            colour: new Array(),
+            index: new Array(),
+            wireframe: new Array()
+        };
+        for (let line of lines) {
+            line = line.trim();
+            let key = line.split(' ')[0];
+            let value = line.substring(key.length).trim();
+            let values = value.split(' ');
+            switch (key) {
                 case 'o':
-                    [index, result.o] = OBJConverter.o(input, index);
+                    name = value;
                     break;
-            }
-            console.log([index, kind, result]);
-        } while (index !== -1);
-        return result;
-    }
-    static mtllib(input, index) {
-        let mtllib = '';
-        for (let char = ''; char !== '\n' && (index + 1) < input.length; char = input[++index]) {
-            mtllib += char;
-        }
-        return [index, mtllib.trim()];
-    }
-    static g(input, index) {
-        return null;
-    }
-    static o(input, index) {
-        let result = new IObjectMesh;
-        let kind;
-        let o = '';
-        let v;
-        let vn;
-        let vt;
-        let usemtl;
-        let f;
-        for (let char = ''; char !== '\n'; char = input[++index]) {
-            o += char;
-        }
-        result.o = o.trim();
-        do {
-            [index, kind] = OBJConverter.ObjNext(input, index);
-            switch (kind) {
                 case 'v':
-                    [index, v] = OBJConverter.v(input, index);
-                    result.v.push(v);
+                    vertices.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
                     break;
                 case 'vn':
-                    [index, vn] = OBJConverter.vn(input, index);
-                    result.vn.push(vn);
+                    normals.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
                     break;
                 case 'vt':
-                    [index, vt] = OBJConverter.vt(input, index);
-                    result.vt.push(vt);
-                    break;
-                case 'usemtl':
-                    [index, usemtl] = OBJConverter.usemtl(input, index);
+                    uvs.push(new Vector2_1.default(parseFloat(values[0]), parseFloat(values[1])));
                     break;
                 case 'f':
-                    [index, f] = OBJConverter.f(input, index);
-                    result.f.push(f);
+                    for (var i = 0; i < values.length; ++i) {
+                        let faces = values[i].split('/').map(val => parseInt(val) - 1);
+                        if (!isNaN(faces[0])) {
+                            position.push(vertices[faces[0]]);
+                        }
+                        if (!isNaN(faces[1])) {
+                            uv.push(uvs[faces[1]]);
+                        }
+                        if (!isNaN(faces[2])) {
+                            normal.push(normals[faces[2]]);
+                        }
+                        if (i >= 2) {
+                            index.push(face_offset, face_offset + i - 1, face_offset + i);
+                        }
+                    }
+                    for (var i = 0; i < values.length; ++i) {
+                        if (i === values.length - 1) {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset);
+                        }
+                        else {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset + i + 1);
+                        }
+                    }
+                    wireframe_offset += values.length;
+                    face_offset += values.length;
                     break;
             }
-            console.log([index, kind, v, vn, vt, usemtl, f]);
-        } while (index !== -1);
-        if (usemtl) {
-            result.usemtl = usemtl.trim();
         }
-        return [index, result];
+        return new Mesh_1.default({ name, position, normal, uv, colour, index, wireframe });
     }
-    static v(input, index) {
-        let v = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            v += float;
+    static ParseRenderMaterial(mtl) {
+        let lines = mtl.split('\n');
+        let { name, shininess, ambient, diffuse, specular, alpha, imagemap } = new RenderMaterial_1.IRenderMaterial;
+        for (let line of lines) {
+            line = line.trim();
+            var key = line.split(' ')[0];
+            var value = line.substring(key.length).trim();
+            var values = value.split(' ');
+            switch (key) {
+                case 'newmtl':
+                    name = value;
+                    break;
+                case 'Ns':
+                    shininess = parseFloat(value);
+                    break;
+                case 'Ka':
+                    ambient = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Kd':
+                    diffuse = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Ks':
+                    specular = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'd':
+                    alpha = parseFloat(value);
+                    break;
+                case 'Tr':
+                    alpha = 1 - parseFloat(value);
+                    break;
+                case 'map_Kd':
+                    imagemap = value;
+                    break;
+            }
         }
-        return [index, new Vector3_1.default(v.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static vn(input, index) {
-        let vn = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            vn += float;
-        }
-        return [index, new Vector3_1.default(vn.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static vt(input, index) {
-        let vt = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            vt += float;
-        }
-        return [index, new Vector2_1.default(vt.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static usemtl(input, index) {
-        let usemtl = '';
-        for (let char = ''; char !== '\n' && (index + 1) < input.length; char = input[++index]) {
-            usemtl += char;
-        }
-        return [index, usemtl.trim()];
-    }
-    static f(input, index) {
-        let f = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            f += float;
-        }
-        return [index, f.split(/\s+/).map(val => +(val.trim()))];
+        return new RenderMaterial_1.default({ name, shininess, ambient, diffuse, specular, alpha, imagemap });
     }
 }
 exports.default = OBJConverter;
 
-},{"../../Maths/Vector2":24,"../../Maths/Vector3":25}],55:[function(require,module,exports){
+},{"../../GameObject":6,"../../Maths/Vector2":24,"../../Maths/Vector3":25,"../../Render/Colour4":34,"../../Render/Mesh":35,"../../Render/RenderMaterial":38}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class FWGEEvent {

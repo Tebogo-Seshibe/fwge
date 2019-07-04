@@ -1,6 +1,7 @@
 import Time from './Time'
 import { GameObjects } from '../GameObject'
 import Renderer from '../Render/Renderer'
+import { Cameras } from '../Camera/Camera'
 
 export default class Control
 {
@@ -38,16 +39,20 @@ export default class Control
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
 
         Time.Update()
-        // Camera.Update()
-
+        // Input.Update()
+        
         for (let gameObject of GameObjects)
         {
             gameObject.Update()
         }
 
-        // Input.Update()
-
         // PhysicsEngine.Update();
+
+        for (let camera of Cameras)
+        {
+            camera.Update()
+        }
+
         if (Time.Render.Ready)
         {
             Renderer.Update()

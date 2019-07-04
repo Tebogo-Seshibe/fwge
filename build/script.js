@@ -15,15 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
+const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
+const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
+const ParticleSystem_1 = __importDefault(require("../../src/ParticleSystem"));
 let fwge = window;
 fwge.Control = Control_1.default;
+fwge.Camera = Camera_1.default;
+fwge.FWGE = FWGE_1.default;
 window.onload = () => {
     let canvas = document.getElementById('canvas');
     FWGE_1.default.Init({
         canvas,
         clear: [0, 0, 0, 0],
         physcisupdate: 30,
-        renderupdate: 60
+        renderupdate: 75
     });
     makeCube();
 };
@@ -31,12 +36,198 @@ function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
         let obj = yield (yield fetch('/res/Objects/Cube/Cube.obj')).text();
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
-        console.log('did the thing');
-        fwge.object = OBJConverter_1.default.Parse(obj, mtl);
+        let system;
+        let shader = new Shader_1.default({
+            name: 'Just another shader',
+            vertexshader: `
+            attribute vec3 A_Position;
+            attribute vec2 A_UV;
+            attribute vec4 A_Colour;
+            attribute vec3 A_Normal;
+            
+            struct Matrix
+            {
+                mat3 Normal;
+                mat4 ModelView;
+                mat4 Projection;
+            };
+            uniform Matrix U_Matrix;
+            
+            varying vec4 V_Position;
+            varying vec2 V_UV;
+            varying vec3 V_Normal;
+            varying vec4 V_Colour;
+            varying vec4 V_Shadow;
+            
+            void main(void)
+            {
+                V_Colour = A_Colour;
+                V_UV = A_UV;
+                
+                V_Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
+                V_Normal = U_Matrix.Normal * A_Normal;
+                
+                V_Shadow = mat4(0.5, 0.0, 0.0, 0.0,
+                                0.0, 0.5, 0.0, 0.0,
+                                0.0, 0.0, 0.5, 0.0,
+                                0.5, 0.5, 0.5, 1.0) * vec4(A_Position, 1.0);
+                
+                gl_Position = U_Matrix.Projection * V_Position;
+            }`,
+            fragmentshader: `            
+            precision mediump float;
+            const int MAX_LIGHTS = 8;
+            
+            struct Material 
+            {
+                vec4 Ambient;
+                vec4 Diffuse;
+                vec4 Specular;
+                float Shininess;
+                float Alpha;
+                bool HasImage;
+                bool HasBump;
+                bool HasSpecular;
+            };
+            uniform Material U_Material;
+            
+            struct AmbientLight 
+            {
+                vec4 Colour;
+                float Intensity;
+            };
+            uniform AmbientLight U_Ambient;
+            
+            struct DirectionalLight
+            {
+                vec3 Direction;
+                vec4 Colour;
+                float Intensity;
+            };
+            uniform DirectionalLight U_Directional;
+            
+            struct PointLight
+            { 
+                vec3 Position;
+                vec4 Colour;
+                float Intensity;
+                float Radius;
+                float Angle;
+            };
+            uniform PointLight U_Point[MAX_LIGHTS];
+            uniform int U_Point_Count;
+            
+            struct Sampler
+            {
+                sampler2D Image;
+                sampler2D Bump;
+                sampler2D Shadow;
+            };
+            uniform Sampler U_Sampler;
+            
+            varying vec4 V_Colour;
+            varying vec2 V_UV;
+            varying vec3 V_Normal;
+            varying vec4 V_Position;
+            varying vec4 V_Shadow;
+            
+            vec4 Ambient()
+            {
+                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
+            }
+            
+            vec4 Directional(in vec3 normal) 
+            { 
+                float weight = max(dot(normal, normalize(U_Directional.Direction)), 0.0);
+                vec4 diffuse = U_Directional.Colour * weight;
+                
+                return U_Material.Diffuse * diffuse * U_Directional.Intensity;
+            } 
+            
+            vec4 Point(in vec3 normal)
+            {
+                vec4 points = vec4(0.0);
+            
+                for (int i = 0; i < MAX_LIGHTS; ++i)
+                {
+                    if (i < U_Point_Count)
+                    {
+                        PointLight point = U_Point[i];
+                        float distance = length(point.Position - V_Position.xyz);
+            
+                        if (distance <= point.Radius)
+                        {
+                            vec4 colour = vec4(0.0);
+                            vec3 direction = normalize(point.Position - V_Position.xyz);
+                            vec3 eyeVector = normalize(-normal.xyz);
+                            vec3 reflection = reflect(direction, normal);
+                            
+                            float diffuse_weight = max(dot(normal, direction), 0.0);
+                            float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_Material.Shininess);
+            
+                            colour = U_Material.Diffuse * point.Colour * diffuse_weight + U_Material.Specular * specular_weight;
+                            colour = colour * (1.0 - (distance / point.Radius));
+                            colour = colour * point.Intensity;
+                            points += colour;
+                        } 
+                    } 
+                    else break;
+                } 
+                
+                return points;
+            }
+            
+            vec4 Light()
+            {
+                vec3 normal = normalize(U_Material.HasBump
+                                        ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
+                                        : V_Normal);
+            
+                return Ambient() + Directional(normal) + Point(normal);
+            }
+            
+            vec4 Shadow()
+            {                
+                return vec4(1.0);
+            }
+            
+            vec4 Colour()
+            {
+                vec4 colour = Shadow();
+                
+                if (U_Material.HasImage)
+                {
+                    colour = texture2D(U_Sampler.Image, V_UV);
+                }
+                
+                return colour;
+            }
+            
+            void main(void)
+            { 
+                vec4 colour = Colour();
+                colour.a *= U_Material.Alpha;
+                
+                gl_FragColor = colour;
+            }`,
+            height: 1920,
+            width: 1080
+        });
+        fwge.mesh = OBJConverter_1.default.ParseMesh(obj);
+        fwge.material = OBJConverter_1.default.ParseRenderMaterial(mtl);
+        fwge.material.Shader = shader;
+        fwge.system = new ParticleSystem_1.default({
+            name: 'Example',
+            mesh: fwge.mesh,
+            material: fwge.material,
+            length: 1,
+            details: null
+        });
+        Control_1.default.Start();
     });
 }
 
-},{"../../src/FWGE":3,"../../src/Utility/Control":35,"../../src/Utility/Converter/OBJConverter":36}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/ParticleSystem":20,"../../src/Shader/Shader":34,"../../src/Utility/Control":39,"../../src/Utility/Converter/OBJConverter":40}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -52,7 +243,14 @@ var ViewMode;
 class ICamera {
 }
 exports.ICamera = ICamera;
+exports.Cameras = [];
 class Camera extends Item_1.default {
+    static get Main() {
+        return exports.Cameras[0];
+    }
+    static set Main(camera) {
+        exports.Cameras[0] = camera;
+    }
     constructor(name, mode = ViewMode.PERSPECTIVE, fieldOfView = 35, aspectRatio = 16 / 9, nearClipping = 0.001, farClipping = 10000, left = -10, right = 10, top = 10, bottom = -10, horizontalTilt = 90, vericalTilt = 90) {
         super(name);
         this.Mode = mode;
@@ -66,23 +264,14 @@ class Camera extends Item_1.default {
         this.Bottom = bottom;
         this.HorizontalTilt = horizontalTilt;
         this.VericalTilt = vericalTilt;
-    }
-    static get Main() {
-        return Camera.Cameras[0];
-    }
-    static set Main(camera) {
-        Camera.Cameras[0] = camera;
+        exports.Cameras.push(this);
     }
     Update() {
-        if (FWGE_1.default.GL.canvas.width !== FWGE_1.default.GL.canvas.clientWidth || FWGE_1.default.GL.canvas.height !== FWGE_1.default.GL.canvas.clientHeight) {
-            FWGE_1.default.GL.canvas.width = FWGE_1.default.GL.canvas.clientWidth;
-            FWGE_1.default.GL.canvas.height = FWGE_1.default.GL.canvas.clientHeight;
-        }
-        this.AspectRatio = FWGE_1.default.GL.drawingBufferWidth / FWGE_1.default.GL.drawingBufferHeight;
+        this.AspectRatio = FWGE_1.default.GL.canvas.clientWidth / FWGE_1.default.GL.canvas.clientHeight;
     }
 }
-Camera.Cameras = [new Camera('Main Camera')];
 exports.default = Camera;
+new Camera('Main Camera');
 
 },{"../FWGE":3,"../Item":8}],3:[function(require,module,exports){
 "use strict";
@@ -117,7 +306,7 @@ class FWGE {
 }
 exports.default = FWGE;
 
-},{"./Input/KeyboardInput":6,"./Input/MouseInput":7,"./Utility/Control":35}],4:[function(require,module,exports){
+},{"./Input/KeyboardInput":6,"./Input/MouseInput":7,"./Utility/Control":39}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -174,7 +363,7 @@ class GameObject extends Item_1.default {
 }
 exports.default = GameObject;
 
-},{"./Item":8,"./Transform":34}],5:[function(require,module,exports){
+},{"./Item":8,"./Transform":37}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var InputState;
@@ -362,7 +551,7 @@ Light.MAX_LIGHTS = 12;
 Light.Lights = new List_1.default(12);
 exports.default = Light;
 
-},{"../Utility/List":37,"./AmbientLight":9,"./DirectionalLight":10,"./PointLight":13}],12:[function(require,module,exports){
+},{"../Utility/List":41,"./AmbientLight":9,"./DirectionalLight":10,"./PointLight":13}],12:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -382,7 +571,7 @@ class LightItem extends Item_1.default {
 }
 exports.default = LightItem;
 
-},{"../Item":8,"../Render/Colour4":20}],13:[function(require,module,exports){
+},{"../Item":8,"../Render/Colour4":21}],13:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -575,7 +764,7 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":37,"./Matrix3":16,"./Matrix4":17}],16:[function(require,module,exports){
+},{"../Utility/List":41,"./Matrix3":16,"./Matrix4":17}],16:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -770,7 +959,7 @@ class Matrix3 extends Float32Array {
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":37,"./Matrix2":15,"./Matrix4":17}],17:[function(require,module,exports){
+},{"../Utility/List":41,"./Matrix2":15,"./Matrix4":17}],17:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1123,7 +1312,7 @@ class Matrix4 extends Float32Array {
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":37,"./Matrix2":15,"./Matrix3":16}],18:[function(require,module,exports){
+},{"../Utility/List":41,"./Matrix2":15,"./Matrix3":16}],18:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1382,6 +1571,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("./Item"));
+const Transform_1 = __importDefault(require("./Transform"));
+exports.ParticleSystems = [];
+class IParticleSystem {
+}
+class ParticleSystem extends Item_1.default {
+    constructor({ name = 'Particle System', mesh, length = 0, material, details } = new IParticleSystem) {
+        super(name);
+        this.Mesh = mesh;
+        this.Material = material;
+        this.Particles = new Array();
+        while (--length >= 0) {
+            this.Particles.push(new Transform_1.default());
+        }
+        exports.ParticleSystems.push(this);
+    }
+    Update() {
+        for (let particle of this.Particles) {
+        }
+    }
+}
+exports.default = ParticleSystem;
+
+},{"./Item":8,"./Transform":37}],21:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 const Maths_1 = __importDefault(require("../Maths/Maths"));
 class Colour4 extends Float32Array {
     get R() {
@@ -1484,7 +1702,68 @@ class Colour4 extends Float32Array {
 }
 exports.default = Colour4;
 
-},{"../Maths/Maths":14}],21:[function(require,module,exports){
+},{"../Maths/Maths":14}],22:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const ArrayUtils_1 = __importDefault(require("../Utility/ArrayUtils"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+const Item_1 = __importDefault(require("../Item"));
+var BufferType;
+(function (BufferType) {
+    BufferType[BufferType["INDEX"] = 0] = "INDEX";
+    BufferType[BufferType["POSITION"] = 1] = "POSITION";
+})(BufferType = exports.BufferType || (exports.BufferType = {}));
+class IMesh {
+}
+exports.IMesh = IMesh;
+class Mesh extends Item_1.default {
+    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe } = new IMesh()) {
+        super(name);
+        if (colour && colour.length === 0) {
+            colour = undefined;
+        }
+        if (uv && uv.length === 0) {
+            uv = undefined;
+        }
+        if (wireframe && wireframe.length === 0) {
+            wireframe = undefined;
+        }
+        this.PositionBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, position);
+        this.UVBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, uv);
+        this.ColourBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, colour);
+        this.NormalBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, normal);
+        this.IndexBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, index);
+        this.WireframeBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, wireframe);
+        this.VertexCount = index.length;
+    }
+    Bind(gl, type, data) {
+        if (!data) {
+            return null;
+        }
+        let buffer = gl.createBuffer();
+        data = ArrayUtils_1.default.Flatten(data);
+        switch (type) {
+            case BufferType.INDEX:
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
+                break;
+            case BufferType.POSITION:
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+                break;
+        }
+        return buffer;
+    }
+    Unbind(gl, buffer) {
+        gl.deleteBuffer(buffer);
+    }
+}
+exports.default = Mesh;
+
+},{"../FWGE":3,"../Item":8,"../Utility/ArrayUtils":38}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1538,7 +1817,7 @@ class ModelView {
 ModelView.Stack = new Array();
 exports.default = ModelView;
 
-},{"../Maths/Maths":14,"../Maths/Matrix4":17}],22:[function(require,module,exports){
+},{"../Maths/Maths":14,"../Maths/Matrix4":17}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1569,16 +1848,89 @@ class Projection {
 }
 exports.default = Projection;
 
-},{"../Maths/Maths":14,"../Maths/Matrix4":17}],23:[function(require,module,exports){
+},{"../Maths/Maths":14,"../Maths/Matrix4":17}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Colour4_1 = __importDefault(require("./Colour4"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+const Item_1 = __importDefault(require("../Item"));
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+class IRenderMaterial {
+}
+exports.IRenderMaterial = IRenderMaterial;
+class RenderMaterial extends Item_1.default {
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader, imagemap } = new IRenderMaterial) {
+        super(name);
+        this.Ambient = new Colour4_1.default(ambient);
+        this.Diffuse = new Colour4_1.default(diffuse);
+        this.Specular = new Colour4_1.default(specular);
+        this.Alpha = alpha;
+        this.Shininess = shininess;
+        this.Shader = shader;
+        if (imagemap) {
+            RenderMaterial.ApplyImage(this, imagemap, 'image');
+        }
+    }
+    static ApplyImage(material, src, type) {
+        let img = new Image();
+        let texture = null;
+        switch (type) {
+            case 'image':
+                material.ImageMap = FWGE_1.default.GL.createTexture();
+                texture = material.ImageMap;
+                break;
+            case 'bump':
+                material.BumpMap = FWGE_1.default.GL.createTexture();
+                texture = material.BumpMap;
+                break;
+            case 'specular':
+                material.SpecularMap = FWGE_1.default.GL.createTexture();
+                texture = material.SpecularMap;
+                break;
+            default: texture = null;
+        }
+        FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
+        FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, 1, 1, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+        img.onload = function () {
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
+            FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, img);
+            if (Maths_1.default.IsPowerOf2(img.width) && Maths_1.default.IsPowerOf2(img.height)) {
+                FWGE_1.default.GL.generateMipmap(FWGE_1.default.GL.TEXTURE_2D);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MAG_FILTER, FWGE_1.default.GL.LINEAR);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR_MIPMAP_NEAREST);
+            }
+            else {
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_S, FWGE_1.default.GL.CLAMP_TO_EDGE);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_T, FWGE_1.default.GL.CLAMP_TO_EDGE);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR);
+            }
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+        };
+        img.src = src;
+    }
+}
+exports.default = RenderMaterial;
+
+},{"../FWGE":3,"../Item":8,"../Maths/Maths":14,"./Colour4":21}],26:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 const AmbientLight_1 = __importDefault(require("../Light/AmbientLight"));
 const DirectionalLight_1 = __importDefault(require("../Light/DirectionalLight"));
 const FWGE_1 = __importDefault(require("../FWGE"));
-const GameObject_1 = require("../GameObject");
+const GameObject_1 = __importStar(require("../GameObject"));
 const Light_1 = __importDefault(require("../Light/Light"));
 const ModelView_1 = __importDefault(require("./ModelView"));
 const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
@@ -1586,16 +1938,21 @@ const PointLight_1 = __importDefault(require("../Light/PointLight"));
 const Projection_1 = __importDefault(require("./Projection"));
 const Shader_1 = require("../Shader/Shader");
 const Camera_1 = __importDefault(require("../Camera/Camera"));
+const ParticleSystem_1 = __importStar(require("../ParticleSystem"));
 class Renderer {
     static Init() {
         FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
         FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
+        FWGE_1.default.GL.blendFunc(FWGE_1.default.GL.SRC_ALPHA, FWGE_1.default.GL.ONE);
     }
     static Update() {
         Renderer.ClearBuffers();
         Renderer.SetGlobalUniforms();
         for (let gameObject of GameObject_1.GameObjects) {
-            Renderer.RenderObject(gameObject);
+            this.Render(gameObject);
+        }
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            this.Render(particleSystem);
         }
     }
     static ClearBuffers() {
@@ -1608,46 +1965,64 @@ class Renderer {
         FWGE_1.default.GL.viewport(0, 0, FWGE_1.default.GL.drawingBufferWidth, FWGE_1.default.GL.drawingBufferHeight);
         FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
     }
-    static RenderObject({ Children, Mesh, Material, Transform }) {
-        let mv = ModelView_1.default.Push(Transform);
-        for (let child of Children) {
-            Renderer.RenderObject(child);
+    static Render(item) {
+        if (item instanceof ParticleSystem_1.default) {
+            for (var particle of item.Particles) {
+                ModelView_1.default.Push(particle);
+                this.RenderObject({
+                    material: item.Material,
+                    mesh: item.Mesh
+                });
+            }
         }
-        if (Mesh && Material && Material.Shader) {
-            var shader = Material.Shader;
-            FWGE_1.default.GL.useProgram(shader.Program);
-            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1)
-                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Normal);
-            if (shader.Attributes.Colour !== -1)
-                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Colour);
-            if (shader.Attributes.UV !== -1)
-                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.UV);
-            if (Material.Alpha !== 1.0) {
-                FWGE_1.default.GL.enable(FWGE_1.default.GL.BLEND);
-                FWGE_1.default.GL.disable(FWGE_1.default.GL.DEPTH_TEST);
-                FWGE_1.default.GL.blendFunc(FWGE_1.default.GL.SRC_ALPHA, FWGE_1.default.GL.ONE);
+        else if (item instanceof GameObject_1.default) {
+            if (item.Children.length > 0) {
+                ModelView_1.default.Push(item.Transform);
+                item.Children.forEach(child => this.Render(child));
             }
-            Renderer.BindAttributes(Mesh, shader.Attributes);
-            Renderer.SetObjectUniforms(Material, shader.Uniforms, mv);
-            Renderer.Draw(Mesh.VertexCount, shader.FrameBuffer);
-            if (Material.Alpha !== 1.0) {
-                FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
-                FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
-            }
-            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Position);
-            if (shader.Attributes.Normal !== -1) {
-                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Normal);
-            }
-            if (shader.Attributes.Colour !== -1) {
-                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Colour);
-            }
-            if (shader.Attributes.UV !== -1) {
-                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.UV);
-            }
-            FWGE_1.default.GL.useProgram(null);
+            ModelView_1.default.Push(item.Transform);
+            this.RenderObject({
+                material: item.Material,
+                mesh: item.Mesh
+            });
         }
-        ModelView_1.default.Pop();
+    }
+    static RenderObject({ mesh, material }) {
+        let modelView = ModelView_1.default.Pop();
+        let shader = material.Shader;
+        FWGE_1.default.GL.useProgram(shader.Program);
+        FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Position);
+        if (shader.Attributes.Normal !== -1) {
+            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Normal);
+        }
+        if (shader.Attributes.Colour !== -1) {
+            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Colour);
+        }
+        if (shader.Attributes.UV !== -1) {
+            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.UV);
+        }
+        if (material.Alpha !== 1.0) {
+            FWGE_1.default.GL.enable(FWGE_1.default.GL.BLEND);
+            FWGE_1.default.GL.disable(FWGE_1.default.GL.DEPTH_TEST);
+        }
+        Renderer.BindAttributes(mesh, shader.Attributes);
+        Renderer.SetObjectUniforms(material, shader.Uniforms, modelView);
+        Renderer.Draw(mesh.VertexCount, shader.FrameBuffer);
+        if (material.Alpha !== 1.0) {
+            FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
+            FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
+        }
+        FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Position);
+        if (shader.Attributes.Normal !== -1) {
+            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Normal);
+        }
+        if (shader.Attributes.Colour !== -1) {
+            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Colour);
+        }
+        if (shader.Attributes.UV !== -1) {
+            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.UV);
+        }
+        FWGE_1.default.GL.useProgram(null);
     }
     static BindAttributes(mesh, attributes) {
         FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.PositionBuffer);
@@ -1760,7 +2135,7 @@ class Renderer {
 }
 exports.default = Renderer;
 
-},{"../Camera/Camera":2,"../FWGE":3,"../GameObject":4,"../Light/AmbientLight":9,"../Light/DirectionalLight":10,"../Light/Light":11,"../Light/PointLight":13,"../Maths/Matrix3":16,"../Shader/Shader":31,"./ModelView":21,"./Projection":22}],24:[function(require,module,exports){
+},{"../Camera/Camera":2,"../FWGE":3,"../GameObject":4,"../Light/AmbientLight":9,"../Light/DirectionalLight":10,"../Light/Light":11,"../Light/PointLight":13,"../Maths/Matrix3":16,"../ParticleSystem":20,"../Shader/Shader":34,"./ModelView":23,"./Projection":24}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -1771,7 +2146,7 @@ class AmbientUniforms {
 }
 exports.default = AmbientUniforms;
 
-},{}],25:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class DirectionalUniforms {
@@ -1783,7 +2158,7 @@ class DirectionalUniforms {
 }
 exports.default = DirectionalUniforms;
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1806,7 +2181,7 @@ class LightUniforms {
 LightUniforms.MAX_LIGHT = 8;
 exports.default = LightUniforms;
 
-},{"./AmbientUniforms":24,"./DirectionalUniforms":25,"./PointUniform":29}],27:[function(require,module,exports){
+},{"./AmbientUniforms":27,"./DirectionalUniforms":28,"./PointUniform":32}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MaterialUniforms {
@@ -1823,7 +2198,7 @@ class MaterialUniforms {
 }
 exports.default = MaterialUniforms;
 
-},{}],28:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MatrixUniforms {
@@ -1836,7 +2211,7 @@ class MatrixUniforms {
 }
 exports.default = MatrixUniforms;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class PointUniform {
@@ -1850,7 +2225,7 @@ class PointUniform {
 }
 exports.default = PointUniform;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SamplerUniforms {
@@ -1862,7 +2237,7 @@ class SamplerUniforms {
 }
 exports.default = SamplerUniforms;
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1931,7 +2306,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../FWGE":3,"../Item":8,"./ShaderAttributes":32,"./ShaderUniforms":33}],32:[function(require,module,exports){
+},{"../FWGE":3,"../Item":8,"./ShaderAttributes":35,"./ShaderUniforms":36}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ShaderAttributes {
@@ -1944,7 +2319,7 @@ class ShaderAttributes {
 }
 exports.default = ShaderAttributes;
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1964,7 +2339,7 @@ class ShaderUniforms {
 }
 exports.default = ShaderUniforms;
 
-},{"./LightUniforms":26,"./MaterialUniforms":27,"./MatrixUniforms":28,"./SamplerUniforms":30}],34:[function(require,module,exports){
+},{"./LightUniforms":29,"./MaterialUniforms":30,"./MatrixUniforms":31,"./SamplerUniforms":33}],37:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1992,7 +2367,26 @@ class Transform {
 }
 exports.default = Transform;
 
-},{"./Maths/Vector3":19}],35:[function(require,module,exports){
+},{"./Maths/Vector3":19}],38:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ArrayUtiils {
+    static Flatten(list) {
+        let flattened = new Array();
+        for (let list_item of list) {
+            if (typeof list_item === 'number') {
+                flattened.push(list_item);
+            }
+            else {
+                flattened.unshift(...list_item);
+            }
+        }
+        return flattened;
+    }
+}
+exports.default = ArrayUtiils;
+
+},{}],39:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2001,6 +2395,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Time_1 = __importDefault(require("./Time"));
 const GameObject_1 = require("../GameObject");
 const Renderer_1 = __importDefault(require("../Render/Renderer"));
+const Camera_1 = require("../Camera/Camera");
 class Control {
     static Init(renderUpdate, physicsUpdate) {
         Time_1.default.Init(renderUpdate, physicsUpdate);
@@ -2025,6 +2420,9 @@ class Control {
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
         }
+        for (let camera of Camera_1.Cameras) {
+            camera.Update();
+        }
         if (Time_1.default.Render.Ready) {
             Renderer_1.default.Update();
         }
@@ -2034,164 +2432,137 @@ Control.Running = false;
 Control.AnimationFrame = -1;
 exports.default = Control;
 
-},{"../GameObject":4,"../Render/Renderer":23,"./Time":38}],36:[function(require,module,exports){
+},{"../Camera/Camera":2,"../GameObject":4,"../Render/Renderer":26,"./Time":42}],40:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Vector2_1 = __importDefault(require("../../Maths/Vector2"));
 const Vector3_1 = __importDefault(require("../../Maths/Vector3"));
-class IObjMesh {
-    constructor() {
-        this.v = [];
-        this.vn = [];
-        this.vt = [];
-        this.f = [];
-    }
-}
-class IObjectMesh extends IObjMesh {
-}
-class IGroupMesh extends IObjMesh {
-}
-class IObj {
-}
+const Mesh_1 = __importDefault(require("../../Render/Mesh"));
+const GameObject_1 = __importDefault(require("../../GameObject"));
+const Colour4_1 = __importDefault(require("../../Render/Colour4"));
+const RenderMaterial_1 = __importStar(require("../../Render/RenderMaterial"));
 class OBJConverter {
     static Parse(obj, mtl) {
-        OBJConverter.ParseObj(obj);
+        return new GameObject_1.default({
+            mesh: OBJConverter.ParseMesh(obj),
+            material: OBJConverter.ParseRenderMaterial(mtl)
+        });
     }
-    static ObjNext(text, start) {
-        let index = start;
-        let kind = undefined;
-        let curr;
-        while (start !== -1 && !kind) {
-            text = text.substring(start);
-            start = text.search(/\w+/);
-            curr = text.substring(start, text.search(/\s/));
-            index += curr.length;
-            if (['mtllib', 'g', 'o', 'v', 'vn', 'vt', 'usemtl', 'f', '#'].includes(curr)) {
-                kind = curr;
-            }
-        }
-        return [index, kind];
-    }
-    static ParseObj(input) {
-        OBJConverter.obj(input);
-    }
-    static obj(input) {
-        let result = new IObj;
-        let index = 0;
-        let kind;
-        do {
-            [index, kind] = OBJConverter.ObjNext(input, index);
-            debugger;
-            switch (kind) {
-                case 'mtllib':
-                    [index, result.mtllib] = OBJConverter.mtllib(input, index);
-                    break;
-                case 'g':
-                    [index, result.g] = OBJConverter.g(input, index);
-                    break;
+    static ParseMesh(obj) {
+        let lines = obj.split('\n');
+        let vertices = [];
+        let normals = [];
+        let uvs = [];
+        let face_offset = 0;
+        let wireframe_offset = 0;
+        let { name, position, normal, uv, colour, index, wireframe } = {
+            position: new Array(),
+            normal: new Array(),
+            uv: new Array(),
+            colour: new Array(),
+            index: new Array(),
+            wireframe: new Array()
+        };
+        for (let line of lines) {
+            line = line.trim();
+            let key = line.split(' ')[0];
+            let value = line.substring(key.length).trim();
+            let values = value.split(' ');
+            switch (key) {
                 case 'o':
-                    [index, result.o] = OBJConverter.o(input, index);
+                    name = value;
                     break;
-            }
-            console.log([index, kind, result]);
-        } while (index !== -1);
-        return result;
-    }
-    static mtllib(input, index) {
-        let mtllib = '';
-        for (let char = ''; char !== '\n' && (index + 1) < input.length; char = input[++index]) {
-            mtllib += char;
-        }
-        return [index, mtllib.trim()];
-    }
-    static g(input, index) {
-        return null;
-    }
-    static o(input, index) {
-        let result = new IObjectMesh;
-        let kind;
-        let o = '';
-        let v;
-        let vn;
-        let vt;
-        let usemtl;
-        let f;
-        for (let char = ''; char !== '\n'; char = input[++index]) {
-            o += char;
-        }
-        result.o = o.trim();
-        do {
-            [index, kind] = OBJConverter.ObjNext(input, index);
-            switch (kind) {
                 case 'v':
-                    [index, v] = OBJConverter.v(input, index);
-                    result.v.push(v);
+                    vertices.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
                     break;
                 case 'vn':
-                    [index, vn] = OBJConverter.vn(input, index);
-                    result.vn.push(vn);
+                    normals.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
                     break;
                 case 'vt':
-                    [index, vt] = OBJConverter.vt(input, index);
-                    result.vt.push(vt);
-                    break;
-                case 'usemtl':
-                    [index, usemtl] = OBJConverter.usemtl(input, index);
+                    uvs.push(new Vector2_1.default(parseFloat(values[0]), parseFloat(values[1])));
                     break;
                 case 'f':
-                    [index, f] = OBJConverter.f(input, index);
-                    result.f.push(f);
+                    for (var i = 0; i < values.length; ++i) {
+                        let faces = values[i].split('/').map(val => parseInt(val) - 1);
+                        if (!isNaN(faces[0])) {
+                            position.push(vertices[faces[0]]);
+                        }
+                        if (!isNaN(faces[1])) {
+                            uv.push(uvs[faces[1]]);
+                        }
+                        if (!isNaN(faces[2])) {
+                            normal.push(normals[faces[2]]);
+                        }
+                        if (i >= 2) {
+                            index.push(face_offset, face_offset + i - 1, face_offset + i);
+                        }
+                    }
+                    for (var i = 0; i < values.length; ++i) {
+                        if (i === values.length - 1) {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset);
+                        }
+                        else {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset + i + 1);
+                        }
+                    }
+                    wireframe_offset += values.length;
+                    face_offset += values.length;
                     break;
             }
-            console.log([index, kind, v, vn, vt, usemtl, f]);
-        } while (index !== -1);
-        if (usemtl) {
-            result.usemtl = usemtl.trim();
         }
-        return [index, result];
+        return new Mesh_1.default({ name, position, normal, uv, colour, index, wireframe });
     }
-    static v(input, index) {
-        let v = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            v += float;
+    static ParseRenderMaterial(mtl) {
+        let lines = mtl.split('\n');
+        let { name, shininess, ambient, diffuse, specular, alpha, imagemap } = new RenderMaterial_1.IRenderMaterial;
+        for (let line of lines) {
+            line = line.trim();
+            var key = line.split(' ')[0];
+            var value = line.substring(key.length).trim();
+            var values = value.split(' ');
+            switch (key) {
+                case 'newmtl':
+                    name = value;
+                    break;
+                case 'Ns':
+                    shininess = parseFloat(value);
+                    break;
+                case 'Ka':
+                    ambient = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Kd':
+                    diffuse = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Ks':
+                    specular = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'd':
+                    alpha = parseFloat(value);
+                    break;
+                case 'Tr':
+                    alpha = 1 - parseFloat(value);
+                    break;
+                case 'map_Kd':
+                    imagemap = value;
+                    break;
+            }
         }
-        return [index, new Vector3_1.default(v.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static vn(input, index) {
-        let vn = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            vn += float;
-        }
-        return [index, new Vector3_1.default(vn.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static vt(input, index) {
-        let vt = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            vt += float;
-        }
-        return [index, new Vector2_1.default(vt.trim().split(/\s+/).map(val => parseFloat(val.trim())))];
-    }
-    static usemtl(input, index) {
-        let usemtl = '';
-        for (let char = ''; char !== '\n' && (index + 1) < input.length; char = input[++index]) {
-            usemtl += char;
-        }
-        return [index, usemtl.trim()];
-    }
-    static f(input, index) {
-        let f = '';
-        for (let float = ''; float !== '\n' && (index + 1) < input.length; float = input[++index]) {
-            f += float;
-        }
-        return [index, f.split(/\s+/).map(val => +(val.trim()))];
+        return new RenderMaterial_1.default({ name, shininess, ambient, diffuse, specular, alpha, imagemap });
     }
 }
 exports.default = OBJConverter;
 
-},{"../../Maths/Vector2":18,"../../Maths/Vector3":19}],37:[function(require,module,exports){
+},{"../../GameObject":4,"../../Maths/Vector2":18,"../../Maths/Vector3":19,"../../Render/Colour4":21,"../../Render/Mesh":22,"../../Render/RenderMaterial":25}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
@@ -2322,7 +2693,7 @@ class List {
 }
 exports.default = List;
 
-},{}],38:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class TimeKeep {
