@@ -1,6 +1,6 @@
 import Vector3 from './Maths/Vector3'
 
-class ITransform
+export class ITransform
 {
     position?: Vector3 | Float32Array | Array<number>
     rotation?: Vector3 | Float32Array | Array<number>

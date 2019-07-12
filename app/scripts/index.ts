@@ -1,3 +1,5 @@
+import Animation from '../../src/Animation/Animation'
+import AnimationFrame, { Frame } from '../../src/Animation/AnimationFrame'
 import FWGE from '../../src/FWGE'
 import Control from '../../src/Utility/Control'
 import OBJConverter from '../../src/Utility/Converter/OBJConverter'
@@ -6,6 +8,7 @@ import Shader from '../../src/Shader/Shader'
 import Time from '../../src/Utility/Time'
 import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
+import Transform from '../../src/Transform';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -210,20 +213,42 @@ async function makeCube()
         width: 1080
     })
 
-    fwge.mesh = OBJConverter.ParseMesh(obj)
-    fwge.material = OBJConverter.ParseRenderMaterial(mtl)
-    fwge.material.Shader = shader
+    // fwge.mesh = OBJConverter.ParseMesh(obj)
+    // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
+    fwge.object = OBJConverter.Parse(obj, mtl)
+    fwge.object.Material.Shader = shader
+    fwge.object.Transform.Position.Z = -5
+    fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
 
-    fwge.system = new ParticleSystem(
+    fwge.animation = new Animation(
     {
-        name: 'Example',  
-        mesh: fwge.mesh,
-        material: fwge.material,
-        length: 1,
-        details: null
+        name: 'Example',
+        length: 5,
+        gameObject: fwge.object, 
+        frames: [
+            new AnimationFrame<Frame>(
+            {
+                time: 0,
+                value: new Transform({position: [0, 0, -5]})
+            }),
+            new AnimationFrame<Frame>(
+            {
+                time: 1,
+                value: new Transform({position: [1, 0, -5]})
+            }),
+            new AnimationFrame<Frame>(
+            {
+                time: 2,
+                value: new Transform({position: [1, 1, -5]})
+            }),
+            new AnimationFrame<Frame>(
+            {
+                time: 2,
+                value: new Transform({position: [0, 1, -5]})
+            })
+        ]
     })
-    //fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
-
 
     Control.Start()
+    setTimeout(Control.Stop, 500)
 }

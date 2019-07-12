@@ -19,6 +19,10 @@ export default class AnimationFrame<Value>
 {
     public Value: Value
     public Time: number
+    public Offset: Value
+    
+    public Start: number
+    public End: number
 
     constructor({ value, time }: IAnimationFrame<Value>)
     {
