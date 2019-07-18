@@ -1,4 +1,4 @@
 export default interface Destroyable
 {
-    Destroy(): void
+    Destroy(timeout?: number): void
 }

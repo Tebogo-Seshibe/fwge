@@ -35,7 +35,7 @@ export default class Tree<T>
         let curr: TreeNode<T> = this.root
         while (curr)
         {
-            if (curr.Children.Length === 0)
+            if (curr.Children.Count === 0)
             {
                 curr.Children.Add(node)
                 curr

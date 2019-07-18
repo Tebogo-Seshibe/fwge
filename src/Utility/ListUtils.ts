@@ -14,7 +14,7 @@ export default class ListUtiils
 
         for (let list_item of list)
         {
-            flattened.AddAll([...list_item])
+            flattened.AddMany(...list_item)
         }
 
         return flattened

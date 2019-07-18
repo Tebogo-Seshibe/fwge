@@ -9,11 +9,13 @@ import Time from '../../src/Utility/Time'
 import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
 import Transform from '../../src/Transform';
+import List from '../../src/Utility/List';
 
 let fwge = <any>window
 fwge.Control = Control
 fwge.Camera = Camera
 fwge.FWGE = FWGE
+fwge.List = List
 
 window.onload = () => {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -26,7 +28,8 @@ window.onload = () => {
         renderupdate: 75
     })
 
-    makeCube()
+    //makeCube()
+    fwge.numbers = new List<number>()
 }
 
 async function makeCube()

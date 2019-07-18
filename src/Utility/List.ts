@@ -1,43 +1,57 @@
-class ListNode<T>
+export class ListNode<T>
 {
-    public Next: ListNode<T>;
-    public Previous: ListNode<T>;
-    public Value: T;
+    public Previous: ListNode<T>
+    public Next: ListNode<T>
+    public Value: T
 
-    constructor(value: T, next?: ListNode<T>, previous?: ListNode<T>)
+    constructor(value: T, previous?: ListNode<T>, next?: ListNode<T>)
     {
-        this.Value = value
-        this.Next = next
         this.Previous = previous
+        this.Next = next
+        this.Value = value
     }
 }
 
-class ListIterator<T> implements IterableIterator<T>
+export class ListIterator<T> implements IterableIterator<T>
 {
-    [Symbol.iterator](): IterableIterator<T>
+    private curr: ListNode<T>
+
+    constructor(root: ListNode<T>)
     {
-        throw new Error('Method not implemented.');
-    }   
+        this.curr = root
+    }
+
+    [Symbol.iterator](): ListIterator<T>
+    {
+        return this
+    }
+    
     next(value?: any): IteratorResult<T>
     {
-        return {
-            done: !value,
-            value
+        let result: IteratorResult<T> = {
+            done: !this.curr,
+            value: undefined
         }
+
+        if (this.curr)
+        {
+            result.value = this.curr.Value
+            this.curr = this.curr.Next
+        }
+
+        return result
     }
+    
     return?(value?: any): IteratorResult<T>
     {
-        return {
-            done: !value,
-            value
-        }
+        return this.next(value)
     }
+
     throw?(e?: any): IteratorResult<T>
     {
         throw new Error(e)
     }    
 }
-
 
 export default class List<T> implements Iterable<T>
 {
@@ -46,17 +60,30 @@ export default class List<T> implements Iterable<T>
     public readonly Size: number
     private head: ListNode<T>
 
-    constructor(size: number = Number.MAX_SAFE_INTEGER, buffer?: List<T> | Array<T>)
+    constructor()
+    constructor(size: number)
+    constructor(buffer: T[])
+    constructor(arg?: number | T[])
     {
-        this.Size = size
-        
-        if (buffer)
+        if (arg !== undefined)
         {
-            this.AddAll(buffer)   
+            if (typeof arg === 'number')
+            {
+                this.Size = arg
+            }
+            else
+            {
+                this.Size = arg.length
+                this.AddMany(...arg)
+            }
+        }
+        else
+        {
+            this.Size = Number.MAX_SAFE_INTEGER
         }
     }
 
-    get Length(): number
+    get Count(): number
     {
         let node: ListNode<T> = this.head
         let count: number = 0
@@ -70,31 +97,40 @@ export default class List<T> implements Iterable<T>
         return count
     }
 
-    Add(value: ListNode<T> | T, index?:  number): boolean
+    Add(value: T): boolean
+    Add(value: T, index: number): boolean
+    Add(value: T, index?: number): boolean
     {
-        if (this.Length == this.Size)
+        if (!this.head)
         {
-            return false
+            this.head = new ListNode<T>(value, undefined, undefined)
         }
-            
-        if (value instanceof ListNode)
+        else
         {
-            value = value.Value
-        }
+            if (!Number.isSafeInteger(index) || index < 0 || index > this.Count)
+            {
+                index = this.Count
+            }
 
-        if (!Number.isSafeInteger(index) || index < 0 || index > this.Length)
-        {
-            index = this.Length   
-        }
+            let previous = this.head
+            while (previous && --index > 0)
+            {
+                previous = previous.Next
+            }
 
-        let parent = this.Get(index - 1)
-        let node = new ListNode<T>(value, parent, parent.Next)
-        parent.Next = node
+            if (!previous)
+            {
+                return false
+            }
+
+            let node = new ListNode<T>(value, previous, previous.Next)
+            previous.Next = node
+        }
 
         return true
     }
 
-    AddMany(...values: ListNode<T>[] | T[] ): void
+    AddMany(...values: T[]): void
     {
         for (let value of values)
         {
@@ -102,44 +138,33 @@ export default class List<T> implements Iterable<T>
         }
     }
 
-    AddAll(values: List<T> | Array<T>): void
+    AddRange(values: T[]): void
+    AddRange(values: List<T>): void
+    AddRange(values: T[]|List<T>): void
     {
-        for (let value of values)
-        {
-            this.Add(value)
-        }
+        this.AddMany(...values)
     }
 
-    Get(index: number): ListNode<T>
+    Get(index: number): T
     {
-        if (index < 0 || index > this.Length)
+        if (index < 0 || index > this.Count)
         {
-            return null
+            return undefined
         }
 
         let node: ListNode<T> = this.head
 
-        while (--index > 0)
+        while (node && --index >= 0)
         {
             node = node.Next
         }
 
-        return node
+        return !node ? undefined : node.Value
     }
 
-    Find(value: T): ListNode<T>
+    Contains(value: T): boolean
     {
-        let node: ListNode<T> = null
-
-        for (let curr: ListNode<T> = this.head; curr && !node; curr = curr.Next)
-        {
-            if (curr.Value === value)
-            {
-                node = curr
-            }
-        }
-
-        return node
+        return this.IndexOf(value) !== -1
     }
 
     IndexOf(value: T): number
@@ -151,56 +176,93 @@ export default class List<T> implements Iterable<T>
             ++index
         }
 
-        return index === this.Length ? -1 : index
+        return index === this.Count ? -1 : index
     }
 
-    Remove(value: T | number): T
+    Remove(value: T): boolean
+    Remove(value: T, index: number): boolean
+    Remove(value: T, index?: number): boolean
     {
-        let node: ListNode<T> = null
+        let node: ListNode<T> = this.head
+        let found = false
+        let count = 0
 
-        if (typeof value === 'number')
+        while (node && !found)
         {
-            node = this.Get(value)
-        }
-        else
-        {
-            node = this.head
+            node = node.Next
+            ++count
 
-            while (node && node.Value != value)
+            if (node.Value == value)
             {
-                node = node.Next
+                if (index === undefined || index >= count)
+                {
+                    found = true
+                }
             }
         }
 
-        if (node)
+        if (node === undefined)
         {
-            node.Previous.Next = node.Next
-
-            node.Previous = null
-            node.Next = null
-            
-            return node.Value
+            return false
         }
-        else
+        
+        node.Previous.Next = node.Next
+        node.Next.Previous = node.Previous
+
+        return true
+    }
+
+    RemoveMany(...values: T[]): void
+    {
+        for (let value of values)
         {
-            return null
+            this.Remove(value)
         }
     }
 
-    ToArray(): Array<T>
+    RemoveRange(values: T[]): void
+    RemoveRange(values: List<T>): void
+    RemoveRange(values: T[] | List<T>): void
     {
-        let array: Array<T> = new Array<T>(this.Length)
+        this.RemoveMany(...values)
+    }    
 
-        for (let curr = this.head; curr; curr = curr.Next)
+    ToArray(): T[]
+    {
+        let array: T[] = new Array<T>()
+
+        for (let value of this)
         {
-            array.push(curr.Value)
+            array.push(value)
         }
 
         return array
     }
 
+    toString(): string
+    {
+        let count = this.Count
+
+        if (count === 0)
+        {
+            return "()"
+        }
+
+        let node = this.head.Next
+        let str = "(" + this.head.Value
+
+        while (node)
+        {
+            str += "," + node.Value
+            node = node.Next
+        }
+        str += ")"
+
+        return str
+    }
+
     [Symbol.iterator](): IterableIterator<T>
     {
-        return new ListIterator<T>()
+        return new ListIterator<T>(this.head)
     }
 }

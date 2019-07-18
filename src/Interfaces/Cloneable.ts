@@ -1,4 +1,4 @@
 export default interface Cloneable<T>
 {
-    Clone(): T
+    Clone(count?: number): T | T[]
 }

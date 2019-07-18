@@ -16,7 +16,10 @@ export default class Light
     public static readonly MAX_LIGHTS: number = 12
     public static Lights: List<LightItem> = new List(12)
 
-    static Add(light: LightItem): void
+    static Add(ambientLight: AmbientLight): void
+    static Add(directionalLight: DirectionalLight): void
+    static Add(pointLight: PointLight): void
+    static Add(light: AmbientLight | DirectionalLight | PointLight): void
     {
         if (Light.Lights.Add(light))
         {

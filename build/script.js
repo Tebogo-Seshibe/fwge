@@ -21,10 +21,12 @@ const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Time_1 = __importDefault(require("../../src/Utility/Time"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const Transform_1 = __importDefault(require("../../src/Transform"));
+const List_1 = __importDefault(require("../../src/Utility/List"));
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
 fwge.FWGE = FWGE_1.default;
+fwge.List = List_1.default;
 window.onload = () => {
     let canvas = document.getElementById('canvas');
     FWGE_1.default.Init({
@@ -33,7 +35,7 @@ window.onload = () => {
         physcisupdate: 30,
         renderupdate: 75
     });
-    makeCube();
+    fwge.numbers = new List_1.default();
 };
 function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -238,7 +240,7 @@ function makeCube() {
                     value: new Transform_1.default({ position: [1, 1, -5] })
                 }),
                 new AnimationFrame_1.default({
-                    time: 3,
+                    time: 2,
                     value: new Transform_1.default({ position: [0, 1, -5] })
                 })
             ]
@@ -248,7 +250,7 @@ function makeCube() {
     });
 }
 
-},{"../../src/Animation/Animation":2,"../../src/Animation/AnimationFrame":3,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Shader/Shader":36,"../../src/Transform":39,"../../src/Utility/Control":41,"../../src/Utility/Converter/OBJConverter":42,"../../src/Utility/Time":44}],2:[function(require,module,exports){
+},{"../../src/Animation/Animation":2,"../../src/Animation/AnimationFrame":3,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Shader/Shader":36,"../../src/Transform":39,"../../src/Utility/Control":41,"../../src/Utility/Converter/OBJConverter":42,"../../src/Utility/List":43,"../../src/Utility/Time":44}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -277,15 +279,21 @@ class Animation extends Item_1.default {
                 this.ColourFrames.push(frame);
             }
         });
+        this.FrameTime = 0;
+        this.MaxFrameTime = this.Length * Time_1.default.Render.Period / 1000;
+        this.CurrentFrame = null;
         this.Init();
     }
     Init() {
+        let start = 0;
         let curr;
         let next;
         for (let i = 0; i < this.TransformFrames.length; ++i) {
             curr = this.TransformFrames[i];
             next = (i != this.TransformFrames.length - 1) ? this.TransformFrames[i + 1] : this.TransformFrames[0];
             let scale = 1 / (next.Time - curr.Time) * Time_1.default.Render.Period / 1000;
+            start += curr.Time * Time_1.default.Render.Period / 1000;
+            curr.Start = start;
             curr.Offset = new Transform_1.default({
                 position: Vector3_1.default.Diff(next.Value.Position, curr.Value.Position).Scale(scale),
                 rotation: Vector3_1.default.Diff(next.Value.Rotation, curr.Value.Rotation).Scale(scale),
@@ -295,6 +303,24 @@ class Animation extends Item_1.default {
         }
     }
     Update() {
+        this.FrameTime += Time_1.default.Render.Delta;
+        let offset = Math.max(this.FrameTime, this.MaxFrameTime, 0);
+        if (offset > 0) {
+            this.FrameTime = offset;
+            this.CurrentFrame = this.TransformFrames[0];
+            this.GameObject.Transform.Position.Set(this.CurrentFrame.Offset.Position);
+            this.GameObject.Transform.Rotation.Set(this.CurrentFrame.Offset.Rotation);
+            this.GameObject.Transform.Scale.Set(this.CurrentFrame.Offset.Scale);
+            this.GameObject.Transform.Shear.Set(this.CurrentFrame.Offset.Shear);
+        }
+        else {
+            let index = this.TransformFrames.find(frame => offset >= frame.Start && offset <= frame.End).Time;
+            this.CurrentFrame = this.TransformFrames[index];
+        }
+        this.GameObject.Transform.Position.Sum(this.CurrentFrame.Offset.Position);
+        this.GameObject.Transform.Rotation.Sum(this.CurrentFrame.Offset.Rotation);
+        this.GameObject.Transform.Scale.Sum(this.CurrentFrame.Offset.Scale);
+        this.GameObject.Transform.Shear.Sum(this.CurrentFrame.Offset.Shear);
     }
 }
 exports.default = Animation;
@@ -2665,40 +2691,55 @@ exports.default = OBJConverter;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
-    constructor(value, next, previous) {
-        this.Value = value;
-        this.Next = next;
+    constructor(value, previous, next) {
         this.Previous = previous;
+        this.Next = next;
+        this.Value = value;
     }
 }
+exports.ListNode = ListNode;
 class ListIterator {
+    constructor(root) {
+        this.curr = root;
+    }
     [Symbol.iterator]() {
-        throw new Error('Method not implemented.');
+        return this;
     }
     next(value) {
-        return {
-            done: !value,
-            value
+        let result = {
+            done: !this.curr,
+            value: undefined
         };
+        if (this.curr) {
+            result.value = this.curr.Value;
+            this.curr = this.curr.Next;
+        }
+        return result;
     }
     return(value) {
-        return {
-            done: !value,
-            value
-        };
+        return this.next(value);
     }
     throw(e) {
         throw new Error(e);
     }
 }
+exports.ListIterator = ListIterator;
 class List {
-    constructor(size = Number.MAX_SAFE_INTEGER, buffer) {
-        this.Size = size;
-        if (buffer) {
-            this.AddAll(buffer);
+    constructor(arg) {
+        if (arg !== undefined) {
+            if (typeof arg === 'number') {
+                this.Size = arg;
+            }
+            else {
+                this.Size = arg.length;
+                this.AddMany(...arg);
+            }
+        }
+        else {
+            this.Size = Number.MAX_SAFE_INTEGER;
         }
     }
-    get Length() {
+    get Count() {
         let node = this.head;
         let count = 0;
         while (node) {
@@ -2708,18 +2749,23 @@ class List {
         return count;
     }
     Add(value, index) {
-        if (this.Length == this.Size) {
-            return false;
+        if (!this.head) {
+            this.head = new ListNode(value, undefined, undefined);
         }
-        if (value instanceof ListNode) {
-            value = value.Value;
+        else {
+            if (!Number.isSafeInteger(index) || index < 0 || index > this.Count) {
+                index = this.Count;
+            }
+            let previous = this.head;
+            while (previous && --index > 0) {
+                previous = previous.Next;
+            }
+            if (!previous) {
+                return false;
+            }
+            let node = new ListNode(value, previous, previous.Next);
+            previous.Next = node;
         }
-        if (!Number.isSafeInteger(index) || index < 0 || index > this.Length) {
-            index = this.Length;
-        }
-        let parent = this.Get(index - 1);
-        let node = new ListNode(value, parent, parent.Next);
-        parent.Next = node;
         return true;
     }
     AddMany(...values) {
@@ -2727,67 +2773,80 @@ class List {
             this.Add(value);
         }
     }
-    AddAll(values) {
-        for (let value of values) {
-            this.Add(value);
-        }
+    AddRange(values) {
+        this.AddMany(...values);
     }
     Get(index) {
-        if (index < 0 || index > this.Length) {
-            return null;
+        if (index < 0 || index > this.Count) {
+            return undefined;
         }
         let node = this.head;
-        while (--index > 0) {
+        while (node && --index >= 0) {
             node = node.Next;
         }
-        return node;
+        return !node ? undefined : node.Value;
     }
-    Find(value) {
-        let node = null;
-        for (let curr = this.head; curr && !node; curr = curr.Next) {
-            if (curr.Value === value) {
-                node = curr;
-            }
-        }
-        return node;
+    Contains(value) {
+        return this.IndexOf(value) !== -1;
     }
     IndexOf(value) {
         let index = 0;
         for (let curr = this.head; curr && curr.Value != value; curr = curr.Next) {
             ++index;
         }
-        return index === this.Length ? -1 : index;
+        return index === this.Count ? -1 : index;
     }
-    Remove(value) {
-        let node = null;
-        if (typeof value === 'number') {
-            node = this.Get(value);
-        }
-        else {
-            node = this.head;
-            while (node && node.Value != value) {
-                node = node.Next;
+    Remove(value, index) {
+        let node = this.head;
+        let found = false;
+        let count = 0;
+        while (node && !found) {
+            node = node.Next;
+            ++count;
+            if (node.Value == value) {
+                if (index === undefined || index >= count) {
+                    found = true;
+                }
             }
         }
-        if (node) {
-            node.Previous.Next = node.Next;
-            node.Previous = null;
-            node.Next = null;
-            return node.Value;
+        if (node === undefined) {
+            return false;
         }
-        else {
-            return null;
+        node.Previous.Next = node.Next;
+        node.Next.Previous = node.Previous;
+        return true;
+    }
+    RemoveMany(...values) {
+        for (let value of values) {
+            this.Remove(value);
         }
     }
+    RemoveRange(values) {
+        this.RemoveMany(...values);
+    }
     ToArray() {
-        let array = new Array(this.Length);
-        for (let curr = this.head; curr; curr = curr.Next) {
-            array.push(curr.Value);
+        let array = new Array();
+        for (let value of this) {
+            array.push(value);
         }
         return array;
     }
+    toString() {
+        let count = this.Count;
+        if (count === 0) {
+            return "()";
+        }
+        let node = this.head.Next;
+        let str = "(" + this.head.Value;
+        while (node) {
+            str += "," + node.Value;
+            node = node.Next;
+        }
+        str += ")";
+        return str;
+    }
     [Symbol.iterator]() {
-        return new ListIterator();
+        return new ListIterator(this.head);
     }
 }
 exports.default = List;
