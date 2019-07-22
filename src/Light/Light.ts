@@ -4,58 +4,31 @@ import LightItem from './LightItem'
 import List from '../Utility/List'
 import PointLight from './PointLight'
 
-export default class Light
+export let AmbientLights: List<AmbientLight> = new List(1)
+export let DirectionalLights: List<DirectionalLight> = new List(3)
+export let PointLights: List<PointLight> = new List(12)
+
+export function Add(ambientLight: AmbientLight): void
+export function Add(directionalLight: DirectionalLight): void
+export function Add(pointLight: PointLight): void
+export function Add(light: AmbientLight | DirectionalLight | PointLight): void
 {
-    public static AmbientCount: number = 0
-    public static DirectionalCount: number = 0
-    public static PointCount: number = 0
+    let list = light instanceof PointLight
+        ? PointLights
+        : light instanceof DirectionalLight
+            ? DirectionalLights
+            : AmbientLights
+
+    list.Add(light)
+}
+
+export function Remove(light: LightItem): void
+{
+    let list = light instanceof PointLight
+        ? PointLights
+        : light instanceof DirectionalLight
+            ? DirectionalLights
+            : AmbientLights
     
-    public static readonly MAX_AMBIENT: number = 1
-    public static readonly MAX_DIRECTIONAL: number = 3
-    public static readonly MAX_POINT: number = 8
-    public static readonly MAX_LIGHTS: number = 12
-    public static Lights: List<LightItem> = new List(12)
-
-    static Add(ambientLight: AmbientLight): void
-    static Add(directionalLight: DirectionalLight): void
-    static Add(pointLight: PointLight): void
-    static Add(light: AmbientLight | DirectionalLight | PointLight): void
-    {
-        if (Light.Lights.Add(light))
-        {
-            if (light instanceof AmbientLight)
-            {
-                ++Light.AmbientCount
-            }
-            if (light instanceof DirectionalLight)
-            {
-                ++Light.DirectionalCount
-            }
-            if (light instanceof PointLight)
-            {
-                ++Light.PointCount
-            }
-        }
-    }
-
-    static Remove(light: LightItem): void
-    {
-        let node = Light.Lights.Remove(light)
-
-        if (node)
-        {
-            if (light instanceof AmbientLight)
-            {
-                --Light.AmbientCount
-            }
-            if (light instanceof DirectionalLight)
-            {
-                --Light.DirectionalCount
-            }
-            if (light instanceof PointLight)
-            {
-                --Light.PointCount
-            }
-        }
-    }
+    list.Remove(light)
 }

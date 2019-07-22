@@ -3,7 +3,7 @@ import Vector3 from '..//Maths/Vector3'
 
 export class IPointLight extends ILightItem
 {
-    position: Vector3 | Float32Array | Array<number>
+    position: Vector3 | Float32Array | number[]
     radius: number
     angle: number
     shininess: number

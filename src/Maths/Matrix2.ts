@@ -10,10 +10,10 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     constructor(matrix: Matrix3)
     constructor(matrix: Matrix4)
     constructor(array: Float32Array)
-    constructor(array: Array<number>)
+    constructor(array: number[])
     constructor(list: List<number>)
     constructor(m11: number, m12: number, m21: number, m22: number)
-    constructor(m11?: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number)
+    constructor(m11?: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number)
     {
         super(4)
 
@@ -91,10 +91,10 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     Set(matrix: Matrix3): Matrix2
     Set(matrix: Matrix4): Matrix2
     Set(array: Float32Array): Matrix2
-    Set(array: Array<number>): Matrix2
+    Set(array: number[]): Matrix2
     Set(list: List<number>): Matrix2
     Set(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Set(m11: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    Set(m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
         return Matrix2.Set
         (
@@ -104,26 +104,9 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         )
     }
 
-    static Set(matrix: Matrix2, m11: Matrix2 | Matrix4 | Matrix4 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    static Set(matrix: Matrix2, m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
-        
-        if (m11 instanceof Matrix2 || m11 instanceof Matrix3 || m11 instanceof Matrix4)
-        {
-            [
-                m11, m12,
-                m21, m22 
-            ] = [
-                m11.M11, m11.M12,
-                m11.M21, m11.M22
-            ]
-        }
-        else if (m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
-        {
-            [
-                m11, m12,
-                m21, m22 
-            ] = m11
-        }
+        [ m11, m12, m21, m22 ] = Matrix2.Destructure(m11, m12, m21, m22)
 
         matrix.M11 = m11
         matrix.M12 = m12
@@ -149,15 +132,9 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         return Matrix2.Determinant(this)
     }
 
-    static Determinant(m11: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): number
+    static Determinant(m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): number
     {
-        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
-        {
-            [
-                m11, m12,
-                m21, m22 
-            ] = m11
-        }
+        [ m11, m12, m21, m22 ] = Matrix2.Destructure(m11, m12, m21, m22)
 
         return m11 * m22 - m21 * m12;
     }
@@ -186,10 +163,10 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
     Sum(matrix: Matrix2): Matrix2
     Sum(array: Float32Array): Matrix2
-    Sum(array: Array<number>): Matrix2
+    Sum(array: number[]): Matrix2
     Sum(list: List<number>): Matrix2
     Sum(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Sum(m11: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    Sum(m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
         return Matrix2.Sum
         (
@@ -199,25 +176,19 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         )
     }
 
-    static Sum(matrix: Matrix2, m11?: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    static Sum(matrix: Matrix2, m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
-        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
-        {
-            [
-                m11, m12,
-                m21, m22 
-            ] = m11
-        }
+        [ m11, m12, m21, m22 ] = Matrix2.Destructure(m11, m12, m21, m22)
 
         return Matrix2.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M21 + m21, matrix.M22 + m22)
     }
     
     Mult(m11: Matrix2): Matrix2
     Mult(array: Float32Array): Matrix2
-    Mult(array: Array<number>): Matrix2
+    Mult(array: number[]): Matrix2
     Mult(list: List<number>): Matrix2
     Mult(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Mult(m11: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    Mult(m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
         return Matrix2.Mult
         (
@@ -227,15 +198,9 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         )
     }
 
-    static Mult(matrix: Matrix2, m11?: Matrix2 | Float32Array | Array<number> | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
+    static Mult(matrix: Matrix2, m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number): Matrix2
     {
-        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
-        {
-            [
-                m11, m12,
-                m21, m22 
-            ] = m11
-        }
+        [ m11, m12, m21, m22 ] = Matrix2.Destructure(m11, m12, m21, m22)
 
         return Matrix2.Set
         (
@@ -286,5 +251,31 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     Clone(): Matrix2
     {
         return new Matrix2(this)
+    }
+
+    private static Destructure(m11: Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m21?: number, m22?: number):[ number, number, number, number ]
+    {
+        if (m11 instanceof Matrix2 || m11 instanceof Matrix3 || m11 instanceof Matrix4)
+        {
+            [
+                m11, m12,
+                m21, m22 
+            ] = [
+                m11.M11, m11.M12,
+                m11.M21, m11.M22
+            ]
+        }
+        else if (m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
+        {
+            [
+                m11, m12,
+                m21, m22 
+            ] = m11
+        }
+
+        return [
+            m11, m12,
+            m21, m22
+        ]
     }
 }

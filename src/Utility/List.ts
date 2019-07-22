@@ -63,6 +63,7 @@ export default class List<T> implements Iterable<T>
     constructor()
     constructor(size: number)
     constructor(buffer: T[])
+    constructor(...buffer: T[])
     constructor(arg?: number | T[])
     {
         if (arg !== undefined)
@@ -140,7 +141,7 @@ export default class List<T> implements Iterable<T>
 
     AddRange(values: T[]): void
     AddRange(values: List<T>): void
-    AddRange(values: T[]|List<T>): void
+    AddRange(values: T[] | List<T>): void
     {
         this.AddMany(...values)
     }

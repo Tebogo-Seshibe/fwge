@@ -1,4 +1,8 @@
 const SIGNIFICANT_FIGURES = Math.pow(10, 6)
+export function Sigfigs(value: number): number
+{
+    return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES)
+}
 
 export default class Maths
 {

@@ -10,6 +10,7 @@ import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
 import Transform from '../../src/Transform';
 import List from '../../src/Utility/List';
+import Matrix2 from '../../src/Maths/Matrix2';
 
 let fwge = <any>window
 fwge.Control = Control

@@ -2,7 +2,7 @@ import AmbientLight from '../Light/AmbientLight'
 import DirectionalLight from '../Light/DirectionalLight'
 import FWGE from '../FWGE'
 import GameObject, { GameObjects } from '../GameObject'
-import Light from '../Light/Light'
+import { AmbientLights, DirectionalLights, PointLights } from '../Light/Light'
 import ModelView from './ModelView'
 import Matrix3 from '../Maths/Matrix3'
 import Mesh from './Mesh'
@@ -16,6 +16,8 @@ import ShaderAttributes from '../Shader/ShaderAttributes'
 import Camera from '../Camera/Camera';
 import ParticleSystem, { ParticleSystems } from '../ParticleSystem';
 import Transform from '../Transform';
+import LightItem from '../Light/LightItem';
+import List from '../Utility/List';
 
 type Renderable = 
 {
@@ -253,7 +255,7 @@ export default class Renderer
     private static SetGlobalUniforms(): void
     {
         var i = Shaders.length
-
+        let Lights = new List<LightItem>(...AmbientLights, ...DirectionalLights, ...PointLights)
         for (let shader of Shaders)
         {
             FWGE.GL.useProgram(shader.Program)
@@ -262,7 +264,7 @@ export default class Renderer
             let matrix = shader.Uniforms.Matrix
             let uniforms = shader.Uniforms.Light
             
-            for (let light of Light.Lights)
+            for (let light of Lights)
             {                
                 if (light instanceof AmbientLight)
                 {

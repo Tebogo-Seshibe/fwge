@@ -14,6 +14,6 @@ export default class DirectionalLight extends LightItem
     {
         super(name, colour, intensity)
 
-        this. Direction = new Vector3(direction)
+        this.Direction = new Vector3(direction)
     }
 }
