@@ -1,40 +1,39 @@
 import Maths from '../Maths/Maths'
 import Matrix4 from '../Maths/Matrix4'
+import Stack from '../Utility/Stack'
 import Transform from '../Transform'
 import Vector3 from '../Maths/Vector3'
 
+let MVStack: Stack<Matrix4> = new Stack<Matrix4>()
+
 export default class ModelView
 {
-    private static Stack: Array<Matrix4> = new Array()
-
     public static Push(transform: Transform): Matrix4
     {
-        ModelView.Stack.push(this.Transform(transform))
+        MVStack.Push(this.Transform(transform))
         return ModelView.Peek()
     }
         
     public static Peek(): Matrix4
     {
-        if (ModelView.Stack.length === 0)
+        let mat = MVStack.Peek()
+        if (!mat)
         {
             return Matrix4.IDENTITY
         }
-        else
-        {
-            return ModelView.Stack[ModelView.Stack.length - 1]
-        }
+
+        return mat
     }
     
     public static Pop(): Matrix4
     {
-        if (ModelView.Stack.length === 0)
+        let mat = MVStack.Pop()
+        if (!mat)
         {
             return Matrix4.IDENTITY
         }
-        else
-        {
-            return ModelView.Stack.pop()
-        }
+
+        return mat
     }
     
     private static Transform({ Position, Rotation, Scale, Shear }: Transform): Matrix4

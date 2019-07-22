@@ -1,9 +1,9 @@
 import Item from '../Item'
 import ShaderAttributes from './ShaderAttributes'
 import ShaderUniforms from './ShaderUniforms'
-import FWGE from '../FWGE';
+import FWGE from '../FWGE'
 
-class IShader
+export class IShader
 {
     name?: string
     height?: number
@@ -12,7 +12,7 @@ class IShader
     fragmentshader: string
 }
 
-export let Shaders: Shader[] = []
+export let Shaders: Shader[] = new Array<Shader>()
 
 export default class Shader extends Item
 {
@@ -26,7 +26,7 @@ export default class Shader extends Item
     public Height: number
     public Width: number
 
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader}: IShader)
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader}: IShader = new IShader)
     {
         super(name)
 

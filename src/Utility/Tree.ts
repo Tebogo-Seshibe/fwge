@@ -17,7 +17,7 @@ export default class Tree<T>
     private readonly size: number
     private root: TreeNode<T> | null
 
-    constructor(size: number = 1)
+    constructor(size: number = Number.MAX_SAFE_INTEGER)
     {
         this.size = size
         this.root = null

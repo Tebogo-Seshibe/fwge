@@ -29,7 +29,7 @@ window.onload = () => {
         renderupdate: 75
     })
 
-    //makeCube()
+    makeCube()
     fwge.numbers = new List<number>()
 }
 
@@ -38,6 +38,8 @@ async function makeCube()
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
     let system: ParticleSystem
+
+    debugger
 
     let shader = new Shader(
     {
@@ -224,6 +226,7 @@ async function makeCube()
     fwge.object.Transform.Position.Z = -5
     fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
 
+    /*
     fwge.animation = new Animation(
     {
         name: 'Example',
@@ -251,7 +254,7 @@ async function makeCube()
                 value: new Transform({position: [0, 1, -5]})
             })
         ]
-    })
+    })*/
 
     Control.Start()
     setTimeout(Control.Stop, 500)

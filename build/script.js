@@ -12,15 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Animation_1 = __importDefault(require("../../src/Animation/Animation"));
-const AnimationFrame_1 = __importDefault(require("../../src/Animation/AnimationFrame"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Time_1 = __importDefault(require("../../src/Utility/Time"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
-const Transform_1 = __importDefault(require("../../src/Transform"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 let fwge = window;
 fwge.Control = Control_1.default;
@@ -35,6 +32,7 @@ window.onload = () => {
         physcisupdate: 30,
         renderupdate: 75
     });
+    makeCube();
     fwge.numbers = new List_1.default();
 };
 function makeCube() {
@@ -42,6 +40,7 @@ function makeCube() {
         let obj = yield (yield fetch('/res/Objects/Cube/Cube.obj')).text();
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
         let system;
+        debugger;
         let shader = new Shader_1.default({
             name: 'Just another shader',
             vertexshader: `
@@ -222,127 +221,12 @@ function makeCube() {
         fwge.object.Material.Shader = shader;
         fwge.object.Transform.Position.Z = -5;
         fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.01;
-        fwge.animation = new Animation_1.default({
-            name: 'Example',
-            length: 5,
-            gameObject: fwge.object,
-            frames: [
-                new AnimationFrame_1.default({
-                    time: 0,
-                    value: new Transform_1.default({ position: [0, 0, -5] })
-                }),
-                new AnimationFrame_1.default({
-                    time: 1,
-                    value: new Transform_1.default({ position: [1, 0, -5] })
-                }),
-                new AnimationFrame_1.default({
-                    time: 2,
-                    value: new Transform_1.default({ position: [1, 1, -5] })
-                }),
-                new AnimationFrame_1.default({
-                    time: 2,
-                    value: new Transform_1.default({ position: [0, 1, -5] })
-                })
-            ]
-        });
         Control_1.default.Start();
         setTimeout(Control_1.default.Stop, 500);
     });
 }
 
-},{"../../src/Animation/Animation":2,"../../src/Animation/AnimationFrame":3,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Shader/Shader":37,"../../src/Transform":40,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44,"../../src/Utility/Time":45}],2:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Item_1 = __importDefault(require("../Item"));
-const Colour4_1 = __importDefault(require("../Render/Colour4"));
-const Transform_1 = __importDefault(require("../Transform"));
-const Vector3_1 = __importDefault(require("../Maths/Vector3"));
-const Time_1 = __importDefault(require("../Utility/Time"));
-class IAnimation {
-}
-exports.IAnimation = IAnimation;
-class Animation extends Item_1.default {
-    constructor({ name = 'Animation', gameObject, frames = [], length = 0 } = new IAnimation()) {
-        super(name);
-        this.ColourFrames = [];
-        this.TransformFrames = [];
-        this.GameObject = gameObject;
-        this.Length = length;
-        frames.forEach(frame => {
-            if (frame.Value instanceof Transform_1.default) {
-                this.TransformFrames.push(frame);
-            }
-            if (frame.Value instanceof Colour4_1.default) {
-                this.ColourFrames.push(frame);
-            }
-        });
-        this.FrameTime = 0;
-        this.MaxFrameTime = this.Length * Time_1.default.Render.Period / 1000;
-        this.CurrentFrame = null;
-        this.Init();
-    }
-    Init() {
-        let start = 0;
-        let curr;
-        let next;
-        for (let i = 0; i < this.TransformFrames.length; ++i) {
-            curr = this.TransformFrames[i];
-            next = (i != this.TransformFrames.length - 1) ? this.TransformFrames[i + 1] : this.TransformFrames[0];
-            let scale = 1 / (next.Time - curr.Time) * Time_1.default.Render.Period / 1000;
-            start += curr.Time * Time_1.default.Render.Period / 1000;
-            curr.Start = start;
-            curr.Offset = new Transform_1.default({
-                position: Vector3_1.default.Diff(next.Value.Position, curr.Value.Position).Scale(scale),
-                rotation: Vector3_1.default.Diff(next.Value.Rotation, curr.Value.Rotation).Scale(scale),
-                scale: Vector3_1.default.Diff(next.Value.Scale, curr.Value.Scale).Scale(scale),
-                shear: Vector3_1.default.Diff(next.Value.Shear, curr.Value.Shear).Scale(scale)
-            });
-        }
-    }
-    Update() {
-        this.FrameTime += Time_1.default.Render.Delta;
-        let offset = Math.max(this.FrameTime, this.MaxFrameTime, 0);
-        if (offset > 0) {
-            this.FrameTime = offset;
-            this.CurrentFrame = this.TransformFrames[0];
-            this.GameObject.Transform.Position.Set(this.CurrentFrame.Offset.Position);
-            this.GameObject.Transform.Rotation.Set(this.CurrentFrame.Offset.Rotation);
-            this.GameObject.Transform.Scale.Set(this.CurrentFrame.Offset.Scale);
-            this.GameObject.Transform.Shear.Set(this.CurrentFrame.Offset.Shear);
-        }
-        else {
-            let index = this.TransformFrames.find(frame => offset >= frame.Start && offset <= frame.End).Time;
-            this.CurrentFrame = this.TransformFrames[index];
-        }
-        this.GameObject.Transform.Position.Sum(this.CurrentFrame.Offset.Position);
-        this.GameObject.Transform.Rotation.Sum(this.CurrentFrame.Offset.Rotation);
-        this.GameObject.Transform.Scale.Sum(this.CurrentFrame.Offset.Scale);
-        this.GameObject.Transform.Shear.Sum(this.CurrentFrame.Offset.Shear);
-    }
-}
-exports.default = Animation;
-
-},{"../Item":10,"../Maths/Vector3":21,"../Render/Colour4":24,"../Transform":40,"../Utility/Time":45}],3:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class AnimationFrameGroup {
-}
-exports.AnimationFrameGroup = AnimationFrameGroup;
-class IAnimationFrame {
-}
-exports.IAnimationFrame = IAnimationFrame;
-class AnimationFrame {
-    constructor({ value, time }) {
-        this.Value = value;
-        this.Time = time;
-    }
-}
-exports.default = AnimationFrame;
-
-},{}],4:[function(require,module,exports){
+},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/Shader/Shader":35,"../../src/Utility/Control":40,"../../src/Utility/Converter/OBJConverter":41,"../../src/Utility/List":42,"../../src/Utility/Time":44}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -388,7 +272,7 @@ class Camera extends Item_1.default {
 exports.default = Camera;
 new Camera('Main Camera');
 
-},{"../FWGE":5,"../Item":10}],5:[function(require,module,exports){
+},{"../FWGE":3,"../Item":8}],3:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -421,7 +305,7 @@ class FWGE {
 }
 exports.default = FWGE;
 
-},{"./Input/KeyboardInput":8,"./Input/MouseInput":9,"./Utility/Control":42}],6:[function(require,module,exports){
+},{"./Input/KeyboardInput":6,"./Input/MouseInput":7,"./Utility/Control":40}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -429,7 +313,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("./Item"));
 const Transform_1 = __importDefault(require("./Transform"));
-exports.GameObjects = [];
+exports.GameObjects = new Array();
 class IGameObject {
     constructor() {
         this.transform = new Transform_1.default();
@@ -452,6 +336,8 @@ class GameObject extends Item_1.default {
             this.Children.push(child);
         }
         exports.GameObjects.push(this);
+    }
+    Destroy() {
     }
     Clone() {
         return GameObject.Clone(this);
@@ -478,7 +364,7 @@ class GameObject extends Item_1.default {
 }
 exports.default = GameObject;
 
-},{"./Item":10,"./Transform":40}],7:[function(require,module,exports){
+},{"./Item":8,"./Transform":38}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var InputState;
@@ -489,7 +375,7 @@ var InputState;
     InputState[InputState["DOWN"] = 3] = "DOWN";
 })(InputState = exports.InputState || (exports.InputState = {}));
 
-},{}],8:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputState_1 = require("./InputState");
@@ -520,7 +406,7 @@ class KeyboardInput {
 KeyboardInput.Keys = new Array(128);
 exports.default = KeyboardInput;
 
-},{"./InputState":7}],9:[function(require,module,exports){
+},{"./InputState":5}],7:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -547,7 +433,7 @@ MouseInput.Axes = new Vector2_1.default();
 MouseInput.Delta = new Vector2_1.default();
 exports.default = MouseInput;
 
-},{"../Maths/Vector2":20,"./InputState":7}],10:[function(require,module,exports){
+},{"../Maths/Vector2":18,"./InputState":5}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Item {
@@ -571,7 +457,7 @@ function Hashcode(number) {
     return hash;
 }
 
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -591,7 +477,7 @@ class AmbientLight extends LightItem_1.default {
 }
 exports.default = AmbientLight;
 
-},{"./LightItem":14}],12:[function(require,module,exports){
+},{"./LightItem":12}],10:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -617,7 +503,7 @@ class DirectionalLight extends LightItem_1.default {
 }
 exports.default = DirectionalLight;
 
-},{"../Maths/Vector3":21,"./LightItem":14}],13:[function(require,module,exports){
+},{"../Maths/Vector3":19,"./LightItem":12}],11:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -648,7 +534,7 @@ function Remove(light) {
 }
 exports.Remove = Remove;
 
-},{"../Utility/List":44,"./DirectionalLight":12,"./PointLight":15}],14:[function(require,module,exports){
+},{"../Utility/List":42,"./DirectionalLight":10,"./PointLight":13}],12:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -668,7 +554,7 @@ class LightItem extends Item_1.default {
 }
 exports.default = LightItem;
 
-},{"../Item":10,"../Render/Colour4":24}],15:[function(require,module,exports){
+},{"../Item":8,"../Render/Colour4":22}],13:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -697,7 +583,7 @@ class PointLight extends LightItem_1.default {
 }
 exports.default = PointLight;
 
-},{"..//Maths/Vector3":21,"./LightItem":14}],16:[function(require,module,exports){
+},{"..//Maths/Vector3":19,"./LightItem":12}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SIGNIFICANT_FIGURES = Math.pow(10, 6);
@@ -724,7 +610,7 @@ class Maths {
 }
 exports.default = Maths;
 
-},{}],17:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -858,7 +744,7 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":44,"./Maths":16,"./Matrix3":18,"./Matrix4":19}],18:[function(require,module,exports){
+},{"../Utility/List":42,"./Maths":14,"./Matrix3":16,"./Matrix4":17}],16:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1044,7 +930,7 @@ class Matrix3 extends Float32Array {
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":44,"./Maths":16,"./Matrix2":17,"./Matrix4":19}],19:[function(require,module,exports){
+},{"../Utility/List":42,"./Maths":14,"./Matrix2":15,"./Matrix4":17}],17:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1386,7 +1272,7 @@ class Matrix4 extends Float32Array {
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":44,"./Maths":16,"./Matrix2":17,"./Matrix3":18}],20:[function(require,module,exports){
+},{"../Utility/List":42,"./Maths":14,"./Matrix2":15,"./Matrix3":16}],18:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -1511,7 +1397,7 @@ class Vector2 extends Float32Array {
 }
 exports.default = Vector2;
 
-},{"../Utility/List":44,"./Maths":16,"./Vector3":21,"./Vector4":22}],21:[function(require,module,exports){
+},{"../Utility/List":42,"./Maths":14,"./Vector3":19,"./Vector4":20}],19:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1647,7 +1533,7 @@ class Vector3 extends Float32Array {
 }
 exports.default = Vector3;
 
-},{"../Maths/Maths":16}],22:[function(require,module,exports){
+},{"../Maths/Maths":14}],20:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1786,7 +1672,7 @@ class Vector4 extends Float32Array {
 }
 exports.default = Vector4;
 
-},{"../Utility/List":44,"./Maths":16,"./Vector2":20,"./Vector3":21}],23:[function(require,module,exports){
+},{"../Utility/List":42,"./Maths":14,"./Vector2":18,"./Vector3":19}],21:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1824,7 +1710,7 @@ class ParticleSystem extends Item_1.default {
 }
 exports.default = ParticleSystem;
 
-},{"./Item":10,"./Transform":40}],24:[function(require,module,exports){
+},{"./Item":8,"./Transform":38}],22:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1886,7 +1772,7 @@ class Colour4 extends Float32Array {
     }
     static Set(colour, r, g, b, a) {
         if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array) {
-            [r, g, b, a] = [r[0], r[1], r[2], r[3]];
+            [r, g, b, a] = r;
         }
         else if (typeof (r) === 'string') {
             if (r.match(/#([0-9A-F]{3}){1,2}/i)) {
@@ -1902,7 +1788,7 @@ class Colour4 extends Float32Array {
                     .map(c => parseInt(c, 16));
             }
             else {
-                r = 0;
+                [r, g, b, a] = [0, 0, 0, 0];
             }
         }
         colour.R = r;
@@ -1911,28 +1797,10 @@ class Colour4 extends Float32Array {
         colour.A = a;
         return colour;
     }
-    static FromBin(bin) {
-        return null;
-    }
-    static ToBin(bin) {
-        return '';
-    }
-    static FromOct(oct) {
-        return null;
-    }
-    static ToOct(oct) {
-        return '';
-    }
-    static FromHex(hex) {
-        return null;
-    }
-    static ToHex(hex) {
-        return '';
-    }
 }
 exports.default = Colour4;
 
-},{"../Maths/Maths":16}],25:[function(require,module,exports){
+},{"../Maths/Maths":14}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1950,7 +1818,7 @@ class IMesh {
 }
 exports.IMesh = IMesh;
 class Mesh extends Item_1.default {
-    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe } = new IMesh()) {
+    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe } = new IMesh) {
         super(name);
         if (colour && colour.length === 0) {
             colour = undefined;
@@ -1993,7 +1861,7 @@ class Mesh extends Item_1.default {
 }
 exports.default = Mesh;
 
-},{"../FWGE":5,"../Item":10,"../Utility/ArrayUtils":41}],26:[function(require,module,exports){
+},{"../FWGE":3,"../Item":8,"../Utility/ArrayUtils":39}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2001,26 +1869,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Maths_1 = __importDefault(require("../Maths/Maths"));
 const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
+const Stack_1 = __importDefault(require("../Utility/Stack"));
+let MVStack = new Stack_1.default();
 class ModelView {
     static Push(transform) {
-        ModelView.Stack.push(this.Transform(transform));
+        MVStack.Push(this.Transform(transform));
         return ModelView.Peek();
     }
     static Peek() {
-        if (ModelView.Stack.length === 0) {
+        let mat = MVStack.Peek();
+        if (!mat) {
             return Matrix4_1.default.IDENTITY;
         }
-        else {
-            return ModelView.Stack[ModelView.Stack.length - 1];
-        }
+        return mat;
     }
     static Pop() {
-        if (ModelView.Stack.length === 0) {
+        let mat = MVStack.Pop();
+        if (!mat) {
             return Matrix4_1.default.IDENTITY;
         }
-        else {
-            return ModelView.Stack.pop();
-        }
+        return mat;
     }
     static Transform({ Position, Rotation, Scale, Shear }) {
         return this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), Position), Rotation), Scale), Shear);
@@ -2044,10 +1912,9 @@ class ModelView {
         return new Matrix4_1.default(1.0, 0.0, Math.tan(rho), 0.0, Math.tan(phi), 1.0, 0.0, 0.0, 0.0, Math.tan(theta), 1.0, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(matrix);
     }
 }
-ModelView.Stack = new Array();
 exports.default = ModelView;
 
-},{"../Maths/Maths":16,"../Maths/Matrix4":19}],27:[function(require,module,exports){
+},{"../Maths/Maths":14,"../Maths/Matrix4":17,"../Utility/Stack":43}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2078,7 +1945,7 @@ class Projection {
 }
 exports.default = Projection;
 
-},{"../Maths/Maths":16,"../Maths/Matrix4":19}],28:[function(require,module,exports){
+},{"../Maths/Maths":14,"../Maths/Matrix4":17}],26:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2144,7 +2011,7 @@ class RenderMaterial extends Item_1.default {
 }
 exports.default = RenderMaterial;
 
-},{"../FWGE":5,"../Item":10,"../Maths/Maths":16,"./Colour4":24}],29:[function(require,module,exports){
+},{"../FWGE":3,"../Item":8,"../Maths/Maths":14,"./Colour4":22}],27:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2367,7 +2234,7 @@ class Renderer {
 }
 exports.default = Renderer;
 
-},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":11,"../Light/DirectionalLight":12,"../Light/Light":13,"../Light/PointLight":15,"../Maths/Matrix3":18,"../ParticleSystem":23,"../Shader/Shader":37,"../Utility/List":44,"./ModelView":26,"./Projection":27}],30:[function(require,module,exports){
+},{"../Camera/Camera":2,"../FWGE":3,"../GameObject":4,"../Light/AmbientLight":9,"../Light/DirectionalLight":10,"../Light/Light":11,"../Light/PointLight":13,"../Maths/Matrix3":16,"../ParticleSystem":21,"../Shader/Shader":35,"../Utility/List":42,"./ModelView":24,"./Projection":25}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -2378,7 +2245,7 @@ class AmbientUniforms {
 }
 exports.default = AmbientUniforms;
 
-},{}],31:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class DirectionalUniforms {
@@ -2390,7 +2257,7 @@ class DirectionalUniforms {
 }
 exports.default = DirectionalUniforms;
 
-},{}],32:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2413,7 +2280,7 @@ class LightUniforms {
 LightUniforms.MAX_LIGHT = 8;
 exports.default = LightUniforms;
 
-},{"./AmbientUniforms":30,"./DirectionalUniforms":31,"./PointUniform":35}],33:[function(require,module,exports){
+},{"./AmbientUniforms":28,"./DirectionalUniforms":29,"./PointUniform":33}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MaterialUniforms {
@@ -2430,7 +2297,7 @@ class MaterialUniforms {
 }
 exports.default = MaterialUniforms;
 
-},{}],34:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MatrixUniforms {
@@ -2443,7 +2310,7 @@ class MatrixUniforms {
 }
 exports.default = MatrixUniforms;
 
-},{}],35:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class PointUniform {
@@ -2457,7 +2324,7 @@ class PointUniform {
 }
 exports.default = PointUniform;
 
-},{}],36:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SamplerUniforms {
@@ -2469,7 +2336,7 @@ class SamplerUniforms {
 }
 exports.default = SamplerUniforms;
 
-},{}],37:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2481,9 +2348,10 @@ const ShaderUniforms_1 = __importDefault(require("./ShaderUniforms"));
 const FWGE_1 = __importDefault(require("../FWGE"));
 class IShader {
 }
-exports.Shaders = [];
+exports.IShader = IShader;
+exports.Shaders = new Array();
 class Shader extends Item_1.default {
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader }) {
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader } = new IShader) {
         super(name);
         let gl = FWGE_1.default.GL;
         this.Program = gl.createProgram();
@@ -2538,7 +2406,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../FWGE":5,"../Item":10,"./ShaderAttributes":38,"./ShaderUniforms":39}],38:[function(require,module,exports){
+},{"../FWGE":3,"../Item":8,"./ShaderAttributes":36,"./ShaderUniforms":37}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ShaderAttributes {
@@ -2551,7 +2419,7 @@ class ShaderAttributes {
 }
 exports.default = ShaderAttributes;
 
-},{}],39:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2571,7 +2439,7 @@ class ShaderUniforms {
 }
 exports.default = ShaderUniforms;
 
-},{"./LightUniforms":32,"./MaterialUniforms":33,"./MatrixUniforms":34,"./SamplerUniforms":36}],40:[function(require,module,exports){
+},{"./LightUniforms":30,"./MaterialUniforms":31,"./MatrixUniforms":32,"./SamplerUniforms":34}],38:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2600,7 +2468,7 @@ class Transform {
 }
 exports.default = Transform;
 
-},{"./Maths/Vector3":21}],41:[function(require,module,exports){
+},{"./Maths/Vector3":19}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ArrayUtiils {
@@ -2619,7 +2487,7 @@ class ArrayUtiils {
 }
 exports.default = ArrayUtiils;
 
-},{}],42:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2665,7 +2533,7 @@ Control.Running = false;
 Control.AnimationFrame = -1;
 exports.default = Control;
 
-},{"../Camera/Camera":4,"../GameObject":6,"../Render/Renderer":29,"./Time":45}],43:[function(require,module,exports){
+},{"../Camera/Camera":2,"../GameObject":4,"../Render/Renderer":27,"./Time":44}],41:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2795,7 +2663,7 @@ class OBJConverter {
 }
 exports.default = OBJConverter;
 
-},{"../../GameObject":6,"../../Maths/Vector2":20,"../../Maths/Vector3":21,"../../Render/Colour4":24,"../../Render/Mesh":25,"../../Render/RenderMaterial":28}],44:[function(require,module,exports){
+},{"../../GameObject":4,"../../Maths/Vector2":18,"../../Maths/Vector3":19,"../../Render/Colour4":22,"../../Render/Mesh":23,"../../Render/RenderMaterial":26}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
@@ -2959,7 +2827,45 @@ class List {
 }
 exports.default = List;
 
-},{}],45:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class StackNode {
+    constructor(value, predecessor) {
+        this.Value = value;
+        this.Predecessor = predecessor;
+    }
+}
+exports.StackNode = StackNode;
+class Stack {
+    constructor() {
+        this.Head = undefined;
+    }
+    Push(value) {
+        if (!this.Head) {
+            this.Head = new StackNode(value);
+        }
+        else {
+            let newHead = new StackNode(value, this.Head);
+            this.Head = newHead;
+        }
+    }
+    Peek() {
+        if (!this.Head)
+            return null;
+        return this.Head.Value;
+    }
+    Pop() {
+        if (!this.Head)
+            return null;
+        let oldHead = this.Head;
+        this.Head = this.Head.Predecessor;
+        return oldHead.Value;
+    }
+}
+exports.default = Stack;
+
+},{}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class TimeKeep {

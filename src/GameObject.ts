@@ -1,14 +1,17 @@
 import GameItem from './GameItem'
+import Cloneable from './Interfaces/Cloneable'
+import Destroyable from './Interfaces/Destroyable'
 import Item from './Item'
 import List from './Utility/List'
 import Mesh from './Render/Mesh'
 import PhysicsMaterial from './Physics/PhysicsMaterial'
 import RenderMaterial from './Render/RenderMaterial'
 import Transform from './Transform'
+import Updateable from './Interfaces/Updateable'
 
 type GameObjectFunction = (this: GameObject) => void
 
-export let GameObjects: Array<GameObject> = []
+export let GameObjects: GameObject[] = new Array<GameObject>()
 
 export class IGameObject
 {
@@ -24,9 +27,8 @@ export class IGameObject
     children?: Array<GameObject>
 }
 
-export default class GameObject extends Item
+export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
-    Bame: string
     Transform: Transform
     Material: RenderMaterial
     Mesh: Mesh
@@ -45,8 +47,6 @@ export default class GameObject extends Item
         this.Update = update.bind(this)
         this.End = end.bind(this)
 
-        // this.AttachMany(transform, material, mesh, physics, animation)
-
         this.Transform = transform
         this.Mesh = mesh
         this.Material = material
@@ -62,37 +62,10 @@ export default class GameObject extends Item
         GameObjects.push(this)
     }
 
-    /*Attach(item: GameItem): void
+    Destroy(): void
     {
-        if (item instanceof GameObject)
-        {
-            // do stuff
-        }
-        // and so forth
-        
-        item.GameObjects.Add(this)
-    }
 
-    AttachMany(...items: GameItem[]): void
-    {
-        items.filter(item => item !== null && item !== undefined).forEach(item => this.Attach(item))
     }
-    
-    Detach(item: GameItem): void
-    {
-        if (item instanceof GameObject)
-        {
-            // do stuff
-        }
-        // and so forth
-
-        item.GameObjects.Remove(this)
-    }
-
-    DetachMany(...items: GameItem[]): void
-    {
-        items.filter(item => item !== null && item !== undefined).forEach(item => this.Attach(item))
-    }*/
 
     Clone(): GameObject
     {

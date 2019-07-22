@@ -2,10 +2,10 @@ import Vector3 from './Maths/Vector3'
 
 export class ITransform
 {
-    position?: Vector3 | Float32Array | Array<number>
-    rotation?: Vector3 | Float32Array | Array<number>
-    scale?: Vector3 | Float32Array | Array<number>
-    shear?: Vector3 | Float32Array | Array<number>
+    position?: Vector3 | Float32Array | number[]
+    rotation?: Vector3 | Float32Array | number[]
+    scale?: Vector3 | Float32Array | number[]
+    shear?: Vector3 | Float32Array | number[]
 }
 
 export default class Transform
@@ -22,7 +22,6 @@ export default class Transform
         this.Scale = new Vector3(scale)
         this.Shear = new Vector3(shear)
     }
-
 
     static get UP(): Vector3
     {

@@ -97,7 +97,7 @@ export default class Colour4 extends Float32Array
     {
         if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array)
         {
-            [ r, g, b, a ] = [ r[0], r[1], r[2], r[3] ]
+            [ r, g, b, a ] = r
 
         }
         else if (typeof(r) === 'string')
@@ -118,7 +118,7 @@ export default class Colour4 extends Float32Array
             }
             else
             {
-                r = 0
+                [ r, g, b, a ] = [ 0, 0, 0, 0 ]
             }
         }
 
@@ -127,36 +127,6 @@ export default class Colour4 extends Float32Array
         colour.B = b
         colour.A = a
 
-        return colour;
-    }
-
-    static FromBin(bin: string): Colour4
-    {
-        return null
-    }
-
-    static ToBin(bin: Colour4 | Float32Array | Array<number>): string
-    {
-        return ''
-    }
-    
-    static FromOct(oct: string): Colour4
-    {
-        return null
-    }
-
-    static ToOct(oct: Colour4 | Float32Array | Array<number>): string
-    {
-        return ''
-    }
-    
-    static FromHex(hex: string): Colour4
-    {
-        return null
-    }
-
-    static ToHex(hex: Colour4 | Float32Array | Array<number>): string
-    {
-        return ''
+        return colour
     }
 }

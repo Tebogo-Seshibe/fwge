@@ -4,9 +4,6 @@ import Item from '../Item'
 import Vector2 from '../Maths/Vector2'
 import Vector3 from '../Maths/Vector3'
 import Vector4 from '../Maths/Vector4'
-import { isNumber } from 'util';
-
-type VectorArray = Array<Vector2 | Vector3 | Vector4> 
 
 export enum BufferType
 {
@@ -17,12 +14,12 @@ export enum BufferType
 export class IMesh
 {
     name?: string
-    position?: Array<Vector3> | Float32Array | Array<number>
-    uv?: Array<Vector2> | Float32Array | Array<number>
-    colour?: Array<Vector4> | Float32Array | Array<number>
-    normal?: Array<Vector3> | Float32Array | Array<number>
-    index?: Uint8Array | Array<number>
-    wireframe?: Uint8Array | Array<number>
+    position?: Vector3[] | Float32Array | number[]
+    uv?: Vector2[] | Float32Array | number[]
+    colour?: Vector4[] | Float32Array | number[]
+    normal?: Vector3[] | Float32Array | number[]
+    index?: Uint8Array | number[]
+    wireframe?: Uint8Array | number[]
 }
 
 export default class Mesh extends Item
@@ -35,7 +32,7 @@ export default class Mesh extends Item
     public WireframeBuffer: WebGLBuffer
     public VertexCount: number
 
-    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe }: IMesh = new IMesh())
+    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe }: IMesh = new IMesh)
     {
         super(name)
 
@@ -64,12 +61,12 @@ export default class Mesh extends Item
         this.VertexCount = index.length
     }
 
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Uint8Array | Array<number>): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Float32Array | Array<number>): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector2> | Float32Array | Array<number>): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector3> | Float32Array | Array<number>): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Float32Array | Array<number>): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Array<Vector4> | Array<Vector3> | Array<Vector2> | Float32Array | Uint8Array | Array<number>): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Uint8Array | number[]): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Float32Array | number[]): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector2[] | Float32Array | number[]): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector3[] | Float32Array | number[]): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector4[] | Float32Array | number[]): WebGLBuffer
+    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector4[] | Vector3[] | Vector2[] | Float32Array | Uint8Array | number[]): WebGLBuffer
     {
         if (!data)
         {
