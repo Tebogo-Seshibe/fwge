@@ -1,5 +1,6 @@
 import Colour4 from '../Render/Colour4'
 import Item from '../Item'
+import { Add } from './Light'
 
 export class ILightItem
 {
@@ -19,5 +20,7 @@ export default class LightItem extends Item
 
         this.Colour = new Colour4(colour)
         this.Intensity = intensity
+
+        Add(this)
     }
 }

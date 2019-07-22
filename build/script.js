@@ -12,8 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
+const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Time_1 = __importDefault(require("../../src/Utility/Time"));
@@ -34,13 +36,17 @@ window.onload = () => {
     });
     makeCube();
     fwge.numbers = new List_1.default();
+    fwge.ambient = new AmbientLight_1.default({
+        colour: [255, 255, 255, 255],
+        intensity: 1.0,
+        name: 'Ambient'
+    });
 };
 function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
         let obj = yield (yield fetch('/res/Objects/Cube/Cube.obj')).text();
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
         let system;
-        debugger;
         let shader = new Shader_1.default({
             name: 'Just another shader',
             vertexshader: `
@@ -137,7 +143,7 @@ function makeCube() {
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
+                return U_Material.Ambient * U_Ambient.Colour; /* U_Ambient.Intensity;*/
             }
             
             vec4 Directional(in vec3 normal) 
@@ -187,7 +193,7 @@ function makeCube() {
                                         ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
                                         : V_Normal);
             
-                return Ambient() + Directional(normal) + Point(normal);
+                return Ambient(); /*+ Directional(normal) + Point(normal);*/
             }
             
             vec4 Shadow()
@@ -209,7 +215,7 @@ function makeCube() {
             
             void main(void)
             { 
-                vec4 colour = Colour();
+                vec4 colour = Light();
                 colour.a *= U_Material.Alpha;
                 
                 gl_FragColor = colour;
@@ -219,14 +225,15 @@ function makeCube() {
         });
         fwge.object = OBJConverter_1.default.Parse(obj, mtl);
         fwge.object.Material.Shader = shader;
-        fwge.object.Transform.Position.Z = -5;
+        fwge.object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
+        fwge.object.Transform.Position.Z = -15;
         fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.01;
         Control_1.default.Start();
         setTimeout(Control_1.default.Stop, 500);
     });
 }
 
-},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/Shader/Shader":35,"../../src/Utility/Control":40,"../../src/Utility/Converter/OBJConverter":41,"../../src/Utility/List":42,"../../src/Utility/Time":44}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/Light/AmbientLight":9,"../../src/Render/Colour4":22,"../../src/Shader/Shader":35,"../../src/Utility/Control":40,"../../src/Utility/Converter/OBJConverter":41,"../../src/Utility/List":42,"../../src/Utility/Time":44}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -524,15 +531,6 @@ function Add(light) {
     list.Add(light);
 }
 exports.Add = Add;
-function Remove(light) {
-    let list = light instanceof PointLight_1.default
-        ? exports.PointLights
-        : light instanceof DirectionalLight_1.default
-            ? exports.DirectionalLights
-            : exports.AmbientLights;
-    list.Remove(light);
-}
-exports.Remove = Remove;
 
 },{"../Utility/List":42,"./DirectionalLight":10,"./PointLight":13}],12:[function(require,module,exports){
 "use strict";
@@ -542,6 +540,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Colour4_1 = __importDefault(require("../Render/Colour4"));
 const Item_1 = __importDefault(require("../Item"));
+const Light_1 = require("./Light");
 class ILightItem {
 }
 exports.ILightItem = ILightItem;
@@ -550,11 +549,12 @@ class LightItem extends Item_1.default {
         super(name);
         this.Colour = new Colour4_1.default(colour);
         this.Intensity = intensity;
+        Light_1.Add(this);
     }
 }
 exports.default = LightItem;
 
-},{"../Item":8,"../Render/Colour4":22}],13:[function(require,module,exports){
+},{"../Item":8,"../Render/Colour4":22,"./Light":11}],13:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;

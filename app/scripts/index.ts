@@ -1,7 +1,9 @@
+import AmbientLight from '../../src/Light/AmbientLight'
 import Animation from '../../src/Animation/Animation'
 import AnimationFrame, { Frame } from '../../src/Animation/AnimationFrame'
 import FWGE from '../../src/FWGE'
 import Control from '../../src/Utility/Control'
+import Colour4 from '../../src/Render/Colour4'
 import OBJConverter from '../../src/Utility/Converter/OBJConverter'
 import GameObject from '../../src/GameObject'
 import Shader from '../../src/Shader/Shader'
@@ -31,6 +33,12 @@ window.onload = () => {
 
     makeCube()
     fwge.numbers = new List<number>()
+    fwge.ambient = new AmbientLight(
+    {
+        colour: [255, 255, 255, 255],
+        intensity: 1.0,
+        name: 'Ambient'
+    })
 }
 
 async function makeCube()
@@ -38,8 +46,6 @@ async function makeCube()
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
     let system: ParticleSystem
-
-    debugger
 
     let shader = new Shader(
     {
@@ -138,7 +144,7 @@ async function makeCube()
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
+                return U_Material.Ambient * U_Ambient.Colour; /* U_Ambient.Intensity;*/
             }
             
             vec4 Directional(in vec3 normal) 
@@ -188,7 +194,7 @@ async function makeCube()
                                         ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
                                         : V_Normal);
             
-                return Ambient() + Directional(normal) + Point(normal);
+                return Ambient(); /*+ Directional(normal) + Point(normal);*/
             }
             
             vec4 Shadow()
@@ -210,7 +216,7 @@ async function makeCube()
             
             void main(void)
             { 
-                vec4 colour = Colour();
+                vec4 colour = Light();
                 colour.a *= U_Material.Alpha;
                 
                 gl_FragColor = colour;
@@ -223,7 +229,8 @@ async function makeCube()
     // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.object = OBJConverter.Parse(obj, mtl)
     fwge.object.Material.Shader = shader
-    fwge.object.Transform.Position.Z = -5
+    fwge.object.Material.Ambient = new Colour4(1,1,1,1)
+    fwge.object.Transform.Position.Z = -15
     fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
 
     /*

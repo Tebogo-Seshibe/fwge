@@ -1,6 +1,5 @@
 import AmbientLight from './AmbientLight'
 import DirectionalLight from './DirectionalLight'
-import LightItem from './LightItem'
 import List from '../Utility/List'
 import PointLight from './PointLight'
 
@@ -20,15 +19,4 @@ export function Add(light: AmbientLight | DirectionalLight | PointLight): void
             : AmbientLights
 
     list.Add(light)
-}
-
-export function Remove(light: LightItem): void
-{
-    let list = light instanceof PointLight
-        ? PointLights
-        : light instanceof DirectionalLight
-            ? DirectionalLights
-            : AmbientLights
-    
-    list.Remove(light)
 }
