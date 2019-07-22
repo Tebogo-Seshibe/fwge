@@ -1,5 +1,6 @@
 import Cloneable from '../Interfaces/Cloneable'
 import List from '../Utility/List'
+import { Sigfigs } from './Maths'
 import Matrix2 from './Matrix2'
 import Matrix3 from './Matrix3'
 
@@ -19,7 +20,15 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
         if (m11)
         {
-            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+            Matrix4.Set
+            (
+                this, 
+            
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            )
         }
     }
 
@@ -31,7 +40,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M11(m11: number)
     {
-        this[0] = m11
+        this[0] = Sigfigs(m11)
     }
 
 	get M12(): number
@@ -41,7 +50,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M12(m12: number)
     {
-        this[1] = m12
+        this[1] = Sigfigs(m12)
     }
 
 	get M13(): number
@@ -51,7 +60,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M13(m13: number)
     {
-        this[2] = m13
+        this[2] = Sigfigs(m13)
     }
 
 	get M14(): number
@@ -61,7 +70,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M14(m14: number)
     {
-        this[3] = m14
+        this[3] = Sigfigs(m14)
     }
 
 	get M21(): number
@@ -71,7 +80,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M21(m21: number)
     {
-        this[4] = m21
+        this[4] = Sigfigs(m21)
     }
 
 	get M22(): number
@@ -81,7 +90,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M22(m22: number)
     {
-        this[5] = m22
+        this[5] = Sigfigs(m22)
     }
 
 	get M23(): number
@@ -91,7 +100,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M23(m23: number)
     {
-        this[6] = m23
+        this[6] = Sigfigs(m23)
     }
 
 	get M24(): number
@@ -101,7 +110,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M24(m24: number)
 	{
-        this[7] = m24
+        this[7] = Sigfigs(m24)
     }
 
 	get M31(): number
@@ -111,7 +120,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
     set M31(m31: number)
 	{
-        this[8] = m31
+        this[8] = Sigfigs(m31)
     }
 
 	get M32(): number
@@ -121,7 +130,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M32(m32: number)
 	{
-		this[9] = m32
+		this[9] = Sigfigs(m32)
 	}
 
 	get M33(): number
@@ -131,7 +140,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M33(m33: number)
 	{
-		this[10] = m33
+		this[10] = Sigfigs(m33)
 	}
 
 	get M34(): number
@@ -141,7 +150,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M34(m34: number)
 	{
-		this[11] = m34
+		this[11] = Sigfigs(m34)
 	}
 
 	get M41(): number
@@ -151,7 +160,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M41(m41: number)
 	{
-		this[12] = m41
+		this[12] = Sigfigs(m41)
 	}    
 
 	get M42(): number
@@ -161,7 +170,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M42(m42: number)
 	{
-		this[13] = m42
+		this[13] = Sigfigs(m42)
 	}
 
 	get M43(): number
@@ -170,7 +179,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 	}
 	set M43(m43: number)
 	{
-		this[14] = m43
+		this[14] = Sigfigs(m43)
 	}
 
 	get M44(): number
@@ -180,7 +189,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
 
 	set M44(m44: number)
 	{
-		this[15] = m44
+		this[15] = Sigfigs(m44)
 	}
 
     static get ZERO()
@@ -201,52 +210,14 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
     Set(array: number[]): Matrix4
     Set(list: List<number>): Matrix4
     Set(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    Set(m11?: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Set(m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
     }
 
-    static Set(matrix: Matrix4, m11: Matrix4 | Matrix3 | Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    static Set(matrix: Matrix4, m11: Matrix2 | Matrix3 | Matrix4 | Matrix3 | Matrix2 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
-        if (m11 instanceof Matrix2)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = [
-                m11.M11, m11.M12, 0, 0,
-                m11.M21, m11.M22, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0
-            ]
-        }
-
-        else if (m11 instanceof Matrix3)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = [
-                m11.M11, m11.M12, m11.M13, 0,
-                m11.M21, m11.M22, m11.M23, 0,
-                m11.M31, m11.M32, m11.M33, 0,
-                0, 0, 0, 0
-            ]
-        }
-        
-        else if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11
-        }
+        [ m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 
         matrix.M11 = m11
         matrix.M12 = m12
@@ -293,42 +264,34 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
         return Matrix4.Determinant(this)
     }
 
-    static Determinant(m11: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): number
+    static Determinant(m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): number
     {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11
-        }
+        [ m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 
-        return  m11 * m22 * m33 * m44 +
-                m11 * m23 * m34 * m42 +
-                m11 * m24 * m32 * m43 +
-                m12 * m21 * m34 * m43 +
-                m12 * m23 * m31 * m44 +
-                m12 * m24 * m33 * m41 +
-                m13 * m21 * m32 * m44 +
-                m13 * m22 * m34 * m41 +
-                m13 * m24 * m31 * m42 +
-                m14 * m21 * m33 * m42 +
-                m14 * m22 * m31 * m43 +
-                m14 * m23 * m32 * m41 -
-                m11 * m22 * m34 * m43 -
-                m11 * m23 * m32 * m44 -
-                m11 * m24 * m33 * m42 -
-                m12 * m21 * m33 * m44 -
-                m12 * m23 * m34 * m41 -
-                m12 * m24 * m31 * m43 -
-                m13 * m21 * m34 * m42 -
-                m13 * m22 * m31 * m44 -
-                m13 * m24 * m32 * m41 -
-                m14 * m21 * m32 * m43 -
-                m14 * m22 * m33 * m41 -
-                m14 * m23 * m31 * m42        
+        return  Sigfigs(m11 * m22 * m33 * m44 +
+                        m11 * m23 * m34 * m42 +
+                        m11 * m24 * m32 * m43 +
+                        m12 * m21 * m34 * m43 +
+                        m12 * m23 * m31 * m44 +
+                        m12 * m24 * m33 * m41 +
+                        m13 * m21 * m32 * m44 +
+                        m13 * m22 * m34 * m41 +
+                        m13 * m24 * m31 * m42 +
+                        m14 * m21 * m33 * m42 +
+                        m14 * m22 * m31 * m43 +
+                        m14 * m23 * m32 * m41 -
+                        m11 * m22 * m34 * m43 -
+                        m11 * m23 * m32 * m44 -
+                        m11 * m24 * m33 * m42 -
+                        m12 * m21 * m33 * m44 -
+                        m12 * m23 * m34 * m41 -
+                        m12 * m24 * m31 * m43 -
+                        m13 * m21 * m34 * m42 -
+                        m13 * m22 * m31 * m44 -
+                        m13 * m24 * m32 * m41 -
+                        m14 * m21 * m32 * m43 -
+                        m14 * m22 * m33 * m41 -
+                        m14 * m23 * m31 * m42)   
     }
 
     Inverse(): Matrix4
@@ -466,26 +429,20 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
         return matrix
     }
 
+    Sum(matrix: Matrix2): Matrix4
+    Sum(matrix: Matrix3): Matrix4
     Sum(matrix: Matrix4): Matrix4
     Sum(array: Float32Array): Matrix4
     Sum(array: number[]): Matrix4
     Sum(list: List<number>): Matrix4
     Sum(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    Sum(m11?: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Sum(m11?: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
     }
-    static Sum(matrix: Matrix4, m11: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    static Sum(matrix: Matrix4, m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11
-        }
+        [ m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 
         return Matrix4.Set
         (
@@ -497,26 +454,20 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
         );
     }
 
+    Mult(matrix: Matrix2): Matrix4
+    Mult(matrix: Matrix3): Matrix4
     Mult(matrix: Matrix4): Matrix4
     Mult(array: Float32Array): Matrix4
     Mult(array: number[]): Matrix4
     Mult(list: List<number>): Matrix4
     Mult(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    Mult(m11?: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Mult(m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         return Matrix4.Mult(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
     }
-    static Mult(matrix: Matrix4, m11: Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    static Mult(matrix: Matrix4, m11: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11
-        }
+        [ m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 
         return Matrix4.Set
         (
@@ -597,5 +548,53 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
     Clone(): Matrix4
     {
         return new Matrix4(this)
+    }
+
+    private static Destructure(m11?: Matrix2 | Matrix3 | Matrix4 | Float32Array | number[] | List<number> | number, m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): [ number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number ]
+    {
+        if (m11 instanceof Matrix2)
+        {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, 0, 0,
+                m11.M21, m11.M22, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0
+            ]
+        }
+        else if (m11 instanceof Matrix3)
+        {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, m11.M13, 0,
+                m11.M21, m11.M22, m11.M23, 0,
+                m11.M31, m11.M32, m11.M33, 0,
+                0, 0, 0, 0
+            ]
+        }        
+        else if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
+        {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11
+        }
+
+        return [
+            m11, m12, m13, m14,
+            m21, m22, m23, m24,
+            m31, m32, m33, m34,
+            m41, m42, m43, m44
+        ]
     }
 }

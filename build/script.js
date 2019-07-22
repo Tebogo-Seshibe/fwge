@@ -731,6 +731,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const List_1 = __importDefault(require("../Utility/List"));
+const Maths_1 = require("./Maths");
 const Matrix3_1 = __importDefault(require("./Matrix3"));
 const Matrix4_1 = __importDefault(require("./Matrix4"));
 class Matrix2 extends Float32Array {
@@ -744,25 +745,25 @@ class Matrix2 extends Float32Array {
         return this[0];
     }
     set M11(m11) {
-        this[0] = m11;
+        this[0] = Maths_1.Sigfigs(m11);
     }
     get M12() {
         return this[1];
     }
     set M12(m12) {
-        this[1] = m12;
+        this[1] = Maths_1.Sigfigs(m12);
     }
     get M21() {
         return this[2];
     }
     set M21(m21) {
-        this[2] = m21;
+        this[2] = Maths_1.Sigfigs(m21);
     }
     get M22() {
         return this[3];
     }
     set M22(m22) {
-        this[3] = m22;
+        this[3] = Maths_1.Sigfigs(m22);
     }
     static get ZERO() {
         return new Matrix2(0, 0, 0, 0);
@@ -792,7 +793,7 @@ class Matrix2 extends Float32Array {
     }
     static Determinant(m11, m12, m21, m22) {
         [m11, m12, m21, m22] = Matrix2.Destructure(m11, m12, m21, m22);
-        return m11 * m22 - m21 * m12;
+        return Maths_1.Sigfigs(m11 * m22 - m21 * m12);
     }
     Inverse() {
         return Matrix2.Inverse(this);
@@ -857,13 +858,14 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":44,"./Matrix3":18,"./Matrix4":19}],18:[function(require,module,exports){
+},{"../Utility/List":44,"./Maths":16,"./Matrix3":18,"./Matrix4":19}],18:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const List_1 = __importDefault(require("../Utility/List"));
+const Maths_1 = require("./Maths");
 const Matrix2_1 = __importDefault(require("./Matrix2"));
 const Matrix4_1 = __importDefault(require("./Matrix4"));
 class Matrix3 extends Float32Array {
@@ -877,55 +879,55 @@ class Matrix3 extends Float32Array {
         return this[0];
     }
     set M11(m11) {
-        this[0] = m11;
+        this[0] = Maths_1.Sigfigs(m11);
     }
     get M12() {
         return this[1];
     }
     set M12(m12) {
-        this[1] = m12;
+        this[1] = Maths_1.Sigfigs(m12);
     }
     get M13() {
         return this[2];
     }
-    set M13(m12) {
-        this[2] = m12;
+    set M13(m13) {
+        this[2] = Maths_1.Sigfigs(m13);
     }
     get M21() {
         return this[3];
     }
-    set M21(m11) {
-        this[3] = m11;
+    set M21(m21) {
+        this[3] = Maths_1.Sigfigs(m21);
     }
     get M22() {
         return this[4];
     }
-    set M22(m12) {
-        this[4] = m12;
+    set M22(m22) {
+        this[4] = Maths_1.Sigfigs(m22);
     }
     get M23() {
         return this[5];
     }
-    set M23(m12) {
-        this[5] = m12;
+    set M23(m23) {
+        this[5] = Maths_1.Sigfigs(m23);
     }
     get M31() {
         return this[6];
     }
-    set M31(m11) {
-        this[6] = m11;
+    set M31(m31) {
+        this[6] = Maths_1.Sigfigs(m31);
     }
     get M32() {
         return this[7];
     }
-    set M32(m12) {
-        this[7] = m12;
+    set M32(m32) {
+        this[7] = Maths_1.Sigfigs(m32);
     }
     get M33() {
         return this[8];
     }
-    set M33(m12) {
-        this[8] = m12;
+    set M33(m33) {
+        this[8] = Maths_1.Sigfigs(m33);
     }
     static get ZERO() {
         return new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -937,35 +939,7 @@ class Matrix3 extends Float32Array {
         return Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
     }
     static Set(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        if (m11 instanceof Matrix2_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = [
-                m11.M11, m11.M12, 0,
-                m11.M21, m11.M22, 0,
-                0, 0, 0
-            ];
-        }
-        else if (m11 instanceof Matrix3 || m11 instanceof Matrix4_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = [
-                m11.M11, m11.M12, m11.M13,
-                m11.M21, m11.M22, m11.M23,
-                m11.M31, m11.M32, m11.M33
-            ];
-        }
-        else if (m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = m11;
-        }
+        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         matrix.M11 = m11;
         matrix.M12 = m12;
         matrix.M13 = m13;
@@ -987,16 +961,10 @@ class Matrix3 extends Float32Array {
         return Matrix3.Determinant(this);
     }
     static Determinant(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = m11;
-        }
-        return m11 * (m22 * m33 - m23 * m32) -
+        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        return Maths_1.Sigfigs(m11 * (m22 * m33 - m23 * m32) -
             m12 * (m21 * m33 - m23 * m31) +
-            m13 * (m21 * m32 - m22 * m31);
+            m13 * (m21 * m32 - m22 * m31));
     }
     Inverse() {
         return Matrix3.Inverse(this);
@@ -1012,26 +980,14 @@ class Matrix3 extends Float32Array {
         return Matrix3.Sum(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
     }
     static Sum(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = m11;
-        }
+        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         return Matrix3.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33);
     }
     Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
         return Matrix3.Mult(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
     }
     static Mult(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m33,
-                m21, m22, m33,
-                m31, m32, m33
-            ] = m11;
-        }
+        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         return Matrix3.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33);
     }
     Scale(scaler) {
@@ -1049,16 +1005,53 @@ class Matrix3 extends Float32Array {
     Clone() {
         return new Matrix3(this);
     }
+    static Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        if (m11 instanceof Matrix2_1.default) {
+            [
+                m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33
+            ] = [
+                m11.M11, m11.M12, 0,
+                m11.M21, m11.M22, 0,
+                0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix3 || m11 instanceof Matrix4_1.default) {
+            [
+                m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33
+            ] = [
+                m11.M11, m11.M12, m11.M13,
+                m11.M21, m11.M22, m11.M23,
+                m11.M31, m11.M32, m11.M33
+            ];
+        }
+        else if (m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33
+            ] = m11;
+        }
+        return [
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ];
+    }
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":44,"./Matrix2":17,"./Matrix4":19}],19:[function(require,module,exports){
+},{"../Utility/List":44,"./Maths":16,"./Matrix2":17,"./Matrix4":19}],19:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const List_1 = __importDefault(require("../Utility/List"));
+const Maths_1 = require("./Maths");
 const Matrix2_1 = __importDefault(require("./Matrix2"));
 const Matrix3_1 = __importDefault(require("./Matrix3"));
 class Matrix4 extends Float32Array {
@@ -1072,97 +1065,97 @@ class Matrix4 extends Float32Array {
         return this[0];
     }
     set M11(m11) {
-        this[0] = m11;
+        this[0] = Maths_1.Sigfigs(m11);
     }
     get M12() {
         return this[1];
     }
     set M12(m12) {
-        this[1] = m12;
+        this[1] = Maths_1.Sigfigs(m12);
     }
     get M13() {
         return this[2];
     }
     set M13(m13) {
-        this[2] = m13;
+        this[2] = Maths_1.Sigfigs(m13);
     }
     get M14() {
         return this[3];
     }
     set M14(m14) {
-        this[3] = m14;
+        this[3] = Maths_1.Sigfigs(m14);
     }
     get M21() {
         return this[4];
     }
     set M21(m21) {
-        this[4] = m21;
+        this[4] = Maths_1.Sigfigs(m21);
     }
     get M22() {
         return this[5];
     }
     set M22(m22) {
-        this[5] = m22;
+        this[5] = Maths_1.Sigfigs(m22);
     }
     get M23() {
         return this[6];
     }
     set M23(m23) {
-        this[6] = m23;
+        this[6] = Maths_1.Sigfigs(m23);
     }
     get M24() {
         return this[7];
     }
     set M24(m24) {
-        this[7] = m24;
+        this[7] = Maths_1.Sigfigs(m24);
     }
     get M31() {
         return this[8];
     }
     set M31(m31) {
-        this[8] = m31;
+        this[8] = Maths_1.Sigfigs(m31);
     }
     get M32() {
         return this[9];
     }
     set M32(m32) {
-        this[9] = m32;
+        this[9] = Maths_1.Sigfigs(m32);
     }
     get M33() {
         return this[10];
     }
     set M33(m33) {
-        this[10] = m33;
+        this[10] = Maths_1.Sigfigs(m33);
     }
     get M34() {
         return this[11];
     }
     set M34(m34) {
-        this[11] = m34;
+        this[11] = Maths_1.Sigfigs(m34);
     }
     get M41() {
         return this[12];
     }
     set M41(m41) {
-        this[12] = m41;
+        this[12] = Maths_1.Sigfigs(m41);
     }
     get M42() {
         return this[13];
     }
     set M42(m42) {
-        this[13] = m42;
+        this[13] = Maths_1.Sigfigs(m42);
     }
     get M43() {
         return this[14];
     }
     set M43(m43) {
-        this[14] = m43;
+        this[14] = Maths_1.Sigfigs(m43);
     }
     get M44() {
         return this[15];
     }
     set M44(m44) {
-        this[15] = m44;
+        this[15] = Maths_1.Sigfigs(m44);
     }
     static get ZERO() {
         return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1174,40 +1167,7 @@ class Matrix4 extends Float32Array {
         return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
     }
     static Set(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        if (m11 instanceof Matrix2_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = [
-                m11.M11, m11.M12, 0, 0,
-                m11.M21, m11.M22, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0
-            ];
-        }
-        else if (m11 instanceof Matrix3_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = [
-                m11.M11, m11.M12, m11.M13, 0,
-                m11.M21, m11.M22, m11.M23, 0,
-                m11.M31, m11.M32, m11.M33, 0,
-                0, 0, 0, 0
-            ];
-        }
-        else if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11;
-        }
+        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         matrix.M11 = m11;
         matrix.M12 = m12;
         matrix.M13 = m13;
@@ -1236,15 +1196,8 @@ class Matrix4 extends Float32Array {
         return Matrix4.Determinant(this);
     }
     static Determinant(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11;
-        }
-        return m11 * m22 * m33 * m44 +
+        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+        return Maths_1.Sigfigs(m11 * m22 * m33 * m44 +
             m11 * m23 * m34 * m42 +
             m11 * m24 * m32 * m43 +
             m12 * m21 * m34 * m43 +
@@ -1267,7 +1220,7 @@ class Matrix4 extends Float32Array {
             m13 * m24 * m32 * m41 -
             m14 * m21 * m32 * m43 -
             m14 * m22 * m33 * m41 -
-            m14 * m23 * m31 * m42;
+            m14 * m23 * m31 * m42);
     }
     Inverse() {
         return Matrix4.Inverse(this);
@@ -1363,28 +1316,14 @@ class Matrix4 extends Float32Array {
         return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
     }
     static Sum(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11;
-        }
+        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         return Matrix4.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M14 + m14, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M24 + m24, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33, matrix.M34 + m34, matrix.M41 + m41, matrix.M42 + m42, matrix.M43 + m43, matrix.M44 + m44);
     }
     Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
         return Matrix4.Mult(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
     }
     static Mult(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11;
-        }
+        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         return Matrix4.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31 + matrix.M14 * m41, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32 + matrix.M14 * m42, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33 + matrix.M14 * m43, matrix.M11 * m14 + matrix.M12 * m24 + matrix.M13 * m34 + matrix.M14 * m44, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31 + matrix.M24 * m41, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32 + matrix.M24 * m42, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33 + matrix.M24 * m43, matrix.M21 * m14 + matrix.M22 * m24 + matrix.M23 * m34 + matrix.M24 * m44, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31 + matrix.M34 * m41, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32 + matrix.M34 * m42, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33 + matrix.M34 * m43, matrix.M31 * m14 + matrix.M32 * m24 + matrix.M33 * m34 + matrix.M34 * m44, matrix.M41 * m11 + matrix.M42 * m21 + matrix.M43 * m31 + matrix.M44 * m41, matrix.M41 * m12 + matrix.M42 * m22 + matrix.M43 * m32 + matrix.M44 * m42, matrix.M41 * m13 + matrix.M42 * m23 + matrix.M43 * m33 + matrix.M44 * m43, matrix.M41 * m14 + matrix.M42 * m24 + matrix.M43 * m34 + matrix.M44 * m44);
     }
     Scale(scaler) {
@@ -1402,10 +1341,52 @@ class Matrix4 extends Float32Array {
     Clone() {
         return new Matrix4(this);
     }
+    static Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        if (m11 instanceof Matrix2_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, 0, 0,
+                m11.M21, m11.M22, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix3_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, m11.M13, 0,
+                m11.M21, m11.M22, m11.M23, 0,
+                m11.M31, m11.M32, m11.M33, 0,
+                0, 0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11;
+        }
+        return [
+            m11, m12, m13, m14,
+            m21, m22, m23, m24,
+            m31, m32, m33, m34,
+            m41, m42, m43, m44
+        ];
+    }
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":44,"./Matrix2":17,"./Matrix3":18}],20:[function(require,module,exports){
+},{"../Utility/List":44,"./Maths":16,"./Matrix2":17,"./Matrix3":18}],20:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;

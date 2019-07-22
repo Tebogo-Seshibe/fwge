@@ -1,0 +1,1 @@
+{"version":3,"file":"PhysicsMaterial.js","sourceRoot":"","sources":["../../../../../src/Physics/PhysicsMaterial.ts"],"names":[],"mappings":"AAAA,OAAO,IAAI,MAAM,SAAS,CAAA;AAE1B,MAAM,OAAO,gBAAgB;CAG5B;AAED,MAAM,CAAC,OAAO,OAAO,eAAgB,SAAQ,IAAI;IAE7C,YAAY,EAAE,IAAI,GAAG,kBAAkB,KAAuB,IAAI,gBAAgB,EAAE;QAEhF,KAAK,CAAC,IAAI,CAAC,CAAA;IACf,CAAC;CACJ"}
