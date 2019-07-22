@@ -33,6 +33,8 @@ export default class RenderMaterial extends Item
 
     public Shader: Shader
 
+    constructor()
+    constructor(renderMaterial: IRenderMaterial)
     constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader, imagemap }: IRenderMaterial = new IRenderMaterial)
     {
         super(name)

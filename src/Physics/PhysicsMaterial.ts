@@ -7,7 +7,9 @@ export class IPhysicsMaterial
 
 export default class PhysicsMaterial extends Item
 {
-    constructor({ name = 'Physics Material' }: IPhysicsMaterial = new IPhysicsMaterial())
+    constructor()
+    constructor(physicsMaterial: IPhysicsMaterial)
+    constructor({ name = 'Physics Material' }: IPhysicsMaterial = new IPhysicsMaterial)
     {
         super(name)
     }

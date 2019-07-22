@@ -16,6 +16,8 @@ export default class PointLight extends LightItem
     public Angle: number
     public Shininess: number
 
+    constructor()
+    constructor(pointLight: IPointLight)
     constructor({ name = 'Point Light', colour, intensity, position = Vector3.ZERO, radius = 5, angle = 180, shininess = 32 }: IPointLight = new IPointLight)
     {
         super(name, colour, intensity)

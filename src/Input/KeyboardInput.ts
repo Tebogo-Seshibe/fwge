@@ -2,7 +2,7 @@ import { InputState } from './InputState'
 
 export default class KeyboardInput
 {
-    public static Keys: Array<InputState> = new Array(128)
+    public static Keys: InputState[] = new Array(128)
 
     //#region qwerty
     public static get KeyA(): InputState

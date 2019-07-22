@@ -10,6 +10,8 @@ export default class DirectionalLight extends LightItem
 {
     public Direction: Vector3
 
+    constructor()
+    constructor(directionalLight: IDirectionalLight)
     constructor({ name = 'Directional Light', colour, intensity, direction = Vector3.ZERO }: IDirectionalLight = new IDirectionalLight)
     {
         super(name, colour, intensity)

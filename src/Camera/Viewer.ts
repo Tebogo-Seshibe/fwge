@@ -21,6 +21,8 @@ export default class Viewer extends Camera implements Updateable
         return this.Matrix.Clone()
     }
     
+    constructor()
+    constructor(viewer: IViewer)
     constructor({ name = 'Viewer', mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt, position, target }: IViewer = new IViewer)
     {
         super(name, mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt)

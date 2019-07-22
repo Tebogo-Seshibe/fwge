@@ -26,6 +26,8 @@ export default class Shader extends Item
     public Height: number
     public Width: number
 
+    constructor()
+    constructor(shader: IShader)
     constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader}: IShader = new IShader)
     {
         super(name)

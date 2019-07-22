@@ -20,3 +20,17 @@ export function Add(light: AmbientLight | DirectionalLight | PointLight): void
 
     list.Add(light)
 }
+
+export function Remove(ambientLight: AmbientLight): void
+export function Remove(directionalLight: DirectionalLight): void
+export function Remove(pointLight: PointLight): void
+export function Remove(light: AmbientLight | DirectionalLight | PointLight): void
+{
+    let list = light instanceof PointLight
+        ? PointLights
+        : light instanceof DirectionalLight
+            ? DirectionalLights
+            : AmbientLights
+
+    list.Remove(light)
+}

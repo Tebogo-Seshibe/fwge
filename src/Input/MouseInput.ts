@@ -3,7 +3,7 @@ import Vector2 from '../Maths/Vector2'
 
 export default class MouseInput
 {
-    public static Buttons: Array<InputState> = new Array(20)
+    public static Buttons: InputState[] = new Array(20)
     public static Axes: Vector2 = new Vector2()
     public static Delta: Vector2 = new Vector2()
     

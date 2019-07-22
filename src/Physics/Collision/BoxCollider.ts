@@ -13,6 +13,8 @@ export default class BoxCollider extends Collider
     public Width: number
     public Breadth: number
     
+    constructor()
+    constructor(boxCollider: IBoxCollider)
     constructor({ name = 'BoxCollider', physicsitem, position, height = 1, width = 1, breadth = 1 }: IBoxCollider = new IBoxCollider)
     {
         super(name, position, physicsitem)

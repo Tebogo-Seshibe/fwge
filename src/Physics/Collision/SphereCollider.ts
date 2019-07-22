@@ -9,6 +9,8 @@ export default class SphereCollider extends Collider
 {
     public Radius: number
 
+    constructor()
+    constructor(sphereCollider: ISphereCollider)
     constructor({ name = 'Sphere Collider', position, physicsitem, radius = 1 }: ISphereCollider = new ISphereCollider)
     {
         super(name, position, physicsitem)

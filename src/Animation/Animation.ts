@@ -3,9 +3,9 @@ import Item from '../Item'
 import Updateable from '../Interfaces/Updateable'
 import Colour4 from '../Render/Colour4'
 import Transform from '../Transform'
-import GameObject from '../GameObject';
-import Vector3 from '../Maths/Vector3';
-import Time from '../Utility/Time';
+import GameObject from '../GameObject'
+import Vector3 from '../Maths/Vector3'
+import Time from '../Utility/Time'
 
 export class IAnimation
 {
@@ -26,7 +26,9 @@ export default class Animation extends Item implements Updateable
     public MaxFrameTime: number
     public CurrentFrame: AnimationFrame<Transform>
 
-    constructor({ name = 'Animation', gameObject, frames = [], length = 0 }: IAnimation = new IAnimation())
+    constructor()
+    constructor(animation: IAnimation)
+    constructor({ name = 'Animation', gameObject, frames = [], length = 0 }: IAnimation = new IAnimation)
     {
         super(name)
         
