@@ -22,14 +22,6 @@ class IParticleSystem
     details: any
 }
 
-// export class Particle
-// {
-//     Transform: Transform
-//     Transform: Transform
-//     Transform: Transform
-//     Transform: Transform
-// }
-
 export default class ParticleSystem extends Item implements Updateable
 {
     public Transform: Transform
@@ -38,6 +30,8 @@ export default class ParticleSystem extends Item implements Updateable
     public readonly Material: RenderMaterial
     public readonly Particles: Transform[]
 
+    constructor()
+    constructor(particleSystem: IParticleSystem)
     constructor({ name = 'Particle System', mesh, length = 0, material, transform,  details }: IParticleSystem = new IParticleSystem)
     {
         super(name)

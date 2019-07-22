@@ -1,15 +1,15 @@
 import Control from './Utility/Control'
-import MouseInput from './Input/MouseInput';
-import KeyboardInput from './Input/KeyboardInput';
+import MouseInput from './Input/MouseInput'
+import KeyboardInput from './Input/KeyboardInput'
 
-let GL: WebGLRenderingContext
+export let GL: WebGLRenderingContext
 
 export class  IFWGE
 {
     canvas: HTMLCanvasElement
     renderupdate?: number
     physcisupdate?: number
-    clear?: Float32Array | Array<number>
+    clear?: Float32Array | number[]
 }
 
 export default class FWGE

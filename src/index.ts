@@ -64,6 +64,7 @@ fwge.Control = require('./Utility/Control').default
 fwge.FWGEEvent = require('./Utility/FWGEEvent').default
 fwge.List = require('./Utility/List').default
 fwge.ListUtils = require('./Utility/ListUtils').default
+fwge.Stack = require('./Utility/Stack').default
 fwge.Time = require('./Utility/Time').default
 fwge.Tree = require('./Utility/Tree').default
 
