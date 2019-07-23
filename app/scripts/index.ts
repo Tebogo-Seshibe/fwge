@@ -1,3 +1,4 @@
+import Animation from '../../src/Animation/Animation'
 import PointLight from '../../src/Light/PointLight'
 import FWGE from '../../src/FWGE'
 import Control from '../../src/Utility/Control'
@@ -8,6 +9,7 @@ import Time from '../../src/Utility/Time'
 import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
 import List from '../../src/Utility/List'
+import AmbientLight from '../../src/Light/AmbientLight';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -29,15 +31,15 @@ window.onload = () => {
 
     makeCube()
 
-    fwge.light = new PointLight(
+    fwge.light = new AmbientLight(
     {
-        colour: [255, 255, 255, 255],
+        colour: [1, 1, 1, 1],
         intensity: 1.0,
-        name: 'Ambient',
-        angle: 180,
-        position: [0,0,0],
-        radius: 5,
-        shininess: 32
+        name: 'Ambient'
+        // angle: 180,
+        // position: [0,0,0],
+        // radius: 5,
+        // shininess: 32
     })
 }
 
@@ -229,39 +231,45 @@ async function makeCube()
     // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.object = OBJConverter.Parse(obj, mtl)
     fwge.object.Material.Shader = shader
-    fwge.object.Material.Ambient = new Colour4(1,1,1,1)
-    fwge.object.Transform.Position.Z = -15
-    fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
-
-    /*
+    fwge.object.Material.Ambient = new Colour4(1, 1, 1, 1)
+    
     fwge.animation = new Animation(
     {
         name: 'Example',
-        length: 5,
-        gameObject: fwge.object, 
+        gameObject: fwge.object,
         frames: [
-            new AnimationFrame<Frame>(
-            {
-                time: 0,
-                value: new Transform({position: [0, 0, -5]})
-            }),
-            new AnimationFrame<Frame>(
             {
                 time: 1,
-                value: new Transform({position: [1, 0, -5]})
-            }),
-            new AnimationFrame<Frame>(
+                position: [-5, -5, -5],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+                colour: [1, 1, 1, 1]
+            },
             {
-                time: 2,
-                value: new Transform({position: [1, 1, -5]})
-            }),
-            new AnimationFrame<Frame>(
+                time: 1,
+                position: [5, -5, -5],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+                colour: [1, 1, 1, 1]
+            },
             {
-                time: 2,
-                value: new Transform({position: [0, 1, -5]})
-            })
+                time: 1,
+                position: [5, 5, -5],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+                colour: [1, 1, 1, 1]
+            },
+            {
+                time: 1,
+                position: [-5, 5, -5],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+                colour: [1, 1, 1, 1]
+            }
         ]
-    })*/
+    })
+
+    console.log(fwge.animation)
 
     Control.Start()
     //setTimeout(Control.Stop, 500)

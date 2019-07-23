@@ -7,11 +7,14 @@ import List from '../Utility/List'
 import Colour4 from "../Render/Colour4"
 import Vector3 from "../Maths/Vector3"
 
+export let Animations: Animation[] = new Array<Animation>()
+
 export class IAnimation
 {
     name?: string
     gameObject?: GameObject
     frames?: IAnimationFrame[] | List<IAnimationFrame>
+    loop?: boolean
 }
 
 export default class Animation extends Item implements Updateable
@@ -19,14 +22,16 @@ export default class Animation extends Item implements Updateable
     public Frames: AnimationFrame[]
     public GameObject: GameObject
     public Length: number
+    public Loop: boolean
 
-    public FrameTime: number
-    public MaxFrameTime: number
-    public CurrentFrame: AnimationFrame
+    private FrameTime: number
+    private MaxFrameTime: number
+    private CurrentFrame: number
+    
 
     constructor()
     constructor(animation: IAnimation)
-    constructor({ name = 'Animation', gameObject, frames }: IAnimation = new IAnimation)
+    constructor({ name = 'Animation', gameObject, frames, loop = false }: IAnimation = new IAnimation)
     {
         super(name)
         
@@ -38,75 +43,91 @@ export default class Animation extends Item implements Updateable
         this.Frames = new Array<AnimationFrame>()
         this.GameObject = gameObject
         this.Length = 0
+        this.Loop = loop
 
+        let start: number = 0
         frames.forEach((current: IAnimationFrame, index: number, array: IAnimationFrame[]) =>
         {
             let next: IAnimationFrame = index === array.length - 1
                 ? array[0]
                 : array[index + 1]
 
-            let colour = new Colour4(
-                next.colour[0] - current.colour[0],
-                next.colour[1] - current.colour[1],
-                next.colour[2] - current.colour[2],
-                next.colour[3] - current.colour[3]
-            )
+            let offset = current.time * 1000
+            let colour = [
+                (next.colour[0] - current.colour[0]) / offset,
+                (next.colour[1] - current.colour[1]) / offset,
+                (next.colour[2] - current.colour[2]) / offset,
+                (next.colour[3] - current.colour[3]) / offset
+            ]
 
-            let position = new Vector3(
-                next.position[0] - current.position[0],
-                next.position[1] - current.position[1],
-                next.position[2] - current.position[2]
-            )
+            let position = [
+                (next.position[0] - current.position[0]) / offset,
+                (next.position[1] - current.position[1]) / offset,
+                (next.position[2] - current.position[2]) / offset
+            ]
 
-            let rotation = new Vector3(
-                next.rotation[0] - current.rotation[0],
-                next.rotation[1] - current.rotation[1],
-                next.rotation[2] - current.rotation[2]
-            )
+            let rotation = [
+                (next.rotation[0] - current.rotation[0]) / offset,
+                (next.rotation[1] - current.rotation[1]) / offset,
+                (next.rotation[2] - current.rotation[2]) / offset
+            ]
 
-            let scale = new Vector3(
-                next.scale[0] - current.scale[0],
-                next.scale[1] - current.scale[1],
-                next.scale[2] - current.scale[2]
-            )
+            let scale = [
+                (next.scale[0] - current.scale[0]) / offset,
+                (next.scale[1] - current.scale[1]) / offset,
+                (next.scale[2] - current.scale[2]) / offset
+            ]
 
             this.Length += current.time
-            this.Frames.push(new AnimationFrame(current.time, next.time,
-            {
-                Colour: new Colour4(colour),
-                Position: new Vector3(position),
-                Rotation: new Vector3(rotation),
-                Scale: new Vector3(scale)
-            }))
+            this.Frames.push(new AnimationFrame(start, start + offset, colour, position, rotation, scale))
+
+            start += offset
         })
 
         this.FrameTime = 0
-        this.MaxFrameTime = this.Length * Time.Render.Period / 1000
-        this.CurrentFrame = undefined
+        this.MaxFrameTime = this.Length * 1000
+        this.CurrentFrame = 0
+
+        Animations.push(this)
     }
 
     public Update(): void
     {
-        this.FrameTime += Time.Render.Delta
-        let offset: number = Math.max(this.FrameTime, this.MaxFrameTime, 0)
-        
-        /*if (offset > 0)
+        if (this.FrameTime >= this.MaxFrameTime && !this.Loop)
         {
-            this.FrameTime = offset
-            this.CurrentFrame = this.Frames[0]
+            return
+        }
 
-            this.GameObject.Transform.Position.Set(this.CurrentFrame.Offset.Position)
-            this.GameObject.Transform.Rotation.Set(this.CurrentFrame.Offset.Rotation)
-            this.GameObject.Transform.Scale.Set(this.CurrentFrame.Offset.Scale)
-        }
-        else
+        let currentFrame = this.Frames[this.CurrentFrame]
+        let offset = Time.Render.Delta
+        if (this.FrameTime + offset > currentFrame.End)
         {
-            let index = this.TransformFrames.find(frame => offset >= frame.Start && offset <= frame.End).Time
-            this.CurrentFrame = this.TransformFrames[index]
+            let offset = currentFrame.End - this.FrameTime
+            
+            this.FrameTime += offset
+            this.UpdateObject(currentFrame, offset)
+            
+            if (this.FrameTime + offset >= this.MaxFrameTime)
+            {
+                this.CurrentFrame = 0
+            }
+            else
+            {
+                ++this.CurrentFrame
+            }
+            currentFrame = this.Frames[this.CurrentFrame]
+            
+            offset = Time.Render.Delta - offset
         }
         
-        this.GameObject.Transform.Position.Sum(this.CurrentFrame.Offset.Position)
-        this.GameObject.Transform.Rotation.Sum(this.CurrentFrame.Offset.Rotation)
-        this.GameObject.Transform.Scale.Sum(this.CurrentFrame.Offset.Scale)*/
+        this.FrameTime += offset
+        this.UpdateObject(currentFrame, offset)
+    }
+
+    private UpdateObject(frame: AnimationFrame, length: number): void
+    {
+        this.GameObject.Transform.Position.Sum(frame.Position.Clone().Scale(length))
+        this.GameObject.Transform.Rotation.Sum(frame.Rotation.Clone().Scale(length))
+        this.GameObject.Transform.Scale.Sum(frame.Scale.Clone().Scale(length))
     }
 }

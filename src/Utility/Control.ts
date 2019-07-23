@@ -2,6 +2,7 @@ import Time from './Time'
 import { GameObjects } from '../GameObject'
 import Renderer from '../Render/Renderer'
 import { Cameras } from '../Camera/Camera'
+import { Animations } from '../Animation/Animation';
 
 export default class Control
 {
@@ -46,6 +47,10 @@ export default class Control
             gameObject.Update()
         }
 
+        for (let animation of Animations)
+        {
+            animation.Update()
+        }
         // PhysicsEngine.Update();
 
         for (let camera of Cameras)
