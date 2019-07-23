@@ -22,6 +22,7 @@ const Time_1 = __importDefault(require("../../src/Utility/Time"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
+const Vector3_1 = __importDefault(require("../../src/Maths/Vector3"));
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
@@ -227,7 +228,7 @@ function makeCube() {
         fwge.object = OBJConverter_1.default.Parse(obj, mtl);
         fwge.object.Material.Shader = shader;
         fwge.object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
-        fwge.object.Transform.Position.Z = -15;
+        fwge.object.Transform.Position = new Vector3_1.default(-5, -5, -15);
         fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.01;
         fwge.animation = new Animation_1.default({
             name: 'Example',
@@ -235,40 +236,40 @@ function makeCube() {
             frames: [
                 {
                     time: 1,
-                    position: [-5, -5, -5],
+                    position: [-5, -5, -15],
                     rotation: [0, 0, 0],
                     scale: [1, 1, 1],
-                    colour: [1, 1, 1, 1]
+                    colour: [1, 1, 1, 1],
                 },
                 {
                     time: 1,
-                    position: [5, -5, -5],
+                    position: [5, -5, -15],
                     rotation: [0, 0, 0],
                     scale: [1, 1, 1],
-                    colour: [1, 1, 1, 1]
+                    colour: [1, 0, 0, 1]
                 },
                 {
                     time: 1,
-                    position: [5, 5, -5],
+                    position: [5, 5, -15],
                     rotation: [0, 0, 0],
                     scale: [1, 1, 1],
-                    colour: [1, 1, 1, 1]
+                    colour: [0, 1, 0, 1]
                 },
                 {
                     time: 1,
-                    position: [-5, 5, -5],
+                    position: [-5, 5, -15],
                     rotation: [0, 0, 0],
                     scale: [1, 1, 1],
-                    colour: [1, 1, 1, 1]
+                    colour: [0, 0, 1, 1]
                 }
-            ]
+            ],
+            loop: true
         });
-        console.log(fwge.animation);
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":11,"../../src/Render/Colour4":24,"../../src/Shader/Shader":37,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44,"../../src/Utility/Time":46}],2:[function(require,module,exports){
+},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":11,"../../src/Maths/Vector3":20,"../../src/Render/Colour4":24,"../../src/Shader/Shader":37,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44,"../../src/Utility/Time":46}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -278,6 +279,7 @@ const AnimationFrame_1 = __importDefault(require("./AnimationFrame"));
 const Item_1 = __importDefault(require("../Item"));
 const Time_1 = __importDefault(require("../Utility/Time"));
 const List_1 = __importDefault(require("../Utility/List"));
+const Vector3_1 = __importDefault(require("../Maths/Vector3"));
 exports.Animations = new Array();
 class IAnimation {
 }
@@ -329,8 +331,14 @@ class Animation extends Item_1.default {
         exports.Animations.push(this);
     }
     Update() {
-        if (this.FrameTime >= this.MaxFrameTime && !this.Loop) {
-            return;
+        if (this.FrameTime >= this.MaxFrameTime) {
+            if (!this.Loop) {
+                return;
+            }
+            else {
+                this.FrameTime = 0;
+                this.CurrentFrame = 0;
+            }
         }
         let currentFrame = this.Frames[this.CurrentFrame];
         let offset = Time_1.default.Render.Delta;
@@ -339,7 +347,10 @@ class Animation extends Item_1.default {
             this.FrameTime += offset;
             this.UpdateObject(currentFrame, offset);
             if (this.FrameTime + offset >= this.MaxFrameTime) {
-                this.CurrentFrame = 0;
+                if (this.Loop) {
+                    this.FrameTime = 0;
+                    this.CurrentFrame = 0;
+                }
             }
             else {
                 ++this.CurrentFrame;
@@ -351,21 +362,20 @@ class Animation extends Item_1.default {
         this.UpdateObject(currentFrame, offset);
     }
     UpdateObject(frame, length) {
-        this.GameObject.Transform.Position.Sum(frame.Position.Clone().Scale(length));
-        this.GameObject.Transform.Rotation.Sum(frame.Rotation.Clone().Scale(length));
-        this.GameObject.Transform.Scale.Sum(frame.Scale.Clone().Scale(length));
+        this.GameObject.Transform.Position.Sum(new Vector3_1.default(frame.Position).Scale(length));
+        this.GameObject.Transform.Rotation.Sum(new Vector3_1.default(frame.Rotation).Scale(length));
+        this.GameObject.Transform.Scale.Sum(new Vector3_1.default(frame.Scale).Scale(length));
+        this.GameObject.Material.Ambient.R += frame.Colour[0] * length;
+        this.GameObject.Material.Ambient.G += frame.Colour[1] * length;
+        this.GameObject.Material.Ambient.B += frame.Colour[2] * length;
+        this.GameObject.Material.Ambient.A += frame.Colour[3] * length;
     }
 }
 exports.default = Animation;
 
-},{"../Item":10,"../Utility/List":44,"../Utility/Time":46,"./AnimationFrame":3}],3:[function(require,module,exports){
+},{"../Item":10,"../Maths/Vector3":20,"../Utility/List":44,"../Utility/Time":46,"./AnimationFrame":3}],3:[function(require,module,exports){
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const Colour4_1 = __importDefault(require("../Render/Colour4"));
-const Vector3_1 = __importDefault(require("../Maths/Vector3"));
 class IAnimationFrame {
 }
 exports.IAnimationFrame = IAnimationFrame;
@@ -373,15 +383,15 @@ class AnimationFrame {
     constructor(start, end, colour, position, rotation, scale) {
         this.Start = start;
         this.End = end;
-        this.Colour = new Colour4_1.default(colour);
-        this.Position = new Vector3_1.default(position);
-        this.Rotation = new Vector3_1.default(rotation);
-        this.Scale = new Vector3_1.default(scale);
+        this.Colour = colour;
+        this.Position = position;
+        this.Rotation = rotation;
+        this.Scale = scale;
     }
 }
 exports.default = AnimationFrame;
 
-},{"../Maths/Vector3":20,"../Render/Colour4":24}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };

@@ -1,12 +1,12 @@
-import Colour4 from "../Render/Colour4"
-import Vector3 from "../Maths/Vector3"
+export type Vector3Frame = [ number, number, number ]
+export type Vector4Frame = [ number, number, number, number ]
 
 export class IAnimationFrame
 {
-    colour?: Colour4 | number[]
-    position?: Vector3 | number[]
-    rotation?: Vector3 | number[]
-    scale?: Vector3 | number[]
+    colour?: Vector4Frame
+    position?: Vector3Frame
+    rotation?: Vector3Frame
+    scale?: Vector3Frame
     time: number
 }
 
@@ -14,18 +14,18 @@ export default class AnimationFrame
 {
     public Start: number
     public End: number
-    public Colour: Colour4
-    public Position: Vector3
-    public Rotation: Vector3
-    public Scale: Vector3
+    public Colour: Vector4Frame
+    public Position: Vector3Frame
+    public Rotation: Vector3Frame
+    public Scale: Vector3Frame
 
-    constructor(start: number, end: number, colour: number[], position: number[], rotation: number[], scale: number[])
+    constructor(start: number, end: number, colour: Vector4Frame, position: Vector3Frame, rotation: Vector3Frame, scale: Vector3Frame)
     {
         this.Start = start
         this.End = end
-        this.Colour = new Colour4(colour)
-        this.Position = new Vector3(position)
-        this.Rotation = new Vector3(rotation)
-        this.Scale = new Vector3(scale)
+        this.Colour = colour
+        this.Position = position
+        this.Rotation = rotation
+        this.Scale = scale
     }
 }

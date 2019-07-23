@@ -1,4 +1,4 @@
-import AnimationFrame, { IAnimationFrame } from './AnimationFrame'
+import AnimationFrame, { IAnimationFrame, Vector4Frame, Vector3Frame } from './AnimationFrame'
 import Item from '../Item'
 import Updateable from '../Interfaces/Updateable'
 import GameObject from '../GameObject'
@@ -27,7 +27,6 @@ export default class Animation extends Item implements Updateable
     private FrameTime: number
     private MaxFrameTime: number
     private CurrentFrame: number
-    
 
     constructor()
     constructor(animation: IAnimation)
@@ -53,26 +52,26 @@ export default class Animation extends Item implements Updateable
                 : array[index + 1]
 
             let offset = current.time * 1000
-            let colour = [
+            let colour: Vector4Frame = [
                 (next.colour[0] - current.colour[0]) / offset,
                 (next.colour[1] - current.colour[1]) / offset,
                 (next.colour[2] - current.colour[2]) / offset,
                 (next.colour[3] - current.colour[3]) / offset
             ]
 
-            let position = [
+            let position: Vector3Frame = [
                 (next.position[0] - current.position[0]) / offset,
                 (next.position[1] - current.position[1]) / offset,
                 (next.position[2] - current.position[2]) / offset
             ]
 
-            let rotation = [
+            let rotation: Vector3Frame = [
                 (next.rotation[0] - current.rotation[0]) / offset,
                 (next.rotation[1] - current.rotation[1]) / offset,
                 (next.rotation[2] - current.rotation[2]) / offset
             ]
 
-            let scale = [
+            let scale: Vector3Frame = [
                 (next.scale[0] - current.scale[0]) / offset,
                 (next.scale[1] - current.scale[1]) / offset,
                 (next.scale[2] - current.scale[2]) / offset
@@ -93,9 +92,17 @@ export default class Animation extends Item implements Updateable
 
     public Update(): void
     {
-        if (this.FrameTime >= this.MaxFrameTime && !this.Loop)
+        if (this.FrameTime >= this.MaxFrameTime)
         {
-            return
+            if (!this.Loop)
+            {
+                return
+            }
+            else
+            {
+                this.FrameTime = 0
+                this.CurrentFrame = 0
+            }
         }
 
         let currentFrame = this.Frames[this.CurrentFrame]
@@ -109,14 +116,18 @@ export default class Animation extends Item implements Updateable
             
             if (this.FrameTime + offset >= this.MaxFrameTime)
             {
-                this.CurrentFrame = 0
+                if (this.Loop)
+                {
+                    this.FrameTime = 0
+                    this.CurrentFrame = 0
+                }
             }
             else
             {
                 ++this.CurrentFrame
             }
-            currentFrame = this.Frames[this.CurrentFrame]
-            
+
+            currentFrame = this.Frames[this.CurrentFrame]            
             offset = Time.Render.Delta - offset
         }
         
@@ -126,8 +137,13 @@ export default class Animation extends Item implements Updateable
 
     private UpdateObject(frame: AnimationFrame, length: number): void
     {
-        this.GameObject.Transform.Position.Sum(frame.Position.Clone().Scale(length))
-        this.GameObject.Transform.Rotation.Sum(frame.Rotation.Clone().Scale(length))
-        this.GameObject.Transform.Scale.Sum(frame.Scale.Clone().Scale(length))
+        this.GameObject.Transform.Position.Sum(new Vector3(frame.Position).Scale(length))
+        this.GameObject.Transform.Rotation.Sum(new Vector3(frame.Rotation).Scale(length))
+        this.GameObject.Transform.Scale.Sum(new Vector3(frame.Scale).Scale(length))
+        
+        this.GameObject.Material.Ambient.R += frame.Colour[0] * length
+        this.GameObject.Material.Ambient.G += frame.Colour[1] * length
+        this.GameObject.Material.Ambient.B += frame.Colour[2] * length
+        this.GameObject.Material.Ambient.A += frame.Colour[3] * length
     }
 }

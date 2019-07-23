@@ -10,6 +10,7 @@ import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
 import List from '../../src/Utility/List'
 import AmbientLight from '../../src/Light/AmbientLight';
+import Vector3 from '../../src/Maths/Vector3';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -231,7 +232,10 @@ async function makeCube()
     // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.object = OBJConverter.Parse(obj, mtl)
     fwge.object.Material.Shader = shader
-    fwge.object.Material.Ambient = new Colour4(1, 1, 1, 1)
+    fwge.object.Material.Ambient = new Colour4(1,1,1,1)
+    fwge.object.Transform.Position = new Vector3(-5, -5, -15)
+    fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
+
     
     fwge.animation = new Animation(
     {
@@ -240,36 +244,35 @@ async function makeCube()
         frames: [
             {
                 time: 1,
-                position: [-5, -5, -5],
+                position: [-5, -5, -15],
                 rotation: [0, 0, 0],
                 scale: [1, 1, 1],
-                colour: [1, 1, 1, 1]
+                colour: [1, 1, 1, 1],
             },
             {
                 time: 1,
-                position: [5, -5, -5],
+                position: [5, -5, -15],
                 rotation: [0, 0, 0],
                 scale: [1, 1, 1],
-                colour: [1, 1, 1, 1]
+                colour: [1, 0, 0, 1]
             },
             {
                 time: 1,
-                position: [5, 5, -5],
+                position: [5, 5, -15],
                 rotation: [0, 0, 0],
                 scale: [1, 1, 1],
-                colour: [1, 1, 1, 1]
+                colour: [0, 1, 0, 1]
             },
             {
                 time: 1,
-                position: [-5, 5, -5],
+                position: [-5, 5, -15],
                 rotation: [0, 0, 0],
                 scale: [1, 1, 1],
-                colour: [1, 1, 1, 1]
+                colour: [0, 0, 1, 1]
             }
-        ]
+        ],
+        loop: true
     })
-
-    console.log(fwge.animation)
 
     Control.Start()
     //setTimeout(Control.Stop, 500)
