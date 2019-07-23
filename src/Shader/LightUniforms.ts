@@ -16,7 +16,7 @@ export default class LightUniforms
         this.Ambient = new AmbientUniforms(gl, program)
         this.Directional = new DirectionalUniforms(gl, program)
         this.PointCount = gl.getUniformLocation(program, `U_Point_Count`)
-        this.Point = new Array<PointUniform>(LightUniforms.MAX_LIGHT)
+        this.Point = new Array<PointUniform>()
         
         for (var i = 0; i < LightUniforms.MAX_LIGHT; ++i)
         {

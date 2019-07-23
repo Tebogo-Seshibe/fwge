@@ -8,7 +8,7 @@ import Transform from './Transform'
 import Updateable from './Interfaces/Updateable'
 import List from './Utility/List';
 
-type GameObjectFunction = (this: GameObject) => void
+export type GameObjectFunction = (this: GameObject) => void
 
 export let GameObjects: GameObject[] = new Array<GameObject>()
 
@@ -40,7 +40,7 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
     constructor()
     constructor(gameObject: IGameObject)
-    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = (): void => undefined, update = (): void => undefined, end = (): void => undefined, children = [] }: IGameObject = new IGameObject)
+    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = function(this: GameObject): void { }, update = function(this: GameObject): void { }, end = function(this: GameObject): void { }, children = [] }: IGameObject = new IGameObject)
     {
         super(name);
     

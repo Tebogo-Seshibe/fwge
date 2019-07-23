@@ -274,13 +274,13 @@ export default class Renderer
                 {
                     FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour)
                     FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity)
-                    //FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction)
+                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction)
                 }
                 else if (light instanceof PointLight)
                 {
                     FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity)
-                    //FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position)
+                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle)
 

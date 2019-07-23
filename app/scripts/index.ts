@@ -42,11 +42,15 @@ window.onload = () => {
 
     makeCube()
 
-    fwge.ambient = new AmbientLight(
+    fwge.light = new PointLight(
     {
         colour: [255, 255, 255, 255],
         intensity: 1.0,
-        name: 'Ambient'
+        name: 'Ambient',
+        angle: 180,
+        position: [0,0,0],
+        radius: 5,
+        shininess: 32
     })
 }
 
