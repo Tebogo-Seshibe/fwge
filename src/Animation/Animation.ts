@@ -77,7 +77,7 @@ export default class Animation extends Item implements Updateable
                 Position: new Vector3(position),
                 Rotation: new Vector3(rotation),
                 Scale: new Vector3(scale)
-            })
+            }))
         })
 
         this.FrameTime = 0
