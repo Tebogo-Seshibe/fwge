@@ -18,7 +18,6 @@ const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
-const Time_1 = __importDefault(require("../../src/Utility/Time"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
@@ -229,7 +228,6 @@ function makeCube() {
         fwge.object.Material.Shader = shader;
         fwge.object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
         fwge.object.Transform.Position = new Vector3_1.default(-5, -5, -15);
-        fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.01;
         fwge.animation = new Animation_1.default({
             name: 'Example',
             gameObject: fwge.object,
@@ -244,21 +242,21 @@ function makeCube() {
                 {
                     time: 1,
                     position: [5, -5, -15],
-                    rotation: [0, 0, 0],
+                    rotation: [0, 120, 0],
                     scale: [1, 1, 1],
                     colour: [1, 0, 0, 1]
                 },
                 {
                     time: 1,
                     position: [5, 5, -15],
-                    rotation: [0, 0, 0],
+                    rotation: [0, 240, 0],
                     scale: [1, 1, 1],
                     colour: [0, 1, 0, 1]
                 },
                 {
                     time: 1,
                     position: [-5, 5, -15],
-                    rotation: [0, 0, 0],
+                    rotation: [0, 360, 0],
                     scale: [1, 1, 1],
                     colour: [0, 0, 1, 1]
                 }
@@ -269,7 +267,7 @@ function makeCube() {
     });
 }
 
-},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":11,"../../src/Maths/Vector3":20,"../../src/Render/Colour4":24,"../../src/Shader/Shader":37,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44,"../../src/Utility/Time":46}],2:[function(require,module,exports){
+},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":11,"../../src/Maths/Vector3":20,"../../src/Render/Colour4":24,"../../src/Shader/Shader":37,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };

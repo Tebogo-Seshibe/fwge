@@ -234,7 +234,7 @@ async function makeCube()
     fwge.object.Material.Shader = shader
     fwge.object.Material.Ambient = new Colour4(1,1,1,1)
     fwge.object.Transform.Position = new Vector3(-5, -5, -15)
-    fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
+    //fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time.Render.Delta * 0.01
 
     
     fwge.animation = new Animation(
@@ -252,21 +252,21 @@ async function makeCube()
             {
                 time: 1,
                 position: [5, -5, -15],
-                rotation: [0, 0, 0],
+                rotation: [0, 120, 0],
                 scale: [1, 1, 1],
                 colour: [1, 0, 0, 1]
             },
             {
                 time: 1,
                 position: [5, 5, -15],
-                rotation: [0, 0, 0],
+                rotation: [0, 240, 0],
                 scale: [1, 1, 1],
                 colour: [0, 1, 0, 1]
             },
             {
                 time: 1,
                 position: [-5, 5, -15],
-                rotation: [0, 0, 0],
+                rotation: [0, 360, 0],
                 scale: [1, 1, 1],
                 colour: [0, 0, 1, 1]
             }
