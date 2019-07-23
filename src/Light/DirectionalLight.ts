@@ -1,5 +1,8 @@
 import LightItem, { ILightItem } from './LightItem'
 import Vector3 from '../Maths/Vector3'
+import List from '../Utility/List'
+
+export let DirectionalLights: List<DirectionalLight> = new List<DirectionalLight>(3)
 
 export class IDirectionalLight extends ILightItem
 {
@@ -17,5 +20,7 @@ export default class DirectionalLight extends LightItem
         super(name, colour, intensity)
 
         this.Direction = new Vector3(direction)
+
+        DirectionalLights.Add(this)
     }
 }

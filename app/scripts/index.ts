@@ -1,4 +1,6 @@
-import AmbientLight from '../../src/Light/AmbientLight'
+import AmbientLight, { AmbientLights } from '../../src/Light/AmbientLight'
+import DirectionalLight, { DirectionalLights } from '../../src/Light/DirectionalLight'
+import PointLight, { PointLights } from '../../src/Light/PointLight'
 import Animation from '../../src/Animation/Animation'
 import AnimationFrame, { Frame } from '../../src/Animation/AnimationFrame'
 import FWGE from '../../src/FWGE'
@@ -10,15 +12,22 @@ import Shader from '../../src/Shader/Shader'
 import Time from '../../src/Utility/Time'
 import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
-import Transform from '../../src/Transform';
-import List from '../../src/Utility/List';
-import Matrix2 from '../../src/Maths/Matrix2';
+import Transform from '../../src/Transform'
+import List from '../../src/Utility/List'
+import Tree from '../../src/Utility/Tree'
+import Matrix2 from '../../src/Maths/Matrix2'
+import Matrix3 from '../../src/Maths/Matrix3'
+import Matrix4 from '../../src/Maths/Matrix4'
+import Vector2 from '../../src/Maths/Matrix2'
+import Vector3 from '../../src/Maths/Matrix3'
+import Vector4 from '../../src/Maths/Matrix4'
 
 let fwge = <any>window
 fwge.Control = Control
 fwge.Camera = Camera
 fwge.FWGE = FWGE
 fwge.List = List
+fwge.lights = { }
 
 window.onload = () => {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -32,7 +41,7 @@ window.onload = () => {
     })
 
     makeCube()
-    fwge.numbers = new List<number>()
+
     fwge.ambient = new AmbientLight(
     {
         colour: [255, 255, 255, 255],
@@ -144,7 +153,7 @@ async function makeCube()
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour; /* U_Ambient.Intensity;*/
+                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
             }
             
             vec4 Directional(in vec3 normal) 
@@ -194,7 +203,7 @@ async function makeCube()
                                         ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
                                         : V_Normal);
             
-                return Ambient(); /*+ Directional(normal) + Point(normal);*/
+                return Ambient() + Directional(normal) + Point(normal);
             }
             
             vec4 Shadow()
@@ -216,7 +225,7 @@ async function makeCube()
             
             void main(void)
             { 
-                vec4 colour = Light();
+                vec4 colour = Colour() * Light();
                 colour.a *= U_Material.Alpha;
                 
                 gl_FragColor = colour;
@@ -264,5 +273,5 @@ async function makeCube()
     })*/
 
     Control.Start()
-    setTimeout(Control.Stop, 500)
+    //setTimeout(Control.Stop, 500)
 }
