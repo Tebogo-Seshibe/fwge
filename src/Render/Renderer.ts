@@ -254,7 +254,7 @@ export default class Renderer
     private static SetGlobalUniforms(): void
     {
         var i = Shaders.length
-        let Lights = new List<LightItem>(...AmbientLights, ...DirectionalLights, ...PointLights)
+        let Lights = new List<LightItem>([].concat(AmbientLights.ToArray(), DirectionalLights.ToArray(), PointLights.ToArray()))
         for (let shader of Shaders)
         {
             FWGE.GL.useProgram(shader.Program)

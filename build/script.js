@@ -8,20 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const AmbientLight_1 = __importStar(require("../../src/Light/AmbientLight"));
-const DirectionalLight_1 = require("../../src/Light/DirectionalLight");
-const PointLight_1 = require("../../src/Light/PointLight");
+const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
@@ -30,7 +21,6 @@ const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Time_1 = __importDefault(require("../../src/Utility/Time"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
-const Tree_1 = __importDefault(require("../../src/Utility/Tree"));
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
@@ -45,14 +35,7 @@ window.onload = () => {
         physcisupdate: 30,
         renderupdate: 75
     });
-    debugger;
-    fwge.numbers = new List_1.default();
-    fwge.tree = new Tree_1.default();
-    fwge.lights = {
-        amb: AmbientLight_1.AmbientLights,
-        dir: DirectionalLight_1.DirectionalLights,
-        poi: PointLight_1.PointLights
-    };
+    makeCube();
     fwge.ambient = new AmbientLight_1.default({
         colour: [255, 255, 255, 255],
         intensity: 1.0,
@@ -160,7 +143,7 @@ function makeCube() {
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour; /* U_Ambient.Intensity;*/
+                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
             }
             
             vec4 Directional(in vec3 normal) 
@@ -210,7 +193,7 @@ function makeCube() {
                                         ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
                                         : V_Normal);
             
-                return Ambient(); /*+ Directional(normal) + Point(normal);*/
+                return Ambient() + Directional(normal) + Point(normal);
             }
             
             vec4 Shadow()
@@ -232,7 +215,7 @@ function makeCube() {
             
             void main(void)
             { 
-                vec4 colour = Light();
+                vec4 colour = Colour() * Light();
                 colour.a *= U_Material.Alpha;
                 
                 gl_FragColor = colour;
@@ -246,11 +229,10 @@ function makeCube() {
         fwge.object.Transform.Position.Z = -15;
         fwge.object.Update = () => fwge.object.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.01;
         Control_1.default.Start();
-        setTimeout(Control_1.default.Stop, 500);
     });
 }
 
-},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/Light/AmbientLight":9,"../../src/Light/DirectionalLight":10,"../../src/Light/PointLight":12,"../../src/Render/Colour4":21,"../../src/Shader/Shader":34,"../../src/Utility/Control":39,"../../src/Utility/Converter/OBJConverter":40,"../../src/Utility/List":41,"../../src/Utility/Time":43,"../../src/Utility/Tree":44}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":2,"../../src/FWGE":3,"../../src/Light/AmbientLight":9,"../../src/Render/Colour4":21,"../../src/Shader/Shader":34,"../../src/Utility/Control":39,"../../src/Utility/Converter/OBJConverter":40,"../../src/Utility/List":41,"../../src/Utility/Time":43}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2199,7 +2181,7 @@ class Renderer {
     }
     static SetGlobalUniforms() {
         var i = Shader_1.Shaders.length;
-        let Lights = new List_1.default(...AmbientLight_1.AmbientLights, ...DirectionalLight_1.DirectionalLights, ...PointLight_1.PointLights);
+        let Lights = new List_1.default([].concat(AmbientLight_1.AmbientLights.ToArray(), DirectionalLight_1.DirectionalLights.ToArray(), PointLight_1.PointLights.ToArray()));
         for (let shader of Shader_1.Shaders) {
             FWGE_1.default.GL.useProgram(shader.Program);
             let point_count = 0;
@@ -2909,42 +2891,4 @@ class Time {
 }
 exports.default = Time;
 
-},{}],44:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const List_1 = __importDefault(require("./List"));
-class TreeNode {
-    constructor(children, value) {
-        this.Value = value;
-        this.Children = new List_1.default(children);
-    }
-}
-exports.TreeNode = TreeNode;
-class Tree {
-    constructor(size = Number.MAX_SAFE_INTEGER) {
-        this.size = size;
-        this.root = null;
-    }
-    Add(value) {
-        if (value instanceof TreeNode) {
-            value = value.Value;
-        }
-        let node = new TreeNode(this.size, value);
-        let curr = this.root;
-        while (curr) {
-            if (curr.Children.Count === 0) {
-                curr.Children.Add(node);
-                curr;
-            }
-            else {
-            }
-            curr = null;
-        }
-    }
-}
-exports.default = Tree;
-
-},{"./List":41}]},{},[1]);
+},{}]},{},[1]);

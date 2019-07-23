@@ -40,15 +40,8 @@ window.onload = () => {
         renderupdate: 75
     })
 
-    //makeCube()
-    debugger
-    fwge.numbers = new List<number>()
-    fwge.tree = new Tree()
-    fwge.lights = {
-        amb: AmbientLights,
-        dir: DirectionalLights,
-        poi: PointLights
-    }
+    makeCube()
+
     fwge.ambient = new AmbientLight(
     {
         colour: [255, 255, 255, 255],
@@ -160,7 +153,7 @@ async function makeCube()
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour; /* U_Ambient.Intensity;*/
+                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
             }
             
             vec4 Directional(in vec3 normal) 
@@ -210,7 +203,7 @@ async function makeCube()
                                         ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
                                         : V_Normal);
             
-                return Ambient(); /*+ Directional(normal) + Point(normal);*/
+                return Ambient() + Directional(normal) + Point(normal);
             }
             
             vec4 Shadow()
@@ -232,7 +225,7 @@ async function makeCube()
             
             void main(void)
             { 
-                vec4 colour = Light();
+                vec4 colour = Colour() * Light();
                 colour.a *= U_Material.Alpha;
                 
                 gl_FragColor = colour;
@@ -280,5 +273,5 @@ async function makeCube()
     })*/
 
     Control.Start()
-    setTimeout(Control.Stop, 500)
+    //setTimeout(Control.Stop, 500)
 }
