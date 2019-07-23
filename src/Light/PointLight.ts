@@ -1,5 +1,8 @@
 import LightItem, { ILightItem } from './LightItem'
 import Vector3 from '..//Maths/Vector3'
+import List from '../Utility/List'
+
+export let PointLights: List<PointLight> = new List<PointLight>(12)
 
 export class IPointLight extends ILightItem
 {
@@ -24,5 +27,7 @@ export default class PointLight extends LightItem
         this.Radius = radius
         this.Angle = angle
         this.Shininess = shininess
+
+        PointLights.Add(this)
     }
 }

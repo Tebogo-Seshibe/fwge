@@ -1,13 +1,12 @@
-import AmbientLight from '../Light/AmbientLight'
-import DirectionalLight from '../Light/DirectionalLight'
+import AmbientLight, { AmbientLights } from '../Light/AmbientLight'
+import DirectionalLight, { DirectionalLights } from '../Light/DirectionalLight'
 import FWGE from '../FWGE'
 import GameObject, { GameObjects } from '../GameObject'
-import { AmbientLights, DirectionalLights, PointLights } from '../Light/Light'
 import ModelView from './ModelView'
 import Matrix3 from '../Maths/Matrix3'
 import Mesh from './Mesh'
 import Matrix4 from '../Maths/Matrix4'
-import PointLight from '../Light/PointLight'
+import PointLight, { PointLights } from '../Light/PointLight'
 import Projection from './Projection'
 import RenderMaterial from './RenderMaterial'
 import Shader, { Shaders } from '../Shader/Shader'
@@ -275,13 +274,13 @@ export default class Renderer
                 {
                     FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour)
                     FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity)
-                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction)
+                    //FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction)
                 }
                 else if (light instanceof PointLight)
                 {
                     FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity)
-                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position)
+                    //FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius)
                     FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle)
 

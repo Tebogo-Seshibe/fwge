@@ -83,9 +83,7 @@ export default class Colour4 extends Float32Array
     {
         super(4)
 
-        this.Set(r, g, b, a);
-
-        Object.seal(this);
+        this.Set(r, g, b, a)
     }
 
     Set(r?: Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4

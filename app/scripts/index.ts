@@ -1,4 +1,6 @@
-import AmbientLight from '../../src/Light/AmbientLight'
+import AmbientLight, { AmbientLights } from '../../src/Light/AmbientLight'
+import DirectionalLight, { DirectionalLights } from '../../src/Light/DirectionalLight'
+import PointLight, { PointLights } from '../../src/Light/PointLight'
 import Animation from '../../src/Animation/Animation'
 import AnimationFrame, { Frame } from '../../src/Animation/AnimationFrame'
 import FWGE from '../../src/FWGE'
@@ -10,15 +12,22 @@ import Shader from '../../src/Shader/Shader'
 import Time from '../../src/Utility/Time'
 import Camera from '../../src/Camera/Camera'
 import ParticleSystem from '../../src/ParticleSystem'
-import Transform from '../../src/Transform';
-import List from '../../src/Utility/List';
-import Matrix2 from '../../src/Maths/Matrix2';
+import Transform from '../../src/Transform'
+import List from '../../src/Utility/List'
+import Tree from '../../src/Utility/Tree'
+import Matrix2 from '../../src/Maths/Matrix2'
+import Matrix3 from '../../src/Maths/Matrix3'
+import Matrix4 from '../../src/Maths/Matrix4'
+import Vector2 from '../../src/Maths/Matrix2'
+import Vector3 from '../../src/Maths/Matrix3'
+import Vector4 from '../../src/Maths/Matrix4'
 
 let fwge = <any>window
 fwge.Control = Control
 fwge.Camera = Camera
 fwge.FWGE = FWGE
 fwge.List = List
+fwge.lights = { }
 
 window.onload = () => {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -31,8 +40,15 @@ window.onload = () => {
         renderupdate: 75
     })
 
-    makeCube()
+    //makeCube()
+    debugger
     fwge.numbers = new List<number>()
+    fwge.tree = new Tree()
+    fwge.lights = {
+        amb: AmbientLights,
+        dir: DirectionalLights,
+        poi: PointLights
+    }
     fwge.ambient = new AmbientLight(
     {
         colour: [255, 255, 255, 255],
