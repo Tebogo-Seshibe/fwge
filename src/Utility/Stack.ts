@@ -12,41 +12,45 @@ export class StackNode<T>
 
 export default class Stack<T>
 {
-	private Head: StackNode<T>
+	private head: StackNode<T>
 
 	constructor()
 	{
-		this.Head = undefined
+		this.head = undefined
 	}
 
 	Push(value: T): void
 	{
-		if (!this.Head)
+		if (!this.head)
 		{
-			this.Head = new StackNode<T>(value)
+			this.head = new StackNode<T>(value)
 		}
 		else
 		{
-			let newHead = new StackNode<T>(value, this.Head)
-			this.Head = newHead
+			let newHead = new StackNode<T>(value, this.head)
+			this.head = newHead
 		}
 	}
 
 	Peek(): T
 	{
-		if (!this.Head)
-			return null
+		if (!this.head)
+		{
+			return undefined
+		}
 
-		return this.Head.Value
+		return this.head.Value
 	}
 
 	Pop(): T
 	{
-		if (!this.Head)
-			return null
+		if (!this.head)
+		{
+			return undefined
+		}
 
-		let oldHead = this.Head
-		this.Head = this.Head.Predecessor
+		let oldHead = this.head
+		this.head = this.head.Predecessor
 
 		return oldHead.Value
 	}

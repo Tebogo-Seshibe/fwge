@@ -1,32 +1,33 @@
-import Colour4 from '../Render/Colour4'
-import Transform from '../Transform'
+import Colour4 from "../Render/Colour4"
+import Vector3 from "../Maths/Vector3"
 
-export type Frame = Colour4 | Transform
-
-export class AnimationFrameGroup
+export class FrameDetail
 {
     Colour: Colour4
-    Transform: Transform
+    Position: Vector3
+    Rotation: Vector3
+    Scale: Vector3
 }
 
-export class IAnimationFrame<Frame>
+export class IAnimationFrame
 {
-    value: Frame
+    colour?: Colour4 | number[]
+    position?: Vector3 | number[]
+    rotation?: Vector3 | number[]
+    scale?: Vector3 | number[]
     time: number
 }
 
-export default class AnimationFrame<Value>
+export default class AnimationFrame
 {
-    public Value: Value
-    public Time: number
-    public Offset: Value
-    
+    public Offset: FrameDetail
     public Start: number
     public End: number
 
-    constructor({ value, time }: IAnimationFrame<Value>)
+    constructor(start: number, end: number, offset: FrameDetail)
     {
-        this.Value = value
-        this.Time = time
+        this.Offset = offset
+        this.Start = start
+        this.End = end
     }
 }
