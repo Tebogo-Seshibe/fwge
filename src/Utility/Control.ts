@@ -1,8 +1,9 @@
 import Time from './Time'
 import { GameObjects } from '../GameObject'
-import Renderer from '../Render/Renderer'
+import { InitRender, UpdateRender } from '../Render/Renderer'
 import { Cameras } from '../Camera/Camera'
 import { Animations } from '../Animation/Animation';
+import { ParticleSystems } from '../ParticleSystem';
 
 export default class Control
 {
@@ -12,7 +13,7 @@ export default class Control
     public static Init(renderUpdate: number, physicsUpdate: number): void
     {
         Time.Init(renderUpdate, physicsUpdate)
-        Renderer.Init()
+        InitRender()
     }
     
     public static Start(): void
@@ -40,7 +41,12 @@ export default class Control
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
 
         Time.Update()
-        Input.Update()
+        //Input.Update()
+
+        for (let particleSystem of ParticleSystems)
+        {
+            particleSystem.Update()
+        }
         
         for (let gameObject of GameObjects)
         {
@@ -60,7 +66,7 @@ export default class Control
 
         if (Time.Render.Ready)
         {
-            Renderer.Update()
+            UpdateRender()
         }
     }
 }

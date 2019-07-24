@@ -4,35 +4,42 @@ import Updateable from './Interfaces/Updateable';
 import Mesh from './Render/Mesh';
 import RenderMaterial from './Render/RenderMaterial';
 
-export let ParticleSystems: ParticleSystem[] = []
+export let ParticleSystems: ParticleSystem[] = new Array<ParticleSystem>()
 
-class IParticleSystem
+export class IParticle
+{
+
+}
+
+export class IParticleSystem
 {
     name: string
     mesh: Mesh
     material: RenderMaterial
     length: number
     transform: Transform | ITransform
+    delay: number
     // TODO
     // add delay
     // add timeout
     // add material
     // add burst
     // add timeline
-    details: any
+    particles: IParticle[]
 }
 
 export default class ParticleSystem extends Item implements Updateable
 {
     public Transform: Transform
 
-    public readonly Mesh: Mesh
-    public readonly Material: RenderMaterial
-    public readonly Particles: Transform[]
+    public Mesh: Mesh
+    public Material: RenderMaterial
+    public Delay: number
+    public Particles: Transform[]
 
     constructor()
     constructor(particleSystem: IParticleSystem)
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform,  details }: IParticleSystem = new IParticleSystem)
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform,  delay = 0, particles }: IParticleSystem = new IParticleSystem)
     {
         super(name)
 

@@ -1,6 +1,7 @@
 import Control from './Utility/Control'
 import MouseInput from './Input/MouseInput'
 import KeyboardInput from './Input/KeyboardInput'
+import Input from './Input/Input';
 
 export let GL: WebGLRenderingContext
 
@@ -36,7 +37,6 @@ export default class FWGE
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
 
         Control.Init(renderupdate, physcisupdate)
-        MouseInput.SetElement(canvas)
-        KeyboardInput.SetElement(canvas)
+        Input.Init(canvas)
     }
 }

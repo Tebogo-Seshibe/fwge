@@ -48,7 +48,6 @@ async function makeCube()
 {    
     let obj = await (await fetch('/res/Objects/Cube/Cube.obj')).text()
     let mtl = await (await fetch('/res/Objects/Cube/Cube.mtl')).text()
-    let system: ParticleSystem
 
     let shader = new Shader(
     {
@@ -233,42 +232,58 @@ async function makeCube()
     fwge.object.Material.Ambient = new Colour4(1,1,1,1)
     fwge.object.Transform.Position = new Vector3(-5, -5, -15)
     
-    fwge.animation = new Animation(
+    fwge.system = new ParticleSystem(
     {
-        name: 'Example',
-        gameObject: fwge.object,
-        frames: [
-            {
-                time: 1,
-                position: [-5, -5, -15],
-                rotation: [0, 0, 0],
-                scale: [1, 1, 1],
-                colour: [1, 1, 1, 1],
-            },
-            {
-                time: 1,
-                position: [5, -5, -15],
-                rotation: [0, 120, 0],
-                scale: [1.25, 1.25, 1.25],
-                colour: [1, 0, 0, 1]
-            },
-            {
-                time: 1,
-                position: [5, 5, -15],
-                rotation: [0, 240, 0],
-                scale: [1.5, 1.5, 1.5],
-                colour: [0, 1, 0, 1]
-            },
-            {
-                time: 1,
-                position: [-5, 5, -15],
-                rotation: [0, 360, 0],
-                scale: [2, 2, 2],
-                colour: [0, 0, 1, 1]
-            }
-        ],
-        loop: true
+        delay: 0,
+        length: 0,
+        material: fwge.object.Material,
+        mesh: fwge.object.Mesh,
+        name: "example particle system",
+        particles: [],
+        transform: {
+            position: [0, 0, -5],
+            rotation: [0, 0, 0],
+            scale: [1, 1, 1],
+            shear: [0, 0, 0]
+        }
     })
+    
+    // fwge.animation = new Animation(
+    // {
+    //     name: 'Example',
+    //     gameObject: fwge.object,
+    //     frames: [
+    //         {
+    //             time: 1,
+    //             position: [-5, -5, -15],
+    //             rotation: [0, 0, 0],
+    //             scale: [1, 1, 1],
+    //             colour: [1, 1, 1, 1],
+    //         },
+    //         {
+    //             time: 1,
+    //             position: [5, -5, -15],
+    //             rotation: [0, 120, 0],
+    //             scale: [1.25, 1.25, 1.25],
+    //             colour: [1, 0, 0, 1]
+    //         },
+    //         {
+    //             time: 1,
+    //             position: [5, 5, -15],
+    //             rotation: [0, 240, 0],
+    //             scale: [1.5, 1.5, 1.5],
+    //             colour: [0, 1, 0, 1]
+    //         },
+    //         {
+    //             time: 1,
+    //             position: [-5, 5, -15],
+    //             rotation: [0, 360, 0],
+    //             scale: [2, 2, 2],
+    //             colour: [0, 0, 1, 1]
+    //         }
+    //     ],
+    //     loop: true
+    // })
 
     Control.Start()
     //setTimeout(Control.Stop, 500)

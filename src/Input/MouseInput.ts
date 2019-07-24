@@ -7,8 +7,10 @@ export default class MouseInput
     public Axes: Vector2 = new Vector2()
     public Delta: Vector2 = new Vector2()
     
-    public SetElement(element: HTMLElement): void
+    constructor(element: HTMLCanvasElement)
     {
+        this.Buttons.forEach((_, index) => this.Buttons[index] = InputState.UP)
+        
         element.onmouseup = (e: MouseEvent) =>
         {
             this.Buttons[e.button] = InputState.UP

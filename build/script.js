@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Animation_1 = __importDefault(require("../../src/Animation/Animation"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
+const ParticleSystem_1 = __importDefault(require("../../src/ParticleSystem"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const Vector3_1 = __importDefault(require("../../src/Maths/Vector3"));
@@ -47,7 +47,6 @@ function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
         let obj = yield (yield fetch('/res/Objects/Cube/Cube.obj')).text();
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
-        let system;
         let shader = new Shader_1.default({
             name: 'Just another shader',
             vertexshader: `
@@ -228,46 +227,25 @@ function makeCube() {
         fwge.object.Material.Shader = shader;
         fwge.object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
         fwge.object.Transform.Position = new Vector3_1.default(-5, -5, -15);
-        fwge.animation = new Animation_1.default({
-            name: 'Example',
-            gameObject: fwge.object,
-            frames: [
-                {
-                    time: 1,
-                    position: [-5, -5, -15],
-                    rotation: [0, 0, 0],
-                    scale: [1, 1, 1],
-                    colour: [1, 1, 1, 1],
-                },
-                {
-                    time: 1,
-                    position: [5, -5, -15],
-                    rotation: [0, 120, 0],
-                    scale: [1.25, 1.25, 1.25],
-                    colour: [1, 0, 0, 1]
-                },
-                {
-                    time: 1,
-                    position: [5, 5, -15],
-                    rotation: [0, 240, 0],
-                    scale: [1.5, 1.5, 1.5],
-                    colour: [0, 1, 0, 1]
-                },
-                {
-                    time: 1,
-                    position: [-5, 5, -15],
-                    rotation: [0, 360, 0],
-                    scale: [2, 2, 2],
-                    colour: [0, 0, 1, 1]
-                }
-            ],
-            loop: true
+        fwge.system = new ParticleSystem_1.default({
+            delay: 0,
+            length: 0,
+            material: fwge.object.Material,
+            mesh: fwge.object.Mesh,
+            name: "example particle system",
+            particles: [],
+            transform: {
+                position: [0, 0, -5],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+                shear: [0, 0, 0]
+            }
         });
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":11,"../../src/Maths/Vector3":20,"../../src/Render/Colour4":24,"../../src/Shader/Shader":37,"../../src/Utility/Control":42,"../../src/Utility/Converter/OBJConverter":43,"../../src/Utility/List":44}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Vector3":21,"../../src/ParticleSystem":23,"../../src/Render/Colour4":25,"../../src/Shader/Shader":38,"../../src/Utility/Control":43,"../../src/Utility/Converter/OBJConverter":44,"../../src/Utility/List":45}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -371,7 +349,7 @@ class Animation extends Item_1.default {
 }
 exports.default = Animation;
 
-},{"../Item":10,"../Maths/Vector3":20,"../Utility/List":44,"../Utility/Time":46,"./AnimationFrame":3}],3:[function(require,module,exports){
+},{"../Item":11,"../Maths/Vector3":21,"../Utility/List":45,"../Utility/Time":47,"./AnimationFrame":3}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IAnimationFrame {
@@ -435,15 +413,14 @@ class Camera extends Item_1.default {
 exports.default = Camera;
 new Camera('Main Camera');
 
-},{"../FWGE":5,"../Item":10}],5:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11}],5:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Control_1 = __importDefault(require("./Utility/Control"));
-const MouseInput_1 = __importDefault(require("./Input/MouseInput"));
-const KeyboardInput_1 = __importDefault(require("./Input/KeyboardInput"));
+const Input_1 = __importDefault(require("./Input/Input"));
 class IFWGE {
 }
 exports.IFWGE = IFWGE;
@@ -461,13 +438,12 @@ class FWGE {
         }
         exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
         Control_1.default.Init(renderupdate, physcisupdate);
-        MouseInput_1.default.SetElement(canvas);
-        KeyboardInput_1.default.SetElement(canvas);
+        Input_1.default.Init(canvas);
     }
 }
 exports.default = FWGE;
 
-},{"./Input/KeyboardInput":8,"./Input/MouseInput":9,"./Utility/Control":42}],6:[function(require,module,exports){
+},{"./Input/Input":7,"./Utility/Control":43}],6:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -537,7 +513,27 @@ class GameObject extends Item_1.default {
 }
 exports.default = GameObject;
 
-},{"./Item":10,"./Transform":40,"./Utility/List":44}],7:[function(require,module,exports){
+},{"./Item":11,"./Transform":41,"./Utility/List":45}],7:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const KeyboardInput_1 = __importDefault(require("./KeyboardInput"));
+const MouseInput_1 = __importDefault(require("./MouseInput"));
+const List_1 = __importDefault(require("../Utility/List"));
+class Input {
+    static Init(canvas) {
+        Input.Keyboard = new KeyboardInput_1.default(canvas);
+        Input.Mouse = new MouseInput_1.default(canvas);
+    }
+    static Update() {
+    }
+}
+Input.Controllers = new List_1.default();
+exports.default = Input;
+
+},{"../Utility/List":45,"./KeyboardInput":9,"./MouseInput":10}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var InputState;
@@ -548,38 +544,39 @@ var InputState;
     InputState[InputState["DOWN"] = 3] = "DOWN";
 })(InputState = exports.InputState || (exports.InputState = {}));
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputState_1 = require("./InputState");
 class KeyboardInput {
-    static get KeyA() {
-        return KeyboardInput.Keys[65];
-    }
-    static get Key0() {
-        return KeyboardInput.Keys[48];
-    }
-    static get Numpad0() {
-        return KeyboardInput.Keys[96];
-    }
-    static SetElement(element) {
+    constructor(element) {
+        this.Keys = new Array(128);
+        this.Keys.forEach((_, index) => this.Keys[index] = InputState_1.InputState.UP);
         element.onkeyup = (e) => {
-            KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.UP;
+            this.Keys[e.keyCode] = InputState_1.InputState.UP;
         };
         element.onkeydown = (e) => {
-            if (KeyboardInput.Keys[e.keyCode] == InputState_1.InputState.CLICKED) {
-                KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.DOWN;
+            if (this.Keys[e.keyCode] == InputState_1.InputState.CLICKED) {
+                this.Keys[e.keyCode] = InputState_1.InputState.DOWN;
             }
             else {
-                KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.PRESSED;
+                this.Keys[e.keyCode] = InputState_1.InputState.PRESSED;
             }
         };
     }
+    get KeyA() {
+        return this.Keys[65];
+    }
+    get Key0() {
+        return this.Keys[48];
+    }
+    get Numpad0() {
+        return this.Keys[96];
+    }
 }
-KeyboardInput.Keys = new Array(128);
 exports.default = KeyboardInput;
 
-},{"./InputState":7}],9:[function(require,module,exports){
+},{"./InputState":8}],10:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -588,25 +585,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const InputState_1 = require("./InputState");
 const Vector2_1 = __importDefault(require("../Maths/Vector2"));
 class MouseInput {
-    static SetElement(element) {
+    constructor(element) {
+        this.Buttons = new Array(20);
+        this.Axes = new Vector2_1.default();
+        this.Delta = new Vector2_1.default();
+        this.Buttons.forEach((_, index) => this.Buttons[index] = InputState_1.InputState.UP);
         element.onmouseup = (e) => {
-            MouseInput.Buttons[e.button] = InputState_1.InputState.UP;
+            this.Buttons[e.button] = InputState_1.InputState.UP;
         };
         element.onmousedown = (e) => {
-            MouseInput.Buttons[e.button] = InputState_1.InputState.DOWN;
+            this.Buttons[e.button] = InputState_1.InputState.DOWN;
         };
         element.onmousemove = (e) => {
-            MouseInput.Delta.Set(e.clientX - MouseInput.Axes.X, e.clientY - MouseInput.Axes.Y);
-            MouseInput.Axes.Set(e.clientX, e.clientY);
+            this.Delta.Set(e.clientX - this.Axes.X, e.clientY - this.Axes.Y);
+            this.Axes.Set(e.clientX, e.clientY);
         };
     }
 }
-MouseInput.Buttons = new Array(20);
-MouseInput.Axes = new Vector2_1.default();
-MouseInput.Delta = new Vector2_1.default();
 exports.default = MouseInput;
 
-},{"../Maths/Vector2":19,"./InputState":7}],10:[function(require,module,exports){
+},{"../Maths/Vector2":20,"./InputState":8}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Item {
@@ -630,7 +628,7 @@ function Hashcode(number) {
     return hash;
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -657,7 +655,7 @@ class AmbientLight extends LightItem_1.default {
 }
 exports.default = AmbientLight;
 
-},{"../Utility/List":44,"./LightItem":13}],12:[function(require,module,exports){
+},{"../Utility/List":45,"./LightItem":14}],13:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -686,7 +684,7 @@ class DirectionalLight extends LightItem_1.default {
 }
 exports.default = DirectionalLight;
 
-},{"../Maths/Vector3":20,"../Utility/List":44,"./LightItem":13}],13:[function(require,module,exports){
+},{"../Maths/Vector3":21,"../Utility/List":45,"./LightItem":14}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -706,7 +704,7 @@ class LightItem extends Item_1.default {
 }
 exports.default = LightItem;
 
-},{"../Item":10,"../Render/Colour4":24}],14:[function(require,module,exports){
+},{"../Item":11,"../Render/Colour4":25}],15:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -738,7 +736,7 @@ class PointLight extends LightItem_1.default {
 }
 exports.default = PointLight;
 
-},{"..//Maths/Vector3":20,"../Utility/List":44,"./LightItem":13}],15:[function(require,module,exports){
+},{"..//Maths/Vector3":21,"../Utility/List":45,"./LightItem":14}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SIGNIFICANT_FIGURES = Math.pow(10, 6);
@@ -765,7 +763,7 @@ class Maths {
 }
 exports.default = Maths;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -899,7 +897,7 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":44,"./Maths":15,"./Matrix3":17,"./Matrix4":18}],17:[function(require,module,exports){
+},{"../Utility/List":45,"./Maths":16,"./Matrix3":18,"./Matrix4":19}],18:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1085,7 +1083,7 @@ class Matrix3 extends Float32Array {
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":44,"./Maths":15,"./Matrix2":16,"./Matrix4":18}],18:[function(require,module,exports){
+},{"../Utility/List":45,"./Maths":16,"./Matrix2":17,"./Matrix4":19}],19:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1427,7 +1425,7 @@ class Matrix4 extends Float32Array {
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":44,"./Maths":15,"./Matrix2":16,"./Matrix3":17}],19:[function(require,module,exports){
+},{"../Utility/List":45,"./Maths":16,"./Matrix2":17,"./Matrix3":18}],20:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -1552,7 +1550,7 @@ class Vector2 extends Float32Array {
 }
 exports.default = Vector2;
 
-},{"../Utility/List":44,"./Maths":15,"./Vector3":20,"./Vector4":21}],20:[function(require,module,exports){
+},{"../Utility/List":45,"./Maths":16,"./Vector3":21,"./Vector4":22}],21:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1688,7 +1686,7 @@ class Vector3 extends Float32Array {
 }
 exports.default = Vector3;
 
-},{"../Maths/Maths":15}],21:[function(require,module,exports){
+},{"../Maths/Maths":16}],22:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1827,7 +1825,7 @@ class Vector4 extends Float32Array {
 }
 exports.default = Vector4;
 
-},{"../Utility/List":44,"./Maths":15,"./Vector2":19,"./Vector3":20}],22:[function(require,module,exports){
+},{"../Utility/List":45,"./Maths":16,"./Vector2":20,"./Vector3":21}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1835,11 +1833,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("./Item"));
 const Transform_1 = __importDefault(require("./Transform"));
-exports.ParticleSystems = [];
+exports.ParticleSystems = new Array();
+class IParticle {
+}
+exports.IParticle = IParticle;
 class IParticleSystem {
 }
+exports.IParticleSystem = IParticleSystem;
 class ParticleSystem extends Item_1.default {
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, details } = new IParticleSystem) {
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, delay = 0, particles } = new IParticleSystem) {
         super(name);
         this.Mesh = mesh;
         this.Material = material;
@@ -1865,7 +1867,7 @@ class ParticleSystem extends Item_1.default {
 }
 exports.default = ParticleSystem;
 
-},{"./Item":10,"./Transform":40}],23:[function(require,module,exports){
+},{"./Item":11,"./Transform":41}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1952,7 +1954,7 @@ class Colour3 extends Float32Array {
 }
 exports.default = Colour3;
 
-},{"../Maths/Maths":15,"./Colour4":24}],24:[function(require,module,exports){
+},{"../Maths/Maths":16,"./Colour4":25}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2046,7 +2048,7 @@ class Colour4 extends Float32Array {
 }
 exports.default = Colour4;
 
-},{"../Maths/Maths":15,"./Colour3":23}],25:[function(require,module,exports){
+},{"../Maths/Maths":16,"./Colour3":24}],26:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2107,7 +2109,7 @@ class Mesh extends Item_1.default {
 }
 exports.default = Mesh;
 
-},{"../FWGE":5,"../Item":10,"../Utility/ArrayUtils":41}],26:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"../Utility/ArrayUtils":42}],27:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2160,7 +2162,7 @@ class ModelView {
 }
 exports.default = ModelView;
 
-},{"../Maths/Maths":15,"../Maths/Matrix4":18,"../Utility/Stack":45}],27:[function(require,module,exports){
+},{"../Maths/Maths":16,"../Maths/Matrix4":19,"../Utility/Stack":46}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2191,7 +2193,7 @@ class Projection {
 }
 exports.default = Projection;
 
-},{"../Maths/Maths":15,"../Maths/Matrix4":18}],28:[function(require,module,exports){
+},{"../Maths/Maths":16,"../Maths/Matrix4":19}],29:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2257,7 +2259,7 @@ class RenderMaterial extends Item_1.default {
 }
 exports.default = RenderMaterial;
 
-},{"../FWGE":5,"../Item":10,"../Maths/Maths":15,"./Colour4":24}],29:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"../Maths/Maths":16,"./Colour4":25}],30:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -2272,7 +2274,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const AmbientLight_1 = __importStar(require("../Light/AmbientLight"));
 const DirectionalLight_1 = __importStar(require("../Light/DirectionalLight"));
-const FWGE_1 = __importDefault(require("../FWGE"));
+const FWGE_1 = require("../FWGE");
 const GameObject_1 = __importStar(require("../GameObject"));
 const ModelView_1 = __importDefault(require("./ModelView"));
 const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
@@ -2282,204 +2284,208 @@ const Shader_1 = require("../Shader/Shader");
 const Camera_1 = __importDefault(require("../Camera/Camera"));
 const ParticleSystem_1 = __importStar(require("../ParticleSystem"));
 const List_1 = __importDefault(require("../Utility/List"));
-class Renderer {
-    static Init() {
-        FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
-        FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
-        FWGE_1.default.GL.blendFunc(FWGE_1.default.GL.SRC_ALPHA, FWGE_1.default.GL.ONE);
+function InitRender() {
+    FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
+    FWGE_1.GL.disable(FWGE_1.GL.BLEND);
+    FWGE_1.GL.blendFunc(FWGE_1.GL.SRC_ALPHA, FWGE_1.GL.ONE);
+}
+exports.InitRender = InitRender;
+function UpdateRender() {
+    ClearBuffers();
+    SetGlobalUniforms();
+    for (let gameObject of GameObject_1.GameObjects) {
+        Render(gameObject);
     }
-    static Update() {
-        Renderer.ClearBuffers();
-        Renderer.SetGlobalUniforms();
-        for (let gameObject of GameObject_1.GameObjects) {
-            this.Render(gameObject);
-        }
-        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
-            this.Render(particleSystem);
-        }
+    for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+        Render(particleSystem);
     }
-    static ClearBuffers() {
-        for (let shader of Shader_1.Shaders) {
-            FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, shader.FrameBuffer);
-            FWGE_1.default.GL.viewport(0, 0, shader.Width, shader.Height);
-            FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
-        }
-        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
-        FWGE_1.default.GL.viewport(0, 0, FWGE_1.default.GL.drawingBufferWidth, FWGE_1.default.GL.drawingBufferHeight);
-        FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
+}
+exports.UpdateRender = UpdateRender;
+function ClearBuffers() {
+    for (let shader of Shader_1.Shaders) {
+        FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, shader.FrameBuffer);
+        FWGE_1.GL.viewport(0, 0, shader.Width, shader.Height);
+        FWGE_1.GL.clear(FWGE_1.GL.COLOR_BUFFER_BIT | FWGE_1.GL.DEPTH_BUFFER_BIT);
     }
-    static Render(item) {
-        if (item instanceof ParticleSystem_1.default) {
-            for (var particle of item.Particles) {
-                ModelView_1.default.Push(particle);
-                this.RenderObject({
-                    material: item.Material,
-                    mesh: item.Mesh
-                });
-            }
-        }
-        else if (item instanceof GameObject_1.default) {
-            if (item.Children.length > 0) {
-                ModelView_1.default.Push(item.Transform);
-                item.Children.forEach(child => this.Render(child));
-            }
-            ModelView_1.default.Push(item.Transform);
-            this.RenderObject({
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+    FWGE_1.GL.viewport(0, 0, FWGE_1.GL.drawingBufferWidth, FWGE_1.GL.drawingBufferHeight);
+    FWGE_1.GL.clear(FWGE_1.GL.COLOR_BUFFER_BIT | FWGE_1.GL.DEPTH_BUFFER_BIT);
+}
+function Render(item) {
+    if (item instanceof ParticleSystem_1.default) {
+        for (var particle of item.Particles) {
+            ModelView_1.default.Push(particle);
+            RenderObject({
                 material: item.Material,
-                mesh: item.Mesh
+                mesh: item.Mesh,
+                shader: item.Material.Shader,
+                modelView: ModelView_1.default.Pop()
             });
         }
     }
-    static RenderObject({ mesh, material }) {
-        let modelView = ModelView_1.default.Pop();
-        let shader = material.Shader;
-        FWGE_1.default.GL.useProgram(shader.Program);
-        FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Position);
-        if (shader.Attributes.Normal !== -1) {
-            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Normal);
+    else if (item instanceof GameObject_1.default) {
+        if (item.Children.length > 0) {
+            ModelView_1.default.Push(item.Transform);
+            item.Children.forEach(child => Render(child));
         }
-        if (shader.Attributes.Colour !== -1) {
-            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Colour);
-        }
-        if (shader.Attributes.UV !== -1) {
-            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.UV);
-        }
-        if (material.Alpha !== 1.0) {
-            FWGE_1.default.GL.enable(FWGE_1.default.GL.BLEND);
-            FWGE_1.default.GL.disable(FWGE_1.default.GL.DEPTH_TEST);
-        }
-        Renderer.BindAttributes(mesh, shader.Attributes);
-        Renderer.SetObjectUniforms(material, shader.Uniforms, modelView);
-        Renderer.Draw(mesh.VertexCount, shader.FrameBuffer);
-        if (material.Alpha !== 1.0) {
-            FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
-            FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
-        }
-        FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Position);
-        if (shader.Attributes.Normal !== -1) {
-            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Normal);
-        }
-        if (shader.Attributes.Colour !== -1) {
-            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Colour);
-        }
-        if (shader.Attributes.UV !== -1) {
-            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.UV);
-        }
-        FWGE_1.default.GL.useProgram(null);
-    }
-    static BindAttributes(mesh, attributes) {
-        FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-        FWGE_1.default.GL.vertexAttribPointer(attributes.Position, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
-        if (attributes.UV !== -1) {
-            if (mesh.UVBuffer) {
-                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.UVBuffer);
-                FWGE_1.default.GL.vertexAttribPointer(attributes.UV, 2, FWGE_1.default.GL.FLOAT, false, 0, 0);
-            }
-            else
-                FWGE_1.default.GL.disableVertexAttribArray(attributes.UV);
-        }
-        if (attributes.Colour !== -1) {
-            if (mesh.ColourBuffer) {
-                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-                FWGE_1.default.GL.vertexAttribPointer(attributes.Colour, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
-            }
-            else
-                FWGE_1.default.GL.disableVertexAttribArray(attributes.Colour);
-        }
-        if (attributes.Normal !== -1) {
-            if (!!mesh.NormalBuffer) {
-                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.NormalBuffer);
-                FWGE_1.default.GL.vertexAttribPointer(attributes.Normal, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
-            }
-            else
-                FWGE_1.default.GL.disableVertexAttribArray(attributes.Normal);
-        }
-        FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-    }
-    static SetObjectUniforms(material, uniforms, mv) {
-        FWGE_1.default.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-        FWGE_1.default.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3_1.default(mv.Clone().Inverse()));
-        FWGE_1.default.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient);
-        FWGE_1.default.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse);
-        FWGE_1.default.GL.uniform4fv(uniforms.Material.Specular, material.Specular);
-        FWGE_1.default.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
-        FWGE_1.default.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
-        if (material.ImageMap) {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE0);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.ImageMap);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasImage, 1);
-            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Image, 0);
-        }
-        else {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE0);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasImage, 0);
-        }
-        if (material.BumpMap) {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE1);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.BumpMap);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 1);
-            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Bump, 1);
-        }
-        else {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE1);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 0);
-        }
-        if (material.SpecularMap) {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE2);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.SpecularMap);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasSpecular, 1);
-            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Specular, 2);
-        }
-        else {
-            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE2);
-            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
-            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 0);
-        }
-    }
-    static SetGlobalUniforms() {
-        var i = Shader_1.Shaders.length;
-        let Lights = new List_1.default([].concat(AmbientLight_1.AmbientLights.ToArray(), DirectionalLight_1.DirectionalLights.ToArray(), PointLight_1.PointLights.ToArray()));
-        for (let shader of Shader_1.Shaders) {
-            FWGE_1.default.GL.useProgram(shader.Program);
-            let point_count = 0;
-            let matrix = shader.Uniforms.Matrix;
-            let uniforms = shader.Uniforms.Light;
-            for (let light of Lights) {
-                if (light instanceof AmbientLight_1.default) {
-                    FWGE_1.default.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
-                    FWGE_1.default.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
-                }
-                else if (light instanceof DirectionalLight_1.default) {
-                    FWGE_1.default.GL.uniform4fv(uniforms.Directional.Colour, light.Colour);
-                    FWGE_1.default.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-                    FWGE_1.default.GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
-                }
-                else if (light instanceof PointLight_1.default) {
-                    FWGE_1.default.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour);
-                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                    FWGE_1.default.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position);
-                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
-                    point_count++;
-                }
-            }
-            let main = Camera_1.default.Main;
-            FWGE_1.default.GL.uniform1i(uniforms.PointCount, point_count);
-            FWGE_1.default.GL.uniformMatrix4fv(matrix.Projection, false, Projection_1.default.Perspective(main.FieldOfView, main.AspectRatio, main.NearClipping, main.FarClipping));
-        }
-        FWGE_1.default.GL.useProgram(null);
-    }
-    static Draw(vertexCount, framebuffer) {
-        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
-        FWGE_1.default.GL.drawElements(FWGE_1.default.GL.TRIANGLES, vertexCount, FWGE_1.default.GL.UNSIGNED_BYTE, 0);
-        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
+        ModelView_1.default.Push(item.Transform);
+        RenderObject({
+            material: item.Material,
+            mesh: item.Mesh,
+            shader: item.Material.Shader,
+            modelView: ModelView_1.default.Pop()
+        });
     }
 }
-exports.default = Renderer;
+function RenderObject({ mesh, material, shader, modelView }) {
+    FWGE_1.GL.useProgram(shader.Program);
+    FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Position);
+    if (shader.Attributes.Normal !== -1) {
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Normal);
+    }
+    if (shader.Attributes.Colour !== -1) {
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Colour);
+    }
+    if (shader.Attributes.UV !== -1) {
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.UV);
+    }
+    if (material.Alpha !== 1.0) {
+        FWGE_1.GL.enable(FWGE_1.GL.BLEND);
+        FWGE_1.GL.disable(FWGE_1.GL.DEPTH_TEST);
+    }
+    BindAttributes(mesh, shader.Attributes);
+    SetObjectUniforms(material, shader.Uniforms, modelView);
+    Draw(mesh.VertexCount, shader.FrameBuffer);
+    if (material.Alpha !== 1.0) {
+        FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
+        FWGE_1.GL.disable(FWGE_1.GL.BLEND);
+    }
+    FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Position);
+    if (shader.Attributes.Normal !== -1) {
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Normal);
+    }
+    if (shader.Attributes.Colour !== -1) {
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Colour);
+    }
+    if (shader.Attributes.UV !== -1) {
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.UV);
+    }
+    FWGE_1.GL.useProgram(null);
+}
+function BindAttributes(mesh, attributes) {
+    FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.PositionBuffer);
+    FWGE_1.GL.vertexAttribPointer(attributes.Position, 3, FWGE_1.GL.FLOAT, false, 0, 0);
+    if (attributes.UV !== -1) {
+        if (mesh.UVBuffer) {
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.UVBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.UV, 2, FWGE_1.GL.FLOAT, false, 0, 0);
+        }
+        else {
+            FWGE_1.GL.disableVertexAttribArray(attributes.UV);
+        }
+    }
+    if (attributes.Colour !== -1) {
+        if (mesh.ColourBuffer) {
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.ColourBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.Colour, 3, FWGE_1.GL.FLOAT, false, 0, 0);
+        }
+        else {
+            FWGE_1.GL.disableVertexAttribArray(attributes.Colour);
+        }
+    }
+    if (attributes.Normal !== -1) {
+        if (!!mesh.NormalBuffer) {
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.NormalBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.Normal, 3, FWGE_1.GL.FLOAT, false, 0, 0);
+        }
+        else {
+            FWGE_1.GL.disableVertexAttribArray(attributes.Normal);
+        }
+    }
+    FWGE_1.GL.bindBuffer(FWGE_1.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+}
+function SetObjectUniforms(material, uniforms, mv) {
+    FWGE_1.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
+    FWGE_1.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3_1.default(mv.Clone().Inverse()));
+    FWGE_1.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient);
+    FWGE_1.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse);
+    FWGE_1.GL.uniform4fv(uniforms.Material.Specular, material.Specular);
+    FWGE_1.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
+    FWGE_1.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
+    if (material.ImageMap) {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE0);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.ImageMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasImage, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Image, 0);
+    }
+    else {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE0);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasImage, 0);
+    }
+    if (material.BumpMap) {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE1);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.BumpMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Bump, 1);
+    }
+    else {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE1);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 0);
+    }
+    if (material.SpecularMap) {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE2);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.SpecularMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasSpecular, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Specular, 2);
+    }
+    else {
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE2);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 0);
+    }
+}
+function SetGlobalUniforms() {
+    var i = Shader_1.Shaders.length;
+    let Lights = new List_1.default([].concat(AmbientLight_1.AmbientLights.ToArray(), DirectionalLight_1.DirectionalLights.ToArray(), PointLight_1.PointLights.ToArray()));
+    for (let shader of Shader_1.Shaders) {
+        FWGE_1.GL.useProgram(shader.Program);
+        let point_count = 0;
+        let matrix = shader.Uniforms.Matrix;
+        let uniforms = shader.Uniforms.Light;
+        for (let light of Lights) {
+            if (light instanceof AmbientLight_1.default) {
+                FWGE_1.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+            }
+            else if (light instanceof DirectionalLight_1.default) {
+                FWGE_1.GL.uniform4fv(uniforms.Directional.Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
+                FWGE_1.GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
+            }
+            else if (light instanceof PointLight_1.default) {
+                FWGE_1.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
+                FWGE_1.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+                ++point_count;
+            }
+        }
+        let main = Camera_1.default.Main;
+        FWGE_1.GL.uniform1i(uniforms.PointCount, point_count);
+        FWGE_1.GL.uniformMatrix4fv(matrix.Projection, false, Projection_1.default.Perspective(main.FieldOfView, main.AspectRatio, main.NearClipping, main.FarClipping));
+    }
+    FWGE_1.GL.useProgram(null);
+}
+function Draw(vertexCount, framebuffer) {
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+    FWGE_1.GL.drawElements(FWGE_1.GL.TRIANGLES, vertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+}
 
-},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":11,"../Light/DirectionalLight":12,"../Light/PointLight":14,"../Maths/Matrix3":17,"../ParticleSystem":22,"../Shader/Shader":37,"../Utility/List":44,"./ModelView":26,"./Projection":27}],30:[function(require,module,exports){
+},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":12,"../Light/DirectionalLight":13,"../Light/PointLight":15,"../Maths/Matrix3":18,"../ParticleSystem":23,"../Shader/Shader":38,"../Utility/List":45,"./ModelView":27,"./Projection":28}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -2490,7 +2496,7 @@ class AmbientUniforms {
 }
 exports.default = AmbientUniforms;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class DirectionalUniforms {
@@ -2502,7 +2508,7 @@ class DirectionalUniforms {
 }
 exports.default = DirectionalUniforms;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2525,7 +2531,7 @@ class LightUniforms {
 LightUniforms.MAX_LIGHT = 8;
 exports.default = LightUniforms;
 
-},{"./AmbientUniforms":30,"./DirectionalUniforms":31,"./PointUniform":35}],33:[function(require,module,exports){
+},{"./AmbientUniforms":31,"./DirectionalUniforms":32,"./PointUniform":36}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MaterialUniforms {
@@ -2542,7 +2548,7 @@ class MaterialUniforms {
 }
 exports.default = MaterialUniforms;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MatrixUniforms {
@@ -2555,7 +2561,7 @@ class MatrixUniforms {
 }
 exports.default = MatrixUniforms;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class PointUniform {
@@ -2569,7 +2575,7 @@ class PointUniform {
 }
 exports.default = PointUniform;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SamplerUniforms {
@@ -2581,7 +2587,7 @@ class SamplerUniforms {
 }
 exports.default = SamplerUniforms;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2651,7 +2657,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../FWGE":5,"../Item":10,"./ShaderAttributes":38,"./ShaderUniforms":39}],38:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"./ShaderAttributes":39,"./ShaderUniforms":40}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ShaderAttributes {
@@ -2664,7 +2670,7 @@ class ShaderAttributes {
 }
 exports.default = ShaderAttributes;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2684,7 +2690,7 @@ class ShaderUniforms {
 }
 exports.default = ShaderUniforms;
 
-},{"./LightUniforms":32,"./MaterialUniforms":33,"./MatrixUniforms":34,"./SamplerUniforms":36}],40:[function(require,module,exports){
+},{"./LightUniforms":33,"./MaterialUniforms":34,"./MatrixUniforms":35,"./SamplerUniforms":37}],41:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2713,7 +2719,7 @@ class Transform {
 }
 exports.default = Transform;
 
-},{"./Maths/Vector3":20}],41:[function(require,module,exports){
+},{"./Maths/Vector3":21}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ArrayUtiils {
@@ -2732,7 +2738,7 @@ class ArrayUtiils {
 }
 exports.default = ArrayUtiils;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2740,13 +2746,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Time_1 = __importDefault(require("./Time"));
 const GameObject_1 = require("../GameObject");
-const Renderer_1 = __importDefault(require("../Render/Renderer"));
+const Renderer_1 = require("../Render/Renderer");
 const Camera_1 = require("../Camera/Camera");
 const Animation_1 = require("../Animation/Animation");
+const ParticleSystem_1 = require("../ParticleSystem");
 class Control {
     static Init(renderUpdate, physicsUpdate) {
         Time_1.default.Init(renderUpdate, physicsUpdate);
-        Renderer_1.default.Init();
+        Renderer_1.InitRender();
     }
     static Start() {
         if (Control.AnimationFrame !== -1) {
@@ -2764,6 +2771,9 @@ class Control {
     static Run() {
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run);
         Time_1.default.Update();
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            particleSystem.Update();
+        }
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
         }
@@ -2774,7 +2784,7 @@ class Control {
             camera.Update();
         }
         if (Time_1.default.Render.Ready) {
-            Renderer_1.default.Update();
+            Renderer_1.UpdateRender();
         }
     }
 }
@@ -2782,7 +2792,7 @@ Control.Running = false;
 Control.AnimationFrame = -1;
 exports.default = Control;
 
-},{"../Animation/Animation":2,"../Camera/Camera":4,"../GameObject":6,"../Render/Renderer":29,"./Time":46}],43:[function(require,module,exports){
+},{"../Animation/Animation":2,"../Camera/Camera":4,"../GameObject":6,"../ParticleSystem":23,"../Render/Renderer":30,"./Time":47}],44:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2912,7 +2922,7 @@ class OBJConverter {
 }
 exports.default = OBJConverter;
 
-},{"../../GameObject":6,"../../Maths/Vector2":19,"../../Maths/Vector3":20,"../../Render/Colour4":24,"../../Render/Mesh":25,"../../Render/RenderMaterial":28}],44:[function(require,module,exports){
+},{"../../GameObject":6,"../../Maths/Vector2":20,"../../Maths/Vector3":21,"../../Render/Colour4":25,"../../Render/Mesh":26,"../../Render/RenderMaterial":29}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
@@ -3076,7 +3086,7 @@ class List {
 }
 exports.default = List;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StackNode {
@@ -3116,7 +3126,7 @@ class Stack {
 }
 exports.default = Stack;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class TimeKeep {

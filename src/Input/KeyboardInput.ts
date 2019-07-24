@@ -25,8 +25,10 @@ export default class KeyboardInput
     }
     //#endregion
     
-    public SetElement(element: HTMLElement): void
+    constructor(element: HTMLCanvasElement)
     {
+        this.Keys.forEach((_, index) => this.Keys[index] = InputState.UP)
+
         element.onkeyup = (e: KeyboardEvent) =>
         {
             this.Keys[e.keyCode] = InputState.UP
