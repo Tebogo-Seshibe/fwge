@@ -2,6 +2,7 @@ export type Equation = (...x: number[]) => number
 
 export enum UnaryExpressionType
 {
+    NONE,
     INVERSE,
     NEGATION,
     SIN,
@@ -29,6 +30,9 @@ export function Unary(type: UnaryExpressionType, arg: Equation | number): Equati
 {
     switch (type)
     {
+        case UnaryExpressionType.NONE:
+            return (...x: number[]) => typeof arg === 'number' ? arg : arg(...x)
+
         case UnaryExpressionType.INVERSE:
             return (...x: number[]) => 1 / (typeof arg === 'number' ? arg : arg(...x))
 
@@ -70,7 +74,7 @@ export function Binary(type: BinaryExpressionType, left: Equation | number, righ
         
         case BinaryExpressionType.ROOT:
             return (...x: number[]) => (typeof left === 'number' ? left : left(...x)) ** (1 / (typeof right === 'number' ? right : right(...x)))
-            
+
         default: 
             return null
     }

@@ -229,22 +229,24 @@ function makeCube() {
         fwge.material = OBJConverter_1.default.ParseRenderMaterial(mtl);
         fwge.material.Shader = shader;
         fwge.system = new ParticleSystem_1.default({
-            delay: 0,
-            length: 0,
+            delay: Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 500),
+            length: 10,
             material: fwge.material,
             mesh: fwge.mesh,
             name: "example particle system",
-            particles: {
-                count: 1,
-                start: [0, 0, 0],
-                end: [0, 0, 0]
-            },
+            count: 5,
             transform: {
                 position: [0, 0, -5],
                 rotation: [0, 0, 0],
-                scale: [1, 1, 1],
+                scale: [0.1, 0.1, 0.1],
                 shear: [0, 0, 0]
-            }
+            },
+            updates: [
+                Equation_1.Unary(Equation_1.UnaryExpressionType.SIN, Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.1)),
+                Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.001),
+                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, -15)
+            ],
+            loop: false
         });
         Control_1.default.Start();
     });
@@ -734,14 +736,12 @@ exports.default = PointLight;
 Object.defineProperty(exports, "__esModule", { value: true });
 var UnaryExpressionType;
 (function (UnaryExpressionType) {
-    UnaryExpressionType[UnaryExpressionType["INVERSE"] = 0] = "INVERSE";
-    UnaryExpressionType[UnaryExpressionType["NEGATION"] = 1] = "NEGATION";
-    UnaryExpressionType[UnaryExpressionType["SIN"] = 2] = "SIN";
-    UnaryExpressionType[UnaryExpressionType["COSINE"] = 3] = "COSINE";
-    UnaryExpressionType[UnaryExpressionType["TANGENT"] = 4] = "TANGENT";
-    UnaryExpressionType[UnaryExpressionType["COSECANT"] = 5] = "COSECANT";
-    UnaryExpressionType[UnaryExpressionType["SECANT"] = 6] = "SECANT";
-    UnaryExpressionType[UnaryExpressionType["COTANGENT"] = 7] = "COTANGENT";
+    UnaryExpressionType[UnaryExpressionType["NONE"] = 0] = "NONE";
+    UnaryExpressionType[UnaryExpressionType["INVERSE"] = 1] = "INVERSE";
+    UnaryExpressionType[UnaryExpressionType["NEGATION"] = 2] = "NEGATION";
+    UnaryExpressionType[UnaryExpressionType["SIN"] = 3] = "SIN";
+    UnaryExpressionType[UnaryExpressionType["COSINE"] = 4] = "COSINE";
+    UnaryExpressionType[UnaryExpressionType["TANGENT"] = 5] = "TANGENT";
 })(UnaryExpressionType = exports.UnaryExpressionType || (exports.UnaryExpressionType = {}));
 var BinaryExpressionType;
 (function (BinaryExpressionType) {
@@ -759,10 +759,18 @@ function Var(variable) {
 exports.Var = Var;
 function Unary(type, arg) {
     switch (type) {
+        case UnaryExpressionType.NONE:
+            return (...x) => typeof arg === 'number' ? arg : arg(...x);
         case UnaryExpressionType.INVERSE:
             return (...x) => 1 / (typeof arg === 'number' ? arg : arg(...x));
         case UnaryExpressionType.NEGATION:
             return (...x) => -(typeof arg === 'number' ? arg : arg(...x));
+        case UnaryExpressionType.SIN:
+            return (...x) => Math.sin(typeof arg === 'number' ? arg : arg(...x));
+        case UnaryExpressionType.COSINE:
+            return (...x) => Math.cos(typeof arg === 'number' ? arg : arg(...x));
+        case UnaryExpressionType.TANGENT:
+            return (...x) => Math.tan(typeof arg === 'number' ? arg : arg(...x));
         default:
             return undefined;
     }
@@ -1886,18 +1894,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("./Item"));
 const Transform_1 = __importDefault(require("./Transform"));
 const Vector3_1 = __importDefault(require("./Maths/Vector3"));
+const Time_1 = __importDefault(require("./Utility/Time"));
 exports.ParticleSystems = new Array();
-class IParticle {
-}
-exports.IParticle = IParticle;
 class IParticleSystem {
 }
 exports.IParticleSystem = IParticleSystem;
 class ParticleSystem extends Item_1.default {
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, delay = 0, particles } = new IParticleSystem) {
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, updates, loop = true, delay, count } = new IParticleSystem) {
         super(name);
         this.Mesh = mesh;
         this.Material = material;
+        this.MaxTime = length * 1000;
+        this.CurrentTime = 0;
+        this.Updates = updates;
+        this.Loop = loop;
+        this.Delay = delay;
         if (transform instanceof Transform_1.default) {
             transform = {
                 position: transform.Position,
@@ -1908,21 +1919,46 @@ class ParticleSystem extends Item_1.default {
         }
         this.Transform = new Transform_1.default(transform);
         this.Particles = new Array();
-        for (let i = 0; i < particles.count; ++i) {
+        for (let i = 0; i < count; ++i) {
             this.Particles.push(new Transform_1.default({
-                position: new Vector3_1.default(particles.start).Sum(this.Transform.Position)
+                position: new Vector3_1.default(this.Transform.Position),
+                rotation: new Vector3_1.default(this.Transform.Rotation),
+                scale: new Vector3_1.default(this.Transform.Scale),
+                shear: new Vector3_1.default(this.Transform.Position)
             }));
         }
         exports.ParticleSystems.push(this);
     }
     Update() {
-        for (let particle of this.Particles) {
+        for (let i = 0; i < this.Particles.length; ++i) {
+            let particle = this.Particles[i];
+            let currentTime = this.CurrentTime - this.Delay(i);
+            if (currentTime < 0) {
+                continue;
+            }
+            currentTime %= this.MaxTime;
+            let offset = Time_1.default.Render.Delta;
+            if (currentTime + offset > this.MaxTime) {
+                if (this.Loop) {
+                    this.UpdateParticle(particle, this.MaxTime);
+                    currentTime = 0;
+                    offset = Time_1.default.Render.Delta - offset;
+                }
+                else {
+                    offset = this.MaxTime - currentTime;
+                }
+            }
+            this.UpdateParticle(particle, currentTime);
+            this.CurrentTime += Time_1.default.Render.Delta;
         }
+    }
+    UpdateParticle(particle, index) {
+        particle.Position.Set(this.Updates[0](index), this.Updates[1](index), this.Updates[2](index));
     }
 }
 exports.default = ParticleSystem;
 
-},{"./Item":11,"./Maths/Vector3":22,"./Transform":42}],25:[function(require,module,exports){
+},{"./Item":11,"./Maths/Vector3":22,"./Transform":42,"./Utility/Time":48}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };

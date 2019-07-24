@@ -1,7 +1,7 @@
 import Camera from '../../src/Camera/Camera';
 import FWGE from '../../src/FWGE';
 import AmbientLight from '../../src/Light/AmbientLight';
-import { Binary, Unary, Var } from '../../src/Maths/Equation';
+import { Binary, Unary, Var, BinaryExpressionType, UnaryExpressionType } from '../../src/Maths/Equation';
 import ParticleSystem from '../../src/ParticleSystem';
 import Shader from '../../src/Shader/Shader';
 import Control from '../../src/Utility/Control';
@@ -239,22 +239,24 @@ async function makeCube()
     
     fwge.system = new ParticleSystem(
     {
-        delay: 0,
-        length: 0,
+        delay: Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 500),
+        length: 10,
         material: fwge.material,
         mesh: fwge.mesh,
         name: "example particle system",
-        particles: {
-            count: 1,
-            start: [0, 0, 0],
-            end: [0, 0, 0]
-        },
+        count: 5,
         transform: {
             position: [0, 0, -5],
             rotation: [0, 0, 0],
-            scale: [1, 1, 1],
+            scale: [0.1, 0.1, 0.1],
             shear: [0, 0, 0]
-        }
+        },
+        updates: [
+            Unary(UnaryExpressionType.SIN, Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.)),
+            Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.001),
+            Unary(UnaryExpressionType.NONE, -15)
+        ],
+        loop: false
     })
     
     
