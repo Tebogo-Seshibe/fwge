@@ -3,12 +3,15 @@ import Transform, {ITransform}  from './Transform'
 import Updateable from './Interfaces/Updateable';
 import Mesh from './Render/Mesh';
 import RenderMaterial from './Render/RenderMaterial';
+import Vector3 from './Maths/Vector3';
 
 export let ParticleSystems: ParticleSystem[] = new Array<ParticleSystem>()
 
 export class IParticle
 {
-
+    count: number
+    start: Vector3 | Float32Array | number[]
+    end: Vector3 | Float32Array | number[]
 }
 
 export class IParticleSystem
@@ -19,13 +22,7 @@ export class IParticleSystem
     length: number
     transform: Transform | ITransform
     delay: number
-    // TODO
-    // add delay
-    // add timeout
-    // add material
-    // add burst
-    // add timeline
-    particles: IParticle[]
+    particles: IParticle
 }
 
 export default class ParticleSystem extends Item implements Updateable
@@ -45,7 +42,6 @@ export default class ParticleSystem extends Item implements Updateable
 
         this.Mesh = mesh
         this.Material = material
-        this.Particles = new Array()
 
         if (transform instanceof Transform)
         {
@@ -58,9 +54,13 @@ export default class ParticleSystem extends Item implements Updateable
         }
         this.Transform = new Transform(transform)
         
-        while (--length >= 0)
+        this.Particles = new Array<Transform>()
+        for (let i = 0; i < particles.count; ++i)
         {
-            this.Particles.push(new Transform())
+            this.Particles.push(new Transform(
+            {
+                position: new Vector3(particles.start).Sum(this.Transform.Position)
+            }))
         }
 
         ParticleSystems.push(this)
@@ -70,7 +70,8 @@ export default class ParticleSystem extends Item implements Updateable
     {
         for (let particle of this.Particles)
         {
-
+            // TODO
+            // Do the update stuffs
         }
     }
 }

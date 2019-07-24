@@ -1,11 +1,11 @@
-import Cloneable from './Interfaces/Cloneable'
-import Destroyable from './Interfaces/Destroyable'
-import Item from './Item'
-import Mesh from './Render/Mesh'
-import PhysicsMaterial from './Physics/PhysicsMaterial'
-import RenderMaterial from './Render/RenderMaterial'
-import Transform from './Transform'
-import Updateable from './Interfaces/Updateable'
+import Cloneable from './Interfaces/Cloneable';
+import Destroyable from './Interfaces/Destroyable';
+import Updateable from './Interfaces/Updateable';
+import Item from './Item';
+import PhysicsMaterial from './Physics/PhysicsMaterial';
+import Mesh from './Render/Mesh';
+import RenderMaterial from './Render/RenderMaterial';
+import Transform from './Transform';
 import List from './Utility/List';
 
 export type GameObjectFunction = (this: GameObject) => void
@@ -72,47 +72,26 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
     }
 
-    Clone(count: number = 1): GameObject | GameObject[]
+    Clone(): GameObject
     {
-        if (count <= 0)
-        {
-            return null
-        }
-
-        let clones: List<GameObject> = new List<GameObject>(count)
-        while (--count >= 0)
-        {
-            clones.Add(GameObject.Clone(this))
-        }
-
-        if (count === 1)
-        {
-            return clones.Get(0)
-        }
-
-        return clones.ToArray()
-    }
-
-    static Clone(gameObject: GameObject): GameObject
-    {   
-        let children = gameObject.Children.map(child => <GameObject>child.Clone())
+        let children = this.Children.map(child => <this>child.Clone())
 
         return new GameObject(
         {
-            name:       gameObject.Name,
+            name:       this.Name + " Clone",
             transform:  new Transform(
             {
-                position:   gameObject.Transform.Position,
-                rotation:   gameObject.Transform.Rotation,
-                scale:      gameObject.Transform.Scale,
-                shear:      gameObject.Transform.Shear
+                position:   this.Transform.Position,
+                rotation:   this.Transform.Rotation,
+                scale:      this.Transform.Scale,
+                shear:      this.Transform.Shear
             }),
-            mesh:       gameObject.Mesh,
-            material:   gameObject.Material,
-            physics:    gameObject.Physics,
-            begin:      gameObject.Begin,
-            update:     gameObject.Update,
-            end:        gameObject.End,
+            mesh:       this.Mesh,
+            material:   this.Material,
+            physics:    this.Physics,
+            begin:      this.Begin,
+            update:     this.Update,
+            end:        this.End,
             children:   children
         });
     }

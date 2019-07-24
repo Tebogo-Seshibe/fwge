@@ -1,17 +1,12 @@
-import Animation from '../../src/Animation/Animation'
-import PointLight from '../../src/Light/PointLight'
-import FWGE from '../../src/FWGE'
-import Control from '../../src/Utility/Control'
-import Colour4 from '../../src/Render/Colour4'
-import OBJConverter from '../../src/Utility/Converter/OBJConverter'
-import Shader from '../../src/Shader/Shader'
-import Time from '../../src/Utility/Time'
-import Camera from '../../src/Camera/Camera'
-import ParticleSystem from '../../src/ParticleSystem'
-import List from '../../src/Utility/List'
+import Camera from '../../src/Camera/Camera';
+import FWGE from '../../src/FWGE';
 import AmbientLight from '../../src/Light/AmbientLight';
-import Vector3 from '../../src/Maths/Vector3';
-import GameObject from '../../src/GameObject';
+import { Binary, Unary, Var } from '../../src/Maths/Equation';
+import ParticleSystem from '../../src/ParticleSystem';
+import Shader from '../../src/Shader/Shader';
+import Control from '../../src/Utility/Control';
+import OBJConverter from '../../src/Utility/Converter/OBJConverter';
+import List from '../../src/Utility/List';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -19,6 +14,10 @@ fwge.Camera = Camera
 fwge.FWGE = FWGE
 fwge.List = List
 fwge.lights = { }
+
+fwge.Var = Var
+fwge.Unary = Unary
+fwge.Binary = Binary
 
 window.onload = () => {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -228,74 +227,35 @@ async function makeCube()
         width: 1080
     })
     
-    // fwge.mesh = OBJConverter.ParseMesh(obj)
-    // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
-    fwge.object = OBJConverter.Parse(obj, mtl)
-    fwge.object.Material.Shader = shader
-    fwge.object.Material.Ambient = new Colour4(1,1,1,1)
-    fwge.object.Transform.Position = new Vector3(-5, -5, -15)
+    fwge.mesh = OBJConverter.ParseMesh(obj)
+    fwge.material = OBJConverter.ParseRenderMaterial(mtl)
+    fwge.material.Shader = shader
 
-    fwge.object.Visible = false
-    for (let i = -10; i <= 10; i += 5)
-    {
-        for (let j = -10; j <= 10; j += 5)
-        {
-            let clone = fwge.object.Clone()[0]
-            clone.Transform.Position = new Vector3(i, j, -15)
-            new Animation(
-            {
-                name: 'Example',
-                gameObject: clone,
-                frames: [
-                    {
-                        time: 1,
-                        position: [i, j, -15],
-                        rotation: [0, 0, 0],
-                        scale: [1, 1, 1],
-                        colour: [1, 1, 1, 1],
-                    },
-                    {
-                        time: 1,
-                        position: [i + 5, j, -15],
-                        rotation: [0, 120, 0],
-                        scale: [1.25, 1.25, 1.25],
-                        colour: [1, 0, 0, 1]
-                    },
-                    {
-                        time: 1,
-                        position: [i + 5, j + 5, -15],
-                        rotation: [0, 240, 0],
-                        scale: [1.5, 1.5, 1.5],
-                        colour: [0, 1, 0, 1]
-                    },
-                    {
-                        time: 1,
-                        position: [i, j + 5, -15],
-                        rotation: [0, 360, 0],
-                        scale: [2, 2, 2],
-                        colour: [0, 0, 1, 1]
-                    }
-                ],
-                loop: true
-            })   
-        }
-    }
+    // fwge.object = OBJConverter.Parse(obj, mtl)
+    // fwge.object.Material.Shader = shader
+    // fwge.object.Material.Ambient = new Colour4(1,1,1,1)
+    // fwge.object.Transform.Position = new Vector3(-5, -5, -15)
+    // fwge.object.Visible = false
     
-    // fwge.system = new ParticleSystem(
-    // {
-    //     delay: 0,
-    //     length: 0,
-    //     material: fwge.material,
-    //     mesh: fwge.mesh,
-    //     name: "example particle system",
-    //     particles: [],
-    //     transform: {
-    //         position: [0, 0, -5],
-    //         rotation: [0, 0, 0],
-    //         scale: [1, 1, 1],
-    //         shear: [0, 0, 0]
-    //     }
-    // })
+    fwge.system = new ParticleSystem(
+    {
+        delay: 0,
+        length: 0,
+        material: fwge.material,
+        mesh: fwge.mesh,
+        name: "example particle system",
+        particles: {
+            count: 1,
+            start: [0, 0, 0],
+            end: [0, 0, 0]
+        },
+        transform: {
+            position: [0, 0, -5],
+            rotation: [0, 0, 0],
+            scale: [1, 1, 1],
+            shear: [0, 0, 0]
+        }
+    })
     
     
 
