@@ -1,11 +1,10 @@
-import AnimationFrame, { IAnimationFrame, Vector4Frame, Vector3Frame } from './AnimationFrame'
-import Item from '../Item'
-import Updateable from '../Interfaces/Updateable'
 import GameObject from '../GameObject'
-import Time from '../Utility/Time'
+import Updateable from '../Interfaces/Updateable'
+import Item from '../Item'
+import Vector3 from "../Maths/Vector3";
 import List from '../Utility/List'
-import Colour4 from "../Render/Colour4"
-import Vector3 from "../Maths/Vector3"
+import Time from '../Utility/Time'
+import AnimationFrame, { IAnimationFrame, Vector3Frame, Vector4Frame } from './AnimationFrame'
 
 export let Animations: Animation[] = new Array<Animation>()
 

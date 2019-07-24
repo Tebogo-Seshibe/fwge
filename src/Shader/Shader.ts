@@ -1,6 +1,6 @@
 import Item from '../Item'
-import ShaderAttributes from './ShaderAttributes'
-import ShaderUniforms from './ShaderUniforms'
+import ShaderAttributes from './Instance/ShaderAttributes'
+import ShaderUniforms from './Instance/ShaderUniforms'
 import FWGE from '../FWGE'
 
 export class IShader

@@ -24,6 +24,7 @@ export class IGameObject
     update?: GameObjectFunction
     end?: GameObjectFunction
     children?: GameObject[]
+    visible?: boolean
 }
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
@@ -37,10 +38,11 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     Update: GameObjectFunction
     End: GameObjectFunction
     Children: Array<GameObject>
+    Visible: boolean = true
 
     constructor()
     constructor(gameObject: IGameObject)
-    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = function(this: GameObject): void { }, update = function(this: GameObject): void { }, end = function(this: GameObject): void { }, children = [] }: IGameObject = new IGameObject)
+    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = function(this: GameObject): void { }, update = function(this: GameObject): void { }, end = function(this: GameObject): void { }, children = [], visible = true }: IGameObject = new IGameObject)
     {
         super(name);
     
@@ -60,6 +62,8 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
             this.Children.push(child)
         }
 
+        this.Visible = visible
+        
         GameObjects.push(this)
     }
 

@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Animation_1 = __importDefault(require("../../src/Animation/Animation"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
-const ParticleSystem_1 = __importDefault(require("../../src/ParticleSystem"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const Vector3_1 = __importDefault(require("../../src/Maths/Vector3"));
@@ -227,35 +227,63 @@ function makeCube() {
         fwge.object.Material.Shader = shader;
         fwge.object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
         fwge.object.Transform.Position = new Vector3_1.default(-5, -5, -15);
-        fwge.system = new ParticleSystem_1.default({
-            delay: 0,
-            length: 0,
-            material: fwge.object.Material,
-            mesh: fwge.object.Mesh,
-            name: "example particle system",
-            particles: [],
-            transform: {
-                position: [0, 0, -5],
-                rotation: [0, 0, 0],
-                scale: [1, 1, 1],
-                shear: [0, 0, 0]
+        fwge.object.Visible = false;
+        for (let i = -10; i <= 10; i += 5) {
+            for (let j = -10; j <= 10; j += 5) {
+                let clone = fwge.object.Clone()[0];
+                clone.Transform.Position = new Vector3_1.default(i, j, -15);
+                new Animation_1.default({
+                    name: 'Example',
+                    gameObject: clone,
+                    frames: [
+                        {
+                            time: 1,
+                            position: [i, j, -15],
+                            rotation: [0, 0, 0],
+                            scale: [1, 1, 1],
+                            colour: [1, 1, 1, 1],
+                        },
+                        {
+                            time: 1,
+                            position: [i + 5, j, -15],
+                            rotation: [0, 120, 0],
+                            scale: [1.25, 1.25, 1.25],
+                            colour: [1, 0, 0, 1]
+                        },
+                        {
+                            time: 1,
+                            position: [i + 5, j + 5, -15],
+                            rotation: [0, 240, 0],
+                            scale: [1.5, 1.5, 1.5],
+                            colour: [0, 1, 0, 1]
+                        },
+                        {
+                            time: 1,
+                            position: [i, j + 5, -15],
+                            rotation: [0, 360, 0],
+                            scale: [2, 2, 2],
+                            colour: [0, 0, 1, 1]
+                        }
+                    ],
+                    loop: true
+                });
             }
-        });
+        }
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Vector3":21,"../../src/ParticleSystem":23,"../../src/Render/Colour4":25,"../../src/Shader/Shader":38,"../../src/Utility/Control":43,"../../src/Utility/Converter/OBJConverter":44,"../../src/Utility/List":45}],2:[function(require,module,exports){
+},{"../../src/Animation/Animation":2,"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Vector3":21,"../../src/Render/Colour4":25,"../../src/Shader/Shader":40,"../../src/Utility/Control":43,"../../src/Utility/Converter/OBJConverter":44,"../../src/Utility/List":45}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const AnimationFrame_1 = __importDefault(require("./AnimationFrame"));
 const Item_1 = __importDefault(require("../Item"));
-const Time_1 = __importDefault(require("../Utility/Time"));
-const List_1 = __importDefault(require("../Utility/List"));
 const Vector3_1 = __importDefault(require("../Maths/Vector3"));
+const List_1 = __importDefault(require("../Utility/List"));
+const Time_1 = __importDefault(require("../Utility/Time"));
+const AnimationFrame_1 = __importDefault(require("./AnimationFrame"));
 exports.Animations = new Array();
 class IAnimation {
 }
@@ -383,7 +411,7 @@ var ViewMode;
 class ICamera {
 }
 exports.ICamera = ICamera;
-exports.Cameras = [];
+exports.Cameras = new Array();
 class Camera extends Item_1.default {
     static get Main() {
         return exports.Cameras[0];
@@ -460,8 +488,9 @@ class IGameObject {
 }
 exports.IGameObject = IGameObject;
 class GameObject extends Item_1.default {
-    constructor({ name, transform = new Transform_1.default, material, mesh, physics, animation, begin = function () { }, update = function () { }, end = function () { }, children = [] } = new IGameObject) {
+    constructor({ name, transform = new Transform_1.default, material, mesh, physics, animation, begin = function () { }, update = function () { }, end = function () { }, children = [], visible = true } = new IGameObject) {
         super(name);
+        this.Visible = true;
         this.Begin = begin.bind(this);
         this.Update = update.bind(this);
         this.End = end.bind(this);
@@ -474,6 +503,7 @@ class GameObject extends Item_1.default {
         for (let child of children) {
             this.Children.push(child);
         }
+        this.Visible = visible;
         exports.GameObjects.push(this);
     }
     Destroy() {
@@ -2328,13 +2358,15 @@ function Render(item) {
             ModelView_1.default.Push(item.Transform);
             item.Children.forEach(child => Render(child));
         }
-        ModelView_1.default.Push(item.Transform);
-        RenderObject({
-            material: item.Material,
-            mesh: item.Mesh,
-            shader: item.Material.Shader,
-            modelView: ModelView_1.default.Pop()
-        });
+        if (item.Visible) {
+            ModelView_1.default.Push(item.Transform);
+            RenderObject({
+                material: item.Material,
+                mesh: item.Mesh,
+                shader: item.Material.Shader,
+                modelView: ModelView_1.default.Pop()
+            });
+        }
     }
 }
 function RenderObject({ mesh, material, shader, modelView }) {
@@ -2485,7 +2517,7 @@ function Draw(vertexCount, framebuffer) {
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
 }
 
-},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":12,"../Light/DirectionalLight":13,"../Light/PointLight":15,"../Maths/Matrix3":18,"../ParticleSystem":23,"../Shader/Shader":38,"../Utility/List":45,"./ModelView":27,"./Projection":28}],31:[function(require,module,exports){
+},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":12,"../Light/DirectionalLight":13,"../Light/PointLight":15,"../Maths/Matrix3":18,"../ParticleSystem":23,"../Shader/Shader":40,"../Utility/List":45,"./ModelView":27,"./Projection":28}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -2589,13 +2621,46 @@ exports.default = SamplerUniforms;
 
 },{}],38:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ShaderAttributes {
+    constructor(gl, program) {
+        this.Position = gl.getAttribLocation(program, 'A_Position');
+        this.Colour = gl.getAttribLocation(program, 'A_Colour');
+        this.UV = gl.getAttribLocation(program, 'A_UV');
+        this.Normal = gl.getAttribLocation(program, 'A_Normal');
+    }
+}
+exports.default = ShaderAttributes;
+
+},{}],39:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const MaterialUniforms_1 = __importDefault(require("./MaterialUniforms"));
+const MatrixUniforms_1 = __importDefault(require("./MatrixUniforms"));
+const LightUniforms_1 = __importDefault(require("./LightUniforms"));
+const SamplerUniforms_1 = __importDefault(require("./SamplerUniforms"));
+class ShaderUniforms {
+    constructor(gl, program) {
+        this.Material = new MaterialUniforms_1.default(gl, program);
+        this.Matrix = new MatrixUniforms_1.default(gl, program);
+        this.Light = new LightUniforms_1.default(gl, program);
+        this.Sampler = new SamplerUniforms_1.default(gl, program);
+    }
+}
+exports.default = ShaderUniforms;
+
+},{"./LightUniforms":33,"./MaterialUniforms":34,"./MatrixUniforms":35,"./SamplerUniforms":37}],40:[function(require,module,exports){
+"use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../Item"));
-const ShaderAttributes_1 = __importDefault(require("./ShaderAttributes"));
-const ShaderUniforms_1 = __importDefault(require("./ShaderUniforms"));
+const ShaderAttributes_1 = __importDefault(require("./Instance/ShaderAttributes"));
+const ShaderUniforms_1 = __importDefault(require("./Instance/ShaderUniforms"));
 const FWGE_1 = __importDefault(require("../FWGE"));
 class IShader {
 }
@@ -2657,40 +2722,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../FWGE":5,"../Item":11,"./ShaderAttributes":39,"./ShaderUniforms":40}],39:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class ShaderAttributes {
-    constructor(gl, program) {
-        this.Position = gl.getAttribLocation(program, 'A_Position');
-        this.Colour = gl.getAttribLocation(program, 'A_Colour');
-        this.UV = gl.getAttribLocation(program, 'A_UV');
-        this.Normal = gl.getAttribLocation(program, 'A_Normal');
-    }
-}
-exports.default = ShaderAttributes;
-
-},{}],40:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const MaterialUniforms_1 = __importDefault(require("./MaterialUniforms"));
-const MatrixUniforms_1 = __importDefault(require("./MatrixUniforms"));
-const LightUniforms_1 = __importDefault(require("./LightUniforms"));
-const SamplerUniforms_1 = __importDefault(require("./SamplerUniforms"));
-class ShaderUniforms {
-    constructor(gl, program) {
-        this.Material = new MaterialUniforms_1.default(gl, program);
-        this.Matrix = new MatrixUniforms_1.default(gl, program);
-        this.Light = new LightUniforms_1.default(gl, program);
-        this.Sampler = new SamplerUniforms_1.default(gl, program);
-    }
-}
-exports.default = ShaderUniforms;
-
-},{"./LightUniforms":33,"./MaterialUniforms":34,"./MatrixUniforms":35,"./SamplerUniforms":37}],41:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"./Instance/ShaderAttributes":38,"./Instance/ShaderUniforms":39}],41:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };

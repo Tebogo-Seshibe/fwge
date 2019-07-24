@@ -11,6 +11,7 @@ import ParticleSystem from '../../src/ParticleSystem'
 import List from '../../src/Utility/List'
 import AmbientLight from '../../src/Light/AmbientLight';
 import Vector3 from '../../src/Maths/Vector3';
+import GameObject from '../../src/GameObject';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -226,64 +227,77 @@ async function makeCube()
         height: 1920,
         width: 1080
     })
-
+    
+    // fwge.mesh = OBJConverter.ParseMesh(obj)
+    // fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.object = OBJConverter.Parse(obj, mtl)
     fwge.object.Material.Shader = shader
     fwge.object.Material.Ambient = new Colour4(1,1,1,1)
     fwge.object.Transform.Position = new Vector3(-5, -5, -15)
-    
-    fwge.system = new ParticleSystem(
+
+    fwge.object.Visible = false
+    for (let i = -10; i <= 10; i += 5)
     {
-        delay: 0,
-        length: 0,
-        material: fwge.object.Material,
-        mesh: fwge.object.Mesh,
-        name: "example particle system",
-        particles: [],
-        transform: {
-            position: [0, 0, -5],
-            rotation: [0, 0, 0],
-            scale: [1, 1, 1],
-            shear: [0, 0, 0]
+        for (let j = -10; j <= 10; j += 5)
+        {
+            let clone = fwge.object.Clone()[0]
+            clone.Transform.Position = new Vector3(i, j, -15)
+            new Animation(
+            {
+                name: 'Example',
+                gameObject: clone,
+                frames: [
+                    {
+                        time: 1,
+                        position: [i, j, -15],
+                        rotation: [0, 0, 0],
+                        scale: [1, 1, 1],
+                        colour: [1, 1, 1, 1],
+                    },
+                    {
+                        time: 1,
+                        position: [i + 5, j, -15],
+                        rotation: [0, 120, 0],
+                        scale: [1.25, 1.25, 1.25],
+                        colour: [1, 0, 0, 1]
+                    },
+                    {
+                        time: 1,
+                        position: [i + 5, j + 5, -15],
+                        rotation: [0, 240, 0],
+                        scale: [1.5, 1.5, 1.5],
+                        colour: [0, 1, 0, 1]
+                    },
+                    {
+                        time: 1,
+                        position: [i, j + 5, -15],
+                        rotation: [0, 360, 0],
+                        scale: [2, 2, 2],
+                        colour: [0, 0, 1, 1]
+                    }
+                ],
+                loop: true
+            })   
         }
-    })
+    }
     
-    // fwge.animation = new Animation(
+    // fwge.system = new ParticleSystem(
     // {
-    //     name: 'Example',
-    //     gameObject: fwge.object,
-    //     frames: [
-    //         {
-    //             time: 1,
-    //             position: [-5, -5, -15],
-    //             rotation: [0, 0, 0],
-    //             scale: [1, 1, 1],
-    //             colour: [1, 1, 1, 1],
-    //         },
-    //         {
-    //             time: 1,
-    //             position: [5, -5, -15],
-    //             rotation: [0, 120, 0],
-    //             scale: [1.25, 1.25, 1.25],
-    //             colour: [1, 0, 0, 1]
-    //         },
-    //         {
-    //             time: 1,
-    //             position: [5, 5, -15],
-    //             rotation: [0, 240, 0],
-    //             scale: [1.5, 1.5, 1.5],
-    //             colour: [0, 1, 0, 1]
-    //         },
-    //         {
-    //             time: 1,
-    //             position: [-5, 5, -15],
-    //             rotation: [0, 360, 0],
-    //             scale: [2, 2, 2],
-    //             colour: [0, 0, 1, 1]
-    //         }
-    //     ],
-    //     loop: true
+    //     delay: 0,
+    //     length: 0,
+    //     material: fwge.material,
+    //     mesh: fwge.mesh,
+    //     name: "example particle system",
+    //     particles: [],
+    //     transform: {
+    //         position: [0, 0, -5],
+    //         rotation: [0, 0, 0],
+    //         scale: [1, 1, 1],
+    //         shear: [0, 0, 0]
+    //     }
     // })
+    
+    
 
     Control.Start()
     //setTimeout(Control.Stop, 500)

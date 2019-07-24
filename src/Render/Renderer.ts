@@ -10,8 +10,8 @@ import PointLight, { PointLights } from '../Light/PointLight'
 import Projection from './Projection'
 import RenderMaterial from './RenderMaterial'
 import Shader, { Shaders } from '../Shader/Shader'
-import ShaderUniforms from '../Shader/ShaderUniforms'
-import ShaderAttributes from '../Shader/ShaderAttributes'
+import ShaderUniforms from '../Shader/Instance/ShaderUniforms'
+import ShaderAttributes from '../Shader/Instance/ShaderAttributes'
 import Camera from '../Camera/Camera'
 import ParticleSystem, { ParticleSystems } from '../ParticleSystem'
 import LightItem from '../Light/LightItem'
@@ -90,14 +90,17 @@ function Render(item: ParticleSystem | GameObject): void
             item.Children.forEach(child => Render(child))
         }
 
-        ModelView.Push(item.Transform)
-        RenderObject(
+        if (item.Visible)
         {
-            material: item.Material,
-            mesh: item.Mesh,
-            shader: item.Material.Shader,
-            modelView: ModelView.Pop()
-        })
+            ModelView.Push(item.Transform)
+            RenderObject(
+            {
+                material: item.Material,
+                mesh: item.Mesh,
+                shader: item.Material.Shader,
+                modelView: ModelView.Pop()
+            })
+        }
     }
 }
 

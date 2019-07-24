@@ -1,10 +1,11 @@
-import Camera, { ICamera } from './Camera'
-import Matrix4 from '../Maths/Matrix4'
 import Updateable from '../Interfaces/Updateable'
+import Matrix4 from '../Maths/Matrix4'
 import Vector3 from '../Maths/Vector3'
+import Camera, { ICamera } from './Camera'
 
 export class IViewer extends ICamera
 {
+    up: Vector3 = new Vector3(0, 1, 0)
     position: Vector3 = Vector3.ZERO
     target: Vector3 = Vector3.ZERO
 }

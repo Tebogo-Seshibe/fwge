@@ -1,6 +1,6 @@
 import FWGE from '../FWGE'
-import Item from '../Item'
 import Updateable from '../Interfaces/Updateable'
+import Item from '../Item'
 
 export enum ViewMode
 {
@@ -24,7 +24,7 @@ export class ICamera
     vericalTilt?: number
 }
 
-export let Cameras: Array<Camera> = []
+export let Cameras: Array<Camera> = new Array<Camera>()
 
 export default class Camera extends Item implements Updateable
 {
