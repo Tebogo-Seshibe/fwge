@@ -40,7 +40,7 @@ export default class Control
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
 
         Time.Update()
-        // Input.Update()
+        Input.Update()
         
         for (let gameObject of GameObjects)
         {

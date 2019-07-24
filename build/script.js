@@ -243,21 +243,21 @@ function makeCube() {
                     time: 1,
                     position: [5, -5, -15],
                     rotation: [0, 120, 0],
-                    scale: [1, 1, 1],
+                    scale: [1.25, 1.25, 1.25],
                     colour: [1, 0, 0, 1]
                 },
                 {
                     time: 1,
                     position: [5, 5, -15],
                     rotation: [0, 240, 0],
-                    scale: [1, 1, 1],
+                    scale: [1.5, 1.5, 1.5],
                     colour: [0, 1, 0, 1]
                 },
                 {
                     time: 1,
                     position: [-5, 5, -15],
                     rotation: [0, 360, 0],
-                    scale: [1, 1, 1],
+                    scale: [2, 2, 2],
                     colour: [0, 0, 1, 1]
                 }
             ],

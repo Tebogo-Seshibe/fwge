@@ -2,45 +2,45 @@ import { InputState } from './InputState'
 
 export default class KeyboardInput
 {
-    public static Keys: InputState[] = new Array(128)
+    public Keys: InputState[] = new Array<InputState>(128)
 
     //#region qwerty
-    public static get KeyA(): InputState
+    public get KeyA(): InputState
     {
-        return KeyboardInput.Keys[65]
+        return this.Keys[65]
     }
     //#endregion
 
     //#region 1-0
-    public static get Key0(): InputState
+    public get Key0(): InputState
     {
-        return KeyboardInput.Keys[48]
+        return this.Keys[48]
     }
     //#endregion
 
     //#region numpad
-    public static get Numpad0(): InputState
+    public get Numpad0(): InputState
     {
-        return KeyboardInput.Keys[96]
+        return this.Keys[96]
     }
     //#endregion
     
-    public static SetElement(element: HTMLElement): void
+    public SetElement(element: HTMLElement): void
     {
         element.onkeyup = (e: KeyboardEvent) =>
         {
-            KeyboardInput.Keys[e.keyCode] = InputState.UP
+            this.Keys[e.keyCode] = InputState.UP
         }
 
         element.onkeydown = (e: KeyboardEvent) =>
         {
-            if (KeyboardInput.Keys[e.keyCode] == InputState.CLICKED)
+            if (this.Keys[e.keyCode] == InputState.CLICKED)
             {
-                KeyboardInput.Keys[e.keyCode] = InputState.DOWN
+                this.Keys[e.keyCode] = InputState.DOWN
             }
             else
             {
-                KeyboardInput.Keys[e.keyCode] = InputState.PRESSED
+                this.Keys[e.keyCode] = InputState.PRESSED
             }
         }
     }
