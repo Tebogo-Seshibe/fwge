@@ -21,6 +21,7 @@ const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
+const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
@@ -228,31 +229,36 @@ function makeCube() {
         fwge.mesh = OBJConverter_1.default.ParseMesh(obj);
         fwge.material = OBJConverter_1.default.ParseRenderMaterial(mtl);
         fwge.material.Shader = shader;
+        fwge.material.Ambient = new Colour4_1.default(1, 1, 1, 1);
+        fwge.material.Alpha = 0.2;
         fwge.system = new ParticleSystem_1.default({
-            delay: Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 500),
-            length: 10,
+            delay: Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.05),
+            length: 5,
             material: fwge.material,
             mesh: fwge.mesh,
             name: "example particle system",
-            count: 5,
+            count: 250,
             transform: {
                 position: [0, 0, -5],
-                rotation: [0, 0, 0],
-                scale: [0.1, 0.1, 0.1],
-                shear: [0, 0, 0]
+                scale: [0, 0, 0]
             },
-            updates: [
-                Equation_1.Unary(Equation_1.UnaryExpressionType.SIN, Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.1)),
-                Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.001),
-                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, -15)
+            position: [
+                Equation_1.Unary(Equation_1.UnaryExpressionType.COSINE, Equation_1.Binary(Equation_1.BinaryExpressionType.DIVISION, Equation_1.Var(1), 10)),
+                Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.005),
+                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0)
             ],
-            loop: false
+            scale: [
+                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1),
+                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1),
+                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1)
+            ],
+            speed: 0.1
         });
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/ParticleSystem":24,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/ParticleSystem":24,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1892,23 +1898,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("./Item"));
-const Transform_1 = __importDefault(require("./Transform"));
+const Equation_1 = require("./Maths/Equation");
 const Vector3_1 = __importDefault(require("./Maths/Vector3"));
+const Transform_1 = __importDefault(require("./Transform"));
 const Time_1 = __importDefault(require("./Utility/Time"));
 exports.ParticleSystems = new Array();
 class IParticleSystem {
 }
 exports.IParticleSystem = IParticleSystem;
+let df0 = Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0);
+let df1 = Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 1);
 class ParticleSystem extends Item_1.default {
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, updates, loop = true, delay, count } = new IParticleSystem) {
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, speed = 1, count } = new IParticleSystem) {
         super(name);
         this.Mesh = mesh;
         this.Material = material;
-        this.MaxTime = length * 1000;
+        this.Delay = Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, delay, 1000);
+        this.MaxTime = (length * 1000) + this.Delay(count - 1);
         this.CurrentTime = 0;
-        this.Updates = updates;
         this.Loop = loop;
-        this.Delay = delay;
+        this.Speed = speed;
         if (transform instanceof Transform_1.default) {
             transform = {
                 position: transform.Position,
@@ -1927,20 +1936,31 @@ class ParticleSystem extends Item_1.default {
                 shear: new Vector3_1.default(this.Transform.Position)
             }));
         }
+        this.Position = position;
+        this.Rotation = rotation;
+        this.Scale = scale;
+        this.Colour = colour;
         exports.ParticleSystems.push(this);
     }
     Update() {
+        if (this.CurrentTime >= this.MaxTime) {
+            if (!this.Loop) {
+                return;
+            }
+            else {
+                this.CurrentTime -= this.MaxTime;
+            }
+        }
         for (let i = 0; i < this.Particles.length; ++i) {
             let particle = this.Particles[i];
             let currentTime = this.CurrentTime - this.Delay(i);
             if (currentTime < 0) {
                 continue;
             }
-            currentTime %= this.MaxTime;
             let offset = Time_1.default.Render.Delta;
             if (currentTime + offset > this.MaxTime) {
                 if (this.Loop) {
-                    this.UpdateParticle(particle, this.MaxTime);
+                    this.UpdateParticle(particle, this.MaxTime, i);
                     currentTime = 0;
                     offset = Time_1.default.Render.Delta - offset;
                 }
@@ -1948,17 +1968,20 @@ class ParticleSystem extends Item_1.default {
                     offset = this.MaxTime - currentTime;
                 }
             }
-            this.UpdateParticle(particle, currentTime);
-            this.CurrentTime += Time_1.default.Render.Delta;
+            currentTime *= this.Speed;
+            this.UpdateParticle(particle, currentTime, i);
         }
+        this.CurrentTime += Time_1.default.Render.Delta;
     }
-    UpdateParticle(particle, index) {
-        particle.Position.Set(this.Updates[0](index), this.Updates[1](index), this.Updates[2](index));
+    UpdateParticle(particle, time, index) {
+        particle.Position.Set(this.Transform.Position).Sum(this.Position[0](time, index), this.Position[1](time, index), this.Position[2](time, index));
+        particle.Rotation.Set(this.Transform.Rotation).Sum(this.Rotation[0](time, index), this.Rotation[1](time, index), this.Rotation[2](time, index));
+        particle.Scale.Set(this.Transform.Scale).Sum(this.Scale[0](time, index), this.Scale[1](time, index), this.Scale[2](time, index));
     }
 }
 exports.default = ParticleSystem;
 
-},{"./Item":11,"./Maths/Vector3":22,"./Transform":42,"./Utility/Time":48}],25:[function(require,module,exports){
+},{"./Item":11,"./Maths/Equation":16,"./Maths/Vector3":22,"./Transform":42,"./Utility/Time":48}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };

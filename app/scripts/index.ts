@@ -7,6 +7,7 @@ import Shader from '../../src/Shader/Shader';
 import Control from '../../src/Utility/Control';
 import OBJConverter from '../../src/Utility/Converter/OBJConverter';
 import List from '../../src/Utility/List';
+import Colour4 from '../../src/Render/Colour4';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -230,36 +231,38 @@ async function makeCube()
     fwge.mesh = OBJConverter.ParseMesh(obj)
     fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.material.Shader = shader
+    fwge.material.Ambient = new Colour4(1,1,1,1)
+    fwge.material.Alpha = 0.2
 
     // fwge.object = OBJConverter.Parse(obj, mtl)
     // fwge.object.Material.Shader = shader
-    // fwge.object.Material.Ambient = new Colour4(1,1,1,1)
     // fwge.object.Transform.Position = new Vector3(-5, -5, -15)
     // fwge.object.Visible = false
     
     fwge.system = new ParticleSystem(
     {
-        delay: Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 500),
-        length: 10,
+        delay: Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.05),
+        length: 5,
         material: fwge.material,
         mesh: fwge.mesh,
         name: "example particle system",
-        count: 5,
+        count: 250,
         transform: {
             position: [0, 0, -5],
-            rotation: [0, 0, 0],
-            scale: [0.1, 0.1, 0.1],
-            shear: [0, 0, 0]
+            scale: [0, 0, 0]
         },
-        updates: [
-            Unary(UnaryExpressionType.SIN, Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.)),
-            Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.001),
-            Unary(UnaryExpressionType.NONE, -15)
+        position: [
+            /*Binary(BinaryExpressionType.MULTIPLICATION, Unary(UnaryExpressionType.SIN, Var(0)), */Unary(UnaryExpressionType.COSINE, Binary(BinaryExpressionType.DIVISION, Var(1), 10)),//),
+            Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.005),
+            Unary(UnaryExpressionType.NONE, 0)
         ],
-        loop: false
+        scale: [
+            Unary(UnaryExpressionType.NONE, 0.1),
+            Unary(UnaryExpressionType.NONE, 0.1),
+            Unary(UnaryExpressionType.NONE, 0.1)
+        ],
+        speed: 0.1
     })
-    
-    
 
     Control.Start()
     //setTimeout(Control.Stop, 500)
