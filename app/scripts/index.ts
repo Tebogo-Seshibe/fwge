@@ -241,29 +241,22 @@ async function makeCube()
     
     fwge.system = new ParticleSystem(
     {
-        delay: Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.05),
-        length: 5,
+        delay: (time: number, index: number) => index * 1000,
+        length: 5000,
         material: fwge.material,
         mesh: fwge.mesh,
         name: "example particle system",
-        count: 250,
+        count: 5,
         transform: {
             position: [0, 0, -5],
-            scale: [0, 0, 0]
+            scale: [0.1, 0.1, 0.1]
         },
-        position: [
-            /*Binary(BinaryExpressionType.MULTIPLICATION, Unary(UnaryExpressionType.SIN, Var(0)), */Unary(UnaryExpressionType.COSINE, Binary(BinaryExpressionType.DIVISION, Var(1), 10)),//),
-            Binary(BinaryExpressionType.MULTIPLICATION, Var(0), 0.005),
-            Unary(UnaryExpressionType.NONE, 0)
-        ],
-        scale: [
-            Unary(UnaryExpressionType.NONE, 0.1),
-            Unary(UnaryExpressionType.NONE, 0.1),
-            Unary(UnaryExpressionType.NONE, 0.1)
-        ],
-        speed: 0.1
+        position: [ 
+            (time: number, index: number) => Math.cos(time / 10),
+            (time: number, index: number) => time * 0.01,            
+            (time: number, index: number) => Math.sin(time / 10)
+        ]
     })
 
-    Control.Start()
-    //setTimeout(Control.Stop, 500)
+    //Control.Start()
 }

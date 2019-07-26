@@ -17,18 +17,19 @@ export class IParticleSystem
     length: number
     transform: Transform | ITransform
     count: number
-    delay: Equation
-    speed?: number
-    position?: [ Equation, Equation, Equation ]
-    rotation?: [ Equation, Equation, Equation ]
-    scale?: [ Equation, Equation, Equation ]
-    colour?: [ Equation, Equation, Equation, Equation ]
+    delay: ParticleUpdateEquation
+    position?: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    rotation?: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    scale?: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    colour?: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
     loop?: boolean
 }
 
 // default function
 let df0: Equation = Unary(UnaryExpressionType.NONE, 0)
 let df1: Equation = Unary(UnaryExpressionType.NONE, 1)
+
+export type ParticleUpdateEquation = (time: number, particleIndex: number) => number
 
 export default class ParticleSystem extends Item implements Updateable
 {
@@ -42,27 +43,25 @@ export default class ParticleSystem extends Item implements Updateable
 
     public Particles: Transform[]
 
-    public Position: [ Equation, Equation, Equation ]
-    public Rotation: [ Equation, Equation, Equation ]
-    public Scale: [ Equation, Equation, Equation ]
-    public Colour: [ Equation, Equation, Equation, Equation ]
+    public Position: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    public Rotation: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    public Scale: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
+    public Colour: [ ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation, ParticleUpdateEquation ]
 
-    public Delay: Equation
-    public Speed: number
+    public Delay: ParticleUpdateEquation
 
     constructor()
     constructor(particleSystem: IParticleSystem)
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, speed = 1, count }: IParticleSystem = new IParticleSystem)
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, count }: IParticleSystem = new IParticleSystem)
     {
         super(name)
 
         this.Mesh = mesh
         this.Material = material
-        this.Delay = Binary(BinaryExpressionType.MULTIPLICATION, delay, 1000)
-        this.MaxTime = (length * 1000) + this.Delay(count - 1)
+        this.Delay = delay
+        this.MaxTime = length + this.Delay(null, count - 1)
         this.CurrentTime = 0
         this.Loop = loop
-        this.Speed = speed
 
         if (transform instanceof Transform)
         {
@@ -113,7 +112,7 @@ export default class ParticleSystem extends Item implements Updateable
         {
             let particle = this.Particles[i]
 
-            let currentTime: number = this.CurrentTime - this.Delay(i)
+            let currentTime: number = this.CurrentTime - this.Delay(this.CurrentTime, i)
             if (currentTime < 0)
             {
                 continue
@@ -133,7 +132,6 @@ export default class ParticleSystem extends Item implements Updateable
                     offset = this.MaxTime - currentTime
                 }
             }
-            currentTime *= this.Speed
             this.UpdateParticle(particle, currentTime, i)
         }
 

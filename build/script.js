@@ -232,20 +232,20 @@ function makeCube() {
         fwge.material.Ambient = new Colour4_1.default(1, 1, 1, 1);
         fwge.material.Alpha = 0.2;
         fwge.system = new ParticleSystem_1.default({
-            delay: Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.05),
-            length: 5,
+            delay: (time, index) => index * 1000,
+            length: 5000,
             material: fwge.material,
             mesh: fwge.mesh,
             name: "example particle system",
-            count: 250,
+            count: 5,
             transform: {
                 position: [0, 0, -5],
                 scale: [0, 0, 0]
             },
             position: [
-                Equation_1.Unary(Equation_1.UnaryExpressionType.COSINE, Equation_1.Binary(Equation_1.BinaryExpressionType.DIVISION, Equation_1.Var(1), 10)),
-                Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, Equation_1.Var(0), 0.005),
-                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0)
+                (time, index) => Math.cos(time / 10),
+                (time, index) => time * 0.01,
+                (time, index) => Math.sin(time / 10)
             ],
             scale: [
                 Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1),
@@ -254,7 +254,6 @@ function makeCube() {
             ],
             speed: 0.1
         });
-        Control_1.default.Start();
     });
 }
 
@@ -1913,8 +1912,8 @@ class ParticleSystem extends Item_1.default {
         super(name);
         this.Mesh = mesh;
         this.Material = material;
-        this.Delay = Equation_1.Binary(Equation_1.BinaryExpressionType.MULTIPLICATION, delay, 1000);
-        this.MaxTime = (length * 1000) + this.Delay(count - 1);
+        this.Delay = delay;
+        this.MaxTime = length + this.Delay(null, count - 1);
         this.CurrentTime = 0;
         this.Loop = loop;
         this.Speed = speed;
@@ -1953,7 +1952,7 @@ class ParticleSystem extends Item_1.default {
         }
         for (let i = 0; i < this.Particles.length; ++i) {
             let particle = this.Particles[i];
-            let currentTime = this.CurrentTime - this.Delay(i);
+            let currentTime = this.CurrentTime - this.Delay(this.CurrentTime, i);
             if (currentTime < 0) {
                 continue;
             }
