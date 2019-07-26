@@ -1,0 +1,1 @@
+{"version":3,"file":"AnimationFrame.js","sourceRoot":"","sources":["../../../../../src/Animation/AnimationFrame.ts"],"names":[],"mappings":"AAKA,MAAM,OAAO,mBAAmB;CAI/B;AAED,MAAM,OAAO,eAAe;CAI3B;AAED,MAAM,CAAC,OAAO,OAAO,cAAc;IAS/B,YAAY,EAAE,KAAK,EAAE,IAAI,EAA0B;QAE/C,IAAI,CAAC,KAAK,GAAG,KAAK,CAAA;QAClB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAA;IACpB,CAAC;CACJ"}

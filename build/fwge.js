@@ -1,8543 +1,2991 @@
-(function(window)
-{
-    "use strict";
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const AnimationFrame_1 = require("./AnimationFrame");
+const Item_1 = __importDefault(require("../Item"));
+const Colour4_1 = __importDefault(require("../Render/Colour4"));
+const Transform_1 = __importDefault(require("../Transform"));
+class IAnimation {
+}
+exports.IAnimation = IAnimation;
+class Animation extends Item_1.default {
+    constructor({ name = 'Animation', mesh, material, frames = [], length = 0 } = new IAnimation()) {
+        super(name);
+        this.Frames = new Map();
+        this.Mesh = mesh;
+        this.Material = material;
+        this.Length = length;
+        frames.forEach(frame => this.Add(frame));
+    }
+    Add(frame) {
+        if (!this.Frames.has(frame.Time)) {
+            this.Frames.set(frame.Time, new AnimationFrame_1.AnimationFrameGroup());
+        }
+        let time = this.Frames.get(frame.Time);
+        if (frame instanceof Colour4_1.default) {
+            time.Colour = frame;
+        }
+        if (frame instanceof Transform_1.default) {
+            time.Transform = frame;
+        }
+    }
+    Update() {
+        console.log('Do the thing.');
+    }
+}
+exports.default = Animation;
 
+},{"../Item":14,"../Render/Colour4":34,"../Transform":50,"./AnimationFrame":2}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class AnimationFrameGroup {
+}
+exports.AnimationFrameGroup = AnimationFrameGroup;
+class IAnimationFrame {
+}
+exports.IAnimationFrame = IAnimationFrame;
+class AnimationFrame {
+    constructor({ value, time }) {
+        this.Value = value;
+        this.Time = time;
+    }
+}
+exports.default = AnimationFrame;
 
-    /**
-     * @name        BufferedArray
-     * @module      FWGE.Interfaces
-     * @description This object is a base container for any fixed-lenth array with accesssors
-     */
-    
-    let BufferedArray = (function()
-    {
-        /**
-         * @param   {number}    length
-         * @param   {Function}  arraytype
-         */
-        function BufferedArray(length = 0, arraytype = Array)
-        {
-            var type = typeof length;
-            var self = this;
-    
-            if (type !== 'number')
-                throw `Expected number, ${type} found.`;
-                
-            if (length <= 0)
-                throw 'Length provided must be larger than 0';
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Buffer}
-                 * @type        {Array}
-                 */
-                Buffer: { value: new arraytype(length), configurable: false, enumerable: true, writable: false  },
-    
-                /**
-                 * @property    {length}
-                 * @type        {number}
-                 */
-                length: { value: length, configurable: false, enumerable: true, writable: false }
-            });
-    
-            for (var i = 0; i < length; ++i)
-            {
-                (function(index)
-                {
-                    Object.defineProperty(self, index,
-                    {
-                        set: function set(value) { this.Buffer[index] = value; },
-                        get: function get() { return this.Buffer[index]; },
-                        configurable: false, enumerable: true
-                    });
-                })(i);
-            }
-        }
-    
-        BufferedArray.prototype = Object.create(null);
-        Object.seal(BufferedArray.prototype);
-    
-        return BufferedArray;
-    })();
-    Object.seal(BufferedArray);
-    
-    /**
-     * @name        Converter
-     * @module      FWGE.Game
-     * @description Base object converter
-     */
-    
-    let Converter = (function()
-    {
-        /**
-         * 
-         * @param {Function} parse 
-         * @param {Function} gameobject 
-         * @param {Function} mesh 
-         * @param {Function} rendermaterial 
-         */
-        function Converter(parse = function Parse(){}, gameobject = function ParseGameObject(){}, mesh = function ParseMesh(){}, rendermaterial = function ParseRenderMaterial(){})
-        {
-            Object.defineProperties(this,
-            {
-                /**
-                 * @function    Read
-                 * @param       {string}    path
-                 * @return      {string}
-                 */
-                Read:
-                {
-                    value: function Read(path)
-                    {
-                        let xml = new XMLHttpRequest();
-    
-                        xml.open("GET", path, false);
-                        xml.send(null);
-                        
-                        return xml.responseText;
-                    },
-                    configurable: false, enumerable: true, writable: false
-                },
-    
-                /**
-                 * @function    Parse
-                 * @return      {GameObject}
-                 */
-                Parse: { value: parse, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @function    GameObject
-                 * @return      {GameObject}
-                 */
-                ParseGameObject: { value: gameobject, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @function    Mesh
-                 * @return      {Mesh}
-                 */
-                ParseMesh: { value: mesh, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @function    RenderMaterial
-                 * @return      {RenderMaterial}
-                 */
-                ParseRenderMaterial: { value: rendermaterial, configurable: false, enumerable: true, writable: false }
-            });
-        }
-    
-        Converter.prototype = Object.create(null);
-        Object.seal(Converter.prototype);
-    
-        return Converter;
-    })();
-    Object.seal(Converter);
-    
-    /**
-     * @name        OBJConverter
-     * @module      FWGE.Render
-     * @description Some description
-     */
-    
-    window.OBJConverter = (function()
-    {
-        function OBJConverter()
-        {
-            Converter.call(this,
-                function Parse(obj, mtl)
-                {
-                    var object_name = obj.split(/(\/|\\)/).filter(function(string){if (string.indexOf('.obj') !== -1) return string;})[0].replace('.obj', '');
-                    var self = this;
-                    var OBJ = this.Read(obj).split('\n');
-                    var MTL = this.Read(mtl).split('\n');
-                    var Children = new Array();
-                    var Materials = {};
-                    var Meshes = {};
-    
-                    var curr = -1;
-                    var name = "";
-                    MTL.forEach(function(item, index, array)
-                    {
-                        if (item.indexOf('newmtl') !== -1)
-                        {
-                            if (curr !== -1)
-                                Materials[name] = MTL.slice(curr, index).join('\n');
-    
-                            curr = index;
-                            name = item.split(' ')[1].trim();
-                        }
-    
-                        if (index === array.length - 1)
-                            Materials[name] = MTL.slice(curr, array.length).join('\n');
-                    });
-    
-                    curr = -1;
-                    OBJ.forEach(function(item, index, array)
-                    {
-                        if (item.indexOf('o ') !== -1)
-                        {
-                            if (curr !== -1)
-                                Meshes[name] = OBJ.slice(curr, index).join('\n');
-    
-                            curr = index;
-                            name = item.split(' ')[1].trim();
-                        }
-    
-                        if (index === array.length - 1)
-                            Meshes[name] = OBJ.slice(curr, array.length).join('\n');
-                    });
-    
-                    Object.keys(Materials).forEach(function(key, index, array) { Materials[key] = self.ParseRenderMaterial(Materials[key]); });
-                    Object.keys(Meshes).forEach(function(key, index, array)
-                    {
-                        var mesh = self.ParseMesh(Meshes[key]);
-                        var material = Meshes[key].split('\n').filter(function(item){if(item.indexOf('usemtl ')!==-1)return item;}).join('').replace('usemtl ', '');
-    
-                        Children.push(new GameObject(
-                        {
-                            name:       mesh.Name,
-                            mesh:       mesh,
-                            material:   Materials[material]
-                        }));
-                    });
-    
-                    var result = undefined;
-    
-                    if (Children.length === 1)
-                        return Children.pop();
-    
-                    return new GameObject(
-                    {
-                        name:       object_name,
-                        children:   Children
-                    });
-                },
-                
-                function ParseGameObject(ParseMesh, materials, meshes)
-                {
-                    return new GameObject();
-                },
-    
-                function ParseMesh(obj)
-                {
-                    var lines = obj.split("\n");
-                    var vertices = [];
-                    var normals = [];
-                    var uvs = [];
-                    var request =
-                    {
-                        position:   [],
-                        normal:     [],
-                        uv:         [],
-                        colour:     [],
-                        index:      [],
-                        wireframe:  []
-                    };
-                    var face_offset = 0;
-                    var wireframe_offset = 0;
-                    
-                    for (var i = 0; i < lines.length; ++i)
-                    {
-                        var line = lines[i];
-                        var type = line.split(' ')[0];
-                        var value = line.substring(type.length).trim();
-                        var values = value.split(' ');
-    
-    
-                        switch (type)
-                        {
-                            case "o":
-                                request.name = value;
-                            break;
-                            
-                            case "v":
-                                vertices.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                            break;
-                            
-                            case "vn":
-                                normals.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                            break;
-                            
-                            case "vt":
-                                uvs.push([parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])]);
-                            break;
-    
-                            case "f":
-                                values.forEach(function(face, index, array)
-                                {
-                                    var face_i = face.split('/').map(function(item)
-                                    { 
-                                        var val = parseInt(item);
-                                        
-                                        if (!isNaN(val))
-                                            return val - 1;
-    
-                                        return NaN;
-                                    });
-    
-                                    if (!isNaN(face_i[0]))
-                                        request.position = request.position.concat(vertices[face_i[0]]);
-                                    
-                                    if (!isNaN(face_i[1]))
-                                        request.uv = request.uv.concat(uvs[face_i[1]]);
-                                    
-                                    if (!isNaN(face_i[2]))
-                                        request.normal = request.normal.concat(normals[face_i[2]]);
-    
-                                    if (index >= 2)
-                                        request.index.push(face_offset, face_offset + index - 1, face_offset + index);
-                                });
-                                
-                                for (var j = 0; j < values.length; ++j)
-                                {
-                                    if (j === values.length - 1)
-                                        request.wireframe.push(wireframe_offset + j, wireframe_offset);
-                                    else
-                                        request.wireframe.push(wireframe_offset + j, wireframe_offset + j + 1);
-                                }
-                                wireframe_offset += values.length;
-                                face_offset += values.length;
-                            break;
-                        }
-                    }
-    
-                    return new Mesh(request);
-                },
-                
-                function ParseRenderMaterial(mtl)
-                {
-                    var lines = mtl.split("\n");
-                    var request = {};
-    
-                    for (var i = 0; i < lines.length; ++i)
-                    {
-                        var line = lines[i];
-                        var type = line.split(' ')[0];
-                        var value = line.substring(type.length).trim();
-                        var values = value.split(' ');
-    
-                        switch (type)
-                        {
-                            case 'newmtl':
-                                request.name = value;
-                            break;
-    
-                            case 'Ns':
-                                request.shininess = parseFloat(value);
-                            break;
-    
-                            case 'Ka':
-                                request.ambient = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                            break;
-    
-                            case 'Kd':
-                                request.diffuse = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                            break;
-    
-                            case 'Ks':
-                                request.specular = new Colour(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
-                            break;
-                            
-                            case 'd':
-                                request.alpha = parseFloat(value);
-                            break;
-    
-                            case 'Tr':
-                                request.alpha = 1 - parseFloat(value);
-                            break;
-                        }
-                    }
-    
-                    return new RenderMaterial(request);
-                }
-            );
-    
-            Object.seal(this);
-        }
-    
-        OBJConverter.prototype = Object.create(null);
-        Object.seal(OBJConverter.prototype);
-    
-        return new OBJConverter();
-    })();
-    Object.seal(OBJConverter);
-    
-    /**
-     * @name        KeyFrame
-     * @module      FWGE.Interface
-     * @description SOme description
-     */
-    
-    let KeyFrame = (function()
-    {
-        /**
-         * 
-         * @param {Function}    T 
-         * @param {T}           before 
-         * @param {T}           after 
-         * @param {number}      length 
-         */
-        function KeyFrame(T, before, after, length)
-        {
-            var _Current = new T();
-            var _Offset = new T();
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Before}
-                 * @type        {T}
-                 */
-                Before: { value: before, configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {After}
-                 * @type        {T}
-                 */
-                After: { value: after, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Length}
-                 * @type        {number}
-                 */
-                Length: { value: length, configurable: false, enumerable: true, writable: false }
-            });
-        }
-    
-        return KeyFrame;
-    })();
-    Object.seal(KeyFrame);
-    
-    /**
-     * @name        Animation
-     * @module      FWGE.Game
-     * @description An animation object
-     */
-    
-    window.Animation = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {string}    request.name
-         */
-        function Animation({name = "Animation", particle = undefined, frames = [], length = 0} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                Frames:     { value: [], configurable: false, enumerable: true, writable: true },
-                Parctle:    { value: particle instanceof Particle ? particle : undefined, configurable: false, enumerable: true, writable: true },
-                Length:     { value: length, configurable: false, enumerable: true, writable: true }
-            });
-            Object.seal(this);
-        }
-    
-        Animation.prototype = Object.create(null);
-        Object.seal(Animation.prototype);
-    
-        return Animation;
-    })();
-    Object.seal(Animation);
-    
-    /**
-     * @name        AnimationFrame
-     * @module      FWGE.Game
-     * @description The base animation frame object
-     */
-    
-    let AnimationFrame = (function()
-    {
-        /** 
-         * @param {Function}    T 
-         * @param {T}           before 
-         * @param {T}           after 
-         * @param {number}      length 
-         */
-        function AnimationFrame(T, before, after, length)
-        {
-            KeyFrame.call(this, T, before, after, length);
-        }
-    
-        AnimationFrame.prototype = Object.create(null);
-        Object.seal(AnimationFrame.prototype);
-    
-        return AnimationFrame;
-    })();
-    Object.seal(AnimationFrame);
-    
-    /**
-     * @name        ColourAnimationFrame
-     * @module      FWGE.Game
-     * @description An animation frame that changes the colour of the object.
-     */
-    
-    window.ColourAnimationFrame = (function()
-    {
-        /**
-         * @param   {Object}    equest
-         * @param   {Colour}    request.before 
-         * @param   {Colour}    request.after 
-         * @param   {number}    request.length 
-         */
-        function ColourAnimationFrame({before = new Colour(), after = new Colour(), length = 0} = {})
-        {
-            AnimationFrame.call(this, Colour, before, after, length);
-            Object.seal(this);
-        }
-    
-        ColourAnimationFrame.prototype = Object.create(null);
-        Object.seal(ColourAnimationFrame.prototype);
-    
-    
-        return ColourAnimationFrame;
-    })();
-    Object.seal(ColourAnimationFrame);
-    
-    /**
-     * @name        Particle
-     * @module      GameEngine
-     * @description ...
-     */
-    
-    window.Particle = (function()
-    {
-        /**
-         * @param   {Object}            request
-         * @param   {string}            request.name
-         * @param   {Mesh}              request.mesh
-         * @param   {RenderMaterial}    request.material
-         */
-        function Particle({name = "Particle", mesh = undefined, material = undefined} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                Mesh:       { value: mesh instanceof Mesh ? mesh : undefined, configurable: false, enumerable: true, writable: true },
-                Material:   { value: material instanceof RenderMaterial ? material : undefined, configurable: false, enumerable: true, writable: true}
-            });
-            Object.seal(this);
-        }
-    
-        Particle.prototype = Object.create(null);
-        Object.seal(Particle.prototype);
-    
-        return Particle;
-    })();
-    Object.seal(Particle);
-    
-    /**
-     * @name        TransformAnimationFrame
-     * @module      FWGE.Game
-     * @description An animation frame thay changes the transform attributes of an object
-     */
-    
-    window.TransformAnimationFrame = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {Transform} request.before
-         * @param   {Transform} request.after
-         * @param   {number}    request.length
-         */
-        function TransformAnimationFrame({before = new Transform(), after = new Transform(), length = 0} = {})
-        {
-            AnimationFrame.call(this, Transform, before, after, length);
-            Object.seal(this);
-        }
-    
-        TransformAnimationFrame.prototype = Object.create(null);
-        Object.seal(TransformAnimationFrame.prototype);
-    
-    
-        return TransformAnimationFrame;
-    })();
-    Object.seal(TransformAnimationFrame);
-    
-    /**
-     * @name        Camera
-     * @module      FWGE.Game
-     * @description Something...
-     */
-    
-    let Camera = (function()
-    {
-        function Camera()
-        {
-            var _Mode = 0;
-            var _FOV = 35;
-            var _Aspect = 16/9;
-            var _Near = 0.1;
-            var _Far = 900;
-            var _Left = -10;
-            var _Right = 10;
-            var _Top = 10;
-            var _Bottom = 10;
-            var _Theta = 90;
-            var _Phi = 90;
-    
-            Object.defineProperties(this, 
-            {
-                constructor: Camera,
-    
-                //Transform: { value : new Transform(), configurable: false, enumerable: true,  writable: false },
-                CameraMode: { value: 0, configurable: false, enumerable: true, writable: true },
-    
-                Mode:
-                { 
-                    get: function get() { return _Mode; },
-                    set: function set(m)
-                    {
-                        switch (m)
-                        {
-                            case 0:
-                            case 1:
-                                _Mode = m;
-                            break;
-                        }
-                    }
-                },
-    
-                FOV: 
-                {
-                    get: function get() { return _FOV; },
-                    set: function set(f) { if (typeof f === 'number') _FOV = f; }
-                },
-                Aspect: 
-                {
-                    get: function get() { return _Aspect; },
-                    set: function set(a) { if (typeof a === 'number') _Aspect = a; }
-                },
-                Near: 
-                {
-                    get: function get() { return _Near; },
-                    set: function set(n) { if (typeof n === 'number') _Near = n; }
-                },
-                Far: 
-                {
-                    get: function get() { return _Far; },
-                    set: function set(f) { if (typeof f === 'number') _Far = f; }
-                },
-                Left: 
-                {
-                    get: function get() { return _Left; },
-                    set: function set(l) { if (typeof l === 'number') _Left = l; }
-                },
-                Right: 
-                {
-                    get: function get() { return _Right; },
-                    set: function set(r) { if (typeof r === 'number') _Right = r; }
-                },
-                Top: 
-                {
-                    get: function get() { return _Top; },
-                    set: function set(t) { if (typeof t === 'number') _Top = t; }
-                },
-                Bottom: 
-                {
-                    get: function get() { return _Bottom; },
-                    set: function set(b) { if (typeof b === 'number') _Bottom = b; }
-                },
-                Theta: 
-                {
-                    get: function get() { return _Theta; },
-                    set: function set(t) { if (typeof t === 'number') _Theta = t; }
-                },
-                Phi: 
-                {
-                    get: function get() { return _Phi; },
-                    set: function set(p) { if (typeof p === 'number') _Phi = p; }
-                },
-                
-                Update:
-                {
-                    value: function Update()
-                    {
-                        if (FWGE.GL.canvas.width != FWGE.GL.canvas.clientWidth || FWGE.GL.canvas.height != FWGE.GL.canvas.clientHeight)
-                        {
-                            FWGE.GL.canvas.width  = FWGE.GL.canvas.clientWidth;
-                            FWGE.GL.canvas.height = FWGE.GL.canvas.clientHeight;
-                        }
-                        
-                        this.Aspect = FWGE.GL.drawingBufferWidth / FWGE.GL.drawingBufferHeight;
-                    }
-                }
-            });
-        }
-        Camera.prototype = Object.create(null);
-    
-        return new Camera();
-    })();
-    /**
-     * @name        CameraMode
-     * @description ...
-     */
-    
-    window.CameraMode = (function()
-    {
-        function CameraMode()
-        {
-            Object.defineProperties(this,
-            {
-                PERSPECTIVE:    { value: 0, configurable: false, enumerable: true, writable: false },
-                ORTHOGRAPHIC:   { value: 1, configurable: false, enumerable: true, writable: false },
-                '0': { value: 'PERSPECTIVE', configurable: false, enumerable: true, writable: false },
-                '1': { value: 'ORTHOGRAPHIC', configurable: false, enumerable: true, writable: false }
-            });
-    
-            Object.seal(this);
-        }
-    
-        CameraMode.prototype = Object.create(null);
-        Object.seal(CameraMode.prototype);
-    
-        return new CameraMode();
-    })();
-    Object.seal(CameraMode);
-    /**
-     * @name        Viewer
-     * @module      FWGE.Game.Camera
-     * @description This represnent an eye within the scene. Rendeering to the screen is
-     *              based on what any viewer in the scene "sees"."
-     */
-    
-    window.Viewer = (function()
-    {
-        /**
-         * @param {Object}  request 
-         * @param {Array}   request.position
-         * @param {Array}   request.target
-         */
-        function Viewer({position = Vector3.Zero.Buffer, target = Vector3.Zero.Buffer} = {})
-        {
-            var _Direction = Vector3.Zero;
-            var _Up = Vector3.Zero;
-            var _Right = Vector3.Zero;
-                
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Position}
-                 * @type        {Vector3}
-                 */
-                Position: { value: new Vector3(position), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Target}
-                 * @type        {Vector3}
-                 */
-                Target: { value: new Vector3(target), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Matrix}
-                 * @type        {Matrix4}
-                 */
-                Matrix: { value: Matrix4.Identity, configurable: false, enumerable: false, writable: false },
-    
-                /**
-                 * @function    Update
-                 * @return      {undefined}
-                 */
-                Update:
-                {
-                    value: function Update()
-                    {
-                        _Direction.Set(_Position).Diff(this.Target).Unit();
-                        _Right.Set(_Up).Cross(_Direction).Unit();
-                        _Up.Set(_Direction).Cross(_Right).Unit();
-    
-                        this.Matrix.Set(
-                        [
-                            _Right.X,       _Right.Y,       _Right.Z,       0,
-                            _Up.X,          _Up.Y,          _Up.Z,          0,
-                            _Direction.X,   _Direction.Y,   _Direction.Z,   0,
-                            0,                  0,                  0,                  1
-                        ]).Mult(
-                        [
-                            1,                  0,                  0,                  0,
-                            0,                  1,                  0,                  0,
-                            0,                  0,                  1,                  0,
-                            _Position.X,    _Position.Y,    this.Position.Z,    1
-                        ]);
-                    },
-                    configurable: false, enumerable: false, writable: false
-                }
-            });
-            
-            Object.seal(this);
-        }
-    
-        Viewer.prototype = Object.create(null);
-        Object.seal(Viewer.prototype);
-    
-        return Viewer;
-    })();
-    Object.seal(Viewer);
-    
-    /**
-     * @name        GameEngine
-     * @module      FWGE
-     * @description Something...
-     */
-    
-    let GameEngine = (function()
-    {
-        function GameEngine()
-        {
-            let self = this;
-            let _Running  = false;
-            let _AnimationFrame = -1;
-    
-            /**
-             * @function    Run
-             * @return      {undefined}
-             * @description Runs the main game loop
-             */
-            function _Run()
-            {
-                _AnimationFrame = window.requestAnimationFrame(_Run);
-    
-                self.Update();
-    
-                if (_Running)
-                {
-                    PhysicsEngine.Update();
-                    RenderEngine.Update();
-                }
-            }
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @function    GameUpdate
-                 * @return      {undefined}
-                 */
-                Update:
-                {
-                    value: function Update()
-                    {
-                        Time.Update();
-                        Camera.Update();
-    
-                        var i = GameObject.Objects.length;
-                        while (--i >= 0)
-                            GameObject.Objects[i].ObjectUpdate();
-    
-                        Input.InputUpdate();
-                    },
-                    configurable: false, configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @function    Start
-                 * @return      {undefined}
-                 */
-                Start:
-                {
-                    value: function Start()
-                    {
-                        if(!_Running)
-                            _Running = true;
-    
-                        if (_AnimationFrame === -1)
-                            _Run();
-                    },
-                    configurable: false, configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @function    Pause
-                 * @return      {undefined}
-                 */
-                Pause:
-                {
-                    value: function Pause()
-                    {
-                        if (!_Running)
-                            _Running = false;
-                    },
-                    configurable:false, configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @function    Stop
-                 * @return      {undefined}
-                 */
-                Stop:
-                {
-                    value: function Stop()
-                    {
-                        if (_Running)
-                            _Running = false;
-    
-                        if (_AnimationFrame !== -1)
-                        {
-                            window.cancelAnimationFrame(_AnimationFrame);
-                            _AnimationFrame = -1;
-                        }
-    
-                        Time.Reset();
-                    },
-                    configurable:false, configurable: false, enumerable: true
-                }
-            });
-    
-            Object.seal(this);
-        }
-    
-        GameEngine.prototype = Object.create(null);
-        Object.seal(GameEngine.prototype);
-    
-        return new GameEngine();
-    })();
-    Object.seal(GameEngine);
-    
-    /**
-     * @name        GameItem
-     * @module      FWGE.Game
-     */
-    
-    let GameItem = (function()
-    {
-        /**
-         * @param   {string}        name
-         * @param   {GameObject}    gameobject
-         */
-        function GameItem(name, gameobject)
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {GameObject}
-                 * @type        {GameObject}
-                 */
-                GameObject: { value: gameobject, configurable: false, enumerable: true, writable: false }
-            });
-        }
-    
-        GameItem.prototype = Object.create(null);
-        Object.seal(GameItem.prototype);
-    
-        return GameItem;
-    })();
-    Object.seal(GameItem);
-    
-    /**
-     * @name GameObject
-     * @description The main object container for object types.   
-     * @module      FWGE.Game
-     */
-    
-    window.GameObject = (function()
-    {
-        /**
-         * 
-         */
-        function GameObject({name, transform, material, mesh, physics, animation, begin = function Begin(){}, update = function Update(){}, end = function End(){}, children} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Children}
-                 * @type        {Array<GameObject>}
-                 */
-                Children: { value: [], configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Transform}
-                 * @type        {Transform}
-                 */
-                Transform: { value: transform instanceof Transform ? transform : new Transform(transform), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {RenderMaterial}
-                 * @type        {RenderMaterial}
-                 */
-                Material: { value: material instanceof RenderMaterial ? material : undefined, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Mesh}
-                 * @type        {Mesh}
-                 */
-                Mesh: { value: mesh instanceof Mesh ? mesh : undefined, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {PhysicsItem}
-                 * @type        {PhysicsItem}
-                 */
-                Physics: { value: physics instanceof PhysicsItem ? physics : undefined, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Animation}
-                 * @type        {Animation}
-                 */
-                Animation: { value: new Animation(animation), configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Begin}
-                 * @type        {Function}
-                 */
-                Begin: { value: begin, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Update}
-                 * @type        {Function}
-                 */
-                Update: { value: update, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {End}
-                 * @type        {Function}
-                 */
-                End: { value: end, configurable: false, enumerable: true, writable: true }
-            });
-            
-            GameObject.Objects.push(this);
-    
-            if (children)
-                children.forEach(function(child){ self.Add(child); });
-    
-            this.Begin();
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(GameObject,
-        {
-            /**
-             * @property    {Objects}
-             * @type        {Array}
-             * @description List of all the objects in the scene
-             */
-            Objects: { value: [], configurable: false, enumerable: false, writable: false },
-    
-            /**
-             * @function    Clone
-             * @param       {GameObject} gameobject
-             * @return      {GameObject}
-             * @description Creates a clone of a gameobject. If no gameobject is provided,
-             *              it creates a clone of the calling gameobject.
-             */
-            Clone:
-            { 
-                value: function Clone(gameObject)
-                {
-                    var clone = new GameObject(
-                    {
-                        name:       gameObject.Name,
-                        transform:  new Transform(
-                        {
-                            position:   gameObject.Transform.Position.Buffer,
-                            rotation:   gameObject.Transform.Rotation.Buffer,
-                            scale:      gameObject.Transform.Scale.Buffer,
-                            shear:      gameObject.Transform.Shear.Buffer
-                        }),
-                        mesh:       gameObject.Mesh,
-                        material:   gameObject.Material,
-                        physics:    gameObject.Physics,
-                        begin:      gameObject.Begin,
-                        update:     gameObject.Update,
-                        end:        gameObject.End
-                    });
-                    
-                    for (var i = 0; i < gameObject.Children.length; ++i)
-                        clone.Children.push(gameObject.Children[i].Clone());
-                    
-                    return clone;
-                }
-            }
-        });
-    
-        GameObject.prototype = Object.create(null);
-        Object.defineProperties(GameObject.prototype,
-        {
-            constructor: { value: GameObject },
-            
-            /**
-             * @function    Add
-             * @param       {GameObject}    gameobject
-             * @return      {undefined}
-             */
-            Add:
-            {
-                value: function Add(gameObject)
-                {
-                    let self = this;
-    
-                    if (gameObject instanceof Array  && gameObject.length > 0)
-                        gameObject.forEach(function(element) { self.Add(element); });
-    
-                    else if (gameObject instanceof GameObject && gameObject !== this)
-                    {
-                        var index = GameObject.Objects.indexOf(gameObject);
-    
-                        if (index !== -1)
-                            GameObject.Objects.splice(index, 1);
-    
-                        this.Children.push(gameObject);
-                    }
-                }
-            },
-    
-            /**
-             * @function    Remove
-             * @param       {GameObject | number}    gameobject
-             * @return      {GameObject}
-             */
-            Remove:
-            {
-                value: function Remove(gameObject)
-                {
-                    if (gameObject instanceof GameObject)
-                        gameObject = this.Children.indexOf(gameObject);
-                        
-                    if (gameObject >= 0)
-                    {
-                        gameObject = this.Children.splice(gameObject, 1)[0];
-                        GameObject.Objects.push(gameObject);
-    
-                        return gameObject;
-                    }
-                    
-                    return null;
-                }
-            },
-            
-            /**
-             * @function    Clone
-             * @return      {GameObject}
-             */
-            Clone:
-            {
-                value: function Clone()
-                {
-                    return GameObject.Clone(this);
-                }
-            },
-            
-    
-            /**
-             * @function    Destroy
-             * @param       {number} timeout
-             * @return      {undefined}
-             */
-            Destroy:
-            {
-                value: function Destroy(timeout)
-                {
-                    var self = this;
-    
-                    if (typeof timeout !== 'number')
-                        timeout = 0;
-    
-                    this.Children.forEach(child => {child.Destroy(timeout); });
-    
-                    setTimeout(function()
-                    {
-                        var i = GameObject.Objects.indexOf(self);
-                        
-                        if (i + -1)
-                            GameObject.Objects.splice(i, 1);
-    
-                        self.End();
-                    }, 1000 * timeout);
-                }
-            },
-    
-            /**
-             * @function        ObjectUpdate
-             * @param           {GameEngine}    Game
-             * @param           {PhysicsEngine} Physics
-             * @return          {undefined}
-             */        
-            ObjectUpdate:
-            {
-                value: function ObjectUpdate(Game, Physics)
-                {
-                    this.Update();
-                    this.Children.forEach(child => { child.ObjectUpdate(Game, Physics); });
-                }
-            }
-        });
-        Object.seal(GameObject.prototype);
-    
-        return GameObject;
-    })();
-    Object.seal(GameObject);
-    
-    /**
-     * @name        Input
-     * @module      FWGE.Game
-     * @description This module handles all user key and mouse inputs.
-     */
-    
-    /**
-     * @param   {HTMLCanvasElement} canvas
-     */
-    
-    window.Input = (function()
-    {
-        function Input()
-        {
-            const _UP_K     = 0;
-            const _PRESS_K  = 128;
-            const _DOWN_K   = 256;
-            const _END_K    = 384;
-            let _Keys       = new Array(_END_K);
-    
-            const _UP_M     = 0;
-            const _CLICK_M  = 3;
-            const _DOWN_M   = 6;
-            const _WHEEL_U  = 9;
-            const _WHEEL_D  = 10;
-            const _END_M    = 11;
-            let _Mouse      = new Array(_END_M);
-    
-            const _X        = 0;
-            const _Y        = 1;
-            const _CURR_A   = 0;
-            const _PREV_A   = 2;
-            const _DELTA_A  = 4;
-            const _END_A    = 8;
-            let _Axis       = new Array(_END_A);
-            
-            function _handle_event(e)
-            {
-                var key = e instanceof MouseEvent ? e.button :  e.which || 0;
-                
-                e.preventDefault();
-                e.stopPropagation();
-                e.cancelBubble = true;
-    
-                return key;
-            }
-    
-            for (var i = 0; i < _PRESS_K; ++i)
-                _Keys[i] = true;
-    
-            for (var i = _PRESS_K; i < _END_K; ++i)
-                _Keys[i] = false;
-    
-            for (var i = 0; i < _CLICK_M; ++i)
-                _Mouse[i] = true;
-    
-            for (var i = _CLICK_M; i < _END_M; ++i)
-                _Mouse[i] = false;
-    
-            for (var i = 0; i < _END_A; ++i)
-                _Axis[i] = undefined;
-            
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {KEY_F1_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF1Up: { get: function get() { return _Keys[112 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F1_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF1Press: { get: function get() { return _Keys[112 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F1_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF1Down: { get: function get() { return _Keys[112 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F2_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF2Up: { get: function get() { return _Keys[113 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F2_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF2Press: { get: function get() { return _Keys[113 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F2_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF2Down: { get: function get() { return _Keys[113 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F3_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF3Up: { get: function get() { return _Keys[114 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F3_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF3Press: { get: function get() { return _Keys[114 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F3_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF3Down: { get: function get() { return _Keys[114 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F4_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF4Up: { get: function get() { return _Keys[115 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F4_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF4Press: { get: function get() { return _Keys[115 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F4_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF4Down: { get: function get() { return _Keys[115 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F5_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF5Up: { get: function get() { return _Keys[116 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F5_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF5Press: { get: function get() { return _Keys[116 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F5_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF5Down: { get: function get() { return _Keys[116 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F6_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF6Up: { get: function get() { return _Keys[117 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F6_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF6Press: { get: function get() { return _Keys[117 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F6_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF6Down: { get: function get() { return _Keys[117 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F7_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF7Up: { get: function get() { return _Keys[118 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F7_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF7Press: { get: function get() { return _Keys[118 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F7_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF7Down: { get: function get() { return _Keys[118 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F8_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF8Up: { get: function get() { return _Keys[119 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F8_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF8Press: { get: function get() { return _Keys[119 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F8_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF8Down: { get: function get() { return _Keys[119 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F9_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF9Up: { get: function get() { return _Keys[120 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F9_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF9Press: { get: function get() { return _Keys[120 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F9_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF9Down: { get: function get() { return _Keys[120 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F10_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF10Up: { get: function get() { return _Keys[121 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F10_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF10Press: { get: function get() { return _Keys[121 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F10_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF10Down: { get: function get() { return _Keys[121 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F11_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF11Up: { get: function get() { return _Keys[122 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F11_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF11Press: { get: function get() { return _Keys[122 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F11_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF11Down: { get: function get() { return _Keys[122 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F12_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF12Up: { get: function get() { return _Keys[123 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F12_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF12Press: { get: function get() { return _Keys[123 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F12_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyF12Down: { get: function get() { return _Keys[123 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-    
-            
-                /**
-                 * @property    {KEY_0_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key0Up: { get: function get() { return _Keys[48 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_0_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key0Press: { get: function get() { return _Keys[48 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_0_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key0Down: { get: function get() { return _Keys[48 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_1_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key1Up: { get: function get() { return _Keys[49 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_1_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key1Press: { get: function get() { return _Keys[49 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_1_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key1Down: { get: function get() { return _Keys[49 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_2_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key2Up: { get: function get() { return _Keys[50 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_2_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key2Press: { get: function get() { return _Keys[50 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_2_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key2Down: { get: function get() { return _Keys[50 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_3_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key3Up: { get: function get() { return _Keys[51 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_3_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key3Press: { get: function get() { return _Keys[51 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_3_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key3Down: { get: function get() { return _Keys[51 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_4_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key4Up: { get: function get() { return _Keys[52 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_4_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key4Press: { get: function get() { return _Keys[52 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_4_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key4Down: { get: function get() { return _Keys[52 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_5_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key5Up: { get: function get() { return _Keys[53 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_5_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key5Press: { get: function get() { return _Keys[53 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_5_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key5Down: { get: function get() { return _Keys[53 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_6_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key6Up: { get: function get() { return _Keys[54 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_6_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key6Press: { get: function get() { return _Keys[54 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_6_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key6Down: { get: function get() { return _Keys[54 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_7_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key7Up: { get: function get() { return _Keys[55 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_7_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key7Press: { get: function get() { return _Keys[55 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_7_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key7Down: { get: function get() { return _Keys[55 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_8_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key8Up: { get: function get() { return _Keys[56 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_8_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key8Press: { get: function get() { return _Keys[56 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_8_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key8Down: { get: function get() { return _Keys[56 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_9_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key9Up: { get: function get() { return _Keys[57 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_9_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key9Press: { get: function get() { return _Keys[57 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_9_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Key9Down: { get: function get() { return _Keys[57 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-    
-            
-                /**
-                 * @property    {NUMPAD_0_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad0Up: { get: function get() { return _Keys[96 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_0_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad0Press: { get: function get() { return _Keys[96 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_0_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad0Down: { get: function get() { return _Keys[96 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_1_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad1Up: { get: function get() { return _Keys[97 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_1_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad1Press: { get: function get() { return _Keys[97 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_1_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad1Down: { get: function get() { return _Keys[97 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_2_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad2Up: { get: function get() { return _Keys[98 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_2_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad2Press: { get: function get() { return _Keys[98 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_2_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad2Down: { get: function get() { return _Keys[98 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_3_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad3Up: { get: function get() { return _Keys[99 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_3_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad3Press: { get: function get() { return _Keys[99 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_3_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad3Down: { get: function get() { return _Keys[99 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_4_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad4Up: { get: function get() { return _Keys[100 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_4_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad4Press: { get: function get() { return _Keys[100 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_4_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad4Down: { get: function get() { return _Keys[100 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_5_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad5Up: { get: function get() { return _Keys[101 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_5_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad5Press: { get: function get() { return _Keys[101 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_5_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad5Down: { get: function get() { return _Keys[101 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_6_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad6Up: { get: function get() { return _Keys[102 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_6_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad6Press: { get: function get() { return _Keys[102 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_6_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad6Down: { get: function get() { return _Keys[102 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_7_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad7Up: { get: function get() { return _Keys[103 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_7_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad7Press: { get: function get() { return _Keys[103 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_7_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad7Down: { get: function get() { return _Keys[103 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_8_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad8Up: { get: function get() { return _Keys[104 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_8_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad8Press: { get: function get() { return _Keys[104 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_8_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad8Down: { get: function get() { return _Keys[104 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {NUMPAD_9_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad9Up: { get: function get() { return _Keys[105 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_9_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad9Press: { get: function get() { return _Keys[105 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {NUMPAD_9_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                Numpad9Down: { get: function get() { return _Keys[105 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-    
-            
-                /**
-                 * @property    {KEY_DIVIDE_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDivideUp: { get: function get() { return _Keys[111 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_DIVIDE_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDividePress: { get: function get() { return _Keys[111 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_DIVIDE_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDivideDown: { get: function get() { return _Keys[111 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_MULTIPLY_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMultiplyUp: { get: function get() { return _Keys[106 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_MULTIPLY_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMultiplyPress: { get: function get() { return _Keys[106 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_MULTIPLY_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMultiplyDown: { get: function get() { return _Keys[106 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_SUBTRACT_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySubtractUp: { get: function get() { return _Keys[109 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_SUBTRACT_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySubtractPress: { get: function get() { return _Keys[109 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_SUBTRACT_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySubtractDown: { get: function get() { return _Keys[109 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_ADD_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAddUp: { get: function get() { return _Keys[107 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ADD_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAddPress: { get: function get() { return _Keys[107 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ADD_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAddDown: { get: function get() { return _Keys[107 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-    
-            
-                /**
-                 * @property    {KEY_TAB_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTabUp: { get: function get() { return _Keys[9 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_TAB_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTabPress: { get: function get() { return _Keys[9 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_TAB_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTabDown: { get: function get() { return _Keys[9 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_CAPS_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCapsUp: { get: function get() { return _Keys[20 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_CAPS_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCapsPress: { get: function get() { return _Keys[20 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_CAPS_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCapsDown: { get: function get() { return _Keys[20 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_SHIFT_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyShiftUp: { get: function get() { return _Keys[16 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_SHIFT_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyShiftPress: { get: function get() { return _Keys[16 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_SHIFT_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyShiftDown: { get: function get() { return _Keys[16 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_CTRL_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCtrlUp: { get: function get() { return _Keys[17 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_CTRL_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCtrlPress: { get: function get() { return _Keys[17 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_CTRL_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCtrlDown: { get: function get() { return _Keys[17 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_ALT_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAltUp: { get: function get() { return _Keys[18 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ALT_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAltPress: { get: function get() { return _Keys[18 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ALT_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAltDown: { get: function get() { return _Keys[18 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_BACKSPACE_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBackspaceUp: { get: function get() { return _Keys[8 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_BACKSPACE_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBackspacePress: { get: function get() { return _Keys[8 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_BACKSPACE_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBackspaceDown: { get: function get() { return _Keys[8 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_ENTER_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEnterUp: { get: function get() { return _Keys[13 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ENTER_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEnterPress: { get: function get() { return _Keys[13 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_ENTER_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEnterDown: { get: function get() { return _Keys[13 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-    
-            
-                /**
-                 * @property    {KEY_UP_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUpUp: { get: function get() { return _Keys[38 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_UP_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUpPress: { get: function get() { return _Keys[38 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_UP_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUpDown: { get: function get() { return _Keys[38 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_LEFT_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLeftUp: { get: function get() { return _Keys[37 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_LEFT_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLeftPress: { get: function get() { return _Keys[37 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_LEFT_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLeftDown: { get: function get() { return _Keys[37 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_RIGHT_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRightUp: { get: function get() { return _Keys[39 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_RIGHT_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRightPress: { get: function get() { return _Keys[39 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_RIGHT_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRightDown: { get: function get() { return _Keys[39 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_DOWN_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDownUp: { get: function get() { return _Keys[40 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_DOWN_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDownPress: { get: function get() { return _Keys[40 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_DOWN_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDownDown: { get: function get() { return _Keys[40 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_A_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAUp: { get: function get() { return _Keys[65 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_A_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyAPress: { get: function get() { return _Keys[65 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_A_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyADown: { get: function get() { return _Keys[65 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_B_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBUp: { get: function get() { return _Keys[66 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_B_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBPress: { get: function get() { return _Keys[66 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_B_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyBDown: { get: function get() { return _Keys[66 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_C_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCUp: { get: function get() { return _Keys[67 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_C_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCPress: { get: function get() { return _Keys[67 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_C_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyCDown: { get: function get() { return _Keys[67 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_D_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDUp: { get: function get() { return _Keys[68 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_D_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDPress: { get: function get() { return _Keys[68 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_D_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyDDown: { get: function get() { return _Keys[68 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_E_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEUp: { get: function get() { return _Keys[69 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_E_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEPress: { get: function get() { return _Keys[69 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_E_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyEDown: { get: function get() { return _Keys[69 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_F_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyFUp: { get: function get() { return _Keys[70 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyFPress: { get: function get() { return _Keys[70 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_F_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyFDown: { get: function get() { return _Keys[70 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_G_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyGUp: { get: function get() { return _Keys[71 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_G_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyGPress: { get: function get() { return _Keys[71 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_G_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyGDown: { get: function get() { return _Keys[71 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_H_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyHUp: { get: function get() { return _Keys[72 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_H_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyHPress: { get: function get() { return _Keys[72 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_H_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyHDown: { get: function get() { return _Keys[72 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_I_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyIUp: { get: function get() { return _Keys[73 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_I_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyIPress: { get: function get() { return _Keys[73 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_I_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyIDown: { get: function get() { return _Keys[73 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_J_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyJUp: { get: function get() { return _Keys[74 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_J_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyJPress: { get: function get() { return _Keys[74 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_J_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyJDown: { get: function get() { return _Keys[74 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_K_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyKUp: { get: function get() { return _Keys[75 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_K_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyKPress: { get: function get() { return _Keys[75 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_K_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyKDown: { get: function get() { return _Keys[75 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_L_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLUp: { get: function get() { return _Keys[76 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_L_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLPress: { get: function get() { return _Keys[76 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_L_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyLDown: { get: function get() { return _Keys[76 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_M_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMUp: { get: function get() { return _Keys[77 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_M_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMPress: { get: function get() { return _Keys[77 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_M_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyMDown: { get: function get() { return _Keys[77 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_N_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyNUp: { get: function get() { return _Keys[78 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_N_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyNPress: { get: function get() { return _Keys[78 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_N_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyNDown: { get: function get() { return _Keys[78 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_O_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyOUp: { get: function get() { return _Keys[79 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_O_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyOPress: { get: function get() { return _Keys[79 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_O_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyODown: { get: function get() { return _Keys[79 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_P_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyPUp: { get: function get() { return _Keys[80 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_P_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyPPress: { get: function get() { return _Keys[80 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_P_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyPDown: { get: function get() { return _Keys[80 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_Q_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyQUp: { get: function get() { return _Keys[81 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Q_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyQPress: { get: function get() { return _Keys[81 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Q_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyQDown: { get: function get() { return _Keys[81 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_R_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRUp: { get: function get() { return _Keys[82 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_R_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRPress: { get: function get() { return _Keys[82 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_R_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyRDown: { get: function get() { return _Keys[82 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_S_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySUp: { get: function get() { return _Keys[83 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_S_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySPress: { get: function get() { return _Keys[83 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_S_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeySDown: { get: function get() { return _Keys[83 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_T_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTUp: { get: function get() { return _Keys[84 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_T_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTPress: { get: function get() { return _Keys[84 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_T_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyTDown: { get: function get() { return _Keys[84 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_U_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUUp: { get: function get() { return _Keys[85 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_U_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUPress: { get: function get() { return _Keys[85 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_U_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyUDown: { get: function get() { return _Keys[85 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_V_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyVUp: { get: function get() { return _Keys[86 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_V_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyVPress: { get: function get() { return _Keys[86 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_V_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyVDown: { get: function get() { return _Keys[86 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_W_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyWUp: { get: function get() { return _Keys[87 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_W_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyWPress: { get: function get() { return _Keys[87 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_W_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyWDown: { get: function get() { return _Keys[87 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_X_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyXUp: { get: function get() { return _Keys[88 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_X_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyXPress: { get: function get() { return _Keys[88 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_X_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyXDown: { get: function get() { return _Keys[88 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_Y_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyYUp: { get: function get() { return _Keys[89 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Y_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyYPress: { get: function get() { return _Keys[89 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Y_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyYDown: { get: function get() { return _Keys[89 + _DOWN_K]; }, configurable: false, enumerable: true },
-    
-            
-                /**
-                 * @property    {KEY_Z_UP}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyZUp: { get: function get() { return _Keys[90 + _UP_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Z_PRESS}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyZPress: { get: function get() { return _Keys[90 + _PRESS_K]; }, configurable: false, enumerable: true },
-            
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                KeyZDown: { get: function get() { return _Keys[90 + _DOWN_K]; }, configurable: false, enumerable: true },
-            
-    
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseLeftUp: { get: function get() { return _Mouse[0 + _UP_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseLeftClick: { get: function get() { return _Mouse[0 + _CLICK_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseLeftDown: { get: function get() { return _Mouse[0 + _DOWN_M]; }, configurable: false, enumerable: true },
-    
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseMiddleUp: { get: function get() { return _Mouse[1 + _UP_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseMiddleClick: { get: function get() { return _Mouse[1 + _CLICK_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseMiddleDown: { get: function get() { return _Mouse[1 + _DOWN_M]; }, configurable: false, enumerable: true },
-    
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseRightUp: { get: function get() { return _Mouse[2 + _UP_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseRightClick: { get: function get() { return _Mouse[2 + _CLICK_M]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseRightDown: { get: function get() { return _Mouse[2 + _DOWN_M]; }, configurable: false, enumerable: true },
-    
-    
-    
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseX: { get: function get() { return _Axis[_X + _CURR_A]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseY: { get: function get() { return _Axis[_Y + _CURR_A]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseDeltaX: { get: function get() { return _Axis[_X + _DELTA_A]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseDeltaY: { get: function get() { return _Axis[_Y + _DELTA_A]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseWheelUp: { get: function get() { return _Mouse[_WHEEL_U]; }, configurable: false, enumerable: true },
-    
-                /**
-                 * @property    {KEY_Z_DOWN}
-                 * @type        {Boolean}
-                 * @description Some description
-                 */
-                MouseWheelDown: { get: function get() { return _Mouse[_WHEEL_D]; }, configurable: false, enumerable: true },
-    
-    
-                Init:
-                {
-                    value: function Init(canvas)
-                    {
-                        document.body.onkeyup = function onkeyup(e)
-                        {
-                            var key = _handle_event(e);
-    
-                            _Keys[key + _UP_K]      = true;
-                            _Keys[key + _PRESS_K]   = false;
-                            _Keys[key + _DOWN_K]    = false;
-                        };
-                        document.body.onkeydown = function onkeydown(e)
-                        {
-                            var key = _handle_event(e);
-    
-                            _Keys[key + _UP_K]      = false;
-                            _Keys[key + _PRESS_K]   = true;
-                            _Keys[key + _DOWN_K]    = true;
-                        };
-    
-                        canvas.oncontextmenu = function oncontextmenu(e) { _handle_event(e); return false; };
-                        canvas.onmouseenter = function onmouseenter(e)
-                        {
-                            _Axis[_X + _PREV_A] = e.clientX;
-                            _Axis[_Y + _PREV_A] = e.clientY;
-                            
-                            _Axis[_X + _CURR_A] = e.clientX;
-                            _Axis[_Y + _CURR_A] = e.clientY;
-    
-                            _Axis[_X + _DELTA_A] = 0;
-                            _Axis[_Y + _DELTA_A] = 0;
-                        };
-                        canvas.onmousemove = function onmousemove(e) 
-                        {
-                            if (!_Axis[_X + _CURR_A] || !_Axis[_Y + _CURR_A])
-                            {
-                                _Axis[_X + _CURR_A] = e.clientX;
-                                _Axis[_Y + _CURR_A] = e.clientY;
-                            }
-    
-                            _Axis[_X + _PREV_A] = _Axis[_X + _CURR_A];
-                            _Axis[_Y + _PREV_A] = _Axis[_Y + _CURR_A];
-                            _Axis[_X + _CURR_A] = e.clientX;
-                            _Axis[_Y + _CURR_A] = e.clientY;
-    
-                            _Axis[_X + _DELTA_A] = _Axis[_X + _CURR_A] - _Axis[_X + _PREV_A];
-                            _Axis[_Y + _DELTA_A] = _Axis[_Y + _CURR_A] - _Axis[_Y + _PREV_A];
-                        };
-                        canvas.onmouseleave = function onmouseleave(e)
-                        {
-                            _Axis[_X + _PREV_A] = undefined;
-                            _Axis[_Y + _PREV_A] = undefined;
-                            
-                            _Axis[_X + _CURR_A] = undefined;
-                            _Axis[_Y + _CURR_A] = undefined;
-    
-                            _Axis[_X + _DELTA_A] = 0;
-                            _Axis[_Y + _DELTA_A] = 0;
-                        };
-                        canvas.onmouseup = function onmouseup(e)   
-                        {
-                            var key = _handle_event(e);
-    
-                            _Mouse[key + _UP_M] = true;
-                            _Mouse[key + _CLICK_M] = false;
-                            _Mouse[key + _DOWN_M] = false;
-                        };
-                        canvas.onmousedown = function onmousedown(e) 
-                        {
-                            var key = _handle_event(e);
-    
-                            _Mouse[key + _UP_M] = false;
-                            _Mouse[key + _CLICK_M] = true;
-                            _Mouse[key + _DOWN_M] = true;
-                        };
-                        canvas.onmousewheel = function onmousewheel(e)
-                        {
-                            _Mouse[e.deltaY < 0 ? _WHEEL_U : _WHEEL_D] = true;
-                        };
-                    }
-                },
-    
-                /**
-                 * @function    InputUpdate
-                 * @return      {udefined}
-                 */
-                InputUpdate:
-                {
-                    value: function InputUpdate()
-                    {
-                        for (var i = _PRESS_K; i < _DOWN_K; ++i)
-                            if (_Keys[i])
-                                _Keys[i] = false;
-    
-                        for (var i = _CLICK_M; i < _DOWN_M; ++i)
-                            if (_Mouse[i])
-                                _Mouse[i] = false;
-    
-                        _Axis[_X + _DELTA_A] = 0;
-                        _Axis[_Y + _DELTA_A] = 0;
-                        _Mouse[_WHEEL_U] = false;
-                        _Mouse[_WHEEL_D] = false;
-                    }
-                }
-            });
-    
-            Object.seal(this);
-        }
-    
-        Input.prototype = Object.create(null);
-        Object.seal(Input.prototype);
-    
-        return new Input();
-    })();
-    Object.seal(Input);
-    
-    /**
-     * @name        Item
-     * @module      FWGE.Game
-     * @description The {Item} object is the base item for all usable item in the system.
-    */
-    
-    let Item = (function()
-    {
-        /**
-         * @param   {string} Name
-         */
-        function Item(name = "Item")
-        {
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {ID}
-                 * @type        {number}
-                 */
-                ID: { value: Item.hashcode(Item.ID_COUNTER++), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Name}
-                 * @type        {String}
-                 */
-                Name: { value: name, configurable: false, enumerable: true, writable: true }
-            });
-        }
-        Object.defineProperties(Item,
-        {
-            /**
-             * @property    {ID_COUNTER}
-             * @type        {number}
-             */
-            ID_COUNTER: { value: 0, configurable: false, enumerable: false, writable: true },
-    
-            /**
-             * @function    hashcode
-             * @param       {number} number
-             * @return      {number}
-             */
-            hashcode:
-            {
-                value: function hashcode(number)
-                {
-                    var i = 0;
-                    var hash = 0;
-                    var chr = 0;
-                    var string = number + "";
-    
-                    for (i = 0; i < string.length; i++)
-                    {
-                        chr   = string.charCodeAt(i);
-                        hash  = ((hash << 5) - hash) + chr;
-                        hash |= 0;
-                    }
-    
-                    return hash;
-                },
-                configurable: false, enumerable: false, writable: false
-            }
-        });
-    
-        Item.prototype = Object.create(null);
-        Object.seal(Item.prototype);
-    
-        return Item;
-    })();
-    Object.seal(Item);
-    
-    /**
-     * @name        AmbienLight
-     * @module      FWGE.Game
-     * @description Represents a light object that illumnintates the scene evenly with a specific colour
-     */
-    
-    window.AmbientLight = (function()
-    {
-        /** 
-         * @param {Object} request 
-         * @param {string} request.name 
-         * @param {GameObject} request.gameobject 
-         * @param {Array} request.colour
-         * @param {number} request.intensity
-         */
-        function AmbientLight({name = "Ambient Light", colour = [1, 1, 1, 1], intensity = 1.0} = {})
-        {
-            LightItem.call(this, name, colour, intensity);
-            
-            Lights.push(this);
-            Object.seal(this);
-        }
-    
-        AmbientLight.prototype = Object.create(null);
-        Object.seal(AmbientLight.prototype);
-    
-        return AmbientLight;
-    })();
-    Object.seal(AmbientLight);
-    
-    /**
-     * @name        DirectionalLight
-     * @module      FWGE.Game.Light
-     * @description This light illuminates the scene in a given direction, similar that to the sun
-    */
-    
-    window.DirectionalLight = (function()
-    {
-        /**
-         * @param {Object}      request
-         * @param {string}      request.name
-         * @param {GameObject}  request.gameobject
-         * @param {Array}       request.colour
-         * @param {number}      request.intensity
-         * @param {Array}       request.direction
-         */
-        function DirectionalLight({name = 'Directional Light', colour = [1, 1, 1, 1], intensity = 1.0, direction = Vector3.One} = {})
-        {
-            LightItem.call(this, name, colour, intensity)
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Direction}
-                 * @type        {Vector3}
-                 */
-                Direction: { value: new Vector3(direction[0], direction[1], direction[2]), configurable: false, enumerable: true, writable: false }
-            });
-    
-            Lights.push(this);
-            Object.seal(this);
-        }
-    
-        DirectionalLight.prototype = Object.create(null);
-        Object.seal(DirectionalLight.prototype);
-    
-        return DirectionalLight;
-    })();
-    Object.seal(DirectionalLight);
-    
-        /**
-         * @name        Light
-         * @module      FWGE.Game
-         * @description Module used to create lightobject in the scene.
-         *              There can only be 12 lights at a given time:
-         *              1: Ambient Light
-         *              3: Directional Lights
-         *              8: Point Lights
-         */
-    
-    let Lights = new Array();
-    
-    (function()
-    {
-        function Light()
-        {
-            var AmbientCount = 0;
-            var DirectionalCount = 0;
-            var PointCount = 0;
-            
-            const MAX_AMBIENT = 1;
-            const MAX_DIRECTIONAL = 3;
-            const MAX_POINT = 8;
-            const MAX_LIGHTS = 12;
-    
-            Object.defineProperties(this,
-            {    
-                /**
-                 * @function    Ambient
-                 * @param       {Object} request 
-                 * @param       {string} request.name 
-                 * @param       {GameObject | undefined} request.gameobject 
-                 * @param       {Array | undefined} request.colour
-                 * @param       {number | undefined} request.intensity
-                 * @return      {AmbientLight | undefined}
-                 */        
-                Ambient:
-                {
-                    value: function Ambient(request)
-                    {
-                        var light = null;
-    
-                        if (this.AmbientCount < this.MAX_AMBIENT)
-                        {
-                            light = new AmbientLight(request);
-                            light.GameObject.Light = light;
-                            
-                            this.AmbientCount++;
-                            Light.Lights[0] = light;
-                        }
-    
-                        return light;
-                    }
-                },
-                
-                /**
-                 * @function    Ambient
-                 * @param       {Object} request 
-                 * @param       {string} request.name
-                 * @param       {GameObject | null | undefined} request.gameobject
-                 * @param       {Array} request.colour
-                 * @param       {number} request.intensity
-                 * @param       {Array} request.direction
-                 * @return      {AmbientLight | undefined}
-                 */ 
-                Directional:
-                {
-                    value: function Directional(request)
-                    {
-                        var light = null;
-    
-                        if (this.DirectionalCount < this.MAX_DIRECTIONAL)
-                        {
-                            for (var i = this.MAX_AMBIENT; i < this.MAX_DIRECTIONAL; ++i)
-                            {
-                                if (!Light.Lights[i])
-                                {
-                                    light = new DirectionalLight(request);
-                                    light.GameObject.Light = light;
-    
-                                    this.DirectionalCount++;
-                                    Light.Lights[i] = light;
-    
-                                    break;
-                                }
-                            }
-                        }
-    
-                        return light;
-                    }
-                },
-                
-                /**
-                 * @function    Ambient
-                 * @param       {Object} request 
-                 * @param       {string} request.name 
-                 * @param       {GameObject | undefined} request.gameobject 
-                 * @param       {Array | undefined} request.colour
-                 * @param       {number | undefined} request.intensity
-                 * @return      {AmbientLight | undefined}
-                 */ 
-                Point:
-                {
-                    value: function Point(request)
-                    {
-                        var light = null;
-    
-                        if (this.PointCount < this.MAX_POINT)
-                        {
-                            for (var i = this.MAX_DIRECTIONAL; i < this.MAX_LIGHTS; ++i)
-                            {
-                                if (!Light.Lights[i])
-                                {
-                                    light = new PointLight(request);
-                                    light.GameObject.Light = light;
-    
-                                    this.PointCount++;
-                                    Light.Lights[i] = light;
-    
-                                    break;
-                                }
-                            }
-                        }
-    
-                        return light
-                    }
-                },
-                
-                /**
-                 * @function    Ambient
-                 * @param       {AmbientLight | DirectionalLight | PointLight} light 
-                 * @return      {AmbientLight | DirectionalLight | PointLight}
-                 * @description Removes a light from the given scene.
-                 */ 
-                Remove:
-                {
-                    valeu: function Remove(light)
-                    {
-                        for (var i in  Light.Lights)
-                            if (!!Light.Lights[i] && light.ID === Light.Lights[i].ID)
-                                Light.Lights[i] = null;
-    
-                        return light;
-                    }
-                }
-            });
-        }
-        Light.prototype = Object.create(null);
-        Object.defineProperties(Light,
-        {    
-            Lights: { value: new Array(12), configurable: false, enumerable: true, writable: false }
-        });
-    })();
-    /**
-     * @name        LightItem
-     * @module      FWGE.Game.Light
-     * @description This is the base definition of a light oject within the scene
-     */
-    
-    let LightItem = (function()
-    {
-        /**
-         * @param {string} name 
-         * @param {GameObject} gameobject 
-         * @param {Array} colour 
-         * @param {number} intensity 
-         */
-        function LightItem(name, colour, intensity)
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Colour}
-                 * @type        {Colour}
-                 */
-                Colour: { value: new Colour(colour[0], colour[1], colour[2], colour[3]), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Intensity}
-                 * @type        {number}
-                 */
-                Intensity: { value: intensity, configurable: false, enumerable: true, writable: false }
-            });
-        }
-    
-        LightItem.prototype = Object.create(null);
-    
-        return LightItem;
-    })();
-    Object.seal(LightItem);
-    
-    /**
-     * @name        PointLight
-     * @module      FWGE.Game
-     * @description Represents a light object that illumntes froma fixed point in space,
-     *              within a given radius.
-     */
-    
-    window.PointLight = (function()
-    {
-        /** 
-         * @param {Object}      request 
-         * @param {string}      request.name 
-         * @param {GameOject}   request.gameobject 
-         * @param {Array}       request.colour 
-         * @param {number}      request.intensity 
-         * @param {number}      request.radius 
-         * @param {number}      request.angle 
-         * @param {number}      request.ahininess 
-         */
-        function PointLight({name = "Point Light", position = Vector3.Zero, colour = [1,1,1,1], intensity = 1, radius = 5, angle = 180, shininess = 255} = {})
-        {
-            LightItem.call(this, name, colour, intensity);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Position}
-                 * @type        {Vector3}
-                 */
-                Position: { value: position, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Radius}
-                 * @type        {number}
-                 */
-                Radius: { value: radius, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Angle}
-                 * @type        {number}
-                 */
-                Angle: { value: angle, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Shininess}
-                 * @type        {number}
-                 */
-                Shininess: { value: shininess, configurable: false, enumerable: true, writable: true },
-            });
-    
-            Lights.push(this);
-            Object.seal(this);
-        }
-    
-        PointLight.prototype = Object.create(null);
-        Object.seal(PointLight.prototype);
-    
-        return PointLight;
-    })();
-    Object.seal(PointLight);
-    /**
-     * @name Maths
-     * @description This module contains the methods required for matrix and vector
-     *              operations.
-     * @module      FWGE.Game
-     */
-    
-    window.Maths = (function()
-    {
-        function Maths()
-        {
-            Object.defineProperties(this,
-            {
-                Radian: { value: function Radian(degree)            { return Math.PI / 180 * degree; } },
-                Cot:    { value: function Cot(angle)                { return 1 / Math.tan(angle)} },
-                Clamp:  { value: function Clamp(value, min, max)    { return Math.max(Math.min(value, max), min); } }
-            });
-        }
-    
-        return new Maths();
-    })();
-    /**
-     * @name        Matrix2
-     * @module      FWGE.Game.Maths 
-     * @description This library contains the methods for 2x2 matrix operations.
-     *              2x2 matrices are represented as a Matrix2 of length 4.
-     */
-    
-    window.Matrix2 = (function()
-    {
-        /**
-         * @param   {number} m11
-         * @param   {number} m12
-         * @param   {number} m21
-         * @param   {number} m22
-         */
-        function Matrix2(m11 = 0, m12 = 0, m21 = 0, m22 = 0)
-        {
-            BufferedArray.call(this, 4, Matrix2);
-            this.Set(m11, m12, m21, m22);
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(Matrix2,
-        {
-            /**
-             * @property    {Identity}
-             * @type        {Matrix2}
-             */
-            Identity:
-            {
-                get: function get() { return new Matrix2(1, 0, 0, 1); },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @function    Set
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2}
-             */
-            Set:
-            {
-                value: function Set(matrix, m11, m12, m21, m22)
-                {
-                    matrix.M11 = m11;
-                    matrix.M12 = m12;
-                    matrix.M21 = m21;
-                    matrix.M22 = m22;
-    
-                    return matrix;
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Transpose
-             * @param       {Matrix2} array
-             * @return      {Matrix2}
-             */
-            Transpose:
-            {
-                value: function Transpose(matrix)
-                {
-                    return new Matrix2(matrix.M11, matrix.M21, matrix.M12, matrix.M22);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Determinant
-             * @param       {Matrix2}  array
-             * @return      {number}
-             */
-            Determinant:
-            {
-                value: function Determinant(m11, m12, m21, m22)
-                {
-                    return m11 * m22 - m21 * m12;
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Inverse
-             * @param       {Matrix2}  array
-             * @return      {Matrix2}
-             */
-            Inverse:
-            {
-                value: function Inverse(matrix)
-                {
-                    let det = matrix.Determinant;
-    
-                    if (det === 0)
-                        det = 1;
-    
-                    return new Matrix2(matrix.M22 / det, -matrix.M12 / det, -matrix.M21 / det,  matrix.M11 / det);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2} 
-             */
-            Sum:
-            {
-                value: function Sum(matrix, m11, m12, m21, m22)
-                {
-                    return new Matrix2(matrix.M11 + m11, matrix.M12 + m12, matrix.M21 + m21, matrix.M22 + m22);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2}
-             */
-            Mult:
-            {
-                value: function Mult(matrix, m11, m12, m21, m22)
-                {
-                    return new Matrix2
-                    (
-                        matrix.M11 * m11 + matrix.M12 * m21,
-                        matrix.M11 * m12 + matrix.M12 * m22,                
-                        matrix.M21 * m11 + matrix.M22 * m21,
-                        matrix.M21 * m12 + matrix.M22 * m22
-                    );
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Scale
-             * @param       {number}   scalar
-             * @return      {Matrix2}
-             */
-            Scale:
-            {
-                value: function Scale(matrix, scaler)
-                {
-                    return Matrix2.Mult(matrix, scaler, scaler, scaler, scaler);
-                },
-                configurable: false, enumerable: true, writable: false
-            }    
-        });
-    
-        Matrix2.prototype = Object.create(null);
-        Object.defineProperties(Matrix2.prototype,
-        {
-            /**
-             * @property    {M11}
-             * @type        {number}
-             */
-            M11:
-            {
-                get: function get() { return this.Buffer[0]; },
-                set: function set(m11) { this.Buffer[0] = m11; },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @property    {M12}
-             * @type        {number}
-             */
-            M12:
-            {
-                get: function get() { return this.Buffer[1]; },
-                set: function set(m12) { this.Buffer[1] = m12; },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @property    {M21}
-             * @type        {number}
-             */
-            M21:
-            {
-                get: function get() { return this.Buffer[2]; },
-                set: function set(m21) { this.Buffer[2] = m21; },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @property    {M22}
-             * @type        {number}
-             */
-            M22:
-            {
-                get: function get() { return this.Buffer[3]; },
-                set: function set(m22) { this.Buffer[3] = m22; },
-                configurable: false, enumerable: true
-            },
-    
-    
-            /**
-             * @function    Set
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2}
-             */
-            Set:
-            {
-                value: function Set(m11, m12, m21, m22)
-                {
-                    return Matrix2.Set(this, m11 instanceof Matrix2 || m11 instanceof Float32Array ? m11 : [m11, m12, m21, m22]);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Transpose
-             * @param       {Matrix2} array
-             * @return      {Matrix2}
-             */
-            Transpose:
-            {
-                value: function Transpose()
-                {
-                    return Matrix2.Set(this, this.M11, this.M21, this.M12, this.M22);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Identity
-             * @param       {Matrix2} array
-             * @return      {Matrix2}
-             */
-            Identity:
-            {
-                value: function Identity()
-                {
-                    return Matrix2.Set(this, 1, 0, 0, 1);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Determinant
-             * @param       {Matrix2}  array
-             * @return      {number}
-             */
-            Determinant:
-            {
-                get: function Determinant()
-                {
-                    return Matrix2.Determinant(this.M11, this.M12, this.M21, this.M22);
-                },
-                configurable: false, enumerable: true
-            },
-            
-            /**
-             * @function    Inverse
-             * @param       {Matrix2}  array
-             * @return      {Matrix2}
-             */
-            Inverse:
-            {
-                value: function Inverse()
-                {
-                    let det = matrix.Determinant;
-    
-                    if (det === 0)
-                        det = 1;
-    
-                    return Matrix2.Set
-                    (
-                         this,
-                         this.M22 / det,
-                        -this.M12 / det,
-                        -this.M21 / det,
-                         this.M11 / det
-                    );
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2} 
-             */
-            Sum:
-            {
-                value: function Sum(m11, m12, m21, m22)
-                {
-                    return Matrix2.Set
-                    (
-                        this,
-                        this.M11 + m11,
-                        this.M12 + m12,
-                        this.M21 + m21,
-                        this.M22 + m22
-                    );
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {number} m11
-             * @param       {number} m12
-             * @param       {number} m21
-             * @param       {number} m22
-             * @return      {Matrix2}
-             */
-            Mult:
-            {
-                value: function Mult(m11, m12, m21, m22)
-                {
-                    return Matrix2.Set
-                    (
-                        this,
-                        this.M11 * m11 + this.M12 * m21,
-                        this.M11 * m12 + this.M12 * m22,                
-                        this.M21 * m11 + this.M22 * m21,
-                        this.M21 * m12 + this.M22 * m22
-                    );
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Scale
-             * @param       {number}   scalar
-             * @return      {Matrix2}
-             */
-            Scale:
-            {
-                value: function Scale(scaler)
-                {
-                    return this.Mult(scaler, scaler, scaler, scaler);
-                },
-                configurable: false, enumerable: true, writable: false
-            }
-        });
-        Object.seal(Matrix2.prototype);
-    
-        return Matrix2;
-    })();
-    Object.seal(Matrix2);
-    
-    /**
-     * @name        Matrix3
-     * @module      FWGE.Game.Maths
-     * @description This library contains the methods for 3x3 matrix operations.
-     *              3x3 matrices are represented as a Float32Array of length 9.
-     */
-    
-    window.Matrix3 = (function()
-    {
-        /**
-         * @param       {number}    m11
-         * @param       {number}    m12
-         * @param       {number}    m13
-         * @param       {number}    m21
-         * @param       {number}    m22
-         * @param       {number}    m23
-         * @param       {number}    m31
-         * @param       {number}    m32
-         * @param       {number}    m33
-         */
-        function Matrix3(m11 = 0, m12 = 0, m13 = 0, m21 = 0, m22 = 0, m23 = 0, m31 = 0, m32 = 0, m33 = 0)
-        {
-            BufferedArray.call(this, 9, Float32Array);
-            this.Set(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(Matrix3,
-        {
-            Identity: { get Identity() { return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1); } },
-                
-            /**
-             * @function    Set
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {Matrix3}
-             */
-            Set:
-            {
-                value: function Set(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {
-                    if (m11 instanceof Matrix3)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Array)
-                    {
-                        m33 = m11[8]; m32 = m11[7]; m31 = m11[6];
-                        m23 = m11[5]; m22 = m11[4]; m21 = m11[3];
-                        m13 = m11[2]; m12 = m11[1]; m11 = m11[0];
-                    }
-    
-                    matrix.M11 = m11; matrix.M12 = m12; matrix.M13 = m13;
-                    matrix.M21 = m21; matrix.M22 = m22; matrix.M23 = m23;
-                    matrix.M31 = m31; matrix.M32 = m32; matrix.M33 = m33;
-    
-                    return matrix;
-                }
-            },
-            
-            /**
-             * @function    Transpose
-             * @param       {Matrix3}   matrix
-             * @param       {Matrix3}
-             */
-            Transpose:
-            {
-                value: function Transpose(matrix)
-                {
-                    return new Matrix3
-                    (
-                        matrix.M11, matrix.M21, matrix.M31,
-                        matrix.M12, matrix.M22, matrix.M32,
-                        matrix.M13, matrix.M23, matrix.M33
-                    );
-                }
-            },
-    
-            /**
-             * @function    Determinant
-             * @param       {Matrix3}   matrix
-             * @return      {number}
-             */
-            Determinant:
-            {
-                value: function Determinant(matrix)
-                {
-                    return  matrix.M11 * (matrix.M22 * matrix.M33 - matrix.M23 * matrix.M32) -
-                            matrix.M12 * (matrix.M21 * matrix.M33 - matrix.M23 * matrix.M31) + 
-                            matrix.M13 * (matrix.M21 * matrix.M32 - matrix.M22 * matrix.M31);
-                }
-            },
-            
-            /**
-             * @function    Inverse
-             * @param       {Matrix3}   matrix
-             * @return      {Matrixs}
-             */
-            Inverse:
-            {
-                value: function Inverse(matrix)
-                {
-                    let det = this.Determinant;
-    
-                    if (det !== 0)
-                        det = 1;
-    
-                    new Matrix3
-                    (
-                        (this.M22 * this.M33 - this.M32 * this.M23) / det,
-                        -(this.M12 * this.M33 - this.M32 * this.M13) / det,
-                        (this.M12 * this.M23 - this.M22 * this.M13) / det,
-    
-                        -(this.M21 * this.M33 - this.M31 * this.M23) / det,
-                        (this.M11 * this.M33 - this.M31 * this.M13) / det,
-                        -(this.M11 * this.M23 - this.M21 * this.M13) / det,
-    
-                        (this.M21 * this.M32 - this.M31 * this.M22) / det,
-                        -(this.M11 * this.M32 - this.M31 * this.M12) / det,
-                        (this.M11 * this.M22 - this.M21 * this.M12) / det
-                    );
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {Matrix3}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @return      {Matrix3}
-             */
-            Sum:
-            {
-                value: function Sum(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {
-                    return new Matrix3
-                    (
-                        matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13,
-                        matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23,
-                        matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33
-                    );
-                }
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {Matrix3}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @return      {Matrix3}
-             */
-            Mult:
-            {
-                value: function Mult(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {    
-                    return new Matrix3
-                    (
-                        matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31,
-                        matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32,
-                        matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33,
-                        
-                        matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31,
-                        matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32,
-                        matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33,
-                        
-                        matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31,
-                        matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32,
-                        matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33
-                    ); 
-                }
-            },
-    
-            Scale:
-            {
-                value: function Scale(scalar)
-                {
-                    return Matrix3.Mult(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
-                }
-            }
-        });
-    
-        Object.defineProperties(Matrix3.prototype,
-        {
-            M11:
-            {
-                get: function M11()  { return this.Buffer[0]; },
-                set: function M11(m11) { this.Buffer[0] = m11;  }
-            },
-            M12:
-            {
-                get: function M12()  { return this.Buffer[1]; },
-                set: function M12(m12) { this.Buffer[1] = m12;  }
-            },
-            M13:
-            {
-                get: function M13()  { return this.Buffer[2]; },
-                set: function M13(m13) { this.Buffer[2] = m13;  }
-            },
-            M21:
-            {
-                get: function M21()  { return this.Buffer[3]; },
-                set: function M21(m21) { this.Buffer[3] = m21;  }
-            },
-            M22:
-            {
-                get: function M22()  { return this.Buffer[4]; },
-                set: function M22(m22) { this.Buffer[4] = m22;  }
-            },
-            M23:
-            {
-                get: function M23()  { return this.Buffer[5]; },
-                set: function M23(m23) { this.Buffer[5] = m23;  }
-            },
-            M31:
-            {
-                get: function M31()  { return this.Buffer[6]; },
-                set: function M31(m31) { this.Buffer[6] = m31;  }
-            },
-            M32:
-            {
-                get: function M32()  { return this.Buffer[7]; },
-                set: function M32(m32) { this.Buffer[7] = m32;  }
-            },
-            M33:
-            {
-                get: function M33()  { return this.Buffer[8]; },
-                set: function M33(m33) { this.Buffer[8] = m33;  }
-            },
-            
-            /**
-             * @function    Set
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {Matrix3}
-             */
-            Set:
-            {
-                value: function Set(m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {
-                    return Matrix3.Set(this, m11 instanceof Array || m11 instanceof Matrix3 ? m11 : [m11, m12, m13, m21, m22, m23, m31, m32, m33]);
-                }
-            },
-            
-            /**
-             * @function    Transpose
-             * @param       {Matrix3}   matrix
-             * @param       {Matrix3}
-             */
-            Transpose:
-            {
-                value: function Transpose()
-                {
-                    return this.Set
-                    (
-                        this.M11, this.M21, this.M31,
-                        this.M12, this.M22, this.M32,
-                        this.M13, this.M23, this.M33
-                    );
-                }
-            },
-    
-            /**
-             * @function    Determinant
-             * @param       {Matrix3}   matrix
-             * @return      {number}
-             */
-            Determinant:
-            {
-                get: function Determinant()
-                {
-                    return Matrix3.Determinant(this);
-                }
-            },
-            
-            /**
-             * @function    Inverse
-             * @param       {Matrix3}   matrix
-             * @return      {Matrixs}
-             */
-            Inverse:
-            {
-                value: function Inverse()
-                {
-                    let det = this.Determinant;
-    
-                    if (det !== 0)
-                        det = 1;
-    
-                    return this.Set
-                    (
-                        (this.M22 * this.M33 - this.M32 * this.M23) / det,
-                        -(this.M12 * this.M33 - this.M32 * this.M13) / det,
-                        (this.M12 * this.M23 - this.M22 * this.M13) / det,
-    
-                        -(this.M21 * this.M33 - this.M31 * this.M23) / det,
-                        (this.M11 * this.M33 - this.M31 * this.M13) / det,
-                        -(this.M11 * this.M23 - this.M21 * this.M13) / det,
-    
-                        (this.M21 * this.M32 - this.M31 * this.M22) / det,
-                        -(this.M11 * this.M32 - this.M31 * this.M12) / det,
-                        (this.M11 * this.M22 - this.M21 * this.M12) / det
-                    );
-                }
-            },
-    
-            /**
-             * @function    Identity
-             * @return      {Matrix3}
-             */
-            Identity:
-            {
-                value: function Identity()
-                {
-                    return this.Set
-                    (
-                        1, 0, 0,
-                        0, 1, 0,
-                        0, 0, 1
-                    );
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {Matrix3}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @return      {Matrix3}
-             */
-            Sum:
-            {
-                value: function Sum(m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {
-                    return this.Set
-                    (
-                        this.M11 + m11, this.M12 + m12, this.M13 + m13,
-                        this.M21 + m21, this.M22 + m22, this.M23 + m23,
-                        this.M31 + m31, this.M32 + m32, this.M33 + m33
-                    );
-                }
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {Matrix3}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @return      {Matrix3}
-             */
-            Mult:
-            {
-                value: function Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33)
-                {    
-                    return this.Set
-                    (
-                        this.M11 * m11 + this.M12 * m21 + this.M13 * m31,
-                        this.M11 * m12 + this.M12 * m22 + this.M13 * m32,
-                        this.M11 * m13 + this.M12 * m23 + this.M13 * m33,
-                        
-                        this.M21 * m11 + this.M22 * m21 + this.M23 * m31,
-                        this.M21 * m12 + this.M22 * m22 + this.M23 * m32,
-                        this.M21 * m13 + this.M22 * m23 + this.M23 * m33,
-                        
-                        this.M31 * m11 + this.M32 * m21 + this.M33 * m31,
-                        this.M31 * m12 + this.M32 * m22 + this.M33 * m32,
-                        this.M31 * m13 + this.M32 * m23 + this.M33 * m33
-                    ); 
-                }
-            },
-    
-            Scale:
-            {
-                value: function Scale(scalar)
-                {
-                    return this.Mult(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
-                }
-            }
-        });
-        Object.seal(Matrix3.prototype);
-    
-        return Matrix3;
-    })();
-    Object.seal(Matrix3);
-    
-    /**
-     * @name        Matrix4
-     * @module      FWGE.Game.Maths
-     * @description This library contains the methods for 2x2 matrix operations.
-     *              4x4 matrices are represented as a Float32Array of length 16.
-     */
-    
-    window.Matrix4 = (function()
-    {
-        /**
-         * @param   {number}    m11
-         * @param   {number}    m12
-         * @param   {number}    m13
-         * @param   {number}    m14
-         * @param   {number}    m21
-         * @param   {number}    m22
-         * @param   {number}    m23
-         * @param   {number}    m24
-         * @param   {number}    m31
-         * @param   {number}    m32
-         * @param   {number}    m33
-         * @param   {number}    m34
-         * @param   {number}    m41
-         * @param   {number}    m42
-         * @param   {number}    m43
-         * @param   {number}    m44
-         */
-        function Matrix4(m11 = 0, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 0, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 0, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 0)
-        {
-            BufferedArray.call(this, 16, Float32Array);
-            this.Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
-    
-            Object.seal(this);
-        }
-    
-        Object.defineProperties(Matrix4,
-        {
-            Identity: { get: function Identity() { return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } },
-            
-            /**
-             * @function    Set
-             * @param       {Matrix4}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Set:
-            {
-                value: function Set(matrix, m11 = 0, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 0, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 0, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 0)
-                {
-                    if (m11 instanceof Matrix4)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Float32Array || m11 instanceof Array)
-                    {
-                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
-                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
-                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
-                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
-                    }
-    
-                    matrix.M11 = m11; matrix.M12 = m12; matrix.M13 = m13; matrix.M14 = m14;
-                    matrix.M21 = m21; matrix.M22 = m22; matrix.M23 = m23; matrix.M24 = m24;
-                    matrix.M31 = m31; matrix.M32 = m32; matrix.M33 = m33; matrix.M34 = m34;
-                    matrix.M41 = m41; matrix.M42 = m42; matrix.M43 = m43; matrix.M44 = m44;
-    
-                    return matrix;
-                }
-            },    
-            /**
-             * @function    Transpose
-             * @return      {Matrix4}
-             */
-            Transpose:
-            {
-                value: function Transpose(matrix)
-                {
-                    return new Matrix4
-                    (
-                        matrix.M11, matrix.M21, matrix.M31, matrix.M41,
-                        matrix.M12, matrix.M22, matrix.M32, matrix.M42,
-                        matrix.M13, matrix.M23, matrix.M33, matrix.M43,
-                        matrix.M14, matrix.M24, matrix.M34, matrix.M44
-                    );
-                }
-            },
-            
-            /**
-             * @function    Determinant
-             * @param       {Matrix4} matrix
-             * @return      {Matrix4}
-             */
-            Determinant:
-            {
-                value: function Determinant(matrix)
-                {
-                    return  matrix.M11 * matrix.M22 * matrix.M33 * matrix.M44 +
-                            matrix.M11 * matrix.M23 * matrix.M34 * matrix.M42 +
-                            matrix.M11 * matrix.M24 * matrix.M32 * matrix.M43 +
-                            matrix.M12 * matrix.M21 * matrix.M34 * matrix.M43 +
-                            matrix.M12 * matrix.M23 * matrix.M31 * matrix.M44 +
-                            matrix.M12 * matrix.M24 * matrix.M33 * matrix.M41 +
-                            matrix.M13 * matrix.M21 * matrix.M32 * matrix.M44 +
-                            matrix.M13 * matrix.M22 * matrix.M34 * matrix.M41 +
-                            matrix.M13 * matrix.M24 * matrix.M31 * matrix.M42 +
-                            matrix.M14 * matrix.M21 * matrix.M33 * matrix.M42 +
-                            matrix.M14 * matrix.M22 * matrix.M31 * matrix.M43 +
-                            matrix.M14 * matrix.M23 * matrix.M32 * matrix.M41 -
-                            matrix.M11 * matrix.M22 * matrix.M34 * matrix.M43 -
-                            matrix.M11 * matrix.M23 * matrix.M32 * matrix.M44 -
-                            matrix.M11 * matrix.M24 * matrix.M33 * matrix.M42 -
-                            matrix.M12 * matrix.M21 * matrix.M33 * matrix.M44 -
-                            matrix.M12 * matrix.M23 * matrix.M34 * matrix.M41 -
-                            matrix.M12 * matrix.M24 * matrix.M31 * matrix.M43 -
-                            matrix.M13 * matrix.M21 * matrix.M34 * matrix.M42 -
-                            matrix.M13 * matrix.M22 * matrix.M31 * matrix.M44 -
-                            matrix.M13 * matrix.M24 * matrix.M32 * matrix.M41 -
-                            matrix.M14 * matrix.M21 * matrix.M32 * matrix.M43 -
-                            matrix.M14 * matrix.M22 * matrix.M33 * matrix.M41 -
-                            matrix.M14 * matrix.M23 * matrix.M31 * matrix.M42;
-                }
-            },
-            
-            /**
-             * @function    Inverse
-             * @param       {Matrix4}   matrix
-             * @return      {Matrix4}
-             */
-            Inverse:
-            {
-                value: function Inverse(matrix)
-                {
-                    var det = matrix.Determinant;
-    
-                    if (det !== 0)
-                        det = 1;
-    
-                    return new Matrix4
-                    (
-                        (matrix.M22 * matrix.M33 * matrix.M44 +
-                        matrix.M23 * matrix.M34 * matrix.M42 +
-                        matrix.M24 * matrix.M32 * matrix.M43 -
-                        matrix.M22 * matrix.M34 * matrix.M43 -
-                        matrix.M23 * matrix.M32 * matrix.M44 -
-                        matrix.M24 * matrix.M33 * matrix.M42) / det,
-                        (matrix.M12 * matrix.M34 * matrix.M43 +
-                        matrix.M13 * matrix.M32 * matrix.M44 +
-                        matrix.M14 * matrix.M33 * matrix.M42 -
-                        matrix.M12 * matrix.M33 * matrix.M44 -
-                        matrix.M13 * matrix.M34 * matrix.M42 -
-                        matrix.M14 * matrix.M32 * matrix.M43) / det,
-                        (matrix.M12 * matrix.M23 * matrix.M44 +
-                        matrix.M13 * matrix.M24 * matrix.M42 +
-                        matrix.M14 * matrix.M22 * matrix.M43 -
-                        matrix.M12 * matrix.M24 * matrix.M43 -
-                        matrix.M13 * matrix.M22 * matrix.M44 -
-                        matrix.M14 * matrix.M23 * matrix.M42) / det,
-                        (matrix.M12 * matrix.M24 * matrix.M33 +
-                        matrix.M13 * matrix.M22 * matrix.M34 +
-                        matrix.M14 * matrix.M23 * matrix.M32 -
-                        matrix.M12 * matrix.M23 * matrix.M34 -
-                        matrix.M13 * matrix.M24 * matrix.M32 -
-                        matrix.M14 * matrix.M22 * matrix.M33) / det,
-                    
-                        (matrix.M21 * matrix.M34 * matrix.M43 +
-                        matrix.M23 * matrix.M31 * matrix.M44 +
-                        matrix.M24 * matrix.M33 * matrix.M41 -
-                        matrix.M21 * matrix.M33 * matrix.M44 -
-                        matrix.M23 * matrix.M34 * matrix.M41 -
-                        matrix.M24 * matrix.M31 * matrix.M43) / det,
-                        (matrix.M11 * matrix.M33 * matrix.M44 +
-                        matrix.M13 * matrix.M34 * matrix.M41 +
-                        matrix.M14 * matrix.M31 * matrix.M43 -
-                        matrix.M11 * matrix.M34 * matrix.M43 -
-                        matrix.M13 * matrix.M31 * matrix.M44 -
-                        matrix.M14 * matrix.M33 * matrix.M41) / det,
-                        (matrix.M11 * matrix.M24 * matrix.M43 +
-                        matrix.M13 * matrix.M21 * matrix.M44 +
-                        matrix.M14 * matrix.M23 * matrix.M41 -
-                        matrix.M11 * matrix.M23 * matrix.M44 -
-                        matrix.M13 * matrix.M24 * matrix.M41 -
-                        matrix.M14 * matrix.M21 * matrix.M43) / det,
-                        (matrix.M11 * matrix.M23 * matrix.M34 +
-                        matrix.M13 * matrix.M24 * matrix.M31 +
-                        matrix.M14 * matrix.M21 * matrix.M33 -
-                        matrix.M11 * matrix.M24 * matrix.M33 -
-                        matrix.M13 * matrix.M21 * matrix.M34 -
-                        matrix.M14 * matrix.M23 * matrix.M31) / det,
-                    
-                        (matrix.M21 *  matrix.M32 * matrix.M44 +
-                        matrix.M22 * matrix.M34 * matrix.M41 +
-                        matrix.M24 * matrix.M31 * matrix.M42 -
-                        matrix.M21 * matrix.M34 * matrix.M42 -
-                        matrix.M22 * matrix.M31 * matrix.M44 -
-                        matrix.M24 * matrix.M32 * matrix.M41) / det,
-                        (matrix.M11 * matrix.M34 * matrix.M42 +
-                        matrix.M12 * matrix.M31 * matrix.M44 +
-                        matrix.M14 * matrix.M32 * matrix.M41 -
-                        matrix.M11 * matrix.M32 * matrix.M44 -
-                        matrix.M12 * matrix.M34 * matrix.M41 -
-                        matrix.M14 * matrix.M31 * matrix.M42) / det,
-                        (matrix.M11 * matrix.M22 * matrix.M44 +
-                        matrix.M12 * matrix.M24 * matrix.M41 +
-                        matrix.M14 * matrix.M21 * matrix.M42 -
-                        matrix.M11 * matrix.M24 * matrix.M42 -
-                        matrix.M12 * matrix.M21 * matrix.M44 -
-                        matrix.M14 * matrix.M22 * matrix.M41) / det,
-                        (matrix.M11 * matrix.M24 * matrix.M32 +
-                        matrix.M12 * matrix.M21 * matrix.M34 +
-                        matrix.M14 * matrix.M22 * matrix.M31 -
-                        matrix.M11 * matrix.M22 * matrix.M34 -
-                        matrix.M12 * matrix.M24 * matrix.M31 -
-                        matrix.M14 * matrix.M21 * matrix.M32) / det,
-                    
-                        (matrix.M21 * matrix.M33 * matrix.M42 +
-                        matrix.M22 * matrix.M31 * matrix.M43 +
-                        matrix.M23 * matrix.M32 * matrix.M41 -
-                        matrix.M21 * matrix.M32 * matrix.M43 -
-                        matrix.M22 * matrix.M33 * matrix.M41 -
-                        matrix.M23 * matrix.M31 * matrix.M42) / det,
-                        (matrix.M11 * matrix.M32 * matrix.M43 +
-                        matrix.M12 * matrix.M33 * matrix.M41 +
-                        matrix.M13 * matrix.M31 * matrix.M42 -
-                        matrix.M11 * matrix.M33 * matrix.M42 -
-                        matrix.M12 * matrix.M31 * matrix.M43 -
-                        matrix.M13 * matrix.M32 * matrix.M41) / det,
-                        (matrix.M11 * matrix.M23 * matrix.M42 +
-                        matrix.M12 * matrix.M21 * matrix.M43 +
-                        matrix.M13 * matrix.M22 * matrix.M41 -
-                        matrix.M11 * matrix.M22 * matrix.M43 -
-                        matrix.M12 * matrix.M23 * matrix.M41 -
-                        matrix.M13 * matrix.M21 * matrix.M42) / det,
-                        (matrix.M11 * matrix.M22 * matrix.M33 +
-                        matrix.M12 * matrix.M23 * matrix.M31 +
-                        matrix.M13 * matrix.M21 * matrix.M32 -
-                        matrix.M11 * matrix.M23 * matrix.M32 -
-                        matrix.M12 * matrix.M21 * matrix.M33 -
-                        matrix.M13 * matrix.M22 * matrix.M31) / det
-                    );
-                }
-            },
-    
-            /**
-             * @function    Sum
-             * @param       {Matrix4}   matrix    
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Sum:
-            {   
-                value: function Sum(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-                {
-                    if (m11 instanceof Matrix4)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Float32Array || m11 instanceof Array)
-                    {
-                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
-                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
-                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
-                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
-                    }
-    
-                    return new Matrix4
-                    (
-                        matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M14 + m14,
-                        matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M24 + m24,
-                        matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33, matrix.M34 + m34,
-                        matrix.M41 + m41, matrix.M42 + m42, matrix.M43 + m43, matrix.M44 + m44
-                    );
-                }
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Mult:
-            {
-                value: function Mult(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-                {
-                    if (m11 instanceof Matrix4)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Float32Array || m11 instanceof Array)
-                    {
-                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
-                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
-                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
-                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
-                    }
-                    return new Matrix4
-                    (
-                        matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31 + matrix.M14 * m41,
-                        matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32 + matrix.M14 * m42,
-                        matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33 + matrix.M14 * m43,
-                        matrix.M11 * m14 + matrix.M12 * m24 + matrix.M13 * m34 + matrix.M14 * m44,
-                        
-                        matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31 + matrix.M24 * m41,
-                        matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32 + matrix.M24 * m42,
-                        matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33 + matrix.M24 * m43,
-                        matrix.M21 * m14 + matrix.M22 * m24 + matrix.M23 * m34 + matrix.M24 * m44,
-                        
-                        matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31 + matrix.M34 * m41,
-                        matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32 + matrix.M34 * m42,
-                        matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33 + matrix.M34 * m43,
-                        matrix.M31 * m14 + matrix.M32 * m24 + matrix.M33 * m34 + matrix.M34 * m44,
-                        
-                        matrix.M41 * m11 + matrix.M42 * m21 + matrix.M43 * m31 + matrix.M44 * m41,
-                        matrix.M41 * m12 + matrix.M42 * m22 + matrix.M43 * m32 + matrix.M44 * m42,
-                        matrix.M41 * m13 + matrix.M42 * m23 + matrix.M43 * m33 + matrix.M44 * m43,
-                        matrix.M41 * m14 + matrix.M42 * m24 + matrix.M43 * m34 + matrix.M44 * m44
-                    ); 
-                }
-            },
-    
-            Scale:
-            {
-                value: function Scale(matrix, scaler)
-                {
-                    return Matrix4.Mult
-                    (
-                        matrix,
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler
-                    );
-                }
-            }
-        });
-    
-        Object.defineProperties(Matrix4.prototype,
-        {
-            M11:
-            {
-                get: function M11() { return this.Buffer[0];  },
-                set: function M11(m11) { this.Buffer[0] = m11;   }
-            },
-            M12:
-            {
-                get: function M12() { return this.Buffer[1];  },
-                set: function M12(m12) { this.Buffer[1] = m12;   }
-            },
-            M13:
-            {
-                get: function M13() { return this.Buffer[2];  },
-                set: function M13(m13) { this.Buffer[2] = m13;   }
-            },
-            M14:
-            {
-                get: function M14() { return this.Buffer[3];  },
-                set: function M14(m14) { this.Buffer[3] = m14;   }
-            },
-            M21:
-            {
-                get: function M21() { return this.Buffer[4];  },
-                set: function M21(m21) { this.Buffer[4] = m21;   }
-            },
-            M22:
-            {
-                get: function M22() { return this.Buffer[5];  },
-                set: function M22(m22) { this.Buffer[5] = m22;   }
-            },
-            M23:
-            {
-                get: function M23() { return this.Buffer[6];  },
-                set: function M23(m23) { this.Buffer[6] = m23;   }
-            },
-            M24:
-            {
-                get: function M24() { return this.Buffer[7];  },
-                set: function M24(m24) { this.Buffer[7] = m24;   }
-            },
-            M31:
-            {
-                get: function M31() { return this.Buffer[8];  },
-                set: function M31(m31) { this.Buffer[8] = m31;   }
-            },
-            M32:
-            {
-                get: function M32() { return this.Buffer[9];  },
-                set: function M32(m32) { this.Buffer[9] = m32;   }
-            },
-            M33:
-            {
-                get: function M33() { return this.Buffer[10]; },
-                set: function M33(m33) { this.Buffer[10] = m33;  }
-            },
-            M34:
-            {
-                get: function M34() { return this.Buffer[11]; },
-                set: function M34(m34) { this.Buffer[11] = m34;  }
-            },
-            M41:
-            {
-                get: function M41() { return this.Buffer[12]; },
-                set: function M41(m41) { this.Buffer[12] = m41;  }
-            },
-            M42:
-            {
-                get: function M42() { return this.Buffer[13]; },
-                set: function M42(m42) { this.Buffer[13] = m42;  }
-            },
-            M43:
-            {
-                get: function M43() { return this.Buffer[14]; },
-                set: function M43(m43) { this.Buffer[14] = m43;  }
-            },
-            M44:
-            {
-                get: function M44() { return this.Buffer[15]; },
-                set: function M44(m44) { this.Buffer[15] = m44;  }
-            },
-    
-    
-            /**
-             * @function    Set
-             * @param       {Matrix4}   matrix
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Set:
-            {
-                value: function Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-                {
-                    return Matrix4.Set(this, m11 instanceof Array || m11 instanceof Float32Array || m11 instanceof Matrix4 ? m11 : [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]);
-                }
-            },
-    
-            /**
-             * @function    Transpose
-             * @return      {Matrix4}
-             */
-            Transpose:
-            {
-                value: function Transpose()
-                {
-                    return this.Set
-                    (
-                        this.M11, this.M21, this.M31, this.M41,
-                        this.M12, this.M22, this.M32, this.M42,
-                        this.M13, this.M23, this.M33, this.M43,
-                        this.M14, this.M24, this.M34, this.M44
-                    );
-                }
-            },
-            
-            /**
-             * @function    Identity
-             * @return      {Matrix4}
-             */
-            Identity:
-            {
-                value: function Identity()
-                {
-                    return this.Set
-                    (
-                        1, 0, 0, 0,
-                        0, 1, 0, 0,
-                        0, 0, 1, 0,
-                        0, 0, 0, 1
-                    );
-                }
-            },
-    
-            /**
-             * @function    Determinant
-             * @return      {Matrix4}
-             */
-            Determinant:
-            {
-                get: function Determinant()
-                {
-                    return Matrix4.Determinant(this);
-                }
-            },
-    
-            /**
-             * @function    Inverse
-             * @return      {Matrix4}
-             */
-            Inverse:
-            {
-                value: function Inverse()
-                {
-                    var det = this.Determinant;
-    
-                    if (det !== 0)
-                        det = 1;
-    
-                    return this.Set
-                    (
-                        (this.M22 * this.M33 * this.M44 +
-                        this.M23 * this.M34 * this.M42 +
-                        this.M24 * this.M32 * this.M43 -
-                        this.M22 * this.M34 * this.M43 -
-                        this.M23 * this.M32 * this.M44 -
-                        this.M24 * this.M33 * this.M42) / det,
-                        (this.M12 * this.M34 * this.M43 +
-                        this.M13 * this.M32 * this.M44 +
-                        this.M14 * this.M33 * this.M42 -
-                        this.M12 * this.M33 * this.M44 -
-                        this.M13 * this.M34 * this.M42 -
-                        this.M14 * this.M32 * this.M43) / det,
-                        (this.M12 * this.M23 * this.M44 +
-                        this.M13 * this.M24 * this.M42 +
-                        this.M14 * this.M22 * this.M43 -
-                        this.M12 * this.M24 * this.M43 -
-                        this.M13 * this.M22 * this.M44 -
-                        this.M14 * this.M23 * this.M42) / det,
-                        (this.M12 * this.M24 * this.M33 +
-                        this.M13 * this.M22 * this.M34 +
-                        this.M14 * this.M23 * this.M32 -
-                        this.M12 * this.M23 * this.M34 -
-                        this.M13 * this.M24 * this.M32 -
-                        this.M14 * this.M22 * this.M33) / det,
-                    
-                        (this.M21 * this.M34 * this.M43 +
-                        this.M23 * this.M31 * this.M44 +
-                        this.M24 * this.M33 * this.M41 -
-                        this.M21 * this.M33 * this.M44 -
-                        this.M23 * this.M34 * this.M41 -
-                        this.M24 * this.M31 * this.M43) / det,
-                        (this.M11 * this.M33 * this.M44 +
-                        this.M13 * this.M34 * this.M41 +
-                        this.M14 * this.M31 * this.M43 -
-                        this.M11 * this.M34 * this.M43 -
-                        this.M13 * this.M31 * this.M44 -
-                        this.M14 * this.M33 * this.M41) / det,
-                        (this.M11 * this.M24 * this.M43 +
-                        this.M13 * this.M21 * this.M44 +
-                        this.M14 * this.M23 * this.M41 -
-                        this.M11 * this.M23 * this.M44 -
-                        this.M13 * this.M24 * this.M41 -
-                        this.M14 * this.M21 * this.M43) / det,
-                        (this.M11 * this.M23 * this.M34 +
-                        this.M13 * this.M24 * this.M31 +
-                        this.M14 * this.M21 * this.M33 -
-                        this.M11 * this.M24 * this.M33 -
-                        this.M13 * this.M21 * this.M34 -
-                        this.M14 * this.M23 * this.M31) / det,
-                    
-                        (this.M21 *  this.M32 * this.M44 +
-                        this.M22 * this.M34 * this.M41 +
-                        this.M24 * this.M31 * this.M42 -
-                        this.M21 * this.M34 * this.M42 -
-                        this.M22 * this.M31 * this.M44 -
-                        this.M24 * this.M32 * this.M41) / det,
-                        (this.M11 * this.M34 * this.M42 +
-                        this.M12 * this.M31 * this.M44 +
-                        this.M14 * this.M32 * this.M41 -
-                        this.M11 * this.M32 * this.M44 -
-                        this.M12 * this.M34 * this.M41 -
-                        this.M14 * this.M31 * this.M42) / det,
-                        (this.M11 * this.M22 * this.M44 +
-                        this.M12 * this.M24 * this.M41 +
-                        this.M14 * this.M21 * this.M42 -
-                        this.M11 * this.M24 * this.M42 -
-                        this.M12 * this.M21 * this.M44 -
-                        this.M14 * this.M22 * this.M41) / det,
-                        (this.M11 * this.M24 * this.M32 +
-                        this.M12 * this.M21 * this.M34 +
-                        this.M14 * this.M22 * this.M31 -
-                        this.M11 * this.M22 * this.M34 -
-                        this.M12 * this.M24 * this.M31 -
-                        this.M14 * this.M21 * this.M32) / det,
-                    
-                        (this.M21 * this.M33 * this.M42 +
-                        this.M22 * this.M31 * this.M43 +
-                        this.M23 * this.M32 * this.M41 -
-                        this.M21 * this.M32 * this.M43 -
-                        this.M22 * this.M33 * this.M41 -
-                        this.M23 * this.M31 * this.M42) / det,
-                        (this.M11 * this.M32 * this.M43 +
-                        this.M12 * this.M33 * this.M41 +
-                        this.M13 * this.M31 * this.M42 -
-                        this.M11 * this.M33 * this.M42 -
-                        this.M12 * this.M31 * this.M43 -
-                        this.M13 * this.M32 * this.M41) / det,
-                        (this.M11 * this.M23 * this.M42 +
-                        this.M12 * this.M21 * this.M43 +
-                        this.M13 * this.M22 * this.M41 -
-                        this.M11 * this.M22 * this.M43 -
-                        this.M12 * this.M23 * this.M41 -
-                        this.M13 * this.M21 * this.M42) / det,
-                        (this.M11 * this.M22 * this.M33 +
-                        this.M12 * this.M23 * this.M31 +
-                        this.M13 * this.M21 * this.M32 -
-                        this.M11 * this.M23 * this.M32 -
-                        this.M12 * this.M21 * this.M33 -
-                        this.M13 * this.M22 * this.M31) / det);
-                }
-            },
-    
-            /**
-             * @function    Sum
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Sum:
-            {   
-                value: function Sum(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-                {
-                    if (m11 instanceof Matrix4)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Array)
-                    {
-                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
-                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
-                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
-                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
-                    }
-    
-                    return this.Set
-                    (
-                        this.M11 + m11, this.M12 + m12, this.M13 + m13, this.M14 + m14,
-                        this.M21 + m21, this.M22 + m22, this.M23 + m23, this.M24 + m24,
-                        this.M31 + m31, this.M32 + m32, this.M33 + m33, this.M34 + m34,
-                        this.M41 + m41, this.M42 + m42, this.M43 + m43, this.M44 + m44
-                    );
-                }
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {number}    m11
-             * @param       {number}    m12
-             * @param       {number}    m13
-             * @param       {number}    m14
-             * @param       {number}    m21
-             * @param       {number}    m22
-             * @param       {number}    m23
-             * @param       {number}    m24
-             * @param       {number}    m31
-             * @param       {number}    m32
-             * @param       {number}    m33
-             * @param       {number}    m34
-             * @param       {number}    m41
-             * @param       {number}    m42
-             * @param       {number}    m43
-             * @param       {number}    m44
-             * @return      {Matrix4}
-             */
-            Mult:
-            {
-                value: function Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
-                {
-                    if (m11 instanceof Matrix4)
-                        m11 = m11.Buffer;
-    
-                    if (m11 instanceof Float32Array || m11 instanceof Array)
-                    {
-                        m44 = m11[15]; m43 = m11[14]; m42 = m11[13]; m41 = m11[12];
-                        m34 = m11[11]; m33 = m11[10]; m32 = m11[9];  m31 = m11[8];
-                        m24 = m11[7];  m23 = m11[6];  m22 = m11[5];  m21 = m11[4];
-                        m14 = m11[3];  m13 = m11[2];  m12 = m11[1];  m11 = m11[0];
-                    }
-                    return this.Set
-                    (
-                        this.M11 * m11 + this.M12 * m21 + this.M13 * m31 + this.M14 * m41,
-                        this.M11 * m12 + this.M12 * m22 + this.M13 * m32 + this.M14 * m42,
-                        this.M11 * m13 + this.M12 * m23 + this.M13 * m33 + this.M14 * m43,
-                        this.M11 * m14 + this.M12 * m24 + this.M13 * m34 + this.M14 * m44,
-                        
-                        this.M21 * m11 + this.M22 * m21 + this.M23 * m31 + this.M24 * m41,
-                        this.M21 * m12 + this.M22 * m22 + this.M23 * m32 + this.M24 * m42,
-                        this.M21 * m13 + this.M22 * m23 + this.M23 * m33 + this.M24 * m43,
-                        this.M21 * m14 + this.M22 * m24 + this.M23 * m34 + this.M24 * m44,
-                        
-                        this.M31 * m11 + this.M32 * m21 + this.M33 * m31 + this.M34 * m41,
-                        this.M31 * m12 + this.M32 * m22 + this.M33 * m32 + this.M34 * m42,
-                        this.M31 * m13 + this.M32 * m23 + this.M33 * m33 + this.M34 * m43,
-                        this.M31 * m14 + this.M32 * m24 + this.M33 * m34 + this.M34 * m44,
-                        
-                        this.M41 * m11 + this.M42 * m21 + this.M43 * m31 + this.M44 * m41,
-                        this.M41 * m12 + this.M42 * m22 + this.M43 * m32 + this.M44 * m42,
-                        this.M41 * m13 + this.M42 * m23 + this.M43 * m33 + this.M44 * m43,
-                        this.M41 * m14 + this.M42 * m24 + this.M43 * m34 + this.M44 * m44
-                    ); 
-                }
-            },
-    
-            Scale:
-            {
-                value: function Scale(scaler)
-                {
-                    return this.Mult
-                    (
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler,
-                        scaler, scaler, scaler, scaler
-                    );
-                }
-            }
-        });
-        Object.seal(Matrix4.prototype);
-    
-        return Matrix4;
-    })();
-    Object.seal(Matrix4);
-    
-    /**
-     * @name        Quaternion
-     * @module      FWGE.Maths
-     * @description ...
-     */
-    
-    /**
-     * @param {number}  w
-     * @param {number}  x
-     * @param {number}  y
-     * @param {number}  z
-     */
-    function Quaternion(w, x, y, z)
-    {
-        Vector4.call(this, w, x, y, z);
+},{}],3:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const FWGE_1 = __importDefault(require("../FWGE"));
+const Item_1 = __importDefault(require("../Item"));
+var ViewMode;
+(function (ViewMode) {
+    ViewMode[ViewMode["PERSPECTIVE"] = 0] = "PERSPECTIVE";
+    ViewMode[ViewMode["ORTHOGRAPHIC"] = 1] = "ORTHOGRAPHIC";
+})(ViewMode = exports.ViewMode || (exports.ViewMode = {}));
+class ICamera {
+}
+exports.ICamera = ICamera;
+class Camera extends Item_1.default {
+    constructor(name, mode = ViewMode.PERSPECTIVE, fieldOfView = 35, aspectRatio = 16 / 9, nearClipping = 0.001, farClipping = 10000, left = -10, right = 10, top = 10, bottom = -10, horizontalTilt = 90, vericalTilt = 90) {
+        super(name);
+        this.Mode = mode;
+        this.FieldOfView = fieldOfView;
+        this.AspectRatio = aspectRatio;
+        this.NearClipping = nearClipping;
+        this.FarClipping = farClipping;
+        this.Left = left;
+        this.Right = right;
+        this.Top = top;
+        this.Bottom = bottom;
+        this.HorizontalTilt = horizontalTilt;
+        this.VericalTilt = vericalTilt;
     }
-    
-    /**
-     * @name        Vector2
-     * @module      FWGE.Game.Maths 
-     * @description This library contains the methods for 2 component vector operations.
-     *              2 component vector are represented as a Float32Array of length 2.
-     */
-    
-    window.Vector2 = (function()
-    {
-        /**
-         * @param   {number}    x
-         * @param   {number}    y
-         */
-        function Vector2(x = 0, y = 0)
-        {
-            BufferedArray.call(this, 2, Float32Array);
-            this.Set(x, y);
-    
-            Object.seal(this);
-        }
-        Vector2.prototype = Object.create(null);
-    
-        Object.defineProperties(Vector2,
-        {
-            /**
-             * @property    {Zero}
-             * @type        {Vector2}
-             */
-            Zero: { get Zero()   { return new Vector2(0, 0); } },
-            
-            /**
-             * @property    {One}
-             * @type        {Vector2}
-             */
-            One: { get One()    { return new Vector2(1, 1); } },
-            
-            /**
-             * @property    {Unit}
-             * @type        {Vector2}
-             */
-            Unit: { get Unit()   { return new Vector2(Math.sqrt(1/2), Math.sqrt(1/2)); } },
-            
-    
-            /**
-             * @function    Length
-             * @param       {Vector2}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {number}
-             */
-            Length:
-            {
-                value: function Length(x, y)
-                {
-                    return Math.sqrt(x * x + y * y);
-                }
-            },
-    
-            /**
-             * @function    Set
-             * @param       {Vector2}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Set:
-            {
-                value: function Set(vector, x, y)
-                {
-                    vector.X = x;
-                    vector.Y = y;
-    
-                    return vector;
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {Vector}    vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Sum:
-            {
-                value: function Sum(vector, x, y)
-                {   
-                    return new Vector2(vector.X + x, vector.Y + y);
-                }
-            },
-            
-            /**
-             * @function    Diff
-             * @param       {Vector}    vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Diff:
-            {
-                value: function Diff(vector, x, y)
-                {   
-                    return new Vector2(x - vector.X, y - vector.Y);
-                }
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {Vector}    vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Mult:
-            {
-                value: function Mult(vector, x, y)
-                {   
-                    return new Vector2(vector.X * x, vector.Y * y);
-                }
-            },
-            
-            /**
-             * @function    Scale
-             * @param       {Vector}    vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Scale:
-            {
-                value: function Scale(vector, scalar)
-                {   
-                    return Vector2.Mult(vector, scalar, scalar);
-                }
-            },
-            
-            /**
-             * @function    Dot
-             * @param       {Vector2}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {number}
-             */
-            Dot:
-            {
-                value: function Dot(vector, x, y)
-                {
-                    return vector.X * x + vector.Y * y;
-                }
-            },
-            
-            /**
-             * @function    Unit
-             * @param       {Vector2} vector
-             * @return      {Vector2}
-             */
-            Unit:
-            {
-                value: function Unit(vector)
-                {
-                    let length = vector.Length;
-    
-                    if (length !== 0)
-                        length = 1;
-    
-                    return Vector2.Scale(vector, 1 / length);
-                }
-            }
-        });
-    
-        Object.defineProperties(Vector2.prototype,
-        {
-            constructor: { value: Vector2 },
-    
-            /**
-             * @property    {X}
-             * @type        {number}
-             */
-            X:
-            {
-                get: function X()  { return this.Buffer[0]; },
-                set: function X(x) { this.Buffer[0] = x;    }
-            },
-    
-            /**
-             * @property    {Y}
-             * @type        {number}
-             */
-            Y:
-            {
-                get: function Y()  { return this.Buffer[1]; },
-                set: function Y(y) { this.Buffer[1] = y;    }
-            },
-    
-            /**
-             * @function    Length
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {number}
-             */
-            Length:
-            {
-                get: function Length()
-                {
-                    return Vector2.Length(this.X, this.Y);
-                }
-            },
-            
-            /**
-             * @function    Set
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Set:
-            {
-                value: function Set(x, y)
-                {
-                    return Vector2.Set(this, x, y);
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Sum:
-            {
-                value: function Sum(x, y)
-                {   
-                    return Vector2.Set(this, this.X + x, this.Y + y);
-                }
-            },
-            
-            
-            /**
-             * @function    Diff
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Diff:
-            {
-                value: function Diff(x, y)
-                {   
-                    return Vector2.Set(this, x - this.X, y - this.Y);
-                }
-            },
-            
-    
-            /**
-             * @function    Mult
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {Vector2}
-             */
-            Mult:
-            {
-                value: function Mult(x, y)
-                {   
-                    return Vector2.Set(this, this.X * x, this.Y * y);
-                }
-            },
-            
-    
-            /**
-             * @function    Scale
-             * @param       {number}    scalar
-             * @return      {Vector2}
-             */
-            Scale:
-            {
-                value: function Scale(scalar)
-                {   
-                    return this.Mult(scalar, scalar);
-                }
-            },
-            
-            
-            /**
-             * @function    Dot
-             * @param       {number}    x
-             * @param       {number}    y
-             * @return      {number}
-             */
-            Dot:
-            {
-                value: function Dot(x, y)
-                {
-                    return Vector2.Dot(this, x, y);
-                }
-            },
-    
-            
-            /**
-             * @function    Unit
-             * @return      {Vector2}
-             */
-            Unit:
-            {
-                value: function Unit()
-                {
-                    let length = this.Length;
-    
-                    if (length !== 0)
-                        length = 1;
-    
-                    return this.Scale(1 / length);
-                }
-            }
-        });
-        Object.seal(Vector2.prototype);
-    
-        return Vector2;
-    })();
-    Object.seal(Vector2);
-    
-    
-    /**
-     * @name        Vector3
-     * @module      FWGE.Game.Maths
-     * @description  MathsTHis object represents a 3-valued vector.
-     */
-    
-    window.Vector3 = (function()
-    {
-        /**
-         * @param {number}  x 
-         * @param {number}  y 
-         * @param {number}  z 
-         */
-        function Vector3(x = 0, y = 0, z = 0)
-        {
-            BufferedArray.call(this, 3, Float32Array);
-            this.Set(x, y, z);
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(Vector3,
-        {
-            /**
-             * @property    {Zero}
-             * @type        {Vector3}
-             */
-            Zero: { get: function Zero() { return new Vector3(0, 0, 0); }, configurable: false, enumerable: true },
-    
-            /**
-             * @property    {One}
-             * @type        {Vector3}
-             */
-            One: { get: function One() { return new Vector3(1, 1, 1); }, configurable: false, enumerable: true },
-    
-            /**
-             * @property    {Unit}
-             * @type        {Vector3}
-             */
-            Unit: { get Unit() { return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3)); }, configurable: false, enumerable: true },
-            
-    
-            /**
-             * @function    Set
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Set: 
-            { 
-                value: function Set(vector, x, y, z)
-                {        
-                    vector.X = x;
-                    vector.Y = y;
-                    vector.Z = z;
-    
-                    return vector;
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Length
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {numbers}
-             * @description ...
-             */
-            Length:
-            {
-                value: function Length(x, y, z)
-                {
-                    return Math.sqrt(x * x + y * y + z * z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Sum
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             * @description ...
-             */
-            Sum:
-            {
-                value: function Sum(vector, x, y, z)
-                {
-                    return new Vector3(vector.X + x, vector.Y + y, vector.Z + z)
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Diff
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             * @description ...
-             */
-            Diff:
-            {
-                value: function Diff(vector, x, y, z)
-                {
-                    return new Vector3(x - vector.X, y - vector.Y, z - vector.Z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Mult
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             * @description ...
-             */
-            Mult:
-            {
-                value: function Mult(vector, x, y, z)
-                {
-                    return new Vector3(vector.X * x, vector.Y * y, vector.Z * z)
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Scale
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             * @description ...
-             */
-            Scale:
-            {
-                value: function Scale(vector, scaler)
-                {
-                    return Vector3.Mult(vector, scaler, scaler, scaler);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Dot
-             * @param       {Vector3} vector
-             * @param       {number} x
-             * @param       {number} x
-             * @param       {number} x
-             */
-            Dot:
-            {
-                value: function Dot(vector, x, y, z)
-                {
-                    return vector.X * x + vector.Y * y + vector.Z * z;
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Cross
-             * @param       {Vector3}   vector
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             * @description ...
-             */
-            Cross:
-            {
-                value: function Cross(vector, x, y, z)
-                {
-                    return new Vector3(vector.Y * z + vector.Z * y, vector.Z * x - vector.X * z, vector.X * y + vector.Y * x);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Unit
-             * @param       {Vector3}   vector
-             * @return      {Vector3}
-             * @description ...
-             */
-            Unit:
-            {
-                value: function Unit(vector)
-                {
-                    var length = vector.Length;
-    
-                    if (length !== 0)
-                        length = 1;
-    
-                    return Vector3.Scale(vector, 1 / length);
-                },
-                configurable: false, enumerable: true, writable: false
-            }
-        });
-    
-        Vector3.prototype = Object.create(null);
-        Object.defineProperties(Vector3.prototype,
-        {    
-            /**
-             * @property    {X}
-             * @type        {number}
-             * @description Returns a zero-valued vector
-             */
-            X:
-            {
-                get: function get()  { return this.Buffer[0]; },
-                set: function set(x) { this.Buffer[0] = x; },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @property    {Y}
-             * @type        {number}
-             * @description Returns a zero-valued vector
-             */
-            Y:
-            {
-                get: function get()  { return this.Buffer[1]; },
-                set: function set(y) { this.Buffer[1] = y; },
-                configurable: false, enumerable: true
-            },
-    
-            /**
-             * @property    {Z}
-             * @type        {number}
-             * @description Returns a zero-valued vector
-             */
-            Z:
-            {
-                get: function get()  { return this.Buffer[2]; },
-                set: function set(z) { this.Buffer[2] = z; },
-                configurable: false, enumerable: true
-            },
-                
-            /**
-             * @property    {Length}
-             * @type        {number}
-             * @description Returns a zero-valued vector
-             */
-            Length:
-            {
-                get: function get() { return Vector3.Length(this.X, this.Y, this.Z); },
-                configurable: false, enumerable: true
-            },
-            
-            
-            /**
-             * @function    Cross
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Set:
-            {
-                value: function Set(x, y, z)
-                {
-                    return Vector3.Set(this, x, y, z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Cross
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Sum:
-            {
-                value: function Sum(x, y, z)
-                {
-                    return Vector3.Set(this, this.X + x, this.Y + y, this.Z + z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Diff
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Diff:
-            {
-                value: function Diff(x, y, z)
-                {
-                    return Vector3.Set(this, x - this.X, y - this.Y, z - this.Z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Mult
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Mult:
-            {
-                value: function Mult(x, y, z)
-                {        
-                    return Vector3.Set(this.X * x, this.Y * y, this.Z * z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Dot
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {number}
-             */
-            Dot:
-            {
-                value: function Dot(x, y, z)
-                {
-                    return Vector3.Dot(this, x, y, Z);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Cross
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector3}
-             */
-            Cross:
-            {     
-                value: function Cross(x, y, z)
-                {
-                    return Vector3.Set(this, this.Y * z + this.Z * y, this.Z * x - this.X * z, this.X * y + this.Y * x);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-    
-            /**
-             * @function    Scale
-             * @param       {number}    scalar
-             * @return      {Vector3}
-             */
-            Scale:
-            {
-                value: function Scale(scaler)
-                {
-                    return Vector3.Set(this, this.X * scaler, this.Y * scaler, this.Z * scaler);
-                },
-                configurable: false, enumerable: true, writable: false
-            },
-            
-            /**
-             * @function    Unit
-             * @return      {Vector3}
-             */
-            Unit:
-            {
-                value: function Unit()
-                {
-                    var length = this.Length;
-    
-                    if (length !== 0)
-                        Vector3.Scale(this, 1 / length);
-    
-                    return this;
-                },
-                configurable: false, enumerable: true, writable: false
-            }
-        });
-        Object.seal(Vector3.prototype);
-    
-        return Vector3;
-    })();
-    Object.seal(Vector3);
-    
-    /**
-     * @name        Vector4
-     * @module      FWGE.Game.Maths 
-     * @description vector library contains the methods for 2 component vector operations.
-     *              4 component vector are represented as a Float32Array of length 4.
-     */
-    
-    window.Vector4 = (function()
-    {
-        /**
-         * @param   {number}    w
-         * @param   {number}    x
-         * @param   {number}    y
-         * @param   {number}    z
-         */
-        function Vector4(w = 0, x = 0, y = 0, z = 0)
-        {
-            BufferedArray.call(this, 4, Float32Array);
-            this.Set(w, x, y, z);
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(Vector4,
-        {
-            
-            Zero: { get: function Zero() { return new Vector4(0, 0, 0, 0); } },
-            One: { get: function One() { return new Vector4(1, 1, 1, 1); } },
-            Unit: { get: function Unit()  { return new Vector4(0.5, 0.5, 0.5, 0.5); } },
-    
-            /**
-             * @function    Set
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Set:
-            {
-                value: function Set(vector, w, x, y, z)
-                {
-                    vector.W = w;
-                    vector.X = x;
-                    vector.Y = y;
-                    vector.Z = z;
-    
-                    return vector;
-                }
-            },
-            
-            /**
-             * @function    Length
-             * @param       {Vector4}   vector
-             * @return      {number}
-             */
-            Length:
-            {
-                value: function Length(vector)
-                {
-                    return Math.sqrt(vector.W * vector.W + vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Sum:
-            {
-                value: function Sum(vector, w, x, y, z)
-                {
-                    return new Vector4(vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
-                }
-            },
-            
-            /**
-             * @function    Diff
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Diff:
-            {
-                value: function Diff(vector, w, x, y, z)
-                {
-                    return new Vector4(w - vector.W, x - vector.X, y - vector.Y, z - vector.Z);
-                }
-            },
-    
-            /**
-             * @function    Mult
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @param       {Vector4}
-             */
-            Mult:
-            {
-                value: function Mult(vector, w, x, y, z)
-                {
-                    return new Vector4(vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
-                }
-            },
-    
-            /**
-             * @function    Scale
-             * @param       {Vector4}   vector
-             * @param       {number}    scalar
-             * @return      {Vector4}
-             */
-            Scale:
-            {
-                value: function Scale(vector, scaler)
-                {
-                    return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
-                }
-            },
-            
-            /**
-             * @function    Dot
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Dot:
-            {
-                value: function Dot(vector, w, x, y, z)
-                {
-                    return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
-                }
-            },
-    
-            /**
-             * @function    Unit
-             * @param       {Vector4}   vector
-             * @return      {Vector4}
-             */
-            Unit:
-            {
-                value: function Unit(vector)
-                {   
-                    let length = vector.Length;
-    
-                    if (length !== 0)
-                        length = 1;
-    
-                    return Vector4.Scale(vector, 1 / length);
-                }
-            }
-        });
-    
-        Object.defineProperties(Vector4.prototype,
-        {
-            constructor: { value: Vector4 },
-    
-            W:
-            {
-                get: function W()  { return this.Buffer[0]; },
-                set: function W(w) { this.Buffer[0] = w;    }
-            },
-            
-            X:
-            {
-                get: function X()  { return this.Buffer[1]; },
-                set: function X(x) { this.Buffer[1] = x;    }
-            },
-    
-            Y:
-            {
-                get: function Y()  { return this.Buffer[2]; },
-                set: function Y(y) { this.Buffer[2] = y;    }
-            },
-            
-            Z:
-            {
-                get: function Z()  { return this.Buffer[3]; },
-                set: function Z(z) { this.Buffer[3] = z;    }
-            },
-    
-            /**
-             * @function    Set
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Set:
-            {
-                value: function Set(w, x, y, z)
-                {
-                    return Vector4.Set(this, w, x, y, z);
-                }
-            },
-            
-            /**
-             * @function    Length
-             * @param       {Vector4}   vector
-             * @return      {number}
-             */
-            Length:
-            {
-                get: function Length()
-                {
-                    return Vector4.Length(this);
-                }
-            },
-            
-            /**
-             * @function    Sum
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Sum:
-            {
-                value: function Sum(w, x, y, z)
-                {
-                    return new Vector4(this.W + w, this.X + x, this.Y + y, this.Z + z);
-                }
-            },
-            
-            /**
-             * @function    Diff
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Diff:
-            {
-                value: function Diff(w, x, y, z)
-                {
-                    return new Vector4(w - this.W, x - this.X, y - this.Y, z - this.Z);
-                }
-            },
-    
-            /**
-             * @function    Mult
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @param       {Vector4}
-             */
-            Mult:
-            {
-                value: function Mult(w, x, y, z)
-                {
-                    return new Vector4(this.W * w, this.X * x, this.Y * y, this.Z * z);
-                }
-            },
-    
-            /**
-             * @function    Scale
-             * @param       {Vector4}   vector
-             * @param       {number}    scalar
-             * @return      {Vector4}
-             */
-            Scale:
-            {
-                value: function Scale(scaler)
-                {
-                    return this.Mult(scaler, scaler, scaler, scaler);
-                }
-            },
-            
-            /**
-             * @function    Dot
-             * @param       {Vector4}   vector
-             * @param       {number}    w
-             * @param       {number}    x
-             * @param       {number}    y
-             * @param       {number}    z
-             * @return      {Vector4}
-             */
-            Dot:
-            {
-                value: function Dot(w, x, y, z)
-                {
-                    return Vector4.Dot(this, w, x, y, z);
-                }
-            },
-    
-            /**
-             * @function    Unit
-             * @param       {Vector4}   vector
-             * @return      {Vector4}
-             */
-            Unit:
-            {
-                value: function Unit(vector)
-                {   
-                    let length = vector.Length;
-    
-                    if (length !== 0)
-                        length = 1;
-    
-                    return this.Scale(vector, 1 / length);
-                }
-            }
-        });
-        Object.seal(Vector4.prototype);
-    
-        return Vector4;
-    })();
-    Object.seal(Vector4);
-    
-    /**
-     * @name        Particle
-     * @module      FWGE.Game.ParticleSystem
-     * @description Definition of a single particle.
-     */
-    
-    window.Particle = (function()
-    {
-        /**
-         * @param   {object}    request
-         * @param   {string}    request.name
-         */
-        function Particle({before = new Transform(), after = new Transform(), length = 0})
-        {
-            KeyFrame.call(this, Transform, before, after, length);
-    
-            Object.seal(this);
-        }
-    
-        Particle.prototype = Object.create(null);
-        Object.seal(Particle.prototype);
-    
-        return Particle;
-    })();
-    Object.seal(Particle);
-    
-    /**
-     * @name        ParticleSystem
-     * @module      FWGE.Game
-     * @description Definition of a particle system.
-     */
-    
-    window.ParticleSystem = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {string}    request.name
-         * @param   {Particle}  request.particle
-         */
-        function ParticleSystem({name = "Particle System", particle = {}} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Particle}
-                 * @type        {Particle}
-                 */
-                Particle:  { value: new Particle(particle), configurable: false, enumerable: true, writable: true }
-            });
-    
-            Object.seal(this);
-        }
-    
-        ParticleSystem.prototype = Object.create(null);
-        Object.seal(ParticleSystem.prototype);
-    
-        return ParticleSystem;
-    })();
-    Object.seal(ParticleSystem);
-    
-    /**
-     * @name        Time
-     * @module      FWGE.Game
-     * @description This is the running clock that keeps track of elapsed time
-     *              between render frames.
-     */
-    
-    window.Time = (function()
-    {
-        function Time()
-        {
-            var _now = undefined;
-            var _then = undefined;
-    
-            Object.defineProperties(this,
-            {    
-                /**
-                 * @property    {Delta}
-                 * @type        {number}
-                 */
-                Delta:
-                {
-                    get: function get()
-                    {
-                        if (_now && _then)
-                            return (_now - _then) / 60;
-                        return 0;
-                    },
-                    configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @property    {DeltaTime}
-                 * @type        {number}
-                 */
-                DeltaTime:
-                {
-                    get: function get()
-                    {
-                        if (_now && _then)
-                            return _now - _then;
-                        return 0;
-                    },
-                    configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @property    {Now}
-                 * @type        {Date}
-                 */
-                Now:
-                {
-                    get: function get()
-                    {
-                        return new Date(Date.now());
-                    },
-                    configurable: false, enumerable: true
-                },
-    
-                /**
-                 * @property    {TimeUpdate}
-                 * @return      {undefined}
-                 */
-                Update:
-                {
-                    value: function Update()
-                    {
-                        if (!_now && !_then)
-                            _now = _then = Date.now();
-                        else
-                        {
-                            _then = _now;
-                            _now = Date.now();
-                        }
-                    },
-                    configurable: false, enumerable: false, writable: false
-                },
-    
-                /**
-                 * @property    {Reset}
-                 * @return      {undefined}
-                 */
-                Reset:
-                {
-                    value: function Reset()
-                    {
-                        _now = _then = undefined;
-                    },
-                    configurable: false, enumerable: false, writable: false
-                }
-            });
-            
-            Object.seal(this);
-        }
-    
-        Time.prototype = Object.create(null);
-        Object.seal(Time.prototype);
-    
-        return new Time();
-    })();
-    Object.seal(Time);
-    
-    /**
-     * @name        Transform
-     * @module      FWGE.Game
-     * @description This object contains all the transformations that 
-     *              are to be applied to the parent gameobject.
-     */
-    
-    window.Transform = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {Array}     request.position
-         * @param   {Array}     request.rotation
-         * @param   {Array}     request.scale
-         * @param   {Array}     request.shear
-         */
-        function Transform({position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0]} = {})
-        {
-            Object.defineProperties(this,
-            {        
-                /**
-                 * @property    {Position}
-                 * @type        {Vector3}
-                 */
-                Position: { value: new Vector3(position[0], position[1], position[2]), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Rotation}
-                 * @type        {Vector3}
-                 */           
-                Rotation: { value: new Vector3(rotation[0], rotation[1], rotation[2]), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Scale}
-                 * @type        {Vector3}
-                 */
-                Scale: { value: new Vector3(scale[0], scale[1], scale[2]), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {Shear}
-                 * @type        {Vector3}
-                 */
-                Shear: { value: new Vector3(shear[0], shear[1], shear[2]), configurable: false, enumerable: true, writable: false }
-            });
-    
-            Object.seal(this);
-        }
-    
-        Transform.prototype = Object.create(null);
-        Object.defineProperties(Transform.prototype,
-        {
-            /**
-             * @property    {UP}
-             * @type        {Vector3}
-             */
-            UP: { value: new Vector3(0, 1, 0), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {FORWARD}
-             * @type        {Vector3}
-             */
-            FORWARD: { value: new Vector3(0, 0, 1), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {RIGHT}
-             * @type        {Vector3}
-             */
-            RIGHT: { value: new Vector3(1, 0, 0), configurable: false, enumerable: true, writable: false },
-    
-        });
-        Object.seal(Transform.prototype);
-    
-        return Transform;
-    })();
-    Object.seal(Transform);
-    
-    /**
-     * @name        BoxCollider
-     * @module      FWGE.Physics
-     * @description This is a cube-shaped collision object
-     */
-    
-    window.BoxCollider = (function()
-    {
-        /**
-         * @param   {Object}  request
-         * @param   {string}  request.name
-         * @param   {Array}   request.position
-         * @param   {number}  request.height
-         * @param   {number}  request.width
-         * @param   {number}  request.breadth
-         */
-        function BoxCollider({name = "Box Collider", position = Vector3.Zero, height = 2, width = 2, breadth = 2} = {})
-        {
-            Collider.call(this, name, position);
-            
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Height}
-                 * @type        {number}
-                 */
-                Height: { value: height, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {Width}
-                 * @type        {number}
-                 */
-                Width: { value: width, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {Breadth}
-                 * @type        {number}
-                 */
-                Breadth: { value: breadth, configurable: false, enumerable: true, writable: true }
-            });    
-    
-            Object.seal(this);
-        }
-    
-        BoxCollider.prototype = Object.create(null);
-        Object.seal(BoxCollider.prototype);
-    
-        return BoxCollider;
-    })();
-    Object.seal(BoxCollider);
-    
-    /**
-     * @name        Collider
-     * @module      FWGE.Physics
-     * @description This is the base object for collision objects
-     */
-    
-    let Collider = (function()
-    {
-        /**
-         * @param   {string}        name
-         * @param   {Vector3}       position
-         * @param   {PhysicsItem}   physicsitem
-         */
-        function Collider(name = "Collider", position = Vector3.Zero, physicsitem = undefined)
-        {
-            Item.call(this, name);   
-            
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Position}
-                 * @type        {Vector3}
-                 */
-                Position: { value: position, configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {PhysicsItem}
-                 * @type        {PhysicsItem}
-                 */
-                PhysicsItem: { value: physicsitem, configurable: false, enumerable: true, writable: true }
-            });
-        }
-    
-        Collider.prototype = Object.create(null);
-        Object.seal(Collider.prototype);
-    
-        return Collider;
-    })();
-    Object.seal(Collider);
-    
-    /**
-     * @name        CollisionEvent
-     * @module      FWGE.Physics
-     * @description A collision event object
-     */
-    
-    let CollisionEvent = (function()
-    {
-        /**
-         * @param   {GameObject}    current
-         * @param   {GameObject}    other
-         * @param   {string}        type
-         */
-        function CollisionEvent(current, other, type)
-        {
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Current}
-                 * @type        {GameObject}
-                 */
-                Current: { value: current, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Other}
-                 * @type        {GameObject}
-                 */
-                Other: { value: other, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Type}
-                 * @type        {string}
-                 */
-                Type: { value: type, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {TimeStamp}
-                 * @type        {string}
-                 */
-                TimeStamp: { value: new Date(Date.now()).toDateString(), configurable: false, enumerable: true, writable: false }
-            });
-    
-            Object.seal(this);
-        }
-    
-        CollisionEvent.prototype = Object.create(null);
-        Object.seal(CollisionEvent.prototype);
-    
-        return CollisionEvent;
-    })();
-    Object.seal(CollisionEvent);
-    
-    /**
-     * @name        SphereCollider
-     * @module      FWGE.Physics
-     * @description This is a sphere-shaped collision object
-     */
-    
-    window.SphereCollider = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {string}    request.name
-         * @param   {Array}     request.position
-         * @param   {number}    request.radius
-         */
-        function SphereCollider({name = "Sphere Collider", position = Vector3.Zero, radius = 2} = {})
-        {
-            Collider.call(this, name, position);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Radius}
-                 * @type        {number}
-                 */
-                Radius:  { value: radius, configurable: false, enumerable: true, writable: true }
-            });
-    
-            Object.seal(this);
-        }
-    
-        SphereCollider.prototype = Object.create(null);
-        Object.seal(SphereCollider.prototype);
-    
-        return SphereCollider;
-    })();
-    Object.seal(SphereCollider);
-    
-    /**
-     * @name        PhysicsBody
-     * @module      FWGE.Physics
-     * @description This object provides the masic physical properties of an object.
-     */
-    
-    window.PhysicsBody = (function()
-    {
-        /**
-         * @param    {Object}   requext
-         * @param    {string}   requext.name
-         * @param    {number}   requext.mass
-         * @param    {boolean}  requext.lockx
-         * @param    {boolean}  requext.locky
-         * @param    {boolean}  requext.lockz
-         */
-        function PhysicsBody({name = "Physics Body", mass = 1, lockx = true, locky = true, lockz = true} = {})
-        {
-            Item.call(this, name);
-    
-            var _Grounded = true;
-            var _Velocity = 0;
-                
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Mass}
-                 * @type        {Number}
-                 */
-                Mass: { value: mass, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {LockX}
-                 * @type        {Boolean}
-                 */
-                LockX: { value: lockx, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {LockY} 
-                 * @type        {Boolean}
-                 */
-                LockY: { value: locky, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {LockZ}
-                 * @type        {Boolean}
-                 */
-                LockZ: { value: lockz, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Grounded}
-                 * @type        {Boolean}
-                 */
-                Grounded: { get: function get() { return _Grounded; } },
-                
-                /**
-                 * @property    {Velocity}
-                 * @type        {Number}
-                 */
-                Velocity: { get: function get() { return _Velocity; } }    
-            });
-    
-            Object.seal(this);
-        }
-    
-        PhysicsBody.prototype = Object.create(null);
-        Object.seal(PhysicsBody.prototype);
-    
-        return PhysicsBody;
-    })();
-    Object.seal(PhysicsBody);
-    
-    /**
-     * @name        PhysicsEngine
-     * @module      FWGE
-     * @description Something...
-     */
-    
-    let PhysicsEngine = (function()
-    {
-        function PhysicsEngine()
-        {
-            Object.defineProperties(this,
-            {        
-                /**
-                 * @property    {Gravity}
-                 * @type        {Number}
-                 * @description Gravity in m/s
-                 */
-                Gravity: { value: -9.8, configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @function    PhysicsUpdate
-                 * @return      {undefined}
-                 * @description Initializes the physics engine
-                 */
-                Update:
-                { 
-                    value: function Update()
-                    {
-                        var self = this;
-                        GameObject.Objects.forEach(function(gameobject)
-                        {
-                            if (!!gameobject.Physics)
-                            {
-                                let body = gameobject.Physics.Body;
-                                let material = gameobject.Physics.Material;
-                                let collider = gameobject.Physics.Collider;
-    
-                                if (!body.Geounded && !body.LockY)
-                                {
-                                    let delta = (Time.Delta * self.Gravity) * 0.01;
-                                    gameobject.Transform.Position.Y += delta;
-                                }
-                            }   
-                        });
-                    },
-                    configurable: false, enumerable: false, writable: false },
-            });
-        }
-        
-        PhysicsEngine.prototype = Object.create(null);
-        Object.seal(PhysicsEngine.prototype);
-    
-        return new PhysicsEngine()
-    })();
-    Object.seal(PhysicsEngine);
-    
-    /**
-     * @name        PhysicsItem
-     * @module      FWGE.Physics
-     * @description Some random container
-     */
-    
-    window.PhysicsItem = (function()
-    {
-        /**
-         * @param   {Object}            request
-         * @param   {string}            request.name
-         * @param   {GameObject}        request.parent
-         * @param   {PhysicsBody}       request.body
-         * @param   {Collider}          request.collider
-         * @param   {PhysicsMaterial}   request.material
-         */
-        function PhysicsItem({name = "Physics Item", parent = undefined, body = undefined, collider = undefined, material = undefined} = {})
-        {
-            GameItem.call(this, name, parent);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Collider}
-                 * @type        {Collider}
-                 */
-                Collider: { value: collider, configurable: false, enumerable: true, writable: true },
-    
-                /**
-                 * @property    {Material}
-                 * @type        {PhysicsMaterial}
-                 */
-                Material: { value: material, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {Body}
-                 * @type        {PhysicsBody}
-                 */
-                Body: { value: new PhysicsBody(body), configurable: false, enumerable: true, writable: true },
-            });
-    
-            Object.seal(this);
-        }
-    
-        PhysicsItem.prototype = Object.create(null);
-        Object.seal(PhysicsItem.prototype);
-    
-        return PhysicsItem;
-    })();
-    Object.seal(PhysicsItem);
-    
-    /**
-     * @name        PhysicsMaterial
-     * @module      FWGE.Game
-     * @description Some words of encouragement
-     */
-    
-    window.PhysicsMaterial = (function()
-    {
-        /**
-         * @param   {Object} request
-         * @param   {string} request.name
-         */
-        function PhysicsMaterial({name = "Physics Material"} = {})
-        {
-            Item.call(this, name);
-    
-            // TODO
-    
-            Object.seal(this);
-        }
-    
-        PhysicsMaterial.prototype = Object.create(null);
-        Object.seal(PhysicsMaterial.prototype);
-    
-        return PhysicsMaterial;
-    })();
-    Object.seal(PhysicsMaterial);
-    
-    /**
-     * @name        Colour
-     * @module      FWGE.Render
-     * @description This module is used to create simple 3 valued arrays
-     *              representing the rgb values of colours.
-     */
-    
-    window.Colour = (function()
-    {
-        /**
-         * @param   {number} red
-         * @param   {number} green
-         * @param   {number} blue
-         * @param   {number} alpha
-         */
-        function Colour(red = 1, green = 1, blue = 1, alpha = 1)
-        {
-            BufferedArray.call(this, 4, Float32Array);
-            this.Set(red, green, blue, alpha);
-    
-            Object.seal(this);
-        }
-        Object.defineProperties(Colour,
-        {
-            /**
-             * @function    Clamp
-             * @param       {number}    value
-             * @return      {number}
-             */
-            Clamp: 
-            {
-                value: function Clamp(value)
-                {
-                    return value > 1 ? 1 : value < 0 ? 0 : value;
-                },
-                configurable: false, enumerable: false, writable: false
-            },
-    
-            /**
-             * @function    Set
-             * @param       {Colour}    colour
-             * @param       {number}    red
-             * @param       {number}    green
-             * @param       {number}    blue
-             * @param       {number}    alpha
-             * @return      {Colour}   
-             */
-            Set:
-            {
-                value: function Set(colour, red, green, blue, alpha)
-                {
-                    colour.R = red;
-                    colour.G = green;
-                    colour.B = blue;
-                    colour.A = alpha;
-    
-                    return colour;
-                }
-            }
-        });
-    
-        Colour.prototype = Object.create(null);
-        Object.defineProperties(Colour.prototype,
-        {
-            constructor: { value: Colour },
-    
-            /**
-             * @property    {R}
-             * @type        {number}
-             */
-            R:
-            { 
-                get: function get() { return this.Buffer[0]; },
-                set: function set(red) { this.Buffer[0] = Colour.Clamp(red); },
-                configurable: false, enumerable: false
-            },
-            
-            /**
-             * @property    {G}
-             * @type        {number}
-             */
-            G:
-            { 
-                get: function get() { return this.Buffer[1]; },
-                set: function set(green) { this.Buffer[1] = Colour.Clamp(green); },
-                configurable: false, enumerable: false
-            },
-            
-            /**
-             * @property    {B}
-             * @type        {number}
-             */
-            B:
-            { 
-                get: function get() { return this.Buffer[2]; },
-                set: function set(blue) { this.Buffer[2] = Colour.Clamp(blue); },
-                configurable: false, enumerable: false
-            },
-            
-            /**
-             * @property    {A}
-             * @type        {number}
-             */
-            A:
-            { 
-                get: function get() { return this.Buffer[3]; },
-                set: function set(alpha) { this.Buffer[3] = Colour.Clamp(alpha); },
-                configurable: false, enumerable: false
-            },
-    
-            /**
-             * @function    Set
-             * @param       {number}    red
-             * @param       {number}    green
-             * @param       {number}    blue
-             * @param       {number}    alpha
-             * @return      {Colour}
-             */
-            Set:
-            {
-                value: function Set(red, green, blue, alpha)
-                {
-                    return Colour.Set(this, red, green, blue, alpha);
-                }
-            }
-        });
-        Object.seal(Colour.prototype);
-    
-        return Colour;
-    })();
-    Object.seal(Colour);
-    
-    /**
-     * @name        Mesh
-     * @module      FWGE.Render
-     * @description The vertex array buffer containers
-     */
-    
-    window.Mesh = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {string}    request.name
-         * @param   {Array}     request.position
-         * @param   {Array}     request.uv
-         * @param   {Array}     request.colouur
-         * @param   {Array}     request.normal
-         * @param   {Array}     request.index
-         * @param   {Array}     request.wireframe
-         */
-        function Mesh({name = "Mesh", position = undefined, uv = undefined, colour = undefined, normal = undefined, index = undefined, wireframe = undefined} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @constant    {PositionBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                PositionBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @constant    {UVBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                UVBuffer: { value: !!uv ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @constant    {ColourBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                ColourBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @constant    {NormalBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                NormalBuffer: { value: !!normal ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @constant    {IndexBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                IndexBuffer: { value: FWGE.GL.createBuffer(), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @constant    {IndexBuffer}
-                 * @type        {WebGLBuffer}
-                 */
-                WireframeBuffer: { value: !!wireframe ? FWGE.GL.createBuffer() : null, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @constant    {VertexCount}
-                 * @type        {number}
-                 */
-                VertexCount: { value: !!index ? index.length : 0, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @constant    {VertexCount}
-                 * @type        {number}
-                 */
-                WireframeCount: { value: !!wireframe ? wireframe.length : 0, configurable: false, enumerable: true, writable: false },
-    
-                /**
-                 * @property    {DrawWireframe}
-                 * @type        {boolean}
-                 */
-                DrawWireframe: { value: false, configurable: false, enumerable: true, writable: true }
-            });
-    
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.PositionBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(position), FWGE.GL.STATIC_DRAW);
-            
-            FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), FWGE.GL.STATIC_DRAW);
-            
-            if (!colour || colour.length !== position.length)
-                colour = position.map(function(){ return 1.0; });
-    
-            FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.ColourBuffer);
-            FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(colour), FWGE.GL.STATIC_DRAW);
-    
-            if (!!this.WireframeBuffer)
-            {
-                FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(wireframe), FWGE.GL.STATIC_DRAW);
-            }
-    
-            if (!!this.UVBuffer)
-            {
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.UVBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(uv), FWGE.GL.STATIC_DRAW);
-            }
-    
-            if (!!this.NormalBuffer)
-            {
-                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, this.NormalBuffer);
-                FWGE.GL.bufferData(FWGE.GL.ARRAY_BUFFER, new Float32Array(normal), FWGE.GL.STATIC_DRAW);
-            }
-            
-            Object.seal(this);
-        }
-    
-        Mesh.prototype = Object.create(null);
-        Object.seal(Mesh.prototype);
-    
-        return Mesh;
-    })();
-    Object.seal(Mesh);
-    
-    /**
-     * @name        ModelView
-     * @description This module handles the model view matrices of the
-     *              objects within the scene by applying the appropriate
-     *              transformations.
-     */
-    
-    let ModelView = (function()
-    {
-        function ModelView()
-        {
-            var _Stack = new Array();
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @function    PushMatrix
-                 * @return      {undefined}
-                 */
-                Push: 
-                {
-                    value: function Push()
-                    {
-                        _Stack.push(this.Peek());
-                    }
-                },
-    
-                /**
-                 * @function    Peek
-                 * @return      {Matrix4}
-                 */
-                Peek:
-                {
-                    value: function Peek()
-                    {
-                        if (_Stack.length === 0)
-                            return Matrix4.Identity;
-                        else
-                            return _Stack[_Stack.length - 1];
-                    }
-                },
-    
-                /**
-                 * @function    Pop
-                 * @return      {Matrix4}
-                 */
-                Pop:
-                {
-                    value: function Pop()
-                    {
-                        if (_Stack.length === 0)
-                            return Matrix4.Identity;
-                        else
-                            return _Stack.pop();
-                    }
-                },
-    
-                /**
-                 * @function    Transform
-                 * @param       {transform}
-                 * @return      {undefined}
-                 */
-                Transform:
-                {
-                    value: function Transform(transform)
-                    {
-                        this.Peek().Set
-                        (
-                            this.Shear
-                            (
-                                this.Scale
-                                (
-                                    this.Rotate
-                                    (
-                                        this.Translate
-                                        (
-                                            this.Peek(),
-                                            transform.Position
-                                        ),
-                                        transform.Rotation
-                                    ),
-                                    transform.Scale
-                                ),
-                                transform.Shear
-                            )
-                        );
-                    }
-                },
-    
-                /**
-                 * @function    Translate: {Float32Array}
-                 * @description Returns a translation matrix.
-                 * @param       matrix:         {Float32Array}
-                 * @param       translation:    {Float32Array}
-                 */
-                Translate:
-                {
-                    value: function Translate(matrix, translation)
-                    {
-                        return new Matrix4
-                        (
-                            matrix.M11, matrix.M12, matrix.M13, matrix.M14,
-                            matrix.M21, matrix.M22, matrix.M23, matrix.M24,
-                            matrix.M31, matrix.M32, matrix.M33, matrix.M34,
-    
-                            matrix.M11 * translation.X + matrix.M21 * translation.Y + matrix.M31 * translation.Z + matrix.M41,
-                            matrix.M12 * translation.X + matrix.M22 * translation.Y + matrix.M32 * translation.Z + matrix.M42,
-                            matrix.M13 * translation.X + matrix.M23 * translation.Y + matrix.M33 * translation.Z + matrix.M43,
-                            matrix.M14 * translation.X + matrix.M24 * translation.Y + matrix.M34 * translation.Z + matrix.M44
-                        );
-                    }
-                },
-    
-                /**
-                 * @function    Rotate: {Float32Array}
-                 * @description Returns a rotation matrix.
-                 * @param       matrix:     {Float32Array}
-                 * @param       rotation:   {Float32Array}
-                 */
-                Rotate:
-                {
-                    value: function Rotate(matrix, rotation)
-                    {    
-                        var rot = Matrix4.Identity;
-                        let x = Maths.Radian(rotation.X);
-                        let y = Maths.Radian(rotation.Y);
-                        let z = Maths.Radian(rotation.Z);
-    
-                        return new Matrix4
-                        (
-                            Matrix4.Mult
-                            (
-                                Matrix4.Identity,
-                                Math.cos(z), -Math.sin(z), 0.0, 0.0,
-                                Math.sin(z),  Math.cos(z), 0.0, 0.0,
-                                        0.0,          0.0, 1.0, 0.0,
-                                        0.0,          0.0, 0.0, 1.0
-                            ).Mult
-                            (
-                                Math.cos(y), 0.0, Math.sin(y), 0.0,
-                                        0.0, 1.0,         0.0, 0.0,
-                               -Math.sin(y), 0.0, Math.cos(y), 0.0,
-                                        0.0, 0.0,         0.0, 1.0
-    
-                            ).Mult
-                            (
-                            
-                                1.0,         0.0,          0.0, 0.0,
-                                0.0, Math.cos(x), -Math.sin(x), 0.0,
-                                0.0, Math.sin(x),  Math.cos(x), 0.0,
-                                0.0,         0.0,          0.0, 1.0
-                            ).Mult(matrix)
-                        );
-                    }
-                },
-    
-                /**
-                 * @function    Scale: {Float32Array}
-                 * @description Returns a scaler matrix.
-                 * @param       matrix:     {Float32Array}
-                 * @param       scalers:    {Float32Array}
-                 */
-                Scale:
-                {
-                    value: function Scale(matrix, scalers)
-                    {                    
-                        return new Matrix4
-                        (
-                            matrix.M11 * scalers.X, matrix.M12 * scalers.X, matrix.M13 * scalers.X, matrix.M14 * scalers.X,
-                            matrix.M21 * scalers.Y, matrix.M22 * scalers.Y, matrix.M23 * scalers.Y, matrix.M24 * scalers.Y,
-                            matrix.M31 * scalers.Z, matrix.M32 * scalers.Z, matrix.M33 * scalers.Z, matrix.M34 * scalers.Z,
-                                        matrix.M41,             matrix.M42,             matrix.M43,             matrix.M44
-                        );
-                    }
-                },
-    
-                /**
-                 * @function    Shear: {Float32Array}
-                 * @description Returns a shearing matrix.
-                 * @param       matrix:    {Float32Array}
-                 * @param       angles:    {Float32Array}
-                 */
-                Shear:
-                {
-                    value: function Shear(matrix, angles)
-                    {
-                        var phi   = Maths.Radian(angles.X);
-                        var theta = Maths.Radian(angles.Y);
-                        var rho   = Maths.Radian(angles.Z);
-    
-                        return new Matrix4
-                        (
-                                      1.0,             0.0, Math.tan(rho), 0.0,
-                            Math.tan(phi),             1.0,           0.0, 0.0,
-                                      0.0, Math.tan(theta),           1.0, 0.0,
-                                      0.0,             0.0,           0.0, 1.0
-                        ).Mult(matrix);
-                    }
-                }
-            });
-        }
-        ModelView.prototype = Object.create(null);
-    
-        return new ModelView();
-    })();
-    Object.seal(ModelView);
-    /**
-     * @name Projection
-     * @description This module handles the matrices regarding the camera's current
-     *              view mode, and its orientation within the scene.
-     * @module      FWGE.Render
-     */
-    
-    let Projection = (function()
-    {
-        function Projection()
-        {
-            let self = this;
-    
-            function _Orthographic(left, right, top, bottom, near, far, theta, phi)
-            {
-                theta   = Maths.Cot(Maths.Radian(theta));
-                phi     = Maths.Cot(Maths.Radian(phi));
-    
-                left    -= near * theta;
-                right   -= near * theta;
-                top     -= near * phi;
-                bottom  -= near * phi;
-    
-                self.ViewerMatrix.Set
-                (
-    
-                                2 / (right - left),                                0,                            0, 0,
-                                                0,               2 / (top - bottom),                            0, 0,
-                                            theta,                              phi,            -2 / (far - near), 0,
-                    -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
-                );
-                
-            }
-            
-            function _Perspective(field_of_view, aspect_ratio, near, far)
-            {
-                var top     = near * Math.tan(Maths.Radian(field_of_view));
-                var right   = top * aspect_ratio;
-                
-                var left    = -right;
-                var bottom  = -top;
-                var width   = right - left;
-                var height  = top - bottom;
-                var depth   = far - near;
-    
-                self.ViewerMatrix.Set
-                (
-    
-                        2 * near / width,                       0,                         0,  0,
-                                        0,       2 * near / height,                         0,  0,
-                    (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
-                                        0,                       0, -(2 * far * near) / depth,  1
-                );
-            }
-            Object.defineProperties(this,
-            {
-                ViewerMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
-                
-                
-                Update:
-                {
-                    value: function Update(mode, request)
-                    {                            
-                        switch (mode)
-                        {
-                            case CameraMode.PERSPECTIVE:
-                                _Perspective
-                                (
-                                    request.FOV     ||  45,
-                                    request.Aspect  ||  16 / 9,
-                                    request.Near    ||  0.1,
-                                    request.Far     ||  1000.1
-                                );
-                            break;
-    
-                            case CameraMode.ORTHOGRAPHIC:
-                                _Orthographic
-                                (
-                                    request.Left    || -10,
-                                    request.Right   ||  10,
-                                    request.Top     ||  10,
-                                    request.Bottom  || -10,
-                                    request.Near    ||  0,
-                                    request.Far     ||  20,
-                                    request.Theta   ||  90,
-                                    request.Phi     ||  90
-                                );
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-    
-        Projection.prototype = Object.create(null);
-    
-        return new Projection();
-    })();
-    Object.seal(Projection);
-    /**
-     * @name RenderEngine
-     * @module      FWGE 
-     * @description This module contains all the visual related aspects of the 
-     *              game engine.
-     */
-    
-    let RenderEngine = (function()
-    {
-        function RenderEngine()
-        {
-            Object.defineProperties(this,
-            {
-                /**
-                 *  @function       RenderUpdate: {undefined}
-                 *  @description    Updates the rendering to the screen
-                 */
-                Update:
-                {
-                    value: function Update()
-                    {
-                        Renderer.Render();
-                        Projection.Update(Camera.Mode, Camera)
-                    }
-                }
-            });
-        }
-    
-        RenderEngine.prototype = Object.create(null);
-        Object.seal(RenderEngine.prototype);
-    
-        return new RenderEngine();
-    })();
-    Object.seal(RenderEngine);
-    
-    /**
-     * @name        Renderer
-     * @module      FWGE.Render
-     * @description This module handles the actual rendering of the scene to
-     *              the screen.
-     */
-    
-    let Renderer = (function()
-    {
-        function Renderer()
-        {
-            Object.defineProperties(this,
-            {
-                ProjectionMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
-                ModelViewMatrix: { value: Matrix4.Identity, configurable: false, enumerable: true, writable: true },
-                NormalMatrix: { value: Matrix3.Identity, configurable: false, enumerable: true, writable: true },
-    
-                WireframeShader:
-                {
-                    value:
-                    {
-                        name:           "Wireframe Shader",
-                        height:         512,
-                        width:          512,
-                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                    },
-                    configurable: false, enumerable: true, writable: true
-                },
-                CombinedShader:
-                {
-                    value:
-                    {
-                        name:           "CombinedShader Shader",
-                        height:         512,
-                        width:          512,
-                        vertexshader:   "attribute vec3 A_Position;struct Matrix{mat4 ModelView;mat4 Projection;};uniform Matrix U_Matrix;void main(void){gl_Position=U_Matrix.Projection*U_Matrix.ModelView*vec4(A_Position,1.0);gl_PointSize=10.0;}",
-                        fragmentshader: "precision mediump float;void main(void){gl_FragColor=vec4(0.0,1.0,0.0,1.0);}"
-                    },
-                    configurable: false, enumerable: true, writable: true
-                },
-    
-                Render:
-                {
-                    value: function Render()
-                    {
-                        this.ClearBuffers();
-    
-                        for (var  i = 0, arr = GameObject.Objects; i < arr.length; ++i)
-                        {
-                            this.SetGlobalUniforms();
-                            this.RenderObject(arr[i]);
-                        }
-    
-                        //this.FinalDraw();
-                    }
-                },
-    
-                Init:
-                {
-                    value: function Init()
-                    {
-                        this.WireframeShader = new Shader(this.WireframeShader);    Shader.Shaders.pop();
-                        this.CombinedShader = new Shader(this.CombinedShader);      Shader.Shaders.pop();
-                
-                        FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
-                        FWGE.GL.disable(FWGE.GL.BLEND);
-                    }
-                },
-                
-                ClearBuffers:
-                {
-                    value: function ClearBuffers()
-                    {
-                        var i = Shader.Shaders.length;
-                        while (--i >= 0)
-                        {
-                            var shader = Shader.Shaders[i];
-    
-                            FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, shader.FrameBuffer);
-                            FWGE.GL.viewport(0, 0, shader.Width, shader.Height);
-                            FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
-                        }
-                        
-                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                        FWGE.GL.viewport(0, 0, FWGE.GL.drawingBufferWidth, FWGE.GL.drawingBufferHeight);
-                        FWGE.GL.clear(FWGE.GL.COLOR_BUFFER_BIT | FWGE.GL.DEPTH_BUFFER_BIT);
-                    }
-                },
-                
-                RenderObject:
-                {
-                    value: function RenderObject(gameObject)
-                    {
-                        ModelView.Push();
-                        ModelView.Transform(gameObject.Transform);
-                        var mv = new Float32Array(ModelView.Peek().Buffer);
-    
-                        for (var i = 0; i < gameObject.Children.length; ++i)
-                            this.RenderObject(gameObject.Children[i]);
-                        
-                        if (!!gameObject.Mesh && !!gameObject.Material && !!gameObject.Material.Shader)
-                        {
-                            var shader = gameObject.Material.Shader;
-    
-                            FWGE.GL.useProgram(shader.Program);
-                            
-                            FWGE.GL.enableVertexAttribArray(shader.Attributes.Position);
-                            if (shader.Attributes.Normal !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Normal);
-                            if (shader.Attributes.Colour !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.Colour);
-                            if (shader.Attributes.UV !== -1) FWGE.GL.enableVertexAttribArray(shader.Attributes.UV);
-    
-                            if (gameObject.Material.Alpha !== 1.0)
-                            {
-                                FWGE.GL.enable(FWGE.GL.BLEND);
-                                FWGE.GL.disable(FWGE.GL.DEPTH_TEST);
-                                FWGE.GL.blendFunc(FWGE.GL.SRC_ALPHA, FWGE.GL.ONE);
-                            }
-                            
-                            this.BindAttributes(gameObject.Mesh, shader.Attributes);
-                            this.SetObjectUniforms(gameObject.Material, shader.Uniforms, mv);
-                            this.Draw(gameObject.Mesh.VertexCount, shader.FrameBuffer);
-                            if (!!gameObject.Mesh.WireframeBuffer && gameObject.Mesh.DrawWireframe) this.DrawWireframe(gameObject.Mesh, mv);
-                            
-                            if (gameObject.Material.Alpha !== 1.0)
-                            {
-                                FWGE.GL.enable(FWGE.GL.DEPTH_TEST);
-                                FWGE.GL.disable(FWGE.GL.BLEND);
-                            }
-                    
-                            FWGE.GL.disableVertexAttribArray(shader.Attributes.Position);
-                            if (shader.Attributes.Normal !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Normal);
-                            if (shader.Attributes.Colour !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.Colour);
-                            if (shader.Attributes.UV !== -1) FWGE.GL.disableVertexAttribArray(shader.Attributes.UV);
-    
-                            FWGE.GL.useProgram(null);
-                        }
-                            
-                        ModelView.Pop();
-                    }
-                },
-    
-                BindAttributes:
-                {
-                    value: function BindAttributes(mesh, attributes)
-                    {
-                        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-                        FWGE.GL.vertexAttribPointer(attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
-                        
-                        if (attributes.UV !== -1)
-                        {
-                            if (!!mesh.UVBuffer)
-                            {
-                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.UVBuffer);
-                                FWGE.GL.vertexAttribPointer(attributes.UV, 2, FWGE.GL.FLOAT, false, 0, 0);
-                            }
-                            else
-                                FWGE.GL.disableVertexAttribArray(attributes.UV);
-                        }
-                        
-                        if (attributes.Colour !== -1)
-                        {
-                            if (!!mesh.ColourBuffer)
-                            {
-                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-                                FWGE.GL.vertexAttribPointer(attributes.Colour, 3, FWGE.GL.FLOAT, false, 0, 0);                            
-                            }
-                            else
-                                FWGE.GL.disableVertexAttribArray(attributes.Colour);
-                        }
-                        
-                        if (attributes.Normal !== -1)
-                        {
-                            if (!!mesh.NormalBuffer)
-                            {
-                                FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.NormalBuffer);
-                                FWGE.GL.vertexAttribPointer(attributes.Normal, 3, FWGE.GL.FLOAT, false, 0, 0);
-                            }
-                            else
-                                FWGE.GL.disableVertexAttribArray(attributes.Normal);
-                        }
-                        
-                        FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-                    }
-                },
-    
-                SetObjectUniforms:
-                {
-                    value: function SetObjectUniforms(material, uniforms, mv)
-                    {
-                        FWGE.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-                        FWGE.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, this.CalculateNormalMatrix().Buffer);
-    
-                        FWGE.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient.Buffer);
-                        FWGE.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse.Buffer);
-                        FWGE.GL.uniform4fv(uniforms.Material.Specular, material.Specular.Buffer);
-                        FWGE.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
-                        FWGE.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
-                    
-                        if (!!material.ImageMap)
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.ImageMap);
-                            FWGE.GL.uniform1i(uniforms.Material.HasImage, 1);
-                            FWGE.GL.uniform1i(uniforms.Sampler.Image, 0);
-                        }
-                        else
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                            FWGE.GL.uniform1i(uniforms.Material.HasImage, 0);
-                        }
-                        
-                        if (!!material.BumpMap)
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.BumpMap);
-                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 1);
-                            FWGE.GL.uniform1i(uniforms.Sampler.Bump, 1);
-                        }
-                        else
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE1);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
-                        }
-                        
-                        if (!!material.SpecularMap)
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, material.SpecularMap);
-                            FWGE.GL.uniform1i(uniforms.Material.HasSpecular, 1);
-                            FWGE.GL.uniform1i(uniforms.Sampler.Specular, 2);
-                        }
-                        else
-                        {
-                            FWGE.GL.activeTexture(FWGE.GL.TEXTURE2);
-                            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                            FWGE.GL.uniform1i(uniforms.Material.HasBump, 0);
-                        }
-                    }
-                },
-    
-                SetGlobalUniforms:
-                {
-                    value: function SetGlobalUniforms()
-                    {            
-                        var i = Shader.Shaders.length;
-                        while (--i >= 0)
-                        {
-                            var point_count = 0;
-                            
-                            FWGE.GL.useProgram(Shader.Shaders[i].Program);
-                            var uniforms = Shader.Shaders[i].Uniforms.Light;
-                            
-                            for (var j = 0; j < Lights.length; ++j)
-                            {
-                                var light = Lights[j];
-                                
-                                if (light instanceof AmbientLight)
-                                {
-                                    FWGE.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour.Buffer);
-                                    FWGE.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
-                                }
-                                else if (light instanceof DirectionalLight)
-                                {
-                                    FWGE.GL.uniform4fv(uniforms.Directional.Colour, light.Colour.Buffer);
-                                    FWGE.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-                                    FWGE.GL.uniform3fv(uniforms.Directional.Direction, light.Direction.Buffer);
-                                }
-                                else if (light instanceof PointLight)
-                                {
-                                    FWGE.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour.Buffer);
-                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                                    FWGE.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position.Buffer);
-                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-                                    FWGE.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
-    
-                                    point_count++;
-                                }
-                            }
-    
-                            FWGE.GL.uniform1i(uniforms.PointCount, point_count);
-                            
-                            // SET UNIFORM FOR NUMBER OF POINT LIGHTS
-                            FWGE.GL.uniformMatrix4fv(Shader.Shaders[i].Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer);
-                        }
-                        
-                        FWGE.GL.useProgram(null);
-                    }
-                },
-    
-                CalculateNormalMatrix:
-                {
-                    value: function CalculateNormalMatrix()
-                    {
-                        let mat = new Matrix4(ModelView.Peek());
-                        mat.Inverse();
-    
-                        return new Matrix3
-                        (
-                            mat.M11, mat.M21, mat.M31,
-                            mat.M12, mat.M22, mat.M32,
-                            mat.M13, mat.M23, mat.M33
-                        );
-                    }
-                },
-    
-                Draw:
-                {
-                    value: function Draw(vertexCount, framebuffer)
-                    {
-                        //FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, framebuffer);
-                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                        FWGE.GL.drawElements(FWGE.GL.TRIANGLES, vertexCount, FWGE.GL.UNSIGNED_SHORT, 0);
-                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                    }
-                },
-                    
-                DrawWireframe:
-                {
-                    value: function DrawWireframe(mesh, mv)
-                    {
-                        FWGE.GL.useProgram(this.WireframeShader.Program);
-                        
-                        FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-                        FWGE.GL.vertexAttribPointer(this.WireframeShader.Attributes.Position, 3, FWGE.GL.FLOAT, false, 0, 0);
-                        FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer);
-                        
-                        FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.ModelView, false, mv);
-                        FWGE.GL.uniformMatrix4fv(this.WireframeShader.Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer);
-                        //FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, framebuffer);
-                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                        FWGE.GL.drawElements(FWGE.GL.LINES, mesh.WireframeCount, FWGE.GL.UNSIGNED_SHORT, 0);
-                        FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                        FWGE.GL.useProgram(null);
-                    }
-                }
-                /*FinalDraw(): void
-                {
-                    FWGE.GL.useProgram(_Shader.Program);
-                    FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-    
-                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _Shader.PositionBuffer);
-                    FWGE.GL.vertexAttribPointer(_Shader.PositionPointer, 3, FWGE.GL.FLOAT, false, 0, 0);
-    
-                    FWGE.GL.bindBuffer(FWGE.GL.ARRAY_BUFFER, _Shader.UVBuffer);
-                    FWGE.GL.vertexAttribPointer(_Shader.UVPointer, 2, FWGE.GL.FLOAT, false, 0, 0);
-    
-                    FWGE.GL.bindBuffer(FWGE.GL.ELEMENT_ARRAY_BUFFER, _Shader.IndexBuffer);
-    
-                    FWGE.GL.uniformMatrix4fv(_Shader.ModelView, false, ModelView.Peek().Buffer);
-                    FWGE.GL.uniformMatrix4fv(_Shader.Projection, false, Projection.GetViewer());
-    
-                    var i =Shader.Shaders.length;
-                    FWGE.GL.uniform1i(_Shader.SamplerCount, 1);
-                    FWGE.GL.activeTexture(FWGE.GL.TEXTURE0);
-                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, Shader.Shaders[0].Texture);
-                    FWGE.GL.uniform1i(_Shader.Samplers[0], 0);
-    
-                    while (--i >= 0)
-                    {
-                        FWGE.GL.activeTexture(FWGE.GL.TEXTURE0 + i);
-                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, Shader.Shaders[i].Texture);
-                        FWGE.GL.uniform1i(_Shader.Samplers[i], i);
-                    }
-                    
-                    FWGE.GL.drawElements(FWGE.GL.TRIANGLES, 6, FWGE.GL.UNSIGNED_SHORT, 0);
-                    
-                    FWGE.GL.bindFramebuffer(FWGE.GL.FRAMEBUFFER, null);
-                    FWGE.GL.useProgram(null);
-                }*/
-            });
-        }
-        Renderer.prototype = Object.create(null);
-    
-        return new Renderer();
-    })();
-    Object.seal(Renderer);
-    /**
-     * @name        Material
-     * @module      FWGE.Render
-     * @description This object defines how the mesh in a gameobject will look
-     *              like when rendered to a screen.
-     */
-    
-    window.RenderMaterial = (function()
-    {
-        /**
-         * @param   {Object}    request
-         * @param   {string}    request.name
-         * @param   {Array}     request.ambient
-         * @param   {Array}     request.diffuse
-         * @param   {Array}     request.specular
-         * @param   {number}    request.alpha
-         * @param   {number}    request.shininess
-         * @param   {Shader}    request.shader
-         */
-        function RenderMaterial({name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader = undefined, texture = undefined} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Ambient}
-                 * @type        {Colour}
-                 */
-                Ambient: { value: new Colour(ambient[0], ambient[1], ambient[2], ambient[3]), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Diffuse}
-                 * @type        {Colour}
-                 */
-                Diffuse: { value: new Colour(diffuse[0], diffuse[1], diffuse[2], diffuse[3]), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Specular}
-                 * @type        {Colour}
-                 */
-                Specular: { value: new Colour(specular[0], specular[1], specular[2], specular[3]), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Alpha}
-                 * @type        {number}
-                 */
-                Alpha: { value: alpha, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {Shininess}
-                 * @type        {number}
-                 */
-                Shininess: { value: shininess, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {Shader}
-                 * @type        {Shader}
-                 */
-                Shader: { value: shader, configurable: false, enumerable: true, writable: true },
-    
-                
-                /**
-                 * @property    {ImageMap}
-                 * @type        {WebGLTexture}
-                 */
-                ImageMap: { value: null, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {BumpMap}
-                 * @type        {WebGLTexture}
-                 */
-                BumpMap: { value: null, configurable: false, enumerable: true, writable: true },
-                
-                /**
-                 * @property    {SpecularMap}
-                 * @type        {WebGLTexture}
-                 */
-                SpecularMap: { value: null, configurable: false, enumerable: true, writable: true },
-            });
-    
-            Object.seal(this);
-            this.SetTextures(texture);
-        }
-        Object.defineProperties(RenderMaterial,
-        {
-            /**
-             * @function    IsPowerOf2
-             * @param       {number}    value
-             * @return      {boolean}
-             */
-            IsPowerOf2:
-            {
-                value: function IsPowerOf2(value)
-                {
-                    return (value & (value - 1)) == 0;
-                }
-            },
-    
-            /**
-             * @function    ApplyImage
-             * @param       {string}            src
-             * @param       {RenderMaterial}    material
-             * @param       {string}            type
-             * @return      {undefined}
-             */
-            ApplyImage:
-            {
-                value: function ApplyImage(src, material, type)
-                {
-                    var img = new Image();
-                    var texture = null;
-    
-                    switch(type)
-                    {
-                        case 'image':
-                            material.ImageMap = FWGE.GL.createTexture();
-                            texture = material.ImageMap;
-                        break;
-    
-                        case 'bump':
-                            material.BumpMap = FWGE.GL.createTexture();
-                            texture = material.BumpMap;
-                        break;
-    
-                        case 'specular':
-                            material.SpecularMap = FWGE.GL.createTexture();
-                            texture = material.SpecularMap;
-                        break;
-    
-                        default: texture = null;
-                    }
-    
-                    FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-                    FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, 1, 1, 0, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
-    
-                    img.onload = function()
-                    {
-                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-                        FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, img);
-    
-                        // then either generate mips if the image uses power-of-2 dimensions or 
-                        // set the filtering correctly for non-power-of-2 images.
-                        if (RenderMaterial.IsPowerOf2(img.width) && RenderMaterial.IsPowerOf2(img.height))
-                        {
-                            FWGE.GL.generateMipmap(FWGE.GL.TEXTURE_2D);
-                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MAG_FILTER, FWGE.GL.LINEAR);
-                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR_MIPMAP_NEAREST);
-                        }
-                        else
-                        {
-                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_S, FWGE.GL.CLAMP_TO_EDGE);
-                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_T, FWGE.GL.CLAMP_TO_EDGE);
-                            FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR);
-                        }
-    
-                        //FWGE.GL.pixelStorei(FWGE.GL.UNPACK_FLIP_Y_WEBGL, true);                
-                        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
-                    };
-                    img.src = src;
-                }
-            }
-        });
-    
-        RenderMaterial.prototype = Object.create(null);
-        Object.defineProperties(RenderMaterial.prototype,
-        {
-            /**
-             * @function    SetTextures
-             * @param       {Object}    request
-             * @param       {String}    request.imagemap
-             * @param       {String}    request.bumpmap
-             * @param       {String}    request.specularmap
-             * @return      {undefined}
-             */
-            SetTextures: 
-            { 
-                value: function SetTextures({imagemap = undefined, bumpmap = undefined, specularmap = undefined} = {})
-                {
-                    if (!!imagemap)
-                    {
-                        if (!!this.ImageMap)
-                            FWGE.GL.deleteTexture(this.ImageMap);
-    
-                        RenderMaterial.ApplyImage(imagemap, this, 'image');
-                    }
-                    if (!!bumpmap)
-                    {
-                        if (!!this.BumpMap)
-                            FWGE.GL.deleteTexture(this.BumpMap);
-    
-                        RenderMaterial.ApplyImage(bumpmap, this, 'bump');
-                    }
-                    if (!!specularmap)
-                    {
-                        if (!!this.SpecularMap)
-                            FWGE.GL.deleteTexture(this.SpecularMap);
-    
-                        RenderMaterial.ApplyImage(specularmap, this, 'specular');
-                    }
-                }
-            }
-        });
-        Object.seal(RenderMaterial.prototype);
-    
-        return RenderMaterial;
-    })();
-    Object.seal(RenderMaterial);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL 
-     * @param {WebGLProgram}            Program 
-     */
-    function ShaderAttributes(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Position}
-             * @type        {number}
-             */
-            Position:   { value: GL.getAttribLocation(Program, "A_Position"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Colour}
-             * @type        {number}
-             */
-            Colour:     { value: GL.getAttribLocation(Program, "A_Colour"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {UV}
-             * @type        {number}
-             */
-            UV:         { value: GL.getAttribLocation(Program, "A_UV"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Normal}
-             * @type        {number}
-             */
-            Normal:     { value: GL.getAttribLocation(Program, "A_Normal"), configurable: false, enumerable: true, writable: false },
-        });
-    
-        Object.seal(this);
+    static get Main() {
+        return Camera.Cameras[0];
     }
-    Object.seal(ShaderAttributes);
-    
-    ShaderAttributes.prototype = Object.create(null);
-    Object.seal(ShaderAttributes.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     */
-    function ShaderUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Material}
-             * @type        {WebGLUniformLocations}
-             */
-            Material:   { value:  new MaterialUniforms(GL,  Program), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Matrix}
-             * @type        {WebGLUniformLocations}
-             */
-            Matrix: { value:  new MatrixUniforms(GL,    Program), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Light}
-             * @type        {WebGLUniformLocations}
-             */
-            Light:  { value:  new LightUniforms(GL,     Program), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Sampler}
-             * @type        {WebGLUniformLocations}
-             */
-            Sampler:    { value:  new SamplerUniforms(GL,   Program), configurable: false, enumerable: true, writable: false }
-        });
-     
-        Object.seal(this);
+    static set Main(camera) {
+        Camera.Cameras[0] = camera;
     }
-    Object.seal(ShaderUniforms);
-    
-    ShaderUniforms.prototype = Object.create(null);
-    Object.seal(ShaderUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     */
-    function AmbientUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Colour}
-             * @type        {WebGLUniformLocations}
-             */
-            Colour: {value: GL.getUniformLocation(Program, "U_Ambient.Colour"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Intensity}
-             * @type        {WebGLUniformLocations}
-             */
-            Intensity: {value: GL.getUniformLocation(Program, "U_Ambient.Intensity"), configurable: false, enumerable: true, writable: false }
-        });
-     
-        Object.seal(this);
+    Update() {
+        this.AspectRatio = FWGE_1.default.GL.canvas.clientWidth / FWGE_1.default.GL.canvas.clientHeight;
     }
-    Object.seal(AmbientUniforms);
-    
-    AmbientUniforms.prototype = Object.create(null);
-    Object.seal(AmbientUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     */
-    function DirectionalUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Colour}
-             * @type        {WebGLUniformLocations}
-             */
-            Colour: { value: GL.getUniformLocation(Program, "U_Directional.Colour"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Intensity}
-             * @type        {WebGLUniformLocations}
-             */
-            Intensity: { value: GL.getUniformLocation(Program, "U_Directional.Intensity"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Direction}
-             * @type        {WebGLUniformLocations}
-             */
-            Direction: { value: GL.getUniformLocation(Program, "U_Directional.Direction"), configurable: false, enumerable: true, writable: false }
-        });
-     
-        Object.seal(this);
+}
+Camera.Cameras = [new Camera('Main Camera')];
+exports.default = Camera;
+
+},{"../FWGE":5,"../Item":14}],4:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Camera_1 = __importStar(require("./Camera"));
+const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
+const Vector3_1 = __importDefault(require("../Maths/Vector3"));
+class IViewer extends Camera_1.ICamera {
+    constructor() {
+        super(...arguments);
+        this.position = Vector3_1.default.ZERO;
+        this.target = Vector3_1.default.ZERO;
     }
-    Object.seal(DirectionalUniforms);
-    
-    DirectionalUniforms.prototype = Object.create(null);
-    Object.seal(DirectionalUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     */
-    function LightUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Ambient}
-             * @type        {WebGLUniformLocations}s
-             */
-            Ambient: { value: new AmbientUniforms(GL, Program), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Directional}
-             * @type        {WebGLUniformLocations}
-             */
-            Directional: { value: new DirectionalUniforms(GL, Program), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {PointCount}
-             * @type        {WebGLUniformLocations}
-             */
-            PointCount: { value: GL.getUniformLocation(Program, `U_Point_Count`), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Point}
-             * @type        {WebGLUniformLocations}
-             */
-            Point: { value: [], configurable: false, enumerable: true, writable: false }
-    
-        });
-    
-        for (var i = 0; i < 8; ++i)
-            this.Point.push(new PointUniforms(GL, Program, i));
-     
-        Object.seal(this);
+}
+exports.IViewer = IViewer;
+class Viewer extends Camera_1.default {
+    constructor({ name = 'Viewer', mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt, position, target } = new IViewer) {
+        super(name, mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt);
+        this.Up = new Vector3_1.default(0, 1, 0);
+        this.Matrix = Matrix4_1.default.IDENTITY;
+        this.Position = new Vector3_1.default(position);
+        this.Target = new Vector3_1.default(target);
     }
-    Object.seal(LightUniforms);
-    
-    LightUniforms.prototype = Object.create(null);
-    Object.seal(LightUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     * @param {number}                  index
-     */
-    function PointUniforms(GL, Program, index)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Colour}
-             * @type        {WebGLUniformLocations}
-             */
-            Colour: { value: GL.getUniformLocation(Program, `U_Point[${index}].Colour`), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Intensity}
-             * @type        {WebGLUniformLocations}
-             */
-            Intensity:  { value: GL.getUniformLocation(Program, `U_Point[${index}].Intensity`), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Position}
-             * @type        {WebGLUniformLocations}
-             */
-            Position:   { value: GL.getUniformLocation(Program, `U_Point[${index}].Position`), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Radius}
-             * @type        {WebGLUniformLocations}
-             */
-            Radius: { value: GL.getUniformLocation(Program, `U_Point[${index}].Radius`), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Angle}
-             * @type        {WebGLUniformLocations}
-             */
-            Angle:  { value: GL.getUniformLocation(Program, `U_Point[${index}].Angle`), configurable: false, enumerable: true, writable: false }
-        });
-     
-        Object.seal(this);
+    get ViewMatrix() {
+        return this.Matrix.Clone();
     }
-    Object.seal(PointUniforms);
-    
-    PointUniforms.prototype = Object.create(null);
-    Object.seal(PointUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL 
-     * @param {WebGLProgram}            Program 
-     */
-    function MaterialUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Ambient}
-             * @type        {WebGLUniformLocations}
-             */
-            Ambient:    { value: GL.getUniformLocation(Program, "U_Material.Ambient"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Diffuse}
-             * @type        {WebGLUniformLocations}
-             */
-            Diffuse:    { value: GL.getUniformLocation(Program, "U_Material.Diffuse"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Specular}
-             * @type        {WebGLUniformLocations}
-             */
-            Specular:   { value: GL.getUniformLocation(Program, "U_Material.Specular"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Shininess}
-             * @type        {WebGLUniformLocations}
-             */
-            Shininess:  { value: GL.getUniformLocation(Program, "U_Material.Shininess"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Alpha}
-             * @type        {WebGLUniformLocations}
-             */
-            Alpha:      { value: GL.getUniformLocation(Program, "U_Material.Alpha"), configurable: false, enumerable: true, writable: false },
-    
-            
-            /**
-             * @property    {HasImage}
-             * @type        {WebGLUniformLocations}
-             */
-            HasImage:    { value: GL.getUniformLocation(Program, "U_Material.HasImage"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {HasBump}
-             * @type        {WebGLUniformLocations}
-             */
-            HasBump:     { value: GL.getUniformLocation(Program, "U_Material.HasBump"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {HasSpecular}
-             * @type        {WebGLUniformLocations}
-             */
-            HasSpecular: { value: GL.getUniformLocation(Program, "U_Material.HasSpecular"), configurable: false, enumerable: true, writable: false }
-        });
-        
-        Object.seal(this);
+    Update() {
+        super.Update();
+        let n = this.Position.Clone().Diff(this.Target).Unit();
+        let u = this.Up.Clone().Cross(n).Unit();
+        let v = n.Clone().Cross(u).Unit();
+        let p = this.Position;
+        this.Matrix.Set(v.X, v.Y, v.Z, 0, u.X, u.Y, u.Z, 0, n.X, n.Y, n.Z, 0, 0, 0, 0, 1).Mult(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, p.X, p.Y, p.Z, 1);
     }
-    Object.seal(MaterialUniforms);
-    
-    MaterialUniforms.prototype = Object.create(null);
-    Object.seal(MaterialUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL 
-     * @param {WebGLProgram}            Program 
-     */
-    function MatrixUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {ModelView}
-             * @type        {WebGLUniformLocations}
-             */
-            ModelView:  { value: GL.getUniformLocation(Program, "U_Matrix.ModelView"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Projection}
-             * @type        {WebGLUniformLocations}
-             */
-            Projection: { value: GL.getUniformLocation(Program, "U_Matrix.Projection"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Normal}
-             * @type        {WebGLUniformLocations}
-             */
-            Normal:     { value: GL.getUniformLocation(Program, "U_Matrix.Normal"), configurable: false, enumerable: true, writable: false },
-    
-            /**
-             * @property    {Camera}
-             * @type        {WebGLUniformLocations}
-             */
-            Camera:     { value: GL.getUniformLocation(Program, "U_Matrix.Camera"), configurable: false, enumerable: true, writable: false }
-        });
-        
-        Object.seal(this);
+}
+exports.default = Viewer;
+
+},{"../Maths/Matrix4":23,"../Maths/Vector3":25,"./Camera":3}],5:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Control_1 = __importDefault(require("./Utility/Control"));
+const MouseInput_1 = __importDefault(require("./Input/MouseInput"));
+const KeyboardInput_1 = __importDefault(require("./Input/KeyboardInput"));
+let GL;
+class IFWGE {
+}
+exports.IFWGE = IFWGE;
+class FWGE {
+    static get GL() {
+        return GL;
     }
-    Object.seal(MatrixUniforms);
-    
-    MatrixUniforms.prototype = Object.create(null);
-    Object.seal(MatrixUniforms.prototype);
-    
-    /**
-     * @param {WebGLRenderingContext}   GL
-     * @param {WebGLProgram}            Program
-     */
-    function SamplerUniforms(GL, Program)
-    {
-        Object.defineProperties(this,
-        {
-            /**
-             * @property    {Image}
-             * @type        {WebGLUniformLocations}
-             */
-            Image:  { value: GL.getUniformLocation(Program, "U_Sampler.Image"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Bump}
-             * @type        {WebGLUniformLocations}
-             */
-            Bump:   { value: GL.getUniformLocation(Program, "U_Sampler.Bump"), configurable: false, enumerable: true, writable: false },
-            
-            /**
-             * @property    {Specular}
-             * @type        {WebGLUniformLocations}
-             */
-            Specular:   { value: GL.getUniformLocation(Program, "U_Sampler.Specular"), configurable: false, enumerable: true, writable: false }
-        });
-     
-        Object.seal(this);
+    static Init({ canvas, renderupdate = 60, physcisupdate = 30, clear = [0, 0, 0, 1] }) {
+        if (!canvas) {
+            throw new Error('Field {canvas: HTMLCanvasElement} is required');
+        }
+        GL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!GL) {
+            throw new Error('Webgl context could not be initialized.');
+        }
+        GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
+        Control_1.default.Init(renderupdate, physcisupdate);
+        MouseInput_1.default.SetElement(canvas);
+        KeyboardInput_1.default.SetElement(canvas);
     }
-    Object.seal(SamplerUniforms);
-    
-    SamplerUniforms.prototype = Object.create(null);
-    Object.seal(SamplerUniforms.prototype);
-    
-    /**
-     * @name        Shader
-     * @module      FWGE.Render
-     * @description This object links with the vertex and fragment shaders
-     */
-    
-    window.Shader = (function()
-    {
-        /**
-         * @param       {Object}    request
-         * @param       {string}    request.name
-         * @param       {number}    request.height
-         * @param       {number}    request.width
-         * @param       {string}    request.vertexshader
-         * @param       {string}    request.fragemntshader
-         */
-        function Shader({name = "Shader", height = 1024, width = 1024, vertexshader = "", fragmentshader = ""} = {})
-        {
-            Item.call(this, name);
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {Program}
-                 * @type        {WebGLProgram}
-                 */
-                Program: { value: FWGE.GL.createProgram(), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Texture}
-                 * @type        {WebGLTexture}
-                 */
-                Texture: { value: FWGE.GL.createTexture(), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {FrameBuffer}
-                 * @type        {WebGLFramebuffer}
-                 */
-                FrameBuffer: { value: FWGE.GL.createFramebuffer(), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {RenderBuffer}
-                 * @type        {WebGLRenderbuffer}
-                 */
-                RenderBuffer: { value: FWGE.GL.createRenderbuffer(), configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Height}
-                 * @type        {Number}
-                 */
-                Height: { value: height, configurable: false, enumerable: true, writable: false },
-                
-                /**
-                 * @property    {Width}
-                 * @type        {Number}
-                 */
-                Width: { value: width, configurable: false, enumerable: true, writable: false },
-            });
-    
-            if (Shader.Init(this, FWGE.GL, vertexshader, fragmentshader))
-            {
-                FWGE.GL.useProgram(this.Program);
-    
-                Object.defineProperties(this,
-                {
-                    /**
-                     * @property    {Attributes}
-                     * @type        {ShaderAttributes}
-                     */
-                    Attributes: { value: new ShaderAttributes(FWGE.GL, this.Program), configurable: false, enumerable: true, writable: false },
-    
-                    /**
-                     * @property    {Uniforms}
-                     * @type        {ShaderUniforms}
-                     */
-                    Uniforms: { value: new ShaderUniforms(FWGE.GL, this.Program), configurable: false, enumerable: true, writable: false }
-                });
-    
-                FWGE.GL.useProgram(null);
-            }
-    
-            Shader.Shaders.push(this);
-        
-            Object.seal(this);
+}
+exports.default = FWGE;
+
+},{"./Input/KeyboardInput":8,"./Input/MouseInput":9,"./Utility/Control":53}],6:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("./Item"));
+const Transform_1 = __importDefault(require("./Transform"));
+exports.GameObjects = [];
+class IGameObject {
+    constructor() {
+        this.transform = new Transform_1.default();
+    }
+}
+exports.IGameObject = IGameObject;
+class GameObject extends Item_1.default {
+    constructor({ name, transform = new Transform_1.default, material, mesh, physics, animation, begin = () => undefined, update = () => undefined, end = () => undefined, children = [] } = new IGameObject) {
+        super(name);
+        this.Begin = begin.bind(this);
+        this.Update = update.bind(this);
+        this.End = end.bind(this);
+        this.Transform = transform;
+        this.Mesh = mesh;
+        this.Material = material;
+        this.Physics = physics;
+        this.Animation = animation;
+        this.Children = [];
+        for (let child of children) {
+            this.Children.push(child);
+        }
+        exports.GameObjects.push(this);
+    }
+    Clone() {
+        return GameObject.Clone(this);
+    }
+    static Clone(gameObject) {
+        let children = gameObject.Children.map(child => child.Clone());
+        return new GameObject({
+            name: gameObject.Name,
+            transform: new Transform_1.default({
+                position: gameObject.Transform.Position,
+                rotation: gameObject.Transform.Rotation,
+                scale: gameObject.Transform.Scale,
+                shear: gameObject.Transform.Shear
+            }),
+            mesh: gameObject.Mesh,
+            material: gameObject.Material,
+            physics: gameObject.Physics,
+            begin: gameObject.Begin,
+            update: gameObject.Update,
+            end: gameObject.End,
+            children
+        });
+    }
+}
+exports.default = GameObject;
+
+},{"./Item":14,"./Transform":50}],7:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var InputState;
+(function (InputState) {
+    InputState[InputState["UP"] = 0] = "UP";
+    InputState[InputState["PRESSED"] = 1] = "PRESSED";
+    InputState[InputState["CLICKED"] = 2] = "CLICKED";
+    InputState[InputState["DOWN"] = 3] = "DOWN";
+})(InputState = exports.InputState || (exports.InputState = {}));
+
+},{}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const InputState_1 = require("./InputState");
+class KeyboardInput {
+    static get KeyA() {
+        return KeyboardInput.Keys[65];
+    }
+    static get Key0() {
+        return KeyboardInput.Keys[48];
+    }
+    static get Numpad0() {
+        return KeyboardInput.Keys[96];
+    }
+    static SetElement(element) {
+        element.onkeyup = (e) => {
+            KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.UP;
         };
-        Object.defineProperties(Shader,
-        {
-            Shaders: { value: new Array(), configurable: false, enumerable: false, writable: false },
-            
-            /**
-             * @function    Init
-             * @param       {Shader}                shader
-             * @param       {WebGLRenderingContext} GL
-             * @param       {string}                vertexshader
-             * @param       {string}                fragmentshader
-             * @return      {boolean}
-             */
-            Init:
-            {
-                value: function Init(shader, GL, vertexShader, fragmentShader)
-                {
-                    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer); 
-                    GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer);
-                    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height);
-                    GL.bindTexture(GL.TEXTURE_2D, shader.Texture);
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-                    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined);
-                    GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0);
-                    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer);  
-                                
-                    GL.bindTexture(GL.TEXTURE_2D, null);
-                    GL.bindRenderbuffer(GL.RENDERBUFFER, null);
-                    GL.bindFramebuffer(GL.FRAMEBUFFER, null);        
-                    
-                    var vs = GL.createShader(GL.VERTEX_SHADER);
-                    GL.shaderSource(vs, vertexShader);
-                    GL.compileShader(vs);
-                    if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
-                    {
-                        console.error(new Error("Vertex Shader: " + GL.getShaderInfoLog(vs)));
-                        return false;
-                    }
-                    
-                    var fs = GL.createShader(GL.FRAGMENT_SHADER);
-                    GL.shaderSource(fs, fragmentShader);
-                    GL.compileShader(fs);
-                    if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
-                    {
-                        console.error(new Error("Fragment Shader: " + GL.getShaderInfoLog(fs)));
-                        return false;
-                    }
-                    
-                    GL.attachShader(shader.Program, vs);
-                    GL.attachShader(shader.Program, fs);
-                    GL.linkProgram(shader.Program);
-                    if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS))
-                        return false;
-    
-                    return true;
-                },
-                configurable: false, enumerable: false, writable: false
+        element.onkeydown = (e) => {
+            if (KeyboardInput.Keys[e.keyCode] == InputState_1.InputState.CLICKED) {
+                KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.DOWN;
             }
-        });
-    
-        Shader.prototype = Object.create(null);
-        Object.seal(Shader.prototype);
-    
-        return Shader;
-    })();
-    Object.seal(Shader);
-    
-    /**
-     * @name        FWGE
-     * @module      window
-     * @description This is the main object used to handle the system.
-     *              All control, of the game, rendering, and physcis engines are through
-     *              this obejct.
-     */
-    
-    window.FWGE = (function()
-    {
-        function FWGE()
-        {
-            let _GL = undefined;
-    
-            Object.defineProperties(this,
-            {
-                /**
-                 * @property    {GL}
-                 * @type        {WebGLRenderingContext}
-                 */
-                GL: { get: function get() { return _GL; }, configurable: false, enumerable: false },
-    
-                /**
-                 * @function    Init
-                 * @param       {Object}            request
-                 * @param       {HTMLCanvasElement} request.canvas
-                 * @param       {number}            request.height
-                 * @param       {number}            request.width
-                 * @param       {Array<number>}     request.clear
-                 * @return      {undefined}
-                 */
-                Init:
-                {
-                    value: function Init({canvas = undefined, height = 480, width = 640, clear = [0, 0, 0, 1]} = {})
-                    {
-                        if (!canvas)
-                            throw new Error("Field {canvas: HTMLCanvasElement} is required");
-    
-                        _GL = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    
-                        if (!_GL)
-                            throw new Error("Webgl context could not be initialized.");
-                        
-                        Input.Init(canvas);
-                        Renderer.Init();
-                        _GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
-                    },
-                    configurable: false, enumerable: true, writable: false
-                },
-    
-                /**
-                 * @function    Start
-                 * @return      {undefined}
-                 */
-                Start:
-                {
-                    value: function Start()
-                    {
-                        GameEngine.Start();
-                    },
-                    configurable: false, enumerable: true, writable: false
-                },
-    
-                /**
-                 * @function    Pause
-                 * @return      {undefined}
-                 */
-                Pause:
-                {
-                    value: function Pause()
-                    {
-                        GameEngine.Pause();
-                    },
-                    configurable: false, enumerable: true, writable: false
-                },
-    
-                /**
-                 * @function    Stop
-                 * @return      {undefined}
-                 */
-                Stop:
-                {
-                    value: function Stop()
-                    {
-                        GameEngine.Stop();
-                    },
-                    configurable: false, enumerable: true, writable: false
-                }        
-            });
-    
-            Object.seal(this);
-        }
-    
-        FWGE.prototype = Object.create(null);
-        Object.seal(FWGE.prototype);
-        
-        return new FWGE();
-    })();
-    Object.seal(FWGE);
-    
+            else {
+                KeyboardInput.Keys[e.keyCode] = InputState_1.InputState.PRESSED;
+            }
+        };
+    }
+}
+KeyboardInput.Keys = new Array(128);
+exports.default = KeyboardInput;
 
-})(window);
+},{"./InputState":7}],9:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const InputState_1 = require("./InputState");
+const Vector2_1 = __importDefault(require("../Maths/Vector2"));
+class MouseInput {
+    static SetElement(element) {
+        element.onmouseup = (e) => {
+            MouseInput.Buttons[e.button] = InputState_1.InputState.UP;
+        };
+        element.onmousedown = (e) => {
+            MouseInput.Buttons[e.button] = InputState_1.InputState.DOWN;
+        };
+        element.onmousemove = (e) => {
+            MouseInput.Delta.Set(e.clientX - MouseInput.Axes.X, e.clientY - MouseInput.Axes.Y);
+            MouseInput.Axes.Set(e.clientX, e.clientY);
+        };
+    }
+}
+MouseInput.Buttons = new Array(20);
+MouseInput.Axes = new Vector2_1.default();
+MouseInput.Delta = new Vector2_1.default();
+exports.default = MouseInput;
+
+},{"../Maths/Vector2":24,"./InputState":7}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],11:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],12:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],13:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],14:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Item {
+    constructor(name = 'Item') {
+        this.ID = Hashcode(ID_COUNTER++);
+        this.Name = name;
+    }
+}
+exports.default = Item;
+let ID_COUNTER = 0;
+function Hashcode(number) {
+    var i = 0;
+    var hash = 0;
+    var chr = 0;
+    var string = number + '';
+    for (i = 0; i < string.length; i++) {
+        chr = string.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
+
+},{}],15:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const LightItem_1 = __importStar(require("./LightItem"));
+class IAmbientLight extends LightItem_1.ILightItem {
+}
+class AmbientLight extends LightItem_1.default {
+    constructor({ name = 'Ambient Light', colour, intensity } = new IAmbientLight) {
+        super(name, colour, intensity);
+    }
+}
+exports.default = AmbientLight;
+
+},{"./LightItem":18}],16:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const LightItem_1 = __importStar(require("./LightItem"));
+const Vector3_1 = __importDefault(require("../Maths/Vector3"));
+class IDirectionalLight extends LightItem_1.ILightItem {
+}
+exports.IDirectionalLight = IDirectionalLight;
+class DirectionalLight extends LightItem_1.default {
+    constructor({ name = 'Directional Light', colour, intensity, direction = Vector3_1.default.ZERO } = new IDirectionalLight) {
+        super(name, colour, intensity);
+        this.Direction = new Vector3_1.default(direction);
+    }
+}
+exports.default = DirectionalLight;
+
+},{"../Maths/Vector3":25,"./LightItem":18}],17:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const AmbientLight_1 = __importDefault(require("./AmbientLight"));
+const DirectionalLight_1 = __importDefault(require("./DirectionalLight"));
+const List_1 = __importDefault(require("../Utility/List"));
+const PointLight_1 = __importDefault(require("./PointLight"));
+class Light {
+    static Add(light) {
+        if (Light.Lights.Add(light)) {
+            if (light instanceof AmbientLight_1.default) {
+                ++Light.AmbientCount;
+            }
+            if (light instanceof DirectionalLight_1.default) {
+                ++Light.DirectionalCount;
+            }
+            if (light instanceof PointLight_1.default) {
+                ++Light.PointCount;
+            }
+        }
+    }
+    static Remove(light) {
+        let node = Light.Lights.Remove(light);
+        if (node) {
+            if (light instanceof AmbientLight_1.default) {
+                --Light.AmbientCount;
+            }
+            if (light instanceof DirectionalLight_1.default) {
+                --Light.DirectionalCount;
+            }
+            if (light instanceof PointLight_1.default) {
+                --Light.PointCount;
+            }
+        }
+    }
+}
+Light.AmbientCount = 0;
+Light.DirectionalCount = 0;
+Light.PointCount = 0;
+Light.MAX_AMBIENT = 1;
+Light.MAX_DIRECTIONAL = 3;
+Light.MAX_POINT = 8;
+Light.MAX_LIGHTS = 12;
+Light.Lights = new List_1.default(12);
+exports.default = Light;
+
+},{"../Utility/List":56,"./AmbientLight":15,"./DirectionalLight":16,"./PointLight":19}],18:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Colour4_1 = __importDefault(require("../Render/Colour4"));
+const Item_1 = __importDefault(require("../Item"));
+class ILightItem {
+}
+exports.ILightItem = ILightItem;
+class LightItem extends Item_1.default {
+    constructor(name, colour = [255, 255, 255, 255], intensity = 1) {
+        super(name);
+        this.Colour = new Colour4_1.default(colour);
+        this.Intensity = intensity;
+    }
+}
+exports.default = LightItem;
+
+},{"../Item":14,"../Render/Colour4":34}],19:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const LightItem_1 = __importStar(require("./LightItem"));
+const Vector3_1 = __importDefault(require("..//Maths/Vector3"));
+class IPointLight extends LightItem_1.ILightItem {
+}
+exports.IPointLight = IPointLight;
+class PointLight extends LightItem_1.default {
+    constructor({ name = 'Point Light', colour, intensity, position = Vector3_1.default.ZERO, radius = 5, angle = 180, shininess = 32 } = new IPointLight) {
+        super(name, colour, intensity);
+        this.Position = new Vector3_1.default(position);
+        this.Radius = radius;
+        this.Angle = angle;
+        this.Shininess = shininess;
+    }
+}
+exports.default = PointLight;
+
+},{"..//Maths/Vector3":25,"./LightItem":18}],20:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const SIGNIFICANT_FIGURES = Math.pow(10, 6);
+class Maths {
+    static Radian(degree) {
+        return Math.PI / 180 * degree;
+    }
+    static Cot(angle) {
+        return 1 / Math.tan(angle);
+    }
+    static Clamp(value, min, max) {
+        return Math.max(Math.min(value, max), min);
+    }
+    static CleanFloat(value) {
+        return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES);
+    }
+    static IsPowerOf2(value) {
+        return (value & (value - 1)) === 0;
+    }
+}
+exports.default = Maths;
+
+},{}],21:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("../Utility/List"));
+const Matrix3_1 = __importDefault(require("./Matrix3"));
+const Matrix4_1 = __importDefault(require("./Matrix4"));
+class Matrix2 extends Float32Array {
+    constructor(m11, m12, m21, m22) {
+        super(4);
+        if (m11) {
+            Matrix2.Set(this, m11, m12, m21, m22);
+        }
+    }
+    get M11() {
+        return this[0];
+    }
+    set M11(m11) {
+        this[0] = m11;
+    }
+    get M12() {
+        return this[1];
+    }
+    set M12(m12) {
+        this[1] = m12;
+    }
+    get M21() {
+        return this[2];
+    }
+    set M21(m21) {
+        this[2] = m21;
+    }
+    get M22() {
+        return this[3];
+    }
+    set M22(m22) {
+        this[3] = m22;
+    }
+    static get ZERO() {
+        return new Matrix2(0, 0, 0, 0);
+    }
+    static get IDENTITY() {
+        return new Matrix2(1, 0, 0, 1);
+    }
+    Set(m11, m12, m21, m22) {
+        return Matrix2.Set(this, m11, m12, m21, m22);
+    }
+    static Set(matrix, m11, m12, m21, m22) {
+        if (m11 instanceof Matrix2 || m11 instanceof Matrix3_1.default || m11 instanceof Matrix4_1.default) {
+            [
+                m11, m12,
+                m21, m22
+            ] = [
+                m11.M11, m11.M12,
+                m11.M21, m11.M22
+            ];
+        }
+        else if (m11 instanceof Float32Array || m11 instanceof List_1.default || m11 instanceof Array) {
+            [
+                m11, m12,
+                m21, m22
+            ] = m11;
+        }
+        matrix.M11 = m11;
+        matrix.M12 = m12;
+        matrix.M21 = m21;
+        matrix.M22 = m22;
+        return matrix;
+    }
+    Transpose() {
+        return Matrix2.Transpose(this);
+    }
+    static Transpose(matrix) {
+        return Matrix2.Set(matrix, matrix.M11, matrix.M21, matrix.M12, matrix.M22);
+    }
+    get Determinant() {
+        return Matrix2.Determinant(this);
+    }
+    static Determinant(m11, m12, m21, m22) {
+        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List_1.default || m11 instanceof Array) {
+            [
+                m11, m12,
+                m21, m22
+            ] = m11;
+        }
+        return m11 * m22 - m21 * m12;
+    }
+    Inverse() {
+        return Matrix2.Inverse(this);
+    }
+    static Inverse(matrix) {
+        let det = matrix.Determinant;
+        if (det !== 0) {
+            Matrix2.Set(matrix, matrix.M22 / det, -matrix.M12 / det, -matrix.M21 / det, matrix.M11 / det);
+        }
+        return matrix;
+    }
+    Sum(m11, m12, m21, m22) {
+        return Matrix2.Sum(this, m11, m12, m21, m22);
+    }
+    static Sum(matrix, m11, m12, m21, m22) {
+        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List_1.default || m11 instanceof Array) {
+            [
+                m11, m12,
+                m21, m22
+            ] = m11;
+        }
+        return Matrix2.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M21 + m21, matrix.M22 + m22);
+    }
+    Mult(m11, m12, m21, m22) {
+        return Matrix2.Mult(this, m11, m12, m21, m22);
+    }
+    static Mult(matrix, m11, m12, m21, m22) {
+        if (m11 instanceof Matrix2 || m11 instanceof Float32Array || m11 instanceof List_1.default || m11 instanceof Array) {
+            [
+                m11, m12,
+                m21, m22
+            ] = m11;
+        }
+        return Matrix2.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21, matrix.M11 * m12 + matrix.M12 * m22, matrix.M21 * m11 + matrix.M22 * m21, matrix.M21 * m12 + matrix.M22 * m22);
+    }
+    Scale(scaler) {
+        return Matrix2.Scale(this, scaler);
+    }
+    static Scale(matrix, scaler) {
+        return Matrix2.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M21 * scaler, matrix.M22 * scaler);
+    }
+    Identity() {
+        return Matrix2.Identity(this);
+    }
+    static Identity(matrix) {
+        return Matrix2.Set(matrix, 1, 0, 0, 1);
+    }
+    Clone() {
+        return new Matrix2(this);
+    }
+}
+exports.default = Matrix2;
+
+},{"../Utility/List":56,"./Matrix3":22,"./Matrix4":23}],22:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("../Utility/List"));
+const Matrix2_1 = __importDefault(require("./Matrix2"));
+const Matrix4_1 = __importDefault(require("./Matrix4"));
+class Matrix3 extends Float32Array {
+    constructor(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        super(9);
+        if (m11) {
+            Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        }
+    }
+    get M11() {
+        return this[0];
+    }
+    set M11(m11) {
+        this[0] = m11;
+    }
+    get M12() {
+        return this[1];
+    }
+    set M12(m12) {
+        this[1] = m12;
+    }
+    get M13() {
+        return this[2];
+    }
+    set M13(m12) {
+        this[2] = m12;
+    }
+    get M21() {
+        return this[3];
+    }
+    set M21(m11) {
+        this[3] = m11;
+    }
+    get M22() {
+        return this[4];
+    }
+    set M22(m12) {
+        this[4] = m12;
+    }
+    get M23() {
+        return this[5];
+    }
+    set M23(m12) {
+        this[5] = m12;
+    }
+    get M31() {
+        return this[6];
+    }
+    set M31(m11) {
+        this[6] = m11;
+    }
+    get M32() {
+        return this[7];
+    }
+    set M32(m12) {
+        this[7] = m12;
+    }
+    get M33() {
+        return this[8];
+    }
+    set M33(m12) {
+        this[8] = m12;
+    }
+    static get ZERO() {
+        return new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+    static get IDENTITY() {
+        return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    }
+    Set(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    static Set(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        if (m11 instanceof Matrix2_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = [
+                m11.M11, m11.M12, 0,
+                m11.M21, m11.M22, 0,
+                0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix3 || m11 instanceof Matrix4_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = [
+                m11.M11, m11.M12, m11.M13,
+                m11.M21, m11.M22, m11.M23,
+                m11.M31, m11.M32, m11.M33
+            ];
+        }
+        else if (m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = m11;
+        }
+        matrix.M11 = m11;
+        matrix.M12 = m12;
+        matrix.M13 = m13;
+        matrix.M21 = m21;
+        matrix.M22 = m22;
+        matrix.M23 = m23;
+        matrix.M31 = m31;
+        matrix.M32 = m32;
+        matrix.M33 = m33;
+        return matrix;
+    }
+    Transpose() {
+        return Matrix3.Transpose(this);
+    }
+    static Transpose(matrix) {
+        return Matrix3.Set(matrix, matrix.M11, matrix.M21, matrix.M31, matrix.M12, matrix.M22, matrix.M32, matrix.M13, matrix.M23, matrix.M33);
+    }
+    get Determinant() {
+        return Matrix3.Determinant(this);
+    }
+    static Determinant(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = m11;
+        }
+        return m11 * (m22 * m33 - m23 * m32) -
+            m12 * (m21 * m33 - m23 * m31) +
+            m13 * (m21 * m32 - m22 * m31);
+    }
+    Inverse() {
+        return Matrix3.Inverse(this);
+    }
+    static Inverse(matrix) {
+        let det = matrix.Determinant;
+        if (det !== 0) {
+            Matrix3.Set(matrix, (matrix.M22 * matrix.M33 - matrix.M32 * matrix.M23) / det, (matrix.M32 * matrix.M13 - matrix.M12 * matrix.M33) / det, (matrix.M12 * matrix.M23 - matrix.M22 * matrix.M13) / det, (matrix.M31 * matrix.M23 - matrix.M21 * matrix.M33) / det, (matrix.M11 * matrix.M33 - matrix.M31 * matrix.M13) / det, (matrix.M21 * matrix.M13 - matrix.M11 * matrix.M23) / det, (matrix.M21 * matrix.M32 - matrix.M31 * matrix.M22) / det, (matrix.M31 * matrix.M12 - matrix.M11 * matrix.M32) / det, (matrix.M11 * matrix.M22 - matrix.M21 * matrix.M12) / det);
+        }
+        return matrix;
+    }
+    Sum(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Sum(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    static Sum(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = m11;
+        }
+        return Matrix3.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33);
+    }
+    Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Mult(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    static Mult(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        if (m11 instanceof Matrix3 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m33,
+                m21, m22, m33,
+                m31, m32, m33
+            ] = m11;
+        }
+        return Matrix3.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33);
+    }
+    Scale(scaler) {
+        return Matrix3.Scale(this, scaler);
+    }
+    static Scale(matrix, scaler) {
+        return Matrix3.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M13 * scaler, matrix.M21 * scaler, matrix.M22 * scaler, matrix.M23 * scaler, matrix.M31 * scaler, matrix.M32 * scaler, matrix.M33 * scaler);
+    }
+    Identity() {
+        return Matrix3.Identity(this);
+    }
+    static Identity(matrix) {
+        return Matrix3.Set(matrix, 1, 0, 0, 0, 1, 0, 0, 0, 1);
+    }
+    Clone() {
+        return new Matrix3(this);
+    }
+}
+exports.default = Matrix3;
+
+},{"../Utility/List":56,"./Matrix2":21,"./Matrix4":23}],23:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("../Utility/List"));
+const Matrix2_1 = __importDefault(require("./Matrix2"));
+const Matrix3_1 = __importDefault(require("./Matrix3"));
+class Matrix4 extends Float32Array {
+    constructor(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        super(16);
+        if (m11) {
+            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+        }
+    }
+    get M11() {
+        return this[0];
+    }
+    set M11(m11) {
+        this[0] = m11;
+    }
+    get M12() {
+        return this[1];
+    }
+    set M12(m12) {
+        this[1] = m12;
+    }
+    get M13() {
+        return this[2];
+    }
+    set M13(m13) {
+        this[2] = m13;
+    }
+    get M14() {
+        return this[3];
+    }
+    set M14(m14) {
+        this[3] = m14;
+    }
+    get M21() {
+        return this[4];
+    }
+    set M21(m21) {
+        this[4] = m21;
+    }
+    get M22() {
+        return this[5];
+    }
+    set M22(m22) {
+        this[5] = m22;
+    }
+    get M23() {
+        return this[6];
+    }
+    set M23(m23) {
+        this[6] = m23;
+    }
+    get M24() {
+        return this[7];
+    }
+    set M24(m24) {
+        this[7] = m24;
+    }
+    get M31() {
+        return this[8];
+    }
+    set M31(m31) {
+        this[8] = m31;
+    }
+    get M32() {
+        return this[9];
+    }
+    set M32(m32) {
+        this[9] = m32;
+    }
+    get M33() {
+        return this[10];
+    }
+    set M33(m33) {
+        this[10] = m33;
+    }
+    get M34() {
+        return this[11];
+    }
+    set M34(m34) {
+        this[11] = m34;
+    }
+    get M41() {
+        return this[12];
+    }
+    set M41(m41) {
+        this[12] = m41;
+    }
+    get M42() {
+        return this[13];
+    }
+    set M42(m42) {
+        this[13] = m42;
+    }
+    get M43() {
+        return this[14];
+    }
+    set M43(m43) {
+        this[14] = m43;
+    }
+    get M44() {
+        return this[15];
+    }
+    set M44(m44) {
+        this[15] = m44;
+    }
+    static get ZERO() {
+        return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+    static get IDENTITY() {
+        return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    static Set(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        if (m11 instanceof Matrix2_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, 0, 0,
+                m11.M21, m11.M22, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix3_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = [
+                m11.M11, m11.M12, m11.M13, 0,
+                m11.M21, m11.M22, m11.M23, 0,
+                m11.M31, m11.M32, m11.M33, 0,
+                0, 0, 0, 0
+            ];
+        }
+        else if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11;
+        }
+        matrix.M11 = m11;
+        matrix.M12 = m12;
+        matrix.M13 = m13;
+        matrix.M14 = m14;
+        matrix.M21 = m21;
+        matrix.M22 = m22;
+        matrix.M23 = m23;
+        matrix.M24 = m24;
+        matrix.M31 = m31;
+        matrix.M32 = m32;
+        matrix.M33 = m33;
+        matrix.M34 = m34;
+        matrix.M41 = m41;
+        matrix.M42 = m42;
+        matrix.M43 = m43;
+        matrix.M44 = m44;
+        return matrix;
+    }
+    Transpose() {
+        return Matrix4.Transpose(this);
+    }
+    static Transpose(matrix) {
+        return Matrix4.Set(matrix, matrix.M11, matrix.M21, matrix.M31, matrix.M41, matrix.M12, matrix.M22, matrix.M32, matrix.M42, matrix.M13, matrix.M23, matrix.M33, matrix.M43, matrix.M14, matrix.M24, matrix.M34, matrix.M44);
+    }
+    get Determinant() {
+        return Matrix4.Determinant(this);
+    }
+    static Determinant(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11;
+        }
+        return m11 * m22 * m33 * m44 +
+            m11 * m23 * m34 * m42 +
+            m11 * m24 * m32 * m43 +
+            m12 * m21 * m34 * m43 +
+            m12 * m23 * m31 * m44 +
+            m12 * m24 * m33 * m41 +
+            m13 * m21 * m32 * m44 +
+            m13 * m22 * m34 * m41 +
+            m13 * m24 * m31 * m42 +
+            m14 * m21 * m33 * m42 +
+            m14 * m22 * m31 * m43 +
+            m14 * m23 * m32 * m41 -
+            m11 * m22 * m34 * m43 -
+            m11 * m23 * m32 * m44 -
+            m11 * m24 * m33 * m42 -
+            m12 * m21 * m33 * m44 -
+            m12 * m23 * m34 * m41 -
+            m12 * m24 * m31 * m43 -
+            m13 * m21 * m34 * m42 -
+            m13 * m22 * m31 * m44 -
+            m13 * m24 * m32 * m41 -
+            m14 * m21 * m32 * m43 -
+            m14 * m22 * m33 * m41 -
+            m14 * m23 * m31 * m42;
+    }
+    Inverse() {
+        return Matrix4.Inverse(this);
+    }
+    static Inverse(matrix) {
+        var det = matrix.Determinant;
+        if (det !== 0) {
+            Matrix4.Set(matrix, (matrix.M22 * matrix.M33 * matrix.M44 +
+                matrix.M23 * matrix.M34 * matrix.M42 +
+                matrix.M24 * matrix.M32 * matrix.M43 -
+                matrix.M22 * matrix.M34 * matrix.M43 -
+                matrix.M23 * matrix.M32 * matrix.M44 -
+                matrix.M24 * matrix.M33 * matrix.M42) / det, (matrix.M12 * matrix.M34 * matrix.M43 +
+                matrix.M13 * matrix.M32 * matrix.M44 +
+                matrix.M14 * matrix.M33 * matrix.M42 -
+                matrix.M12 * matrix.M33 * matrix.M44 -
+                matrix.M13 * matrix.M34 * matrix.M42 -
+                matrix.M14 * matrix.M32 * matrix.M43) / det, (matrix.M12 * matrix.M23 * matrix.M44 +
+                matrix.M13 * matrix.M24 * matrix.M42 +
+                matrix.M14 * matrix.M22 * matrix.M43 -
+                matrix.M12 * matrix.M24 * matrix.M43 -
+                matrix.M13 * matrix.M22 * matrix.M44 -
+                matrix.M14 * matrix.M23 * matrix.M42) / det, (matrix.M12 * matrix.M24 * matrix.M33 +
+                matrix.M13 * matrix.M22 * matrix.M34 +
+                matrix.M14 * matrix.M23 * matrix.M32 -
+                matrix.M12 * matrix.M23 * matrix.M34 -
+                matrix.M13 * matrix.M24 * matrix.M32 -
+                matrix.M14 * matrix.M22 * matrix.M33) / det, (matrix.M21 * matrix.M34 * matrix.M43 +
+                matrix.M23 * matrix.M31 * matrix.M44 +
+                matrix.M24 * matrix.M33 * matrix.M41 -
+                matrix.M21 * matrix.M33 * matrix.M44 -
+                matrix.M23 * matrix.M34 * matrix.M41 -
+                matrix.M24 * matrix.M31 * matrix.M43) / det, (matrix.M11 * matrix.M33 * matrix.M44 +
+                matrix.M13 * matrix.M34 * matrix.M41 +
+                matrix.M14 * matrix.M31 * matrix.M43 -
+                matrix.M11 * matrix.M34 * matrix.M43 -
+                matrix.M13 * matrix.M31 * matrix.M44 -
+                matrix.M14 * matrix.M33 * matrix.M41) / det, (matrix.M11 * matrix.M24 * matrix.M43 +
+                matrix.M13 * matrix.M21 * matrix.M44 +
+                matrix.M14 * matrix.M23 * matrix.M41 -
+                matrix.M11 * matrix.M23 * matrix.M44 -
+                matrix.M13 * matrix.M24 * matrix.M41 -
+                matrix.M14 * matrix.M21 * matrix.M43) / det, (matrix.M11 * matrix.M23 * matrix.M34 +
+                matrix.M13 * matrix.M24 * matrix.M31 +
+                matrix.M14 * matrix.M21 * matrix.M33 -
+                matrix.M11 * matrix.M24 * matrix.M33 -
+                matrix.M13 * matrix.M21 * matrix.M34 -
+                matrix.M14 * matrix.M23 * matrix.M31) / det, (matrix.M21 * matrix.M32 * matrix.M44 +
+                matrix.M22 * matrix.M34 * matrix.M41 +
+                matrix.M24 * matrix.M31 * matrix.M42 -
+                matrix.M21 * matrix.M34 * matrix.M42 -
+                matrix.M22 * matrix.M31 * matrix.M44 -
+                matrix.M24 * matrix.M32 * matrix.M41) / det, (matrix.M11 * matrix.M34 * matrix.M42 +
+                matrix.M12 * matrix.M31 * matrix.M44 +
+                matrix.M14 * matrix.M32 * matrix.M41 -
+                matrix.M11 * matrix.M32 * matrix.M44 -
+                matrix.M12 * matrix.M34 * matrix.M41 -
+                matrix.M14 * matrix.M31 * matrix.M42) / det, (matrix.M11 * matrix.M22 * matrix.M44 +
+                matrix.M12 * matrix.M24 * matrix.M41 +
+                matrix.M14 * matrix.M21 * matrix.M42 -
+                matrix.M11 * matrix.M24 * matrix.M42 -
+                matrix.M12 * matrix.M21 * matrix.M44 -
+                matrix.M14 * matrix.M22 * matrix.M41) / det, (matrix.M11 * matrix.M24 * matrix.M32 +
+                matrix.M12 * matrix.M21 * matrix.M34 +
+                matrix.M14 * matrix.M22 * matrix.M31 -
+                matrix.M11 * matrix.M22 * matrix.M34 -
+                matrix.M12 * matrix.M24 * matrix.M31 -
+                matrix.M14 * matrix.M21 * matrix.M32) / det, (matrix.M21 * matrix.M33 * matrix.M42 +
+                matrix.M22 * matrix.M31 * matrix.M43 +
+                matrix.M23 * matrix.M32 * matrix.M41 -
+                matrix.M21 * matrix.M32 * matrix.M43 -
+                matrix.M22 * matrix.M33 * matrix.M41 -
+                matrix.M23 * matrix.M31 * matrix.M42) / det, (matrix.M11 * matrix.M32 * matrix.M43 +
+                matrix.M12 * matrix.M33 * matrix.M41 +
+                matrix.M13 * matrix.M31 * matrix.M42 -
+                matrix.M11 * matrix.M33 * matrix.M42 -
+                matrix.M12 * matrix.M31 * matrix.M43 -
+                matrix.M13 * matrix.M32 * matrix.M41) / det, (matrix.M11 * matrix.M23 * matrix.M42 +
+                matrix.M12 * matrix.M21 * matrix.M43 +
+                matrix.M13 * matrix.M22 * matrix.M41 -
+                matrix.M11 * matrix.M22 * matrix.M43 -
+                matrix.M12 * matrix.M23 * matrix.M41 -
+                matrix.M13 * matrix.M21 * matrix.M42) / det, (matrix.M11 * matrix.M22 * matrix.M33 +
+                matrix.M12 * matrix.M23 * matrix.M31 +
+                matrix.M13 * matrix.M21 * matrix.M32 -
+                matrix.M11 * matrix.M23 * matrix.M32 -
+                matrix.M12 * matrix.M21 * matrix.M33 -
+                matrix.M13 * matrix.M22 * matrix.M31) / det);
+        }
+        return matrix;
+    }
+    Sum(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    static Sum(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11;
+        }
+        return Matrix4.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M14 + m14, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M24 + m24, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33, matrix.M34 + m34, matrix.M41 + m41, matrix.M42 + m42, matrix.M43 + m43, matrix.M44 + m44);
+    }
+    Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Mult(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    static Mult(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List_1.default) {
+            [
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+            ] = m11;
+        }
+        return Matrix4.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31 + matrix.M14 * m41, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32 + matrix.M14 * m42, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33 + matrix.M14 * m43, matrix.M11 * m14 + matrix.M12 * m24 + matrix.M13 * m34 + matrix.M14 * m44, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31 + matrix.M24 * m41, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32 + matrix.M24 * m42, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33 + matrix.M24 * m43, matrix.M21 * m14 + matrix.M22 * m24 + matrix.M23 * m34 + matrix.M24 * m44, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31 + matrix.M34 * m41, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32 + matrix.M34 * m42, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33 + matrix.M34 * m43, matrix.M31 * m14 + matrix.M32 * m24 + matrix.M33 * m34 + matrix.M34 * m44, matrix.M41 * m11 + matrix.M42 * m21 + matrix.M43 * m31 + matrix.M44 * m41, matrix.M41 * m12 + matrix.M42 * m22 + matrix.M43 * m32 + matrix.M44 * m42, matrix.M41 * m13 + matrix.M42 * m23 + matrix.M43 * m33 + matrix.M44 * m43, matrix.M41 * m14 + matrix.M42 * m24 + matrix.M43 * m34 + matrix.M44 * m44);
+    }
+    Scale(scaler) {
+        return Matrix4.Scale(this, scaler);
+    }
+    static Scale(matrix, scaler) {
+        return Matrix4.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M13 * scaler, matrix.M14 * scaler, matrix.M21 * scaler, matrix.M22 * scaler, matrix.M23 * scaler, matrix.M24 * scaler, matrix.M31 * scaler, matrix.M32 * scaler, matrix.M33 * scaler, matrix.M34 * scaler, matrix.M41 * scaler, matrix.M42 * scaler, matrix.M43 * scaler, matrix.M44 * scaler);
+    }
+    Identity() {
+        return Matrix4.Identity(this);
+    }
+    static Identity(matrix) {
+        return Matrix4.Set(matrix, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    Clone() {
+        return new Matrix4(this);
+    }
+}
+exports.default = Matrix4;
+
+},{"../Utility/List":56,"./Matrix2":21,"./Matrix3":22}],24:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maths_1 = __importDefault(require("./Maths"));
+class Vector2 extends Float32Array {
+    constructor(x, y) {
+        super(2);
+        this.Set(x, y);
+    }
+    get X() {
+        return this[0];
+    }
+    set X(x) {
+        this[0] = Maths_1.default.CleanFloat(x);
+    }
+    get Y() {
+        return this[1];
+    }
+    set Y(y) {
+        this[1] = Maths_1.default.CleanFloat(y);
+    }
+    static get ZERO() {
+        return new Vector2(0, 0);
+    }
+    static get ONE() {
+        return new Vector2(1, 1);
+    }
+    static get UNIT() {
+        return new Vector2(Math.sqrt(1 / 2), Math.sqrt(1 / 2));
+    }
+    get Length() {
+        return Vector2.Length(this);
+    }
+    static Length(x, y) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+    }
+    Set(x, y) {
+        return Vector2.Set(this, x, y);
+    }
+    static Set(vector, x, y) {
+        if (x instanceof Vector2 || x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        vector.X = x;
+        vector.Y = y;
+        return vector;
+    }
+    Sum(x, y) {
+        return Vector2.Sum(this, x, y);
+    }
+    static Sum(vector, x, y) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        return Vector2.Set(vector, vector.X + x, vector.Y + y);
+    }
+    Diff(x, y) {
+        return Vector2.Diff(this, x, y);
+    }
+    static Diff(vector, x, y) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        return Vector2.Set(vector, vector.X - x, vector.Y - y);
+    }
+    Mult(x, y) {
+        return Vector2.Mult(this, x, y);
+    }
+    static Mult(vector, x, y) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        return Vector2.Set(vector, vector.X * x, vector.Y * y);
+    }
+    Scale(scalar) {
+        return Vector2.Scale(this, scalar);
+    }
+    static Scale(vector, scalar) {
+        return Vector2.Mult(vector, scalar, scalar);
+    }
+    Dot(x, y) {
+        return Vector2.Dot(this, x, y);
+    }
+    static Dot(vector, x, y) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y] = [x[0], x[1]];
+        }
+        return Maths_1.default.CleanFloat(vector.X * x + vector.Y * y);
+    }
+    Unit() {
+        return Vector2.Unit(this);
+    }
+    static Unit(vector) {
+        let length = vector.Length;
+        if (length !== 0) {
+            Vector2.Scale(vector, Maths_1.default.CleanFloat(1 / length));
+        }
+        return vector;
+    }
+    toString() {
+        return `<${this.X}, ${this.Y}>`;
+    }
+    toLocaleString() {
+        return toString();
+    }
+    Clone() {
+        return new Vector2(this);
+    }
+}
+exports.default = Vector2;
+
+},{"./Maths":20}],25:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+class Vector3 extends Float32Array {
+    constructor(x, y, z) {
+        super(3);
+        this.Set(x, y, z);
+    }
+    get X() {
+        return this[0];
+    }
+    set X(x) {
+        this[0] = Maths_1.default.CleanFloat(x);
+    }
+    get Y() {
+        return this[1];
+    }
+    set Y(y) {
+        this[1] = Maths_1.default.CleanFloat(y);
+    }
+    get Z() {
+        return this[2];
+    }
+    set Z(z) {
+        this[2] = Maths_1.default.CleanFloat(z);
+    }
+    static get ZERO() {
+        return new Vector3(0, 0, 0);
+    }
+    static get ONE() {
+        return new Vector3(1, 1, 1);
+    }
+    static get UNIT() {
+        return new Vector3(Math.sqrt(1 / 3), Math.sqrt(1 / 3), Math.sqrt(1 / 3));
+    }
+    get Length() {
+        return Vector3.Length(this);
+    }
+    static Length(x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
+    }
+    Set(x, y, z) {
+        return Vector3.Set(this, x, y, z);
+    }
+    static Set(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        vector.X = x;
+        vector.Y = y;
+        vector.Z = z;
+        return vector;
+    }
+    Sum(x, y, z) {
+        return Vector3.Sum(this, x, y, z);
+    }
+    static Sum(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Set(vector, vector.X + x, vector.Y + y, vector.Z + z);
+    }
+    Diff(x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Diff(this, x, y, z);
+    }
+    static Diff(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Set(vector, vector.X - x, vector.Y - y, vector.Z - z);
+    }
+    Mult(x, y, z) {
+        return Vector3.Mult(this, x, y, z);
+    }
+    static Mult(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Set(vector, vector.X * x, vector.Y * y, vector.Z * z);
+    }
+    Scale(scalar) {
+        return Vector3.Scale(this, scalar);
+    }
+    static Scale(vector, scalar) {
+        return Vector3.Mult(vector, scalar, scalar, scalar);
+    }
+    Dot(x, y, z) {
+        return Vector3.Dot(this, x, y, z);
+    }
+    static Dot(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Maths_1.default.CleanFloat(vector.X * x + vector.Y * y + vector.Z * z);
+    }
+    Cross(x, y, z) {
+        return Vector3.Cross(this, x, y, z);
+    }
+    static Cross(vector, x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Set(vector, vector.Y * z - vector.Z * y, vector.Z * x - vector.X * z, vector.X * y - vector.Y * x);
+    }
+    Unit() {
+        return Vector3.Unit(this);
+    }
+    static Unit(vector) {
+        var length = vector.Length;
+        if (length !== 0) {
+            Vector3.Scale(vector, 1 / length);
+        }
+        return vector;
+    }
+    toString() {
+        return `<${this.X}, ${this.Y}, ${this.Z}>`;
+    }
+    toLocaleString() {
+        return this.toString();
+    }
+    Clone() {
+        return new Vector3(this);
+    }
+}
+exports.default = Vector3;
+
+},{"../Maths/Maths":20}],26:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("../Utility/List"));
+const Maths_1 = __importDefault(require("./Maths"));
+const Vector2_1 = __importDefault(require("./Vector2"));
+const Vector3_1 = __importDefault(require("./Vector3"));
+class Vector4 extends Float32Array {
+    constructor(w, x, y, z) {
+        super(4);
+        if (w) {
+            Vector4.Set(this, w, x, y, z);
+        }
+    }
+    get W() {
+        return this[0];
+    }
+    set W(w) {
+        this[0] = Maths_1.default.CleanFloat(w);
+    }
+    get X() {
+        return this[1];
+    }
+    set X(x) {
+        this[1] = Maths_1.default.CleanFloat(x);
+    }
+    get Y() {
+        return this[2];
+    }
+    set Y(y) {
+        this[2] = Maths_1.default.CleanFloat(y);
+    }
+    get Z() {
+        return this[3];
+    }
+    set Z(z) {
+        this[3] = Maths_1.default.CleanFloat(z);
+    }
+    get Length() {
+        return Vector4.Length(this);
+    }
+    static Length(w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
+            [w, x, y, z] = w;
+        }
+        return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
+    }
+    get ZERO() {
+        return new Vector4(0, 0, 0, 0);
+    }
+    get ONE() {
+        return new Vector4(1, 1, 1, 1);
+    }
+    get UNIT() {
+        return new Vector4(0.5, 0.5, 0.5, 0.5);
+    }
+    Set(w, x, y, z) {
+        return Vector4.Set(this, w, x, y, z);
+    }
+    static Set(vector, w, x, y, z) {
+        if (w instanceof Vector2_1.default) {
+            [w, x, y, z] = [0, w.X, w.Y, 0];
+        }
+        else if (w instanceof Vector3_1.default) {
+            [w, x, y, z] = [0, w.X, w.Y, w.Z];
+        }
+        else if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
+            [w, x, y, z] = w;
+        }
+        vector.W = Maths_1.default.CleanFloat(w);
+        vector.X = Maths_1.default.CleanFloat(x);
+        vector.Y = Maths_1.default.CleanFloat(y);
+        vector.Z = Maths_1.default.CleanFloat(z);
+        return vector;
+    }
+    Sum(w, x, y, z) {
+        return Vector4.Sum(this, w, x, y, z);
+    }
+    static Sum(vector, w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+        }
+        return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
+    }
+    Diff(w, x, y, z) {
+        return Vector4.Diff(this, w, x, y, z);
+    }
+    static Diff(vector, w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+        }
+        return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
+    }
+    Mult(w, x, y, z) {
+        return Vector4.Mult(this, w, x, y, z);
+    }
+    static Mult(vector, w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+        }
+        return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
+    }
+    static Scale(vector, scaler) {
+        return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
+    }
+    Dot(w, x, y, z) {
+        return Vector4.Dot(this, w, x, y, z);
+    }
+    static Dot(vector, w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
+            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
+        }
+        return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+    }
+    Unit() {
+        return Vector4.Unit(this);
+    }
+    static Unit(vector) {
+        let length = vector.Length;
+        if (length !== 0) {
+            Vector4.Scale(vector, 1 / length);
+        }
+        return vector;
+    }
+    toString() {
+        return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`;
+    }
+    toLocaleString() {
+        return this.toString();
+    }
+    Clone() {
+        return new Vector4(this);
+    }
+}
+exports.default = Vector4;
+
+},{"../Utility/List":56,"./Maths":20,"./Vector2":24,"./Vector3":25}],27:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("./Item"));
+exports.ParticleSystems = [];
+class IParticleSystem {
+}
+class ParticleSystem extends Item_1.default {
+    constructor({ name = 'Particle System', mesh } = new IParticleSystem) {
+        super(name);
+        this.Mesh = mesh;
+        exports.ParticleSystems.push(this);
+    }
+    Update() {
+        for (let particle of this.Particles) {
+        }
+    }
+}
+exports.default = ParticleSystem;
+
+},{"./Item":14}],28:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Collider_1 = __importStar(require("./Collider"));
+class IBoxCollider extends Collider_1.ICollider {
+}
+exports.IBoxCollider = IBoxCollider;
+class BoxCollider extends Collider_1.default {
+    constructor({ name = 'BoxCollider', physicsitem, position, height = 1, width = 1, breadth = 1 } = new IBoxCollider) {
+        super(name, position, physicsitem);
+        this.Height = height;
+        this.Width = width;
+        this.Breadth = breadth;
+    }
+}
+exports.default = BoxCollider;
+
+},{"./Collider":29}],29:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("../../Item"));
+const Vector3_1 = __importDefault(require("../../Maths/Vector3"));
+class ICollider {
+}
+exports.ICollider = ICollider;
+class Collider extends Item_1.default {
+    constructor(name, position = Vector3_1.default.ZERO, physicsitem = null) {
+        super(name);
+        this.Position = new Vector3_1.default(position);
+        this.PhysicsItem = physicsitem;
+    }
+}
+exports.default = Collider;
+
+},{"../../Item":14,"../../Maths/Vector3":25}],30:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class CollisionEvent {
+    constructor() {
+    }
+}
+exports.default = CollisionEvent;
+
+},{}],31:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Collider_1 = __importStar(require("./Collider"));
+class ISphereCollider extends Collider_1.ICollider {
+    constructor() {
+        super(...arguments);
+        this.radius = 1;
+    }
+}
+exports.ISphereCollider = ISphereCollider;
+class SphereCollider extends Collider_1.default {
+    constructor({ name = 'Sphere Collider', position, physicsitem, radius = 1 } = new ISphereCollider) {
+        super(name, position, physicsitem);
+        this.Radius = radius;
+    }
+}
+exports.default = SphereCollider;
+
+},{"./Collider":29}],32:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("../Item"));
+class IPhysicsBody {
+}
+exports.IPhysicsBody = IPhysicsBody;
+class PhysicsBody extends Item_1.default {
+    constructor({ name = 'Physics Body', mass = 1, lockx = true, locky = true, lockz = true } = new IPhysicsBody()) {
+        super(name);
+        this.Mass = mass;
+        this.LockX = lockx;
+        this.LockY = locky;
+        this.LockZ = lockz;
+        this.Speed = 0;
+        this.Velocity = 0;
+    }
+}
+exports.default = PhysicsBody;
+
+},{"../Item":14}],33:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("../Item"));
+class IPhysicsMaterial {
+}
+exports.IPhysicsMaterial = IPhysicsMaterial;
+class PhysicsMaterial extends Item_1.default {
+    constructor({ name = 'Physics Material' } = new IPhysicsMaterial()) {
+        super(name);
+    }
+}
+exports.default = PhysicsMaterial;
+
+},{"../Item":14}],34:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+class Colour4 extends Float32Array {
+    get R() {
+        return this[0];
+    }
+    set R(red) {
+        this[0] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(red, 0, 1));
+    }
+    get G() {
+        return this[1];
+    }
+    set G(green) {
+        this[1] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(green, 0, 1));
+    }
+    get B() {
+        return this[2];
+    }
+    set B(blue) {
+        this[2] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(blue, 0, 1));
+    }
+    get A() {
+        return this[3];
+    }
+    set A(alpha) {
+        this[3] = Maths_1.default.CleanFloat(Maths_1.default.Clamp(alpha, 0, 1));
+    }
+    get BIN() {
+        let str = 'b';
+        this.forEach(i => str += Math.round(i * 255).toString(2));
+        return str;
+    }
+    get OCT() {
+        let str = 'o';
+        this.forEach(i => str += Math.round(i * 255).toString(8));
+        return str;
+    }
+    get DEC() {
+        let str = 'o';
+        this.forEach(i => str += Math.round(i * 255).toString(10));
+        return str;
+    }
+    get HEX() {
+        let str = '#';
+        this.forEach(i => str += Math.round(i * 255).toString(16));
+        return str;
+    }
+    constructor(r, g, b, a) {
+        super(4);
+        this.Set(r, g, b, a);
+        Object.seal(this);
+    }
+    Set(r, g, b, a) {
+        return Colour4.Set(this, r, b, g, a);
+    }
+    static Set(colour, r, g, b, a) {
+        if (r instanceof Colour4 || r instanceof Float32Array || r instanceof Array) {
+            [r, g, b, a] = [r[0], r[1], r[2], r[3]];
+        }
+        else if (typeof (r) === 'string') {
+            if (r.match(/#([0-9A-F]{3}){1,2}/i)) {
+                [r, b, g, a] = r.substring(1)
+                    .toUpperCase()
+                    .split('')
+                    .map(c => parseInt(c, 16));
+            }
+            else if (r.match(/#[0-9A-F]{6}/i)) {
+                [r, b, g, a] = r.substring(1)
+                    .toUpperCase()
+                    .split(/(?=(?:..)*$)/)
+                    .map(c => parseInt(c, 16));
+            }
+            else {
+                r = 0;
+            }
+        }
+        colour.R = r;
+        colour.G = g;
+        colour.B = b;
+        colour.A = a;
+        return colour;
+    }
+    static FromBin(bin) {
+        return null;
+    }
+    static ToBin(bin) {
+        return '';
+    }
+    static FromOct(oct) {
+        return null;
+    }
+    static ToOct(oct) {
+        return '';
+    }
+    static FromHex(hex) {
+        return null;
+    }
+    static ToHex(hex) {
+        return '';
+    }
+}
+exports.default = Colour4;
+
+},{"../Maths/Maths":20}],35:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const ArrayUtils_1 = __importDefault(require("../Utility/ArrayUtils"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+const Item_1 = __importDefault(require("../Item"));
+var BufferType;
+(function (BufferType) {
+    BufferType[BufferType["INDEX"] = 0] = "INDEX";
+    BufferType[BufferType["POSITION"] = 1] = "POSITION";
+})(BufferType = exports.BufferType || (exports.BufferType = {}));
+class IMesh {
+}
+exports.IMesh = IMesh;
+class Mesh extends Item_1.default {
+    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe } = new IMesh()) {
+        super(name);
+        if (colour && colour.length === 0) {
+            colour = undefined;
+        }
+        if (uv && uv.length === 0) {
+            uv = undefined;
+        }
+        if (wireframe && wireframe.length === 0) {
+            wireframe = undefined;
+        }
+        this.PositionBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, position);
+        this.UVBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, uv);
+        this.ColourBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, colour);
+        this.NormalBuffer = this.Bind(FWGE_1.default.GL, BufferType.POSITION, normal);
+        this.IndexBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, index);
+        this.WireframeBuffer = this.Bind(FWGE_1.default.GL, BufferType.INDEX, wireframe);
+        this.VertexCount = index.length;
+    }
+    Bind(gl, type, data) {
+        if (!data) {
+            return null;
+        }
+        let buffer = gl.createBuffer();
+        data = ArrayUtils_1.default.Flatten(data);
+        switch (type) {
+            case BufferType.INDEX:
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
+                break;
+            case BufferType.POSITION:
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+                break;
+        }
+        return buffer;
+    }
+    Unbind(gl, buffer) {
+        gl.deleteBuffer(buffer);
+    }
+}
+exports.default = Mesh;
+
+},{"../FWGE":5,"../Item":14,"../Utility/ArrayUtils":51}],36:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
+class ModelView {
+    static Push(transform) {
+        ModelView.Stack.push(this.Transform(transform));
+        return ModelView.Peek();
+    }
+    static Peek() {
+        if (ModelView.Stack.length === 0) {
+            return Matrix4_1.default.IDENTITY;
+        }
+        else {
+            return ModelView.Stack[ModelView.Stack.length - 1];
+        }
+    }
+    static Pop() {
+        if (ModelView.Stack.length === 0) {
+            return Matrix4_1.default.IDENTITY;
+        }
+        else {
+            return ModelView.Stack.pop();
+        }
+    }
+    static Transform({ Position, Rotation, Scale, Shear }) {
+        return this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), Position), Rotation), Scale), Shear);
+    }
+    static Translate(matrix, translation) {
+        return new Matrix4_1.default(matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M11 * translation.X + matrix.M21 * translation.Y + matrix.M31 * translation.Z + matrix.M41, matrix.M12 * translation.X + matrix.M22 * translation.Y + matrix.M32 * translation.Z + matrix.M42, matrix.M13 * translation.X + matrix.M23 * translation.Y + matrix.M33 * translation.Z + matrix.M43, matrix.M14 * translation.X + matrix.M24 * translation.Y + matrix.M34 * translation.Z + matrix.M44);
+    }
+    static Rotate(matrix, rotation) {
+        let x = Maths_1.default.Radian(rotation.X);
+        let y = Maths_1.default.Radian(rotation.Y);
+        let z = Maths_1.default.Radian(rotation.Z);
+        return new Matrix4_1.default(Math.cos(z), -Math.sin(z), 0.0, 0.0, Math.sin(z), Math.cos(z), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(Math.cos(y), 0.0, Math.sin(y), 0.0, 0.0, 1.0, 0.0, 0.0, -Math.sin(y), 0.0, Math.cos(y), 0.0, 0.0, 0.0, 0.0, 1.0).Mult(1.0, 0.0, 0.0, 0.0, 0.0, Math.cos(x), -Math.sin(x), 0.0, 0.0, Math.sin(x), Math.cos(x), 0.0, 0.0, 0.0, 0.0, 1.0).Mult(matrix);
+    }
+    static Scale(matrix, scalers) {
+        return new Matrix4_1.default(matrix.M11 * scalers.X, matrix.M12 * scalers.X, matrix.M13 * scalers.X, matrix.M14 * scalers.X, matrix.M21 * scalers.Y, matrix.M22 * scalers.Y, matrix.M23 * scalers.Y, matrix.M24 * scalers.Y, matrix.M31 * scalers.Z, matrix.M32 * scalers.Z, matrix.M33 * scalers.Z, matrix.M34 * scalers.Z, matrix.M41, matrix.M42, matrix.M43, matrix.M44);
+    }
+    static Shear(matrix, angles) {
+        var phi = Maths_1.default.Radian(angles.X);
+        var theta = Maths_1.default.Radian(angles.Y);
+        var rho = Maths_1.default.Radian(angles.Z);
+        return new Matrix4_1.default(1.0, 0.0, Math.tan(rho), 0.0, Math.tan(phi), 1.0, 0.0, 0.0, 0.0, Math.tan(theta), 1.0, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(matrix);
+    }
+}
+ModelView.Stack = new Array();
+exports.default = ModelView;
+
+},{"../Maths/Maths":20,"../Maths/Matrix4":23}],37:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
+class Projection {
+    static Orthographic(left, right, top, bottom, near, far, theta, phi) {
+        theta = Maths_1.default.Cot(Maths_1.default.Radian(theta));
+        phi = Maths_1.default.Cot(Maths_1.default.Radian(phi));
+        left -= near * theta;
+        right -= near * theta;
+        top -= near * phi;
+        bottom -= near * phi;
+        return new Matrix4_1.default(2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, theta, phi, -2 / (far - near), 0, -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1);
+    }
+    static Perspective(field_of_view, aspect_ratio, near, far) {
+        let top = near * Math.tan(Maths_1.default.Radian(field_of_view));
+        let right = top * aspect_ratio;
+        let left = -right;
+        let bottom = -top;
+        let width = right - left;
+        let height = top - bottom;
+        let depth = far - near;
+        return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
+    }
+}
+exports.default = Projection;
+
+},{"../Maths/Maths":20,"../Maths/Matrix4":23}],38:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Colour4_1 = __importDefault(require("./Colour4"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+const Item_1 = __importDefault(require("../Item"));
+const Maths_1 = __importDefault(require("../Maths/Maths"));
+class IRenderMaterial {
+}
+exports.IRenderMaterial = IRenderMaterial;
+class RenderMaterial extends Item_1.default {
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader, imagemap } = new IRenderMaterial) {
+        super(name);
+        this.Ambient = new Colour4_1.default(ambient);
+        this.Diffuse = new Colour4_1.default(diffuse);
+        this.Specular = new Colour4_1.default(specular);
+        this.Alpha = alpha;
+        this.Shininess = shininess;
+        this.Shader = shader;
+        if (imagemap) {
+            RenderMaterial.ApplyImage(this, imagemap, 'image');
+        }
+    }
+    static ApplyImage(material, src, type) {
+        let img = new Image();
+        let texture = null;
+        switch (type) {
+            case 'image':
+                material.ImageMap = FWGE_1.default.GL.createTexture();
+                texture = material.ImageMap;
+                break;
+            case 'bump':
+                material.BumpMap = FWGE_1.default.GL.createTexture();
+                texture = material.BumpMap;
+                break;
+            case 'specular':
+                material.SpecularMap = FWGE_1.default.GL.createTexture();
+                texture = material.SpecularMap;
+                break;
+            default: texture = null;
+        }
+        FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
+        FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, 1, 1, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+        img.onload = function () {
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, texture);
+            FWGE_1.default.GL.texImage2D(FWGE_1.default.GL.TEXTURE_2D, 0, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.RGBA, FWGE_1.default.GL.UNSIGNED_BYTE, img);
+            if (Maths_1.default.IsPowerOf2(img.width) && Maths_1.default.IsPowerOf2(img.height)) {
+                FWGE_1.default.GL.generateMipmap(FWGE_1.default.GL.TEXTURE_2D);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MAG_FILTER, FWGE_1.default.GL.LINEAR);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR_MIPMAP_NEAREST);
+            }
+            else {
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_S, FWGE_1.default.GL.CLAMP_TO_EDGE);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_WRAP_T, FWGE_1.default.GL.CLAMP_TO_EDGE);
+                FWGE_1.default.GL.texParameteri(FWGE_1.default.GL.TEXTURE_2D, FWGE_1.default.GL.TEXTURE_MIN_FILTER, FWGE_1.default.GL.LINEAR);
+            }
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+        };
+        img.src = src;
+    }
+}
+exports.default = RenderMaterial;
+
+},{"../FWGE":5,"../Item":14,"../Maths/Maths":20,"./Colour4":34}],39:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const AmbientLight_1 = __importDefault(require("../Light/AmbientLight"));
+const DirectionalLight_1 = __importDefault(require("../Light/DirectionalLight"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+const GameObject_1 = __importStar(require("../GameObject"));
+const Light_1 = __importDefault(require("../Light/Light"));
+const ModelView_1 = __importDefault(require("./ModelView"));
+const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
+const PointLight_1 = __importDefault(require("../Light/PointLight"));
+const Projection_1 = __importDefault(require("./Projection"));
+const Shader_1 = require("../Shader/Shader");
+const Camera_1 = __importDefault(require("../Camera/Camera"));
+const ParticleSystem_1 = require("../ParticleSystem");
+class Renderer {
+    static Init() {
+        FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
+        FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
+    }
+    static Update() {
+        Renderer.ClearBuffers();
+        Renderer.SetGlobalUniforms();
+        for (let gameObject of GameObject_1.GameObjects) {
+            Renderer.RenderObject(gameObject);
+        }
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            Renderer.RenderParticleSystem(particleSystem);
+        }
+    }
+    static ClearBuffers() {
+        for (let shader of Shader_1.Shaders) {
+            FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, shader.FrameBuffer);
+            FWGE_1.default.GL.viewport(0, 0, shader.Width, shader.Height);
+            FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
+        }
+        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
+        FWGE_1.default.GL.viewport(0, 0, FWGE_1.default.GL.drawingBufferWidth, FWGE_1.default.GL.drawingBufferHeight);
+        FWGE_1.default.GL.clear(FWGE_1.default.GL.COLOR_BUFFER_BIT | FWGE_1.default.GL.DEPTH_BUFFER_BIT);
+    }
+    static RenderParticleSystem(particleSystem) {
+        var gameObject = new GameObject_1.default({ mesh: particleSystem.Mesh });
+        for (var particle of particleSystem.Particles) {
+            gameObject.Transform = particle;
+            this.RenderObject(gameObject);
+        }
+    }
+    static RenderObject({ Children, Mesh, Material, Transform }) {
+        let mv = ModelView_1.default.Push(Transform);
+        if (Children) {
+            for (let child of Children) {
+                Renderer.RenderObject(child);
+            }
+        }
+        if (Mesh && Material && Material.Shader) {
+            var shader = Material.Shader;
+            FWGE_1.default.GL.useProgram(shader.Program);
+            FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Position);
+            if (shader.Attributes.Normal !== -1)
+                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Normal);
+            if (shader.Attributes.Colour !== -1)
+                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.Colour);
+            if (shader.Attributes.UV !== -1)
+                FWGE_1.default.GL.enableVertexAttribArray(shader.Attributes.UV);
+            if (Material.Alpha !== 1.0) {
+                FWGE_1.default.GL.enable(FWGE_1.default.GL.BLEND);
+                FWGE_1.default.GL.disable(FWGE_1.default.GL.DEPTH_TEST);
+                FWGE_1.default.GL.blendFunc(FWGE_1.default.GL.SRC_ALPHA, FWGE_1.default.GL.ONE);
+            }
+            Renderer.BindAttributes(Mesh, shader.Attributes);
+            Renderer.SetObjectUniforms(Material, shader.Uniforms, mv);
+            Renderer.Draw(Mesh.VertexCount, shader.FrameBuffer);
+            if (Material.Alpha !== 1.0) {
+                FWGE_1.default.GL.enable(FWGE_1.default.GL.DEPTH_TEST);
+                FWGE_1.default.GL.disable(FWGE_1.default.GL.BLEND);
+            }
+            FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Position);
+            if (shader.Attributes.Normal !== -1) {
+                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Normal);
+            }
+            if (shader.Attributes.Colour !== -1) {
+                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.Colour);
+            }
+            if (shader.Attributes.UV !== -1) {
+                FWGE_1.default.GL.disableVertexAttribArray(shader.Attributes.UV);
+            }
+            FWGE_1.default.GL.useProgram(null);
+        }
+        ModelView_1.default.Pop();
+    }
+    static BindAttributes(mesh, attributes) {
+        FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.PositionBuffer);
+        FWGE_1.default.GL.vertexAttribPointer(attributes.Position, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
+        if (attributes.UV !== -1) {
+            if (mesh.UVBuffer) {
+                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.UVBuffer);
+                FWGE_1.default.GL.vertexAttribPointer(attributes.UV, 2, FWGE_1.default.GL.FLOAT, false, 0, 0);
+            }
+            else
+                FWGE_1.default.GL.disableVertexAttribArray(attributes.UV);
+        }
+        if (attributes.Colour !== -1) {
+            if (mesh.ColourBuffer) {
+                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.ColourBuffer);
+                FWGE_1.default.GL.vertexAttribPointer(attributes.Colour, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
+            }
+            else
+                FWGE_1.default.GL.disableVertexAttribArray(attributes.Colour);
+        }
+        if (attributes.Normal !== -1) {
+            if (!!mesh.NormalBuffer) {
+                FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ARRAY_BUFFER, mesh.NormalBuffer);
+                FWGE_1.default.GL.vertexAttribPointer(attributes.Normal, 3, FWGE_1.default.GL.FLOAT, false, 0, 0);
+            }
+            else
+                FWGE_1.default.GL.disableVertexAttribArray(attributes.Normal);
+        }
+        FWGE_1.default.GL.bindBuffer(FWGE_1.default.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+    }
+    static SetObjectUniforms(material, uniforms, mv) {
+        FWGE_1.default.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
+        FWGE_1.default.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3_1.default(mv.Clone().Inverse()));
+        FWGE_1.default.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient);
+        FWGE_1.default.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse);
+        FWGE_1.default.GL.uniform4fv(uniforms.Material.Specular, material.Specular);
+        FWGE_1.default.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
+        FWGE_1.default.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
+        if (material.ImageMap) {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE0);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.ImageMap);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasImage, 1);
+            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Image, 0);
+        }
+        else {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE0);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasImage, 0);
+        }
+        if (material.BumpMap) {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE1);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.BumpMap);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 1);
+            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Bump, 1);
+        }
+        else {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE1);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 0);
+        }
+        if (material.SpecularMap) {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE2);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, material.SpecularMap);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasSpecular, 1);
+            FWGE_1.default.GL.uniform1i(uniforms.Sampler.Specular, 2);
+        }
+        else {
+            FWGE_1.default.GL.activeTexture(FWGE_1.default.GL.TEXTURE2);
+            FWGE_1.default.GL.bindTexture(FWGE_1.default.GL.TEXTURE_2D, null);
+            FWGE_1.default.GL.uniform1i(uniforms.Material.HasBump, 0);
+        }
+    }
+    static SetGlobalUniforms() {
+        var i = Shader_1.Shaders.length;
+        for (let shader of Shader_1.Shaders) {
+            FWGE_1.default.GL.useProgram(shader.Program);
+            let point_count = 0;
+            let matrix = shader.Uniforms.Matrix;
+            let uniforms = shader.Uniforms.Light;
+            for (let light of Light_1.default.Lights) {
+                if (light instanceof AmbientLight_1.default) {
+                    FWGE_1.default.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
+                    FWGE_1.default.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+                }
+                else if (light instanceof DirectionalLight_1.default) {
+                    FWGE_1.default.GL.uniform4fv(uniforms.Directional.Colour, light.Colour);
+                    FWGE_1.default.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
+                    FWGE_1.default.GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
+                }
+                else if (light instanceof PointLight_1.default) {
+                    FWGE_1.default.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour);
+                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
+                    FWGE_1.default.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position);
+                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
+                    FWGE_1.default.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+                    point_count++;
+                }
+            }
+            let main = Camera_1.default.Main;
+            FWGE_1.default.GL.uniform1i(uniforms.PointCount, point_count);
+            FWGE_1.default.GL.uniformMatrix4fv(matrix.Projection, false, Projection_1.default.Perspective(main.FieldOfView, main.AspectRatio, main.NearClipping, main.FarClipping));
+        }
+        FWGE_1.default.GL.useProgram(null);
+    }
+    static Draw(vertexCount, framebuffer) {
+        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
+        FWGE_1.default.GL.drawElements(FWGE_1.default.GL.TRIANGLES, vertexCount, FWGE_1.default.GL.UNSIGNED_BYTE, 0);
+        FWGE_1.default.GL.bindFramebuffer(FWGE_1.default.GL.FRAMEBUFFER, null);
+    }
+}
+exports.default = Renderer;
+
+},{"../Camera/Camera":3,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":15,"../Light/DirectionalLight":16,"../Light/Light":17,"../Light/PointLight":19,"../Maths/Matrix3":22,"../ParticleSystem":27,"../Shader/Shader":47,"./ModelView":36,"./Projection":37}],40:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class AmbientUniforms {
+    constructor(gl, program) {
+        this.Colour = gl.getUniformLocation(program, 'U_Ambient.Colour');
+        this.Intensity = gl.getUniformLocation(program, 'U_Ambient.Intensity');
+    }
+}
+exports.default = AmbientUniforms;
+
+},{}],41:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class DirectionalUniforms {
+    constructor(gl, program) {
+        this.Colour = gl.getUniformLocation(program, 'U_Directional.Colour');
+        this.Intensity = gl.getUniformLocation(program, 'U_Directional.Intensity');
+        this.Direction = gl.getUniformLocation(program, 'U_Directional.Direction');
+    }
+}
+exports.default = DirectionalUniforms;
+
+},{}],42:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const AmbientUniforms_1 = __importDefault(require("./AmbientUniforms"));
+const DirectionalUniforms_1 = __importDefault(require("./DirectionalUniforms"));
+const PointUniform_1 = __importDefault(require("./PointUniform"));
+class LightUniforms {
+    constructor(gl, program) {
+        this.Ambient = new AmbientUniforms_1.default(gl, program);
+        this.Directional = new DirectionalUniforms_1.default(gl, program);
+        this.PointCount = gl.getUniformLocation(program, `U_Point_Count`);
+        this.Point = new Array(LightUniforms.MAX_LIGHT);
+        for (var i = 0; i < LightUniforms.MAX_LIGHT; ++i) {
+            this.Point.push(new PointUniform_1.default(gl, program, i));
+        }
+    }
+}
+LightUniforms.MAX_LIGHT = 8;
+exports.default = LightUniforms;
+
+},{"./AmbientUniforms":40,"./DirectionalUniforms":41,"./PointUniform":45}],43:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class MaterialUniforms {
+    constructor(gl, program) {
+        this.Ambient = gl.getUniformLocation(program, 'U_Material.Ambient');
+        this.Diffuse = gl.getUniformLocation(program, 'U_Material.Diffuse');
+        this.Specular = gl.getUniformLocation(program, 'U_Material.Specular');
+        this.Shininess = gl.getUniformLocation(program, 'U_Material.Shininess');
+        this.Alpha = gl.getUniformLocation(program, 'U_Material.Alpha');
+        this.HasImage = gl.getUniformLocation(program, 'U_Material.HasImage');
+        this.HasBump = gl.getUniformLocation(program, 'U_Material.HasBump');
+        this.HasSpecular = gl.getUniformLocation(program, 'U_Material.HasSpecular');
+    }
+}
+exports.default = MaterialUniforms;
+
+},{}],44:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class MatrixUniforms {
+    constructor(gl, program) {
+        this.ModelView = gl.getUniformLocation(program, 'U_Matrix.ModelView');
+        this.Projection = gl.getUniformLocation(program, 'U_Matrix.Projection');
+        this.Normal = gl.getUniformLocation(program, 'U_Matrix.Normal');
+        this.Camera = gl.getUniformLocation(program, 'U_Matrix.Camera');
+    }
+}
+exports.default = MatrixUniforms;
+
+},{}],45:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class PointUniform {
+    constructor(gl, program, index) {
+        this.Colour = gl.getUniformLocation(program, `U_Point[${index}].Colour`);
+        this.Intensity = gl.getUniformLocation(program, `U_Point[${index}].Intensity`);
+        this.Position = gl.getUniformLocation(program, `U_Point[${index}].Position`);
+        this.Radius = gl.getUniformLocation(program, `U_Point[${index}].Radius`);
+        this.Angle = gl.getUniformLocation(program, `U_Point[${index}].Angle`);
+    }
+}
+exports.default = PointUniform;
+
+},{}],46:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class SamplerUniforms {
+    constructor(gl, program) {
+        this.Image = gl.getUniformLocation(program, 'U_Sampler.Image');
+        this.Bump = gl.getUniformLocation(program, 'U_Sampler.Bump');
+        this.Specular = gl.getUniformLocation(program, 'U_Sampler.Specular');
+    }
+}
+exports.default = SamplerUniforms;
+
+},{}],47:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Item_1 = __importDefault(require("../Item"));
+const ShaderAttributes_1 = __importDefault(require("./ShaderAttributes"));
+const ShaderUniforms_1 = __importDefault(require("./ShaderUniforms"));
+const FWGE_1 = __importDefault(require("../FWGE"));
+class IShader {
+}
+exports.Shaders = [];
+class Shader extends Item_1.default {
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader }) {
+        super(name);
+        let gl = FWGE_1.default.GL;
+        this.Program = gl.createProgram();
+        this.Texture = gl.createTexture();
+        this.FrameBuffer = gl.createFramebuffer();
+        this.RenderBuffer = gl.createRenderbuffer();
+        this.Height = height;
+        this.Width = width;
+        Shader.Init(this, gl, vertexshader, fragmentshader);
+        this.Attributes = new ShaderAttributes_1.default(gl, this.Program);
+        this.Uniforms = new ShaderUniforms_1.default(gl, this.Program);
+        exports.Shaders.push(this);
+    }
+    static Init(shader, gl, vertexshader, fragmentshader) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, shader.FrameBuffer);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, shader.RenderBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, shader.Width, shader.Height);
+        gl.bindTexture(gl.TEXTURE_2D, shader.Texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shader.Width, shader.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, undefined);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shader.Texture, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, shader.RenderBuffer);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        let errorLog = [];
+        let vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, vertexshader);
+        gl.compileShader(vs);
+        if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+            errorLog.push('Vertex Shader: ' + gl.getShaderInfoLog(vs));
+        }
+        let fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, fragmentshader);
+        gl.compileShader(fs);
+        if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+            errorLog.push('Fragment Shader: ' + gl.getShaderInfoLog(fs));
+        }
+        gl.attachShader(shader.Program, vs);
+        gl.attachShader(shader.Program, fs);
+        gl.linkProgram(shader.Program);
+        if (!gl.getProgramParameter(shader.Program, gl.LINK_STATUS)) {
+            errorLog.push(gl.getProgramInfoLog(shader.Program));
+        }
+        if (errorLog.length > 0) {
+            throw errorLog;
+        }
+    }
+}
+exports.default = Shader;
+
+},{"../FWGE":5,"../Item":14,"./ShaderAttributes":48,"./ShaderUniforms":49}],48:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ShaderAttributes {
+    constructor(gl, program) {
+        this.Position = gl.getAttribLocation(program, 'A_Position');
+        this.Colour = gl.getAttribLocation(program, 'A_Colour');
+        this.UV = gl.getAttribLocation(program, 'A_UV');
+        this.Normal = gl.getAttribLocation(program, 'A_Normal');
+    }
+}
+exports.default = ShaderAttributes;
+
+},{}],49:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const MaterialUniforms_1 = __importDefault(require("./MaterialUniforms"));
+const MatrixUniforms_1 = __importDefault(require("./MatrixUniforms"));
+const LightUniforms_1 = __importDefault(require("./LightUniforms"));
+const SamplerUniforms_1 = __importDefault(require("./SamplerUniforms"));
+class ShaderUniforms {
+    constructor(gl, program) {
+        this.Material = new MaterialUniforms_1.default(gl, program);
+        this.Matrix = new MatrixUniforms_1.default(gl, program);
+        this.Light = new LightUniforms_1.default(gl, program);
+        this.Sampler = new SamplerUniforms_1.default(gl, program);
+    }
+}
+exports.default = ShaderUniforms;
+
+},{"./LightUniforms":42,"./MaterialUniforms":43,"./MatrixUniforms":44,"./SamplerUniforms":46}],50:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Vector3_1 = __importDefault(require("./Maths/Vector3"));
+class ITransform {
+}
+class Transform {
+    constructor({ position = Vector3_1.default.ZERO, rotation = Vector3_1.default.ZERO, scale = Vector3_1.default.ONE, shear = Vector3_1.default.ZERO } = new ITransform) {
+        this.Position = new Vector3_1.default(position);
+        this.Rotation = new Vector3_1.default(rotation);
+        this.Scale = new Vector3_1.default(scale);
+        this.Shear = new Vector3_1.default(shear);
+    }
+    static get UP() {
+        return new Vector3_1.default(0, 1, 0);
+    }
+    static get FORWARD() {
+        return new Vector3_1.default(0, 0, 1);
+    }
+    static get RIGHT() {
+        return new Vector3_1.default(1, 0, 0);
+    }
+}
+exports.default = Transform;
+
+},{"./Maths/Vector3":25}],51:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ArrayUtiils {
+    static Flatten(list) {
+        let flattened = new Array();
+        for (let list_item of list) {
+            if (typeof list_item === 'number') {
+                flattened.push(list_item);
+            }
+            else {
+                flattened.unshift(...list_item);
+            }
+        }
+        return flattened;
+    }
+}
+exports.default = ArrayUtiils;
+
+},{}],52:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Tree_1 = __importDefault(require("./Tree"));
+class BinaryTree extends Tree_1.default {
+    constructor() {
+        super(2);
+    }
+}
+exports.default = BinaryTree;
+
+},{"./Tree":59}],53:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Time_1 = __importDefault(require("./Time"));
+const GameObject_1 = require("../GameObject");
+const Renderer_1 = __importDefault(require("../Render/Renderer"));
+const Camera_1 = __importDefault(require("../Camera/Camera"));
+class Control {
+    static Init(renderUpdate, physicsUpdate) {
+        Time_1.default.Init(renderUpdate, physicsUpdate);
+        Renderer_1.default.Init();
+    }
+    static Start() {
+        if (Control.AnimationFrame !== -1) {
+            window.cancelAnimationFrame(Control.AnimationFrame);
+        }
+        Time_1.default.Render.Reset();
+        Time_1.default.Physics.Reset();
+        Control.Run();
+    }
+    static Stop() {
+        if (Control.AnimationFrame !== -1) {
+            window.cancelAnimationFrame(Control.AnimationFrame);
+        }
+    }
+    static Run() {
+        Control.AnimationFrame = window.requestAnimationFrame(Control.Run);
+        Time_1.default.Update();
+        Camera_1.default.Main.Update();
+        for (let gameObject of GameObject_1.GameObjects) {
+            gameObject.Update();
+        }
+        if (Time_1.default.Render.Ready) {
+            Renderer_1.default.Update();
+        }
+    }
+}
+Control.Running = false;
+Control.AnimationFrame = -1;
+exports.default = Control;
+
+},{"../Camera/Camera":3,"../GameObject":6,"../Render/Renderer":39,"./Time":58}],54:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Vector2_1 = __importDefault(require("../../Maths/Vector2"));
+const Vector3_1 = __importDefault(require("../../Maths/Vector3"));
+const Mesh_1 = __importDefault(require("../../Render/Mesh"));
+const GameObject_1 = __importDefault(require("../../GameObject"));
+const Colour4_1 = __importDefault(require("../../Render/Colour4"));
+const RenderMaterial_1 = __importStar(require("../../Render/RenderMaterial"));
+class OBJConverter {
+    static Parse(obj, mtl) {
+        return new GameObject_1.default({
+            mesh: OBJConverter.ParseMesh(obj),
+            material: OBJConverter.ParseRenderMaterial(mtl)
+        });
+    }
+    static ParseMesh(obj) {
+        let lines = obj.split('\n');
+        let vertices = [];
+        let normals = [];
+        let uvs = [];
+        let face_offset = 0;
+        let wireframe_offset = 0;
+        let { name, position, normal, uv, colour, index, wireframe } = {
+            position: new Array(),
+            normal: new Array(),
+            uv: new Array(),
+            colour: new Array(),
+            index: new Array(),
+            wireframe: new Array()
+        };
+        for (let line of lines) {
+            line = line.trim();
+            let key = line.split(' ')[0];
+            let value = line.substring(key.length).trim();
+            let values = value.split(' ');
+            switch (key) {
+                case 'o':
+                    name = value;
+                    break;
+                case 'v':
+                    vertices.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
+                    break;
+                case 'vn':
+                    normals.push(new Vector3_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])));
+                    break;
+                case 'vt':
+                    uvs.push(new Vector2_1.default(parseFloat(values[0]), parseFloat(values[1])));
+                    break;
+                case 'f':
+                    for (var i = 0; i < values.length; ++i) {
+                        let faces = values[i].split('/').map(val => parseInt(val) - 1);
+                        if (!isNaN(faces[0])) {
+                            position.push(vertices[faces[0]]);
+                        }
+                        if (!isNaN(faces[1])) {
+                            uv.push(uvs[faces[1]]);
+                        }
+                        if (!isNaN(faces[2])) {
+                            normal.push(normals[faces[2]]);
+                        }
+                        if (i >= 2) {
+                            index.push(face_offset, face_offset + i - 1, face_offset + i);
+                        }
+                    }
+                    for (var i = 0; i < values.length; ++i) {
+                        if (i === values.length - 1) {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset);
+                        }
+                        else {
+                            wireframe.concat(wireframe_offset + i, wireframe_offset + i + 1);
+                        }
+                    }
+                    wireframe_offset += values.length;
+                    face_offset += values.length;
+                    break;
+            }
+        }
+        return new Mesh_1.default({ name, position, normal, uv, colour, index, wireframe });
+    }
+    static ParseRenderMaterial(mtl) {
+        let lines = mtl.split('\n');
+        let { name, shininess, ambient, diffuse, specular, alpha, imagemap } = new RenderMaterial_1.IRenderMaterial;
+        for (let line of lines) {
+            line = line.trim();
+            var key = line.split(' ')[0];
+            var value = line.substring(key.length).trim();
+            var values = value.split(' ');
+            switch (key) {
+                case 'newmtl':
+                    name = value;
+                    break;
+                case 'Ns':
+                    shininess = parseFloat(value);
+                    break;
+                case 'Ka':
+                    ambient = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Kd':
+                    diffuse = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'Ks':
+                    specular = new Colour4_1.default(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), 1);
+                    break;
+                case 'd':
+                    alpha = parseFloat(value);
+                    break;
+                case 'Tr':
+                    alpha = 1 - parseFloat(value);
+                    break;
+                case 'map_Kd':
+                    imagemap = value;
+                    break;
+            }
+        }
+        return new RenderMaterial_1.default({ name, shininess, ambient, diffuse, specular, alpha, imagemap });
+    }
+}
+exports.default = OBJConverter;
+
+},{"../../GameObject":6,"../../Maths/Vector2":24,"../../Maths/Vector3":25,"../../Render/Colour4":34,"../../Render/Mesh":35,"../../Render/RenderMaterial":38}],55:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class FWGEEvent {
+    constructor() {
+    }
+}
+exports.default = FWGEEvent;
+
+},{}],56:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ListNode {
+    constructor(value, next, previous) {
+        this.Value = value;
+        this.Next = next;
+        this.Previous = previous;
+    }
+}
+class ListIterator {
+    [Symbol.iterator]() {
+        throw new Error('Method not implemented.');
+    }
+    next(value) {
+        return {
+            done: !value,
+            value
+        };
+    }
+    return(value) {
+        return {
+            done: !value,
+            value
+        };
+    }
+    throw(e) {
+        throw new Error(e);
+    }
+}
+class List {
+    constructor(size = Number.MAX_SAFE_INTEGER, buffer) {
+        this.Size = size;
+        if (buffer) {
+            this.AddAll(buffer);
+        }
+    }
+    get Length() {
+        let node = this.head;
+        let count = 0;
+        while (node) {
+            node = node.Next;
+            count++;
+        }
+        return count;
+    }
+    Add(value, index) {
+        if (this.Length == this.Size) {
+            return false;
+        }
+        if (value instanceof ListNode) {
+            value = value.Value;
+        }
+        if (!Number.isSafeInteger(index) || index < 0 || index > this.Length) {
+            index = this.Length;
+        }
+        let parent = this.Get(index - 1);
+        let node = new ListNode(value, parent, parent.Next);
+        parent.Next = node;
+        return true;
+    }
+    AddMany(...values) {
+        for (let value of values) {
+            this.Add(value);
+        }
+    }
+    AddAll(values) {
+        for (let value of values) {
+            this.Add(value);
+        }
+    }
+    Get(index) {
+        if (index < 0 || index > this.Length) {
+            return null;
+        }
+        let node = this.head;
+        while (--index > 0) {
+            node = node.Next;
+        }
+        return node;
+    }
+    Find(value) {
+        let node = null;
+        for (let curr = this.head; curr && !node; curr = curr.Next) {
+            if (curr.Value === value) {
+                node = curr;
+            }
+        }
+        return node;
+    }
+    IndexOf(value) {
+        let index = 0;
+        for (let curr = this.head; curr && curr.Value != value; curr = curr.Next) {
+            ++index;
+        }
+        return index === this.Length ? -1 : index;
+    }
+    Remove(value) {
+        let node = null;
+        if (typeof value === 'number') {
+            node = this.Get(value);
+        }
+        else {
+            node = this.head;
+            while (node && node.Value != value) {
+                node = node.Next;
+            }
+        }
+        if (node) {
+            node.Previous.Next = node.Next;
+            node.Previous = null;
+            node.Next = null;
+            return node.Value;
+        }
+        else {
+            return null;
+        }
+    }
+    ToArray() {
+        let array = new Array(this.Length);
+        for (let curr = this.head; curr; curr = curr.Next) {
+            array.push(curr.Value);
+        }
+        return array;
+    }
+    [Symbol.iterator]() {
+        return new ListIterator();
+    }
+}
+exports.default = List;
+
+},{}],57:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("./List"));
+class ListUtiils {
+    static FlattenVector(list) {
+        let flattened = new List_1.default();
+        for (let list_item of list) {
+            flattened.AddAll([...list_item]);
+        }
+        return flattened;
+    }
+}
+exports.default = ListUtiils;
+
+},{"./List":56}],58:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class TimeKeep {
+    constructor(period) {
+        this.Period = 1000 / period;
+        this.Reset();
+    }
+    Reset() {
+        this.Ready = false;
+        this.Then = this.Now = Date.now();
+        this.Delta = 0;
+    }
+    Update() {
+        this.Then = this.Now;
+        this.Now = Date.now();
+        if (this.Ready) {
+            this.Delta = this.Now - this.Then;
+        }
+        else {
+            this.Delta += this.Now - this.Then;
+        }
+        if (this.Delta > this.Period) {
+            this.Ready = true;
+        }
+        else {
+            this.Ready = false;
+        }
+    }
+}
+class Time {
+    static Init(render, physics) {
+        Time.Render = new TimeKeep(render);
+        Time.Physics = new TimeKeep(physics);
+    }
+    static Update() {
+        Time.Render.Update();
+        Time.Physics.Update();
+    }
+}
+exports.default = Time;
+
+},{}],59:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const List_1 = __importDefault(require("./List"));
+class TreeNode {
+    constructor(children, value) {
+        this.Value = value;
+        this.Children = new List_1.default(children);
+    }
+}
+exports.TreeNode = TreeNode;
+class Tree {
+    constructor(size = 1) {
+        this.size = size;
+        this.root = null;
+    }
+    Add(value) {
+        if (value instanceof TreeNode) {
+            value = value.Value;
+        }
+        let node = new TreeNode(this.size, value);
+        let curr = this.root;
+        while (curr) {
+            if (curr.Children.Length === 0) {
+                curr.Children.Add(node);
+                curr;
+            }
+            else {
+            }
+            curr = null;
+        }
+    }
+}
+exports.default = Tree;
+
+},{"./List":56}],60:[function(require,module,exports){
+"use strict";
+let fwge = window;
+fwge.Animation = require('./Animation/Animation').default;
+fwge.AnimationFrame = require('./Animation/AnimationFrame').AnimationFrame;
+fwge.Camera = require('./Camera/Camera').default;
+fwge.Viewer = require('./Camera/Viewer').default;
+fwge.InputState = require('./Input/InputState').default;
+fwge.MouseInput = require('./Input/MouseInput').default;
+fwge.KeyboardInput = require('./Input/KeyboardInput').default;
+fwge.Attachable = require('./Interfaces/Attachable').default;
+fwge.Cloneable = require('./Interfaces/Cloneable').default;
+fwge.Destroyable = require('./Interfaces/Destroyable').default;
+fwge.Updateable = require('./Interfaces/Updateable').default;
+fwge.AmbientLight = require('./Light/AmbientLight').default;
+fwge.DirectionalLight = require('./Light/DirectionalLight').default;
+fwge.Light = require('./Light/Light').default;
+fwge.PointLight = require('./Light/PointLight').default;
+fwge.Maths = require('./Maths/Maths').default;
+fwge.Vector2 = require('./Maths/Vector2').default;
+fwge.Vector3 = require('./Maths/Vector3').default;
+fwge.Vector4 = require('./Maths/Vector4').default;
+fwge.Matrix2 = require('./Maths/Matrix2').default;
+fwge.Matrix3 = require('./Maths/Matrix3').default;
+fwge.Matrix4 = require('./Maths/Matrix4').default;
+fwge.BoxCollider = require('./Physics/Collision/BoxCollider').default;
+fwge.Collider = require('./Physics/Collision/Collider').default;
+fwge.SphereCollider = require('./Physics/Collision/SphereCollider').default;
+fwge.CollisionEvent = require('./Physics/Collision/CollisionEvent').default;
+fwge.PhysicsBody = require('./Physics/PhysicsBody').default;
+fwge.PhysicsMaterial = require('./Physics/PhysicsMaterial').default;
+fwge.Colour4 = require('./Render/Colour4').default;
+fwge.Mesh = require('./Render/Mesh').default;
+fwge.Projection = require('./Render/Projection').default;
+fwge.ModelView = require('./Render/ModelView').default;
+fwge.Renderer = require('./Render/Renderer').default;
+fwge.RenderMaterial = require('./Render/RenderMaterial').default;
+fwge.Shader = require('./Shader/Shader').default;
+fwge.OBJConverter = require('./Utility/Converter/OBJConverter').default;
+fwge.ArrayUtils = require('./Utility/ArrayUtils').default;
+fwge.BinaryTree = require('./Utility/BinaryTree').default;
+fwge.Control = require('./Utility/Control').default;
+fwge.FWGEEvent = require('./Utility/FWGEEvent').default;
+fwge.List = require('./Utility/List').default;
+fwge.ListUtils = require('./Utility/ListUtils').default;
+fwge.Time = require('./Utility/Time').default;
+fwge.Tree = require('./Utility/Tree').default;
+fwge.FWGE = require('./FWGE').default;
+fwge.GameObject = require('./GameObject').default;
+fwge.ParticleSystem = require('./ParticleSystem').default;
+fwge.Transform = require('./Transform').default;
+
+},{"./Animation/Animation":1,"./Animation/AnimationFrame":2,"./Camera/Camera":3,"./Camera/Viewer":4,"./FWGE":5,"./GameObject":6,"./Input/InputState":7,"./Input/KeyboardInput":8,"./Input/MouseInput":9,"./Interfaces/Attachable":10,"./Interfaces/Cloneable":11,"./Interfaces/Destroyable":12,"./Interfaces/Updateable":13,"./Light/AmbientLight":15,"./Light/DirectionalLight":16,"./Light/Light":17,"./Light/PointLight":19,"./Maths/Maths":20,"./Maths/Matrix2":21,"./Maths/Matrix3":22,"./Maths/Matrix4":23,"./Maths/Vector2":24,"./Maths/Vector3":25,"./Maths/Vector4":26,"./ParticleSystem":27,"./Physics/Collision/BoxCollider":28,"./Physics/Collision/Collider":29,"./Physics/Collision/CollisionEvent":30,"./Physics/Collision/SphereCollider":31,"./Physics/PhysicsBody":32,"./Physics/PhysicsMaterial":33,"./Render/Colour4":34,"./Render/Mesh":35,"./Render/ModelView":36,"./Render/Projection":37,"./Render/RenderMaterial":38,"./Render/Renderer":39,"./Shader/Shader":47,"./Transform":50,"./Utility/ArrayUtils":51,"./Utility/BinaryTree":52,"./Utility/Control":53,"./Utility/Converter/OBJConverter":54,"./Utility/FWGEEvent":55,"./Utility/List":56,"./Utility/ListUtils":57,"./Utility/Time":58,"./Utility/Tree":59}]},{},[60]);

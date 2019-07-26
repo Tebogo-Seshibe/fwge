@@ -1,8 +1,7 @@
-.old
-.tscache
+.vs
 .vscode
-editor
+build
 node_modules
-test
-util
-package.json
+package-lock.json
+/**/*.d.ts
+/**/*.js.map

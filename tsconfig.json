@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {		
+		"target": "ES6",				/* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
+		"declaration": true,			/* Generates corresponding '.d.ts' file. */
+		"sourceMap": true,				/* Generates corresponding '.map' file. */
+		"outDir": "./app/public/js",	/* Concatenate and emit output to single file. */
+		"removeComments": true,			/* Do not emit comments to output. */
+		"noImplicitAny": true,			/* Raise error on expressions and declarations with an implied 'any' type. */
+		"strictFunctionTypes": true,	/* Enable strict checking of function types. */
+		"noImplicitThis": true,			/* Raise error on 'this' expressions with an implied 'any' type. */
+		"alwaysStrict": true,			/* Parse in strict mode and emit "use strict" for each source file. */
+		"noImplicitReturns": true,      /* Report error when not all code paths in function return a value. */
+		"moduleResolution": "node",     /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+		"esModuleInterop": true,        /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+		"downlevelIteration": true
+	},
+	"include": [
+		"src",
+		"app"
+	],
+	"compilerOnSave": true
+}

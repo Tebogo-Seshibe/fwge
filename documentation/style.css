@@ -166,7 +166,7 @@ section#content
 }
     section#content > div#sidebar:after
     {
-        content: "";
+        content: '';
 
         display: block;
         position: absolute;
@@ -279,7 +279,7 @@ section#content
             }
                 div#sidebar li > span:before
                 { 
-                    content: "";
+                    content: '';
 
                     display: block;
                     position: absolute;
@@ -289,8 +289,8 @@ section#content
                     height: 100%;
                     width: 100%;
                 }
-                div#sidebar li > span.open::before { content: "-"; line-height: 25px; }
-                div#sidebar li > span.closed::before { content: "+"; line-height: 30px; }
+                div#sidebar li > span.open::before { content: '-'; line-height: 25px; }
+                div#sidebar li > span.closed::before { content: '+'; line-height: 30px; }
 
     section#content > div#body
     {
