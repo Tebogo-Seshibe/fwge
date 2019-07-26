@@ -240,20 +240,15 @@ function makeCube() {
             count: 5,
             transform: {
                 position: [0, 0, -5],
-                scale: [0, 0, 0]
+                scale: [0.1, 0.1, 0.1]
             },
             position: [
-                (time, index) => Math.cos(time / 10),
+                (time, index) => 0,
                 (time, index) => time * 0.01,
-                (time, index) => Math.sin(time / 10)
-            ],
-            scale: [
-                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1),
-                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1),
-                Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0.1)
-            ],
-            speed: 0.1
+                (time, index) => -15
+            ]
         });
+        Control_1.default.Start();
     });
 }
 
@@ -1908,7 +1903,7 @@ exports.IParticleSystem = IParticleSystem;
 let df0 = Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 0);
 let df1 = Equation_1.Unary(Equation_1.UnaryExpressionType.NONE, 1);
 class ParticleSystem extends Item_1.default {
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, speed = 1, count } = new IParticleSystem) {
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, count } = new IParticleSystem) {
         super(name);
         this.Mesh = mesh;
         this.Material = material;
@@ -1916,7 +1911,6 @@ class ParticleSystem extends Item_1.default {
         this.MaxTime = length + this.Delay(null, count - 1);
         this.CurrentTime = 0;
         this.Loop = loop;
-        this.Speed = speed;
         if (transform instanceof Transform_1.default) {
             transform = {
                 position: transform.Position,
@@ -1967,7 +1961,6 @@ class ParticleSystem extends Item_1.default {
                     offset = this.MaxTime - currentTime;
                 }
             }
-            currentTime *= this.Speed;
             this.UpdateParticle(particle, currentTime, i);
         }
         this.CurrentTime += Time_1.default.Render.Delta;

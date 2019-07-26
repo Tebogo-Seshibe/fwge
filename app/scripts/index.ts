@@ -234,11 +234,6 @@ async function makeCube()
     fwge.material.Ambient = new Colour4(1,1,1,1)
     fwge.material.Alpha = 0.2
 
-    // fwge.object = OBJConverter.Parse(obj, mtl)
-    // fwge.object.Material.Shader = shader
-    // fwge.object.Transform.Position = new Vector3(-5, -5, -15)
-    // fwge.object.Visible = false
-    
     fwge.system = new ParticleSystem(
     {
         delay: (time: number, index: number) => index * 1000,
@@ -252,11 +247,13 @@ async function makeCube()
             scale: [0.1, 0.1, 0.1]
         },
         position: [ 
-            (time: number, index: number) => Math.cos(time / 10),
-            (time: number, index: number) => time * 0.01,            
-            (time: number, index: number) => Math.sin(time / 10)
+            (time: number, index: number) => 0,
+            (time: number, index: number) => time * 0.01,
+            (time: number, index: number) => -15
+            // (time: number, index: number) => Math.cos(time / 10),
+            // (time: number, index: number) => Math.sin(time / 10)
         ]
     })
 
-    //Control.Start()
+    Control.Start()
 }
