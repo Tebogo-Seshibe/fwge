@@ -12,6 +12,34 @@ export class IShader
     fragmentshader: string
 }
 
+export class IShaderContent
+{
+    attribute: IVertexAttributeContent
+    uniform: IVertexUniformContent
+}
+
+export class IVertexAttributeContent
+{
+    vertexPosition: boolean
+    vertexUV: boolean
+    vertexColour: boolean
+    vertexNormal: boolean
+}
+
+export class IVertexUniformContent
+{
+    normal: boolean
+    modelview: boolean
+    projection: boolean
+}
+
+export class IFragmentShader
+{
+    ambientLight: boolean
+    directionalLight: boolean
+    pointLight: boolean
+}
+
 export let Shaders: Shader[] = new Array<Shader>()
 
 export default class Shader extends Item
