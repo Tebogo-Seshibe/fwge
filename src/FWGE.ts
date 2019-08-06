@@ -27,7 +27,7 @@ export default class FWGE
             throw new Error('Field {canvas: HTMLCanvasElement} is required')
         }
 
-        GL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+        GL = canvas.getContext('webgl2') as WebGLRenderingContext
 
         if (!GL)
         {

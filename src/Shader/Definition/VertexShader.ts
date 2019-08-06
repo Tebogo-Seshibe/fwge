@@ -1,3 +1,5 @@
+export type ShaderType = 'bool' | 'bvec2' | 'bvec3' | 'bvec4' | 'int'| 'ivec2' | 'ivec3' | 'ivec4' | 'uint'| 'uvec2' | 'uvec3' | 'uvec4' | 'float' | 'vec2' | 'vec3' | 'vec4' | 'mat2' | 'mat3' | 'mat4'
+
 export class IShaderField
 {
     type: 'int' | 'float' | 'double' | 'vec2' | 'vec3' | 'vec4' | 'mat2' | 'mat3' | 'mat4'
@@ -44,13 +46,13 @@ export default function VertexShader(vs: IVertexShader): string
 
     if (vs.uniform)
     {
-        shader += '\nstruct Matrix\n{\n'
+        shader += '\n'
 
-        if (vs.uniform.modelview)   shader += '\tmat4 ModelView;\n'
-        if (vs.uniform.normal)      shader += '\tmat4 Normal;\n'
-        if (vs.uniform.projection)  shader += '\tmat3 Projection;\n'
+        if (vs.uniform.modelview)   shader += 'mat4 ModelView;\n'
+        if (vs.uniform.normal)      shader += 'mat4 Normal;\n'
+        if (vs.uniform.projection)  shader += 'mat3 Projection;\n'
 
-        shader += '\n};\n'
+        shader += '\n'
     }
 
     return shader
