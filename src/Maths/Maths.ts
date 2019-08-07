@@ -22,6 +22,11 @@ export default class Maths
         return Math.max(Math.min(value, max), min)
     }
 
+    static RandBetween(min: number, max: number): number
+    {
+        return (Math.random() * max) + min
+    }
+
     static CleanFloat(value: number): number
     {
         return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES)

@@ -1,7 +1,7 @@
 import GameObject from '../GameObject'
 import Updateable from '../Interfaces/Updateable'
 import Item from '../Item'
-import Vector3 from "../Maths/Vector3";
+import Vector3 from "../Maths/Vector3"
 import List from '../Utility/List'
 import Time from '../Utility/Time'
 import AnimationFrame, { IAnimationFrame, Vector3Frame, Vector4Frame } from './AnimationFrame'

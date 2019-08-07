@@ -16,12 +16,12 @@ const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
 const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const Equation_1 = require("../../src/Maths/Equation");
-const ParticleSystem_1 = __importDefault(require("../../src/ParticleSystem"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
 const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
+const Input_1 = __importDefault(require("../../src/Input/Input"));
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
@@ -226,33 +226,22 @@ function makeCube() {
             height: 1920,
             width: 1080
         });
-        fwge.mesh = OBJConverter_1.default.ParseMesh(obj);
-        fwge.material = OBJConverter_1.default.ParseRenderMaterial(mtl);
-        fwge.material.Shader = shader;
-        fwge.material.Ambient = new Colour4_1.default(1, 1, 1, 1);
-        fwge.material.Alpha = 0.2;
-        fwge.system = new ParticleSystem_1.default({
-            delay: (time, index) => index * 1000,
-            length: 5000,
-            material: fwge.material,
-            mesh: fwge.mesh,
-            name: "example particle system",
-            count: 5,
-            transform: {
-                position: [0, 0, -5],
-                scale: [0.1, 0.1, 0.1]
-            },
-            position: [
-                (time, index) => 0,
-                (time, index) => time * 0.01,
-                (time, index) => -15
-            ]
-        });
+        fwge.object = OBJConverter_1.default.Parse(obj, mtl);
+        let object = fwge.object;
+        object.Material.Shader = shader;
+        object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
+        object.Material.Alpha = 0.2;
+        object.Transform.Position.Z = -5;
+        object.Update = function () {
+            {
+                console.log(Input_1.default.Keyboard.Key5);
+            }
+        };
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/ParticleSystem":24,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Input/Input":7,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -519,10 +508,8 @@ const MouseInput_1 = __importDefault(require("./MouseInput"));
 const List_1 = __importDefault(require("../Utility/List"));
 class Input {
     static Init(canvas) {
-        Input.Keyboard = new KeyboardInput_1.default(canvas);
+        Input.Keyboard = new KeyboardInput_1.default();
         Input.Mouse = new MouseInput_1.default(canvas);
-    }
-    static Update() {
     }
 }
 Input.Controllers = new List_1.default();
@@ -544,13 +531,16 @@ var InputState;
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputState_1 = require("./InputState");
 class KeyboardInput {
-    constructor(element) {
-        this.Keys = new Array(128);
-        this.Keys.forEach((_, index) => this.Keys[index] = InputState_1.InputState.UP);
-        element.onkeyup = (e) => {
+    constructor() {
+        this.TOTAL_KEYS = 128;
+        this.Keys = new Array();
+        for (var i = 0; i < this.TOTAL_KEYS; ++i) {
+            this.Keys.push(InputState_1.InputState.UP);
+        }
+        window.onkeyup = (e) => {
             this.Keys[e.keyCode] = InputState_1.InputState.UP;
         };
-        element.onkeydown = (e) => {
+        window.onkeydown = (e) => {
             if (this.Keys[e.keyCode] == InputState_1.InputState.CLICKED) {
                 this.Keys[e.keyCode] = InputState_1.InputState.DOWN;
             }
@@ -559,14 +549,269 @@ class KeyboardInput {
             }
         };
     }
-    get KeyA() {
-        return this.Keys[65];
+    get KeyTilde() {
+        return this.Keys[192];
     }
     get Key0() {
         return this.Keys[48];
     }
+    get Key1() {
+        return this.Keys[49];
+    }
+    get Key2() {
+        return this.Keys[50];
+    }
+    get Key3() {
+        return this.Keys[51];
+    }
+    get Key4() {
+        return this.Keys[52];
+    }
+    get Key5() {
+        return this.Keys[53];
+    }
+    get Key6() {
+        return this.Keys[54];
+    }
+    get Key7() {
+        return this.Keys[55];
+    }
+    get Key8() {
+        return this.Keys[56];
+    }
+    get Key9() {
+        return this.Keys[57];
+    }
+    get KeyHyphen() {
+        return this.Keys[189];
+    }
+    get KeyEquals() {
+        return this.Keys[187];
+    }
+    get KeyA() {
+        return this.Keys[65];
+    }
+    get KeyB() {
+        return this.Keys[66];
+    }
+    get KeyC() {
+        return this.Keys[67];
+    }
+    get KeyD() {
+        return this.Keys[68];
+    }
+    get KeyE() {
+        return this.Keys[69];
+    }
+    get KeyF() {
+        return this.Keys[70];
+    }
+    get KeyG() {
+        return this.Keys[71];
+    }
+    get KeyH() {
+        return this.Keys[72];
+    }
+    get KeyI() {
+        return this.Keys[73];
+    }
+    get KeyJ() {
+        return this.Keys[74];
+    }
+    get KeyK() {
+        return this.Keys[75];
+    }
+    get KeyL() {
+        return this.Keys[76];
+    }
+    get KeyM() {
+        return this.Keys[77];
+    }
+    get KeyN() {
+        return this.Keys[78];
+    }
+    get KeyO() {
+        return this.Keys[79];
+    }
+    get KeyP() {
+        return this.Keys[80];
+    }
+    get KeyQ() {
+        return this.Keys[81];
+    }
+    get KeyR() {
+        return this.Keys[82];
+    }
+    get KeyS() {
+        return this.Keys[83];
+    }
+    get KeyT() {
+        return this.Keys[84];
+    }
+    get KeyU() {
+        return this.Keys[85];
+    }
+    get KeyV() {
+        return this.Keys[86];
+    }
+    get KeyW() {
+        return this.Keys[87];
+    }
+    get KeyX() {
+        return this.Keys[88];
+    }
+    get KeyY() {
+        return this.Keys[89];
+    }
+    get KeyZ() {
+        return this.Keys[90];
+    }
+    get KeyComma() {
+        return this.Keys[188];
+    }
+    get KeyPeriod() {
+        return this.Keys[190];
+    }
+    get KeySlash() {
+        return this.Keys[191];
+    }
+    get KeySpace() {
+        return this.Keys[32];
+    }
+    get KeyBackspace() {
+        return this.Keys[8];
+    }
+    get KeyEnter() {
+        return this.Keys[13];
+    }
+    get KeyInsert() {
+        return this.Keys[45];
+    }
+    get KeyDelete() {
+        return this.Keys[46];
+    }
+    get KeyTab() {
+        return this.Keys[9];
+    }
+    get KeyHome() {
+        return this.Keys[36];
+    }
+    get KeyEnd() {
+        return this.Keys[35];
+    }
+    get KeyPgUp() {
+        return this.Keys[33];
+    }
+    get KeyPgDown() {
+        return this.Keys[34];
+    }
+    get KeyUp() {
+        return this.Keys[38];
+    }
+    get KeyDown() {
+        return this.Keys[40];
+    }
+    get KeyLeft() {
+        return this.Keys[37];
+    }
+    get KeyRight() {
+        return this.Keys[39];
+    }
     get Numpad0() {
         return this.Keys[96];
+    }
+    get Numpad1() {
+        return this.Keys[97];
+    }
+    get Numpad2() {
+        return this.Keys[98];
+    }
+    get Numpad3() {
+        return this.Keys[99];
+    }
+    get Numpad4() {
+        return this.Keys[100];
+    }
+    get Numpad5() {
+        return this.Keys[101];
+    }
+    get Numpad6() {
+        return this.Keys[102];
+    }
+    get Numpad7() {
+        return this.Keys[103];
+    }
+    get Numpad8() {
+        return this.Keys[104];
+    }
+    get Numpad9() {
+        return this.Keys[105];
+    }
+    get KeyShift() {
+        return this.Keys[16];
+    }
+    get KeyCtrl() {
+        return this.Keys[17];
+    }
+    get KeyAlt() {
+        return this.Keys[18];
+    }
+    get KeyPauseBreak() {
+        return this.Keys[19];
+    }
+    get KeyEsc() {
+        return this.Keys[27];
+    }
+    get KeyStart() {
+        return this.Keys[91];
+    }
+    get KeyContextMenu() {
+        return this.Keys[93];
+    }
+    get KeyF1() {
+        return this.Keys[112];
+    }
+    get KeyF2() {
+        return this.Keys[113];
+    }
+    get KeyF3() {
+        return this.Keys[114];
+    }
+    get KeyF4() {
+        return this.Keys[115];
+    }
+    get KeyF5() {
+        return this.Keys[116];
+    }
+    get KeyF6() {
+        return this.Keys[117];
+    }
+    get KeyF7() {
+        return this.Keys[118];
+    }
+    get KeyF8() {
+        return this.Keys[119];
+    }
+    get KeyF9() {
+        return this.Keys[120];
+    }
+    get KeyF10() {
+        return this.Keys[121];
+    }
+    get KeyF11() {
+        return this.Keys[122];
+    }
+    get KeyF12() {
+        return this.Keys[123];
+    }
+    get KeyCapsLock() {
+        return this.Keys[20];
+    }
+    get KeyNumLock() {
+        return this.Keys[144];
+    }
+    get KeyScrollLock() {
+        return this.Keys[145];
     }
 }
 exports.default = KeyboardInput;
@@ -581,13 +826,18 @@ const InputState_1 = require("./InputState");
 const Vector2_1 = __importDefault(require("../Maths/Vector2"));
 class MouseInput {
     constructor(element) {
-        this.Buttons = new Array(20);
+        this.TOTAL_BUTTONS = 20;
+        this.Buttons = new Array();
         this.Axes = new Vector2_1.default();
         this.Delta = new Vector2_1.default();
-        this.Buttons.forEach((_, index) => this.Buttons[index] = InputState_1.InputState.UP);
-        element.onmouseup = (e) => {
-            this.Buttons[e.button] = InputState_1.InputState.UP;
-        };
+        for (var i = 0; i < this.TOTAL_BUTTONS; ++i) {
+            this.Buttons.push(InputState_1.InputState.UP);
+        }
+        element.onclick = element.ondblclick
+            = element.oncontextmenu
+                = (e) => element.onmouseup = (e) => {
+                    this.Buttons[e.button] = InputState_1.InputState.UP;
+                };
         element.onmousedown = (e) => {
             this.Buttons[e.button] = InputState_1.InputState.DOWN;
         };
@@ -595,6 +845,21 @@ class MouseInput {
             this.Delta.Set(e.clientX - this.Axes.X, e.clientY - this.Axes.Y);
             this.Axes.Set(e.clientX, e.clientY);
         };
+    }
+    get Left() {
+        return this.Buttons[0];
+    }
+    get Middle() {
+        return this.Buttons[1];
+    }
+    get Right() {
+        return this.Buttons[2];
+    }
+    get Thumb1() {
+        return this.Buttons[3];
+    }
+    get Thumb2() {
+        return this.Buttons[4];
     }
 }
 exports.default = MouseInput;
@@ -673,6 +938,9 @@ exports.IDirectionalLight = IDirectionalLight;
 class DirectionalLight extends LightItem_1.default {
     constructor({ name = 'Directional Light', colour, intensity, direction = Vector3_1.default.ZERO } = new IDirectionalLight) {
         super(name, colour, intensity);
+        if (!(direction instanceof Vector3_1.default)) {
+            direction = new Vector3_1.default(direction);
+        }
         this.Direction = new Vector3_1.default(direction);
         exports.DirectionalLights.Add(this);
     }
@@ -722,6 +990,9 @@ exports.IPointLight = IPointLight;
 class PointLight extends LightItem_1.default {
     constructor({ name = 'Point Light', colour, intensity, position = Vector3_1.default.ZERO, radius = 5, angle = 180, shininess = 32 } = new IPointLight) {
         super(name, colour, intensity);
+        if (!(position instanceof Vector3_1.default)) {
+            position = new Vector3_1.default(position);
+        }
         this.Position = new Vector3_1.default(position);
         this.Radius = radius;
         this.Angle = angle;
@@ -791,7 +1062,7 @@ function Binary(type, left, right) {
         case BinaryExpressionType.ROOT:
             return (...x) => Math.pow((typeof left === 'number' ? left : left(...x)), (1 / (typeof right === 'number' ? right : right(...x))));
         default:
-            return null;
+            return undefined;
     }
 }
 exports.Binary = Binary;
@@ -814,6 +1085,9 @@ class Maths {
     static Clamp(value, min, max) {
         return Math.max(Math.min(value, max), min);
     }
+    static RandBetween(min, max) {
+        return (Math.random() * max) + min;
+    }
     static CleanFloat(value) {
         return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES);
     }
@@ -834,12 +1108,6 @@ const Maths_1 = require("./Maths");
 const Matrix3_1 = __importDefault(require("./Matrix3"));
 const Matrix4_1 = __importDefault(require("./Matrix4"));
 class Matrix2 extends Float32Array {
-    constructor(m11, m12, m21, m22) {
-        super(4);
-        if (m11) {
-            Matrix2.Set(this, m11, m12, m21, m22);
-        }
-    }
     get M11() {
         return this[0];
     }
@@ -864,38 +1132,65 @@ class Matrix2 extends Float32Array {
     set M22(m22) {
         this[3] = Maths_1.Sigfigs(m22);
     }
+    get Determinant() {
+        return Matrix2.Determinant(this);
+    }
+    constructor(m11, m12, m21, m22) {
+        super(4);
+        if (m11) {
+            Matrix2.Set(this, m11, m12, m21, m22);
+        }
+    }
+    Set(m11, m12, m21, m22) {
+        return Matrix2.Set(this, m11, m12, m21, m22);
+    }
+    Sum(m11, m12, m21, m22) {
+        return Matrix2.Sum(this, m11, m12, m21, m22);
+    }
+    Mult(m11, m12, m21, m22) {
+        return Matrix2.Mult(this, m11, m12, m21, m22);
+    }
+    Scale(scaler) {
+        return Matrix2.Scale(this, scaler);
+    }
+    Transpose() {
+        return Matrix2.Transpose(this);
+    }
+    Inverse() {
+        return Matrix2.Inverse(this);
+    }
+    Identity() {
+        return Matrix2.Identity(this);
+    }
+    Clone() {
+        return new Matrix2(this);
+    }
     static get ZERO() {
         return new Matrix2(0, 0, 0, 0);
     }
     static get IDENTITY() {
         return new Matrix2(1, 0, 0, 1);
     }
-    Set(m11, m12, m21, m22) {
-        return Matrix2.Set(this, m11, m12, m21, m22);
-    }
     static Set(matrix, m11, m12, m21, m22) {
-        [m11, m12, m21, m22] = Matrix2.Destructure(m11, m12, m21, m22);
+        [
+            m11, m12,
+            m21, m22
+        ] = Matrix2.Destructure(m11, m12, m21, m22);
         matrix.M11 = m11;
         matrix.M12 = m12;
         matrix.M21 = m21;
         matrix.M22 = m22;
         return matrix;
     }
-    Transpose() {
-        return Matrix2.Transpose(this);
-    }
     static Transpose(matrix) {
         return Matrix2.Set(matrix, matrix.M11, matrix.M21, matrix.M12, matrix.M22);
     }
-    get Determinant() {
-        return Matrix2.Determinant(this);
-    }
     static Determinant(m11, m12, m21, m22) {
-        [m11, m12, m21, m22] = Matrix2.Destructure(m11, m12, m21, m22);
+        [
+            m11, m12,
+            m21, m22
+        ] = Matrix2.Destructure(m11, m12, m21, m22);
         return Maths_1.Sigfigs(m11 * m22 - m21 * m12);
-    }
-    Inverse() {
-        return Matrix2.Inverse(this);
     }
     static Inverse(matrix) {
         let det = matrix.Determinant;
@@ -904,34 +1199,25 @@ class Matrix2 extends Float32Array {
         }
         return matrix;
     }
-    Sum(m11, m12, m21, m22) {
-        return Matrix2.Sum(this, m11, m12, m21, m22);
-    }
     static Sum(matrix, m11, m12, m21, m22) {
-        [m11, m12, m21, m22] = Matrix2.Destructure(m11, m12, m21, m22);
+        [
+            m11, m12,
+            m21, m22
+        ] = Matrix2.Destructure(m11, m12, m21, m22);
         return Matrix2.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M21 + m21, matrix.M22 + m22);
     }
-    Mult(m11, m12, m21, m22) {
-        return Matrix2.Mult(this, m11, m12, m21, m22);
-    }
     static Mult(matrix, m11, m12, m21, m22) {
-        [m11, m12, m21, m22] = Matrix2.Destructure(m11, m12, m21, m22);
+        [
+            m11, m12,
+            m21, m22
+        ] = Matrix2.Destructure(m11, m12, m21, m22);
         return Matrix2.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21, matrix.M11 * m12 + matrix.M12 * m22, matrix.M21 * m11 + matrix.M22 * m21, matrix.M21 * m12 + matrix.M22 * m22);
-    }
-    Scale(scaler) {
-        return Matrix2.Scale(this, scaler);
     }
     static Scale(matrix, scaler) {
         return Matrix2.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M21 * scaler, matrix.M22 * scaler);
     }
-    Identity() {
-        return Matrix2.Identity(this);
-    }
     static Identity(matrix) {
         return Matrix2.Set(matrix, 1, 0, 0, 1);
-    }
-    Clone() {
-        return new Matrix2(this);
     }
     static Destructure(m11, m12, m21, m22) {
         if (m11 instanceof Matrix2 || m11 instanceof Matrix3_1.default || m11 instanceof Matrix4_1.default) {
@@ -968,12 +1254,6 @@ const Maths_1 = require("./Maths");
 const Matrix2_1 = __importDefault(require("./Matrix2"));
 const Matrix4_1 = __importDefault(require("./Matrix4"));
 class Matrix3 extends Float32Array {
-    constructor(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        super(9);
-        if (m11) {
-            Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
-        }
-    }
     get M11() {
         return this[0];
     }
@@ -1028,17 +1308,51 @@ class Matrix3 extends Float32Array {
     set M33(m33) {
         this[8] = Maths_1.Sigfigs(m33);
     }
+    get Determinant() {
+        return Matrix3.Determinant(this);
+    }
+    constructor(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        super(9);
+        if (m11) {
+            Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        }
+    }
+    Set(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    Sum(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Sum(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+        return Matrix3.Mult(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    }
+    Scale(scaler) {
+        return Matrix3.Scale(this, scaler);
+    }
+    Transpose() {
+        return Matrix3.Transpose(this);
+    }
+    Inverse() {
+        return Matrix3.Inverse(this);
+    }
+    Identity() {
+        return Matrix3.Identity(this);
+    }
+    Clone() {
+        return new Matrix3(this);
+    }
     static get ZERO() {
         return new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     static get IDENTITY() {
         return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1);
     }
-    Set(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        return Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    }
     static Set(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        [
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         matrix.M11 = m11;
         matrix.M12 = m12;
         matrix.M13 = m13;
@@ -1050,23 +1364,18 @@ class Matrix3 extends Float32Array {
         matrix.M33 = m33;
         return matrix;
     }
-    Transpose() {
-        return Matrix3.Transpose(this);
-    }
     static Transpose(matrix) {
         return Matrix3.Set(matrix, matrix.M11, matrix.M21, matrix.M31, matrix.M12, matrix.M22, matrix.M32, matrix.M13, matrix.M23, matrix.M33);
     }
-    get Determinant() {
-        return Matrix3.Determinant(this);
-    }
     static Determinant(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        [
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         return Maths_1.Sigfigs(m11 * (m22 * m33 - m23 * m32) -
             m12 * (m21 * m33 - m23 * m31) +
             m13 * (m21 * m32 - m22 * m31));
-    }
-    Inverse() {
-        return Matrix3.Inverse(this);
     }
     static Inverse(matrix) {
         let det = matrix.Determinant;
@@ -1075,34 +1384,27 @@ class Matrix3 extends Float32Array {
         }
         return matrix;
     }
-    Sum(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        return Matrix3.Sum(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    }
     static Sum(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        [
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         return Matrix3.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33);
     }
-    Mult(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        return Matrix3.Mult(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    }
     static Mult(matrix, m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-        [m11, m12, m13, m21, m22, m23, m31, m32, m33] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+        [
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ] = Matrix3.Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33);
         return Matrix3.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33);
-    }
-    Scale(scaler) {
-        return Matrix3.Scale(this, scaler);
     }
     static Scale(matrix, scaler) {
         return Matrix3.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M13 * scaler, matrix.M21 * scaler, matrix.M22 * scaler, matrix.M23 * scaler, matrix.M31 * scaler, matrix.M32 * scaler, matrix.M33 * scaler);
     }
-    Identity() {
-        return Matrix3.Identity(this);
-    }
     static Identity(matrix) {
         return Matrix3.Set(matrix, 1, 0, 0, 0, 1, 0, 0, 0, 1);
-    }
-    Clone() {
-        return new Matrix3(this);
     }
     static Destructure(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
         if (m11 instanceof Matrix2_1.default) {
@@ -1154,12 +1456,6 @@ const Maths_1 = require("./Maths");
 const Matrix2_1 = __importDefault(require("./Matrix2"));
 const Matrix3_1 = __importDefault(require("./Matrix3"));
 class Matrix4 extends Float32Array {
-    constructor(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        super(16);
-        if (m11) {
-            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
-        }
-    }
     get M11() {
         return this[0];
     }
@@ -1256,17 +1552,52 @@ class Matrix4 extends Float32Array {
     set M44(m44) {
         this[15] = Maths_1.Sigfigs(m44);
     }
+    get Determinant() {
+        return Matrix4.Determinant(this);
+    }
+    constructor(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        super(16);
+        if (m11) {
+            Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+        }
+    }
+    Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    Sum(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
+        return Matrix4.Mult(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    }
+    Scale(scaler) {
+        return Matrix4.Scale(this, scaler);
+    }
+    Transpose() {
+        return Matrix4.Transpose(this);
+    }
+    Inverse() {
+        return Matrix4.Inverse(this);
+    }
+    Identity() {
+        return Matrix4.Identity(this);
+    }
+    Clone() {
+        return new Matrix4(this);
+    }
     static get ZERO() {
         return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     static get IDENTITY() {
         return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
-    Set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
-    }
     static Set(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+        [
+            m11, m12, m13, m14,
+            m21, m22, m23, m24,
+            m31, m32, m33, m34,
+            m41, m42, m43, m44
+        ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         matrix.M11 = m11;
         matrix.M12 = m12;
         matrix.M13 = m13;
@@ -1285,17 +1616,16 @@ class Matrix4 extends Float32Array {
         matrix.M44 = m44;
         return matrix;
     }
-    Transpose() {
-        return Matrix4.Transpose(this);
-    }
     static Transpose(matrix) {
         return Matrix4.Set(matrix, matrix.M11, matrix.M21, matrix.M31, matrix.M41, matrix.M12, matrix.M22, matrix.M32, matrix.M42, matrix.M13, matrix.M23, matrix.M33, matrix.M43, matrix.M14, matrix.M24, matrix.M34, matrix.M44);
     }
-    get Determinant() {
-        return Matrix4.Determinant(this);
-    }
     static Determinant(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+        [
+            m11, m12, m13, m14,
+            m21, m22, m23, m24,
+            m31, m32, m33, m34,
+            m41, m42, m43, m44
+        ] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         return Maths_1.Sigfigs(m11 * m22 * m33 * m44 +
             m11 * m23 * m34 * m42 +
             m11 * m24 * m32 * m43 +
@@ -1320,9 +1650,6 @@ class Matrix4 extends Float32Array {
             m14 * m21 * m32 * m43 -
             m14 * m22 * m33 * m41 -
             m14 * m23 * m31 * m42);
-    }
-    Inverse() {
-        return Matrix4.Inverse(this);
     }
     static Inverse(matrix) {
         var det = matrix.Determinant;
@@ -1411,34 +1738,19 @@ class Matrix4 extends Float32Array {
         }
         return matrix;
     }
-    Sum(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        return Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
-    }
     static Sum(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
         [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         return Matrix4.Set(matrix, matrix.M11 + m11, matrix.M12 + m12, matrix.M13 + m13, matrix.M14 + m14, matrix.M21 + m21, matrix.M22 + m22, matrix.M23 + m23, matrix.M24 + m24, matrix.M31 + m31, matrix.M32 + m32, matrix.M33 + m33, matrix.M34 + m34, matrix.M41 + m41, matrix.M42 + m42, matrix.M43 + m43, matrix.M44 + m44);
-    }
-    Mult(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-        return Matrix4.Mult(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
     }
     static Mult(matrix, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
         [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] = Matrix4.Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         return Matrix4.Set(matrix, matrix.M11 * m11 + matrix.M12 * m21 + matrix.M13 * m31 + matrix.M14 * m41, matrix.M11 * m12 + matrix.M12 * m22 + matrix.M13 * m32 + matrix.M14 * m42, matrix.M11 * m13 + matrix.M12 * m23 + matrix.M13 * m33 + matrix.M14 * m43, matrix.M11 * m14 + matrix.M12 * m24 + matrix.M13 * m34 + matrix.M14 * m44, matrix.M21 * m11 + matrix.M22 * m21 + matrix.M23 * m31 + matrix.M24 * m41, matrix.M21 * m12 + matrix.M22 * m22 + matrix.M23 * m32 + matrix.M24 * m42, matrix.M21 * m13 + matrix.M22 * m23 + matrix.M23 * m33 + matrix.M24 * m43, matrix.M21 * m14 + matrix.M22 * m24 + matrix.M23 * m34 + matrix.M24 * m44, matrix.M31 * m11 + matrix.M32 * m21 + matrix.M33 * m31 + matrix.M34 * m41, matrix.M31 * m12 + matrix.M32 * m22 + matrix.M33 * m32 + matrix.M34 * m42, matrix.M31 * m13 + matrix.M32 * m23 + matrix.M33 * m33 + matrix.M34 * m43, matrix.M31 * m14 + matrix.M32 * m24 + matrix.M33 * m34 + matrix.M34 * m44, matrix.M41 * m11 + matrix.M42 * m21 + matrix.M43 * m31 + matrix.M44 * m41, matrix.M41 * m12 + matrix.M42 * m22 + matrix.M43 * m32 + matrix.M44 * m42, matrix.M41 * m13 + matrix.M42 * m23 + matrix.M43 * m33 + matrix.M44 * m43, matrix.M41 * m14 + matrix.M42 * m24 + matrix.M43 * m34 + matrix.M44 * m44);
     }
-    Scale(scaler) {
-        return Matrix4.Scale(this, scaler);
-    }
     static Scale(matrix, scaler) {
         return Matrix4.Set(matrix, matrix.M11 * scaler, matrix.M12 * scaler, matrix.M13 * scaler, matrix.M14 * scaler, matrix.M21 * scaler, matrix.M22 * scaler, matrix.M23 * scaler, matrix.M24 * scaler, matrix.M31 * scaler, matrix.M32 * scaler, matrix.M33 * scaler, matrix.M34 * scaler, matrix.M41 * scaler, matrix.M42 * scaler, matrix.M43 * scaler, matrix.M44 * scaler);
     }
-    Identity() {
-        return Matrix4.Identity(this);
-    }
     static Identity(matrix) {
         return Matrix4.Set(matrix, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    }
-    Clone() {
-        return new Matrix4(this);
     }
     static Destructure(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
         if (m11 instanceof Matrix2_1.default) {
@@ -1503,12 +1815,6 @@ const List_1 = __importDefault(require("../Utility/List"));
 const Vector3_1 = __importDefault(require("./Vector3"));
 const Vector4_1 = __importDefault(require("./Vector4"));
 class Vector2 extends Float32Array {
-    constructor(x, y) {
-        super(2);
-        if (x) {
-            Vector2.Set(this, x, y);
-        }
-    }
     get X() {
         return this[0];
     }
@@ -1521,6 +1827,74 @@ class Vector2 extends Float32Array {
     set Y(y) {
         this[1] = Maths_1.Sigfigs(y);
     }
+    get Length() {
+        return Vector2.Length(this);
+    }
+    constructor(x, y) {
+        super(2);
+        if (x) {
+            Vector2.Set(this, x, y);
+        }
+    }
+    Set(x, y) {
+        return Vector2.Set(this, x, y);
+    }
+    Sum(x, y) {
+        return Vector2.Sum(this, x, y);
+    }
+    Diff(x, y) {
+        return Vector2.Diff(this, x, y);
+    }
+    Mult(x, y) {
+        return Vector2.Mult(this, x, y);
+    }
+    Scale(scalar) {
+        return Vector2.Scale(this, scalar);
+    }
+    Dot(x, y) {
+        return Vector2.Dot(this, x, y);
+    }
+    Unit() {
+        return Vector2.Unit(this);
+    }
+    toString() {
+        return `<${this.X}, ${this.Y}>`;
+    }
+    Clone() {
+        return new Vector2(this);
+    }
+    static Set(vector, x, y) {
+        [x, y] = Vector2.Destructure(x, y);
+        vector.X = x;
+        vector.Y = y;
+        return vector;
+    }
+    static Sum(vector, x, y) {
+        [x, y] = Vector2.Destructure(x, y);
+        return Vector2.Set(vector, vector.X + x, vector.Y + y);
+    }
+    static Diff(vector, x, y) {
+        [x, y] = Vector2.Destructure(x, y);
+        return Vector2.Set(vector, vector.X - x, vector.Y - y);
+    }
+    static Mult(vector, x, y) {
+        [x, y] = Vector2.Destructure(x, y);
+        return Vector2.Set(vector, vector.X * x, vector.Y * y);
+    }
+    static Scale(vector, scalar) {
+        return Vector2.Mult(vector, scalar, scalar);
+    }
+    static Dot(vector, x, y) {
+        [x, y] = Vector2.Destructure(x, y);
+        return Maths_1.Sigfigs(vector.X * x + vector.Y * y);
+    }
+    static Unit(vector) {
+        let length = vector.Length;
+        if (length !== 0) {
+            Vector2.Scale(vector, 1 / length);
+        }
+        return vector;
+    }
     static get ZERO() {
         return new Vector2(0, 0);
     }
@@ -1530,80 +1904,16 @@ class Vector2 extends Float32Array {
     static get UNIT() {
         return new Vector2(Math.sqrt(1 / 2), Math.sqrt(1 / 2));
     }
-    get Length() {
-        return Vector2.Length(this);
-    }
     static Length(x, y) {
         [x, y] = Vector2.Destructure(x, y);
         return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-    }
-    Set(x, y) {
-        return Vector2.Set(this, x, y);
-    }
-    static Set(vector, x, y) {
-        [x, y] = Vector2.Destructure(x, y);
-        vector.X = x;
-        vector.Y = y;
-        return vector;
-    }
-    Sum(x, y) {
-        return Vector2.Sum(this, x, y);
-    }
-    static Sum(vector, x, y) {
-        [x, y] = Vector2.Destructure(x, y);
-        return Vector2.Set(vector, vector.X + x, vector.Y + y);
-    }
-    Diff(x, y) {
-        return Vector2.Diff(this, x, y);
-    }
-    static Diff(vector, x, y) {
-        [x, y] = Vector2.Destructure(x, y);
-        return Vector2.Set(vector, vector.X - x, vector.Y - y);
-    }
-    Mult(x, y) {
-        return Vector2.Mult(this, x, y);
-    }
-    static Mult(vector, x, y) {
-        [x, y] = Vector2.Destructure(x, y);
-        return Vector2.Set(vector, vector.X * x, vector.Y * y);
-    }
-    Scale(scalar) {
-        return Vector2.Scale(this, scalar);
-    }
-    static Scale(vector, scalar) {
-        return Vector2.Mult(vector, scalar, scalar);
-    }
-    Dot(x, y) {
-        return Vector2.Dot(this, x, y);
-    }
-    static Dot(vector, x, y) {
-        [x, y] = Vector2.Destructure(x, y);
-        return Maths_1.Sigfigs(vector.X * x + vector.Y * y);
-    }
-    Unit() {
-        return Vector2.Unit(this);
-    }
-    static Unit(vector) {
-        let length = vector.Length;
-        if (length !== 0) {
-            Vector2.Scale(vector, 1 / length);
-        }
-        return vector;
-    }
-    toString() {
-        return `<${this.X}, ${this.Y}>`;
-    }
-    Clone() {
-        return new Vector2(this);
     }
     static Destructure(x, y) {
         if (x instanceof Vector2 || x instanceof Vector3_1.default || x instanceof Vector4_1.default) {
             [x, y] = [x.X, x.Y];
         }
         else if (x instanceof Float32Array || x instanceof List_1.default || x instanceof Array) {
-            [
-                x, y
-            ] = x;
+            [x, y] = x;
         }
         return [x, y];
     }
@@ -1612,33 +1922,81 @@ exports.default = Vector2;
 
 },{"../Utility/List":46,"./Maths":17,"./Vector3":22,"./Vector4":23}],22:[function(require,module,exports){
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Maths_1 = __importDefault(require("../Maths/Maths"));
+const Maths_1 = __importStar(require("../Maths/Maths"));
+const List_1 = __importDefault(require("../Utility/List"));
+const Vector2_1 = __importDefault(require("./Vector2"));
+const Vector4_1 = __importDefault(require("./Vector4"));
 class Vector3 extends Float32Array {
-    constructor(x, y, z) {
-        super(3);
-        this.Set(x, y, z);
-    }
     get X() {
         return this[0];
     }
     set X(x) {
-        this[0] = Maths_1.default.CleanFloat(x);
+        this[0] = Maths_1.Sigfigs(x);
     }
     get Y() {
         return this[1];
     }
     set Y(y) {
-        this[1] = Maths_1.default.CleanFloat(y);
+        this[1] = Maths_1.Sigfigs(y);
     }
     get Z() {
         return this[2];
     }
     set Z(z) {
-        this[2] = Maths_1.default.CleanFloat(z);
+        this[2] = Maths_1.Sigfigs(z);
+    }
+    get Length() {
+        return Vector3.Length(this);
+    }
+    constructor(x, y, z) {
+        super(3);
+        if (x) {
+            Vector3.Set(this, x, y, z);
+        }
+    }
+    Set(x, y, z) {
+        return Vector3.Set(this, x, y, z);
+    }
+    Sum(x, y, z) {
+        return Vector3.Sum(this, x, y, z);
+    }
+    Diff(x, y, z) {
+        if (x instanceof Float32Array || x instanceof Array) {
+            [x, y, z] = x;
+        }
+        return Vector3.Diff(this, x, y, z);
+    }
+    Mult(x, y, z) {
+        return Vector3.Mult(this, x, y, z);
+    }
+    Scale(scalar) {
+        return Vector3.Scale(this, scalar);
+    }
+    Dot(x, y, z) {
+        return Vector3.Dot(this, x, y, z);
+    }
+    Cross(x, y, z) {
+        return Vector3.Cross(this, x, y, z);
+    }
+    Unit() {
+        return Vector3.Unit(this);
+    }
+    toString() {
+        return `<${this.X}, ${this.Y}, ${this.Z}>`;
+    }
+    Clone() {
+        return new Vector3(this);
     }
     static get ZERO() {
         return new Vector3(0, 0, 0);
@@ -1649,83 +2007,41 @@ class Vector3 extends Float32Array {
     static get UNIT() {
         return new Vector3(Math.sqrt(1 / 3), Math.sqrt(1 / 3), Math.sqrt(1 / 3));
     }
-    get Length() {
-        return Vector3.Length(this);
-    }
     static Length(x, y, z) {
         if (x instanceof Float32Array || x instanceof Array) {
             [x, y, z] = x;
         }
         return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
     }
-    Set(x, y, z) {
-        return Vector3.Set(this, x, y, z);
-    }
     static Set(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
+        [x, y, z] = Vector3.Destructure(x, y, z);
         vector.X = x;
         vector.Y = y;
         vector.Z = z;
         return vector;
     }
-    Sum(x, y, z) {
-        return Vector3.Sum(this, x, y, z);
-    }
     static Sum(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
+        [x, y, z] = Vector3.Destructure(x, y, z);
         return Vector3.Set(vector, vector.X + x, vector.Y + y, vector.Z + z);
     }
-    Diff(x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
-        return Vector3.Diff(this, x, y, z);
-    }
     static Diff(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
+        [x, y, z] = Vector3.Destructure(x, y, z);
         return Vector3.Set(vector, vector.X - x, vector.Y - y, vector.Z - z);
     }
-    Mult(x, y, z) {
-        return Vector3.Mult(this, x, y, z);
-    }
     static Mult(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
+        [x, y, z] = Vector3.Destructure(x, y, z);
         return Vector3.Set(vector, vector.X * x, vector.Y * y, vector.Z * z);
     }
-    Scale(scalar) {
-        return Vector3.Scale(this, scalar);
+    static Cross(vector, x, y, z) {
+        [x, y, z] = Vector3.Destructure(x, y, z);
+        return Vector3.Set(vector, vector.Y * z - vector.Z * y, vector.Z * x - vector.X * z, vector.X * y - vector.Y * x);
     }
     static Scale(vector, scalar) {
         return Vector3.Mult(vector, scalar, scalar, scalar);
     }
-    Dot(x, y, z) {
-        return Vector3.Dot(this, x, y, z);
-    }
     static Dot(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
+        [x, y, z] = Vector3.Destructure(x, y, z);
         return Maths_1.default.CleanFloat(vector.X * x + vector.Y * y + vector.Z * z);
-    }
-    Cross(x, y, z) {
-        return Vector3.Cross(this, x, y, z);
-    }
-    static Cross(vector, x, y, z) {
-        if (x instanceof Float32Array || x instanceof Array) {
-            [x, y, z] = x;
-        }
-        return Vector3.Set(vector, vector.Y * z - vector.Z * y, vector.Z * x - vector.X * z, vector.X * y - vector.Y * x);
-    }
-    Unit() {
-        return Vector3.Unit(this);
     }
     static Unit(vector) {
         var length = vector.Length;
@@ -1734,144 +2050,89 @@ class Vector3 extends Float32Array {
         }
         return vector;
     }
-    toString() {
-        return `<${this.X}, ${this.Y}, ${this.Z}>`;
-    }
-    toLocaleString() {
-        return this.toString();
-    }
-    Clone() {
-        return new Vector3(this);
+    static Destructure(x, y, z) {
+        if (x instanceof Vector2_1.default) {
+            [x, y, z] = [x.X, x.Y, 0];
+        }
+        else if (x instanceof Vector3 || x instanceof Vector4_1.default) {
+            [x, y, z] = [x.X, x.Y, x.Z];
+        }
+        else if (x instanceof Float32Array || x instanceof Array || x instanceof List_1.default) {
+            [x, y, z] = x;
+        }
+        return [x, y, z];
     }
 }
 exports.default = Vector3;
 
-},{"../Maths/Maths":17}],23:[function(require,module,exports){
+},{"../Maths/Maths":17,"../Utility/List":46,"./Vector2":21,"./Vector4":23}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const List_1 = __importDefault(require("../Utility/List"));
-const Maths_1 = __importDefault(require("./Maths"));
+const Maths_1 = __importStar(require("./Maths"));
 const Vector2_1 = __importDefault(require("./Vector2"));
 const Vector3_1 = __importDefault(require("./Vector3"));
 class Vector4 extends Float32Array {
-    constructor(w, x, y, z) {
-        super(4);
-        if (w) {
-            Vector4.Set(this, w, x, y, z);
-        }
-    }
-    get W() {
+    get X() {
         return this[0];
     }
-    set W(w) {
-        this[0] = Maths_1.default.CleanFloat(w);
-    }
-    get X() {
-        return this[1];
-    }
     set X(x) {
-        this[1] = Maths_1.default.CleanFloat(x);
+        this[0] = Maths_1.Sigfigs(x);
     }
     get Y() {
-        return this[2];
+        return this[1];
     }
     set Y(y) {
-        this[2] = Maths_1.default.CleanFloat(y);
+        this[1] = Maths_1.Sigfigs(y);
     }
     get Z() {
-        return this[3];
+        return this[2];
     }
     set Z(z) {
-        this[3] = Maths_1.default.CleanFloat(z);
+        this[2] = Maths_1.Sigfigs(z);
+    }
+    get W() {
+        return this[3];
+    }
+    set W(w) {
+        this[3] = Maths_1.Sigfigs(w);
     }
     get Length() {
         return Vector4.Length(this);
     }
-    static Length(w, x, y, z) {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
-            [w, x, y, z] = w;
+    constructor(x, y, z, w) {
+        super(4);
+        if (x) {
+            Vector4.Set(this, x, y, z, w);
         }
-        return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
     }
-    get ZERO() {
-        return new Vector4(0, 0, 0, 0);
+    Set(x, y, z, w) {
+        return Vector4.Set(this, x, y, z, w);
     }
-    get ONE() {
-        return new Vector4(1, 1, 1, 1);
+    Sum(x, y, z, w) {
+        return Vector4.Sum(this, x, y, z, w);
     }
-    get UNIT() {
-        return new Vector4(0.5, 0.5, 0.5, 0.5);
+    Diff(x, y, z, w) {
+        return Vector4.Diff(this, x, y, z, w);
     }
-    Set(w, x, y, z) {
-        return Vector4.Set(this, w, x, y, z);
+    Mult(x, y, z, w) {
+        return Vector4.Mult(this, x, y, z, w);
     }
-    static Set(vector, w, x, y, z) {
-        if (w instanceof Vector2_1.default) {
-            [w, x, y, z] = [0, w.X, w.Y, 0];
-        }
-        else if (w instanceof Vector3_1.default) {
-            [w, x, y, z] = [0, w.X, w.Y, w.Z];
-        }
-        else if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
-            [w, x, y, z] = w;
-        }
-        vector.W = Maths_1.default.CleanFloat(w);
-        vector.X = Maths_1.default.CleanFloat(x);
-        vector.Y = Maths_1.default.CleanFloat(y);
-        vector.Z = Maths_1.default.CleanFloat(z);
-        return vector;
-    }
-    Sum(w, x, y, z) {
-        return Vector4.Sum(this, w, x, y, z);
-    }
-    static Sum(vector, w, x, y, z) {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-        }
-        return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
-    }
-    Diff(w, x, y, z) {
-        return Vector4.Diff(this, w, x, y, z);
-    }
-    static Diff(vector, w, x, y, z) {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-        }
-        return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
-    }
-    Mult(w, x, y, z) {
-        return Vector4.Mult(this, w, x, y, z);
-    }
-    static Mult(vector, w, x, y, z) {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-        }
-        return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
-    }
-    static Scale(vector, scaler) {
-        return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
-    }
-    Dot(w, x, y, z) {
-        return Vector4.Dot(this, w, x, y, z);
-    }
-    static Dot(vector, w, x, y, z) {
-        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array) {
-            [w, x, y, z] = [w[0], w[1], w[2], w[3]];
-        }
-        return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+    Dot(x, y, z, w) {
+        return Vector4.Dot(this, x, y, z, w);
     }
     Unit() {
         return Vector4.Unit(this);
-    }
-    static Unit(vector) {
-        let length = vector.Length;
-        if (length !== 0) {
-            Vector4.Scale(vector, 1 / length);
-        }
-        return vector;
     }
     toString() {
         return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`;
@@ -1881,6 +2142,70 @@ class Vector4 extends Float32Array {
     }
     Clone() {
         return new Vector4(this);
+    }
+    static Set(vector, x, y, z, w) {
+        [x, y, z, w] = Vector4.Destructure(x, y, z, w);
+        vector.X = x;
+        vector.Y = y;
+        vector.Z = z;
+        vector.W = w;
+        return vector;
+    }
+    static Sum(vector, x, y, z, w) {
+        [x, y, z, w] = Vector4.Destructure(x, y, z, w);
+        return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
+    }
+    static Diff(vector, x, y, z, w) {
+        [x, y, z, w] = Vector4.Destructure(x, y, z, w);
+        return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
+    }
+    static Mult(vector, x, y, z, w) {
+        [x, y, z, w] = Vector4.Destructure(x, y, z, w);
+        return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
+    }
+    static Scale(vector, scaler) {
+        return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
+    }
+    static Dot(vector, x, y, z, w) {
+        [x, y, z, w] = Vector4.Destructure(x, y, z, w);
+        return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
+    }
+    static Unit(vector) {
+        let length = vector.Length;
+        if (length !== 0) {
+            Vector4.Scale(vector, 1 / length);
+        }
+        return vector;
+    }
+    static Length(w, x, y, z) {
+        if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List_1.default) {
+            [w, x, y, z] = w;
+        }
+        return Maths_1.default.CleanFloat(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
+    }
+    static get ZERO() {
+        return new Vector4(0, 0, 0, 0);
+    }
+    static get ONE() {
+        return new Vector4(1, 1, 1, 1);
+    }
+    static get UNIT() {
+        return new Vector4(1 / 2, 1 / 2, 1 / 2, 1 / 2);
+    }
+    static Destructure(x, y, z, w) {
+        if (x instanceof Vector2_1.default) {
+            [x, y, z, w] = [x.X, x.Y, 0, 0];
+        }
+        else if (x instanceof Vector3_1.default) {
+            [x, y, z, w] = [x.X, x.Y, x.Z, 0];
+        }
+        else if (x instanceof Vector4) {
+            [x, y, z, w] = [x.X, x.Y, x.Z, x.W];
+        }
+        else if (x instanceof Float32Array || x instanceof Array || x instanceof List_1.default) {
+            [x, y, z, w] = x;
+        }
+        return [x, y, z, w];
     }
 }
 exports.default = Vector4;
@@ -1936,15 +2261,13 @@ class ParticleSystem extends Item_1.default {
         exports.ParticleSystems.push(this);
     }
     Update() {
-        if (this.CurrentTime >= this.MaxTime) {
-            if (!this.Loop) {
-                return;
-            }
-            else {
-                this.CurrentTime -= this.MaxTime;
-            }
-        }
         for (let i = 0; i < this.Particles.length; ++i) {
+            let remaining = this.CurrentTime - this.Delay(this.CurrentTime, i);
+            if (this.CurrentTime >= this.MaxTime && remaining >= this.MaxTime) {
+                if (!this.Loop) {
+                    return;
+                }
+            }
             let particle = this.Particles[i];
             let currentTime = this.CurrentTime - this.Delay(this.CurrentTime, i);
             if (currentTime < 0) {
@@ -2810,19 +3133,28 @@ class ITransform {
 exports.ITransform = ITransform;
 class Transform {
     constructor({ position = Vector3_1.default.ZERO, rotation = Vector3_1.default.ZERO, scale = Vector3_1.default.ONE, shear = Vector3_1.default.ZERO } = new ITransform) {
-        this.Position = new Vector3_1.default(position);
-        this.Rotation = new Vector3_1.default(rotation);
-        this.Scale = new Vector3_1.default(scale);
-        this.Shear = new Vector3_1.default(shear);
+        this.Position = position;
+        this.Rotation = rotation;
+        this.Scale = scale;
+        this.Shear = shear;
     }
     static get UP() {
         return new Vector3_1.default(0, 1, 0);
     }
+    static get DOWN() {
+        return new Vector3_1.default(0, -1, 0);
+    }
     static get FORWARD() {
         return new Vector3_1.default(0, 0, 1);
     }
+    static get BACKWARD() {
+        return new Vector3_1.default(0, 0, -1);
+    }
     static get RIGHT() {
         return new Vector3_1.default(1, 0, 0);
+    }
+    static get LEFT() {
+        return new Vector3_1.default(-1, 0, 0);
     }
 }
 exports.default = Transform;

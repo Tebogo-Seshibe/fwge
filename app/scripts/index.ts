@@ -8,6 +8,9 @@ import Control from '../../src/Utility/Control';
 import OBJConverter from '../../src/Utility/Converter/OBJConverter';
 import List from '../../src/Utility/List';
 import Colour4 from '../../src/Render/Colour4';
+import GameObject from '../../src/GameObject';
+import Input from '../../src/Input/Input';
+import { InputState } from '../../src/Input/InputState';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -228,32 +231,19 @@ async function makeCube()
         width: 1080
     })
     
-    fwge.mesh = OBJConverter.ParseMesh(obj)
-    fwge.material = OBJConverter.ParseRenderMaterial(mtl)
-    fwge.material.Shader = shader
-    fwge.material.Ambient = new Colour4(1,1,1,1)
-    fwge.material.Alpha = 0.2
+    fwge.object = OBJConverter.Parse(obj, mtl)
 
-    fwge.system = new ParticleSystem(
+    let object = <GameObject>fwge.object
+    object.Material.Shader = shader
+    object.Material.Ambient = new Colour4(1,1,1,1)
+    object.Material.Alpha = 0.2
+    object.Transform.Position.Z = -5
+    object.Update = function(this: GameObject)
     {
-        delay: (time: number, index: number) => index * 1000,
-        length: 5000,
-        material: fwge.material,
-        mesh: fwge.mesh,
-        name: "example particle system",
-        count: 5,
-        transform: {
-            position: [0, 0, -5],
-            scale: [0.1, 0.1, 0.1]
-        },
-        position: [ 
-            (time: number, index: number) => 0,
-            (time: number, index: number) => time * 0.01,
-            (time: number, index: number) => -15
-            // (time: number, index: number) => Math.cos(time / 10),
-            // (time: number, index: number) => Math.sin(time / 10)
-        ]
-    })
-
+        //if (Input.Keyboard.Key5 == InputState.DOWN)
+        {
+            console.log(Input.Keyboard.Key5)
+        }
+    }
     Control.Start()
 }
