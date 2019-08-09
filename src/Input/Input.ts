@@ -13,5 +13,6 @@ export default class Input
     {
         Input.Keyboard = new KeyboardInput()
         Input.Mouse = new MouseInput(canvas)
+
     }
 }
