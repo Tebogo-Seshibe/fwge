@@ -40,18 +40,19 @@ window.onload = () =>
         renderupdate: 75
     })
 
-    makeCube()
+    
+    // makeCube()
 
-    fwge.light = new AmbientLight(
-    {
-        colour: [1, 1, 1, 1],
-        intensity: 1.0,
-        name: 'Ambient'
-        // angle: 180,
-        // position: [0,0,0],
-        // radius: 5,
-        // shininess: 32
-    })
+    // fwge.light = new AmbientLight(
+    // {
+    //     colour: [1, 1, 1, 1],
+    //     intensity: 1.0,
+    //     name: 'Ambient'
+    //     // angle: 180,
+    //     // position: [0,0,0],
+    //     // radius: 5,
+    //     // shininess: 32
+    // })
 }
 
 async function makeCube()
@@ -226,7 +227,7 @@ async function makeCube()
     object.Transform.Position.Z = -15
     object.Update = function(this: GameObject): void { this.Transform.Rotation.Y += Time.Render.Delta * 0.1 }
 
-    /*fwge.mesh = OBJConverter.ParseMesh(obj)
+    fwge.mesh = OBJConverter.ParseMesh(obj)
     fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.material.Alpha = 0.2
 
@@ -249,7 +250,7 @@ async function makeCube()
             // (time: number, index: number) => Math.cos(time / 10),
             // (time: number, index: number) => Math.sin(time / 10)
         ]
-    })*/
+    })
 
     Control.Start()
 }
