@@ -8,6 +8,7 @@ export default class MouseInput
     private buttons: InputState[] = new Array<InputState>()
     private position: Vector2 = new Vector2()
     private delta: Vector2 = new Vector2()
+    private offset: Vector2 = new Vector2()
     //#endregion
     
     //#region Buttons
@@ -36,19 +37,24 @@ export default class MouseInput
         return this.buttons[4]
     }
 
-    public Buttons(): InputState[]
+    public get Buttons(): InputState[]
     {
         return [...this.buttons]
     }
     //#endregion
 
     //#region Axes
-    public Delta(): Vector2
+    public get Delta(): Vector2
     {
         return this.delta.Clone()
     }
     
-    public Position(): Vector2
+    public get Position(): Vector2
+    {
+        return this.position.Clone().Diff(this.offset).Mult(1, -1)
+    }
+
+    public get RawPosition(): Vector2
     {
         return this.position.Clone()
     }
@@ -56,6 +62,8 @@ export default class MouseInput
 
     constructor(element: HTMLCanvasElement)
     {
+        this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
+
         for (var i = 0; i < this.TOTAL_BUTTONS; ++i)
         {
             this.buttons.push(InputState.UP)
@@ -63,22 +71,25 @@ export default class MouseInput
         
         element.onclick = element.ondblclick
                         = element.oncontextmenu
-                        = (e: MouseEvent): any => 
+                        = (e: MouseEvent): any => e
 
         element.onmouseup = (e: MouseEvent) =>
         {
             this.buttons[e.button] = InputState.UP
+            e.cancelBubble = true
         }
-
+        
         element.onmousedown = (e: MouseEvent) =>
         {
             this.buttons[e.button] = InputState.DOWN
+            e.cancelBubble = true
         }
-
+        
         element.onmousemove = (e: MouseEvent) =>
         {
             this.delta.Set(e.movementX, e.movementY)
             this.position.Set(e.clientX, e.clientY)
+            e.cancelBubble = true
         }
     }
 }

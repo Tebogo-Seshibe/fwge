@@ -22,11 +22,13 @@ const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJC
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
 const Input_1 = __importDefault(require("../../src/Input/Input"));
+const InputState_1 = require("../../src/Input/InputState");
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
 fwge.FWGE = FWGE_1.default;
 fwge.List = List_1.default;
+fwge.Input = Input_1.default;
 fwge.lights = {};
 fwge.Var = Equation_1.Var;
 fwge.Unary = Equation_1.Unary;
@@ -233,15 +235,17 @@ function makeCube() {
         object.Material.Alpha = 0.2;
         object.Transform.Position.Z = -5;
         object.Update = function () {
-            {
-                console.log(Input_1.default.Keyboard.Key5);
+            let position = Input_1.default.Mouse.Position.Scale(0.01);
+            if (Input_1.default.Mouse.Thumb2 != InputState_1.InputState.DOWN) {
+                this.Transform.Position.X = position.X;
+                this.Transform.Position.Y = position.Y;
             }
         };
         Control_1.default.Start();
     });
 }
 
-},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Input/Input":7,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Input/Input":7,"../../src/Input/InputState":8,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -533,285 +537,290 @@ const InputState_1 = require("./InputState");
 class KeyboardInput {
     constructor() {
         this.TOTAL_KEYS = 128;
-        this.Keys = new Array();
+        this.keys = new Array();
         for (var i = 0; i < this.TOTAL_KEYS; ++i) {
-            this.Keys.push(InputState_1.InputState.UP);
+            this.keys.push(InputState_1.InputState.UP);
         }
         window.onkeyup = (e) => {
-            this.Keys[e.keyCode] = InputState_1.InputState.UP;
+            this.keys[e.keyCode] = InputState_1.InputState.UP;
+            e.cancelBubble = true;
         };
         window.onkeydown = (e) => {
-            if (this.Keys[e.keyCode] == InputState_1.InputState.CLICKED) {
-                this.Keys[e.keyCode] = InputState_1.InputState.DOWN;
+            if (this.keys[e.keyCode] == InputState_1.InputState.CLICKED) {
+                this.keys[e.keyCode] = InputState_1.InputState.DOWN;
             }
             else {
-                this.Keys[e.keyCode] = InputState_1.InputState.PRESSED;
+                this.keys[e.keyCode] = InputState_1.InputState.PRESSED;
             }
+            e.cancelBubble = true;
         };
     }
+    get Keys() {
+        return [...this.keys];
+    }
     get KeyTilde() {
-        return this.Keys[192];
+        return this.keys[192];
     }
     get Key0() {
-        return this.Keys[48];
+        return this.keys[48];
     }
     get Key1() {
-        return this.Keys[49];
+        return this.keys[49];
     }
     get Key2() {
-        return this.Keys[50];
+        return this.keys[50];
     }
     get Key3() {
-        return this.Keys[51];
+        return this.keys[51];
     }
     get Key4() {
-        return this.Keys[52];
+        return this.keys[52];
     }
     get Key5() {
-        return this.Keys[53];
+        return this.keys[53];
     }
     get Key6() {
-        return this.Keys[54];
+        return this.keys[54];
     }
     get Key7() {
-        return this.Keys[55];
+        return this.keys[55];
     }
     get Key8() {
-        return this.Keys[56];
+        return this.keys[56];
     }
     get Key9() {
-        return this.Keys[57];
+        return this.keys[57];
     }
     get KeyHyphen() {
-        return this.Keys[189];
+        return this.keys[189];
     }
     get KeyEquals() {
-        return this.Keys[187];
+        return this.keys[187];
     }
     get KeyA() {
-        return this.Keys[65];
+        return this.keys[65];
     }
     get KeyB() {
-        return this.Keys[66];
+        return this.keys[66];
     }
     get KeyC() {
-        return this.Keys[67];
+        return this.keys[67];
     }
     get KeyD() {
-        return this.Keys[68];
+        return this.keys[68];
     }
     get KeyE() {
-        return this.Keys[69];
+        return this.keys[69];
     }
     get KeyF() {
-        return this.Keys[70];
+        return this.keys[70];
     }
     get KeyG() {
-        return this.Keys[71];
+        return this.keys[71];
     }
     get KeyH() {
-        return this.Keys[72];
+        return this.keys[72];
     }
     get KeyI() {
-        return this.Keys[73];
+        return this.keys[73];
     }
     get KeyJ() {
-        return this.Keys[74];
+        return this.keys[74];
     }
     get KeyK() {
-        return this.Keys[75];
+        return this.keys[75];
     }
     get KeyL() {
-        return this.Keys[76];
+        return this.keys[76];
     }
     get KeyM() {
-        return this.Keys[77];
+        return this.keys[77];
     }
     get KeyN() {
-        return this.Keys[78];
+        return this.keys[78];
     }
     get KeyO() {
-        return this.Keys[79];
+        return this.keys[79];
     }
     get KeyP() {
-        return this.Keys[80];
+        return this.keys[80];
     }
     get KeyQ() {
-        return this.Keys[81];
+        return this.keys[81];
     }
     get KeyR() {
-        return this.Keys[82];
+        return this.keys[82];
     }
     get KeyS() {
-        return this.Keys[83];
+        return this.keys[83];
     }
     get KeyT() {
-        return this.Keys[84];
+        return this.keys[84];
     }
     get KeyU() {
-        return this.Keys[85];
+        return this.keys[85];
     }
     get KeyV() {
-        return this.Keys[86];
+        return this.keys[86];
     }
     get KeyW() {
-        return this.Keys[87];
+        return this.keys[87];
     }
     get KeyX() {
-        return this.Keys[88];
+        return this.keys[88];
     }
     get KeyY() {
-        return this.Keys[89];
+        return this.keys[89];
     }
     get KeyZ() {
-        return this.Keys[90];
+        return this.keys[90];
     }
     get KeyComma() {
-        return this.Keys[188];
+        return this.keys[188];
     }
     get KeyPeriod() {
-        return this.Keys[190];
+        return this.keys[190];
     }
     get KeySlash() {
-        return this.Keys[191];
+        return this.keys[191];
     }
     get KeySpace() {
-        return this.Keys[32];
+        return this.keys[32];
     }
     get KeyBackspace() {
-        return this.Keys[8];
+        return this.keys[8];
     }
     get KeyEnter() {
-        return this.Keys[13];
+        return this.keys[13];
     }
     get KeyInsert() {
-        return this.Keys[45];
+        return this.keys[45];
     }
     get KeyDelete() {
-        return this.Keys[46];
+        return this.keys[46];
     }
     get KeyTab() {
-        return this.Keys[9];
+        return this.keys[9];
     }
     get KeyHome() {
-        return this.Keys[36];
+        return this.keys[36];
     }
     get KeyEnd() {
-        return this.Keys[35];
+        return this.keys[35];
     }
     get KeyPgUp() {
-        return this.Keys[33];
+        return this.keys[33];
     }
     get KeyPgDown() {
-        return this.Keys[34];
+        return this.keys[34];
     }
     get KeyUp() {
-        return this.Keys[38];
+        return this.keys[38];
     }
     get KeyDown() {
-        return this.Keys[40];
+        return this.keys[40];
     }
     get KeyLeft() {
-        return this.Keys[37];
+        return this.keys[37];
     }
     get KeyRight() {
-        return this.Keys[39];
+        return this.keys[39];
     }
     get Numpad0() {
-        return this.Keys[96];
+        return this.keys[96];
     }
     get Numpad1() {
-        return this.Keys[97];
+        return this.keys[97];
     }
     get Numpad2() {
-        return this.Keys[98];
+        return this.keys[98];
     }
     get Numpad3() {
-        return this.Keys[99];
+        return this.keys[99];
     }
     get Numpad4() {
-        return this.Keys[100];
+        return this.keys[100];
     }
     get Numpad5() {
-        return this.Keys[101];
+        return this.keys[101];
     }
     get Numpad6() {
-        return this.Keys[102];
+        return this.keys[102];
     }
     get Numpad7() {
-        return this.Keys[103];
+        return this.keys[103];
     }
     get Numpad8() {
-        return this.Keys[104];
+        return this.keys[104];
     }
     get Numpad9() {
-        return this.Keys[105];
+        return this.keys[105];
     }
     get KeyShift() {
-        return this.Keys[16];
+        return this.keys[16];
     }
     get KeyCtrl() {
-        return this.Keys[17];
+        return this.keys[17];
     }
     get KeyAlt() {
-        return this.Keys[18];
+        return this.keys[18];
     }
     get KeyPauseBreak() {
-        return this.Keys[19];
+        return this.keys[19];
     }
     get KeyEsc() {
-        return this.Keys[27];
+        return this.keys[27];
     }
     get KeyStart() {
-        return this.Keys[91];
+        return this.keys[91];
     }
     get KeyContextMenu() {
-        return this.Keys[93];
+        return this.keys[93];
     }
     get KeyF1() {
-        return this.Keys[112];
+        return this.keys[112];
     }
     get KeyF2() {
-        return this.Keys[113];
+        return this.keys[113];
     }
     get KeyF3() {
-        return this.Keys[114];
+        return this.keys[114];
     }
     get KeyF4() {
-        return this.Keys[115];
+        return this.keys[115];
     }
     get KeyF5() {
-        return this.Keys[116];
+        return this.keys[116];
     }
     get KeyF6() {
-        return this.Keys[117];
+        return this.keys[117];
     }
     get KeyF7() {
-        return this.Keys[118];
+        return this.keys[118];
     }
     get KeyF8() {
-        return this.Keys[119];
+        return this.keys[119];
     }
     get KeyF9() {
-        return this.Keys[120];
+        return this.keys[120];
     }
     get KeyF10() {
-        return this.Keys[121];
+        return this.keys[121];
     }
     get KeyF11() {
-        return this.Keys[122];
+        return this.keys[122];
     }
     get KeyF12() {
-        return this.Keys[123];
+        return this.keys[123];
     }
     get KeyCapsLock() {
-        return this.Keys[20];
+        return this.keys[20];
     }
     get KeyNumLock() {
-        return this.Keys[144];
+        return this.keys[144];
     }
     get KeyScrollLock() {
-        return this.Keys[145];
+        return this.keys[145];
     }
 }
 exports.default = KeyboardInput;
@@ -827,39 +836,57 @@ const Vector2_1 = __importDefault(require("../Maths/Vector2"));
 class MouseInput {
     constructor(element) {
         this.TOTAL_BUTTONS = 20;
-        this.Buttons = new Array();
-        this.Axes = new Vector2_1.default();
-        this.Delta = new Vector2_1.default();
+        this.buttons = new Array();
+        this.position = new Vector2_1.default();
+        this.delta = new Vector2_1.default();
+        this.offset = new Vector2_1.default();
+        this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5);
         for (var i = 0; i < this.TOTAL_BUTTONS; ++i) {
-            this.Buttons.push(InputState_1.InputState.UP);
+            this.buttons.push(InputState_1.InputState.UP);
         }
         element.onclick = element.ondblclick
             = element.oncontextmenu
-                = (e) => element.onmouseup = (e) => {
-                    this.Buttons[e.button] = InputState_1.InputState.UP;
-                };
+                = (e) => e;
+        element.onmouseup = (e) => {
+            this.buttons[e.button] = InputState_1.InputState.UP;
+            e.cancelBubble = true;
+        };
         element.onmousedown = (e) => {
-            this.Buttons[e.button] = InputState_1.InputState.DOWN;
+            this.buttons[e.button] = InputState_1.InputState.DOWN;
+            e.cancelBubble = true;
         };
         element.onmousemove = (e) => {
-            this.Delta.Set(e.clientX - this.Axes.X, e.clientY - this.Axes.Y);
-            this.Axes.Set(e.clientX, e.clientY);
+            this.delta.Set(e.movementX, e.movementY);
+            this.position.Set(e.clientX, e.clientY);
+            e.cancelBubble = true;
         };
     }
     get Left() {
-        return this.Buttons[0];
+        return this.buttons[0];
     }
     get Middle() {
-        return this.Buttons[1];
+        return this.buttons[1];
     }
     get Right() {
-        return this.Buttons[2];
+        return this.buttons[2];
     }
     get Thumb1() {
-        return this.Buttons[3];
+        return this.buttons[3];
     }
     get Thumb2() {
-        return this.Buttons[4];
+        return this.buttons[4];
+    }
+    get Buttons() {
+        return [...this.buttons];
+    }
+    get Delta() {
+        return this.delta.Clone();
+    }
+    get Position() {
+        return this.position.Clone().Diff(this.offset).Mult(1, -1);
+    }
+    get RawPosition() {
+        return this.position.Clone();
     }
 }
 exports.default = MouseInput;

@@ -8,7 +8,7 @@ export default class KeyboardInput
     //#endregion
 
     //#region Keys
-    public Keys(): InputState[]
+    public get Keys(): InputState[]
     {
         return [...this.keys]
     }
@@ -480,8 +480,9 @@ export default class KeyboardInput
         window.onkeyup = (e: KeyboardEvent) =>
         {
             this.keys[e.keyCode] = InputState.UP
+            e.cancelBubble = true
         }
-
+        
         window.onkeydown = (e: KeyboardEvent) =>
         {
             if (this.keys[e.keyCode] == InputState.CLICKED)
@@ -492,6 +493,7 @@ export default class KeyboardInput
             {
                 this.keys[e.keyCode] = InputState.PRESSED
             }
+            e.cancelBubble = true
         }
     }
 }

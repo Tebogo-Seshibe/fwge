@@ -17,6 +17,7 @@ fwge.Control = Control
 fwge.Camera = Camera
 fwge.FWGE = FWGE
 fwge.List = List
+fwge.Input = Input
 fwge.lights = { }
 
 fwge.Var = Var
@@ -240,9 +241,11 @@ async function makeCube()
     object.Transform.Position.Z = -5
     object.Update = function(this: GameObject)
     {
-        //if (Input.Keyboard.Key5 == InputState.DOWN)
+        let position = Input.Mouse.Position.Scale(0.01)
+        if (Input.Mouse.Thumb2 != InputState.DOWN)
         {
-            console.log(Input.Keyboard.Key5)
+            this.Transform.Position.X = position.X
+            this.Transform.Position.Y = position.Y
         }
     }
     Control.Start()
