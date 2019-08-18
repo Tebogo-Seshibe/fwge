@@ -38,7 +38,7 @@ export class ShaderUInt extends ShaderFieldType<number>
 
 export class ShaderFloat extends ShaderFieldType<number>
 {
-    constructor(numbername: string, value: number)
+    constructor(name: string, value: number)
     {
         super(name, value, 'float')
     }
@@ -172,24 +172,19 @@ export type ShaderField =
     ShaderVec2  | ShaderVec3    | ShaderVec4    |
     ShaderMat2  | ShaderMat3    | ShaderMat4
 
+export enum ShaderFieldScale
+{
+    Self
+}
+
 export class ShaderNode
 {
-    public Content: ShaderField
+    public Content: ShaderField[]
     public Inputs: ShaderNode[]
-    public Output: (...inputs: ShaderNode[]) => ShaderNode
 
-    constructor(content: ShaderField, output: (...inputs: ShaderNode[]) => ShaderNode, inputs?: ShaderNode[])
+    constructor(content: ShaderField[], inputs?: ShaderNode[])
     {
         this.Content = content
-        this.Output = output
         this.Inputs = inputs
     }
 }
-
-new ShaderNode(new ShaderVec4('colour', [0,0,0,0]),
-() => null,
-[
-    new ShaderNode(new ShaderFloat('red', 1), null), // red
-    new ShaderNode(new ShaderFloat('green', 1), null), // green
-    new ShaderNode(new ShaderFloat('blue', 1), null) // blue
-])

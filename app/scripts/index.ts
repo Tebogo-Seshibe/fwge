@@ -12,6 +12,7 @@ import FragmentShader from '../../src/Shader/Definition/FragmentShader'
 import VertexShader from '../../src/Shader/Definition/VertexShader'
 import Time from '../../src/Utility/Time';
 import GameObject, { GameObjectFunction } from '../../src/GameObject';
+import { ShaderIVec4, ShaderVec4, ShaderNode, ShaderFloat, ShaderVec3 } from '../../src/Shader/Definition/ShaderTypes';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -42,7 +43,7 @@ window.onload = () =>
 
     
     // makeCube()
-
+    makeShader()
     // fwge.light = new AmbientLight(
     // {
     //     colour: [1, 1, 1, 1],
@@ -225,7 +226,10 @@ async function makeCube()
     object.Material.Shader = shader
     object.Material.Ambient = new Colour4(1,1,1,1)
     object.Transform.Position.Z = -15
-    object.Update = function(this: GameObject): void { this.Transform.Rotation.Y += Time.Render.Delta * 0.1 }
+    object.Update = function(this: GameObject): void 
+    {
+        this.Transform.Rotation.Y += Time.Render.Delta * 0.1
+    }
 
     fwge.mesh = OBJConverter.ParseMesh(obj)
     fwge.material = OBJConverter.ParseRenderMaterial(mtl)
@@ -253,4 +257,40 @@ async function makeCube()
     })
 
     Control.Start()
+}
+
+async function makeShader()
+{
+    /**
+    new ShaderNode(new ShaderVec4('colour', [0,0,0,0]),
+    [
+        new ShaderNode(new ShaderFloat('red', 1), null), // red
+        new ShaderNode(new ShaderFloat('green', 1), null), // green
+        new ShaderNode(new ShaderFloat('blue', 1), null) // blue
+    ])
+    */
+
+   
+    let fields = new ShaderNode(
+    [
+        new ShaderFloat('red', 1),
+        new ShaderFloat('green', 1),
+        new ShaderFloat('blue', 1)
+    ])
+    
+    var offset = new ShaderNode(
+    [
+        new ShaderVec3('offset', [ 0, 0, 0 ])
+    ])
+    
+    var colour = new ShaderNode(
+    [
+        new ShaderVec4('colour', [ 0, 0, 0, 0])
+    ],
+    [
+        fields,
+        offset
+    ])
+        
+    console.log(colour)
 }
