@@ -1,32 +1,21 @@
 precision mediump float;
 const int MAX_LIGHTS = 8;
 
-struct Material 
-{
-    vec4 Ambient;
-    vec4 Diffuse;
-    vec4 Specular;
-    float Shininess;
-    float Alpha;
-    bool HasImageMap;
-    bool HasBumpMap;
-};
-uniform Material U_Material;
+uniform vec4 U_MaterialAmbient;
+uniform vec4 U_MaterialDiffuse;
+uniform vec4 U_MaterialSpecular;
+uniform float U_MaterialShininess;
+uniform float U_MaterialAlpha;
+uniform bool U_MaterialHasImage;
+uniform bool U_MaterialHasBump;
+uniform bool U_MaterialHasSpecular;
 
-struct AmbientLight 
-{
-    vec4 Colour;
-    float Intensity;
-};
-uniform AmbientLight U_Ambient;
+uniform vec4 U_AmbientColour;
+uniform float U_AmbientIntensity;
 
-struct DirectionalLight
-{
-    vec3 Direction;
-    vec4 Colour;
-    float Intensity;
-};
-uniform DirectionalLight U_Directional;
+uniform vec3 U_DirectionalDirection;
+uniform vec4 U_DirectionalColour;
+uniform float U_DirectionalIntensity;
 
 struct PointLight
 { 
@@ -39,13 +28,9 @@ struct PointLight
 uniform PointLight U_Point[MAX_LIGHTS];
 uniform int U_Point_Count;
 
-struct Sampler
-{
-    sampler2D Image;
-    sampler2D Bump;
-    sampler2D Shadow;
-};
-uniform Sampler U_Sampler;
+uniform sampler2D U_SamplerImage;
+uniform sampler2D U_SamplerBump;
+uniform sampler2D U_SamplerShadow;
 
 varying vec4 V_Colour;
 varying vec2 V_UV;
@@ -55,15 +40,15 @@ varying vec4 V_Shadow;
 
 vec4 Ambient()
 {
-    return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
+    return U_MaterialAmbient * U_AmbientColour * U_AmbientIntensity;
 }
 
 vec4 Directional(in vec3 normal) 
 { 
-    float weight = max(dot(normal, normalize(U_Directional.Direction)), 0.0);
-    vec4 diffuse = U_Directional.Colour * weight;
+    float weight = max(dot(normal, normalize(U_DirectionalDirection)), 0.0);
+    vec4 diffuse = U_DirectionalColour * weight;
     
-    return U_Material.Diffuse * diffuse * U_Directional.Intensity;
+    return U_MaterialDiffuse * diffuse * U_DirectionalIntensity;
 } 
 
 vec4 Point(in vec3 normal)
@@ -85,9 +70,9 @@ vec4 Point(in vec3 normal)
                 vec3 reflection = reflect(direction, normal);
                 
                 float diffuse_weight = max(dot(normal, direction), 0.0);
-                float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_Material.Shininess);
+                float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_MaterialShininess);
 
-                colour = U_Material.Diffuse * point.Colour * diffuse_weight + U_Material.Specular * specular_weight;
+                colour = U_MaterialDiffuse * point.Colour * diffuse_weight + U_MaterialSpecular * specular_weight;
                 colour = colour * (1.0 - (distance / point.Radius));
                 colour = colour * point.Intensity;
                 points += colour;
@@ -101,28 +86,26 @@ vec4 Point(in vec3 normal)
 
 vec4 Light()
 {
-    vec3 normal = normalize(U_Material.HasBumpMap
-                            ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
+    vec3 normal = normalize(U_MaterialHasBump
+                            ? texture2D(U_SamplerBump, V_UV).xyz * V_Normal
                             : V_Normal);
 
     return Ambient() + Directional(normal) + Point(normal);
 }
 
 vec4 Shadow()
-{
-    /* TODO */
-    
+{                
     return vec4(1.0);
 }
 
 vec4 Colour()
 {
-    /* vec4 colour = Shadow(); */
+    vec4 colour = Shadow();
     
-    if (U_Material.HasImageMap)
-        colour = texture2D(U_Sampler.Image, V_UV);
-    else
-        colour = vec4(1.0);
+    if (U_MaterialHasImage)
+    {
+        colour = texture2D(U_SamplerImage, V_UV);
+    }
     
     return colour;
 }
@@ -130,8 +113,7 @@ vec4 Colour()
 void main(void)
 { 
     vec4 colour = Colour() * Light();
-    colour.a *= U_Material.Alpha;
+    colour.a *= U_MaterialAlpha;
     
-    gl_FragColor = vec4(0.0,0.0,0.0,1.0);
-    /* gl_FragColor = colour; */
+    gl_FragColor = colour;
 }

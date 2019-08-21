@@ -6,8 +6,8 @@ export default class DirectionalUniforms
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {
-        this.Colour = gl.getUniformLocation(program, 'U_Directional.Colour')
-        this.Intensity = gl.getUniformLocation(program, 'U_Directional.Intensity')
-        this.Direction = gl.getUniformLocation(program, 'U_Directional.Direction')
+        this.Colour = gl.getUniformLocation(program, 'U_DirectionalColour')
+        this.Intensity = gl.getUniformLocation(program, 'U_DirectionalIntensity')
+        this.Direction = gl.getUniformLocation(program, 'U_DirectionalDirection')
     }  
 }

@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Camera_1 = __importDefault(require("../../src/Camera/Camera"));
 const FWGE_1 = __importDefault(require("../../src/FWGE"));
-const AmbientLight_1 = __importDefault(require("../../src/Light/AmbientLight"));
 const Equation_1 = require("../../src/Maths/Equation");
 const ParticleSystem_1 = __importDefault(require("../../src/ParticleSystem"));
 const Shader_1 = __importDefault(require("../../src/Shader/Shader"));
@@ -22,12 +21,19 @@ const Control_1 = __importDefault(require("../../src/Utility/Control"));
 const OBJConverter_1 = __importDefault(require("../../src/Utility/Converter/OBJConverter"));
 const List_1 = __importDefault(require("../../src/Utility/List"));
 const Colour4_1 = __importDefault(require("../../src/Render/Colour4"));
+const FragmentShader_1 = __importDefault(require("../../src/Shader/Definition/FragmentShader"));
+const VertexShader_1 = __importDefault(require("../../src/Shader/Definition/VertexShader"));
+const Time_1 = __importDefault(require("../../src/Utility/Time"));
+const ShaderTypes_1 = require("../../src/Shader/Definition/ShaderTypes");
 let fwge = window;
 fwge.Control = Control_1.default;
 fwge.Camera = Camera_1.default;
 fwge.FWGE = FWGE_1.default;
 fwge.List = List_1.default;
 fwge.lights = {};
+fwge.object = undefined;
+fwge.VertexShader = VertexShader_1.default;
+fwge.FragmentShader = FragmentShader_1.default;
 fwge.Var = Equation_1.Var;
 fwge.Unary = Equation_1.Unary;
 fwge.Binary = Equation_1.Binary;
@@ -39,12 +45,7 @@ window.onload = () => {
         physcisupdate: 30,
         renderupdate: 75
     });
-    makeCube();
-    fwge.light = new AmbientLight_1.default({
-        colour: [1, 1, 1, 1],
-        intensity: 1.0,
-        name: 'Ambient'
-    });
+    makeShader();
 };
 function makeCube() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -52,72 +53,56 @@ function makeCube() {
         let mtl = yield (yield fetch('/res/Objects/Cube/Cube.mtl')).text();
         let shader = new Shader_1.default({
             name: 'Just another shader',
-            vertexshader: `
-            attribute vec3 A_Position;
-            attribute vec2 A_UV;
-            attribute vec4 A_Colour;
-            attribute vec3 A_Normal;
+            vertexshader: `#version 300 es
+            in vec3 A_Position;
+            in vec2 A_UV;
+            in vec4 A_Colour;
+            in vec3 A_Normal;
             
-            struct Matrix
-            {
-                mat3 Normal;
-                mat4 ModelView;
-                mat4 Projection;
-            };
-            uniform Matrix U_Matrix;
+            uniform mat3 U_MatrixNormal;
+            uniform mat4 U_MatrixModelView;
+            uniform mat4 U_MatrixProjection;
             
-            varying vec4 V_Position;
-            varying vec2 V_UV;
-            varying vec3 V_Normal;
-            varying vec4 V_Colour;
-            varying vec4 V_Shadow;
+            out vec4 V_Position;
+            out vec2 V_UV;
+            out vec3 V_Normal;
+            out vec4 V_Colour;
+            out vec4 V_Shadow;
             
             void main(void)
             {
                 V_Colour = A_Colour;
                 V_UV = A_UV;
                 
-                V_Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
-                V_Normal = U_Matrix.Normal * A_Normal;
+                V_Position = U_MatrixModelView * vec4(A_Position, 1.0);
+                V_Normal = U_MatrixNormal * A_Normal;
                 
                 V_Shadow = mat4(0.5, 0.0, 0.0, 0.0,
                                 0.0, 0.5, 0.0, 0.0,
                                 0.0, 0.0, 0.5, 0.0,
                                 0.5, 0.5, 0.5, 1.0) * vec4(A_Position, 1.0);
                 
-                gl_Position = U_Matrix.Projection * V_Position;
+                gl_Position = U_MatrixProjection * V_Position;
             }`,
-            fragmentshader: `            
+            fragmentshader: `#version 300 es
             precision mediump float;
             const int MAX_LIGHTS = 8;
             
-            struct Material 
-            {
-                vec4 Ambient;
-                vec4 Diffuse;
-                vec4 Specular;
-                float Shininess;
-                float Alpha;
-                bool HasImage;
-                bool HasBump;
-                bool HasSpecular;
-            };
-            uniform Material U_Material;
+            uniform vec4 U_MaterialAmbient;
+            uniform vec4 U_MaterialDiffuse;
+            uniform vec4 U_MaterialSpecular;
+            uniform float U_MaterialShininess;
+            uniform float U_MaterialAlpha;
+            uniform bool U_MaterialHasImage;
+            uniform bool U_MaterialHasBump;
+            uniform bool U_MaterialHasSpecular;
             
-            struct AmbientLight 
-            {
-                vec4 Colour;
-                float Intensity;
-            };
-            uniform AmbientLight U_Ambient;
+            uniform vec4 U_AmbientColour;
+            uniform float U_AmbientIntensity;
             
-            struct DirectionalLight
-            {
-                vec3 Direction;
-                vec4 Colour;
-                float Intensity;
-            };
-            uniform DirectionalLight U_Directional;
+            uniform vec3 U_DirectionalDirection;
+            uniform vec4 U_DirectionalColour;
+            uniform float U_DirectionalIntensity;
             
             struct PointLight
             { 
@@ -130,31 +115,29 @@ function makeCube() {
             uniform PointLight U_Point[MAX_LIGHTS];
             uniform int U_Point_Count;
             
-            struct Sampler
-            {
-                sampler2D Image;
-                sampler2D Bump;
-                sampler2D Shadow;
-            };
-            uniform Sampler U_Sampler;
+            /*uniform gsampler2D U_SamplerImage;
+            uniform gsampler2D U_SamplerBump;
+            uniform gsampler2D U_SamplerShadow;*/
             
-            varying vec4 V_Colour;
-            varying vec2 V_UV;
-            varying vec3 V_Normal;
-            varying vec4 V_Position;
-            varying vec4 V_Shadow;
+            in vec4 V_Colour;
+            in vec2 V_UV;
+            in vec3 V_Normal;
+            in vec4 V_Position;
+            in vec4 V_Shadow;
+
+            out vec4 FragColour;
             
             vec4 Ambient()
             {
-                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
+                return U_MaterialAmbient * U_AmbientColour * U_AmbientIntensity;
             }
             
             vec4 Directional(in vec3 normal) 
             { 
-                float weight = max(dot(normal, normalize(U_Directional.Direction)), 0.0);
-                vec4 diffuse = U_Directional.Colour * weight;
+                float weight = max(dot(normal, normalize(U_DirectionalDirection)), 0.0);
+                vec4 diffuse = U_DirectionalColour * weight;
                 
-                return U_Material.Diffuse * diffuse * U_Directional.Intensity;
+                return U_MaterialDiffuse * diffuse * U_DirectionalIntensity;
             } 
             
             vec4 Point(in vec3 normal)
@@ -176,9 +159,9 @@ function makeCube() {
                             vec3 reflection = reflect(direction, normal);
                             
                             float diffuse_weight = max(dot(normal, direction), 0.0);
-                            float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_Material.Shininess);
+                            float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_MaterialShininess);
             
-                            colour = U_Material.Diffuse * point.Colour * diffuse_weight + U_Material.Specular * specular_weight;
+                            colour = U_MaterialDiffuse * point.Colour * diffuse_weight + U_MaterialSpecular * specular_weight;
                             colour = colour * (1.0 - (distance / point.Radius));
                             colour = colour * point.Intensity;
                             points += colour;
@@ -192,9 +175,9 @@ function makeCube() {
             
             vec4 Light()
             {
-                vec3 normal = normalize(U_Material.HasBump
-                                        ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
-                                        : V_Normal);
+                vec3 normal = /*normalize(U_MaterialHasBump
+                                        ? texture2D(U_SamplerBump, V_UV).xyz * V_Normal
+                                        :*/ (V_Normal);
             
                 return Ambient() + Directional(normal) + Point(normal);
             }
@@ -208,10 +191,10 @@ function makeCube() {
             {
                 vec4 colour = Shadow();
                 
-                if (U_Material.HasImage)
+                /*if (U_MaterialHasImage)
                 {
-                    colour = texture2D(U_Sampler.Image, V_UV);
-                }
+                    colour = texture2D(U_SamplerImage, V_UV);
+                }*/
                 
                 return colour;
             }
@@ -219,17 +202,23 @@ function makeCube() {
             void main(void)
             { 
                 vec4 colour = Colour() * Light();
-                colour.a *= U_Material.Alpha;
+                colour.a *= U_MaterialAlpha;
                 
-                gl_FragColor = colour;
+                FragColour = colour;
             }`,
             height: 1920,
             width: 1080
         });
+        let object = fwge.object;
+        object = OBJConverter_1.default.Parse(obj, mtl);
+        object.Material.Shader = shader;
+        object.Material.Ambient = new Colour4_1.default(1, 1, 1, 1);
+        object.Transform.Position.Z = -15;
+        object.Update = function () {
+            this.Transform.Rotation.Y += Time_1.default.Render.Delta * 0.1;
+        };
         fwge.mesh = OBJConverter_1.default.ParseMesh(obj);
         fwge.material = OBJConverter_1.default.ParseRenderMaterial(mtl);
-        fwge.material.Shader = shader;
-        fwge.material.Ambient = new Colour4_1.default(1, 1, 1, 1);
         fwge.material.Alpha = 0.2;
         fwge.system = new ParticleSystem_1.default({
             delay: (time, index) => index * 1000,
@@ -237,7 +226,7 @@ function makeCube() {
             material: fwge.material,
             mesh: fwge.mesh,
             name: "example particle system",
-            count: 5,
+            count: 1,
             transform: {
                 position: [0, 0, -5],
                 scale: [0.1, 0.1, 0.1]
@@ -251,8 +240,27 @@ function makeCube() {
         Control_1.default.Start();
     });
 }
+function makeShader() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let fields = new ShaderTypes_1.ShaderNode([
+            new ShaderTypes_1.ShaderFloat('red', 1),
+            new ShaderTypes_1.ShaderFloat('green', 1),
+            new ShaderTypes_1.ShaderFloat('blue', 1)
+        ]);
+        var offset = new ShaderTypes_1.ShaderNode([
+            new ShaderTypes_1.ShaderVec3('offset', [0, 0, 0])
+        ]);
+        var colour = new ShaderTypes_1.ShaderNode([
+            new ShaderTypes_1.ShaderVec4('colour', [0, 0, 0, 0])
+        ], [
+            fields,
+            offset
+        ]);
+        console.log(colour);
+    });
+}
 
-},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Light/AmbientLight":12,"../../src/Maths/Equation":16,"../../src/ParticleSystem":24,"../../src/Render/Colour4":26,"../../src/Shader/Shader":41,"../../src/Utility/Control":44,"../../src/Utility/Converter/OBJConverter":45,"../../src/Utility/List":46}],2:[function(require,module,exports){
+},{"../../src/Camera/Camera":4,"../../src/FWGE":5,"../../src/Maths/Equation":16,"../../src/ParticleSystem":24,"../../src/Render/Colour4":26,"../../src/Shader/Definition/FragmentShader":32,"../../src/Shader/Definition/ShaderTypes":33,"../../src/Shader/Definition/VertexShader":34,"../../src/Shader/Shader":44,"../../src/Utility/Control":47,"../../src/Utility/Converter/OBJConverter":48,"../../src/Utility/List":49,"../../src/Utility/Time":51}],2:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -356,7 +364,7 @@ class Animation extends Item_1.default {
 }
 exports.default = Animation;
 
-},{"../Item":11,"../Maths/Vector3":22,"../Utility/List":46,"../Utility/Time":48,"./AnimationFrame":3}],3:[function(require,module,exports){
+},{"../Item":11,"../Maths/Vector3":22,"../Utility/List":49,"../Utility/Time":51,"./AnimationFrame":3}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IAnimationFrame {
@@ -439,7 +447,7 @@ class FWGE {
         if (!canvas) {
             throw new Error('Field {canvas: HTMLCanvasElement} is required');
         }
-        exports.GL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        exports.GL = canvas.getContext('webgl2');
         if (!exports.GL) {
             throw new Error('Webgl context could not be initialized.');
         }
@@ -450,7 +458,7 @@ class FWGE {
 }
 exports.default = FWGE;
 
-},{"./Input/Input":7,"./Utility/Control":44}],6:[function(require,module,exports){
+},{"./Input/Input":7,"./Utility/Control":47}],6:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -508,7 +516,7 @@ class GameObject extends Item_1.default {
 }
 exports.default = GameObject;
 
-},{"./Item":11,"./Transform":42}],7:[function(require,module,exports){
+},{"./Item":11,"./Transform":45}],7:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -528,7 +536,7 @@ class Input {
 Input.Controllers = new List_1.default();
 exports.default = Input;
 
-},{"../Utility/List":46,"./KeyboardInput":9,"./MouseInput":10}],8:[function(require,module,exports){
+},{"../Utility/List":49,"./KeyboardInput":9,"./MouseInput":10}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var InputState;
@@ -650,7 +658,7 @@ class AmbientLight extends LightItem_1.default {
 }
 exports.default = AmbientLight;
 
-},{"../Utility/List":46,"./LightItem":14}],13:[function(require,module,exports){
+},{"../Utility/List":49,"./LightItem":14}],13:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -679,7 +687,7 @@ class DirectionalLight extends LightItem_1.default {
 }
 exports.default = DirectionalLight;
 
-},{"../Maths/Vector3":22,"../Utility/List":46,"./LightItem":14}],14:[function(require,module,exports){
+},{"../Maths/Vector3":22,"../Utility/List":49,"./LightItem":14}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -731,7 +739,7 @@ class PointLight extends LightItem_1.default {
 }
 exports.default = PointLight;
 
-},{"..//Maths/Vector3":22,"../Utility/List":46,"./LightItem":14}],16:[function(require,module,exports){
+},{"..//Maths/Vector3":22,"../Utility/List":49,"./LightItem":14}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var UnaryExpressionType;
@@ -957,7 +965,7 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":46,"./Maths":17,"./Matrix3":19,"./Matrix4":20}],19:[function(require,module,exports){
+},{"../Utility/List":49,"./Maths":17,"./Matrix3":19,"./Matrix4":20}],19:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1143,7 +1151,7 @@ class Matrix3 extends Float32Array {
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":46,"./Maths":17,"./Matrix2":18,"./Matrix4":20}],20:[function(require,module,exports){
+},{"../Utility/List":49,"./Maths":17,"./Matrix2":18,"./Matrix4":20}],20:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1485,7 +1493,7 @@ class Matrix4 extends Float32Array {
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":46,"./Maths":17,"./Matrix2":18,"./Matrix3":19}],21:[function(require,module,exports){
+},{"../Utility/List":49,"./Maths":17,"./Matrix2":18,"./Matrix3":19}],21:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -1610,7 +1618,7 @@ class Vector2 extends Float32Array {
 }
 exports.default = Vector2;
 
-},{"../Utility/List":46,"./Maths":17,"./Vector3":22,"./Vector4":23}],22:[function(require,module,exports){
+},{"../Utility/List":49,"./Maths":17,"./Vector3":22,"./Vector4":23}],22:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1885,7 +1893,7 @@ class Vector4 extends Float32Array {
 }
 exports.default = Vector4;
 
-},{"../Utility/List":46,"./Maths":17,"./Vector2":21,"./Vector3":22}],24:[function(require,module,exports){
+},{"../Utility/List":49,"./Maths":17,"./Vector2":21,"./Vector3":22}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1973,7 +1981,7 @@ class ParticleSystem extends Item_1.default {
 }
 exports.default = ParticleSystem;
 
-},{"./Item":11,"./Maths/Equation":16,"./Maths/Vector3":22,"./Transform":42,"./Utility/Time":48}],25:[function(require,module,exports){
+},{"./Item":11,"./Maths/Equation":16,"./Maths/Vector3":22,"./Transform":45,"./Utility/Time":51}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2215,7 +2223,7 @@ class Mesh extends Item_1.default {
 }
 exports.default = Mesh;
 
-},{"../FWGE":5,"../Item":11,"../Utility/ArrayUtils":43}],28:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"../Utility/ArrayUtils":46}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2268,7 +2276,7 @@ class ModelView {
 }
 exports.default = ModelView;
 
-},{"../Maths/Maths":17,"../Maths/Matrix4":20,"../Utility/Stack":47}],29:[function(require,module,exports){
+},{"../Maths/Maths":17,"../Maths/Matrix4":20,"../Utility/Stack":50}],29:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2593,30 +2601,231 @@ function Draw(vertexCount, framebuffer) {
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
 }
 
-},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":12,"../Light/DirectionalLight":13,"../Light/PointLight":15,"../Maths/Matrix3":19,"../ParticleSystem":24,"../Shader/Shader":41,"../Utility/List":46,"./ModelView":28,"./Projection":29}],32:[function(require,module,exports){
+},{"../Camera/Camera":4,"../FWGE":5,"../GameObject":6,"../Light/AmbientLight":12,"../Light/DirectionalLight":13,"../Light/PointLight":15,"../Maths/Matrix3":19,"../ParticleSystem":24,"../Shader/Shader":44,"../Utility/List":49,"./ModelView":28,"./Projection":29}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class AmbientUniforms {
-    constructor(gl, program) {
-        this.Colour = gl.getUniformLocation(program, 'U_Ambient.Colour');
-        this.Intensity = gl.getUniformLocation(program, 'U_Ambient.Intensity');
-    }
+class IFragmentShader {
 }
-exports.default = AmbientUniforms;
+exports.IFragmentShader = IFragmentShader;
+function FragmentShader(fs) {
+    let shader = '#Fragment Stuffs\n';
+    if (fs.uniform.material) {
+        shader += '\nstruct Matrix\n{\n';
+        if (fs.uniform.material.ambient)
+            shader += '\tvec4 Ambient;\n';
+        if (fs.uniform.material.diffuse)
+            shader += '\tvec4 Diffuse;\n';
+        if (fs.uniform.material.specular)
+            shader += '\tvec4 Specular;\n';
+        shader += '\n};\n';
+    }
+    return shader;
+}
+exports.default = FragmentShader;
 
 },{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+class ShaderFieldType {
+    constructor(name, value, type) {
+        this.name = name;
+        this.value = value;
+        this.type = type;
+    }
+}
+class ShaderBool extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'bool');
+    }
+}
+exports.ShaderBool = ShaderBool;
+class ShaderInt extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'int');
+    }
+}
+exports.ShaderInt = ShaderInt;
+class ShaderUInt extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'uint');
+    }
+}
+exports.ShaderUInt = ShaderUInt;
+class ShaderFloat extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'float');
+    }
+}
+exports.ShaderFloat = ShaderFloat;
+class ShaderBVec2 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'bvec2');
+    }
+}
+exports.ShaderBVec2 = ShaderBVec2;
+class ShaderBVec3 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'bvec3');
+    }
+}
+exports.ShaderBVec3 = ShaderBVec3;
+class ShaderBVec4 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'bvec4');
+    }
+}
+exports.ShaderBVec4 = ShaderBVec4;
+class ShaderIVec2 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'ivec2');
+    }
+}
+exports.ShaderIVec2 = ShaderIVec2;
+class ShaderIVec3 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'ivec3');
+    }
+}
+exports.ShaderIVec3 = ShaderIVec3;
+class ShaderIVec4 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'ivec4');
+    }
+}
+exports.ShaderIVec4 = ShaderIVec4;
+class ShaderUVec2 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'uvec2');
+    }
+}
+exports.ShaderUVec2 = ShaderUVec2;
+class ShaderUVec3 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'uvec3');
+    }
+}
+exports.ShaderUVec3 = ShaderUVec3;
+class ShaderUVec4 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'uvec4');
+    }
+}
+exports.ShaderUVec4 = ShaderUVec4;
+class ShaderVec2 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'vec2');
+    }
+}
+exports.ShaderVec2 = ShaderVec2;
+class ShaderVec3 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'vec3');
+    }
+}
+exports.ShaderVec3 = ShaderVec3;
+class ShaderVec4 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'vec4');
+    }
+}
+exports.ShaderVec4 = ShaderVec4;
+class ShaderMat2 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'mat2');
+    }
+}
+exports.ShaderMat2 = ShaderMat2;
+class ShaderMat3 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'mat3');
+    }
+}
+exports.ShaderMat3 = ShaderMat3;
+class ShaderMat4 extends ShaderFieldType {
+    constructor(name, value) {
+        super(name, value, 'mat4');
+    }
+}
+exports.ShaderMat4 = ShaderMat4;
+var ShaderFieldScale;
+(function (ShaderFieldScale) {
+    ShaderFieldScale[ShaderFieldScale["Self"] = 0] = "Self";
+})(ShaderFieldScale = exports.ShaderFieldScale || (exports.ShaderFieldScale = {}));
+class ShaderNode {
+    constructor(content, inputs) {
+        this.Content = content;
+        this.Inputs = inputs;
+    }
+}
+exports.ShaderNode = ShaderNode;
+
+},{}],34:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class IShaderField {
+}
+exports.IShaderField = IShaderField;
+class IVertexAttribute {
+}
+exports.IVertexAttribute = IVertexAttribute;
+class IVertexUniform {
+}
+exports.IVertexUniform = IVertexUniform;
+class IVertexShader {
+}
+exports.IVertexShader = IVertexShader;
+function VertexShader(vs) {
+    let shader = '#Vertex Stuffs\n';
+    if (vs.attribute) {
+        shader += '\n';
+        if (vs.attribute.position)
+            shader += 'attribute vec3 A_Position;';
+        if (vs.attribute.uv)
+            shader += 'attribute vec3 A_UV;';
+        if (vs.attribute.colour)
+            shader += 'attribute vec3 A_Colour;';
+        if (vs.attribute.normal)
+            shader += 'attribute vec3 A_Normal;';
+        shader += '\n';
+    }
+    if (vs.uniform) {
+        shader += '\n';
+        if (vs.uniform.modelview)
+            shader += 'mat4 ModelView;\n';
+        if (vs.uniform.normal)
+            shader += 'mat4 Normal;\n';
+        if (vs.uniform.projection)
+            shader += 'mat3 Projection;\n';
+        shader += '\n';
+    }
+    return shader;
+}
+exports.default = VertexShader;
+
+},{}],35:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class AmbientUniforms {
+    constructor(gl, program) {
+        this.Colour = gl.getUniformLocation(program, 'U_AmbientColour');
+        this.Intensity = gl.getUniformLocation(program, 'U_AmbientIntensity');
+    }
+}
+exports.default = AmbientUniforms;
+
+},{}],36:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class DirectionalUniforms {
     constructor(gl, program) {
-        this.Colour = gl.getUniformLocation(program, 'U_Directional.Colour');
-        this.Intensity = gl.getUniformLocation(program, 'U_Directional.Intensity');
-        this.Direction = gl.getUniformLocation(program, 'U_Directional.Direction');
+        this.Colour = gl.getUniformLocation(program, 'U_DirectionalColour');
+        this.Intensity = gl.getUniformLocation(program, 'U_DirectionalIntensity');
+        this.Direction = gl.getUniformLocation(program, 'U_DirectionalDirection');
     }
 }
 exports.default = DirectionalUniforms;
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2639,37 +2848,37 @@ class LightUniforms {
 LightUniforms.MAX_LIGHT = 8;
 exports.default = LightUniforms;
 
-},{"./AmbientUniforms":32,"./DirectionalUniforms":33,"./PointUniform":37}],35:[function(require,module,exports){
+},{"./AmbientUniforms":35,"./DirectionalUniforms":36,"./PointUniform":40}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MaterialUniforms {
     constructor(gl, program) {
-        this.Ambient = gl.getUniformLocation(program, 'U_Material.Ambient');
-        this.Diffuse = gl.getUniformLocation(program, 'U_Material.Diffuse');
-        this.Specular = gl.getUniformLocation(program, 'U_Material.Specular');
-        this.Shininess = gl.getUniformLocation(program, 'U_Material.Shininess');
-        this.Alpha = gl.getUniformLocation(program, 'U_Material.Alpha');
-        this.HasImage = gl.getUniformLocation(program, 'U_Material.HasImage');
-        this.HasBump = gl.getUniformLocation(program, 'U_Material.HasBump');
-        this.HasSpecular = gl.getUniformLocation(program, 'U_Material.HasSpecular');
+        this.Ambient = gl.getUniformLocation(program, 'U_MaterialAmbient');
+        this.Diffuse = gl.getUniformLocation(program, 'U_MaterialDiffuse');
+        this.Specular = gl.getUniformLocation(program, 'U_MaterialSpecular');
+        this.Shininess = gl.getUniformLocation(program, 'U_MaterialShininess');
+        this.Alpha = gl.getUniformLocation(program, 'U_MaterialAlpha');
+        this.HasImage = gl.getUniformLocation(program, 'U_MaterialHasImage');
+        this.HasBump = gl.getUniformLocation(program, 'U_MaterialHasBump');
+        this.HasSpecular = gl.getUniformLocation(program, 'U_MaterialHasSpecular');
     }
 }
 exports.default = MaterialUniforms;
 
-},{}],36:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MatrixUniforms {
     constructor(gl, program) {
-        this.ModelView = gl.getUniformLocation(program, 'U_Matrix.ModelView');
-        this.Projection = gl.getUniformLocation(program, 'U_Matrix.Projection');
-        this.Normal = gl.getUniformLocation(program, 'U_Matrix.Normal');
-        this.Camera = gl.getUniformLocation(program, 'U_Matrix.Camera');
+        this.ModelView = gl.getUniformLocation(program, 'U_MatrixModelView');
+        this.Projection = gl.getUniformLocation(program, 'U_MatrixProjection');
+        this.Normal = gl.getUniformLocation(program, 'U_MatrixNormal');
+        this.Camera = gl.getUniformLocation(program, 'U_MatrixCamera');
     }
 }
 exports.default = MatrixUniforms;
 
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class PointUniform {
@@ -2683,19 +2892,19 @@ class PointUniform {
 }
 exports.default = PointUniform;
 
-},{}],38:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SamplerUniforms {
     constructor(gl, program) {
-        this.Image = gl.getUniformLocation(program, 'U_Sampler.Image');
-        this.Bump = gl.getUniformLocation(program, 'U_Sampler.Bump');
-        this.Specular = gl.getUniformLocation(program, 'U_Sampler.Specular');
+        this.Image = gl.getUniformLocation(program, 'U_SamplerImage');
+        this.Bump = gl.getUniformLocation(program, 'U_SamplerBump');
+        this.Specular = gl.getUniformLocation(program, 'U_SamplerSpecular');
     }
 }
 exports.default = SamplerUniforms;
 
-},{}],39:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ShaderAttributes {
@@ -2708,7 +2917,7 @@ class ShaderAttributes {
 }
 exports.default = ShaderAttributes;
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2728,7 +2937,7 @@ class ShaderUniforms {
 }
 exports.default = ShaderUniforms;
 
-},{"./LightUniforms":34,"./MaterialUniforms":35,"./MatrixUniforms":36,"./SamplerUniforms":38}],41:[function(require,module,exports){
+},{"./LightUniforms":37,"./MaterialUniforms":38,"./MatrixUniforms":39,"./SamplerUniforms":41}],44:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2798,7 +3007,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../FWGE":5,"../Item":11,"./Instance/ShaderAttributes":39,"./Instance/ShaderUniforms":40}],42:[function(require,module,exports){
+},{"../FWGE":5,"../Item":11,"./Instance/ShaderAttributes":42,"./Instance/ShaderUniforms":43}],45:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2827,7 +3036,7 @@ class Transform {
 }
 exports.default = Transform;
 
-},{"./Maths/Vector3":22}],43:[function(require,module,exports){
+},{"./Maths/Vector3":22}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ArrayUtiils {
@@ -2846,7 +3055,7 @@ class ArrayUtiils {
 }
 exports.default = ArrayUtiils;
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2900,7 +3109,7 @@ Control.Running = false;
 Control.AnimationFrame = -1;
 exports.default = Control;
 
-},{"../Animation/Animation":2,"../Camera/Camera":4,"../GameObject":6,"../ParticleSystem":24,"../Render/Renderer":31,"./Time":48}],45:[function(require,module,exports){
+},{"../Animation/Animation":2,"../Camera/Camera":4,"../GameObject":6,"../ParticleSystem":24,"../Render/Renderer":31,"./Time":51}],48:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3030,7 +3239,7 @@ class OBJConverter {
 }
 exports.default = OBJConverter;
 
-},{"../../GameObject":6,"../../Maths/Vector2":21,"../../Maths/Vector3":22,"../../Render/Colour4":26,"../../Render/Mesh":27,"../../Render/RenderMaterial":30}],46:[function(require,module,exports){
+},{"../../GameObject":6,"../../Maths/Vector2":21,"../../Maths/Vector3":22,"../../Render/Colour4":26,"../../Render/Mesh":27,"../../Render/RenderMaterial":30}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
@@ -3194,7 +3403,7 @@ class List {
 }
 exports.default = List;
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StackNode {
@@ -3234,7 +3443,7 @@ class Stack {
 }
 exports.default = Stack;
 
-},{}],48:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class TimeKeep {

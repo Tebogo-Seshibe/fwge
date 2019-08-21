@@ -11,7 +11,6 @@ export class IShader
     vertexshader: string
     fragmentshader: string
 }
-
 export let Shaders: Shader[] = new Array<Shader>()
 
 export default class Shader extends Item
