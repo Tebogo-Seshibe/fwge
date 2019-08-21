@@ -179,12 +179,27 @@ export enum ShaderFieldScale
 
 export class ShaderNode
 {
+    public Name: string
     public Content: ShaderField[]
     public Inputs: ShaderNode[]
+    public Output: ShaderField
 
-    constructor(content: ShaderField[], inputs?: ShaderNode[])
+    constructor(name: string, content: ShaderField[], output: ShaderField, inputs?: ShaderNode[])
     {
+        this.Name = name
         this.Content = content
+        this.Output = output
         this.Inputs = inputs
+    }
+
+    public toString(): string
+    {
+        let func = `
+        ${this.Output.type} fn_${this.Name}()
+        {
+            ${this.Output.type} ${this.Name} = 
+        }`;
+
+        return func
     }
 }

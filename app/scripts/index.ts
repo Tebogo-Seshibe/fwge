@@ -269,28 +269,6 @@ async function makeShader()
         new ShaderNode(new ShaderFloat('blue', 1), null) // blue
     ])
     */
-
-   
-    let fields = new ShaderNode(
-    [
-        new ShaderFloat('red', 1),
-        new ShaderFloat('green', 1),
-        new ShaderFloat('blue', 1)
-    ])
-    
-    var offset = new ShaderNode(
-    [
-        new ShaderVec3('offset', [ 0, 0, 0 ])
-    ])
-    
-    var colour = new ShaderNode(
-    [
-        new ShaderVec4('colour', [ 0, 0, 0, 0])
-    ],
-    [
-        fields,
-        offset
-    ])
         
     console.log(colour)
 }
