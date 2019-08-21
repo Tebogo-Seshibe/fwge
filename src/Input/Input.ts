@@ -11,12 +11,8 @@ export default class Input
 
     public static Init(canvas: HTMLCanvasElement)
     {
-        Input.Keyboard = new KeyboardInput(canvas)
+        Input.Keyboard = new KeyboardInput()
         Input.Mouse = new MouseInput(canvas)
-    }
 
-    public static Update(): void
-    {
-        
     }
 }

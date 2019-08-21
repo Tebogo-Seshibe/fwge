@@ -74,7 +74,7 @@ export default class Mesh extends Item
         }
 
         let buffer = gl.createBuffer()
-        data = ArrayUtiils.Flatten(data)        
+        data = data.Flatten()        
 
         switch (type)
         {

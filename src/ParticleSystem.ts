@@ -96,20 +96,17 @@ export default class ParticleSystem extends Item implements Updateable
     
     public Update(): void
     {
-        if (this.CurrentTime >= this.MaxTime)
-        {
-            if (!this.Loop)
-            {
-                return
-            }
-            else
-            {
-                this.CurrentTime -= this.MaxTime
-            }
-        }
-
         for (let i = 0; i < this.Particles.length; ++i)
         {
+            let remaining: number = this.CurrentTime - this.Delay(this.CurrentTime, i)
+    
+            if (this.CurrentTime >= this.MaxTime && remaining >= this.MaxTime)
+            {
+                if (!this.Loop)
+                {
+                    return
+                }
+            }
             let particle = this.Particles[i]
 
             let currentTime: number = this.CurrentTime - this.Delay(this.CurrentTime, i)

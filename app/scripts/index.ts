@@ -19,6 +19,7 @@ fwge.Control = Control
 fwge.Camera = Camera
 fwge.FWGE = FWGE
 fwge.List = List
+fwge.Input = Input
 fwge.lights = { }
 fwge.object = undefined
 
@@ -40,7 +41,6 @@ window.onload = () =>
         physcisupdate: 30,
         renderupdate: 75
     })
-
     
     // makeCube()
     makeShader()
@@ -220,7 +220,6 @@ async function makeCube()
         height: 1920,
         width: 1080
     })
-    
     let object = <GameObject>fwge.object
     object = OBJConverter.Parse(obj, mtl)
     object.Material.Shader = shader
@@ -235,7 +234,12 @@ async function makeCube()
     fwge.material = OBJConverter.ParseRenderMaterial(mtl)
     fwge.material.Alpha = 0.2
 
-    fwge.system = new ParticleSystem(
+    let object = <GameObject>fwge.object
+    object.Material.Shader = shader
+    object.Material.Ambient = new Colour4(1,1,1,1)
+    object.Material.Alpha = 0.2
+    object.Transform.Position.Z = -5
+    object.Update = function(this: GameObject)
     {
         delay: (time: number, index: number) => index * 1000,
         length: 5000,
@@ -255,7 +259,7 @@ async function makeCube()
             // (time: number, index: number) => Math.sin(time / 10)
         ]
     })
-
+    
     Control.Start()
 }
 
