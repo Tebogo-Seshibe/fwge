@@ -9,6 +9,7 @@ export default class MouseInput
     private position: Vector2 = new Vector2()
     private delta: Vector2 = new Vector2()
     private offset: Vector2 = new Vector2()
+    private wheel: number = 0
     //#endregion
     
     //#region Buttons
@@ -89,6 +90,17 @@ export default class MouseInput
         {
             this.delta.Set(e.movementX, e.movementY)
             this.position.Set(e.clientX, e.clientY)
+            e.cancelBubble = true
+        }
+
+        element.onwheel = (e: WheelEvent) =>
+        {
+            this.wheel = e.detail > 0
+                ? 1
+                : e.detail < 0 
+                    ? -1
+                    : 0
+
             e.cancelBubble = true
         }
     }

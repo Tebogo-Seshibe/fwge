@@ -37,6 +37,8 @@ window.onload = () => {
 
     makeCube()
 
+    new Animation()
+
     fwge.light = new AmbientLight(
     {
         colour: [1, 1, 1, 1],
