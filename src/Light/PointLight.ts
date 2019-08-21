@@ -6,7 +6,7 @@ export let PointLights: List<PointLight> = new List<PointLight>(12)
 
 export class IPointLight extends ILightItem
 {
-    position: Vector3 | number[]
+    position: Vector3 | [number, number, number]
     radius: number
     angle: number
     shininess: number

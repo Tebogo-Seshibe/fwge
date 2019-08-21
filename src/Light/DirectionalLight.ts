@@ -6,7 +6,7 @@ export let DirectionalLights: List<DirectionalLight> = new List<DirectionalLight
 
 export class IDirectionalLight extends ILightItem
 {
-    direction: Vector3 | number[]
+    direction: Vector3 | [number, number, number]
 }
 
 export default class DirectionalLight extends LightItem

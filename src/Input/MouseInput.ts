@@ -1,44 +1,44 @@
-import { InputState } from './InputState'
+import { ButtonState, WheelState } from './InputState'
 import Vector2 from '../Maths/Vector2'
 
 export default class MouseInput
 {
     //#region Private Fields
     private readonly TOTAL_BUTTONS: number = 20
-    private buttons: InputState[] = new Array<InputState>()
+    private buttons: ButtonState[] = new Array<ButtonState>()
     private position: Vector2 = new Vector2()
     private delta: Vector2 = new Vector2()
     private offset: Vector2 = new Vector2()
-    private wheel: number = 0
+    private wheel: WheelState = WheelState.CENTERED
     //#endregion
     
     //#region Buttons
-    public get Left(): InputState
+    public get Left(): ButtonState
     {
         return this.buttons[0]
     }
     
-    public get Middle(): InputState
+    public get Middle(): ButtonState
     {
         return this.buttons[1]
     }
     
-    public get Right(): InputState
+    public get Right(): ButtonState
     {
         return this.buttons[2]
     }
 
-    public get Thumb1(): InputState
+    public get Thumb1(): ButtonState
     {
         return this.buttons[3]
     }
     
-    public get Thumb2(): InputState
+    public get Thumb2(): ButtonState
     {
         return this.buttons[4]
     }
 
-    public get Buttons(): InputState[]
+    public get Buttons(): ButtonState[]
     {
         return [...this.buttons]
     }
@@ -59,6 +59,11 @@ export default class MouseInput
     {
         return this.position.Clone()
     }
+
+    public get Wheel(): WheelState
+    {
+        return this.wheel
+    }
     //#endregion
 
     constructor(element: HTMLCanvasElement)
@@ -67,22 +72,24 @@ export default class MouseInput
 
         for (var i = 0; i < this.TOTAL_BUTTONS; ++i)
         {
-            this.buttons.push(InputState.UP)
+            this.buttons.push(ButtonState.RAISED)
         }
         
         element.onclick = element.ondblclick
                         = element.oncontextmenu
-                        = (e: MouseEvent): any => e
+                        = undefined
 
         element.onmouseup = (e: MouseEvent) =>
         {
-            this.buttons[e.button] = InputState.UP
+            this.buttons[e.button] = ButtonState.RAISED
+
             e.cancelBubble = true
         }
         
         element.onmousedown = (e: MouseEvent) =>
         {
-            this.buttons[e.button] = InputState.DOWN
+            this.buttons[e.button] = ButtonState.PRESSED
+
             e.cancelBubble = true
         }
         
@@ -90,16 +97,17 @@ export default class MouseInput
         {
             this.delta.Set(e.movementX, e.movementY)
             this.position.Set(e.clientX, e.clientY)
+            
             e.cancelBubble = true
         }
 
         element.onwheel = (e: WheelEvent) =>
         {
             this.wheel = e.detail > 0
-                ? 1
+                ? WheelState.RIGHT
                 : e.detail < 0 
-                    ? -1
-                    : 0
+                    ? WheelState.LEFT
+                    : WheelState.CENTERED
 
             e.cancelBubble = true
         }

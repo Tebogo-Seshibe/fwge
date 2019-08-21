@@ -1,12 +1,10 @@
-import FWGE from '../FWGE'
-import Updateable from '../Interfaces/Updateable'
-import Item from '../Item'
+import { GL } from '../FWGE';
+import Updateable from '../Interfaces/Updateable';
+import Matrix4 from '../Maths/Matrix4';
+import Vector3 from '../Maths/Vector3';
+import { Viewer, ViewMode } from './Viewer';
 
-export enum ViewMode
-{
-    PERSPECTIVE,
-    ORTHOGRAPHIC
-}
+export let Cameras: Camera[] = []
 
 export class ICamera
 {
@@ -22,38 +20,25 @@ export class ICamera
     bottom?: number
     horizontalTilt?: number
     vericalTilt?: number
+    position?: Vector3
+    target?: Vector3
 }
 
-export let Cameras: Array<Camera> = new Array<Camera>()
-
-export default class Camera extends Item implements Updateable
+export default class Camera extends Viewer implements Updateable
 {
-    public Mode: ViewMode
-    public FieldOfView: ViewMode
-    public AspectRatio: number
+    public Position: Vector3
+    public Target: Vector3
+    private Up: Vector3 = new Vector3(0, 1, 0)
+    private Matrix: Matrix4 = Matrix4.IDENTITY
 
-    public NearClipping: number
-    public FarClipping: number
-
-    public Left: number
-    public Right: number
-    public Top: number
-    public Bottom: number
-
-    public HorizontalTilt: number // Theta
-    public VericalTilt: number // Ph
-    
-    static get Main(): Camera
+    public get ViewMatrix(): Matrix4
     {
-        return Cameras[0]
-    }
-
-    static set Main(camera: Camera)
-    {
-        Cameras[0] = camera
+        return this.Matrix.Clone()
     }
     
-    constructor(name: string, mode: ViewMode = ViewMode.PERSPECTIVE, fieldOfView: number = 35, aspectRatio: number = 16/9, nearClipping: number = 0.001, farClipping: number = 10000, left: number = -10, right: number = 10, top: number = 10, bottom: number = -10, horizontalTilt: number = 90, vericalTilt: number = 90)
+    constructor()
+    constructor(viewer: ICamera)
+    constructor({ name = 'Viewer', mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt, position, target }: ICamera = new ICamera)
     {
         super(name)
 
@@ -70,12 +55,30 @@ export default class Camera extends Item implements Updateable
         this.VericalTilt = vericalTilt
 
         Cameras.push(this)
-    }
-    
+
+        this.Position = new Vector3(position)
+        this.Target = new Vector3(target)
+    }        
+
     public Update(): void
     {
-        this.AspectRatio = FWGE.GL.canvas.clientWidth / FWGE.GL.canvas.clientHeight
+        this.AspectRatio = GL.canvas.clientWidth / GL.canvas.clientHeight
+        
+        let n = this.Position.Clone().Diff(this.Target).Unit()
+        let u = this.Up.Clone().Cross(n).Unit()
+        let v = n.Clone().Cross(u).Unit()
+        let p = this.Position
+
+        this.Matrix.Set(
+            v.X, v.Y, v.Z, 0,
+            u.X, u.Y, u.Z, 0,
+            n.X, n.Y, n.Z, 0,
+            0,   0,   0, 1
+        ).Mult(
+            1,   0,   0, 0,
+            0,   1,   0, 0,
+            0,   0,   1, 0,
+            p.X, p.Y, p.Z, 1
+        )
     }
 }
-
-new Camera('Main Camera')

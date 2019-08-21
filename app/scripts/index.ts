@@ -1,18 +1,16 @@
 import Camera from '../../src/Camera/Camera';
 import FWGE from '../../src/FWGE';
-import AmbientLight from '../../src/Light/AmbientLight';
-import { Binary, Unary, Var, BinaryExpressionType, UnaryExpressionType } from '../../src/Maths/Equation';
-import ParticleSystem from '../../src/ParticleSystem';
+import GameObject from '../../src/GameObject';
+import Input from '../../src/Input/Input';
+import { Binary, Unary, Var } from '../../src/Maths/Equation';
+import Colour4 from '../../src/Render/Colour4';
+import FragmentShader from '../../src/Shader/Definition/FragmentShader';
+import VertexShader from '../../src/Shader/Definition/VertexShader';
 import Shader from '../../src/Shader/Shader';
 import Control from '../../src/Utility/Control';
 import OBJConverter from '../../src/Utility/Converter/OBJConverter';
 import List from '../../src/Utility/List';
-import Colour4 from '../../src/Render/Colour4';
-import FragmentShader from '../../src/Shader/Definition/FragmentShader'
-import VertexShader from '../../src/Shader/Definition/VertexShader'
 import Time from '../../src/Utility/Time';
-import GameObject, { GameObjectFunction } from '../../src/GameObject';
-import { ShaderIVec4, ShaderVec4, ShaderNode, ShaderFloat, ShaderVec3 } from '../../src/Shader/Definition/ShaderTypes';
 
 let fwge = <any>window
 fwge.Control = Control
@@ -229,36 +227,6 @@ async function makeCube()
     {
         this.Transform.Rotation.Y += Time.Render.Delta * 0.1
     }
-
-    fwge.mesh = OBJConverter.ParseMesh(obj)
-    fwge.material = OBJConverter.ParseRenderMaterial(mtl)
-    fwge.material.Alpha = 0.2
-
-    let object = <GameObject>fwge.object
-    object.Material.Shader = shader
-    object.Material.Ambient = new Colour4(1,1,1,1)
-    object.Material.Alpha = 0.2
-    object.Transform.Position.Z = -5
-    object.Update = function(this: GameObject)
-    {
-        delay: (time: number, index: number) => index * 1000,
-        length: 5000,
-        material: fwge.material,
-        mesh: fwge.mesh,
-        name: "example particle system",
-        count: 1,
-        transform: {
-            position: [0, 0, -5],
-            scale: [0.1, 0.1, 0.1]
-        },
-        position: [ 
-            (time: number, index: number) => 0,
-            (time: number, index: number) => time * 0.01,
-            (time: number, index: number) => -15
-            // (time: number, index: number) => Math.cos(time / 10),
-            // (time: number, index: number) => Math.sin(time / 10)
-        ]
-    })
     
     Control.Start()
 }

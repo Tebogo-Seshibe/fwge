@@ -1,7 +1,19 @@
-export enum InputState
+export enum KeyboardState
 {
     UP,
     PRESSED,
-    CLICKED,
     DOWN
+}
+
+export enum ButtonState
+{
+    RAISED,
+    PRESSED
+}
+
+export enum WheelState
+{
+    CENTERED,
+    LEFT,
+    RIGHT
 }

@@ -1,28 +1,28 @@
 import Vector2 from "../Maths/Vector2";
-import { InputState } from "./InputState";
+import { ButtonState } from "./InputState";
 
 export default class ControllerInput
 {
     public LeftStick: Vector2
     public RightStick: Vector2
 
-    public DirectionalUp: InputState
-    public DirectionalDown: InputState
-    public DirectionalLeft: InputState
-    public DirectionalRight: InputState
+    public DirectionalUp: ButtonState
+    public DirectionalDown: ButtonState
+    public DirectionalLeft: ButtonState
+    public DirectionalRight: ButtonState
 
-    public Button1: InputState
-    public Button2: InputState
-    public Button3: InputState
-    public Button4: InputState
+    public Button1: ButtonState
+    public Button2: ButtonState
+    public Button3: ButtonState
+    public Button4: ButtonState
     
-    public Start: InputState
-    public Select: InputState
+    public Start: ButtonState
+    public Select: ButtonState
     
-    public LeftBumper: InputState
-    public RightBumper: InputState
-    public LeftTrigger: InputState
-    public RightTrigger: InputState
+    public LeftBumper: ButtonState
+    public RightBumper: ButtonState
+    public LeftTrigger: ButtonState
+    public RightTrigger: ButtonState
 
 
     constructor()
