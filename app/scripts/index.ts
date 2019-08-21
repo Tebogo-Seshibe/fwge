@@ -269,6 +269,4 @@ async function makeShader()
         new ShaderNode(new ShaderFloat('blue', 1), null) // blue
     ])
     */
-        
-    console.log(colour)
 }
