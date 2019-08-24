@@ -1,4 +1,4 @@
-export class StackNode<T>
+class StackNode<T>
 {
 	public Value: T
 	public Predecessor: StackNode<T>

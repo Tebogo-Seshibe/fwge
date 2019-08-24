@@ -2,7 +2,7 @@ import { GL } from '../FWGE';
 import Updateable from '../Interfaces/Updateable';
 import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
-import { Viewer, ViewMode } from './Viewer';
+import Viewer, { ViewMode } from './Viewer';
 
 export let Cameras: Camera[] = []
 
@@ -20,8 +20,10 @@ export class ICamera
     bottom?: number
     horizontalTilt?: number
     vericalTilt?: number
-    position?: Vector3
-    target?: Vector3
+
+    position?: Vector3 | [number, number, number]
+    target?: Vector3 | [number, number, number]
+    up?: Vector3 | [number, number, number]
 }
 
 export default class Camera extends Viewer implements Updateable
@@ -35,10 +37,31 @@ export default class Camera extends Viewer implements Updateable
     {
         return this.Matrix.Clone()
     }
-    
+
+    public static get Main()
+    {
+        return Cameras[0]
+    }
+
     constructor()
     constructor(viewer: ICamera)
-    constructor({ name = 'Viewer', mode, fieldOfView, aspectRatio, nearClipping, farClipping, left, right, top, bottom, horizontalTilt, vericalTilt, position, target }: ICamera = new ICamera)
+    constructor(
+    {
+        name = 'Viewer', 
+        mode, fieldOfView,
+        aspectRatio,
+        nearClipping,
+        farClipping,
+        left,
+        right,
+        top,
+        bottom,
+        horizontalTilt,
+        vericalTilt,
+        position,
+        target,
+        up = [0 ,1, 0] 
+    }: ICamera = new ICamera)
     {
         super(name)
 
@@ -53,11 +76,12 @@ export default class Camera extends Viewer implements Updateable
         this.Bottom = bottom
         this.HorizontalTilt = horizontalTilt
         this.VericalTilt = vericalTilt
+        
+        this.Position = new Vector3(position as number[])
+        this.Target = new Vector3(target as number[])
+        this.Up = new Vector3(up as number[])
 
         Cameras.push(this)
-
-        this.Position = new Vector3(position)
-        this.Target = new Vector3(target)
     }        
 
     public Update(): void

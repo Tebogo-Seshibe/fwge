@@ -53,6 +53,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     constructor(x: number, y: number, z: number)
     constructor(array: Float32Array)
     constructor(array: number[])
+    constructor(array: Vector3Tuple)
     constructor(list: List<number>)
     constructor(vector: Vector2)
     constructor(vector: Vector3)

@@ -1,4 +1,4 @@
-export class ListNode<T>
+class ListNode<T>
 {
     public Previous: ListNode<T>
     public Next: ListNode<T>

@@ -6,7 +6,7 @@ export enum ViewMode
     ORTHOGRAPHIC
 }
 
-export class Viewer extends Item
+export default class Viewer extends Item
 {
     public Mode: ViewMode
     public FieldOfView: number

@@ -10,7 +10,7 @@ export class IAnimationFrame
     time: number
 }
 
-export class AnimationFrame
+export default class AnimationFrame
 {
     //#region Public Properties
     public Start: number

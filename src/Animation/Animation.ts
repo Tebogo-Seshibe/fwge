@@ -4,9 +4,13 @@ import Item from '../Item';
 import Vector3 from "../Maths/Vector3";
 import List from '../Utility/List';
 import Time from '../Utility/Time';
-import{ AnimationFrame, IAnimationFrame, Vector3Frame, Vector4Frame } from './AnimationFrame';
+import AnimationFrame, {
+    IAnimationFrame,
+    Vector3Frame,
+    Vector4Frame
+} from './AnimationFrame';
 
-let Animations: Animation[] = new Array<Animation>()
+export let Animations: Animation[] = new Array<Animation>()
 
 export class IAnimation
 {

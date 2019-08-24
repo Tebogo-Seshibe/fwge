@@ -1,6 +1,6 @@
 import List from './List'
 
-export class TreeNode<T>
+class TreeNode<T>
 {
     public Value: T
     public Children: List<TreeNode<T>>

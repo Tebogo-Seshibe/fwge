@@ -1,7 +1,7 @@
-import Item from '../Item'
-import ShaderAttributes from './Instance/ShaderAttributes'
-import ShaderUniforms from './Instance/ShaderUniforms'
-import FWGE from '../FWGE'
+import FWGE from '../FWGE';
+import Item from '../Item';
+import ShaderAttributes from './Instance/ShaderAttributes';
+import ShaderUniforms from './Instance/ShaderUniforms';
 
 export class IShader
 {
