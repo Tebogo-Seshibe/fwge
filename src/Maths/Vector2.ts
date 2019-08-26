@@ -1,8 +1,8 @@
-import Cloneable from '../Interfaces/Cloneable'
-import Maths, { Sigfigs } from './Maths'
-import List from '../Utility/List'
-import Vector3 from './Vector3'
-import Vector4 from './Vector4'
+import Cloneable from '../Interfaces/Cloneable';
+import List from '../Utility/List';
+import Maths, { Sigfigs } from './Maths';
+import Vector3 from './Vector3';
+import Vector4 from './Vector4';
 
 export type Vector2Tuple = 
 [

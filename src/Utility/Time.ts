@@ -1,4 +1,4 @@
-import Updateable from '../Interfaces/Updateable'
+import Updateable from '../Interfaces/Updateable';
 
 class TimeKeep implements Updateable
 {

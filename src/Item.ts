@@ -14,9 +14,9 @@ let ID_COUNTER: number = 0
 
 function Hashcode(number: number): number
 {
-    var i = 0;
-    var hash = 0;
-    var chr = 0;
+    var i = 0
+    var hash = 0
+    var chr = 0
     var string = number + ''
 
     for (i = 0; i < string.length; i++)
@@ -26,5 +26,5 @@ function Hashcode(number: number): number
         hash |= 0
     }
 
-    return hash;
+    return hash
 }

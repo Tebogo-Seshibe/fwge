@@ -1,5 +1,5 @@
-import Maths from '../Maths/Maths'
-import Colour4 from './Colour4'
+import Maths from '../Maths/Maths';
+import Colour4 from './Colour4';
 
 export default class Colour3 extends Float32Array
 {    

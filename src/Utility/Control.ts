@@ -1,9 +1,9 @@
-import Time from './Time'
-import { GameObjects } from '../GameObject'
-import { InitRender, UpdateRender } from '../Render/Renderer'
-import { Cameras } from '../Camera/Camera'
 import { Animations } from '../Animation/Animation';
+import { Cameras } from '../Camera/Camera';
+import { GameObjects } from '../GameObject';
 import { ParticleSystems } from '../ParticleSystem';
+import { InitRender, UpdateRender } from '../Render/Renderer';
+import Time from './Time';
 
 export default class Control
 {

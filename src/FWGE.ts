@@ -1,7 +1,5 @@
-import Control from './Utility/Control'
-import MouseInput from './Input/MouseInput'
-import KeyboardInput from './Input/KeyboardInput'
 import Input from './Input/Input';
+import Control from './Utility/Control';
 
 export let GL: WebGLRenderingContext
 

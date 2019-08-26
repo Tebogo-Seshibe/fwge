@@ -1,7 +1,7 @@
-import KeyboardInput from "./KeyboardInput"
-import MouseInput from "./MouseInput"
-import ControllerInput from "./ControllerInput"
-import List from "../Utility/List"
+import List from "../Utility/List";
+import ControllerInput from "./ControllerInput";
+import KeyboardInput from "./KeyboardInput";
+import MouseInput from "./MouseInput";
 
 export default class Input
 {

@@ -56,11 +56,11 @@ export default class Camera extends Viewer implements Updateable
         right,
         top,
         bottom,
-        horizontalTilt,
-        vericalTilt,
-        position,
-        target,
-        up = [0 ,1, 0] 
+        horizontalTilt = 0,
+        vericalTilt = 0,
+        position = [0, 0, -10],
+        target = [0, 0, 0],
+        up = [0, 1, 0] 
     }: ICamera = new ICamera)
     {
         super(name)

@@ -41,7 +41,20 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
     constructor()
     constructor(gameObject: IGameObject)
-    constructor({ name, transform = new Transform, material, mesh, physics, animation, begin = function(this: GameObject): void { }, update = function(this: GameObject): void { }, end = function(this: GameObject): void { }, children = [], visible = true }: IGameObject = new IGameObject)
+    constructor(
+    { 
+        name, 
+        transform = new Transform,
+        material,
+        mesh,
+        physics,
+        animation,
+        begin = function(this: GameObject): void { },
+        update = function(this: GameObject): void { },
+        end = function(this: GameObject): void { },
+        children = [],
+        visible = true 
+    }: IGameObject = new IGameObject)
     {
         super(name);
     
@@ -73,8 +86,6 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
     Clone(): GameObject
     {
-        let children = this.Children.map(child => <this>child.Clone())
-
         return new GameObject(
         {
             name:       this.Name + " Clone",
@@ -91,7 +102,7 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
             begin:      this.Begin,
             update:     this.Update,
             end:        this.End,
-            children:   children
+            children:   this.Children.map(child => child.Clone())
         });
     }
 }

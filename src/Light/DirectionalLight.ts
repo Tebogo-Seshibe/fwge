@@ -1,6 +1,6 @@
-import LightItem, { ILightItem } from './LightItem'
-import Vector3 from '../Maths/Vector3'
-import List from '../Utility/List'
+import Vector3 from '../Maths/Vector3';
+import List from '../Utility/List';
+import LightItem, { ILightItem } from './LightItem';
 
 export let DirectionalLights: List<DirectionalLight> = new List<DirectionalLight>(3)
 

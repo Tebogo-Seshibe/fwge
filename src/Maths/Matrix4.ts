@@ -1,8 +1,8 @@
-import Cloneable from '../Interfaces/Cloneable'
-import List from '../Utility/List'
-import { Sigfigs } from './Maths'
-import Matrix2 from './Matrix2'
-import Matrix3 from './Matrix3'
+import Cloneable from '../Interfaces/Cloneable';
+import List from '../Utility/List';
+import { Sigfigs } from './Maths';
+import Matrix2 from './Matrix2';
+import Matrix3 from './Matrix3';
 
 export type Matrix4Tuple = 
 [

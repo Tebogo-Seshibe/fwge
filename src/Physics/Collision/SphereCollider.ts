@@ -1,4 +1,4 @@
-import Collider, { ICollider } from './Collider'
+import Collider, { ICollider } from './Collider';
 
 export class ISphereCollider extends ICollider
 {

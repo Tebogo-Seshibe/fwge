@@ -1,5 +1,5 @@
-import Maths from '../Maths/Maths'
-import Matrix4 from '../Maths/Matrix4'
+import Maths from '../Maths/Maths';
+import Matrix4 from '../Maths/Matrix4';
 
 export default class Projection
 {

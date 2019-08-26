@@ -1,6 +1,9 @@
-import GameObject from '../../GameObject'
+import GameObject from '../../GameObject';
 
 export default class Converter
 {
-    static Parse():  GameObject { return null }
+    static Parse():  GameObject
+    {
+        return null
+    }
 }

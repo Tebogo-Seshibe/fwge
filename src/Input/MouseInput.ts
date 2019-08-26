@@ -1,5 +1,5 @@
-import { ButtonState, WheelState } from './InputState'
-import Vector2 from '../Maths/Vector2'
+import Vector2 from '../Maths/Vector2';
+import { ButtonState, WheelState } from './InputState';
 
 export default class MouseInput
 {

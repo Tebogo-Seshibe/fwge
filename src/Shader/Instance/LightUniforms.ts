@@ -1,6 +1,6 @@
-import AmbientUniforms from './AmbientUniforms'
-import DirectionalUniforms from './DirectionalUniforms'
-import PointUniform from './PointUniform'
+import AmbientUniforms from './AmbientUniforms';
+import DirectionalUniforms from './DirectionalUniforms';
+import PointUniform from './PointUniform';
 
 export default class LightUniforms
 {

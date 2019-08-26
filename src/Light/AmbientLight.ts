@@ -1,5 +1,5 @@
-import LightItem, { ILightItem } from './LightItem'
-import List from '../Utility/List'
+import List from '../Utility/List';
+import LightItem, { ILightItem } from './LightItem';
 
 export let AmbientLights: List<AmbientLight> = new List<AmbientLight>(1)
 

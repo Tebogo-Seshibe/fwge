@@ -1,5 +1,5 @@
-import Maths from '../Maths/Maths'
-import Colour3 from './Colour3'
+import Maths from '../Maths/Maths';
+import Colour3 from './Colour3';
 
 export default class Colour4 extends Float32Array
 {    
@@ -129,7 +129,7 @@ export default class Colour4 extends Float32Array
         }
         else if (r instanceof Colour3 || r instanceof Colour4 || r instanceof Float32Array || r instanceof Array)
         {
-            [ r, g, b, a ] = r
+            [ r = 0, g = 0, b = 0, a = 0 ] = r
         }
 
         return [ r, g, b, a ]

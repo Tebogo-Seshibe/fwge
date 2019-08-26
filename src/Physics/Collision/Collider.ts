@@ -1,6 +1,6 @@
-import Item from '../../Item'
-import PhysicsItem from '../PhysicsItem'
-import Vector3 from '../../Maths/Vector3'
+import Item from '../../Item';
+import Vector3 from '../../Maths/Vector3';
+import PhysicsItem from '../PhysicsItem';
 
 export class ICollider
 {

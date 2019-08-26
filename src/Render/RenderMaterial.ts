@@ -1,8 +1,15 @@
-import Colour4 from './Colour4'
-import FWGE from '../FWGE'
-import Item from '../Item'
-import Maths from '../Maths/Maths'
-import Shader from '../Shader/Shader'
+import FWGE from '../FWGE';
+import Item from '../Item';
+import Maths from '../Maths/Maths';
+import Shader from '../Shader/Shader';
+import Colour4 from './Colour4';
+
+export enum ImageMapType
+{
+    TEXTURE,
+    BUMP,
+    SPECULAR
+}
 
 export class IRenderMaterial
 {
@@ -50,28 +57,28 @@ export default class RenderMaterial extends Item
 
         if (imagemap)
         {
-            RenderMaterial.ApplyImage(this, imagemap, 'image')
+            RenderMaterial.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
         }
     }
 
-    static ApplyImage(material: RenderMaterial, src: string, type: string): void
+    static ApplyImage(material: RenderMaterial, src: string, type: ImageMapType): void
     {
         let img: HTMLImageElement = new Image()
         let texture: WebGLTexture = null
 
         switch(type)
         {
-            case 'image':
+            case ImageMapType.TEXTURE:
                 material.ImageMap = FWGE.GL.createTexture();
                 texture = material.ImageMap;
             break;
 
-            case 'bump':
+            case ImageMapType.BUMP:
                 material.BumpMap = FWGE.GL.createTexture();
                 texture = material.BumpMap;
             break;
 
-            case 'specular':
+            case ImageMapType.SPECULAR:
                 material.SpecularMap = FWGE.GL.createTexture();
                 texture = material.SpecularMap;
             break;
@@ -108,29 +115,4 @@ export default class RenderMaterial extends Item
 
         img.src = src
     }
-/*
-    SetTextures({imagemap = 'undefined', bumpmap = 'undefined', specularmap = 'undefined'} = {}): void
-    {
-        if (!!imagemap)
-        {
-            if (!!this.ImageMap)
-                FWGE.GL.deleteTexture(this.ImageMap);
-
-            RenderMaterial.ApplyImage(imagemap, this, 'image');
-        }
-        if (!!bumpmap)
-        {
-            if (!!this.BumpMap)
-                FWGE.GL.deleteTexture(this.BumpMap);
-
-            RenderMaterial.ApplyImage(bumpmap, this, 'bump');
-        }
-        if (!!specularmap)
-        {
-            if (!!this.SpecularMap)
-                FWGE.GL.deleteTexture(this.SpecularMap);
-
-            RenderMaterial.ApplyImage(specularmap, this, 'specular');
-        }
-    }*/
 }

@@ -1,9 +1,9 @@
-import ArrayUtiils from '../Utility/ArrayUtils'
-import FWGE from '../FWGE'
-import Item from '../Item'
-import Vector2 from '../Maths/Vector2'
-import Vector3 from '../Maths/Vector3'
-import Vector4 from '../Maths/Vector4'
+import FWGE from '../FWGE';
+import Item from '../Item';
+import Vector2 from '../Maths/Vector2';
+import Vector3 from '../Maths/Vector3';
+import Vector4 from '../Maths/Vector4';
+import ArrayUtiils from '../Utility/ArrayUtils';
 
 export enum BufferType
 {

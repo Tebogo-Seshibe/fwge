@@ -1,4 +1,4 @@
-import Tree from './Tree'
+import Tree from './Tree';
 
 export default class BinaryTree<T> extends Tree<T>
 {

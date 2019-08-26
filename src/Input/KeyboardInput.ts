@@ -1,4 +1,4 @@
-import { KeyboardState } from './InputState'
+import { KeyboardState } from './InputState';
 
 export default class KeyboardInput
 {

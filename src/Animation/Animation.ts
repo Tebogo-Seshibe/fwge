@@ -10,7 +10,7 @@ import AnimationFrame, {
     Vector4Frame
 } from './AnimationFrame';
 
-export let Animations: Animation[] = new Array<Animation>()
+export let Animations: Animation[] = []
 
 export class IAnimation
 {

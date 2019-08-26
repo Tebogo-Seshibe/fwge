@@ -1,7 +1,7 @@
-import Collider from './Collision/Collider'
-import Item from '../Item'
-import PhysicsBody from './PhysicsBody'
-import PhysicsMaterial from './PhysicsMaterial'
+import Item from '../Item';
+import Collider from './Collision/Collider';
+import PhysicsBody from './PhysicsBody';
+import PhysicsMaterial from './PhysicsMaterial';
 
 export class IPhysicsItem
 {
