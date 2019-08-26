@@ -1,21 +1,21 @@
-import AmbientLight, { AmbientLights } from '../Light/AmbientLight'
-import DirectionalLight, { DirectionalLights } from '../Light/DirectionalLight'
-import { GL } from '../FWGE'
-import GameObject, { GameObjects } from '../GameObject'
-import ModelView from './ModelView'
-import Matrix3 from '../Maths/Matrix3'
-import Mesh from './Mesh'
-import Matrix4 from '../Maths/Matrix4'
-import PointLight, { PointLights } from '../Light/PointLight'
-import Projection from './Projection'
-import RenderMaterial from './RenderMaterial'
-import Shader, { Shaders } from '../Shader/Shader'
-import ShaderUniforms from '../Shader/Instance/ShaderUniforms'
-import ShaderAttributes from '../Shader/Instance/ShaderAttributes'
-import Camera from '../Camera/Camera'
-import ParticleSystem, { ParticleSystems } from '../ParticleSystem'
-import LightItem from '../Light/LightItem'
-import List from '../Utility/List'
+import Camera from '../Camera/Camera';
+import { GL } from '../FWGE';
+import GameObject, { GameObjects } from '../GameObject';
+import AmbientLight, { AmbientLights } from '../Light/AmbientLight';
+import DirectionalLight, { DirectionalLights } from '../Light/DirectionalLight';
+import LightItem from '../Light/LightItem';
+import PointLight, { PointLights } from '../Light/PointLight';
+import Matrix3 from '../Maths/Matrix3';
+import Matrix4 from '../Maths/Matrix4';
+import ParticleSystem, { ParticleSystems } from '../ParticleSystem';
+import ShaderAttributes from '../Shader/Instance/ShaderAttributes';
+import ShaderUniforms from '../Shader/Instance/ShaderUniforms';
+import Shader, { Shaders } from '../Shader/Shader';
+import List from '../Utility/List';
+import Mesh from './Mesh';
+import ModelView from './ModelView';
+import Projection from './Projection';
+import RenderMaterial from './RenderMaterial';
 
 type Renderable = 
 {

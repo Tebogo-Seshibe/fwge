@@ -6,7 +6,6 @@ import PhysicsMaterial from './Physics/PhysicsMaterial';
 import Mesh from './Render/Mesh';
 import RenderMaterial from './Render/RenderMaterial';
 import Transform from './Transform';
-import List from './Utility/List';
 
 export type GameObjectFunction = (this: GameObject) => void
 

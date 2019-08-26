@@ -20,7 +20,7 @@ export class IAnimation
     loop?: boolean
 }
 
-export class Animation extends Item implements Updateable
+export default class Animation extends Item implements Updateable
 {
     public Frames: AnimationFrame[]
     public GameObject: GameObject

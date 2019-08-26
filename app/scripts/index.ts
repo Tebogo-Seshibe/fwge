@@ -1,16 +1,76 @@
-import Camera from '../../src/Camera/Camera';
-import FWGE from '../../src/FWGE';
-import GameObject from '../../src/GameObject';
-import Input from '../../src/Input/Input';
-import { Binary, Unary, Var } from '../../src/Maths/Equation';
-import Colour4 from '../../src/Render/Colour4';
-import FragmentShader from '../../src/Shader/Definition/FragmentShader';
-import VertexShader from '../../src/Shader/Definition/VertexShader';
-import Shader from '../../src/Shader/Shader';
-import Control from '../../src/Utility/Control';
-import OBJConverter from '../../src/Utility/Converter/OBJConverter';
-import List from '../../src/Utility/List';
-import Time from '../../src/Utility/Time';
+// Animation
+import Animation, { IAnimation } from "../../src/Animation/Animation"
+
+// Camera
+import Camera, { ICamera } from '../../src/Camera/Camera'
+import Viewer, { ViewMode } from '../../src/Camera/Viewer'
+
+// Input
+import Input from '../../src/Input/Input'
+import ControllerInput from '../../src/Input/ControllerInput'
+import MouseInput from '../../src/Input/MouseInput'
+import KeyboardInput from '../../src/Input/KeyboardInput'
+import { KeyboardState, ButtonState, WheelState } from '../../src/Input/InputState'
+
+// Interfaces
+import Attachable from '../../src/Interfaces/Attachable' 
+import Cloneable from '../../src/Interfaces/Cloneable'
+import Destroyable from '../../src/Interfaces/Destroyable'
+import Updateable from '../../src/Interfaces/Updateable'
+
+// Light
+import AmbientLight, { IAmbientLight }  from '../../src/Light/AmbientLight' 
+import DirectionalLight, { IDirectionalLight }  from '../../src/Light/DirectionalLight' 
+import Light, { ILightItem }  from '../../src/Light/LightItem'
+import PointLight, { IPointLight }  from '../../src/Light/PointLight'
+
+// Maths
+import Maths from '../../src/Maths/Maths'
+import Vector2 from '../../src/Maths/Vector2'
+import Vector3 from '../../src/Maths/Vector3'
+import Vector4 from '../../src/Maths/Vector4'
+import Matrix2 from '../../src/Maths/Matrix2'
+import Matrix3 from '../../src/Maths/Matrix3'
+import Matrix4 from '../../src/Maths/Matrix4'
+
+// Physics
+// Physics Coliison
+import BoxCollider from '../../src/Physics/Collision/BoxCollider'
+import Collider from '../../src/Physics/Collision/Collider'
+import SphereCollider from '../../src/Physics/Collision/SphereCollider'
+import CollisionEvent from '../../src/Physics/Collision/CollisionEvent'
+import PhysicsBody from '../../src/Physics/PhysicsBody'
+import PhysicsMaterial from '../../src/Physics/PhysicsMaterial'
+
+// Render
+import Colour4 from '../../src/Render/Colour4'
+import Mesh from '../../src/Render/Mesh'
+import Projection from '../../src/Render/Projection'
+import ModelView from '../../src/Render/ModelView'
+import RenderMaterial from '../../src/Render/RenderMaterial'
+
+// // Shader
+import Shader, { IShader }  from '../../src/Shader/Shader'
+
+// Utility
+// Converter
+import OBJConverter from '../../src/Utility/Converter/OBJConverter'
+import ArrayUtils from '../../src/Utility/ArrayUtils'
+import BinaryTree from '../../src/Utility/BinaryTree'
+import Control from '../../src/Utility/Control'
+import FWGEEvent from '../../src/Utility/FWGEEvent'
+import List from '../../src/Utility/List'
+import ListUtils from '../../src/Utility/ListUtils'
+import Stack from '../../src/Utility/Stack'
+import Time from '../../src/Utility/Time'
+import Tree from '../../src/Utility/Tree'
+
+import FWGE from '../../src/FWGE'
+import GameObject from '../../src/GameObject'
+import ParticleSystem from '../../src/ParticleSystem'
+import Transform from '../../src/Transform'
+
+import '../../'
 
 let fwge = <any>window
 fwge.Control = Control
@@ -21,27 +81,27 @@ fwge.Input = Input
 fwge.lights = { }
 fwge.object = undefined
 
-fwge.VertexShader = VertexShader
-fwge.FragmentShader = FragmentShader
+// fwge.VertexShader = VertexShader
+// fwge.FragmentShader = FragmentShader
 
-fwge.Var = Var
-fwge.Unary = Unary
-fwge.Binary = Binary
+// fwge.Var = Var
+// fwge.Unary = Unary
+// fwge.Binary = Binary
 
 window.onload = () =>
 {
     let canvas = <HTMLCanvasElement>document.getElementById('canvas')
 
-    FWGE.Init(
-    {
-        canvas,
-        clear: [0, 0, 0, 0],
-        physcisupdate: 30,
-        renderupdate: 75
-    })
+    // FWGE.Init(
+    // {
+    //     canvas,
+    //     clear: [0, 0, 0, 0],
+    //     physcisupdate: 30,
+    //     renderupdate: 75
+    // })
     
     // makeCube()
-    makeShader()
+    //makeShader()
     // fwge.light = new AmbientLight(
     // {
     //     colour: [1, 1, 1, 1],
