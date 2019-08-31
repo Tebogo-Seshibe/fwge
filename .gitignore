@@ -1,7 +1,4 @@
 .vs
 .vscode
-build
 node_modules
 package-lock.json
-/**/*.d.ts
-/**/*.js.map

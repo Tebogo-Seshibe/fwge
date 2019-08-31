@@ -9,64 +9,64 @@ import Transform from './Transform';
 
 export type GameObjectFunction = (this: GameObject) => void
 
-export let GameObjects: GameObject[] = new Array<GameObject>()
+export let GameObjects: GameObject[] = []
 
 export class IGameObject
 {
     name?: string
-    transform?: Transform = new Transform()
-    material?: RenderMaterial
+    transform?: Transform
     mesh?: Mesh
+    material?: RenderMaterial
     physics?: PhysicsMaterial
     animation?: Animation
+    children?: GameObject[]
+    visible?: boolean
     begin?: GameObjectFunction
     update?: GameObjectFunction
     end?: GameObjectFunction
-    children?: GameObject[]
-    visible?: boolean
 }
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
-    Transform: Transform
-    Material: RenderMaterial
+    Transform: Transform = new Transform()
     Mesh: Mesh
+    Material: RenderMaterial
     Physics: PhysicsMaterial
     Animation: Animation
-    Begin: GameObjectFunction
-    Update: GameObjectFunction
-    End: GameObjectFunction
-    Children: Array<GameObject>
+    Children: GameObject[] = []
     Visible: boolean = true
+    Begin: GameObjectFunction = function(this: GameObject): void { }
+    Update: GameObjectFunction = function(this: GameObject): void { }
+    End: GameObjectFunction = function(this: GameObject): void { }
 
     constructor()
     constructor(gameObject: IGameObject)
     constructor(
     { 
-        name, 
-        transform = new Transform,
+        name = 'GameObject',
+        transform,
         material,
         mesh,
         physics,
         animation,
-        begin = function(this: GameObject): void { },
-        update = function(this: GameObject): void { },
-        end = function(this: GameObject): void { },
-        children = [],
-        visible = true 
+        begin,
+        update,
+        end,
+        children,
+        visible 
     }: IGameObject = new IGameObject)
     {
-        super(name);
-    
-        this.Begin = begin.bind(this)
-        this.Update = update.bind(this)
-        this.End = end.bind(this)
-
+        super(name)
+        
         this.Transform = transform
         this.Mesh = mesh
         this.Material = material
         this.Physics = physics
         this.Animation = animation
+    
+        this.Begin = begin.bind(this)
+        this.Update = update.bind(this)
+        this.End = end.bind(this)
 
         this.Children = []
         for (let child of children)
@@ -79,30 +79,30 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         GameObjects.push(this)
     }
 
-    Destroy(): void
+    public Destroy(): void
     {
 
     }
 
-    Clone(): GameObject
+    public Clone(): GameObject
     {
         return new GameObject(
         {
-            name:       this.Name + " Clone",
-            transform:  new Transform(
+            name:           this.Name + " Clone",
+            transform:      new Transform(
             {
                 position:   this.Transform.Position,
                 rotation:   this.Transform.Rotation,
                 scale:      this.Transform.Scale,
                 shear:      this.Transform.Shear
             }),
-            mesh:       this.Mesh,
-            material:   this.Material,
-            physics:    this.Physics,
-            begin:      this.Begin,
-            update:     this.Update,
-            end:        this.End,
-            children:   this.Children.map(child => child.Clone())
+            mesh:           this.Mesh,
+            material:       this.Material,
+            physics:        this.Physics,
+            begin:          this.Begin,
+            update:         this.Update,
+            end:            this.End,
+            children:       this.Children.map(child => child.Clone())
         });
     }
 }

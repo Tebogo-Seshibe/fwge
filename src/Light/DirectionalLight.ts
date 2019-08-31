@@ -6,25 +6,23 @@ export let DirectionalLights: List<DirectionalLight> = new List<DirectionalLight
 
 export class IDirectionalLight extends ILightItem
 {
-    direction: Vector3 | [number, number, number]
+    direction?: Vector3 | Float32Array | number[]
 }
 
 export default class DirectionalLight extends LightItem
 {
-    public Direction: Vector3
+    public Direction: Vector3 = Vector3.ZERO
 
     constructor()
     constructor(directionalLight: IDirectionalLight)
-    constructor({ name = 'Directional Light', colour, intensity, direction = Vector3.ZERO }: IDirectionalLight = new IDirectionalLight)
+    constructor({ name = 'Directional Light', colour, intensity, direction }: IDirectionalLight = new IDirectionalLight)
     {
-        super(name, colour, intensity)
+        super({ name, colour, intensity })
 
-        if (!(direction instanceof Vector3))
+        if (direction)
         {
-            direction = new Vector3(direction)
+            direction = new Vector3(direction as number[])
         }
-
-        this.Direction = new Vector3(direction)
 
         DirectionalLights.Add(this)
     }

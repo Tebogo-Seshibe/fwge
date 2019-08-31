@@ -52,13 +52,13 @@ export default class Time
     public static Render: TimeKeep
     public static Physics: TimeKeep
 
-    static Init(render: number, physics: number)
+    public static Init(render: number, physics: number)
     {
         Time.Render = new TimeKeep(render)
         Time.Physics = new TimeKeep(physics)
     }
 
-    static Update(): void
+    public static Update(): void
     {
         Time.Render.Update()
         Time.Physics.Update()

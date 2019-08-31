@@ -1,7 +1,7 @@
-import FWGE from '../FWGE';
 import Item from '../Item';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
+import { GL } from '../Utility/Control';
 
 export class IShader
 {
@@ -31,68 +31,66 @@ export default class Shader extends Item
     {
         super(name)
 
-        let gl: WebGLRenderingContext = FWGE.GL
-
-        this.Program = gl.createProgram()
-        this.Texture = gl.createTexture()
-        this.FrameBuffer = gl.createFramebuffer()
-        this.RenderBuffer = gl.createRenderbuffer()
+        this.Program = GL.createProgram()
+        this.Texture = GL.createTexture()
+        this.FrameBuffer = GL.createFramebuffer()
+        this.RenderBuffer = GL.createRenderbuffer()
         this.Height = height
         this.Width = width
         
-        Shader.Init(this, gl, vertexshader, fragmentshader)
+        Shader.Init(this, GL, vertexshader, fragmentshader)
 
-        this.Attributes = new ShaderAttributes(gl, this.Program)
-        this.Uniforms = new ShaderUniforms(gl, this.Program)
+        this.Attributes = new ShaderAttributes(GL, this.Program)
+        this.Uniforms = new ShaderUniforms(GL, this.Program)
         
         Shaders.push(this);
     }
 
 
-    static Init(shader: Shader, gl: WebGLRenderingContext, vertexshader: string, fragmentshader: string): void
+    static Init(shader: Shader, GL: WebGLRenderingContext, vertexshader: string, fragmentshader: string): void
     {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, shader.FrameBuffer)
-        gl.bindRenderbuffer(gl.RENDERBUFFER, shader.RenderBuffer)
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, shader.Width, shader.Height)
-        gl.bindTexture(gl.TEXTURE_2D, shader.Texture)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shader.Width, shader.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, undefined)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shader.Texture, 0)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, shader.RenderBuffer)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer)
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height)
+        GL.bindTexture(GL.TEXTURE_2D, shader.Texture)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0)
+        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer)
                     
-        gl.bindTexture(gl.TEXTURE_2D, null)
-        gl.bindRenderbuffer(gl.RENDERBUFFER, null)
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         
         let errorLog: string[] = []
 
-        let vs = gl.createShader(gl.VERTEX_SHADER)
-        gl.shaderSource(vs, vertexshader)
-        gl.compileShader(vs)
+        let vs = GL.createShader(GL.VERTEX_SHADER)
+        GL.shaderSource(vs, vertexshader)
+        GL.compileShader(vs)
 
-        if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS))
+        if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
         {
-            errorLog.push('Vertex Shader: ' + gl.getShaderInfoLog(vs))
+            errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(vs))
         }
         
-        let fs = gl.createShader(gl.FRAGMENT_SHADER)
-        gl.shaderSource(fs, fragmentshader)
-        gl.compileShader(fs)
+        let fs = GL.createShader(GL.FRAGMENT_SHADER)
+        GL.shaderSource(fs, fragmentshader)
+        GL.compileShader(fs)
 
-        if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS))
+        if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
         {
-            errorLog.push('Fragment Shader: ' + gl.getShaderInfoLog(fs))
+            errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(fs))
         }
         
-        gl.attachShader(shader.Program, vs);
-        gl.attachShader(shader.Program, fs);
-        gl.linkProgram(shader.Program);
-        if (!gl.getProgramParameter(shader.Program, gl.LINK_STATUS))
+        GL.attachShader(shader.Program, vs);
+        GL.attachShader(shader.Program, fs);
+        GL.linkProgram(shader.Program);
+        if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS))
         {
-            errorLog.push(gl.getProgramInfoLog(shader.Program))
+            errorLog.push(GL.getProgramInfoLog(shader.Program))
         }
         
         if (errorLog.length > 0)

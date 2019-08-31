@@ -4,7 +4,7 @@ export default class KeyboardInput
 {
     //#region Fields
     private readonly TOTAL_KEYS: number = 128
-    private keys: KeyboardState[] = new Array<KeyboardState>()
+    private keys: KeyboardState[] = []
     //#endregion
 
     //#region Keys

@@ -6,34 +6,44 @@ export let PointLights: List<PointLight> = new List<PointLight>(12)
 
 export class IPointLight extends ILightItem
 {
-    position: Vector3 | [number, number, number]
-    radius: number
-    angle: number
-    shininess: number
+    position?: Vector3 | Float32Array | number[]
+    radius?: number
+    angle?: number
+    shininess?: number
 }
 
 export default class PointLight extends LightItem
 {
-    public Position: Vector3
-    public Radius: number
-    public Angle: number
-    public Shininess: number
+    public Position: Vector3 = Vector3.ZERO
+    public Radius: number = 5
+    public Angle: number = 180
+    public Shininess: number = 32
 
     constructor()
     constructor(pointLight: IPointLight)
-    constructor({ name = 'Point Light', colour, intensity, position = [0, 0, 0], radius = 5, angle = 180, shininess = 32 }: IPointLight = new IPointLight)
+    constructor({ name = 'Point Light', colour, intensity, position, radius, angle, shininess }: IPointLight = new IPointLight)
     {
-        super(name, colour, intensity)
+        super({ name, colour, intensity })
 
-        if (!(position instanceof Vector3))
+        if (position)
         {
-            position = new Vector3(position)
+            this.Position = new Vector3(position as number[])
         }
 
-        this.Position = new Vector3(position)
-        this.Radius = radius
-        this.Angle = angle
-        this.Shininess = shininess
+        if (radius)
+        {
+            this.Radius = radius
+        }
+
+        if (angle)
+        {
+            this.Angle = angle
+        }
+
+        if (shininess)
+        {
+            this.Shininess = shininess
+        }
 
         PointLights.Add(this)
     }

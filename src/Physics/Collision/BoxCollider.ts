@@ -9,13 +9,13 @@ export class IBoxCollider extends ICollider
 
 export default class BoxCollider extends Collider
 {
-    public Height: number
-    public Width: number
-    public Breadth: number
+    public Height: number = 1
+    public Width: number = 1
+    public Breadth: number = 1
     
     constructor()
     constructor(boxCollider: IBoxCollider)
-    constructor({ name = 'BoxCollider', physicsitem, position, height = 1, width = 1, breadth = 1 }: IBoxCollider = new IBoxCollider)
+    constructor({ name = 'BoxCollider', physicsitem, position, height, width, breadth }: IBoxCollider = new IBoxCollider)
     {
         super(name, position, physicsitem)
 

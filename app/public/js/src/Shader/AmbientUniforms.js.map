@@ -1,1 +1,0 @@
-{"version":3,"file":"AmbientUniforms.js","sourceRoot":"","sources":["../../../../../src/Shader/AmbientUniforms.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,OAAO,eAAe;IAKhC,YAAY,EAAyB,EAAE,OAAqB;QAExD,IAAI,CAAC,MAAM,GAAG,EAAE,CAAC,kBAAkB,CAAC,OAAO,EAAE,kBAAkB,CAAC,CAAA;QAChE,IAAI,CAAC,SAAS,GAAG,EAAE,CAAC,kBAAkB,CAAC,OAAO,EAAE,qBAAqB,CAAC,CAAA;IAC1E,CAAC;CACJ"}

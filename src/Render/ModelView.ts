@@ -1,4 +1,4 @@
-import Maths from '../Maths/Maths';
+import '../Maths/Maths';
 import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
 import Transform from '../Transform';
@@ -58,9 +58,9 @@ export default class ModelView
     
     private static Rotate(matrix: Matrix4, rotation: Vector3): Matrix4
     {
-        let x = Maths.Radian(rotation.X)
-        let y = Maths.Radian(rotation.Y)
-        let z = Maths.Radian(rotation.Z)
+        let x = Math.radian(rotation.X)
+        let y = Math.radian(rotation.Y)
+        let z = Math.radian(rotation.Z)
 
         return new Matrix4
         (
@@ -73,7 +73,6 @@ export default class ModelView
                      0.0, 1.0,         0.0, 0.0,
             -Math.sin(y), 0.0, Math.cos(y), 0.0,
                      0.0, 0.0,         0.0, 1.0
-
         ).Mult(
             1.0,         0.0,          0.0, 0.0,
             0.0, Math.cos(x), -Math.sin(x), 0.0,
@@ -95,9 +94,9 @@ export default class ModelView
     
     private static Shear(matrix: Matrix4, angles: Vector3): Matrix4
     {
-        var phi   = Maths.Radian(angles.X);
-        var theta = Maths.Radian(angles.Y);
-        var rho   = Maths.Radian(angles.Z);
+        var phi = Math.radian(angles.X)
+        var theta = Math.radian(angles.Y)
+        var rho = Math.radian(angles.Z)
 
         return new Matrix4
         (

@@ -5,7 +5,7 @@ export default class MouseInput
 {
     //#region Private Fields
     private readonly TOTAL_BUTTONS: number = 20
-    private buttons: ButtonState[] = new Array<ButtonState>()
+    private buttons: ButtonState[] = []
     private position: Vector2 = new Vector2()
     private delta: Vector2 = new Vector2()
     private offset: Vector2 = new Vector2()

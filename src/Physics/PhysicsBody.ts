@@ -11,24 +11,34 @@ export class IPhysicsBody
 
 export default class PhysicsBody extends Item
 {
-    public Mass: number
-    public LockX: boolean
-    public LockY: boolean
-    public LockZ: boolean
-    public Velocity: number
-    public Speed: number
+    public Mass: number = 1
+    public LockX: boolean = true
+    public LockY: boolean = false
+    public LockZ: boolean = true
+    public Velocity: number = 0
+    public Speed: number = 0
     
     constructor()
     constructor(physicsBody: IPhysicsBody)
-    constructor({ name = 'Physics Body', mass = 1, lockx = true, locky = true, lockz = true }: IPhysicsBody = new IPhysicsBody)
+    constructor({ name = 'Physics Body', mass, lockx, locky, lockz }: IPhysicsBody = new IPhysicsBody)
     {
         super(name)
 
         this.Mass = mass
-        this.LockX = lockx
-        this.LockY = locky
-        this.LockZ = lockz
-        this.Speed = 0
-        this.Velocity = 0
+        
+        if (lockx !== undefined)
+        {
+            this.LockX = lockx
+        }
+        
+        if (locky !== undefined)
+        {
+            this.LockY = locky
+        }
+        
+        if (lockz !== undefined)
+        {
+            this.LockZ = lockz
+        }
     }
 }

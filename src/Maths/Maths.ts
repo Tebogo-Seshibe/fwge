@@ -1,39 +1,46 @@
 const SIGNIFICANT_FIGURES = Math.pow(10, 6)
 
-export function Sigfigs(value: number): number
+export { }
+
+declare global
 {
-    return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES)
+    interface Math
+    {
+        radian: (degree: number) => number
+        cot: (degree: number) => number
+        clamp: (value: number, min: number, max: number) => number
+        randBetween: (min: number, max: number) => number
+        clean: (value: number) => number
+        isPowerOf2: (value: number) => boolean
+    }
 }
 
-export default class Maths
+Math.radian = (degree: number): number =>
 {
-    static Radian(degree: number): number 
-    {
-        return Math.PI / 180 * degree
-    }
+    return Math.PI / 180 * degree
+}
 
-    static Cot(angle: number): number 
-    {
-        return 1 / Math.tan(angle)
-    }
+Math.cot = (angle: number): number =>
+{
+    return 1 / Math.tan(angle)
+}
 
-    static Clamp(value: number, min: number, max: number): number 
-    {
-        return Math.max(Math.min(value, max), min)
-    }
+Math.clamp = (value: number, min: number, max: number): number =>
+{
+    return Math.max(Math.min(value, max), min)
+}
 
-    static RandBetween(min: number, max: number): number
-    {
-        return (Math.random() * max) + min
-    }
+Math.randBetween = (min: number, max: number): number =>
+{
+    return (Math.random() * max) + min
+}
 
-    static CleanFloat(value: number): number
-    {
-        return (Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES)
-    }
+Math.clean = (value: number): number =>
+{
+    return Math.round(value * SIGNIFICANT_FIGURES) / SIGNIFICANT_FIGURES
+}
 
-    static IsPowerOf2(value: number): boolean
-    {
-        return (value & (value - 1)) === 0
-    }
+Math.isPowerOf2 = (value: number): boolean =>
+{
+    return (value & (value - 1)) === 0
 }

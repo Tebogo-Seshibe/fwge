@@ -1,12 +1,9 @@
-export type Vector3Frame = [ number, number, number ]
-export type Vector4Frame = [ number, number, number, number ]
-
 export class IAnimationFrame
 {
-    colour?: Vector4Frame
-    position?: Vector3Frame
-    rotation?: Vector3Frame
-    scale?: Vector3Frame
+    colour?: number[]
+    position?: number[]
+    rotation?: number[]
+    scale?: number[]
     time: number
 }
 
@@ -15,14 +12,14 @@ export default class AnimationFrame
     //#region Public Properties
     public Start: number
     public End: number
-    public Colour: Vector4Frame
-    public Position: Vector3Frame
-    public Rotation: Vector3Frame
-    public Scale: Vector3Frame
+    public Colour: number[]
+    public Position: number[]
+    public Rotation: number[]
+    public Scale: number[]
     //#endregion
 
     //#region Public Properties
-    constructor(start: number, end: number, colour: Vector4Frame, position: Vector3Frame, rotation: Vector3Frame, scale: Vector3Frame)
+    constructor(start: number, end: number, colour: number[], position: number[], rotation: number[], scale: number[])
     {
         this.Start = start
         this.End = end

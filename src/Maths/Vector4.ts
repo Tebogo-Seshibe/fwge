@@ -1,58 +1,53 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
-import Maths, { Sigfigs } from './Maths';
+import './Maths';
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-
-export type Vector4Tuple = 
-[
-    number, number, number, number
-]
 
 export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 {
     //#region Public Properties
-    get X(): number
+    public get X(): number
     {
         return this[0]
     }
 
-    set X(x: number)
+    public set X(x: number)
     {
-        this[0] = Sigfigs(x)
+        this[0] = Math.clean(x)
     }
 
-    get Y(): number
+    public get Y(): number
     {
         return this[1]
     }
 
-    set Y(y: number)
+    public set Y(y: number)
     {
-        this[1] = Sigfigs(y)
+        this[1] = Math.clean(y)
     }
 
-    get Z(): number
+    public get Z(): number
     {
         return this[2]
     }
 
-    set Z(z: number)
+    public set Z(z: number)
     {
-        this[2] = Sigfigs(z)
+        this[2] = Math.clean(z)
     }
 
-    get W(): number
+    public get W(): number
     {
         return this[3]
     }
 
-    set W(w: number)
+    public set W(w: number)
     {
-        this[3] = Sigfigs(w)
+        this[3] = Math.clean(w)
     }
 
-    get Length(): number
+    public get Length(): number
     {
         return Vector4.Length(this)   
     }
@@ -81,14 +76,14 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         }
     }
 
-    Set(x: number, y: number, z: number, w: number): Vector4
-    Set(array: Float32Array): Vector4
-    Set(array: number[]): Vector4
-    Set(list: List<number>): Vector4
-    Set(vector: Vector2): Vector4
-    Set(vector: Vector3): Vector4
-    Set(vector: Vector4): Vector4
-    Set(x?: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public Set(x: number, y: number, z: number, w: number): Vector4
+    public Set(array: Float32Array): Vector4
+    public Set(array: number[]): Vector4
+    public Set(list: List<number>): Vector4
+    public Set(vector: Vector2): Vector4
+    public Set(vector: Vector3): Vector4
+    public Set(vector: Vector4): Vector4
+    public Set(x?: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         return Vector4.Set
         (
@@ -97,77 +92,77 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         )
     }
     
-    Sum(x: number, y: number, z: number, w: number): Vector4
-    Sum(array: Float32Array): Vector4
-    Sum(array: number[]): Vector4
-    Sum(list: List<number>): Vector4
-    Sum(vector: Vector2): Vector4
-    Sum(vector: Vector3): Vector4
-    Sum(vector: Vector4): Vector4
-    Sum(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public Sum(x: number, y: number, z: number, w: number): Vector4
+    public Sum(array: Float32Array): Vector4
+    public Sum(array: number[]): Vector4
+    public Sum(list: List<number>): Vector4
+    public Sum(vector: Vector2): Vector4
+    public Sum(vector: Vector3): Vector4
+    public Sum(vector: Vector4): Vector4
+    public Sum(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         return Vector4.Sum(this, x, y, z, w)
     }
     
-    Diff(x: number, y: number, z: number, w: number): Vector4
-    Diff(array: Float32Array): Vector4
-    Diff(array: number[]): Vector4
-    Diff(list: List<number>): Vector4
-    Diff(vector: Vector2): Vector4
-    Diff(vector: Vector3): Vector4
-    Diff(vector: Vector4): Vector4
-    Diff(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public Diff(x: number, y: number, z: number, w: number): Vector4
+    public Diff(array: Float32Array): Vector4
+    public Diff(array: number[]): Vector4
+    public Diff(list: List<number>): Vector4
+    public Diff(vector: Vector2): Vector4
+    public Diff(vector: Vector3): Vector4
+    public Diff(vector: Vector4): Vector4
+    public Diff(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         return Vector4.Diff(this, x, y, z, w)
     }
     
-    Mult(x: number, y: number, z: number, w: number): Vector4
-    Mult(array: Float32Array): Vector4
-    Mult(array: number[]): Vector4
-    Mult(list: List<number>): Vector4
-    Mult(vector: Vector2): Vector4
-    Mult(vector: Vector3): Vector4
-    Mult(vector: Vector4): Vector4
-    Mult(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public Mult(x: number, y: number, z: number, w: number): Vector4
+    public Mult(array: Float32Array): Vector4
+    public Mult(array: number[]): Vector4
+    public Mult(list: List<number>): Vector4
+    public Mult(vector: Vector2): Vector4
+    public Mult(vector: Vector3): Vector4
+    public Mult(vector: Vector4): Vector4
+    public Mult(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         return Vector4.Mult(this, x, y, z, w)
     }
     
-    Dot(x: number, y: number, z: number, w: number): number
-    Dot(array: Float32Array): number
-    Dot(array: number[]): number
-    Dot(list: List<number>): number
-    Dot(vector: Vector2): number
-    Dot(vector: Vector3): number
-    Dot(vector: Vector4): number
-    Dot(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): number
+    public Dot(x: number, y: number, z: number, w: number): number
+    public Dot(array: Float32Array): number
+    public Dot(array: number[]): number
+    public Dot(list: List<number>): number
+    public Dot(vector: Vector2): number
+    public Dot(vector: Vector3): number
+    public Dot(vector: Vector4): number
+    public Dot(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): number
     {
         return Vector4.Dot(this, x, y, z, w)
     }
     
-    Unit(): Vector4
+    public Unit(): Vector4
     {
         return Vector4.Unit(this)
     }
 
-    toString(): string
+    public toString(): string
     {
         return `<${this.W}, ${this.X}, ${this.Y}, ${this.Z}>`
     }
 
-    toLocaleString(): string
+    public toLocaleString(): string
     {
         return this.toString()
     }    
     
-    Clone(): Vector4
+    public Clone(): Vector4
     {
         return new Vector4(this)
     }
     //#endregion
 
     //#region Static Methods
-    static Set(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public static Set(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -179,41 +174,41 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         return vector;
     }
 
-    static Sum(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public static Sum(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
         return Vector4.Set(vector, vector.W + w, vector.X + x, vector.Y + y, vector.Z + z);
     }
 
-    static Diff(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public static Diff(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
         return Vector4.Set(vector, vector.W - w, vector.X - x, vector.Y - y, vector.Z - z);
     }
 
-    static Mult(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
+    public static Mult(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
         return Vector4.Set(vector, vector.W * w, vector.X * x, vector.Y * y, vector.Z * z);
     }
     
-    static Scale(vector: Vector4, scaler: number): Vector4
+    public static Scale(vector: Vector4, scaler: number): Vector4
     {
 
         return Vector4.Mult(vector, scaler, scaler, scaler, scaler);
     }
 
-    static Dot(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): number
+    public static Dot(vector: Vector4, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): number
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
         return vector.W * w + vector.X * x + vector.Y * y + vector.Z * z;
     }
 
-    static Unit(vector: Vector4): Vector4
+    public static Unit(vector: Vector4): Vector4
     {   
         let length = vector.Length;
 
@@ -225,36 +220,36 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         return vector
     }
 
-    static Length(w?: Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number): number
+    public static Length(w?: Vector4 | Float32Array | Array<number> | List<number> | number, x?: number, y?: number, z?: number): number
     {
         if (w instanceof Vector4 || w instanceof Float32Array || w instanceof Array || w instanceof List)
         {
             [ w, x, y, z ] = w
         }
 
-        return Maths.CleanFloat(Math.sqrt(w ** 2 + x ** 2 + y ** 2 + z ** 2))
+        return Math.clean(Math.sqrt(w ** 2 + x ** 2 + y ** 2 + z ** 2))
     }
     //#endregion
     
     //#region Static Properties
-    static get ZERO(): Vector4
+    public static get ZERO(): Vector4
     {
         return new Vector4(0, 0, 0, 0)
     }
     
-    static get ONE(): Vector4
+    public static get ONE(): Vector4
     {
         return new Vector4(1, 1, 1, 1)
     }
     
-    static get UNIT(): Vector4
+    public static get UNIT(): Vector4
     {
-        return new Vector4(1/2, 1/2, 1/2, 1/2)
+        return new Vector4(0.5, 0.5, 0.5, 0.5)
     }
     //#endregion    
 
     //#region Static Helpers
-    private static Destructure(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): Vector4Tuple
+    private static Destructure(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number, w?: number): number[]
     {
         if (x instanceof Vector2)
         {

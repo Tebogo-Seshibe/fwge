@@ -4,11 +4,7 @@ import Item from '../Item';
 import Vector3 from "../Maths/Vector3";
 import List from '../Utility/List';
 import Time from '../Utility/Time';
-import AnimationFrame, {
-    IAnimationFrame,
-    Vector3Frame,
-    Vector4Frame
-} from './AnimationFrame';
+import AnimationFrame, { IAnimationFrame } from './AnimationFrame';
 
 export let Animations: Animation[] = []
 
@@ -25,7 +21,7 @@ export default class Animation extends Item implements Updateable
     public Frames: AnimationFrame[]
     public GameObject: GameObject
     public Length: number
-    public Loop: boolean
+    public Loop: boolean = false
 
     private FrameTime: number
     private MaxFrameTime: number
@@ -33,7 +29,7 @@ export default class Animation extends Item implements Updateable
 
     constructor()
     constructor(animation: IAnimation)
-    constructor({ name = 'Animation', gameObject, frames, loop = false }: IAnimation = new IAnimation)
+    constructor({ name = 'Animation', gameObject, frames, loop }: IAnimation = new IAnimation)
     {
         super(name)
         
@@ -55,26 +51,26 @@ export default class Animation extends Item implements Updateable
                 : array[index + 1]
 
             let offset = current.time * 1000
-            let colour: Vector4Frame = [
+            let colour: number[] = [
                 (next.colour[0] - current.colour[0]) / offset,
                 (next.colour[1] - current.colour[1]) / offset,
                 (next.colour[2] - current.colour[2]) / offset,
                 (next.colour[3] - current.colour[3]) / offset
             ]
 
-            let position: Vector3Frame = [
+            let position: number[] = [
                 (next.position[0] - current.position[0]) / offset,
                 (next.position[1] - current.position[1]) / offset,
                 (next.position[2] - current.position[2]) / offset
             ]
 
-            let rotation: Vector3Frame = [
+            let rotation: number[] = [
                 (next.rotation[0] - current.rotation[0]) / offset,
                 (next.rotation[1] - current.rotation[1]) / offset,
                 (next.rotation[2] - current.rotation[2]) / offset
             ]
 
-            let scale: Vector3Frame = [
+            let scale: number[] = [
                 (next.scale[0] - current.scale[0]) / offset,
                 (next.scale[1] - current.scale[1]) / offset,
                 (next.scale[2] - current.scale[2]) / offset

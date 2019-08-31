@@ -13,9 +13,9 @@ export class IPhysicsItem
 
 export default class PhysicsItem extends Item
 {
+    public Body: PhysicsBody
     public Collider: Collider
     public Material: PhysicsMaterial
-    public Body: PhysicsBody
     
     constructor()
     constructor(physicsItem: IPhysicsItem)

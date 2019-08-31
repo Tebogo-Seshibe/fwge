@@ -1,7 +1,7 @@
-import FWGE from '../FWGE';
 import Item from '../Item';
-import Maths from '../Maths/Maths';
+import '../Maths/Maths';
 import Shader from '../Shader/Shader';
+import { GL } from '../Utility/Control';
 import Colour4 from './Colour4';
 
 export enum ImageMapType
@@ -14,9 +14,9 @@ export enum ImageMapType
 export class IRenderMaterial
 {
     name?: string
-    ambient?: Colour4 | Array<number>
-    diffuse?: Colour4 | Array<number>
-    specular?: Colour4 | Array<number>
+    ambient?: Colour4 | Float32Array | number[]
+    diffuse?: Colour4 | Float32Array | number[]
+    specular?: Colour4 | Float32Array | number[]
     alpha?: number
     shininess?: number
     shader?: Shader
@@ -27,12 +27,12 @@ export class IRenderMaterial
 
 export default class RenderMaterial extends Item
 {
-    public Ambient: Colour4
-    public Diffuse: Colour4
-    public Specular: Colour4
+    public Ambient: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
+    public Diffuse: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
+    public Specular: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
 
-    public Alpha: number
-    public Shininess: number
+    public Alpha: number = 1
+    public Shininess: number = 5
 
     public ImageMap: WebGLTexture
     public BumpMap: WebGLTexture
@@ -42,16 +42,34 @@ export default class RenderMaterial extends Item
 
     constructor()
     constructor(renderMaterial: IRenderMaterial)
-    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.00], diffuse = [0.75, 0.75, 0.75, 1.00], specular = [1.00, 1.00, 1.00, 1.00], alpha = 1, shininess = 5, shader, imagemap }: IRenderMaterial = new IRenderMaterial)
+    constructor({ name = 'Render Material', ambient, diffuse, specular, alpha, shininess, shader, imagemap }: IRenderMaterial = new IRenderMaterial)
     {
         super(name)
 
-        this.Ambient = new Colour4(ambient)
-        this.Diffuse = new Colour4(diffuse)
-        this.Specular = new Colour4(specular)
+        if (ambient)
+        {
+            this.Ambient = new Colour4(ambient as number[])
+        }
 
-        this.Alpha = alpha
-        this.Shininess = shininess
+        if (diffuse)
+        {
+            this.Diffuse = new Colour4(diffuse as number[])
+        }
+
+        if (specular)
+        {
+            this.Specular = new Colour4(specular as number[])
+        }
+        
+        if (alpha)
+        {
+            this.Alpha = alpha
+        }
+
+        if (shininess)
+        {
+            this.Shininess = shininess
+        }
 
         this.Shader = shader
 
@@ -61,7 +79,7 @@ export default class RenderMaterial extends Item
         }
     }
 
-    static ApplyImage(material: RenderMaterial, src: string, type: ImageMapType): void
+    public static ApplyImage(material: RenderMaterial, src: string, type: ImageMapType): void
     {
         let img: HTMLImageElement = new Image()
         let texture: WebGLTexture = null
@@ -69,48 +87,48 @@ export default class RenderMaterial extends Item
         switch(type)
         {
             case ImageMapType.TEXTURE:
-                material.ImageMap = FWGE.GL.createTexture();
+                material.ImageMap = GL.createTexture();
                 texture = material.ImageMap;
             break;
 
             case ImageMapType.BUMP:
-                material.BumpMap = FWGE.GL.createTexture();
+                material.BumpMap = GL.createTexture();
                 texture = material.BumpMap;
             break;
 
             case ImageMapType.SPECULAR:
-                material.SpecularMap = FWGE.GL.createTexture();
+                material.SpecularMap = GL.createTexture();
                 texture = material.SpecularMap;
             break;
 
             default: texture = null;
         }
 
-        FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-        FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, 1, 1, 0, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+        GL.bindTexture(GL.TEXTURE_2D, texture);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
 
         img.onload = function()
         {
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, texture);
-            FWGE.GL.texImage2D(FWGE.GL.TEXTURE_2D, 0, FWGE.GL.RGBA, FWGE.GL.RGBA, FWGE.GL.UNSIGNED_BYTE, img);
+            GL.bindTexture(GL.TEXTURE_2D, texture);
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
 
             // then either generate mips if the image uses power-of-2 dimensions or 
             // set the filtering correctly for non-power-of-2 images.
-            if (Maths.IsPowerOf2(img.width) && Maths.IsPowerOf2(img.height))
+            if (Math.isPowerOf2(img.width) && Math.isPowerOf2(img.height))
             {
-                FWGE.GL.generateMipmap(FWGE.GL.TEXTURE_2D);
-                FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MAG_FILTER, FWGE.GL.LINEAR);
-                FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR_MIPMAP_NEAREST);
+                GL.generateMipmap(GL.TEXTURE_2D);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
             }
             else
             {
-                FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_S, FWGE.GL.CLAMP_TO_EDGE);
-                FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_WRAP_T, FWGE.GL.CLAMP_TO_EDGE);
-                FWGE.GL.texParameteri(FWGE.GL.TEXTURE_2D, FWGE.GL.TEXTURE_MIN_FILTER, FWGE.GL.LINEAR);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
             }
 
-            //FWGE.GL.pixelStorei(FWGE.GL.UNPACK_FLIP_Y_WEBGL, true);                
-            FWGE.GL.bindTexture(FWGE.GL.TEXTURE_2D, null);
+            //GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);                
+            GL.bindTexture(GL.TEXTURE_2D, null);
         }
 
         img.src = src

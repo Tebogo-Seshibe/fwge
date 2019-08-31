@@ -84,7 +84,7 @@ export default class List<T> implements Iterable<T>
         }
     }
 
-    get Count(): number
+    public get Count(): number
     {
         let node: ListNode<T> = this.head
         let count: number = 0
@@ -98,9 +98,9 @@ export default class List<T> implements Iterable<T>
         return count
     }
 
-    Add(value: T): boolean
-    Add(value: T, index: number): boolean
-    Add(value: T, index?: number): boolean
+    public Add(value: T): boolean
+    public Add(value: T, index: number): boolean
+    public Add(value: T, index?: number): boolean
     {
         if (!this.head)
         {
@@ -131,7 +131,7 @@ export default class List<T> implements Iterable<T>
         return true
     }
 
-    AddMany(...values: T[]): void
+    public AddMany(...values: T[]): void
     {
         for (let value of values)
         {
@@ -139,14 +139,14 @@ export default class List<T> implements Iterable<T>
         }
     }
 
-    AddRange(values: T[]): void
-    AddRange(values: List<T>): void
-    AddRange(values: T[] | List<T>): void
+    public AddRange(values: T[]): void
+    public AddRange(values: List<T>): void
+    public AddRange(values: T[] | List<T>): void
     {
         this.AddMany(...values)
     }
 
-    Get(index: number): T
+    public Get(index: number): T
     {
         if (index < 0 || index > this.Count)
         {
@@ -163,12 +163,12 @@ export default class List<T> implements Iterable<T>
         return !node ? undefined : node.Value
     }
 
-    Contains(value: T): boolean
+    public Contains(value: T): boolean
     {
         return this.IndexOf(value) !== -1
     }
 
-    IndexOf(value: T): number
+    public IndexOf(value: T): number
     {
         let index = 0
 
@@ -180,9 +180,9 @@ export default class List<T> implements Iterable<T>
         return index === this.Count ? -1 : index
     }
 
-    Remove(value: T): boolean
-    Remove(value: T, index: number): boolean
-    Remove(value: T, index?: number): boolean
+    public Remove(value: T): boolean
+    public Remove(value: T, index: number): boolean
+    public Remove(value: T, index?: number): boolean
     {
         let node: ListNode<T> = this.head
         let found = false
@@ -213,7 +213,7 @@ export default class List<T> implements Iterable<T>
         return true
     }
 
-    RemoveMany(...values: T[]): void
+    public RemoveMany(...values: T[]): void
     {
         for (let value of values)
         {
@@ -221,14 +221,14 @@ export default class List<T> implements Iterable<T>
         }
     }
 
-    RemoveRange(values: T[]): void
-    RemoveRange(values: List<T>): void
-    RemoveRange(values: T[] | List<T>): void
+    public RemoveRange(values: T[]): void
+    public RemoveRange(values: List<T>): void
+    public RemoveRange(values: T[] | List<T>): void
     {
         this.RemoveMany(...values)
     }    
 
-    ToArray(): T[]
+    public ToArray(): T[]
     {
         let array: T[] = new Array<T>()
 
@@ -240,7 +240,7 @@ export default class List<T> implements Iterable<T>
         return array
     }
 
-    toString(): string
+    public toString(): string
     {
         let count = this.Count
 

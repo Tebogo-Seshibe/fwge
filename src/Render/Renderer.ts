@@ -1,5 +1,4 @@
 import Camera from '../Camera/Camera';
-import { GL } from '../FWGE';
 import GameObject, { GameObjects } from '../GameObject';
 import AmbientLight, { AmbientLights } from '../Light/AmbientLight';
 import DirectionalLight, { DirectionalLights } from '../Light/DirectionalLight';
@@ -7,10 +6,11 @@ import LightItem from '../Light/LightItem';
 import PointLight, { PointLights } from '../Light/PointLight';
 import Matrix3 from '../Maths/Matrix3';
 import Matrix4 from '../Maths/Matrix4';
-import ParticleSystem, { ParticleSystems } from '../ParticleSystem';
+import ParticleSystem, { ParticleSystems } from '../Particle System/ParticleSystem';
 import ShaderAttributes from '../Shader/Instance/ShaderAttributes';
 import ShaderUniforms from '../Shader/Instance/ShaderUniforms';
 import Shader, { Shaders } from '../Shader/Shader';
+import { GL } from '../Utility/Control';
 import List from '../Utility/List';
 import Mesh from './Mesh';
 import ModelView from './ModelView';

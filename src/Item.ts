@@ -1,15 +1,3 @@
-export default class Item
-{
-    public readonly ID: number
-    public Name: string
-
-    constructor(name = 'Item')
-    {
-        this.ID = Hashcode(ID_COUNTER++)
-        this.Name = name
-    }
-}
-
 let ID_COUNTER: number = 0
 
 function Hashcode(number: number): number
@@ -28,3 +16,16 @@ function Hashcode(number: number): number
 
     return hash
 }
+
+export default class Item
+{
+    public readonly ID: number
+    public Name: string
+
+    constructor(name = 'Item')
+    {
+        this.ID = Hashcode(ID_COUNTER++)
+        this.Name = name
+    }
+}
+

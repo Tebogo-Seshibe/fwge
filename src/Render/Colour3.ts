@@ -1,39 +1,39 @@
-import Maths from '../Maths/Maths';
+import '../Maths/Maths';
 import Colour4 from './Colour4';
 
 export default class Colour3 extends Float32Array
 {    
-    get R(): number
+    public get R(): number
     {
         return this[0]
     }
 
-    set R(red: number)
+    public set R(red: number)
     {
-        this[0] = Maths.CleanFloat(Maths.Clamp(red, 0, 1))
+        this[0] = Math.clean(Math.clamp(red, 0, 1))
     }
         
-    get G(): number
+    public get G(): number
     {
         return this[1]
     }
 
-    set G(green: number)
+    public set G(green: number)
     {
-        this[1] = Maths.CleanFloat(Maths.Clamp(green, 0, 1))
+        this[1] = Math.clean(Math.clamp(green, 0, 1))
     }
         
-    get B(): number
+    public get B(): number
     {
         return this[2]
     }
 
-    set B(blue: number)
+    public set B(blue: number)
     {
-        this[2] = Maths.CleanFloat(Maths.Clamp(blue, 0, 1))
+        this[2] = Math.clean(Math.clamp(blue, 0, 1))
     }
 
-    get BIN(): string
+    public get BIN(): string
     {
         let str = 'b'
         this.forEach(i => str += Math.round(i * 255).toString(2))
@@ -41,7 +41,7 @@ export default class Colour3 extends Float32Array
         return str
     }
 
-    get OCT(): string
+    public get OCT(): string
     {
         let str = 'o'
         this.forEach(i => str += Math.round(i * 255).toString(8))
@@ -49,7 +49,7 @@ export default class Colour3 extends Float32Array
         return str
     }
 
-    get DEC(): string
+    public get DEC(): string
     {
         let str = ''
         this.forEach(i => str += i.toString(10) + ',')
@@ -57,7 +57,7 @@ export default class Colour3 extends Float32Array
         return str.substring(0, str.length - 1)
     }
 
-    get HEX(): string
+    public get HEX(): string
     {
         let str = '#' 
         this.forEach(i => str += Math.round(i * 255).toString(16))
@@ -67,22 +67,34 @@ export default class Colour3 extends Float32Array
 
     
     constructor()
-    constructor(hex: string)
-    constructor(colour: Colour3 | Colour4 | Float32Array | number[])
     constructor(r: number, g: number, b: number)
-    constructor(r?: Colour4 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number)
+    constructor(hex: string)
+    constructor(colour: Colour3)
+    constructor(colour: Colour4)
+    constructor(array: Float32Array)
+    constructor(array: number[])
+    constructor(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number)
     {
         super(3)
 
-        this.Set(r, g, b)
+        if (r)
+        {
+            Colour3.Set(this, r, g, b)
+        }
     }
-
-    Set(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number): Colour3
+    
+    public Set(r: number, g: number, b: number): Colour3
+    public Set(hex: string): Colour3
+    public Set(colour: Colour3): Colour3
+    public Set(colour: Colour4): Colour3
+    public Set(array: Float32Array): Colour3
+    public Set(array: number[]): Colour3
+    public Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number): Colour3
     {
         return Colour3.Set(this, r, b, g)
     }
 
-    static Set(colour: Colour3, r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number): Colour3
+    public static Set(colour: Colour3, r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number): Colour3
     {
         [ r, g, b ] = Colour3.Deconstruct(r, g, b)
 
@@ -93,7 +105,7 @@ export default class Colour3 extends Float32Array
         return colour
     }
 
-    private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): [ number, number, number ]
+    private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
     {
         if (typeof r === 'string')
         {

@@ -19,7 +19,7 @@ export default class Stack<T>
 		this.head = undefined
 	}
 
-	Push(value: T): void
+	public Push(value: T): void
 	{
 		if (!this.head)
 		{
@@ -32,7 +32,7 @@ export default class Stack<T>
 		}
 	}
 
-	Peek(): T
+	public Peek(): T
 	{
 		if (!this.head)
 		{
@@ -42,7 +42,7 @@ export default class Stack<T>
 		return this.head.Value
 	}
 
-	Pop(): T
+	public Pop(): T
 	{
 		if (!this.head)
 		{
@@ -53,5 +53,41 @@ export default class Stack<T>
 		this.head = this.head.Predecessor
 
 		return oldHead.Value
+	}
+
+	public Height(): number
+	{
+		let height: number = 0
+
+		let curr: StackNode<T> = this.head
+
+		while (curr)
+		{
+			++height
+			curr = curr.Predecessor
+		}
+
+		return height
+	}
+
+	public toString(): string
+	{
+		
+		if (!this.head)
+		{
+			return '[]'
+		}
+		
+		let curr: StackNode<T> = this.head.Predecessor
+		let str: string = '[' + this.head.Value
+
+		while (curr)
+		{
+			str += ', ' + curr.Value
+			curr = curr.Predecessor
+		}
+		str += ']'
+
+		return str
 	}
 }

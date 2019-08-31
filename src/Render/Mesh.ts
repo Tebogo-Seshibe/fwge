@@ -1,9 +1,9 @@
-import FWGE from '../FWGE';
 import Item from '../Item';
 import Vector2 from '../Maths/Vector2';
 import Vector3 from '../Maths/Vector3';
 import Vector4 from '../Maths/Vector4';
 import ArrayUtiils from '../Utility/ArrayUtils';
+import { GL } from '../Utility/Control';
 
 export enum BufferType
 {
@@ -51,12 +51,12 @@ export default class Mesh extends Item
             wireframe = undefined
         }
 
-        this.PositionBuffer = this.Bind(FWGE.GL, BufferType.POSITION, position)
-        this.UVBuffer = this.Bind(FWGE.GL, BufferType.POSITION, uv)
-        this.ColourBuffer = this.Bind(FWGE.GL, BufferType.POSITION, colour)
-        this.NormalBuffer = this.Bind(FWGE.GL, BufferType.POSITION, normal)
-        this.IndexBuffer = this.Bind(FWGE.GL, BufferType.INDEX, index)
-        this.WireframeBuffer = this.Bind(FWGE.GL, BufferType.INDEX, wireframe)
+        this.PositionBuffer = this.Bind(GL, BufferType.POSITION, position)
+        this.UVBuffer = this.Bind(GL, BufferType.POSITION, uv)
+        this.ColourBuffer = this.Bind(GL, BufferType.POSITION, colour)
+        this.NormalBuffer = this.Bind(GL, BufferType.POSITION, normal)
+        this.IndexBuffer = this.Bind(GL, BufferType.INDEX, index)
+        this.WireframeBuffer = this.Bind(GL, BufferType.INDEX, wireframe)
 
         this.VertexCount = index.length
     }

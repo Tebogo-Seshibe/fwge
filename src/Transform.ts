@@ -11,51 +11,66 @@ export class ITransform
 export default class Transform
 {
     //#region Public Properties
-    public Position: Vector3
-    public Rotation: Vector3
-    public Scale: Vector3
-    public Shear: Vector3
+    public Position: Vector3 = Vector3.ZERO
+    public Rotation: Vector3 = Vector3.ZERO
+    public Scale: Vector3 = Vector3.ONE
+    public Shear: Vector3 = Vector3.ZERO
     //#endregion
 
     //#region Public Methods
     constructor()
     constructor(transform: ITransform)
-    constructor({ position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = new ITransform)
+    constructor({ position, rotation, scale, shear }: ITransform = new ITransform)
     {
-        this.Position = new Vector3(position as number[])
-        this.Rotation = new Vector3(rotation as number[])
-        this.Scale = new Vector3(scale as number[])
-        this.Shear = new Vector3(shear as number[])
+        if (position) 
+        {
+            this.Position = new Vector3(position as number[])
+        }
+
+        if (rotation) 
+        {
+            this.Rotation = new Vector3(rotation as number[])
+        }
+
+        if (scale) 
+        {
+            this.Scale = new Vector3(scale as number[])
+        }
+
+        if (shear) 
+        {
+            this.Shear = new Vector3(shear as number[])
+        }
     }
     //#endregion
 
     //#region Static Properties
-    static get UP(): Vector3
+    public static get UP(): Vector3
     {
         return new Vector3(0, 1, 0)
     }
 
-    static get DOWN(): Vector3
+    public static get DOWN(): Vector3
     {
         return new Vector3(0, -1, 0)
     }
 
-    static get FORWARD(): Vector3
+    public static get FORWARD(): Vector3
     {
         return new Vector3(0, 0, 1)
     }
 
-    static get BACKWARD(): Vector3
+    public static get BACKWARD(): Vector3
     {
         return new Vector3(0, 0, -1)
     }
 
-    static get RIGHT(): Vector3
+    public static get RIGHT(): Vector3
     {
         return new Vector3(1, 0, 0)
     }
 
-    static get LEFT(): Vector3
+    public static get LEFT(): Vector3
     {
         return new Vector3(-1, 0, 0)
     }

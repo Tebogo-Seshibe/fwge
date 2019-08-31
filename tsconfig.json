@@ -15,8 +15,7 @@
 		"downlevelIteration": true
 	},
 	"include": [
-		"src",
-		"app"
+		"src"
 	],
 	"compilerOnSave": true
 }

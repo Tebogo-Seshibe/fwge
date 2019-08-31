@@ -10,7 +10,7 @@ import Converter from './Converter';
 
 export default class OBJConverter implements Converter
 {
-    static Parse(obj: string, mtl: string): GameObject
+    public static Parse(obj: string, mtl: string): GameObject
     {
         return new GameObject(
         {
@@ -19,7 +19,7 @@ export default class OBJConverter implements Converter
         })
     }    
 
-    static ParseMesh(obj: string): Mesh
+    public static ParseMesh(obj: string): Mesh
     {
         let lines: string[] = obj.split('\n')
         
@@ -31,7 +31,13 @@ export default class OBJConverter implements Converter
         let wireframe_offset: number = 0
 
         let {
-            name, position, normal, uv, colour, index, wireframe
+            name,
+            position,
+            normal,
+            uv,
+            colour,
+            index,
+            wireframe
         }: IMesh = {
             position: new Array<Vector3>(),
             normal: new Array<Vector3>(),
@@ -113,7 +119,7 @@ export default class OBJConverter implements Converter
         return new Mesh({ name, position, normal, uv, colour, index, wireframe })
     }
             
-    static ParseRenderMaterial(mtl: string): RenderMaterial
+    public static ParseRenderMaterial(mtl: string): RenderMaterial
     {
         let lines: string[] = mtl.split('\n')
         let {
