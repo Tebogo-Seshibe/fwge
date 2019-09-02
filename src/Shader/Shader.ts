@@ -18,6 +18,9 @@ export default class Shader extends Item
     public readonly Attributes: ShaderAttributes
     public readonly Uniforms: ShaderUniforms
 
+    public readonly VertexShader: string
+    public readonly FragmentShader: string
+
     public Program: WebGLProgram
     public Texture: WebGLTexture
     public FrameBuffer: WebGLBuffer
@@ -38,6 +41,9 @@ export default class Shader extends Item
         this.Height = height
         this.Width = width
         
+        this.VertexShader = vertexshader
+        this.FragmentShader = fragmentshader
+
         Shader.Init(this, GL, vertexshader, fragmentshader)
 
         this.Attributes = new ShaderAttributes(GL, this.Program)

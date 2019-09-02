@@ -62,7 +62,7 @@ export default class Colour4 extends Float32Array
     public get DEC(): string
     {
         let str = ''
-        this.forEach(i => str += i.toString(10) + ',')
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
 
         return str.substring(0, str.length - 1)
     }

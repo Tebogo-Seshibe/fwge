@@ -58,23 +58,43 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     {
         super(name)
         
-        this.Transform = transform
+        if (transform)
+        {
+            this.Transform = transform
+        }
+        
         this.Mesh = mesh
         this.Material = material
         this.Physics = physics
         this.Animation = animation
     
-        this.Begin = begin.bind(this)
-        this.Update = update.bind(this)
-        this.End = end.bind(this)
-
-        this.Children = []
-        for (let child of children)
+        if (begin)
         {
-            this.Children.push(child)
+            this.Begin = begin.bind(this)
         }
 
-        this.Visible = visible
+        if (update)
+        {
+            this.Update = update.bind(this)
+        }
+        
+        if (end)
+        {
+            this.End = end.bind(this)
+        }
+
+        if (children)
+        {
+            for (let child of children)
+            {
+                this.Children.push(child)
+            }
+        }
+
+        if (visible !== undefined)
+        {
+            this.Visible = visible
+        }
         
         GameObjects.push(this)
     }

@@ -66,31 +66,37 @@ export default class Control
     private static Run(): void
     {
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
-
-        Time.Update()
-        //Input.Update()
-
-        for (let particleSystem of ParticleSystems)
-        {
-            particleSystem.Update()
-        }
         
-        for (let gameObject of GameObjects)
-        {
-            gameObject.Update()
-        }
-
-        for (let animation of Animations)
-        {
-            animation.Update()
-        }
-        // PhysicsEngine.Update();
-
+        // Time
+        Time.Update()
+        
+        // Input
+        // Events Hanle thiss
+        
+        // Game
         for (let camera of Cameras)
         {
             camera.Update()
         }
 
+        for (let gameObject of GameObjects)
+        {
+            gameObject.Update()
+        }
+        
+        for (let particleSystem of ParticleSystems)
+        {
+            particleSystem.Update()
+        }
+        
+        for (let animation of Animations)
+        {
+            animation.Update()
+        }
+        
+        // PhysicsEngine.Update();
+        
+        // Render
         if (Time.Render.Ready)
         {
             UpdateRender()

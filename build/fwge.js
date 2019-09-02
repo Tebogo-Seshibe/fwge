@@ -14,8 +14,9 @@ class IAnimation {
 }
 exports.IAnimation = IAnimation;
 class Animation extends Item_1.default {
-    constructor({ name = 'Animation', gameObject, frames, loop = false } = new IAnimation) {
+    constructor({ name = 'Animation', gameObject, frames, loop } = new IAnimation) {
         super(name);
+        this.Loop = false;
         if (frames instanceof List_1.default) {
             frames = frames.ToArray();
         }
@@ -125,11 +126,17 @@ exports.default = AnimationFrame;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
 const Vector3_1 = __importDefault(require("../Maths/Vector3"));
-const Control_1 = require("../Utility/Control");
-const Viewer_1 = __importDefault(require("./Viewer"));
+const Viewer_1 = __importStar(require("./Viewer"));
 exports.Cameras = [];
 class ICamera {
 }
@@ -137,7 +144,6 @@ exports.ICamera = ICamera;
 class Camera extends Viewer_1.default {
     constructor({ name = 'Viewer', position, target, up } = new ICamera) {
         super(name);
-        this.Matrix = Matrix4_1.default.IDENTITY;
         this.Position = new Vector3_1.default(0, 0, -10);
         this.Target = new Vector3_1.default(0, 0, 0);
         this.Up = new Vector3_1.default(0, 1, 0);
@@ -152,24 +158,57 @@ class Camera extends Viewer_1.default {
         }
         exports.Cameras.push(this);
     }
-    get ViewMatrix() {
-        return this.Matrix.Clone();
+    get ProjectionMatrix() {
+        switch (this.Mode) {
+            case Viewer_1.ViewMode.PERSPECTIVE:
+                return this.Perspective();
+            case Viewer_1.ViewMode.ORTHOGRAPHIC:
+                return this.Orthographic();
+        }
+    }
+    get LookAtMatrix() {
+        return this.LookAt();
     }
     static get Main() {
         return exports.Cameras[0];
     }
     Update() {
-        this.AspectRatio = Control_1.GL.canvas.clientWidth / Control_1.GL.canvas.clientHeight;
+    }
+    Orthographic() {
+        let theta = Math.cot(Math.radian(this.HorizontalTilt));
+        let phi = Math.cot(Math.radian(this.VericalTilt));
+        let left = this.Left - (this.NearClipping * theta);
+        let right = this.Right - (this.NearClipping * theta);
+        let top = this.Top - this.NearClipping * phi;
+        let bottom = this.Bottom - (this.NearClipping * phi);
+        let far = this.FarClipping;
+        let near = this.NearClipping;
+        return new Matrix4_1.default(2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, theta, phi, -2 / (far - near), 0, -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1);
+    }
+    Perspective() {
+        let far = this.FarClipping;
+        let near = this.NearClipping;
+        let top = near * Math.tan(Math.radian(this.FieldOfView));
+        let right = top * this.AspectRatio;
+        let left = -right;
+        let bottom = -top;
+        let width = right - left;
+        let height = top - bottom;
+        let depth = far - near;
+        return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
+    }
+    LookAt() {
         let n = this.Position.Clone().Diff(this.Target).Unit();
         let u = this.Up.Clone().Cross(n).Unit();
         let v = n.Clone().Cross(u).Unit();
         let p = this.Position;
-        this.Matrix.Set(v.X, v.Y, v.Z, 0.0, u.X, u.Y, u.Z, 0.0, n.X, n.Y, n.Z, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, p.X, p.Y, p.Z, 1.0);
+        return new Matrix4_1.default(v.X, v.Y, v.Z, 0.0, u.X, u.Y, u.Z, 0.0, n.X, n.Y, n.Z, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, p.X, p.Y, p.Z, 1.0);
     }
 }
 exports.default = Camera;
+new Camera();
 
-},{"../Maths/Matrix4":23,"../Maths/Vector3":25,"../Utility/Control":54,"./Viewer":4}],4:[function(require,module,exports){
+},{"../Maths/Matrix4":23,"../Maths/Vector3":25,"./Viewer":4}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -220,19 +259,30 @@ class GameObject extends Item_1.default {
         this.Begin = function () { };
         this.Update = function () { };
         this.End = function () { };
-        this.Transform = transform;
+        if (transform) {
+            this.Transform = transform;
+        }
         this.Mesh = mesh;
         this.Material = material;
         this.Physics = physics;
         this.Animation = animation;
-        this.Begin = begin.bind(this);
-        this.Update = update.bind(this);
-        this.End = end.bind(this);
-        this.Children = [];
-        for (let child of children) {
-            this.Children.push(child);
+        if (begin) {
+            this.Begin = begin.bind(this);
         }
-        this.Visible = visible;
+        if (update) {
+            this.Update = update.bind(this);
+        }
+        if (end) {
+            this.End = end.bind(this);
+        }
+        if (children) {
+            for (let child of children) {
+                this.Children.push(child);
+            }
+        }
+        if (visible !== undefined) {
+            this.Visible = visible;
+        }
         exports.GameObjects.push(this);
     }
     Destroy() {
@@ -2267,7 +2317,7 @@ class Colour3 extends Float32Array {
     }
     get DEC() {
         let str = '';
-        this.forEach(i => str += i.toString(10) + ',');
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',');
         return str.substring(0, str.length - 1);
     }
     get HEX() {
@@ -2291,7 +2341,7 @@ class Colour3 extends Float32Array {
         colour.B = b;
         return colour;
     }
-    static Deconstruct(r, g, b, a) {
+    static Deconstruct(r, g, b) {
         if (typeof r === 'string') {
             if (r.match(/#([0-9A-F]{3}){1,2}/i)) {
                 [r, g, b] = r.substring(1)
@@ -2362,7 +2412,7 @@ class Colour4 extends Float32Array {
     }
     get DEC() {
         let str = '';
-        this.forEach(i => str += i.toString(10) + ',');
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',');
         return str.substring(0, str.length - 1);
     }
     get HEX() {
@@ -3031,6 +3081,8 @@ class Shader extends Item_1.default {
         this.RenderBuffer = Control_1.GL.createRenderbuffer();
         this.Height = height;
         this.Width = width;
+        this.VertexShader = vertexshader;
+        this.FragmentShader = fragmentshader;
         Shader.Init(this, Control_1.GL, vertexshader, fragmentshader);
         this.Attributes = new ShaderAttributes_1.default(Control_1.GL, this.Program);
         this.Uniforms = new ShaderUniforms_1.default(Control_1.GL, this.Program);
@@ -3206,17 +3258,17 @@ class Control {
     static Run() {
         Control.AnimationFrame = window.requestAnimationFrame(Control.Run);
         Time_1.default.Update();
-        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
-            particleSystem.Update();
+        for (let camera of Camera_1.Cameras) {
+            camera.Update();
         }
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
         }
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            particleSystem.Update();
+        }
         for (let animation of Animation_1.Animations) {
             animation.Update();
-        }
-        for (let camera of Camera_1.Cameras) {
-            camera.Update();
         }
         if (Time_1.default.Render.Ready) {
             Renderer_1.UpdateRender();
