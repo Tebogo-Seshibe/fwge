@@ -28,32 +28,32 @@ export class IGameObject
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
-    Transform: Transform = new Transform()
-    Mesh: Mesh
-    Material: RenderMaterial
-    Physics: PhysicsMaterial
-    Animation: Animation
-    Children: GameObject[] = []
-    Visible: boolean = true
-    Begin: GameObjectFunction = function(this: GameObject): void { }
-    Update: GameObjectFunction = function(this: GameObject): void { }
-    End: GameObjectFunction = function(this: GameObject): void { }
+    public Transform: Transform
+    public Mesh: Mesh
+    public Material: RenderMaterial
+    public Physics: PhysicsMaterial
+    public Animation: Animation
+    public Children: GameObject[]
+    public Visible: boolean
+    public Begin: GameObjectFunction
+    public Update: GameObjectFunction
+    public End: GameObjectFunction
 
     constructor()
     constructor(gameObject: IGameObject)
     constructor(
     { 
         name = 'GameObject',
-        transform,
+        transform = new Transform(),
         material,
         mesh,
         physics,
         animation,
-        begin,
-        update,
-        end,
-        children,
-        visible 
+        begin = function(this:GameObject){},
+        update = function(this:GameObject){},
+        end = function(this:GameObject){},
+        children = [],
+        visible = true
     }: IGameObject = new IGameObject)
     {
         super(name)
@@ -79,9 +79,9 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         GameObjects.push(this)
     }
 
-    public Destroy(): void
+    public Destroy(delay: number = 0): void
     {
-
+        setTimeout(() => GameObjects = GameObjects.slice(GameObjects.indexOf(this), 1), delay)
     }
 
     public Clone(): GameObject
