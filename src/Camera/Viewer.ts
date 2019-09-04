@@ -3,7 +3,8 @@ import Item from '../Item';
 export enum ViewMode
 {
     PERSPECTIVE,
-    ORTHOGRAPHIC
+    ORTHOGRAPHIC,
+    LOOKAT
 }
 
 export default class Viewer extends Item

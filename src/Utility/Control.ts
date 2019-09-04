@@ -74,11 +74,6 @@ export default class Control
         // Events Hanle thiss
         
         // Game
-        for (let camera of Cameras)
-        {
-            camera.Update()
-        }
-
         for (let gameObject of GameObjects)
         {
             gameObject.Update()

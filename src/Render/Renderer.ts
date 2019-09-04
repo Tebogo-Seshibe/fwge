@@ -296,7 +296,7 @@ function SetGlobalUniforms(): void
         let main = Camera.Main
 
         GL.uniform1i(uniforms.PointCount, point_count)
-        GL.uniformMatrix4fv(matrix.Projection, false, main.Perspective)
+        GL.uniformMatrix4fv(matrix.Projection, false, main.ProjectionMatrix)
     }
     
     GL.useProgram(null)
