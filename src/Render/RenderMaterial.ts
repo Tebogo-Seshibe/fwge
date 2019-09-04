@@ -7,7 +7,7 @@ import Colour4 from './Colour4';
 export enum ImageMapType
 {
     TEXTURE,
-    BUMP,
+    NORMAL,
     SPECULAR
 }
 
@@ -19,7 +19,7 @@ export class IRenderMaterial
     specular?: Colour4 | Float32Array | number[]
     alpha?: number
     shininess?: number
-    shader?: Shader
+    shader: Shader
     imagemap?: string
     normalmap?: string
     specularmap?: string
@@ -27,12 +27,12 @@ export class IRenderMaterial
 
 export default class RenderMaterial extends Item
 {
-    public Ambient: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
-    public Diffuse: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
-    public Specular: Colour4 = new Colour4(0.5, 0.5, 0.5, 1.0)
+    public Ambient: Colour4
+    public Diffuse: Colour4
+    public Specular: Colour4
 
-    public Alpha: number = 1
-    public Shininess: number = 5
+    public Alpha: number
+    public Shininess: number
 
     public ImageMap: WebGLTexture
     public BumpMap: WebGLTexture
@@ -42,41 +42,32 @@ export default class RenderMaterial extends Item
 
     constructor()
     constructor(renderMaterial: IRenderMaterial)
-    constructor({ name = 'Render Material', ambient, diffuse, specular, alpha, shininess, shader, imagemap }: IRenderMaterial = new IRenderMaterial)
+    constructor(
+    {
+        name = 'Render Material',
+        ambient = [0.5, 0.5, 0.5, 1.0],
+        diffuse = [0.5, 0.5, 0.5, 1.0],
+        specular = [0.5, 0.5, 0.5, 1.0],
+        alpha = 1.0,
+        shininess = 32.0,
+        shader,
+        imagemap, normalmap, specularmap
+    }: IRenderMaterial = new IRenderMaterial)
     {
         super(name)
 
-        if (ambient)
-        {
-            this.Ambient = new Colour4(ambient as number[])
-        }
+        this.Ambient = new Colour4(ambient as number[])
+        this.Diffuse = new Colour4(diffuse as number[])
+        this.Specular = new Colour4(specular as number[])
 
-        if (diffuse)
-        {
-            this.Diffuse = new Colour4(diffuse as number[])
-        }
-
-        if (specular)
-        {
-            this.Specular = new Colour4(specular as number[])
-        }
-        
-        if (alpha)
-        {
-            this.Alpha = alpha
-        }
-
-        if (shininess)
-        {
-            this.Shininess = shininess
-        }
+        this.Alpha = alpha
+        this.Shininess = shininess
 
         this.Shader = shader
 
-        if (imagemap)
-        {
-            RenderMaterial.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
-        }
+        if (imagemap) RenderMaterial.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
+        if (normalmap) RenderMaterial.ApplyImage(this, normalmap, ImageMapType.NORMAL)
+        if (specularmap) RenderMaterial.ApplyImage(this, specularmap, ImageMapType.SPECULAR)
     }
 
     public static ApplyImage(material: RenderMaterial, src: string, type: ImageMapType): void
@@ -84,14 +75,14 @@ export default class RenderMaterial extends Item
         let img: HTMLImageElement = new Image()
         let texture: WebGLTexture = null
 
-        switch(type)
+        switch (type)
         {
             case ImageMapType.TEXTURE:
                 material.ImageMap = GL.createTexture();
                 texture = material.ImageMap;
             break;
 
-            case ImageMapType.BUMP:
+            case ImageMapType.NORMAL:
                 material.BumpMap = GL.createTexture();
                 texture = material.BumpMap;
             break;

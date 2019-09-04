@@ -14,7 +14,6 @@ import { GL } from '../Utility/Control';
 import List from '../Utility/List';
 import Mesh from './Mesh';
 import ModelView from './ModelView';
-import Projection from './Projection';
 import RenderMaterial from './RenderMaterial';
 
 type Renderable = 
@@ -297,7 +296,7 @@ function SetGlobalUniforms(): void
         let main = Camera.Main
 
         GL.uniform1i(uniforms.PointCount, point_count)
-        GL.uniformMatrix4fv(matrix.Projection, false, Projection.Perspective(main.FieldOfView, main.AspectRatio, main.NearClipping, main.FarClipping))
+        GL.uniformMatrix4fv(matrix.Projection, false, main.Perspective)
     }
     
     GL.useProgram(null)

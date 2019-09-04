@@ -134,7 +134,6 @@ window.FWGE.PhysicsMaterial = require('./Physics/PhysicsMaterial').default
 // Render
 window.FWGE.Colour4 = require('./Render/Colour4').default
 window.FWGE.Mesh = require('./Render/Mesh').default
-window.FWGE.Projection = require('./Render/Projection').default
 window.FWGE.ModelView = require('./Render/ModelView').default
 window.FWGE.RenderMaterial = require('./Render/RenderMaterial').default
 

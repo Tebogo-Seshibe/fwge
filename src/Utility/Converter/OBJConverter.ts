@@ -169,6 +169,6 @@ export default class OBJConverter implements Converter
             }
         }
 
-        return new RenderMaterial({ name, shininess, ambient, diffuse, specular, alpha, imagemap })
+        return new RenderMaterial({ name, shininess, ambient, diffuse, specular, alpha, imagemap, shader: null })
     }
 }

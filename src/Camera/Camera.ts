@@ -1,7 +1,6 @@
 import Updateable from '../Interfaces/Updateable';
 import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
-import { GL } from '../Utility/Control';
 import Viewer, { ViewMode } from './Viewer';
 
 export let Cameras: Camera[] = []
@@ -25,16 +24,76 @@ export default class Camera extends Viewer implements Updateable
         switch (this.Mode)
         {
             case ViewMode.PERSPECTIVE:
-                return this.Perspective()
+                return this.Perspective
 
             case ViewMode.ORTHOGRAPHIC:
-                return this.Orthographic()
+                return this.Orthographic
         }
     }
-    
-    public get LookAtMatrix(): Matrix4
+
+    public get LookAt(): Matrix4
     {
-        return this.LookAt()
+        let n = this.Position.Clone().Diff(this.Target).Unit()
+        let u = this.Up.Clone().Cross(n).Unit()
+        let v = n.Clone().Cross(u).Unit()
+        let p = this.Position
+
+        return new Matrix4(
+            v.X, v.Y, v.Z, 0.0,
+            u.X, u.Y, u.Z, 0.0,
+            n.X, n.Y, n.Z, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        ).Mult(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            p.X, p.Y, p.Z, 1.0
+        )
+    }
+
+    public get Orthographic(): Matrix4
+    {
+        let near: number = this.NearClipping
+        let far: number = this.FarClipping
+
+        let theta: number = Math.cot(Math.radian(this.HorizontalTilt))
+        let phi: number = Math.cot(Math.radian(this.VericalTilt))
+
+        let left: number = this.Left - (near * theta)
+        let right: number = this.Right - (near * theta)
+        let top: number = this.Top - (near * phi)
+        let bottom: number = this.Bottom - (near * phi)
+
+        return new Matrix4
+        (
+                          2 / (right - left),                                0,                            0, 0,
+                                           0,               2 / (top - bottom),                            0, 0,
+                                       theta,                              phi,            -2 / (far - near), 0,
+            -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
+        )
+    }
+    
+    public get Perspective(): Matrix4
+    {
+        let near: number = this.NearClipping
+        let far: number = this.FarClipping
+
+        let top: number = near * Math.tan(Math.radian(this.FieldOfView))
+        let right: number = top * this.AspectRatio
+        
+        let left: number = -right
+        let bottom: number = -top
+        let width: number = right - left
+        let height: number = top - bottom
+        let depth: number = far - near
+
+        return new Matrix4
+        (
+                  2 * near / width,                       0,                         0,  0,
+                                 0,       2 * near / height,                         0,  0,
+            (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
+                                 0,                       0, -(2 * far * near) / depth,  1
+        )
     }
 
     public static get Main()
@@ -68,73 +127,6 @@ export default class Camera extends Viewer implements Updateable
 
     public Update(): void
     {
-        
-    }
-
-    //#region Helper Methods
-    private Orthographic(): Matrix4
-    {
-        let theta: number = Math.cot(Math.radian(this.HorizontalTilt))
-        let phi: number = Math.cot(Math.radian(this.VericalTilt))
-
-        let left: number = this.Left - (this.NearClipping * theta)
-        let right: number = this.Right - (this.NearClipping * theta)
-        let top: number = this.Top - this.NearClipping * phi
-        let bottom: number = this.Bottom - (this.NearClipping * phi)
-
-        let far: number = this.FarClipping
-        let near: number = this.NearClipping
-
-        return new Matrix4
-        (
-                          2 / (right - left),                                0,                            0, 0,
-                                           0,               2 / (top - bottom),                            0, 0,
-                                       theta,                              phi,            -2 / (far - near), 0,
-            -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
-        )
-    }
-    
-    private Perspective(): Matrix4
-    {
-        let far: number = this.FarClipping
-        let near: number = this.NearClipping
-
-        let top: number = near * Math.tan(Math.radian(this.FieldOfView))
-        let right: number = top * this.AspectRatio
-
-        let left: number = -right
-        let bottom: number = -top
-        let width: number = right - left
-        let height: number = top - bottom
-        let depth: number = far - near
-
-        return new Matrix4
-        (
-                  2 * near / width,                       0,                         0,  0,
-                                 0,       2 * near / height,                         0,  0,
-            (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
-                                 0,                       0, -(2 * far * near) / depth,  1
-        )
-    }
-
-    private LookAt(): Matrix4
-    {   
-        let n = this.Position.Clone().Diff(this.Target).Unit()
-        let u = this.Up.Clone().Cross(n).Unit()
-        let v = n.Clone().Cross(u).Unit()
-        let p = this.Position
-
-        return new Matrix4(
-            v.X, v.Y, v.Z, 0.0,
-            u.X, u.Y, u.Z, 0.0,
-            n.X, n.Y, n.Z, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        ).Mult(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            p.X, p.Y, p.Z, 1.0
-        )
     }
     //#endregion
 }
