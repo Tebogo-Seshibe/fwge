@@ -2999,7 +2999,7 @@ class IShader {
 exports.IShader = IShader;
 exports.Shaders = new Array();
 class Shader extends Item_1.default {
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader } = new IShader) {
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment } = new IShader) {
         super(name);
         this.Program = Control_1.GL.createProgram();
         this.Texture = Control_1.GL.createTexture();
@@ -3007,9 +3007,11 @@ class Shader extends Item_1.default {
         this.RenderBuffer = Control_1.GL.createRenderbuffer();
         this.Height = height;
         this.Width = width;
-        Shader.Init(this, Control_1.GL, vertexshader, fragmentshader);
+        Shader.Init(this, Control_1.GL, vertex, fragment);
         this.Attributes = new ShaderAttributes_1.default(Control_1.GL, this.Program);
         this.Uniforms = new ShaderUniforms_1.default(Control_1.GL, this.Program);
+        this.Attribute = {};
+        this.Uniform = {};
         exports.Shaders.push(this);
     }
     static Init(shader, GL, vertexshader, fragmentshader) {
