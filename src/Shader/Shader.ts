@@ -25,8 +25,8 @@ export default class Shader extends Item
     public readonly Attributes: ShaderAttributes
     public readonly Uniforms: ShaderUniforms
 
-    private Attribute: StringIndexer<ShaderType>
-    private Uniform: StringIndexer<ShaderType>
+    private Attribute: Map<string, ShaderType>
+    private Uniform: Map<string, ShaderType>
 
     public Program: WebGLProgram
     public Texture: WebGLTexture
@@ -53,7 +53,7 @@ export default class Shader extends Item
         this.Attributes = new ShaderAttributes(GL, this.Program)
         this.Uniforms = new ShaderUniforms(GL, this.Program)
 
-        this.Attribute = { }
+        this.Attribute = new Map
         // this.Attribute['Position'] = {
         //     type: 'vec3',
         //     index: GL.getAttribLocation(this.Program, 'A_Position')
@@ -70,6 +70,12 @@ export default class Shader extends Item
         //     type: 'vec3',
         //     index: GL.getAttribLocation(this.Program, 'A_Normal')
         //}
+
+        for (const attribute of this.Attribute)
+        {
+            const [type, index] = attribute
+            
+        }
 
         this.Uniform = { }
         
