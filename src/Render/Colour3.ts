@@ -52,7 +52,7 @@ export default class Colour3 extends Float32Array
     public get DEC(): string
     {
         let str = ''
-        this.forEach(i => str += i.toString(10) + ',')
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
 
         return str.substring(0, str.length - 1)
     }
@@ -105,7 +105,7 @@ export default class Colour3 extends Float32Array
         return colour
     }
 
-    private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
+    private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number): number[]
     {
         if (typeof r === 'string')
         {

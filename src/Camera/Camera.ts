@@ -1,7 +1,6 @@
-import Updateable from '../Interfaces/Updateable';
 import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
-import Viewer from './Viewer';
+import Viewer, { ViewMode } from './Viewer';
 
 export let Cameras: Camera[] = []
 
@@ -13,25 +12,86 @@ export class ICamera
     up?: Vector3 | Float32Array | number[]
 }
 
-export default class Camera extends Viewer implements Updateable
+export default class Camera extends Viewer
 {
-    private Matrix: Matrix4 = Matrix4.IDENTITY
-    
-    public Position: Vector3 = new Vector3(0, 0, -10)
-    public Target: Vector3 = new Vector3(0, 0, 0)
-    public Up: Vector3 = new Vector3(0, 1, 0)
+    public Position: Vector3
+    public Target: Vector3
+    public Up: Vector3
 
-    public get ViewMatrix(): Matrix4
+    //#region Properties
+    public get ProjectionMatrix(): Matrix4
     {
-        return this.Matrix.Clone()
+        switch (this.Mode)
+        {
+            case ViewMode.PERSPECTIVE:
+                return this.Perspective
+
+            case ViewMode.ORTHOGRAPHIC:
+                return this.Orthographic
+
+            case ViewMode.LOOKAT:
+                return this.LookAt
+        }
     }
 
     public get LookAt(): Matrix4
     {
-        let n = this.Position.Clone().Diff(this.Target).Unit()
-        let u = this.Up.Clone().Cross(n).Unit()
-        let v = n.Clone().Cross(u).Unit()
-        let p = this.Position
+        return Camera.LookAt(
+            this.Position,
+            this.Target,
+            this.Up
+        )
+    }
+
+    public get Orthographic(): Matrix4
+    {
+        return Camera.Orthographic(
+            this.Left, 
+            this.Right,
+            this.Top,
+            this.Bottom,
+            this.NearClipping,
+            this.FarClipping,
+            this.HorizontalTilt,
+            this.VericalTilt
+        )
+    }
+    
+    public get Perspective(): Matrix4
+    {
+        return Camera.Perspective(
+            this.NearClipping,
+            this.FarClipping,
+            this.FieldOfView,
+            this.AspectRatio
+        )
+    }
+
+    public static get Main()
+    {
+        return Cameras[0]
+    }
+    //#endregion
+
+    constructor()
+    constructor(viewer: ICamera)
+    constructor({ name = 'Viewer', position = [0, 0, -10], target = [0, 0, 0], up = [0, 1, 0] }: ICamera = new ICamera)
+    {
+        super(name)
+        this.Position = new Vector3(position as number[])
+        this.Target = new Vector3(target as number[])
+        this.Up = new Vector3(up as number[])
+
+        Cameras.push(this)
+    }
+
+    //#region Static Methods
+    public static LookAt(position: Vector3, target: Vector3, up: Vector3 = new Vector3(0, 1, 0)): Matrix4
+    {
+        let n = Vector3.Diff(position, target).Unit()
+        let u = Vector3.Cross(up, n).Unit()
+        let v = Vector3.Cross(n, u).Unit()
+        let p = position
 
         return new Matrix4(
             v.X, v.Y, v.Z, 0.0,
@@ -46,18 +106,15 @@ export default class Camera extends Viewer implements Updateable
         )
     }
 
-    public get Orthographic(): Matrix4
+    public static Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number): Matrix4
     {
-        let near: number = this.NearClipping
-        let far: number = this.FarClipping
+        theta = Math.cot(Math.radian(theta))
+        phi = Math.cot(Math.radian(phi))
 
-        let theta: number = Math.cot(Math.radian(this.HorizontalTilt))
-        let phi: number = Math.cot(Math.radian(this.VericalTilt))
-
-        let left: number = this.Left - (near * theta)
-        let right: number = this.Right - (near * theta)
-        let top: number = this.Top - (near * phi)
-        let bottom: number = this.Bottom - (near * phi)
+        left -= near * theta
+        right -= near * theta
+        top -= near * phi
+        bottom -= near * phi
 
         return new Matrix4
         (
@@ -68,12 +125,11 @@ export default class Camera extends Viewer implements Updateable
         )
     }
     
-    public get Perspective(): Matrix4
+    public static Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number): Matrix4
     {
-        let near: number = this.NearClipping
-        let far: number = this.FarClipping
-        let top: number = near * Math.tan(Math.radian(this.FieldOfView))
-        let right: number = top * this.AspectRatio
+        let top: number = near * Math.tan(Math.radian(fieldOfView))
+
+        let right: number = top * aspectRatio
         let left: number = -right
         let bottom: number = -top
         let width: number = right - left
@@ -88,40 +144,7 @@ export default class Camera extends Viewer implements Updateable
                                  0,                       0, -(2 * far * near) / depth,  1
         )
     }
-
-    public static get Main()
-    {
-        return Cameras[0]
-    }
-
-    constructor()
-    constructor(viewer: ICamera)
-    constructor({ name = 'Viewer', position, target, up }: ICamera = new ICamera)
-    {
-        super(name)
-        
-        if (position)
-        {
-            this.Position = new Vector3(position as number[])
-        }
-
-        if (target)
-        {
-            this.Target = new Vector3(target as number[])
-        }
-
-        if (up)
-        {
-            this.Up = new Vector3(up as number[])
-        }        
-
-        Cameras.push(this)
-    }        
-
-    public Update(): void
-    {
-
-    }
+    //#endregion
 }
 
 new Camera()
