@@ -131,6 +131,20 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         return Vector3.Dot(this, x, y, z)
     }
+    
+    public Lerp(time: number, x: number, y: number, z: number): Vector3
+    public Lerp(time: number, array: Float32Array): Vector3
+    public Lerp(time: number, array: number[]): Vector3
+    public Lerp(time: number, list: List<number>): Vector3
+    public Lerp(time: number, vector: Vector2): Vector3
+    public Lerp(time: number, vector: Vector3): Vector3
+    public Lerp(time: number, vector: Vector4): Vector3
+    public Lerp(time: number, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    {
+        let to = new Vector3(Vector3.Destructure(x, y, z))
+
+        return Vector3.Lerp(this, to, time)
+    }
 
     public Cross(x: number, y: number, z: number): Vector3
     public Cross(array: Float32Array): Vector3
@@ -249,6 +263,16 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
         }
 
         return vector
+    }
+
+    public static Lerp(from: Vector3, to: Vector3, time: number): Vector3
+    {
+        return new Vector3
+        (
+            Math.lerp(from.X, to.X, time),
+            Math.lerp(from.Y, to.Y, time),
+            Math.lerp(from.Z, to.Z, time)
+        )
     }
     //#endregion
 

@@ -12,6 +12,7 @@ declare global
         randBetween: (min: number, max: number) => number
         clean: (value: number) => number
         isPowerOf2: (value: number) => boolean
+        lerp: (from: number, to: number, time: number) => number
     }
 }
 
@@ -43,4 +44,9 @@ Math.clean = (value: number): number =>
 Math.isPowerOf2 = (value: number): boolean =>
 {
     return (value & (value - 1)) === 0
+}
+
+Math.lerp = (from: number, to: number, time: number) =>
+{
+    return from * (1 - time) + to * time
 }
