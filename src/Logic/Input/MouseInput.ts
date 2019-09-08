@@ -104,9 +104,9 @@ export default class MouseInput
         element.onwheel = (e: WheelEvent) =>
         {
             this.wheel = e.detail > 0
-                ? WheelState.RIGHT
+                ? WheelState.DOWN
                 : e.detail < 0 
-                    ? WheelState.LEFT
+                    ? WheelState.UP
                     : WheelState.CENTERED
 
             e.cancelBubble = true

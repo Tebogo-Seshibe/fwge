@@ -1,10 +1,10 @@
+import Item from '../Item';
+import PhysicsMaterial from '../Physics/PhysicsMaterial';
+import RenderMaterial from '../Render/RenderMaterial';
 import Cloneable from './Interfaces/Cloneable';
 import Destroyable from './Interfaces/Destroyable';
 import Updateable from './Interfaces/Updateable';
-import Item from '../Item';
-import PhysicsMaterial from '../Physics/PhysicsMaterial';
 import Mesh from './Mesh';
-import RenderMaterial from '../Render/RenderMaterial';
 import Transform from './Transform';
 
 export type GameObjectFunction = (this: GameObject) => void
@@ -49,9 +49,9 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         mesh,
         physics,
         animation,
-        begin = function(this:GameObject){},
-        update = function(this:GameObject){},
-        end = function(this:GameObject){},
+        begin = function(this: GameObject) { },
+        update = function(this: GameObject) { },
+        end = function(this: GameObject) { },
         children = [],
         visible = true
     }: IGameObject = new IGameObject)
@@ -82,13 +82,9 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         {
             this.End = end.bind(this)
         }
-
-        if (children)
+        for (let child of children)
         {
-            for (let child of children)
-            {
-                this.Children.push(child)
-            }
+            this.Children.push(child)
         }
 
         if (visible !== undefined)

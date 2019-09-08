@@ -14,6 +14,6 @@ export enum ButtonState
 export enum WheelState
 {
     CENTERED,
-    LEFT,
-    RIGHT
+    UP,
+    DOWN
 }
