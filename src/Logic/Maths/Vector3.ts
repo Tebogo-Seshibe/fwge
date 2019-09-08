@@ -1,5 +1,5 @@
 import Cloneable from '../Interfaces/Cloneable';
-import '../Maths/Maths';
+import './Maths';
 import List from '../Utility/List';
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';

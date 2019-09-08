@@ -1,20 +1,20 @@
-import Camera from '../Camera/Camera';
-import GameObject, { GameObjects } from '../GameObject';
-import AmbientLight, { AmbientLights } from '../Light/AmbientLight';
-import DirectionalLight, { DirectionalLights } from '../Light/DirectionalLight';
-import LightItem from '../Light/LightItem';
-import PointLight, { PointLights } from '../Light/PointLight';
-import Matrix3 from '../Maths/Matrix3';
-import Matrix4 from '../Maths/Matrix4';
-import ParticleSystem, { ParticleSystems } from '../Particle System/ParticleSystem';
-import ShaderAttributes from '../Shader/Instance/ShaderAttributes';
-import ShaderUniforms from '../Shader/Instance/ShaderUniforms';
-import Shader, { Shaders } from '../Shader/Shader';
-import { GL } from '../Utility/Control';
-import List from '../Utility/List';
-import Mesh from './Mesh';
+import GameObject, { GameObjects } from '../Logic/GameObject';
+import Matrix3 from '../Logic/Maths/Matrix3';
+import Matrix4 from '../Logic/Maths/Matrix4';
+import { GL } from '../Logic/Utility/Control';
+import List from '../Logic/Utility/List';
+import Camera from './Camera/Camera';
+import AmbientLight, { AmbientLights } from './Light/AmbientLight';
+import DirectionalLight, { DirectionalLights } from './Light/DirectionalLight';
+import LightItem from './Light/LightItem';
+import PointLight, { PointLights } from './Light/PointLight';
+import Mesh from '../Logic/Mesh';
 import ModelView from './ModelView';
+import ParticleSystem, { ParticleSystems } from './Particle System/ParticleSystem';
 import RenderMaterial from './RenderMaterial';
+import ShaderAttributes from './Shader/Instance/ShaderAttributes';
+import ShaderUniforms from './Shader/Instance/ShaderUniforms';
+import Shader, { Shaders } from './Shader/Shader';
 
 type Renderable = 
 {
@@ -326,3 +326,69 @@ function Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
     GL.useProgram(null)
 }*/
+
+function SetAttributes(shader: Shader, fields: Map<string, [number, any]>): void
+{
+    for (const [name, [size, field]] of fields)
+    {
+        let index = shader.Attribute.get(name)
+        
+        if (index !== -1)
+        {
+            GL.bindBuffer(GL.ARRAY_BUFFER, field)
+            GL.vertexAttribPointer(index, size, GL.FLOAT, false, 0, 0)
+        }
+    }
+}
+
+function SetUniforms(shader: Shader, fields: Map<string, any>): void
+{
+    for (const [name, field] of fields)
+    {
+        let { type, index } = shader.Uniform.get(name)
+
+        switch (type)
+        {
+            case 'bool':
+            case 'int':
+            case 'uint':
+                GL.uniform1i(index, field)
+
+            case 'float':
+                GL.uniform1f(index, field)
+
+            case 'bvec2':
+            case 'ivec2':
+            case 'uvec2':
+                GL.uniform2iv(index, field)
+                
+            case 'bvec3':
+            case 'ivec3':
+            case 'uvec3':
+                GL.uniform3iv(index, field)
+                
+            case 'bvec4':
+            case 'ivec4':
+            case 'uvec4':
+                GL.uniform4iv(index, field)
+
+            case 'vec2':
+                GL.uniform2fv(index, field)
+
+            case 'vec3':
+                GL.uniform3fv(index, field)
+                
+            case 'vec4':
+                GL.uniform4fv(index, field)
+            
+            case 'mat2':
+                GL.uniformMatrix2fv(index, false, field)
+                
+            case 'mat3':
+                    GL.uniformMatrix3fv(index, false, field)
+                    
+            case 'mat4':
+                    GL.uniformMatrix4fv(index, false, field)
+        }
+    }
+}

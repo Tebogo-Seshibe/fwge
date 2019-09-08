@@ -2,9 +2,9 @@ import GameObject from '../../GameObject';
 import Vector2 from '../../Maths/Vector2';
 import Vector3 from '../../Maths/Vector3';
 import Vector4 from '../../Maths/Vector4';
-import Colour4 from '../../Render/Colour4';
-import Mesh, { IMesh } from '../../Render/Mesh';
-import RenderMaterial, { IRenderMaterial } from '../../Render/RenderMaterial';
+import Colour4 from '../../../Render/Colour/Colour4';
+import Mesh, { IMesh } from '../../Mesh';
+import RenderMaterial, { IRenderMaterial } from '../../../Render/RenderMaterial';
 import Converter from './Converter';
 
 

@@ -1,5 +1,5 @@
-import Item from '../Item';
-import Colour4 from '../Render/Colour4';
+import Item from '../../Item';
+import Colour4 from '../Colour/Colour4';
 
 export class ILightItem
 {

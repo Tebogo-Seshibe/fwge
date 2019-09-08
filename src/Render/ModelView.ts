@@ -1,8 +1,8 @@
-import '../Maths/Maths';
-import Matrix4 from '../Maths/Matrix4';
-import Vector3 from '../Maths/Vector3';
-import Transform from '../Transform';
-import Stack from '../Utility/Stack';
+import '../Logic/Maths/Maths';
+import Matrix4 from '../Logic/Maths/Matrix4';
+import Vector3 from '../Logic/Maths/Vector3';
+import Transform from '../Logic/Transform';
+import Stack from '../Logic/Utility/Stack';
 
 let MVStack: Stack<Matrix4> = new Stack<Matrix4>()
 

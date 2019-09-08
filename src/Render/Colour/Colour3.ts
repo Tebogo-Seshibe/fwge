@@ -1,4 +1,4 @@
-import '../Maths/Maths';
+import '../../Logic/Maths/Maths';
 import Colour4 from './Colour4';
 
 export default class Colour3 extends Float32Array

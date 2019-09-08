@@ -79,82 +79,107 @@ declare global
 	}
 }
 
-window.FWGE = {}
+window.FWGE = { }
 
-// Animation
-window.FWGE.Animation = require('./Animation/Animation').default
-window.FWGE.IAnimation = require('./Animation/Animation').IAnimation
+//#region Audio
+//#endregion
 
-// Camera
-window.FWGE.Camera = require('./Camera/Camera').default
-window.FWGE.ICamera = require('./Camera/Camera').ICamera
-window.FWGE.Viewer = require('./Camera/Viewer').default
-window.FWGE.ViewMode = require('./Camera/Viewer').ViewMode
 
-// Input
-window.FWGE.Input = require('./Input/Input').default
-window.FWGE.KeyboardInput = require('./Input/KeyboardInput').default
-window.FWGE.KeyboardState = require('./Input/InputState').KeyboardState
-window.FWGE.ButtonState = require('./Input/InputState').ButtonState
-window.FWGE.WheelState = require('./Input/InputState').WheelState
+//#region Logic
+window.FWGE.GameObject = require('./Logic/GameObject').default
+window.FWGE.Transform = require('./Logic/Transform').default
+window.FWGE.Mesh = require('./Logic/Mesh').default
 
-// Interfaces
-window.FWGE.Attachable = require('./Interfaces/Attachable').default
-window.FWGE.Cloneable = require('./Interfaces/Cloneable').default
-window.FWGE.Destroyable = require('./Interfaces/Destroyable').default
-window.FWGE.Updateable = require('./Interfaces/Updateable').default
+//#region Input
+window.FWGE.Input = require('./Logic/Input/Input').default
+window.FWGE.KeyboardInput = require('./Logic/Input/KeyboardInput').default
+window.FWGE.KeyboardState = require('./Logic/Input/InputState').KeyboardState
+window.FWGE.ButtonState = require('./Logic/Input/InputState').ButtonState
+window.FWGE.WheelState = require('./Logic/Input/InputState').WheelState
+//#endregion
 
-// // Light
-window.FWGE.AmbientLight = require('./Light/AmbientLight').default
-window.FWGE.IAmbientLight = require('./Light/AmbientLight').IAmbientLight
-window.FWGE.DirectionalLight = require('./Light/DirectionalLight').default
-window.FWGE.IDirectionalLight = require('./Light/DirectionalLight').IDirectionalLight
-window.FWGE.ILightItem = require('./Light/LightItem').ILightItem
-window.FWGE.PointLight = require('./Light/PointLight').default
-window.FWGE.IPointLight = require('./Light/PointLight').IPointLight
+//#region Interfaces
+window.FWGE.Attachable = require('./Logic/Interfaces/Attachable').default
+window.FWGE.Cloneable = require('./Logic/Interfaces/Cloneable').default
+window.FWGE.Destroyable = require('./Logic/Interfaces/Destroyable').default
+window.FWGE.Updateable = require('./Logic/Interfaces/Updateable').default
+//#endregion
 
-// // Maths
-window.FWGE.Maths = require('./Maths/Maths').default
-window.FWGE.Vector2 = require('./Maths/Vector2').default
-window.FWGE.Vector3 = require('./Maths/Vector3').default
-window.FWGE.Vector4 = require('./Maths/Vector4').default
-window.FWGE.Matrix2 = require('./Maths/Matrix2').default
-window.FWGE.Matrix3 = require('./Maths/Matrix3').default
-window.FWGE.Matrix4 = require('./Maths/Matrix4').default
+//#region Maths
+window.FWGE.Maths = require('./Logic/Maths/Maths').default
+window.FWGE.Vector2 = require('./Logic/Maths/Vector2').default
+window.FWGE.Vector3 = require('./Logic/Maths/Vector3').default
+window.FWGE.Vector4 = require('./Logic/Maths/Vector4').default
+window.FWGE.Matrix2 = require('./Logic/Maths/Matrix2').default
+window.FWGE.Matrix3 = require('./Logic/Maths/Matrix3').default
+window.FWGE.Matrix4 = require('./Logic/Maths/Matrix4').default
+//#endregion
 
-// Physics
-// Physics Coliison
+//#region Utility
+window.FWGE.OBJConverter = require('./Logic/Utility/Converter/OBJConverter').default
+window.FWGE.ArrayUtils = require('./Logic/Utility/ArrayUtils').default
+window.FWGE.BinaryTree = require('./Logic/Utility/BinaryTree').default
+window.FWGE.Control = require('./Logic/Utility/Control').default
+window.FWGE.List = require('./Logic/Utility/List').default
+window.FWGE.ListUtils = require('./Logic/Utility/ListUtils').default
+window.FWGE.Stack = require('./Logic/Utility/Stack').default
+window.FWGE.Time = require('./Logic/Utility/Time').default
+window.FWGE.Tree = require('./Logic/Utility/Tree').default
+//#endregion
+//#endregion
+
+
+//#region Physics
+//#region Collider
 window.FWGE.BoxCollider = require('./Physics/Collision/BoxCollider').default
 window.FWGE.Collider = require('./Physics/Collision/Collider').default
 window.FWGE.SphereCollider = require('./Physics/Collision/SphereCollider').default
+//#endregion
+
 window.FWGE.CollisionEvent = require('./Physics/Collision/CollisionEvent').default
 window.FWGE.PhysicsBody = require('./Physics/PhysicsBody').default
 window.FWGE.PhysicsMaterial = require('./Physics/PhysicsMaterial').default
+//#endregion
 
-// Render
-window.FWGE.Colour4 = require('./Render/Colour4').default
-window.FWGE.Mesh = require('./Render/Mesh').default
+
+//#region Render
+
+//#region Animation
+window.FWGE.Animation = require('./Render/Animation/Animation').default
+window.FWGE.IAnimation = require('./Render/Animation/Animation').IAnimation
+//#endregion
+
+//#region Camera
+window.FWGE.Camera = require('./Render/Camera/Camera').default
+window.FWGE.ICamera = require('./Render/Camera/Camera').ICamera
+window.FWGE.Viewer = require('./Render/Camera/Viewer').default
+window.FWGE.ViewMode = require('./Render/Camera/Viewer').ViewMode
+//#endregion
+
+//#region Colour
+window.FWGE.Colour4 = require('./Render/Colour/Colour3').default
+window.FWGE.Colour4 = require('./Render/Colour/Colour4').default
+//#endregion
+
+//#region Light
+window.FWGE.AmbientLight = require('./Render/Light/AmbientLight').default
+window.FWGE.IAmbientLight = require('./Render/Light/AmbientLight').IAmbientLight
+window.FWGE.DirectionalLight = require('./Render/Light/DirectionalLight').default
+window.FWGE.IDirectionalLight = require('./Render/Light/DirectionalLight').IDirectionalLight
+window.FWGE.ILightItem = require('./Render/Light/LightItem').ILightItem
+window.FWGE.PointLight = require('./Render/Light/PointLight').default
+window.FWGE.IPointLight = require('./Render/Light/PointLight').IPointLight
+//#endregion
+
+//#region Particle System
+window.FWGE.ParticleSystem = require('./Render/Particle System/ParticleSystem').default
+//#endregion
+
+//#region Shader
+window.FWGE.Shader = require('./Render/Shader/Shader').default
+window.FWGE.IShader = require('./Render/Shader/Shader').IShader
+//#endregion
+
 window.FWGE.ModelView = require('./Render/ModelView').default
 window.FWGE.RenderMaterial = require('./Render/RenderMaterial').default
-
-// Shader
-window.FWGE.Shader = require('./Shader/Shader').default
-window.FWGE.IShader = require('./Shader/Shader').IShader
-
-// Utility
-// Converter
-window.FWGE.OBJConverter = require('./Utility/Converter/OBJConverter').default
-window.FWGE.ArrayUtils = require('./Utility/ArrayUtils').default
-window.FWGE.BinaryTree = require('./Utility/BinaryTree').default
-window.FWGE.Control = require('./Utility/Control').default
-window.FWGE.List = require('./Utility/List').default
-window.FWGE.ListUtils = require('./Utility/ListUtils').default
-window.FWGE.Stack = require('./Utility/Stack').default
-window.FWGE.Time = require('./Utility/Time').default
-window.FWGE.Tree = require('./Utility/Tree').default
-
-// Particle System
-window.FWGE.ParticleSystem = require('./Particle System/ParticleSystem').default
-
-window.FWGE.GameObject = require('./GameObject').default
-window.FWGE.Transform = require('./Transform').default
+//#endregion

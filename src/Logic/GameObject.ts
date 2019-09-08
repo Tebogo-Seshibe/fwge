@@ -1,10 +1,10 @@
 import Cloneable from './Interfaces/Cloneable';
 import Destroyable from './Interfaces/Destroyable';
 import Updateable from './Interfaces/Updateable';
-import Item from './Item';
-import PhysicsMaterial from './Physics/PhysicsMaterial';
-import Mesh from './Render/Mesh';
-import RenderMaterial from './Render/RenderMaterial';
+import Item from '../Item';
+import PhysicsMaterial from '../Physics/PhysicsMaterial';
+import Mesh from './Mesh';
+import RenderMaterial from '../Render/RenderMaterial';
 import Transform from './Transform';
 
 export type GameObjectFunction = (this: GameObject) => void

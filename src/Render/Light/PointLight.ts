@@ -1,5 +1,5 @@
-import Vector3 from '..//Maths/Vector3';
-import List from '../Utility/List';
+import Vector3 from '../../Logic/Maths/Vector3';
+import List from '../../Logic/Utility/List';
 import LightItem, { ILightItem } from './LightItem';
 
 export let PointLights: List<PointLight> = new List<PointLight>(12)

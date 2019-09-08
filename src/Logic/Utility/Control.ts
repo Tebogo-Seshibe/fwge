@@ -1,10 +1,10 @@
-import { Animations } from '../Animation/Animation';
-import { Cameras } from '../Camera/Camera';
+import { Animations } from '../../Render/Animation/Animation';
+import { Cameras } from '../../Render/Camera/Camera';
 import { GameObjects } from '../GameObject';
-import { ParticleSystems } from '../Particle System/ParticleSystem';
-import { InitRender, UpdateRender } from '../Render/Renderer';
+import { ParticleSystems } from '../../Render/Particle System/ParticleSystem';
+import { InitRender, UpdateRender } from '../../Render/Renderer';
 import Time from './Time';
-import Colour4 from '../Render/Colour4';
+import Colour4 from '../../Render/Colour/Colour4';
 import Input from '../Input/Input';
 
 export let GL: WebGLRenderingContext

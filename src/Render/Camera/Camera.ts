@@ -1,5 +1,5 @@
-import Matrix4 from '../Maths/Matrix4';
-import Vector3 from '../Maths/Vector3';
+import Matrix4 from '../../Logic/Maths/Matrix4';
+import Vector3 from '../../Logic/Maths/Vector3';
 import Viewer, { ViewMode } from './Viewer';
 
 export let Cameras: Camera[] = []

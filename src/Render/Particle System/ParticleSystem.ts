@@ -1,11 +1,11 @@
-import Updateable from '../Interfaces/Updateable';
-import Item from '../Item';
-import { Equation, Unary, UnaryExpressionType } from '../Maths/Equation';
-import Vector3 from '../Maths/Vector3';
-import Mesh from '../Render/Mesh';
-import RenderMaterial from '../Render/RenderMaterial';
-import Transform, { ITransform } from '../Transform';
-import Time from '../Utility/Time';
+import Updateable from '../../Logic/Interfaces/Updateable';
+import Item from '../../Item';
+import { Equation, Unary, UnaryExpressionType } from '../../Logic/Maths/Equation';
+import Vector3 from '../../Logic/Maths/Vector3';
+import Mesh from '../../Logic/Mesh';
+import RenderMaterial from '../RenderMaterial';
+import Transform, { ITransform } from '../../Logic/Transform';
+import Time from '../../Logic/Utility/Time';
 
 export let ParticleSystems: ParticleSystem[] = []
 

@@ -1,7 +1,7 @@
-import Item from '../Item';
+import Item from '../../Item';
+import { GL } from '../../Logic/Utility/Control';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
-import { GL } from '../Utility/Control';
 
 export class IShader
 {
@@ -13,8 +13,17 @@ export class IShader
 }
 export let Shaders: Shader[] = new Array<Shader>()
 
+export type UniformField =
+{
+    type: string
+    index: number
+}
+
 export default class Shader extends Item
 {
+    public readonly Attribute: Map<string, number>
+    public readonly Uniform: Map<string, UniformField>
+
     public readonly Attributes: ShaderAttributes
     public readonly Uniforms: ShaderUniforms
 
@@ -45,6 +54,9 @@ export default class Shader extends Item
         this.FragmentShader = fragmentshader
 
         Shader.Init(this, GL, vertexshader, fragmentshader)
+
+        this.Attribute = new Map
+        this.Uniform = new Map
 
         this.Attributes = new ShaderAttributes(GL, this.Program)
         this.Uniforms = new ShaderUniforms(GL, this.Program)
