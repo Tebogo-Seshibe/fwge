@@ -8,8 +8,8 @@ export class IShader
     name?: string
     height?: number
     width?: number
-    vertexshader: string
-    fragmentshader: string
+    vertex: string
+    fragment: string
 }
 export let Shaders: Shader[] = new Array<Shader>()
 
@@ -39,7 +39,7 @@ export default class Shader extends Item
 
     constructor()
     constructor(shader: IShader)
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertexshader, fragmentshader}: IShader = new IShader)
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment}: IShader = new IShader)
     {
         super(name)
 
@@ -50,16 +50,37 @@ export default class Shader extends Item
         this.Height = height
         this.Width = width
         
-        this.VertexShader = vertexshader
-        this.FragmentShader = fragmentshader
-
-        Shader.Init(this, GL, vertexshader, fragmentshader)
+        Shader.Init(this, GL, vertex, fragment)
 
         this.Attribute = new Map
         this.Uniform = new Map
 
         this.Attributes = new ShaderAttributes(GL, this.Program)
         this.Uniforms = new ShaderUniforms(GL, this.Program)
+
+        this.Attribute = new Map
+        // this.Attribute['Position'] = {
+        //     type: 'vec3',
+        //     index: GL.getAttribLocation(this.Program, 'A_Position')
+        // }
+        // this.Attribute['Colour'] = {
+        //     type: 'vec4',
+        //     index: GL.getAttribLocation(this.Program, 'A_Colour')
+        // }
+        // this.Attribute['UV'] = {
+        //     type: 'vec2',
+        //     index: GL.getAttribLocation(this.Program, 'A_UV')
+        // }
+        // this.Attribute['Normal'] = {
+        //     type: 'vec3',
+        //     index: GL.getAttribLocation(this.Program, 'A_Normal')
+        //}
+
+        for (const attribute of this.Attribute)
+        {
+            const [type, index] = attribute
+            
+        }
         
         Shaders.push(this);
     }
@@ -117,3 +138,28 @@ export default class Shader extends Item
         }
     }
 }
+
+// new Shader(
+// {
+//     name: 'Combined Shader',
+//     vertexshader:
+// `#version 300 es
+
+// in vec3 A_Position;
+
+// void main()
+// {
+//     gl_Position = vec4(A_Position, 1.0);
+// }`,
+//     fragmentshader:
+// `#version 300 es
+
+// mediump float;
+
+// out vec4 fragmentColour;
+
+// void main()
+// {
+//     fragmentColour = vec4(1.0);
+// }`
+// })

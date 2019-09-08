@@ -51,7 +51,6 @@ function ClearBuffers(): void
 {
     for (let shader of Shaders)
     {
-
         GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
         GL.viewport(0, 0, shader.Width, shader.Height)
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
@@ -304,7 +303,7 @@ function SetGlobalUniforms(): void
 
 function Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
 {
-    //GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer)
+    // GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
     GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_BYTE, 0)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)

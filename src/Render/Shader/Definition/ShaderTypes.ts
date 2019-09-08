@@ -1,3 +1,5 @@
+let regex: RegExp = /(layout\(location\s*=\s*\d\))?\s*in\s+(float|([biu]?vec|mat)[2-4])\s+(\w+);\n/
+
 class ShaderFieldType<T>
 {
     public name: string

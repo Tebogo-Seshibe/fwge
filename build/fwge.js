@@ -2925,6 +2925,7 @@ const LightItem_1 = __importStar(require("./LightItem"));
 exports.DirectionalLights = new List_1.default(3);
 class IDirectionalLight extends LightItem_1.ILightItem {
 }
+<<<<<<< HEAD
 exports.IDirectionalLight = IDirectionalLight;
 class DirectionalLight extends LightItem_1.default {
     constructor({ name = 'Directional Light', colour, intensity, direction } = new IDirectionalLight) {
@@ -2932,6 +2933,59 @@ class DirectionalLight extends LightItem_1.default {
         this.Direction = Vector3_1.default.ZERO;
         if (direction) {
             direction = new Vector3_1.default(direction);
+=======
+exports.IShader = IShader;
+exports.Shaders = new Array();
+class Shader extends Item_1.default {
+    constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment } = new IShader) {
+        super(name);
+        this.Program = Control_1.GL.createProgram();
+        this.Texture = Control_1.GL.createTexture();
+        this.FrameBuffer = Control_1.GL.createFramebuffer();
+        this.RenderBuffer = Control_1.GL.createRenderbuffer();
+        this.Height = height;
+        this.Width = width;
+<<<<<<< HEAD
+        Shader.Init(this, Control_1.GL, vertex, fragment);
+=======
+        this.VertexShader = vertexshader;
+        this.FragmentShader = fragmentshader;
+        Shader.Init(this, Control_1.GL, vertexshader, fragmentshader);
+>>>>>>> 575c0488c569cbf1f8bc463f6f136963c0f46313
+        this.Attributes = new ShaderAttributes_1.default(Control_1.GL, this.Program);
+        this.Uniforms = new ShaderUniforms_1.default(Control_1.GL, this.Program);
+        this.Attribute = {};
+        this.Uniform = {};
+        exports.Shaders.push(this);
+    }
+    static Init(shader, GL, vertexshader, fragmentshader) {
+        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer);
+        GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer);
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height);
+        GL.bindTexture(GL.TEXTURE_2D, shader.Texture);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined);
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0);
+        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer);
+        GL.bindTexture(GL.TEXTURE_2D, null);
+        GL.bindRenderbuffer(GL.RENDERBUFFER, null);
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+        let errorLog = [];
+        let vs = GL.createShader(GL.VERTEX_SHADER);
+        GL.shaderSource(vs, vertexshader);
+        GL.compileShader(vs);
+        if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS)) {
+            errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(vs));
+        }
+        let fs = GL.createShader(GL.FRAGMENT_SHADER);
+        GL.shaderSource(fs, fragmentshader);
+        GL.compileShader(fs);
+        if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS)) {
+            errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(fs));
+>>>>>>> 6c5c38adc483b8a93ea698704d1e6128dbfba961
         }
         exports.DirectionalLights.Add(this);
     }
