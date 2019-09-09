@@ -53,10 +53,8 @@ class GameObject extends Item_1.default {
         if (end) {
             this.End = end.bind(this);
         }
-        if (children) {
-            for (let child of children) {
-                this.Children.push(child);
-            }
+        for (let child of children) {
+            this.Children.push(child);
         }
         if (visible !== undefined) {
             this.Visible = visible;
@@ -122,8 +120,8 @@ var ButtonState;
 var WheelState;
 (function (WheelState) {
     WheelState[WheelState["CENTERED"] = 0] = "CENTERED";
-    WheelState[WheelState["LEFT"] = 1] = "LEFT";
-    WheelState[WheelState["RIGHT"] = 2] = "RIGHT";
+    WheelState[WheelState["UP"] = 1] = "UP";
+    WheelState[WheelState["DOWN"] = 2] = "DOWN";
 })(WheelState = exports.WheelState || (exports.WheelState = {}));
 
 },{}],5:[function(require,module,exports){
@@ -459,9 +457,9 @@ class MouseInput {
         };
         element.onwheel = (e) => {
             this.wheel = e.detail > 0
-                ? InputState_1.WheelState.RIGHT
+                ? InputState_1.WheelState.DOWN
                 : e.detail < 0
-                    ? InputState_1.WheelState.LEFT
+                    ? InputState_1.WheelState.UP
                     : InputState_1.WheelState.CENTERED;
             e.cancelBubble = true;
         };
@@ -595,6 +593,9 @@ Math.clean = (value) => {
 };
 Math.isPowerOf2 = (value) => {
     return (value & (value - 1)) === 0;
+};
+Math.lerp = (from, to, time) => {
+    return from * (1 - time) + to * time;
 };
 
 },{}],13:[function(require,module,exports){
@@ -1347,6 +1348,10 @@ class Vector2 extends Float32Array {
     Dot(x, y) {
         return Vector2.Dot(this, x, y);
     }
+    Lerp(time, x, y) {
+        let to = new Vector2(Vector2.Destructure(x, y));
+        return Vector2.Lerp(this, to, time);
+    }
     Unit() {
         return Vector2.Unit(this);
     }
@@ -1387,6 +1392,9 @@ class Vector2 extends Float32Array {
             Vector2.Scale(vector, 1 / length);
         }
         return vector;
+    }
+    static Lerp(from, to, time) {
+        return new Vector2(Math.lerp(from.X, to.X, time), Math.lerp(from.Y, to.Y, time));
     }
     static get ZERO() {
         return new Vector2(0, 0);
@@ -1472,6 +1480,10 @@ class Vector3 extends Float32Array {
     Dot(x, y, z) {
         return Vector3.Dot(this, x, y, z);
     }
+    Lerp(time, x, y, z) {
+        let to = new Vector3(Vector3.Destructure(x, y, z));
+        return Vector3.Lerp(this, to, time);
+    }
     Cross(x, y, z) {
         return Vector3.Cross(this, x, y, z);
     }
@@ -1535,6 +1547,9 @@ class Vector3 extends Float32Array {
             Vector3.Scale(vector, 1 / length);
         }
         return vector;
+    }
+    static Lerp(from, to, time) {
+        return new Vector3(Math.lerp(from.X, to.X, time), Math.lerp(from.Y, to.Y, time), Math.lerp(from.Z, to.Z, time));
     }
     static Destructure(x, y, z) {
         if (x instanceof Vector2_1.default) {
@@ -1610,6 +1625,10 @@ class Vector4 extends Float32Array {
     Dot(x, y, z, w) {
         return Vector4.Dot(this, x, y, z, w);
     }
+    Lerp(time, x, y, z, w) {
+        let to = new Vector4(Vector4.Destructure(x, y, z, w));
+        return Vector4.Lerp(this, to, time);
+    }
     Unit() {
         return Vector4.Unit(this);
     }
@@ -1661,6 +1680,9 @@ class Vector4 extends Float32Array {
             [w, x, y, z] = w;
         }
         return Math.clean(Math.sqrt(Math.pow(w, 2) + Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
+    }
+    static Lerp(from, to, time, out = new Vector4) {
+        return out.Set(Math.lerp(from.X, to.X, time), Math.lerp(from.Y, to.Y, time), Math.lerp(from.Z, to.Z, time), Math.lerp(from.W, to.W, time));
     }
     static get ZERO() {
         return new Vector4(0, 0, 0, 0);
@@ -2927,12 +2949,13 @@ class IDirectionalLight extends LightItem_1.ILightItem {
 }
 exports.IDirectionalLight = IDirectionalLight;
 class DirectionalLight extends LightItem_1.default {
-    constructor({ name = 'Directional Light', colour, intensity, direction } = new IDirectionalLight) {
+    constructor({ name = 'Directional Light', colour, intensity, direction = [0, 0, 1], shadows = false } = new IDirectionalLight) {
         super({ name, colour, intensity });
         this.Direction = Vector3_1.default.ZERO;
         if (direction) {
             direction = new Vector3_1.default(direction);
         }
+        this.Shadows = shadows;
         exports.DirectionalLights.Add(this);
     }
 }
@@ -2950,16 +2973,10 @@ class ILightItem {
 }
 exports.ILightItem = ILightItem;
 class LightItem extends Item_1.default {
-    constructor({ name, colour, intensity } = new ILightItem) {
+    constructor({ name, colour = [255, 255, 255, 255], intensity = 1.0 } = new ILightItem) {
         super(name);
-        this.Colour = new Colour4_1.default(255, 255, 255, 255);
-        this.Intensity = 1.0;
-        if (colour) {
-            this.Colour = new Colour4_1.default(colour);
-        }
-        if (intensity) {
-            this.Intensity = intensity;
-        }
+        this.Colour = new Colour4_1.default(colour);
+        this.Intensity = intensity;
     }
 }
 exports.default = LightItem;
@@ -2985,24 +3002,13 @@ class IPointLight extends LightItem_1.ILightItem {
 }
 exports.IPointLight = IPointLight;
 class PointLight extends LightItem_1.default {
-    constructor({ name = 'Point Light', colour, intensity, position, radius, angle, shininess } = new IPointLight) {
+    constructor({ name = 'Point Light', colour, intensity, position, radius = 5, angle = 180, shininess = 32, shadows = false } = new IPointLight) {
         super({ name, colour, intensity });
-        this.Position = Vector3_1.default.ZERO;
-        this.Radius = 5;
-        this.Angle = 180;
-        this.Shininess = 32;
-        if (position) {
-            this.Position = new Vector3_1.default(position);
-        }
-        if (radius) {
-            this.Radius = radius;
-        }
-        if (angle) {
-            this.Angle = angle;
-        }
-        if (shininess) {
-            this.Shininess = shininess;
-        }
+        this.Position = new Vector3_1.default(position);
+        this.Radius = radius;
+        this.Angle = angle;
+        this.Shininess = shininess;
+        this.Shadows = shadows;
         exports.PointLights.Add(this);
     }
 }
@@ -3640,11 +3646,25 @@ const Item_1 = __importDefault(require("../../Item"));
 const Control_1 = require("../../Logic/Utility/Control");
 const ShaderAttributes_1 = __importDefault(require("./Instance/ShaderAttributes"));
 const ShaderUniforms_1 = __importDefault(require("./Instance/ShaderUniforms"));
+exports.Shaders = [];
 class IShader {
 }
 exports.IShader = IShader;
-exports.Shaders = new Array();
 class Shader extends Item_1.default {
+    get VertexShader() {
+        return this.vertexShader;
+    }
+    set VertexShader(vertexShader) {
+        this.vertexShader = vertexShader;
+        this.Build();
+    }
+    get FragmentShader() {
+        return this.fragmentShader;
+    }
+    set FragmentShader(fragmentShader) {
+        this.fragmentShader = fragmentShader;
+        this.Build();
+    }
     constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment } = new IShader) {
         super(name);
         this.Program = Control_1.GL.createProgram();
@@ -3653,50 +3673,70 @@ class Shader extends Item_1.default {
         this.RenderBuffer = Control_1.GL.createRenderbuffer();
         this.Height = height;
         this.Width = width;
-        Shader.Init(this, Control_1.GL, vertex, fragment);
+        this.vertexShader = vertex;
+        this.fragmentShader = fragment;
         this.Attribute = new Map;
         this.Uniform = new Map;
         this.Attributes = new ShaderAttributes_1.default(Control_1.GL, this.Program);
         this.Uniforms = new ShaderUniforms_1.default(Control_1.GL, this.Program);
-        this.Attribute = new Map;
-        for (const attribute of this.Attribute) {
-            const [type, index] = attribute;
-        }
+        this.Build();
         exports.Shaders.push(this);
     }
-    static Init(shader, GL, vertexshader, fragmentshader) {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer);
-        GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer);
-        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height);
-        GL.bindTexture(GL.TEXTURE_2D, shader.Texture);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined);
-        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0);
-        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer);
-        GL.bindTexture(GL.TEXTURE_2D, null);
-        GL.bindRenderbuffer(GL.RENDERBUFFER, null);
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+    Build() {
+        this.CreateBuffers();
+        this.BuildShaders();
+        this.ParseProperties();
+    }
+    ParseProperties() {
+        const regex = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/;
+        const regexGroup = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g;
+        let text = this.VertexShader + "\n" + this.FragmentShader;
+        let matches = text.match(regexGroup);
+        for (const match of matches) {
+            let groups = match.match(regex);
+            let type = groups.groups.type;
+            let name = groups.groups.name;
+            let index = Control_1.GL.getUniformLocation(this.Program, name);
+            if (!this.Uniform.has(name)) {
+                this.Uniform.set(name, { index, type });
+            }
+        }
+    }
+    CreateBuffers() {
+        Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, this.FrameBuffer);
+        Control_1.GL.bindRenderbuffer(Control_1.GL.RENDERBUFFER, this.RenderBuffer);
+        Control_1.GL.renderbufferStorage(Control_1.GL.RENDERBUFFER, Control_1.GL.DEPTH_COMPONENT16, this.Width, this.Height);
+        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, this.Texture);
+        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MAG_FILTER, Control_1.GL.LINEAR);
+        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MIN_FILTER, Control_1.GL.LINEAR);
+        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_S, Control_1.GL.CLAMP_TO_EDGE);
+        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_T, Control_1.GL.CLAMP_TO_EDGE);
+        Control_1.GL.texImage2D(Control_1.GL.TEXTURE_2D, 0, Control_1.GL.RGBA, this.Width, this.Height, 0, Control_1.GL.RGBA, Control_1.GL.UNSIGNED_BYTE, undefined);
+        Control_1.GL.framebufferTexture2D(Control_1.GL.FRAMEBUFFER, Control_1.GL.COLOR_ATTACHMENT0, Control_1.GL.TEXTURE_2D, this.Texture, 0);
+        Control_1.GL.framebufferRenderbuffer(Control_1.GL.FRAMEBUFFER, Control_1.GL.DEPTH_ATTACHMENT, Control_1.GL.RENDERBUFFER, this.RenderBuffer);
+        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
+        Control_1.GL.bindRenderbuffer(Control_1.GL.RENDERBUFFER, null);
+        Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, null);
+    }
+    BuildShaders() {
         let errorLog = [];
-        let vs = GL.createShader(GL.VERTEX_SHADER);
-        GL.shaderSource(vs, vertexshader);
-        GL.compileShader(vs);
-        if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS)) {
-            errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(vs));
+        const vs = Control_1.GL.createShader(Control_1.GL.VERTEX_SHADER);
+        Control_1.GL.shaderSource(vs, this.VertexShader);
+        Control_1.GL.compileShader(vs);
+        if (!Control_1.GL.getShaderParameter(vs, Control_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Vertex Shader: ' + Control_1.GL.getShaderInfoLog(vs));
         }
-        let fs = GL.createShader(GL.FRAGMENT_SHADER);
-        GL.shaderSource(fs, fragmentshader);
-        GL.compileShader(fs);
-        if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS)) {
-            errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(fs));
+        const fs = Control_1.GL.createShader(Control_1.GL.FRAGMENT_SHADER);
+        Control_1.GL.shaderSource(fs, this.FragmentShader);
+        Control_1.GL.compileShader(fs);
+        if (!Control_1.GL.getShaderParameter(fs, Control_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Fragment Shader: ' + Control_1.GL.getShaderInfoLog(fs));
         }
-        GL.attachShader(shader.Program, vs);
-        GL.attachShader(shader.Program, fs);
-        GL.linkProgram(shader.Program);
-        if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS)) {
-            errorLog.push(GL.getProgramInfoLog(shader.Program));
+        Control_1.GL.attachShader(this.Program, vs);
+        Control_1.GL.attachShader(this.Program, fs);
+        Control_1.GL.linkProgram(this.Program);
+        if (!Control_1.GL.getProgramParameter(this.Program, Control_1.GL.LINK_STATUS)) {
+            errorLog.push(Control_1.GL.getProgramInfoLog(this.Program));
         }
         if (errorLog.length > 0) {
             throw errorLog;

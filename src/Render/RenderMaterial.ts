@@ -1,8 +1,8 @@
 import Item from '../Item';
 import '../Logic/Maths/Maths';
-import Shader from './Shader/Shader';
 import { GL } from '../Logic/Utility/Control';
 import Colour4 from './Colour/Colour4';
+import Shader from './Shader/Shader';
 
 export enum ImageMapType
 {

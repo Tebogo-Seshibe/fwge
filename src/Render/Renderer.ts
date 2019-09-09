@@ -384,10 +384,10 @@ function SetUniforms(shader: Shader, fields: Map<string, any>): void
                 GL.uniformMatrix2fv(index, false, field)
                 
             case 'mat3':
-                    GL.uniformMatrix3fv(index, false, field)
+                GL.uniformMatrix3fv(index, false, field)
                     
             case 'mat4':
-                    GL.uniformMatrix4fv(index, false, field)
+                GL.uniformMatrix4fv(index, false, field)
         }
     }
 }

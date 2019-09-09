@@ -10,40 +10,38 @@ export class IPointLight extends ILightItem
     radius?: number
     angle?: number
     shininess?: number
+    shadows?: boolean
 }
 
 export default class PointLight extends LightItem
 {
-    public Position: Vector3 = Vector3.ZERO
-    public Radius: number = 5
-    public Angle: number = 180
-    public Shininess: number = 32
+    public Position: Vector3
+    public Radius: number
+    public Angle: number
+    public Shininess: number
+    public Shadows: boolean
 
     constructor()
     constructor(pointLight: IPointLight)
-    constructor({ name = 'Point Light', colour, intensity, position, radius, angle, shininess }: IPointLight = new IPointLight)
+    constructor(
+    { 
+        name = 'Point Light',
+        colour,
+        intensity,
+        position,
+        radius = 5,
+        angle = 180,
+        shininess = 32,
+        shadows = false
+    }: IPointLight = new IPointLight)
     {
         super({ name, colour, intensity })
 
-        if (position)
-        {
-            this.Position = new Vector3(position as number[])
-        }
-
-        if (radius)
-        {
-            this.Radius = radius
-        }
-
-        if (angle)
-        {
-            this.Angle = angle
-        }
-
-        if (shininess)
-        {
-            this.Shininess = shininess
-        }
+        this.Position = new Vector3(position as number[])
+        this.Radius = radius
+        this.Angle = angle
+        this.Shininess = shininess
+        this.Shadows = shadows
 
         PointLights.Add(this)
     }

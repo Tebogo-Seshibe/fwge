@@ -3,6 +3,14 @@ import { GL } from '../../Logic/Utility/Control';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
 
+export let Shaders: Shader[] = []
+
+export type UniformField =
+{
+    type: string
+    index: WebGLUniformLocation
+}
+
 export class IShader
 {
     name?: string
@@ -11,31 +19,43 @@ export class IShader
     vertex: string
     fragment: string
 }
-export let Shaders: Shader[] = new Array<Shader>()
-
-export type UniformField =
-{
-    type: string
-    index: number
-}
 
 export default class Shader extends Item
 {
+    public Program: WebGLProgram
+    public Texture: WebGLTexture
+    public FrameBuffer: WebGLFramebuffer
+    public RenderBuffer: WebGLRenderbuffer
+    public Height: number
+    public Width: number
+
     public readonly Attribute: Map<string, number>
     public readonly Uniform: Map<string, UniformField>
 
     public readonly Attributes: ShaderAttributes
     public readonly Uniforms: ShaderUniforms
 
-    public readonly VertexShader: string
-    public readonly FragmentShader: string
+    private vertexShader: string
+    public get VertexShader(): string
+    {
+        return this.vertexShader
+    }
+    public set VertexShader(vertexShader: string)
+    {
+        this.vertexShader = vertexShader
+        this.Build()
+    }
 
-    public Program: WebGLProgram
-    public Texture: WebGLTexture
-    public FrameBuffer: WebGLBuffer
-    public RenderBuffer: WebGLBuffer
-    public Height: number
-    public Width: number
+    private fragmentShader: string
+    public get FragmentShader(): string
+    {
+        return this.fragmentShader
+    }
+    public set FragmentShader(fragmentShader: string)
+    {
+        this.fragmentShader = fragmentShader
+        this.Build()
+    }
 
     constructor()
     constructor(shader: IShader)
@@ -49,65 +69,75 @@ export default class Shader extends Item
         this.RenderBuffer = GL.createRenderbuffer()
         this.Height = height
         this.Width = width
+        this.vertexShader = vertex
+        this.fragmentShader = fragment        
         
-        Shader.Init(this, GL, vertex, fragment)
-
         this.Attribute = new Map
         this.Uniform = new Map
-
+        
         this.Attributes = new ShaderAttributes(GL, this.Program)
         this.Uniforms = new ShaderUniforms(GL, this.Program)
-
-        this.Attribute = new Map
-        // this.Attribute['Position'] = {
-        //     type: 'vec3',
-        //     index: GL.getAttribLocation(this.Program, 'A_Position')
-        // }
-        // this.Attribute['Colour'] = {
-        //     type: 'vec4',
-        //     index: GL.getAttribLocation(this.Program, 'A_Colour')
-        // }
-        // this.Attribute['UV'] = {
-        //     type: 'vec2',
-        //     index: GL.getAttribLocation(this.Program, 'A_UV')
-        // }
-        // this.Attribute['Normal'] = {
-        //     type: 'vec3',
-        //     index: GL.getAttribLocation(this.Program, 'A_Normal')
-        //}
-
-        for (const attribute of this.Attribute)
-        {
-            const [type, index] = attribute
-            
-        }
         
-        Shaders.push(this);
+        this.Build()
+
+        Shaders.push(this)
     }
 
-
-    static Init(shader: Shader, GL: WebGLRenderingContext, vertexshader: string, fragmentshader: string): void
+    private Build(): void
     {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
-        GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer)
-        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height)
-        GL.bindTexture(GL.TEXTURE_2D, shader.Texture)
+        this.CreateBuffers()
+        this.BuildShaders()
+        this.ParseProperties()
+    }
+    
+    private ParseProperties(): void
+    {
+        const regex: RegExp = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/
+        const regexGroup: RegExp = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g
+
+        let text = this.VertexShader + "\n" + this.FragmentShader
+        let matches = text.match(regexGroup)
+
+        for (const match of matches)
+        {   
+            let groups = match.match(regex)
+
+            let type = groups.groups.type
+            let name = groups.groups.name
+            let index = GL.getUniformLocation(this.Program, name)
+
+            if (!this.Uniform.has(name))
+            {
+                this.Uniform.set(name, {index, type})
+            }
+        }
+    }
+
+    private CreateBuffers(): void
+    {
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer)
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height)
+        GL.bindTexture(GL.TEXTURE_2D, this.Texture)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
-        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0)
-        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0)
+        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer)
                     
         GL.bindTexture(GL.TEXTURE_2D, null)
         GL.bindRenderbuffer(GL.RENDERBUFFER, null)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        
+    }
+
+    private BuildShaders(): void
+    {
         let errorLog: string[] = []
 
-        let vs = GL.createShader(GL.VERTEX_SHADER)
-        GL.shaderSource(vs, vertexshader)
+        const vs = GL.createShader(GL.VERTEX_SHADER)
+        GL.shaderSource(vs, this.VertexShader)
         GL.compileShader(vs)
 
         if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
@@ -115,8 +145,8 @@ export default class Shader extends Item
             errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(vs))
         }
         
-        let fs = GL.createShader(GL.FRAGMENT_SHADER)
-        GL.shaderSource(fs, fragmentshader)
+        const fs = GL.createShader(GL.FRAGMENT_SHADER)
+        GL.shaderSource(fs, this.FragmentShader)
         GL.compileShader(fs)
 
         if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
@@ -124,12 +154,12 @@ export default class Shader extends Item
             errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(fs))
         }
         
-        GL.attachShader(shader.Program, vs);
-        GL.attachShader(shader.Program, fs);
-        GL.linkProgram(shader.Program);
-        if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS))
+        GL.attachShader(this.Program, vs)
+        GL.attachShader(this.Program, fs)
+        GL.linkProgram(this.Program)
+        if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS))
         {
-            errorLog.push(GL.getProgramInfoLog(shader.Program))
+            errorLog.push(GL.getProgramInfoLog(this.Program))
         }
         
         if (errorLog.length > 0)
@@ -138,28 +168,3 @@ export default class Shader extends Item
         }
     }
 }
-
-// new Shader(
-// {
-//     name: 'Combined Shader',
-//     vertexshader:
-// `#version 300 es
-
-// in vec3 A_Position;
-
-// void main()
-// {
-//     gl_Position = vec4(A_Position, 1.0);
-// }`,
-//     fragmentshader:
-// `#version 300 es
-
-// mediump float;
-
-// out vec4 fragmentColour;
-
-// void main()
-// {
-//     fragmentColour = vec4(1.0);
-// }`
-// })

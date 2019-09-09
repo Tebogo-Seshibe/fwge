@@ -1,6 +1,3 @@
-let regex: RegExp = /uniform\s+(float|([biu]?vec|mat)[2-4])\s+(\w+);/
-let regexGroup: RegExp = /uniform\s+(float|([biu]?vec|mat)[2-4])\s+(\w+);/g
-
 class ShaderFieldType<T>
 {
     public name: string

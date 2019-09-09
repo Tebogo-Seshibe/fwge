@@ -10,23 +10,16 @@ export class ILightItem
 
 export default class LightItem extends Item
 {
-    public Colour: Colour4 = new Colour4(255, 255, 255, 255)
-    public Intensity: number = 1.0
+    public Colour: Colour4
+    public Intensity: number
 
     constructor()
     constructor(light: ILightItem)
-    constructor({ name, colour, intensity}: ILightItem = new ILightItem)
+    constructor({ name, colour = [255,255,255,255], intensity = 1.0}: ILightItem = new ILightItem)
     {
         super(name)
 
-        if (colour)
-        {
-            this.Colour = new Colour4(colour as number[])
-        }
-
-        if (intensity)
-        {
-            this.Intensity = intensity
-        }
+        this.Colour = new Colour4(colour as number[])
+        this.Intensity = intensity
     }
 }
