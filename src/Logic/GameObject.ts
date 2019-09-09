@@ -1,13 +1,11 @@
 import Item from '../Item';
-import PhysicsMaterial from '../Physics/PhysicsMaterial';
+import PhysicsItem from '../Physics/PhysicsItem';
 import RenderMaterial from '../Render/RenderMaterial';
 import Cloneable from './Interfaces/Cloneable';
 import Destroyable from './Interfaces/Destroyable';
 import Updateable from './Interfaces/Updateable';
 import Mesh from './Mesh';
 import Transform from './Transform';
-
-export type GameObjectFunction = (this: GameObject) => void
 
 export let GameObjects: GameObject[] = []
 
@@ -17,13 +15,13 @@ export class IGameObject
     transform?: Transform
     mesh?: Mesh
     material?: RenderMaterial
-    physics?: PhysicsMaterial
+    physics?: PhysicsItem
     animation?: Animation
     children?: GameObject[]
     visible?: boolean
-    begin?: GameObjectFunction
-    update?: GameObjectFunction
-    end?: GameObjectFunction
+    begin?: (this: GameObject) => void
+    update?: (this: GameObject) => void
+    end?: (this: GameObject) => void
 }
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
@@ -31,13 +29,13 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     public Transform: Transform
     public Mesh: Mesh
     public Material: RenderMaterial
-    public Physics: PhysicsMaterial
+    public Physics: PhysicsItem
     public Animation: Animation
     public Children: GameObject[]
     public Visible: boolean
-    public Begin: GameObjectFunction
-    public Update: GameObjectFunction
-    public End: GameObjectFunction
+    public Begin: (this: GameObject) => void
+    public Update: (this: GameObject) => void
+    public End: (this: GameObject) => void
 
     constructor()
     constructor(gameObject: IGameObject)
@@ -57,39 +55,20 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     }: IGameObject = new IGameObject)
     {
         super(name)
-        
-        if (transform)
-        {
-            this.Transform = transform
-        }
-        
+
+        this.Transform = transform        
         this.Mesh = mesh
         this.Material = material
         this.Physics = physics
         this.Animation = animation
-    
-        if (begin)
-        {
-            this.Begin = begin.bind(this)
-        }
+        this.Begin = begin.bind(this)
+        this.Update = update.bind(this)
+        this.End = end.bind(this)
+        this.Visible = visible
 
-        if (update)
-        {
-            this.Update = update.bind(this)
-        }
-        
-        if (end)
-        {
-            this.End = end.bind(this)
-        }
         for (let child of children)
         {
             this.Children.push(child)
-        }
-
-        if (visible !== undefined)
-        {
-            this.Visible = visible
         }
         
         GameObjects.push(this)

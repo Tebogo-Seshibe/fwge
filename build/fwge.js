@@ -1,5 +1,82 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const GameObject_1 = require("./Logic/GameObject");
+const Input_1 = __importDefault(require("./Logic/Input/Input"));
+const Time_1 = __importDefault(require("./Logic/Utility/Time"));
+const Animation_1 = require("./Render/Animation/Animation");
+const ParticleSystem_1 = require("./Render/Particle System/ParticleSystem");
+const Renderer_1 = require("./Render/Renderer");
+class IFWGE {
+}
+exports.IFWGE = IFWGE;
+class FWGE {
+    get RenderUpdate() {
+        return this.renderUpdate;
+    }
+    set RenderUpdate(renderUpdate) {
+        this.renderUpdate = renderUpdate;
+        Time_1.default.Init(this.renderUpdate, this.phycicsUpdate);
+    }
+    get PhysicsUpdate() {
+        return this.phycicsUpdate;
+    }
+    set PhysicsUpdate(phycicsUpdate) {
+        this.phycicsUpdate = phycicsUpdate;
+        Time_1.default.Init(this.phycicsUpdate, this.phycicsUpdate);
+    }
+    static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }) {
+        if (!canvas) {
+            throw new Error('Field {canvas: HTMLCanvasElement} is required');
+        }
+        exports.GL = canvas.getContext('webgl');
+        if (!exports.GL) {
+            throw new Error('Webgl context could not be initialized.');
+        }
+        exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
+        Input_1.default.Init(canvas);
+        Time_1.default.Init(renderUpdate, physicsUpdate);
+        Renderer_1.InitRender();
+    }
+    static Start() {
+        if (FWGE.animationFrame !== -1) {
+            window.cancelAnimationFrame(FWGE.animationFrame);
+        }
+        Time_1.default.Render.Reset();
+        Time_1.default.Physics.Reset();
+        FWGE.Run();
+    }
+    static Stop() {
+        if (FWGE.animationFrame !== -1) {
+            window.cancelAnimationFrame(FWGE.animationFrame);
+        }
+    }
+    static Run() {
+        FWGE.animationFrame = window.requestAnimationFrame(FWGE.Run);
+        Time_1.default.Update();
+        for (let gameObject of GameObject_1.GameObjects) {
+            gameObject.Update();
+        }
+        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
+            particleSystem.Update();
+        }
+        for (let animation of Animation_1.Animations) {
+            animation.Update();
+        }
+        if (Time_1.default.Render.Ready) {
+            Renderer_1.UpdateRender();
+        }
+    }
+}
+FWGE.Running = false;
+FWGE.animationFrame = -1;
+exports.default = FWGE;
+
+},{"./Logic/GameObject":3,"./Logic/Input/Input":4,"./Logic/Utility/Time":28,"./Render/Animation/Animation":36,"./Render/Particle System/ParticleSystem":47,"./Render/Renderer":49}],2:[function(require,module,exports){
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 let ID_COUNTER = 0;
 function Hashcode(number) {
@@ -22,7 +99,7 @@ class Item {
 }
 exports.default = Item;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -37,27 +114,17 @@ exports.IGameObject = IGameObject;
 class GameObject extends Item_1.default {
     constructor({ name = 'GameObject', transform = new Transform_1.default(), material, mesh, physics, animation, begin = function () { }, update = function () { }, end = function () { }, children = [], visible = true } = new IGameObject) {
         super(name);
-        if (transform) {
-            this.Transform = transform;
-        }
+        this.Transform = transform;
         this.Mesh = mesh;
         this.Material = material;
         this.Physics = physics;
         this.Animation = animation;
-        if (begin) {
-            this.Begin = begin.bind(this);
-        }
-        if (update) {
-            this.Update = update.bind(this);
-        }
-        if (end) {
-            this.End = end.bind(this);
-        }
+        this.Begin = begin.bind(this);
+        this.Update = update.bind(this);
+        this.End = end.bind(this);
+        this.Visible = visible;
         for (let child of children) {
             this.Children.push(child);
-        }
-        if (visible !== undefined) {
-            this.Visible = visible;
         }
         exports.GameObjects.push(this);
     }
@@ -85,7 +152,7 @@ class GameObject extends Item_1.default {
 }
 exports.default = GameObject;
 
-},{"../Item":1,"./Transform":20}],3:[function(require,module,exports){
+},{"../Item":2,"./Transform":21}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -103,7 +170,7 @@ class Input {
 Input.Controllers = new List_1.default();
 exports.default = Input;
 
-},{"../Utility/List":25,"./KeyboardInput":5,"./MouseInput":6}],4:[function(require,module,exports){
+},{"../Utility/List":25,"./KeyboardInput":6,"./MouseInput":7}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var KeyboardState;
@@ -124,7 +191,7 @@ var WheelState;
     WheelState[WheelState["DOWN"] = 2] = "DOWN";
 })(WheelState = exports.WheelState || (exports.WheelState = {}));
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputState_1 = require("./InputState");
@@ -419,7 +486,7 @@ class KeyboardInput {
 }
 exports.default = KeyboardInput;
 
-},{"./InputState":4}],6:[function(require,module,exports){
+},{"./InputState":5}],7:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -497,17 +564,17 @@ class MouseInput {
 }
 exports.default = MouseInput;
 
-},{"../Maths/Vector2":16,"./InputState":4}],7:[function(require,module,exports){
+},{"../Maths/Vector2":17,"./InputState":5}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],8:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],9:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],10:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],10:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],11:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var UnaryExpressionType;
@@ -572,7 +639,7 @@ function Binary(type, left, right) {
 }
 exports.Binary = Binary;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SIGNIFICANT_FIGURES = Math.pow(10, 6);
@@ -598,7 +665,7 @@ Math.lerp = (from, to, time) => {
     return from * (1 - time) + to * time;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -744,7 +811,7 @@ class Matrix2 extends Float32Array {
 }
 exports.default = Matrix2;
 
-},{"../Utility/List":25,"./Maths":12,"./Matrix3":14,"./Matrix4":15}],14:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Matrix3":15,"./Matrix4":16}],15:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -946,7 +1013,7 @@ class Matrix3 extends Float32Array {
 }
 exports.default = Matrix3;
 
-},{"../Utility/List":25,"./Maths":12,"./Matrix2":13,"./Matrix4":15}],15:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Matrix2":14,"./Matrix4":16}],16:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1298,7 +1365,7 @@ class Matrix4 extends Float32Array {
 }
 exports.default = Matrix4;
 
-},{"../Utility/List":25,"./Maths":12,"./Matrix2":13,"./Matrix3":14}],16:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Matrix2":14,"./Matrix3":15}],17:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1421,7 +1488,7 @@ class Vector2 extends Float32Array {
 }
 exports.default = Vector2;
 
-},{"../Utility/List":25,"./Maths":12,"./Vector3":17,"./Vector4":18}],17:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Vector3":18,"./Vector4":19}],18:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1566,7 +1633,7 @@ class Vector3 extends Float32Array {
 }
 exports.default = Vector3;
 
-},{"../Utility/List":25,"./Maths":12,"./Vector2":16,"./Vector4":18}],18:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Vector2":17,"./Vector4":19}],19:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1711,7 +1778,7 @@ class Vector4 extends Float32Array {
 }
 exports.default = Vector4;
 
-},{"../Utility/List":25,"./Maths":12,"./Vector2":16,"./Vector3":17}],19:[function(require,module,exports){
+},{"../Utility/List":25,"./Maths":13,"./Vector2":17,"./Vector3":18}],20:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1719,7 +1786,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../Item"));
 const ArrayUtils_1 = __importDefault(require("./Utility/ArrayUtils"));
-const Control_1 = require("./Utility/Control");
+const FWGE_1 = require("../FWGE");
 var BufferType;
 (function (BufferType) {
     BufferType[BufferType["INDEX"] = 0] = "INDEX";
@@ -1740,12 +1807,12 @@ class Mesh extends Item_1.default {
         if (wireframe && wireframe.length === 0) {
             wireframe = undefined;
         }
-        this.PositionBuffer = this.Bind(Control_1.GL, BufferType.POSITION, position);
-        this.UVBuffer = this.Bind(Control_1.GL, BufferType.POSITION, uv);
-        this.ColourBuffer = this.Bind(Control_1.GL, BufferType.POSITION, colour);
-        this.NormalBuffer = this.Bind(Control_1.GL, BufferType.POSITION, normal);
-        this.IndexBuffer = this.Bind(Control_1.GL, BufferType.INDEX, index);
-        this.WireframeBuffer = this.Bind(Control_1.GL, BufferType.INDEX, wireframe);
+        this.PositionBuffer = this.Bind(FWGE_1.GL, BufferType.POSITION, position);
+        this.UVBuffer = this.Bind(FWGE_1.GL, BufferType.POSITION, uv);
+        this.ColourBuffer = this.Bind(FWGE_1.GL, BufferType.POSITION, colour);
+        this.NormalBuffer = this.Bind(FWGE_1.GL, BufferType.POSITION, normal);
+        this.IndexBuffer = this.Bind(FWGE_1.GL, BufferType.INDEX, index);
+        this.WireframeBuffer = this.Bind(FWGE_1.GL, BufferType.INDEX, wireframe);
         this.VertexCount = index.length;
     }
     Bind(gl, type, data) {
@@ -1772,7 +1839,7 @@ class Mesh extends Item_1.default {
 }
 exports.default = Mesh;
 
-},{"../Item":1,"./Utility/ArrayUtils":21,"./Utility/Control":23}],20:[function(require,module,exports){
+},{"../FWGE":1,"../Item":2,"./Utility/ArrayUtils":22}],21:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1810,7 +1877,7 @@ class Transform {
 }
 exports.default = Transform;
 
-},{"./Maths/Vector3":17}],21:[function(require,module,exports){
+},{"./Maths/Vector3":18}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ArrayUtiils {
@@ -1829,7 +1896,7 @@ class ArrayUtiils {
 }
 exports.default = ArrayUtiils;
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1843,70 +1910,7 @@ class BinaryTree extends Tree_1.default {
 }
 exports.default = BinaryTree;
 
-},{"./Tree":29}],23:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Animation_1 = require("../../Render/Animation/Animation");
-const ParticleSystem_1 = require("../../Render/Particle System/ParticleSystem");
-const Renderer_1 = require("../../Render/Renderer");
-const GameObject_1 = require("../GameObject");
-const Input_1 = __importDefault(require("../Input/Input"));
-const Time_1 = __importDefault(require("./Time"));
-class IFWGE {
-}
-exports.IFWGE = IFWGE;
-class Control {
-    static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }) {
-        if (!canvas) {
-            throw new Error('Field {canvas: HTMLCanvasElement} is required');
-        }
-        exports.GL = canvas.getContext('webgl');
-        if (!exports.GL) {
-            throw new Error('Webgl context could not be initialized.');
-        }
-        exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
-        Input_1.default.Init(canvas);
-        Time_1.default.Init(renderUpdate, physicsUpdate);
-        Renderer_1.InitRender();
-    }
-    static Start() {
-        if (Control.animationFrame !== -1) {
-            window.cancelAnimationFrame(Control.animationFrame);
-        }
-        Time_1.default.Render.Reset();
-        Time_1.default.Physics.Reset();
-        Control.Run();
-    }
-    static Stop() {
-        if (Control.animationFrame !== -1) {
-            window.cancelAnimationFrame(Control.animationFrame);
-        }
-    }
-    static Run() {
-        Control.animationFrame = window.requestAnimationFrame(Control.Run);
-        Time_1.default.Update();
-        for (let gameObject of GameObject_1.GameObjects) {
-            gameObject.Update();
-        }
-        for (let particleSystem of ParticleSystem_1.ParticleSystems) {
-            particleSystem.Update();
-        }
-        for (let animation of Animation_1.Animations) {
-            animation.Update();
-        }
-        if (Time_1.default.Render.Ready) {
-            Renderer_1.UpdateRender();
-        }
-    }
-}
-Control.Running = false;
-Control.animationFrame = -1;
-exports.default = Control;
-
-},{"../../Render/Animation/Animation":36,"../../Render/Particle System/ParticleSystem":47,"../../Render/Renderer":49,"../GameObject":2,"../Input/Input":3,"./Time":28}],24:[function(require,module,exports){
+},{"./Tree":29}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2036,7 +2040,7 @@ class OBJConverter {
 }
 exports.default = OBJConverter;
 
-},{"../../../Render/Colour/Colour4":41,"../../../Render/RenderMaterial":48,"../../GameObject":2,"../../Maths/Vector2":16,"../../Maths/Vector3":17,"../../Mesh":19}],25:[function(require,module,exports){
+},{"../../../Render/Colour/Colour4":41,"../../../Render/RenderMaterial":48,"../../GameObject":3,"../../Maths/Vector2":17,"../../Maths/Vector3":18,"../../Mesh":20}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ListNode {
@@ -2384,7 +2388,7 @@ class Collider extends Item_1.default {
 }
 exports.default = Collider;
 
-},{"../../Item":1,"../../Logic/Maths/Vector3":17}],32:[function(require,module,exports){
+},{"../../Item":2,"../../Logic/Maths/Vector3":18}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class CollisionEvent {
@@ -2442,7 +2446,7 @@ class RigidBody extends Item_1.default {
 }
 exports.default = RigidBody;
 
-},{"../Item":1}],35:[function(require,module,exports){
+},{"../Item":2}],35:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2459,7 +2463,7 @@ class PhysicsMaterial extends Item_1.default {
 }
 exports.default = PhysicsMaterial;
 
-},{"../Item":1}],36:[function(require,module,exports){
+},{"../Item":2}],36:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2564,7 +2568,7 @@ class Animation extends Item_1.default {
 }
 exports.default = Animation;
 
-},{"../../Item":1,"../../Logic/Maths/Vector3":17,"../../Logic/Utility/List":25,"../../Logic/Utility/Time":28,"./AnimationFrame":37}],37:[function(require,module,exports){
+},{"../../Item":2,"../../Logic/Maths/Vector3":18,"../../Logic/Utility/List":25,"../../Logic/Utility/Time":28,"./AnimationFrame":37}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IAnimationFrame {
@@ -2662,7 +2666,7 @@ class Camera extends Viewer_1.default {
 exports.default = Camera;
 new Camera();
 
-},{"../../Logic/Maths/Matrix4":15,"../../Logic/Maths/Vector3":17,"./Viewer":39}],39:[function(require,module,exports){
+},{"../../Logic/Maths/Matrix4":16,"../../Logic/Maths/Vector3":18,"./Viewer":39}],39:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2693,7 +2697,7 @@ class Viewer extends Item_1.default {
 }
 exports.default = Viewer;
 
-},{"../../Item":1}],40:[function(require,module,exports){
+},{"../../Item":2}],40:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2782,7 +2786,7 @@ class Colour3 extends Float32Array {
 }
 exports.default = Colour3;
 
-},{"../../Logic/Maths/Maths":12,"./Colour4":41}],41:[function(require,module,exports){
+},{"../../Logic/Maths/Maths":13,"./Colour4":41}],41:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2878,7 +2882,7 @@ class Colour4 extends Float32Array {
 }
 exports.default = Colour4;
 
-},{"../../Logic/Maths/Maths":12,"./Colour3":40}],42:[function(require,module,exports){
+},{"../../Logic/Maths/Maths":13,"./Colour3":40}],42:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2938,7 +2942,7 @@ class DirectionalLight extends LightItem_1.default {
 }
 exports.default = DirectionalLight;
 
-},{"../../Logic/Maths/Vector3":17,"../../Logic/Utility/List":25,"./LightItem":44}],44:[function(require,module,exports){
+},{"../../Logic/Maths/Vector3":18,"../../Logic/Utility/List":25,"./LightItem":44}],44:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2958,7 +2962,7 @@ class LightItem extends Item_1.default {
 }
 exports.default = LightItem;
 
-},{"../../Item":1,"../Colour/Colour4":41}],45:[function(require,module,exports){
+},{"../../Item":2,"../Colour/Colour4":41}],45:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2991,7 +2995,7 @@ class PointLight extends LightItem_1.default {
 }
 exports.default = PointLight;
 
-},{"../../Logic/Maths/Vector3":17,"../../Logic/Utility/List":25,"./LightItem":44}],46:[function(require,module,exports){
+},{"../../Logic/Maths/Vector3":18,"../../Logic/Utility/List":25,"./LightItem":44}],46:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3044,7 +3048,7 @@ class ModelView {
 }
 exports.default = ModelView;
 
-},{"../Logic/Maths/Maths":12,"../Logic/Maths/Matrix4":15,"../Logic/Utility/Stack":27}],47:[function(require,module,exports){
+},{"../Logic/Maths/Maths":13,"../Logic/Maths/Matrix4":16,"../Logic/Utility/Stack":27}],47:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3130,7 +3134,7 @@ class ParticleSystem extends Item_1.default {
 }
 exports.default = ParticleSystem;
 
-},{"../../Item":1,"../../Logic/Maths/Equation":11,"../../Logic/Maths/Vector3":17,"../../Logic/Transform":20,"../../Logic/Utility/Time":28}],48:[function(require,module,exports){
+},{"../../Item":2,"../../Logic/Maths/Equation":12,"../../Logic/Maths/Vector3":18,"../../Logic/Transform":21,"../../Logic/Utility/Time":28}],48:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3138,7 +3142,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../Item"));
 require("../Logic/Maths/Maths");
-const Control_1 = require("../Logic/Utility/Control");
+const FWGE_1 = require("../FWGE");
 const Colour4_1 = __importDefault(require("./Colour/Colour4"));
 var ImageMapType;
 (function (ImageMapType) {
@@ -3170,42 +3174,42 @@ class RenderMaterial extends Item_1.default {
         let texture = null;
         switch (type) {
             case ImageMapType.TEXTURE:
-                material.ImageMap = Control_1.GL.createTexture();
+                material.ImageMap = FWGE_1.GL.createTexture();
                 texture = material.ImageMap;
                 break;
             case ImageMapType.NORMAL:
-                material.BumpMap = Control_1.GL.createTexture();
+                material.BumpMap = FWGE_1.GL.createTexture();
                 texture = material.BumpMap;
                 break;
             case ImageMapType.SPECULAR:
-                material.SpecularMap = Control_1.GL.createTexture();
+                material.SpecularMap = FWGE_1.GL.createTexture();
                 texture = material.SpecularMap;
                 break;
             default: texture = null;
         }
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, texture);
-        Control_1.GL.texImage2D(Control_1.GL.TEXTURE_2D, 0, Control_1.GL.RGBA, 1, 1, 0, Control_1.GL.RGBA, Control_1.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, texture);
+        FWGE_1.GL.texImage2D(FWGE_1.GL.TEXTURE_2D, 0, FWGE_1.GL.RGBA, 1, 1, 0, FWGE_1.GL.RGBA, FWGE_1.GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
         img.onload = function () {
-            Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, texture);
-            Control_1.GL.texImage2D(Control_1.GL.TEXTURE_2D, 0, Control_1.GL.RGBA, Control_1.GL.RGBA, Control_1.GL.UNSIGNED_BYTE, img);
+            FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, texture);
+            FWGE_1.GL.texImage2D(FWGE_1.GL.TEXTURE_2D, 0, FWGE_1.GL.RGBA, FWGE_1.GL.RGBA, FWGE_1.GL.UNSIGNED_BYTE, img);
             if (Math.isPowerOf2(img.width) && Math.isPowerOf2(img.height)) {
-                Control_1.GL.generateMipmap(Control_1.GL.TEXTURE_2D);
-                Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MAG_FILTER, Control_1.GL.LINEAR);
-                Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MIN_FILTER, Control_1.GL.LINEAR_MIPMAP_NEAREST);
+                FWGE_1.GL.generateMipmap(FWGE_1.GL.TEXTURE_2D);
+                FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_MAG_FILTER, FWGE_1.GL.LINEAR);
+                FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_MIN_FILTER, FWGE_1.GL.LINEAR_MIPMAP_NEAREST);
             }
             else {
-                Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_S, Control_1.GL.CLAMP_TO_EDGE);
-                Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_T, Control_1.GL.CLAMP_TO_EDGE);
-                Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MIN_FILTER, Control_1.GL.LINEAR);
+                FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_WRAP_S, FWGE_1.GL.CLAMP_TO_EDGE);
+                FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_WRAP_T, FWGE_1.GL.CLAMP_TO_EDGE);
+                FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_MIN_FILTER, FWGE_1.GL.LINEAR);
             }
-            Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
+            FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
         };
         img.src = src;
     }
 }
 exports.default = RenderMaterial;
 
-},{"../Item":1,"../Logic/Maths/Maths":12,"../Logic/Utility/Control":23,"./Colour/Colour4":41}],49:[function(require,module,exports){
+},{"../FWGE":1,"../Item":2,"../Logic/Maths/Maths":13,"./Colour/Colour4":41}],49:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -3220,7 +3224,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const GameObject_1 = __importStar(require("../Logic/GameObject"));
 const Matrix3_1 = __importDefault(require("../Logic/Maths/Matrix3"));
-const Control_1 = require("../Logic/Utility/Control");
+const FWGE_1 = require("../FWGE");
 const List_1 = __importDefault(require("../Logic/Utility/List"));
 const Camera_1 = __importDefault(require("./Camera/Camera"));
 const AmbientLight_1 = __importStar(require("./Light/AmbientLight"));
@@ -3230,9 +3234,9 @@ const ModelView_1 = __importDefault(require("./ModelView"));
 const ParticleSystem_1 = __importStar(require("./Particle System/ParticleSystem"));
 const Shader_1 = require("./Shader/Shader");
 function InitRender() {
-    Control_1.GL.enable(Control_1.GL.DEPTH_TEST);
-    Control_1.GL.disable(Control_1.GL.BLEND);
-    Control_1.GL.blendFunc(Control_1.GL.SRC_ALPHA, Control_1.GL.ONE);
+    FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
+    FWGE_1.GL.disable(FWGE_1.GL.BLEND);
+    FWGE_1.GL.blendFunc(FWGE_1.GL.SRC_ALPHA, FWGE_1.GL.ONE);
 }
 exports.InitRender = InitRender;
 function UpdateRender() {
@@ -3248,13 +3252,13 @@ function UpdateRender() {
 exports.UpdateRender = UpdateRender;
 function ClearBuffers() {
     for (let shader of Shader_1.Shaders) {
-        Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, shader.FrameBuffer);
-        Control_1.GL.viewport(0, 0, shader.Width, shader.Height);
-        Control_1.GL.clear(Control_1.GL.COLOR_BUFFER_BIT | Control_1.GL.DEPTH_BUFFER_BIT);
+        FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, shader.FrameBuffer);
+        FWGE_1.GL.viewport(0, 0, shader.Width, shader.Height);
+        FWGE_1.GL.clear(FWGE_1.GL.COLOR_BUFFER_BIT | FWGE_1.GL.DEPTH_BUFFER_BIT);
     }
-    Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, null);
-    Control_1.GL.viewport(0, 0, Control_1.GL.drawingBufferWidth, Control_1.GL.drawingBufferHeight);
-    Control_1.GL.clear(Control_1.GL.COLOR_BUFFER_BIT | Control_1.GL.DEPTH_BUFFER_BIT);
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+    FWGE_1.GL.viewport(0, 0, FWGE_1.GL.drawingBufferWidth, FWGE_1.GL.drawingBufferHeight);
+    FWGE_1.GL.clear(FWGE_1.GL.COLOR_BUFFER_BIT | FWGE_1.GL.DEPTH_BUFFER_BIT);
 }
 function Render(item) {
     if (item instanceof ParticleSystem_1.default) {
@@ -3285,158 +3289,158 @@ function Render(item) {
     }
 }
 function RenderObject({ mesh, material, shader, modelView }) {
-    Control_1.GL.useProgram(shader.Program);
-    Control_1.GL.enableVertexAttribArray(shader.Attributes.Position);
+    FWGE_1.GL.useProgram(shader.Program);
+    FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Position);
     if (shader.Attributes.Normal !== -1) {
-        Control_1.GL.enableVertexAttribArray(shader.Attributes.Normal);
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Normal);
     }
     if (shader.Attributes.Colour !== -1) {
-        Control_1.GL.enableVertexAttribArray(shader.Attributes.Colour);
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.Colour);
     }
     if (shader.Attributes.UV !== -1) {
-        Control_1.GL.enableVertexAttribArray(shader.Attributes.UV);
+        FWGE_1.GL.enableVertexAttribArray(shader.Attributes.UV);
     }
     if (material.Alpha !== 1.0) {
-        Control_1.GL.enable(Control_1.GL.BLEND);
-        Control_1.GL.disable(Control_1.GL.DEPTH_TEST);
+        FWGE_1.GL.enable(FWGE_1.GL.BLEND);
+        FWGE_1.GL.disable(FWGE_1.GL.DEPTH_TEST);
     }
     BindAttributes(mesh, shader.Attributes);
     SetObjectUniforms(material, shader.Uniforms, modelView);
     Draw(mesh.VertexCount, shader.FrameBuffer);
     if (material.Alpha !== 1.0) {
-        Control_1.GL.enable(Control_1.GL.DEPTH_TEST);
-        Control_1.GL.disable(Control_1.GL.BLEND);
+        FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
+        FWGE_1.GL.disable(FWGE_1.GL.BLEND);
     }
-    Control_1.GL.disableVertexAttribArray(shader.Attributes.Position);
+    FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Position);
     if (shader.Attributes.Normal !== -1) {
-        Control_1.GL.disableVertexAttribArray(shader.Attributes.Normal);
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Normal);
     }
     if (shader.Attributes.Colour !== -1) {
-        Control_1.GL.disableVertexAttribArray(shader.Attributes.Colour);
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.Colour);
     }
     if (shader.Attributes.UV !== -1) {
-        Control_1.GL.disableVertexAttribArray(shader.Attributes.UV);
+        FWGE_1.GL.disableVertexAttribArray(shader.Attributes.UV);
     }
-    Control_1.GL.useProgram(null);
+    FWGE_1.GL.useProgram(null);
 }
 function BindAttributes(mesh, attributes) {
-    Control_1.GL.bindBuffer(Control_1.GL.ARRAY_BUFFER, mesh.PositionBuffer);
-    Control_1.GL.vertexAttribPointer(attributes.Position, 3, Control_1.GL.FLOAT, false, 0, 0);
+    FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.PositionBuffer);
+    FWGE_1.GL.vertexAttribPointer(attributes.Position, 3, FWGE_1.GL.FLOAT, false, 0, 0);
     if (attributes.UV !== -1) {
         if (mesh.UVBuffer) {
-            Control_1.GL.bindBuffer(Control_1.GL.ARRAY_BUFFER, mesh.UVBuffer);
-            Control_1.GL.vertexAttribPointer(attributes.UV, 2, Control_1.GL.FLOAT, false, 0, 0);
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.UVBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.UV, 2, FWGE_1.GL.FLOAT, false, 0, 0);
         }
         else {
-            Control_1.GL.disableVertexAttribArray(attributes.UV);
+            FWGE_1.GL.disableVertexAttribArray(attributes.UV);
         }
     }
     if (attributes.Colour !== -1) {
         if (mesh.ColourBuffer) {
-            Control_1.GL.bindBuffer(Control_1.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-            Control_1.GL.vertexAttribPointer(attributes.Colour, 3, Control_1.GL.FLOAT, false, 0, 0);
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.ColourBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.Colour, 3, FWGE_1.GL.FLOAT, false, 0, 0);
         }
         else {
-            Control_1.GL.disableVertexAttribArray(attributes.Colour);
+            FWGE_1.GL.disableVertexAttribArray(attributes.Colour);
         }
     }
     if (attributes.Normal !== -1) {
         if (!!mesh.NormalBuffer) {
-            Control_1.GL.bindBuffer(Control_1.GL.ARRAY_BUFFER, mesh.NormalBuffer);
-            Control_1.GL.vertexAttribPointer(attributes.Normal, 3, Control_1.GL.FLOAT, false, 0, 0);
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.NormalBuffer);
+            FWGE_1.GL.vertexAttribPointer(attributes.Normal, 3, FWGE_1.GL.FLOAT, false, 0, 0);
         }
         else {
-            Control_1.GL.disableVertexAttribArray(attributes.Normal);
+            FWGE_1.GL.disableVertexAttribArray(attributes.Normal);
         }
     }
-    Control_1.GL.bindBuffer(Control_1.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+    FWGE_1.GL.bindBuffer(FWGE_1.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 }
 function SetObjectUniforms(material, uniforms, mv) {
-    Control_1.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
-    Control_1.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3_1.default(mv.Clone().Inverse()));
-    Control_1.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient);
-    Control_1.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse);
-    Control_1.GL.uniform4fv(uniforms.Material.Specular, material.Specular);
-    Control_1.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
-    Control_1.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
+    FWGE_1.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
+    FWGE_1.GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3_1.default(mv.Clone().Inverse()));
+    FWGE_1.GL.uniform4fv(uniforms.Material.Ambient, material.Ambient);
+    FWGE_1.GL.uniform4fv(uniforms.Material.Diffuse, material.Diffuse);
+    FWGE_1.GL.uniform4fv(uniforms.Material.Specular, material.Specular);
+    FWGE_1.GL.uniform1f(uniforms.Material.Shininess, material.Shininess);
+    FWGE_1.GL.uniform1f(uniforms.Material.Alpha, material.Alpha);
     if (material.ImageMap) {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE0);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, material.ImageMap);
-        Control_1.GL.uniform1i(uniforms.Material.HasImage, 1);
-        Control_1.GL.uniform1i(uniforms.Sampler.Image, 0);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE0);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.ImageMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasImage, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Image, 0);
     }
     else {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE0);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
-        Control_1.GL.uniform1i(uniforms.Material.HasImage, 0);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE0);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasImage, 0);
     }
     if (material.BumpMap) {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE1);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, material.BumpMap);
-        Control_1.GL.uniform1i(uniforms.Material.HasBump, 1);
-        Control_1.GL.uniform1i(uniforms.Sampler.Bump, 1);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE1);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.BumpMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Bump, 1);
     }
     else {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE1);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
-        Control_1.GL.uniform1i(uniforms.Material.HasBump, 0);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE1);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 0);
     }
     if (material.SpecularMap) {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE2);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, material.SpecularMap);
-        Control_1.GL.uniform1i(uniforms.Material.HasSpecular, 1);
-        Control_1.GL.uniform1i(uniforms.Sampler.Specular, 2);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE2);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, material.SpecularMap);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasSpecular, 1);
+        FWGE_1.GL.uniform1i(uniforms.Sampler.Specular, 2);
     }
     else {
-        Control_1.GL.activeTexture(Control_1.GL.TEXTURE2);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
-        Control_1.GL.uniform1i(uniforms.Material.HasBump, 0);
+        FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE2);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.uniform1i(uniforms.Material.HasBump, 0);
     }
 }
 function SetGlobalUniforms() {
     var i = Shader_1.Shaders.length;
     let Lights = new List_1.default([].concat(AmbientLight_1.AmbientLights.ToArray(), DirectionalLight_1.DirectionalLights.ToArray(), PointLight_1.PointLights.ToArray()));
     for (let shader of Shader_1.Shaders) {
-        Control_1.GL.useProgram(shader.Program);
+        FWGE_1.GL.useProgram(shader.Program);
         let point_count = 0;
         let matrix = shader.Uniforms.Matrix;
         let uniforms = shader.Uniforms.Light;
         for (let light of Lights) {
             if (light instanceof AmbientLight_1.default) {
-                Control_1.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
-                Control_1.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
+                FWGE_1.GL.uniform4fv(uniforms.Ambient.Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Ambient.Intensity, light.Intensity);
             }
             else if (light instanceof DirectionalLight_1.default) {
-                Control_1.GL.uniform4fv(uniforms.Directional.Colour, light.Colour);
-                Control_1.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
-                Control_1.GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
+                FWGE_1.GL.uniform4fv(uniforms.Directional.Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Directional.Intensity, light.Intensity);
+                FWGE_1.GL.uniform3fv(uniforms.Directional.Direction, light.Direction);
             }
             else if (light instanceof PointLight_1.default) {
-                Control_1.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour);
-                Control_1.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
-                Control_1.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position);
-                Control_1.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
-                Control_1.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
+                FWGE_1.GL.uniform4fv(uniforms.Point[point_count].Colour, light.Colour);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Intensity, light.Intensity);
+                FWGE_1.GL.uniform3fv(uniforms.Point[point_count].Position, light.Position);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Radius, light.Radius);
+                FWGE_1.GL.uniform1f(uniforms.Point[point_count].Angle, light.Angle);
                 ++point_count;
             }
         }
         let main = Camera_1.default.Main;
-        Control_1.GL.uniform1i(uniforms.PointCount, point_count);
-        Control_1.GL.uniformMatrix4fv(matrix.Projection, false, main.ProjectionMatrix);
+        FWGE_1.GL.uniform1i(uniforms.PointCount, point_count);
+        FWGE_1.GL.uniformMatrix4fv(matrix.Projection, false, main.ProjectionMatrix);
     }
-    Control_1.GL.useProgram(null);
+    FWGE_1.GL.useProgram(null);
 }
 function Draw(vertexCount, framebuffer) {
-    Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, null);
-    Control_1.GL.drawElements(Control_1.GL.TRIANGLES, vertexCount, Control_1.GL.UNSIGNED_BYTE, 0);
-    Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, null);
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+    FWGE_1.GL.drawElements(FWGE_1.GL.TRIANGLES, vertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
+    FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
 }
 function SetAttributes(shader, fields) {
     for (const [name, [size, field]] of fields) {
         let index = shader.Attribute.get(name);
         if (index !== -1) {
-            Control_1.GL.bindBuffer(Control_1.GL.ARRAY_BUFFER, field);
-            Control_1.GL.vertexAttribPointer(index, size, Control_1.GL.FLOAT, false, 0, 0);
+            FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, field);
+            FWGE_1.GL.vertexAttribPointer(index, size, FWGE_1.GL.FLOAT, false, 0, 0);
         }
     }
 }
@@ -3447,38 +3451,38 @@ function SetUniforms(shader, fields) {
             case 'bool':
             case 'int':
             case 'uint':
-                Control_1.GL.uniform1i(index, field);
+                FWGE_1.GL.uniform1i(index, field);
             case 'float':
-                Control_1.GL.uniform1f(index, field);
+                FWGE_1.GL.uniform1f(index, field);
             case 'bvec2':
             case 'ivec2':
             case 'uvec2':
-                Control_1.GL.uniform2iv(index, field);
+                FWGE_1.GL.uniform2iv(index, field);
             case 'bvec3':
             case 'ivec3':
             case 'uvec3':
-                Control_1.GL.uniform3iv(index, field);
+                FWGE_1.GL.uniform3iv(index, field);
             case 'bvec4':
             case 'ivec4':
             case 'uvec4':
-                Control_1.GL.uniform4iv(index, field);
+                FWGE_1.GL.uniform4iv(index, field);
             case 'vec2':
-                Control_1.GL.uniform2fv(index, field);
+                FWGE_1.GL.uniform2fv(index, field);
             case 'vec3':
-                Control_1.GL.uniform3fv(index, field);
+                FWGE_1.GL.uniform3fv(index, field);
             case 'vec4':
-                Control_1.GL.uniform4fv(index, field);
+                FWGE_1.GL.uniform4fv(index, field);
             case 'mat2':
-                Control_1.GL.uniformMatrix2fv(index, false, field);
+                FWGE_1.GL.uniformMatrix2fv(index, false, field);
             case 'mat3':
-                Control_1.GL.uniformMatrix3fv(index, false, field);
+                FWGE_1.GL.uniformMatrix3fv(index, false, field);
             case 'mat4':
-                Control_1.GL.uniformMatrix4fv(index, false, field);
+                FWGE_1.GL.uniformMatrix4fv(index, false, field);
         }
     }
 }
 
-},{"../Logic/GameObject":2,"../Logic/Maths/Matrix3":14,"../Logic/Utility/Control":23,"../Logic/Utility/List":25,"./Camera/Camera":38,"./Light/AmbientLight":42,"./Light/DirectionalLight":43,"./Light/PointLight":45,"./ModelView":46,"./Particle System/ParticleSystem":47,"./Shader/Shader":59}],50:[function(require,module,exports){
+},{"../FWGE":1,"../Logic/GameObject":3,"../Logic/Maths/Matrix3":15,"../Logic/Utility/List":25,"./Camera/Camera":38,"./Light/AmbientLight":42,"./Light/DirectionalLight":43,"./Light/PointLight":45,"./ModelView":46,"./Particle System/ParticleSystem":47,"./Shader/Shader":59}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class AmbientUniforms {
@@ -3620,7 +3624,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../../Item"));
-const Control_1 = require("../../Logic/Utility/Control");
+const FWGE_1 = require("../../FWGE");
 const ShaderAttributes_1 = __importDefault(require("./Instance/ShaderAttributes"));
 const ShaderUniforms_1 = __importDefault(require("./Instance/ShaderUniforms"));
 exports.Shaders = [];
@@ -3644,18 +3648,18 @@ class Shader extends Item_1.default {
     }
     constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment } = new IShader) {
         super(name);
-        this.Program = Control_1.GL.createProgram();
-        this.Texture = Control_1.GL.createTexture();
-        this.FrameBuffer = Control_1.GL.createFramebuffer();
-        this.RenderBuffer = Control_1.GL.createRenderbuffer();
+        this.Program = FWGE_1.GL.createProgram();
+        this.Texture = FWGE_1.GL.createTexture();
+        this.FrameBuffer = FWGE_1.GL.createFramebuffer();
+        this.RenderBuffer = FWGE_1.GL.createRenderbuffer();
         this.Height = height;
         this.Width = width;
         this.vertexShader = vertex;
         this.fragmentShader = fragment;
         this.Attribute = new Map;
         this.Uniform = new Map;
-        this.Attributes = new ShaderAttributes_1.default(Control_1.GL, this.Program);
-        this.Uniforms = new ShaderUniforms_1.default(Control_1.GL, this.Program);
+        this.Attributes = new ShaderAttributes_1.default(FWGE_1.GL, this.Program);
+        this.Uniforms = new ShaderUniforms_1.default(FWGE_1.GL, this.Program);
         this.Build();
         exports.Shaders.push(this);
     }
@@ -3673,47 +3677,47 @@ class Shader extends Item_1.default {
             let groups = match.match(regex);
             let type = groups.groups.type;
             let name = groups.groups.name;
-            let index = Control_1.GL.getUniformLocation(this.Program, name);
+            let index = FWGE_1.GL.getUniformLocation(this.Program, name);
             if (!this.Uniform.has(name)) {
                 this.Uniform.set(name, { index, type });
             }
         }
     }
     CreateBuffers() {
-        Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, this.FrameBuffer);
-        Control_1.GL.bindRenderbuffer(Control_1.GL.RENDERBUFFER, this.RenderBuffer);
-        Control_1.GL.renderbufferStorage(Control_1.GL.RENDERBUFFER, Control_1.GL.DEPTH_COMPONENT16, this.Width, this.Height);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, this.Texture);
-        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MAG_FILTER, Control_1.GL.LINEAR);
-        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_MIN_FILTER, Control_1.GL.LINEAR);
-        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_S, Control_1.GL.CLAMP_TO_EDGE);
-        Control_1.GL.texParameteri(Control_1.GL.TEXTURE_2D, Control_1.GL.TEXTURE_WRAP_T, Control_1.GL.CLAMP_TO_EDGE);
-        Control_1.GL.texImage2D(Control_1.GL.TEXTURE_2D, 0, Control_1.GL.RGBA, this.Width, this.Height, 0, Control_1.GL.RGBA, Control_1.GL.UNSIGNED_BYTE, undefined);
-        Control_1.GL.framebufferTexture2D(Control_1.GL.FRAMEBUFFER, Control_1.GL.COLOR_ATTACHMENT0, Control_1.GL.TEXTURE_2D, this.Texture, 0);
-        Control_1.GL.framebufferRenderbuffer(Control_1.GL.FRAMEBUFFER, Control_1.GL.DEPTH_ATTACHMENT, Control_1.GL.RENDERBUFFER, this.RenderBuffer);
-        Control_1.GL.bindTexture(Control_1.GL.TEXTURE_2D, null);
-        Control_1.GL.bindRenderbuffer(Control_1.GL.RENDERBUFFER, null);
-        Control_1.GL.bindFramebuffer(Control_1.GL.FRAMEBUFFER, null);
+        FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, this.FrameBuffer);
+        FWGE_1.GL.bindRenderbuffer(FWGE_1.GL.RENDERBUFFER, this.RenderBuffer);
+        FWGE_1.GL.renderbufferStorage(FWGE_1.GL.RENDERBUFFER, FWGE_1.GL.DEPTH_COMPONENT16, this.Width, this.Height);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, this.Texture);
+        FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_MAG_FILTER, FWGE_1.GL.LINEAR);
+        FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_MIN_FILTER, FWGE_1.GL.LINEAR);
+        FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_WRAP_S, FWGE_1.GL.CLAMP_TO_EDGE);
+        FWGE_1.GL.texParameteri(FWGE_1.GL.TEXTURE_2D, FWGE_1.GL.TEXTURE_WRAP_T, FWGE_1.GL.CLAMP_TO_EDGE);
+        FWGE_1.GL.texImage2D(FWGE_1.GL.TEXTURE_2D, 0, FWGE_1.GL.RGBA, this.Width, this.Height, 0, FWGE_1.GL.RGBA, FWGE_1.GL.UNSIGNED_BYTE, undefined);
+        FWGE_1.GL.framebufferTexture2D(FWGE_1.GL.FRAMEBUFFER, FWGE_1.GL.COLOR_ATTACHMENT0, FWGE_1.GL.TEXTURE_2D, this.Texture, 0);
+        FWGE_1.GL.framebufferRenderbuffer(FWGE_1.GL.FRAMEBUFFER, FWGE_1.GL.DEPTH_ATTACHMENT, FWGE_1.GL.RENDERBUFFER, this.RenderBuffer);
+        FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
+        FWGE_1.GL.bindRenderbuffer(FWGE_1.GL.RENDERBUFFER, null);
+        FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
     }
     BuildShaders() {
         let errorLog = [];
-        const vs = Control_1.GL.createShader(Control_1.GL.VERTEX_SHADER);
-        Control_1.GL.shaderSource(vs, this.VertexShader);
-        Control_1.GL.compileShader(vs);
-        if (!Control_1.GL.getShaderParameter(vs, Control_1.GL.COMPILE_STATUS)) {
-            errorLog.push('Vertex Shader: ' + Control_1.GL.getShaderInfoLog(vs));
+        const vs = FWGE_1.GL.createShader(FWGE_1.GL.VERTEX_SHADER);
+        FWGE_1.GL.shaderSource(vs, this.VertexShader);
+        FWGE_1.GL.compileShader(vs);
+        if (!FWGE_1.GL.getShaderParameter(vs, FWGE_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Vertex Shader: ' + FWGE_1.GL.getShaderInfoLog(vs));
         }
-        const fs = Control_1.GL.createShader(Control_1.GL.FRAGMENT_SHADER);
-        Control_1.GL.shaderSource(fs, this.FragmentShader);
-        Control_1.GL.compileShader(fs);
-        if (!Control_1.GL.getShaderParameter(fs, Control_1.GL.COMPILE_STATUS)) {
-            errorLog.push('Fragment Shader: ' + Control_1.GL.getShaderInfoLog(fs));
+        const fs = FWGE_1.GL.createShader(FWGE_1.GL.FRAGMENT_SHADER);
+        FWGE_1.GL.shaderSource(fs, this.FragmentShader);
+        FWGE_1.GL.compileShader(fs);
+        if (!FWGE_1.GL.getShaderParameter(fs, FWGE_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Fragment Shader: ' + FWGE_1.GL.getShaderInfoLog(fs));
         }
-        Control_1.GL.attachShader(this.Program, vs);
-        Control_1.GL.attachShader(this.Program, fs);
-        Control_1.GL.linkProgram(this.Program);
-        if (!Control_1.GL.getProgramParameter(this.Program, Control_1.GL.LINK_STATUS)) {
-            errorLog.push(Control_1.GL.getProgramInfoLog(this.Program));
+        FWGE_1.GL.attachShader(this.Program, vs);
+        FWGE_1.GL.attachShader(this.Program, fs);
+        FWGE_1.GL.linkProgram(this.Program);
+        if (!FWGE_1.GL.getProgramParameter(this.Program, FWGE_1.GL.LINK_STATUS)) {
+            errorLog.push(FWGE_1.GL.getProgramInfoLog(this.Program));
         }
         if (errorLog.length > 0) {
             throw errorLog;
@@ -3722,63 +3726,62 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../../Item":1,"../../Logic/Utility/Control":23,"./Instance/ShaderAttributes":57,"./Instance/ShaderUniforms":58}],60:[function(require,module,exports){
+},{"../../FWGE":1,"../../Item":2,"./Instance/ShaderAttributes":57,"./Instance/ShaderUniforms":58}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-window.FWGE = {};
-window.FWGE.GameObject = require('./Logic/GameObject').default;
-window.FWGE.Transform = require('./Logic/Transform').default;
-window.FWGE.Mesh = require('./Logic/Mesh').default;
-window.FWGE.Input = require('./Logic/Input/Input').default;
-window.FWGE.KeyboardInput = require('./Logic/Input/KeyboardInput').default;
-window.FWGE.KeyboardState = require('./Logic/Input/InputState').KeyboardState;
-window.FWGE.ButtonState = require('./Logic/Input/InputState').ButtonState;
-window.FWGE.WheelState = require('./Logic/Input/InputState').WheelState;
-window.FWGE.Attachable = require('./Logic/Interfaces/Attachable').default;
-window.FWGE.Cloneable = require('./Logic/Interfaces/Cloneable').default;
-window.FWGE.Destroyable = require('./Logic/Interfaces/Destroyable').default;
-window.FWGE.Updateable = require('./Logic/Interfaces/Updateable').default;
-window.FWGE.Maths = require('./Logic/Maths/Maths').default;
-window.FWGE.Vector2 = require('./Logic/Maths/Vector2').default;
-window.FWGE.Vector3 = require('./Logic/Maths/Vector3').default;
-window.FWGE.Vector4 = require('./Logic/Maths/Vector4').default;
-window.FWGE.Matrix2 = require('./Logic/Maths/Matrix2').default;
-window.FWGE.Matrix3 = require('./Logic/Maths/Matrix3').default;
-window.FWGE.Matrix4 = require('./Logic/Maths/Matrix4').default;
-window.FWGE.OBJConverter = require('./Logic/Utility/Converter/OBJConverter').default;
-window.FWGE.ArrayUtils = require('./Logic/Utility/ArrayUtils').default;
-window.FWGE.BinaryTree = require('./Logic/Utility/BinaryTree').default;
-window.FWGE.Control = require('./Logic/Utility/Control').default;
-window.FWGE.List = require('./Logic/Utility/List').default;
-window.FWGE.ListUtils = require('./Logic/Utility/ListUtils').default;
-window.FWGE.Stack = require('./Logic/Utility/Stack').default;
-window.FWGE.Time = require('./Logic/Utility/Time').default;
-window.FWGE.Tree = require('./Logic/Utility/Tree').default;
-window.FWGE.BoxCollider = require('./Physics/Collision/BoxCollider').default;
-window.FWGE.Collider = require('./Physics/Collision/Collider').default;
-window.FWGE.SphereCollider = require('./Physics/Collision/SphereCollider').default;
-window.FWGE.CollisionEvent = require('./Physics/Collision/CollisionEvent').default;
-window.FWGE.PhysicsBody = require('./Physics/PhysicsBody').default;
-window.FWGE.PhysicsMaterial = require('./Physics/PhysicsMaterial').default;
-window.FWGE.Animation = require('./Render/Animation/Animation').default;
-window.FWGE.IAnimation = require('./Render/Animation/Animation').IAnimation;
-window.FWGE.Camera = require('./Render/Camera/Camera').default;
-window.FWGE.ICamera = require('./Render/Camera/Camera').ICamera;
-window.FWGE.Viewer = require('./Render/Camera/Viewer').default;
-window.FWGE.ViewMode = require('./Render/Camera/Viewer').ViewMode;
-window.FWGE.Colour4 = require('./Render/Colour/Colour3').default;
-window.FWGE.Colour4 = require('./Render/Colour/Colour4').default;
-window.FWGE.AmbientLight = require('./Render/Light/AmbientLight').default;
-window.FWGE.IAmbientLight = require('./Render/Light/AmbientLight').IAmbientLight;
-window.FWGE.DirectionalLight = require('./Render/Light/DirectionalLight').default;
-window.FWGE.IDirectionalLight = require('./Render/Light/DirectionalLight').IDirectionalLight;
-window.FWGE.ILightItem = require('./Render/Light/LightItem').ILightItem;
-window.FWGE.PointLight = require('./Render/Light/PointLight').default;
-window.FWGE.IPointLight = require('./Render/Light/PointLight').IPointLight;
-window.FWGE.ParticleSystem = require('./Render/Particle System/ParticleSystem').default;
-window.FWGE.Shader = require('./Render/Shader/Shader').default;
-window.FWGE.IShader = require('./Render/Shader/Shader').IShader;
-window.FWGE.ModelView = require('./Render/ModelView').default;
-window.FWGE.RenderMaterial = require('./Render/RenderMaterial').default;
+window.FWGE = require('./FWGE').default;
+window.GameObject = require('./Logic/GameObject').default;
+window.Transform = require('./Logic/Transform').default;
+window.Mesh = require('./Logic/Mesh').default;
+window.Input = require('./Logic/Input/Input').default;
+window.KeyboardInput = require('./Logic/Input/KeyboardInput').default;
+window.KeyboardState = require('./Logic/Input/InputState').KeyboardState;
+window.ButtonState = require('./Logic/Input/InputState').ButtonState;
+window.WheelState = require('./Logic/Input/InputState').WheelState;
+window.Attachable = require('./Logic/Interfaces/Attachable').default;
+window.Cloneable = require('./Logic/Interfaces/Cloneable').default;
+window.Destroyable = require('./Logic/Interfaces/Destroyable').default;
+window.Updateable = require('./Logic/Interfaces/Updateable').default;
+window.Maths = require('./Logic/Maths/Maths').default;
+window.Vector2 = require('./Logic/Maths/Vector2').default;
+window.Vector3 = require('./Logic/Maths/Vector3').default;
+window.Vector4 = require('./Logic/Maths/Vector4').default;
+window.Matrix2 = require('./Logic/Maths/Matrix2').default;
+window.Matrix3 = require('./Logic/Maths/Matrix3').default;
+window.Matrix4 = require('./Logic/Maths/Matrix4').default;
+window.OBJConverter = require('./Logic/Utility/Converter/OBJConverter').default;
+window.ArrayUtils = require('./Logic/Utility/ArrayUtils').default;
+window.BinaryTree = require('./Logic/Utility/BinaryTree').default;
+window.List = require('./Logic/Utility/List').default;
+window.ListUtils = require('./Logic/Utility/ListUtils').default;
+window.Stack = require('./Logic/Utility/Stack').default;
+window.Time = require('./Logic/Utility/Time').default;
+window.Tree = require('./Logic/Utility/Tree').default;
+window.BoxCollider = require('./Physics/Collision/BoxCollider').default;
+window.Collider = require('./Physics/Collision/Collider').default;
+window.SphereCollider = require('./Physics/Collision/SphereCollider').default;
+window.CollisionEvent = require('./Physics/Collision/CollisionEvent').default;
+window.PhysicsBody = require('./Physics/PhysicsBody').default;
+window.PhysicsMaterial = require('./Physics/PhysicsMaterial').default;
+window.Animation = require('./Render/Animation/Animation').default;
+window.IAnimation = require('./Render/Animation/Animation').IAnimation;
+window.Camera = require('./Render/Camera/Camera').default;
+window.ICamera = require('./Render/Camera/Camera').ICamera;
+window.Viewer = require('./Render/Camera/Viewer').default;
+window.ViewMode = require('./Render/Camera/Viewer').ViewMode;
+window.Colour4 = require('./Render/Colour/Colour3').default;
+window.Colour4 = require('./Render/Colour/Colour4').default;
+window.AmbientLight = require('./Render/Light/AmbientLight').default;
+window.IAmbientLight = require('./Render/Light/AmbientLight').IAmbientLight;
+window.DirectionalLight = require('./Render/Light/DirectionalLight').default;
+window.IDirectionalLight = require('./Render/Light/DirectionalLight').IDirectionalLight;
+window.ILightItem = require('./Render/Light/LightItem').ILightItem;
+window.PointLight = require('./Render/Light/PointLight').default;
+window.IPointLight = require('./Render/Light/PointLight').IPointLight;
+window.ParticleSystem = require('./Render/Particle System/ParticleSystem').default;
+window.Shader = require('./Render/Shader/Shader').default;
+window.IShader = require('./Render/Shader/Shader').IShader;
+window.ModelView = require('./Render/ModelView').default;
+window.RenderMaterial = require('./Render/RenderMaterial').default;
 
-},{"./Logic/GameObject":2,"./Logic/Input/Input":3,"./Logic/Input/InputState":4,"./Logic/Input/KeyboardInput":5,"./Logic/Interfaces/Attachable":7,"./Logic/Interfaces/Cloneable":8,"./Logic/Interfaces/Destroyable":9,"./Logic/Interfaces/Updateable":10,"./Logic/Maths/Maths":12,"./Logic/Maths/Matrix2":13,"./Logic/Maths/Matrix3":14,"./Logic/Maths/Matrix4":15,"./Logic/Maths/Vector2":16,"./Logic/Maths/Vector3":17,"./Logic/Maths/Vector4":18,"./Logic/Mesh":19,"./Logic/Transform":20,"./Logic/Utility/ArrayUtils":21,"./Logic/Utility/BinaryTree":22,"./Logic/Utility/Control":23,"./Logic/Utility/Converter/OBJConverter":24,"./Logic/Utility/List":25,"./Logic/Utility/ListUtils":26,"./Logic/Utility/Stack":27,"./Logic/Utility/Time":28,"./Logic/Utility/Tree":29,"./Physics/Collision/BoxCollider":30,"./Physics/Collision/Collider":31,"./Physics/Collision/CollisionEvent":32,"./Physics/Collision/SphereCollider":33,"./Physics/PhysicsBody":34,"./Physics/PhysicsMaterial":35,"./Render/Animation/Animation":36,"./Render/Camera/Camera":38,"./Render/Camera/Viewer":39,"./Render/Colour/Colour3":40,"./Render/Colour/Colour4":41,"./Render/Light/AmbientLight":42,"./Render/Light/DirectionalLight":43,"./Render/Light/LightItem":44,"./Render/Light/PointLight":45,"./Render/ModelView":46,"./Render/Particle System/ParticleSystem":47,"./Render/RenderMaterial":48,"./Render/Shader/Shader":59}]},{},[60]);
+},{"./FWGE":1,"./Logic/GameObject":3,"./Logic/Input/Input":4,"./Logic/Input/InputState":5,"./Logic/Input/KeyboardInput":6,"./Logic/Interfaces/Attachable":8,"./Logic/Interfaces/Cloneable":9,"./Logic/Interfaces/Destroyable":10,"./Logic/Interfaces/Updateable":11,"./Logic/Maths/Maths":13,"./Logic/Maths/Matrix2":14,"./Logic/Maths/Matrix3":15,"./Logic/Maths/Matrix4":16,"./Logic/Maths/Vector2":17,"./Logic/Maths/Vector3":18,"./Logic/Maths/Vector4":19,"./Logic/Mesh":20,"./Logic/Transform":21,"./Logic/Utility/ArrayUtils":22,"./Logic/Utility/BinaryTree":23,"./Logic/Utility/Converter/OBJConverter":24,"./Logic/Utility/List":25,"./Logic/Utility/ListUtils":26,"./Logic/Utility/Stack":27,"./Logic/Utility/Time":28,"./Logic/Utility/Tree":29,"./Physics/Collision/BoxCollider":30,"./Physics/Collision/Collider":31,"./Physics/Collision/CollisionEvent":32,"./Physics/Collision/SphereCollider":33,"./Physics/PhysicsBody":34,"./Physics/PhysicsMaterial":35,"./Render/Animation/Animation":36,"./Render/Camera/Camera":38,"./Render/Camera/Viewer":39,"./Render/Colour/Colour3":40,"./Render/Colour/Colour4":41,"./Render/Light/AmbientLight":42,"./Render/Light/DirectionalLight":43,"./Render/Light/LightItem":44,"./Render/Light/PointLight":45,"./Render/ModelView":46,"./Render/Particle System/ParticleSystem":47,"./Render/RenderMaterial":48,"./Render/Shader/Shader":59}]},{},[60]);

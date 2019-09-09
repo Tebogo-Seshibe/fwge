@@ -1,5 +1,5 @@
 import Item from '../../Item';
-import { GL } from '../../Logic/Utility/Control';
+import { GL } from '../../FWGE';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
 

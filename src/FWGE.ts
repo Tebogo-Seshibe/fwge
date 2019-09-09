@@ -1,14 +1,14 @@
-import { Animations } from '../../Render/Animation/Animation';
-import Colour4 from '../../Render/Colour/Colour4';
-import { ParticleSystems } from '../../Render/Particle System/ParticleSystem';
-import { InitRender, UpdateRender } from '../../Render/Renderer';
-import { GameObjects } from '../GameObject';
-import Input from '../Input/Input';
-import Time from './Time';
+import { GameObjects } from './Logic/GameObject';
+import Input from './Logic/Input/Input';
+import Time from './Logic/Utility/Time';
+import { Animations } from './Render/Animation/Animation';
+import Colour4 from './Render/Colour/Colour4';
+import { ParticleSystems } from './Render/Particle System/ParticleSystem';
+import { InitRender, UpdateRender } from './Render/Renderer';
 
 export let GL: WebGLRenderingContext
 
-export class  IFWGE
+export class IFWGE
 {
     canvas: HTMLCanvasElement
     renderUpdate?: number
@@ -16,10 +16,32 @@ export class  IFWGE
     clear?: Colour4 | Float32Array | number[]
 }
 
-export default class Control
+export default class FWGE
 {
     public static Running: boolean = false
     private static animationFrame: number = -1
+    
+    private renderUpdate: number
+    public get RenderUpdate(): number
+    {
+        return this.renderUpdate
+    }
+    public set RenderUpdate(renderUpdate: number)
+    {
+        this.renderUpdate = renderUpdate
+        Time.Init(this.renderUpdate, this.phycicsUpdate)
+    }
+
+    private phycicsUpdate: number
+    public get PhysicsUpdate(): number
+    {
+        return this.phycicsUpdate
+    }
+    public set PhysicsUpdate(phycicsUpdate: number)
+    {
+        this.phycicsUpdate = phycicsUpdate
+        Time.Init(this.phycicsUpdate, this.phycicsUpdate)
+    }
        
     public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
     {
@@ -44,27 +66,27 @@ export default class Control
     
     public static Start(): void
     {
-        if (Control.animationFrame !== -1)
+        if (FWGE.animationFrame !== -1)
         {
-            window.cancelAnimationFrame(Control.animationFrame)
+            window.cancelAnimationFrame(FWGE.animationFrame)
         }
 
         Time.Render.Reset()
         Time.Physics.Reset()
-        Control.Run()
+        FWGE.Run()
     }
     
     public static Stop(): void
     {
-        if (Control.animationFrame !== -1)
+        if (FWGE.animationFrame !== -1)
         {
-            window.cancelAnimationFrame(Control.animationFrame)
+            window.cancelAnimationFrame(FWGE.animationFrame)
         }
     }
     
     private static Run(): void
     {
-        Control.animationFrame = window.requestAnimationFrame(Control.Run)
+        FWGE.animationFrame = window.requestAnimationFrame(FWGE.Run)
         
         // Time
         Time.Update()

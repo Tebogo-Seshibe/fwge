@@ -1,6 +1,6 @@
 import Item from '../Item';
 import '../Logic/Maths/Maths';
-import { GL } from '../Logic/Utility/Control';
+import { GL } from '../FWGE';
 import Colour4 from './Colour/Colour4';
 import Shader from './Shader/Shader';
 

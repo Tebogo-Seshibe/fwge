@@ -1,7 +1,7 @@
 import GameObject, { GameObjects } from '../Logic/GameObject';
 import Matrix3 from '../Logic/Maths/Matrix3';
 import Matrix4 from '../Logic/Maths/Matrix4';
-import { GL } from '../Logic/Utility/Control';
+import { GL } from '../FWGE';
 import List from '../Logic/Utility/List';
 import Camera from './Camera/Camera';
 import AmbientLight, { AmbientLights } from './Light/AmbientLight';
