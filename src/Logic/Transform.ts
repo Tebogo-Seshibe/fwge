@@ -10,41 +10,21 @@ export class ITransform
 
 export default class Transform
 {
-    //#region Public Properties
-    public Position: Vector3 = Vector3.ZERO
-    public Rotation: Vector3 = Vector3.ZERO
-    public Scale: Vector3 = Vector3.ONE
-    public Shear: Vector3 = Vector3.ZERO
-    //#endregion
+    public Position: Vector3
+    public Rotation: Vector3
+    public Scale: Vector3
+    public Shear: Vector3
 
-    //#region Public Methods
     constructor()
     constructor(transform: ITransform)
-    constructor({ position, rotation, scale, shear }: ITransform = new ITransform)
+    constructor({ position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = new ITransform)
     {
-        if (position) 
-        {
-            this.Position = new Vector3(position as number[])
-        }
-
-        if (rotation) 
-        {
-            this.Rotation = new Vector3(rotation as number[])
-        }
-
-        if (scale) 
-        {
-            this.Scale = new Vector3(scale as number[])
-        }
-
-        if (shear) 
-        {
-            this.Shear = new Vector3(shear as number[])
-        }
+        this.Position = new Vector3(position as number[])
+        this.Rotation = new Vector3(rotation as number[])
+        this.Scale = new Vector3(scale as number[])
+        this.Shear = new Vector3(shear as number[])
     }
-    //#endregion
 
-    //#region Static Properties
     public static get UP(): Vector3
     {
         return new Vector3(0, 1, 0)
@@ -74,5 +54,4 @@ export default class Transform
     {
         return new Vector3(-1, 0, 0)
     }
-    //#endregion
 }

@@ -1,24 +1,20 @@
 import Item from '../../Item';
 import Vector3 from '../../Logic/Maths/Vector3';
-import PhysicsItem from '../PhysicsItem';
 
 export class ICollider
 {
     name?: string
-    position?: Vector3
-    physicsitem?: any
+    position?: Vector3 | Float32Array | number[]
 }
 
 export default class Collider extends Item
 {
     public Position: Vector3
-    public PhysicsItem: PhysicsItem
     
-    constructor(name: string, position: Vector3 = Vector3.ZERO, physicsitem: any = null)
+    constructor({name = 'Collider', position = [0, 0, 0]}: ICollider = new ICollider)
     {
         super(name)
 
-        this.Position = new Vector3(position)
-        this.PhysicsItem = physicsitem
+        this.Position = new Vector3(position as number[])
     }
 }

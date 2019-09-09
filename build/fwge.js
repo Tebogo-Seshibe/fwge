@@ -1783,23 +1783,11 @@ class ITransform {
 }
 exports.ITransform = ITransform;
 class Transform {
-    constructor({ position, rotation, scale, shear } = new ITransform) {
-        this.Position = Vector3_1.default.ZERO;
-        this.Rotation = Vector3_1.default.ZERO;
-        this.Scale = Vector3_1.default.ONE;
-        this.Shear = Vector3_1.default.ZERO;
-        if (position) {
-            this.Position = new Vector3_1.default(position);
-        }
-        if (rotation) {
-            this.Rotation = new Vector3_1.default(rotation);
-        }
-        if (scale) {
-            this.Scale = new Vector3_1.default(scale);
-        }
-        if (shear) {
-            this.Shear = new Vector3_1.default(shear);
-        }
+    constructor({ position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] } = new ITransform) {
+        this.Position = new Vector3_1.default(position);
+        this.Rotation = new Vector3_1.default(rotation);
+        this.Scale = new Vector3_1.default(scale);
+        this.Shear = new Vector3_1.default(shear);
     }
     static get UP() {
         return new Vector3_1.default(0, 1, 0);
@@ -1862,11 +1850,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Animation_1 = require("../../Render/Animation/Animation");
-const GameObject_1 = require("../GameObject");
 const ParticleSystem_1 = require("../../Render/Particle System/ParticleSystem");
 const Renderer_1 = require("../../Render/Renderer");
-const Time_1 = __importDefault(require("./Time"));
+const GameObject_1 = require("../GameObject");
 const Input_1 = __importDefault(require("../Input/Input"));
+const Time_1 = __importDefault(require("./Time"));
 class IFWGE {
 }
 exports.IFWGE = IFWGE;
@@ -1875,7 +1863,7 @@ class Control {
         if (!canvas) {
             throw new Error('Field {canvas: HTMLCanvasElement} is required');
         }
-        exports.GL = canvas.getContext('webgl2');
+        exports.GL = canvas.getContext('webgl');
         if (!exports.GL) {
             throw new Error('Webgl context could not be initialized.');
         }
@@ -1885,20 +1873,20 @@ class Control {
         Renderer_1.InitRender();
     }
     static Start() {
-        if (Control.AnimationFrame !== -1) {
-            window.cancelAnimationFrame(Control.AnimationFrame);
+        if (Control.animationFrame !== -1) {
+            window.cancelAnimationFrame(Control.animationFrame);
         }
         Time_1.default.Render.Reset();
         Time_1.default.Physics.Reset();
         Control.Run();
     }
     static Stop() {
-        if (Control.AnimationFrame !== -1) {
-            window.cancelAnimationFrame(Control.AnimationFrame);
+        if (Control.animationFrame !== -1) {
+            window.cancelAnimationFrame(Control.animationFrame);
         }
     }
     static Run() {
-        Control.AnimationFrame = window.requestAnimationFrame(Control.Run);
+        Control.animationFrame = window.requestAnimationFrame(Control.Run);
         Time_1.default.Update();
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
@@ -1915,7 +1903,7 @@ class Control {
     }
 }
 Control.Running = false;
-Control.AnimationFrame = -1;
+Control.animationFrame = -1;
 exports.default = Control;
 
 },{"../../Render/Animation/Animation":36,"../../Render/Particle System/ParticleSystem":47,"../../Render/Renderer":49,"../GameObject":2,"../Input/Input":3,"./Time":28}],24:[function(require,module,exports){
@@ -2368,11 +2356,8 @@ class IBoxCollider extends Collider_1.ICollider {
 }
 exports.IBoxCollider = IBoxCollider;
 class BoxCollider extends Collider_1.default {
-    constructor({ name = 'BoxCollider', physicsitem, position, height, width, breadth } = new IBoxCollider) {
-        super(name, position, physicsitem);
-        this.Height = 1;
-        this.Width = 1;
-        this.Breadth = 1;
+    constructor({ name = 'BoxCollider', position, height = 1.0, width = 1.0, breadth = 1.0 } = new IBoxCollider) {
+        super({ name, position });
         this.Height = height;
         this.Width = width;
         this.Breadth = breadth;
@@ -2392,10 +2377,9 @@ class ICollider {
 }
 exports.ICollider = ICollider;
 class Collider extends Item_1.default {
-    constructor(name, position = Vector3_1.default.ZERO, physicsitem = null) {
+    constructor({ name = 'Collider', position = [0, 0, 0] } = new ICollider) {
         super(name);
         this.Position = new Vector3_1.default(position);
-        this.PhysicsItem = physicsitem;
     }
 }
 exports.default = Collider;
@@ -2424,9 +2408,8 @@ class ISphereCollider extends Collider_1.ICollider {
 }
 exports.ISphereCollider = ISphereCollider;
 class SphereCollider extends Collider_1.default {
-    constructor({ name = 'Sphere Collider', position, physicsitem, radius } = new ISphereCollider) {
-        super(name, position, physicsitem);
-        this.Radius = 1;
+    constructor({ name = 'Sphere Collider', position, radius = 1.0 } = new ISphereCollider) {
+        super({ name, position });
         this.Radius = radius;
     }
 }
@@ -2439,31 +2422,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../Item"));
-class IPhysicsBody {
+class IRigidBody {
 }
-exports.IPhysicsBody = IPhysicsBody;
-class PhysicsBody extends Item_1.default {
-    constructor({ name = 'Physics Body', mass, lockx, locky, lockz } = new IPhysicsBody) {
+exports.IRigidBody = IRigidBody;
+class RigidBody extends Item_1.default {
+    get Velocity() {
+        return 0;
+    }
+    get Speed() {
+        return this.speed;
+    }
+    constructor({ name = 'Physics Body', mass = 1.0, lockx = true, locky = false, lockz = false } = new IRigidBody) {
         super(name);
-        this.Mass = 1;
-        this.LockX = true;
-        this.LockY = false;
-        this.LockZ = true;
-        this.Velocity = 0;
-        this.Speed = 0;
         this.Mass = mass;
-        if (lockx !== undefined) {
-            this.LockX = lockx;
-        }
-        if (locky !== undefined) {
-            this.LockY = locky;
-        }
-        if (lockz !== undefined) {
-            this.LockZ = lockz;
-        }
+        this.LockX = lockx;
+        this.LockY = locky;
+        this.LockZ = lockz;
     }
 }
-exports.default = PhysicsBody;
+exports.default = RigidBody;
 
 },{"../Item":1}],35:[function(require,module,exports){
 "use strict";

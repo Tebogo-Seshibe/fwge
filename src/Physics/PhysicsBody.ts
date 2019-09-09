@@ -1,6 +1,6 @@
 import Item from '../Item';
 
-export class IPhysicsBody
+export class IRigidBody
 {
     name?: string
     mass?: number
@@ -9,36 +9,34 @@ export class IPhysicsBody
     lockz?: boolean
 }
 
-export default class PhysicsBody extends Item
+export default class RigidBody extends Item
 {
-    public Mass: number = 1
-    public LockX: boolean = true
-    public LockY: boolean = false
-    public LockZ: boolean = true
-    public Velocity: number = 0
-    public Speed: number = 0
+    public Mass: number
+    public LockX: boolean
+    public LockY: boolean
+    public LockZ: boolean
+    
+    private speed: number
+
+    public get Velocity(): number
+    {
+        return 0
+    }
+
+    public get Speed(): number
+    {
+        return this.speed
+    }
     
     constructor()
-    constructor(physicsBody: IPhysicsBody)
-    constructor({ name = 'Physics Body', mass, lockx, locky, lockz }: IPhysicsBody = new IPhysicsBody)
+    constructor(physicsBody: IRigidBody)
+    constructor({ name = 'Physics Body', mass = 1.0, lockx = true, locky = false, lockz = false }: IRigidBody = new IRigidBody)
     {
         super(name)
 
         this.Mass = mass
-        
-        if (lockx !== undefined)
-        {
-            this.LockX = lockx
-        }
-        
-        if (locky !== undefined)
-        {
-            this.LockY = locky
-        }
-        
-        if (lockz !== undefined)
-        {
-            this.LockZ = lockz
-        }
+        this.LockX = lockx
+        this.LockY = locky
+        this.LockZ = lockz
     }
 }

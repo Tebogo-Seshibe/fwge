@@ -1,11 +1,10 @@
 import { Animations } from '../../Render/Animation/Animation';
-import { Cameras } from '../../Render/Camera/Camera';
-import { GameObjects } from '../GameObject';
+import Colour4 from '../../Render/Colour/Colour4';
 import { ParticleSystems } from '../../Render/Particle System/ParticleSystem';
 import { InitRender, UpdateRender } from '../../Render/Renderer';
-import Time from './Time';
-import Colour4 from '../../Render/Colour/Colour4';
+import { GameObjects } from '../GameObject';
 import Input from '../Input/Input';
+import Time from './Time';
 
 export let GL: WebGLRenderingContext
 
@@ -20,7 +19,7 @@ export class  IFWGE
 export default class Control
 {
     public static Running: boolean = false
-    private static AnimationFrame: number = -1
+    private static animationFrame: number = -1
        
     public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
     {
@@ -29,7 +28,7 @@ export default class Control
             throw new Error('Field {canvas: HTMLCanvasElement} is required')
         }
 
-        GL = canvas.getContext('webgl2') as WebGLRenderingContext
+        GL = canvas.getContext('webgl') as WebGLRenderingContext
 
         if (!GL)
         {
@@ -45,9 +44,9 @@ export default class Control
     
     public static Start(): void
     {
-        if (Control.AnimationFrame !== -1)
+        if (Control.animationFrame !== -1)
         {
-            window.cancelAnimationFrame(Control.AnimationFrame)
+            window.cancelAnimationFrame(Control.animationFrame)
         }
 
         Time.Render.Reset()
@@ -57,15 +56,15 @@ export default class Control
     
     public static Stop(): void
     {
-        if (Control.AnimationFrame !== -1)
+        if (Control.animationFrame !== -1)
         {
-            window.cancelAnimationFrame(Control.AnimationFrame)
+            window.cancelAnimationFrame(Control.animationFrame)
         }
     }
     
     private static Run(): void
     {
-        Control.AnimationFrame = window.requestAnimationFrame(Control.Run)
+        Control.animationFrame = window.requestAnimationFrame(Control.Run)
         
         // Time
         Time.Update()
