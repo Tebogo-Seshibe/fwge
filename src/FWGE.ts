@@ -29,18 +29,18 @@ export default class FWGE
     public set RenderUpdate(renderUpdate: number)
     {
         this.renderUpdate = renderUpdate
-        Time.Init(this.renderUpdate, this.phycicsUpdate)
+        Time.Init(this.renderUpdate, this.physicsUpdate)
     }
 
-    private phycicsUpdate: number
+    private physicsUpdate: number
     public get PhysicsUpdate(): number
     {
-        return this.phycicsUpdate
+        return this.physicsUpdate
     }
-    public set PhysicsUpdate(phycicsUpdate: number)
+    public set PhysicsUpdate(physicsUpdate: number)
     {
-        this.phycicsUpdate = phycicsUpdate
-        Time.Init(this.phycicsUpdate, this.phycicsUpdate)
+        this.physicsUpdate = physicsUpdate
+        Time.Init(this.physicsUpdate, this.physicsUpdate)
     }
        
     public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
