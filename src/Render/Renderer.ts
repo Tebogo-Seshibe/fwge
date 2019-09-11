@@ -1,14 +1,14 @@
+import { GL } from '../FWGE';
 import GameObject, { GameObjects } from '../Logic/GameObject';
 import Matrix3 from '../Logic/Maths/Matrix3';
 import Matrix4 from '../Logic/Maths/Matrix4';
-import { GL } from '../FWGE';
+import Mesh from '../Logic/Mesh';
 import List from '../Logic/Utility/List';
 import Camera from './Camera/Camera';
 import AmbientLight, { AmbientLights } from './Light/AmbientLight';
 import DirectionalLight, { DirectionalLights } from './Light/DirectionalLight';
 import LightItem from './Light/LightItem';
 import PointLight, { PointLights } from './Light/PointLight';
-import Mesh from '../Logic/Mesh';
 import ModelView from './ModelView';
 import ParticleSystem, { ParticleSystems } from './Particle System/ParticleSystem';
 import RenderMaterial from './RenderMaterial';
