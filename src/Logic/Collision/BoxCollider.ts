@@ -23,4 +23,16 @@ export default class BoxCollider extends Collider
         this.Width = width
         this.Breadth = breadth
     }
+
+    public Clone(): BoxCollider
+    {
+        return new BoxCollider(
+        {
+            name:       this.Name + ' Clone',
+            position:   this.Position.Clone(),
+            height:     this.Height,  
+            width:      this.Width,  
+            breadth:    this.Breadth  
+        })
+    }
 }

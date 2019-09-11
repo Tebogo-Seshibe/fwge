@@ -7,7 +7,7 @@ declare global
     interface Math
     {
         radian: (degree: number) => number
-        cot: (degree: number) => number
+        cot: (radian: number) => number
         clamp: (value: number, min: number, max: number) => number
         randBetween: (min: number, max: number) => number
         clean: (value: number) => number
@@ -21,9 +21,9 @@ Math.radian = (degree: number): number =>
     return Math.PI / 180 * degree
 }
 
-Math.cot = (angle: number): number =>
+Math.cot = (radian: number): number =>
 {
-    return 1 / Math.tan(angle)
+    return 1 / Math.tan(radian)
 }
 
 Math.clamp = (value: number, min: number, max: number): number =>

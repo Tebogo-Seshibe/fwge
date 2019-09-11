@@ -1,11 +1,11 @@
-import Item from '../Item';
+import Item from '../../Item';
 
 export class IPhysicsMaterial
 {
     name?: string
 }
 
-export default class PhysicsMaterial extends Item
+export default class ColliderMaterial extends Item
 {
     constructor()
     constructor(physicsMaterial: IPhysicsMaterial)

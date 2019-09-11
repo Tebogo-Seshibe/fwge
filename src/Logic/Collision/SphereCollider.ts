@@ -17,4 +17,14 @@ export default class SphereCollider extends Collider
 
         this.Radius = radius
     }
+
+    public Clone(): SphereCollider
+    {
+        return new SphereCollider(
+        {
+            name:       this.Name + ' Clone',
+            position:   this.Position.Clone(),
+            radius:     this.Radius  
+        })
+    }
 }

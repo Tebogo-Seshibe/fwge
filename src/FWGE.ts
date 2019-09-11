@@ -1,9 +1,9 @@
 import { GameObjects } from './Logic/GameObject';
 import Input from './Logic/Input/Input';
 import Time from './Logic/Utility/Time';
-import { Animations } from './Render/Animation/Animation';
-import Colour4 from './Render/Colour/Colour4';
-import { ParticleSystems } from './Render/Particle System/ParticleSystem';
+import { Animations } from './Logic/Animation/Animation';
+import Colour4 from './Logic/Colour/Colour4';
+import { ParticleSystems } from './Logic/Particle System/ParticleSystem';
 import { InitRender, UpdateRender } from './Render/Renderer';
 
 export let GL: WebGLRenderingContext

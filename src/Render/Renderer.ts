@@ -4,22 +4,22 @@ import Matrix3 from '../Logic/Maths/Matrix3';
 import Matrix4 from '../Logic/Maths/Matrix4';
 import Mesh from '../Logic/Mesh';
 import List from '../Logic/Utility/List';
-import Camera from './Camera/Camera';
-import AmbientLight, { AmbientLights } from './Light/AmbientLight';
-import DirectionalLight, { DirectionalLights } from './Light/DirectionalLight';
-import LightItem from './Light/LightItem';
-import PointLight, { PointLights } from './Light/PointLight';
+import Camera from '../Logic/Camera/Camera';
+import AmbientLight, { AmbientLights } from '../Logic/Light/AmbientLight';
+import DirectionalLight, { DirectionalLights } from '../Logic/Light/DirectionalLight';
+import LightItem from '../Logic/Light/LightItem';
+import PointLight, { PointLights } from '../Logic/Light/PointLight';
 import ModelView from './ModelView';
-import ParticleSystem, { ParticleSystems } from './Particle System/ParticleSystem';
-import RenderMaterial from './RenderMaterial';
-import ShaderAttributes from './Shader/Instance/ShaderAttributes';
-import ShaderUniforms from './Shader/Instance/ShaderUniforms';
-import Shader, { Shaders } from './Shader/Shader';
+import ParticleSystem, { ParticleSystems } from '../Logic/Particle System/ParticleSystem';
+import Material from '../Logic/Material';
+import ShaderAttributes from '../Logic/Shader/Instance/ShaderAttributes';
+import ShaderUniforms from '../Logic/Shader/Instance/ShaderUniforms';
+import Shader, { Shaders } from '../Logic/Shader/Shader';
 
 type Renderable = 
 {
     mesh: Mesh
-    material: RenderMaterial
+    material: Material
     shader: Shader
     modelView: Matrix4
 }
@@ -200,7 +200,7 @@ function BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
 }
 
-function SetObjectUniforms(material: RenderMaterial, uniforms: ShaderUniforms, mv: Matrix4): void
+function SetObjectUniforms(material: Material, uniforms: ShaderUniforms, mv: Matrix4): void
 {
     GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv)
     GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, new Matrix3(mv.Clone().Inverse()))

@@ -1,5 +1,5 @@
 import Item from '../Item';
-import '../Logic/Maths/Maths';
+import './Maths/Maths';
 import { GL } from '../FWGE';
 import Colour4 from './Colour/Colour4';
 import Shader from './Shader/Shader';
@@ -11,7 +11,7 @@ export enum ImageMapType
     SPECULAR
 }
 
-export class IRenderMaterial
+export class IMaterial
 {
     name?: string
     ambient?: Colour4 | Float32Array | number[]
@@ -25,7 +25,7 @@ export class IRenderMaterial
     specularmap?: string
 }
 
-export default class RenderMaterial extends Item
+export default class Material extends Item
 {
     public Ambient: Colour4
     public Diffuse: Colour4
@@ -41,18 +41,18 @@ export default class RenderMaterial extends Item
     public Shader: Shader
 
     constructor()
-    constructor(renderMaterial: IRenderMaterial)
+    constructor(renderMaterial: IMaterial)
     constructor(
     {
         name = 'Render Material',
-        ambient = [0.5, 0.5, 0.5, 1.0],
-        diffuse = [0.5, 0.5, 0.5, 1.0],
-        specular = [0.5, 0.5, 0.5, 1.0],
+        ambient = [0.50, 0.50, 0.50, 1.0],
+        diffuse = [0.65, 0.65, 0.65, 1.0],
+        specular = [0.75, 0.75, 0.75, 1.0],
         alpha = 1.0,
         shininess = 32.0,
         shader,
         imagemap, normalmap, specularmap
-    }: IRenderMaterial = new IRenderMaterial)
+    }: IMaterial = new IMaterial)
     {
         super(name)
 
@@ -65,12 +65,12 @@ export default class RenderMaterial extends Item
 
         this.Shader = shader
 
-        if (imagemap) RenderMaterial.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
-        if (normalmap) RenderMaterial.ApplyImage(this, normalmap, ImageMapType.NORMAL)
-        if (specularmap) RenderMaterial.ApplyImage(this, specularmap, ImageMapType.SPECULAR)
+        if (imagemap) Material.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
+        if (normalmap) Material.ApplyImage(this, normalmap, ImageMapType.NORMAL)
+        if (specularmap) Material.ApplyImage(this, specularmap, ImageMapType.SPECULAR)
     }
 
-    public static ApplyImage(material: RenderMaterial, src: string, type: ImageMapType): void
+    public static ApplyImage(material: Material, src: string, type: ImageMapType): void
     {
         let img: HTMLImageElement = new Image()
         let texture: WebGLTexture = null

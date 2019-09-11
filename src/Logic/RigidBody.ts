@@ -1,4 +1,5 @@
 import Item from '../Item';
+import Cloneable from './Interfaces/Cloneable';
 
 export class IRigidBody
 {
@@ -9,7 +10,7 @@ export class IRigidBody
     lockz?: boolean
 }
 
-export default class RigidBody extends Item
+export default class RigidBody extends Item implements Cloneable<RigidBody>
 {
     public Mass: number
     public LockX: boolean
@@ -38,5 +39,16 @@ export default class RigidBody extends Item
         this.LockX = lockx
         this.LockY = locky
         this.LockZ = lockz
+    }
+
+    public Clone(): RigidBody
+    {
+        return new RigidBody(
+        {
+            mass:   this.Mass,
+            lockx:  this.LockX,
+            locky:  this.LockY,
+            lockz:  this.LockZ
+        })
     }
 }

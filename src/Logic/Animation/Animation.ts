@@ -1,9 +1,9 @@
-import GameObject from '../../Logic/GameObject';
-import Updateable from '../../Logic/Interfaces/Updateable';
+import GameObject from '../GameObject';
+import Updateable from '../Interfaces/Updateable';
 import Item from '../../Item';
-import Vector3 from "../../Logic/Maths/Vector3";
-import List from '../../Logic/Utility/List';
-import Time from '../../Logic/Utility/Time';
+import Vector3 from "../Maths/Vector3";
+import List from '../Utility/List';
+import Time from '../Utility/Time';
 import AnimationFrame, { IAnimationFrame } from './AnimationFrame';
 
 export let Animations: Animation[] = []

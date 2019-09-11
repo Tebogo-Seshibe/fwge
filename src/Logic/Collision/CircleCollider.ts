@@ -17,4 +17,14 @@ export default class CircleCollider extends Collider
 
         this.Radius = radius
     }
+    
+    public Clone(): CircleCollider
+    {
+        return new CircleCollider(
+        {
+            name:       this.Name + ' Clone',
+            position:   this.Position.Clone(),
+            radius:     this.Radius  
+        })
+    }
 }

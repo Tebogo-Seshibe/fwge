@@ -1,10 +1,10 @@
-import GameObject from '../../GameObject';
-import Vector2 from '../../Maths/Vector2';
-import Vector3 from '../../Maths/Vector3';
-import Vector4 from '../../Maths/Vector4';
-import Colour4 from '../../../Render/Colour/Colour4';
-import Mesh, { IMesh } from '../../Mesh';
-import RenderMaterial, { IRenderMaterial } from '../../../Render/RenderMaterial';
+import Colour4 from '../Colour/Colour4';
+import GameObject from '../GameObject';
+import Material, { IMaterial } from '../Material';
+import Vector2 from '../Maths/Vector2';
+import Vector3 from '../Maths/Vector3';
+import Vector4 from '../Maths/Vector4';
+import Mesh, { IMesh } from '../Mesh';
 import Converter from './Converter';
 
 
@@ -119,12 +119,12 @@ export default class OBJConverter implements Converter
         return new Mesh({ name, position, normal, uv, colour, index, wireframe })
     }
             
-    public static ParseRenderMaterial(mtl: string): RenderMaterial
+    public static ParseRenderMaterial(mtl: string): Material
     {
         let lines: string[] = mtl.split('\n')
         let {
             name, shininess, ambient, diffuse, specular, alpha, imagemap
-        }: IRenderMaterial = new IRenderMaterial
+        }: IMaterial = new IMaterial
 
         for (let line of lines)
         {
@@ -169,6 +169,6 @@ export default class OBJConverter implements Converter
             }
         }
 
-        return new RenderMaterial({ name, shininess, ambient, diffuse, specular, alpha, imagemap, shader: null })
+        return new Material({ name, shininess, ambient, diffuse, specular, alpha, imagemap, shader: null })
     }
 }

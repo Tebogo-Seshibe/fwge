@@ -24,13 +24,13 @@ export class IMesh
 
 export default class Mesh extends Item
 {
-    public PositionBuffer: WebGLBuffer
-    public UVBuffer: WebGLBuffer
-    public ColourBuffer: WebGLBuffer
-    public NormalBuffer: WebGLBuffer
-    public IndexBuffer: WebGLBuffer
-    public WireframeBuffer: WebGLBuffer
-    public VertexCount: number
+    public readonly PositionBuffer: WebGLBuffer
+    public readonly UVBuffer: WebGLBuffer
+    public readonly ColourBuffer: WebGLBuffer
+    public readonly NormalBuffer: WebGLBuffer
+    public readonly IndexBuffer: WebGLBuffer
+    public readonly WireframeBuffer: WebGLBuffer
+    public readonly VertexCount: number
 
     constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe }: IMesh = new IMesh)
     {

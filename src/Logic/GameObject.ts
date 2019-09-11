@@ -1,24 +1,26 @@
 import Item from '../Item';
-import PhysicsItem from '../Physics/PhysicsItem';
-import RenderMaterial from '../Render/RenderMaterial';
+import Collider from './Collision/Collider';
 import Cloneable from './Interfaces/Cloneable';
 import Destroyable from './Interfaces/Destroyable';
 import Updateable from './Interfaces/Updateable';
+import Material from './Material';
 import Mesh from './Mesh';
+import RigidBody from './RigidBody';
 import Transform from './Transform';
 
 export let GameObjects: GameObject[] = []
 
 export class IGameObject
 {
-    name?: string
+    name?: string    
     transform?: Transform
+    material?: Material
     mesh?: Mesh
-    material?: RenderMaterial
-    physics?: PhysicsItem
+    visible?: boolean
+    rigidbody?: RigidBody
+    collider?: Collider
     animation?: Animation
     children?: GameObject[]
-    visible?: boolean
     begin?: (this: GameObject) => void
     update?: (this: GameObject) => void
     end?: (this: GameObject) => void
@@ -27,12 +29,14 @@ export class IGameObject
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
     public Transform: Transform
+    public Material: Material
     public Mesh: Mesh
-    public Material: RenderMaterial
-    public Physics: PhysicsItem
-    public Animation: Animation
-    public Children: GameObject[]
     public Visible: boolean
+    public RigidBody: RigidBody
+    public Collider: Collider
+    public Animation: Animation    
+    public Children: GameObject[]
+    
     public Begin: (this: GameObject) => void
     public Update: (this: GameObject) => void
     public End: (this: GameObject) => void
@@ -45,26 +49,29 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         transform = new Transform(),
         material,
         mesh,
-        physics,
+        visible = true,
+        rigidbody,
+        collider,
         animation,
-        begin = function(this: GameObject) { },
-        update = function(this: GameObject) { },
-        end = function(this: GameObject) { },
         children = [],
-        visible = true
+        begin = function (this: GameObject) { },
+        update = function (this: GameObject) { },
+        end = function (this: GameObject) { },
     }: IGameObject = new IGameObject)
     {
         super(name)
 
         this.Transform = transform        
-        this.Mesh = mesh
         this.Material = material
-        this.Physics = physics
+        this.Mesh = mesh
+        this.Visible = visible
+        this.RigidBody = rigidbody
+        this.Collider = collider
         this.Animation = animation
+        this.Children = []
         this.Begin = begin.bind(this)
         this.Update = update.bind(this)
         this.End = end.bind(this)
-        this.Visible = visible
 
         for (let child of children)
         {
@@ -91,9 +98,11 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
                 scale:      this.Transform.Scale,
                 shear:      this.Transform.Shear
             }),
-            mesh:           this.Mesh,
             material:       this.Material,
-            physics:        this.Physics,
+            mesh:           this.Mesh,
+            visible:        this.Visible,
+            rigidbody:      this.RigidBody.Clone(),
+            collider:       this.Collider.Clone(),
             begin:          this.Begin,
             update:         this.Update,
             end:            this.End,
