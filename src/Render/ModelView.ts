@@ -10,7 +10,18 @@ export default class ModelView
 {
     public static Push(transform: Transform): Matrix4
     {
-        MVStack.Push(this.Transform(transform))
+        MVStack.Push(
+            this.Shear(
+                this.Scale(
+                    this.Rotate(
+                        this.Translate(
+                            this.Peek(),
+                            transform.Position),
+                        transform.Rotation),
+                    transform.Scale),
+                transform.Shear)
+            )
+            
         return ModelView.Peek()
     }
         
@@ -34,11 +45,6 @@ export default class ModelView
         }
 
         return mat
-    }
-    
-    private static Transform({ Position, Rotation, Scale, Shear }: Transform): Matrix4
-    {
-        return this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), Position), Rotation), Scale), Shear)
     }
         
     private static Translate(matrix: Matrix4, translation: Vector3): Matrix4
@@ -89,7 +95,7 @@ export default class ModelView
             matrix.M21 * scalers.Y, matrix.M22 * scalers.Y, matrix.M23 * scalers.Y, matrix.M24 * scalers.Y,
             matrix.M31 * scalers.Z, matrix.M32 * scalers.Z, matrix.M33 * scalers.Z, matrix.M34 * scalers.Z,
                         matrix.M41,             matrix.M42,             matrix.M43,             matrix.M44
-        );
+        )
     }
     
     private static Shear(matrix: Matrix4, angles: Vector3): Matrix4
@@ -104,6 +110,6 @@ export default class ModelView
             Math.tan(phi),             1.0,           0.0, 0.0,
                       0.0, Math.tan(theta),           1.0, 0.0,
                       0.0,             0.0,           0.0, 1.0
-        ).Mult(matrix);
+        ).Mult(matrix)
     }
 }

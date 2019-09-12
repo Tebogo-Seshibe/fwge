@@ -1335,12 +1335,11 @@ class IPointLight extends LightItem_1.ILightItem {
 }
 exports.IPointLight = IPointLight;
 class PointLight extends LightItem_1.default {
-    constructor({ name = 'Point Light', colour, intensity, position, radius = 5, angle = 180, shininess = 32, shadows = false } = new IPointLight) {
+    constructor({ name = 'Point Light', colour, intensity, position, radius = 5, angle = 180, shadows = false } = new IPointLight) {
         super({ name, colour, intensity });
         this.Position = new Vector3_1.default(position);
         this.Radius = radius;
         this.Angle = angle;
-        this.Shininess = shininess;
         this.Shadows = shadows;
         exports.PointLights.Add(this);
     }
@@ -3455,7 +3454,7 @@ const Stack_1 = __importDefault(require("../Logic/Utility/Stack"));
 let MVStack = new Stack_1.default();
 class ModelView {
     static Push(transform) {
-        MVStack.Push(this.Transform(transform));
+        MVStack.Push(this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), transform.Position), transform.Rotation), transform.Scale), transform.Shear));
         return ModelView.Peek();
     }
     static Peek() {
@@ -3471,9 +3470,6 @@ class ModelView {
             return Matrix4_1.default.IDENTITY;
         }
         return mat;
-    }
-    static Transform({ Position, Rotation, Scale, Shear }) {
-        return this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), Position), Rotation), Scale), Shear);
     }
     static Translate(matrix, translation) {
         return new Matrix4_1.default(matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M11 * translation.X + matrix.M21 * translation.Y + matrix.M31 * translation.Z + matrix.M41, matrix.M12 * translation.X + matrix.M22 * translation.Y + matrix.M32 * translation.Z + matrix.M42, matrix.M13 * translation.X + matrix.M23 * translation.Y + matrix.M33 * translation.Z + matrix.M43, matrix.M14 * translation.X + matrix.M24 * translation.Y + matrix.M34 * translation.Z + matrix.M44);
