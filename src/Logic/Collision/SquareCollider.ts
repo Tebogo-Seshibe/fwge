@@ -4,35 +4,31 @@ export class IBoxCollider extends ICollider
 {
     height?: number
     width?: number
-    breadth?: number
 }
 
-export default class BoxCollider extends Collider
+export default class SquareCollider extends Collider
 {
     public Height: number
     public Width: number
-    public Breadth: number
     
     constructor()
     constructor(boxCollider: IBoxCollider)
-    constructor({ name = 'BoxCollider', transform, height = 1.0, width = 1.0, breadth = 1.0 }: IBoxCollider = new IBoxCollider)
+    constructor({ name = 'BoxCollider', transform, height = 1.0, width = 1.0 }: IBoxCollider = new IBoxCollider)
     {
         super({ name, transform })
 
         this.Height = height
         this.Width = width
-        this.Breadth = breadth
     }
 
-    public Clone(): BoxCollider
+    public Clone(): SquareCollider
     {
-        return new BoxCollider(
+        return new SquareCollider(
         {
             name:       this.Name + ' Clone',
             transform:  this.Transform.Clone(),
             height:     this.Height,
-            width:      this.Width,
-            breadth:    this.Breadth
+            width:      this.Width
         })
     }
 }

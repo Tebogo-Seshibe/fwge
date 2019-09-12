@@ -29,11 +29,11 @@ export default class Shader extends Item
     public Height: number
     public Width: number
 
-    public readonly Attribute: Map<string, number>
-    public readonly Uniform: Map<string, UniformField>
+    public Attribute: Map<string, number>
+    public Uniform: Map<string, UniformField>
 
-    public readonly Attributes: ShaderAttributes
-    public readonly Uniforms: ShaderUniforms
+    public Attributes: ShaderAttributes
+    public Uniforms: ShaderUniforms
 
     private vertexShader: string
     public get VertexShader(): string
@@ -75,8 +75,6 @@ export default class Shader extends Item
         this.Attribute = new Map
         this.Uniform = new Map
         
-        this.Attributes = new ShaderAttributes(GL, this.Program)
-        this.Uniforms = new ShaderUniforms(GL, this.Program)
         
         this.Build()
 
@@ -85,8 +83,12 @@ export default class Shader extends Item
 
     private Build(): void
     {
-        this.CreateBuffers()
         this.BuildShaders()
+
+        this.Attributes = new ShaderAttributes(GL, this.Program)
+        this.Uniforms = new ShaderUniforms(GL, this.Program)
+        
+        this.CreateBuffers()
         this.ParseProperties()
     }
     
@@ -96,7 +98,7 @@ export default class Shader extends Item
         const regexGroup: RegExp = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g
 
         let text = this.VertexShader + "\n" + this.FragmentShader
-        let matches = text.match(regexGroup)
+        let matches = text.match(regexGroup) || []
 
         for (const match of matches)
         {   

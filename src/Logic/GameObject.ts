@@ -91,13 +91,7 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         return new GameObject(
         {
             name:           this.Name + " Clone",
-            transform:      new Transform(
-            {
-                position:   this.Transform.Position,
-                rotation:   this.Transform.Rotation,
-                scale:      this.Transform.Scale,
-                shear:      this.Transform.Shear
-            }),
+            transform:      this.Transform.Clone(),
             material:       this.Material,
             mesh:           this.Mesh,
             visible:        this.Visible,

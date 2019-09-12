@@ -4,11 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Animation_1 = require("./Logic/Animation/Animation");
 const GameObject_1 = require("./Logic/GameObject");
 const Input_1 = __importDefault(require("./Logic/Input/Input"));
-const Time_1 = __importDefault(require("./Logic/Utility/Time"));
-const Animation_1 = require("./Logic/Animation/Animation");
 const ParticleSystem_1 = require("./Logic/Particle System/ParticleSystem");
+const Time_1 = __importDefault(require("./Logic/Utility/Time"));
+const PhysicsEngine_1 = require("./Physics/PhysicsEngine");
 const Renderer_1 = require("./Render/Renderer");
 class IFWGE {
 }
@@ -19,14 +20,14 @@ class FWGE {
     }
     set RenderUpdate(renderUpdate) {
         this.renderUpdate = renderUpdate;
-        Time_1.default.Init(this.renderUpdate, this.phycicsUpdate);
+        Time_1.default.Init(this.renderUpdate, this.physicsUpdate);
     }
     get PhysicsUpdate() {
-        return this.phycicsUpdate;
+        return this.physicsUpdate;
     }
-    set PhysicsUpdate(phycicsUpdate) {
-        this.phycicsUpdate = phycicsUpdate;
-        Time_1.default.Init(this.phycicsUpdate, this.phycicsUpdate);
+    set PhysicsUpdate(physicsUpdate) {
+        this.physicsUpdate = physicsUpdate;
+        Time_1.default.Init(this.physicsUpdate, this.physicsUpdate);
     }
     static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }) {
         if (!canvas) {
@@ -36,6 +37,7 @@ class FWGE {
         if (!exports.GL) {
             throw new Error('Webgl context could not be initialized.');
         }
+        console.log(clear);
         exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
         Input_1.default.Init(canvas);
         Time_1.default.Init(renderUpdate, physicsUpdate);
@@ -47,24 +49,27 @@ class FWGE {
         }
         Time_1.default.Render.Reset();
         Time_1.default.Physics.Reset();
-        FWGE.Run();
+        FWGE.GameLoop();
     }
     static Stop() {
         if (FWGE.animationFrame !== -1) {
             window.cancelAnimationFrame(FWGE.animationFrame);
         }
     }
-    static Run() {
-        FWGE.animationFrame = window.requestAnimationFrame(FWGE.Run);
+    static GameLoop() {
+        FWGE.animationFrame = window.requestAnimationFrame(FWGE.GameLoop);
         Time_1.default.Update();
         for (let gameObject of GameObject_1.GameObjects) {
             gameObject.Update();
         }
+        for (let animation of Animation_1.Animations) {
+            animation.Update();
+        }
         for (let particleSystem of ParticleSystem_1.ParticleSystems) {
             particleSystem.Update();
         }
-        for (let animation of Animation_1.Animations) {
-            animation.Update();
+        if (Time_1.default.Physics.Ready) {
+            PhysicsEngine_1.UpdatePhysics();
         }
         if (Time_1.default.Render.Ready) {
             Renderer_1.UpdateRender();
@@ -75,7 +80,7 @@ FWGE.Running = false;
 FWGE.animationFrame = -1;
 exports.default = FWGE;
 
-},{"./Logic/Animation/Animation":3,"./Logic/GameObject":15,"./Logic/Input/Input":16,"./Logic/Particle System/ParticleSystem":38,"./Logic/Utility/Time":56,"./Render/Renderer":59}],2:[function(require,module,exports){
+},{"./Logic/Animation/Animation":3,"./Logic/GameObject":15,"./Logic/Input/Input":16,"./Logic/Particle System/ParticleSystem":38,"./Logic/Utility/Time":56,"./Physics/PhysicsEngine":58,"./Render/Renderer":60}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 let ID_COUNTER = 0;
@@ -348,8 +353,8 @@ class IBoxCollider extends Collider_1.ICollider {
 }
 exports.IBoxCollider = IBoxCollider;
 class BoxCollider extends Collider_1.default {
-    constructor({ name = 'BoxCollider', position, height = 1.0, width = 1.0, breadth = 1.0 } = new IBoxCollider) {
-        super({ name, position });
+    constructor({ name = 'BoxCollider', transform, height = 1.0, width = 1.0, breadth = 1.0 } = new IBoxCollider) {
+        super({ name, transform });
         this.Height = height;
         this.Width = width;
         this.Breadth = breadth;
@@ -357,7 +362,7 @@ class BoxCollider extends Collider_1.default {
     Clone() {
         return new BoxCollider({
             name: this.Name + ' Clone',
-            position: this.Position.Clone(),
+            transform: this.Transform.Clone(),
             height: this.Height,
             width: this.Width,
             breadth: this.Breadth
@@ -373,20 +378,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../../Item"));
-const Vector3_1 = __importDefault(require("../Maths/Vector3"));
 class ICollider {
 }
 exports.ICollider = ICollider;
 class Collider extends Item_1.default {
-    constructor({ name = 'Collider', position = [0, 0, 0] } = new ICollider) {
+    constructor({ name = 'Collider', transform } = new ICollider) {
         super(name);
-        this.Position = new Vector3_1.default(position);
+        this.Transform = transform;
     }
     Clone() { return null; }
 }
 exports.default = Collider;
 
-},{"../../Item":2,"../Maths/Vector3":35}],9:[function(require,module,exports){
+},{"../../Item":2}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class CollisionEvent {
@@ -427,14 +431,14 @@ class ISphereCollider extends Collider_1.ICollider {
 }
 exports.ISphereCollider = ISphereCollider;
 class SphereCollider extends Collider_1.default {
-    constructor({ name = 'Sphere Collider', position, radius = 1.0 } = new ISphereCollider) {
-        super({ name, position });
+    constructor({ name = 'Sphere Collider', transform, radius = 1.0 } = new ISphereCollider) {
+        super({ name, transform });
         this.Radius = radius;
     }
     Clone() {
         return new SphereCollider({
             name: this.Name + ' Clone',
-            position: this.Position.Clone(),
+            transform: this.Transform.Clone(),
             radius: this.Radius
         });
     }
@@ -793,12 +797,7 @@ class GameObject extends Item_1.default {
     Clone() {
         return new GameObject({
             name: this.Name + " Clone",
-            transform: new Transform_1.default({
-                position: this.Transform.Position,
-                rotation: this.Transform.Rotation,
-                scale: this.Transform.Scale,
-                shear: this.Transform.Shear
-            }),
+            transform: this.Transform.Clone(),
             material: this.Material,
             mesh: this.Mesh,
             visible: this.Visible,
@@ -1491,7 +1490,7 @@ exports.Binary = Binary;
 },{}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const SIGNIFICANT_FIGURES = Math.pow(10, 6);
+const SIGNIFICANT_FIGURES = Math.pow(10, 5);
 Math.radian = (degree) => {
     return Math.PI / 180 * degree;
 };
@@ -2266,7 +2265,7 @@ class Vector2 extends Float32Array {
     }
     Lerp(time, x, y) {
         let to = new Vector2(Vector2.Destructure(x, y));
-        return Vector2.Lerp(this, to, time);
+        return this.Set(Vector2.Lerp(this, to, time));
     }
     Unit() {
         return Vector2.Unit(this);
@@ -2398,7 +2397,7 @@ class Vector3 extends Float32Array {
     }
     Lerp(time, x, y, z) {
         let to = new Vector3(Vector3.Destructure(x, y, z));
-        return Vector3.Lerp(this, to, time);
+        return this.Set(Vector3.Lerp(this, to, time));
     }
     Cross(x, y, z) {
         return Vector3.Cross(this, x, y, z);
@@ -2543,7 +2542,7 @@ class Vector4 extends Float32Array {
     }
     Lerp(time, x, y, z, w) {
         let to = new Vector4(Vector4.Destructure(x, y, z, w));
-        return Vector4.Lerp(this, to, time);
+        return this.Set(Vector4.Lerp(this, to, time));
     }
     Unit() {
         return Vector4.Unit(this);
@@ -2985,21 +2984,21 @@ class Shader extends Item_1.default {
         this.fragmentShader = fragment;
         this.Attribute = new Map;
         this.Uniform = new Map;
-        this.Attributes = new ShaderAttributes_1.default(FWGE_1.GL, this.Program);
-        this.Uniforms = new ShaderUniforms_1.default(FWGE_1.GL, this.Program);
         this.Build();
         exports.Shaders.push(this);
     }
     Build() {
-        this.CreateBuffers();
         this.BuildShaders();
+        this.Attributes = new ShaderAttributes_1.default(FWGE_1.GL, this.Program);
+        this.Uniforms = new ShaderUniforms_1.default(FWGE_1.GL, this.Program);
+        this.CreateBuffers();
         this.ParseProperties();
     }
     ParseProperties() {
         const regex = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/;
         const regexGroup = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g;
         let text = this.VertexShader + "\n" + this.FragmentShader;
-        let matches = text.match(regexGroup);
+        let matches = text.match(regexGroup) || [];
         for (const match of matches) {
             let groups = match.match(regex);
             let type = groups.groups.type;
@@ -3069,6 +3068,14 @@ class Transform {
         this.Rotation = new Vector3_1.default(rotation);
         this.Scale = new Vector3_1.default(scale);
         this.Shear = new Vector3_1.default(shear);
+    }
+    Clone() {
+        return new Transform({
+            position: this.Position,
+            rotation: this.Rotation,
+            scale: this.Scale,
+            shear: this.Shear
+        });
     }
     static get UP() {
         return new Vector3_1.default(0, 1, 0);
@@ -3431,6 +3438,13 @@ exports.default = Tree;
 
 },{"./List":53}],58:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function UpdatePhysics() {
+}
+exports.UpdatePhysics = UpdatePhysics;
+
+},{}],59:[function(require,module,exports){
+"use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -3482,7 +3496,7 @@ class ModelView {
 }
 exports.default = ModelView;
 
-},{"../Logic/Maths/Maths":30,"../Logic/Maths/Matrix4":33,"../Logic/Utility/Stack":55}],59:[function(require,module,exports){
+},{"../Logic/Maths/Maths":30,"../Logic/Maths/Matrix4":33,"../Logic/Utility/Stack":55}],60:[function(require,module,exports){
 "use strict";
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -3611,7 +3625,7 @@ function BindAttributes(mesh, attributes) {
     if (attributes.Colour !== -1) {
         if (mesh.ColourBuffer) {
             FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.ColourBuffer);
-            FWGE_1.GL.vertexAttribPointer(attributes.Colour, 3, FWGE_1.GL.FLOAT, false, 0, 0);
+            FWGE_1.GL.vertexAttribPointer(attributes.Colour, 4, FWGE_1.GL.FLOAT, false, 0, 0);
         }
         else {
             FWGE_1.GL.disableVertexAttribArray(attributes.Colour);
@@ -3755,7 +3769,7 @@ function SetUniforms(shader, fields) {
     }
 }
 
-},{"../FWGE":1,"../Logic/Camera/Camera":5,"../Logic/GameObject":15,"../Logic/Light/AmbientLight":24,"../Logic/Light/DirectionalLight":25,"../Logic/Light/PointLight":27,"../Logic/Maths/Matrix3":32,"../Logic/Particle System/ParticleSystem":38,"../Logic/Shader/Shader":49,"../Logic/Utility/List":53,"./ModelView":58}],60:[function(require,module,exports){
+},{"../FWGE":1,"../Logic/Camera/Camera":5,"../Logic/GameObject":15,"../Logic/Light/AmbientLight":24,"../Logic/Light/DirectionalLight":25,"../Logic/Light/PointLight":27,"../Logic/Maths/Matrix3":32,"../Logic/Particle System/ParticleSystem":38,"../Logic/Shader/Shader":49,"../Logic/Utility/List":53,"./ModelView":59}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 window.FWGE = require('./FWGE').default;
@@ -3787,6 +3801,7 @@ window.DirectionalLight = require('./Logic/Light/DirectionalLight').default;
 window.IDirectionalLight = require('./Logic/Light/DirectionalLight').IDirectionalLight;
 window.PointLight = require('./Logic/Light/PointLight').default;
 window.IPointLight = require('./Logic/Light/PointLight').IPointLight;
+require('./Logic/Maths/Maths').default;
 window.Vector2 = require('./Logic/Maths/Vector2').default;
 window.Vector3 = require('./Logic/Maths/Vector3').default;
 window.Vector4 = require('./Logic/Maths/Vector4').default;
@@ -3809,4 +3824,4 @@ window.Mesh = require('./Logic/Mesh').default;
 window.RigidBody = require('./Logic/RigidBody').default;
 window.Transform = require('./Logic/Transform').default;
 
-},{"./FWGE":1,"./Logic/Animation/Animation":3,"./Logic/Camera/Camera":5,"./Logic/Camera/Viewer":6,"./Logic/Collision/BoxCollider":7,"./Logic/Collision/Collider":8,"./Logic/Collision/CollisionEvent":9,"./Logic/Collision/PhysicsMaterial":10,"./Logic/Collision/SphereCollider":11,"./Logic/Colour/Colour3":12,"./Logic/Colour/Colour4":13,"./Logic/Converter/OBJConverter":14,"./Logic/GameObject":15,"./Logic/Input/Input":16,"./Logic/Input/InputState":17,"./Logic/Interfaces/Attachable":20,"./Logic/Interfaces/Cloneable":21,"./Logic/Interfaces/Destroyable":22,"./Logic/Interfaces/Updateable":23,"./Logic/Light/AmbientLight":24,"./Logic/Light/DirectionalLight":25,"./Logic/Light/PointLight":27,"./Logic/Material":28,"./Logic/Maths/Matrix2":31,"./Logic/Maths/Matrix3":32,"./Logic/Maths/Matrix4":33,"./Logic/Maths/Vector2":34,"./Logic/Maths/Vector3":35,"./Logic/Maths/Vector4":36,"./Logic/Mesh":37,"./Logic/Particle System/ParticleSystem":38,"./Logic/RigidBody":39,"./Logic/Shader/Shader":49,"./Logic/Transform":50,"./Logic/Utility/ArrayUtils":51,"./Logic/Utility/BinaryTree":52,"./Logic/Utility/List":53,"./Logic/Utility/ListUtils":54,"./Logic/Utility/Stack":55,"./Logic/Utility/Time":56,"./Logic/Utility/Tree":57}]},{},[60]);
+},{"./FWGE":1,"./Logic/Animation/Animation":3,"./Logic/Camera/Camera":5,"./Logic/Camera/Viewer":6,"./Logic/Collision/BoxCollider":7,"./Logic/Collision/Collider":8,"./Logic/Collision/CollisionEvent":9,"./Logic/Collision/PhysicsMaterial":10,"./Logic/Collision/SphereCollider":11,"./Logic/Colour/Colour3":12,"./Logic/Colour/Colour4":13,"./Logic/Converter/OBJConverter":14,"./Logic/GameObject":15,"./Logic/Input/Input":16,"./Logic/Input/InputState":17,"./Logic/Interfaces/Attachable":20,"./Logic/Interfaces/Cloneable":21,"./Logic/Interfaces/Destroyable":22,"./Logic/Interfaces/Updateable":23,"./Logic/Light/AmbientLight":24,"./Logic/Light/DirectionalLight":25,"./Logic/Light/PointLight":27,"./Logic/Material":28,"./Logic/Maths/Maths":30,"./Logic/Maths/Matrix2":31,"./Logic/Maths/Matrix3":32,"./Logic/Maths/Matrix4":33,"./Logic/Maths/Vector2":34,"./Logic/Maths/Vector3":35,"./Logic/Maths/Vector4":36,"./Logic/Mesh":37,"./Logic/Particle System/ParticleSystem":38,"./Logic/RigidBody":39,"./Logic/Shader/Shader":49,"./Logic/Transform":50,"./Logic/Utility/ArrayUtils":51,"./Logic/Utility/BinaryTree":52,"./Logic/Utility/List":53,"./Logic/Utility/ListUtils":54,"./Logic/Utility/Stack":55,"./Logic/Utility/Time":56,"./Logic/Utility/Tree":57}]},{},[61]);

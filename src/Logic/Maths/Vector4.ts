@@ -151,7 +151,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     {
         let to = new Vector4(Vector4.Destructure(x, y, z, w))
 
-        return Vector4.Lerp(this, to, time)
+        return this.Set(Vector4.Lerp(this, to, time))
     }
     
     public Unit(): Vector4

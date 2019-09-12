@@ -1,10 +1,11 @@
 import Item from '../../Item';
+import Colour3 from '../Colour/Colour3';
 import Colour4 from '../Colour/Colour4';
 
 export class ILightItem
 {
     name: string
-    colour?: Colour4 | Float32Array | number[]
+    colour?: Colour4 | Colour3 | Float32Array | number[]
     intensity?: number
 }
 
@@ -15,7 +16,7 @@ export default class LightItem extends Item
 
     constructor()
     constructor(light: ILightItem)
-    constructor({ name, colour = [255,255,255,255], intensity = 1.0}: ILightItem = new ILightItem)
+    constructor({ name, colour = [255, 255, 255, 255], intensity = 1.0}: ILightItem = new ILightItem)
     {
         super(name)
 

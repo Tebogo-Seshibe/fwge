@@ -176,7 +176,7 @@ function BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
         if (mesh.ColourBuffer)
         {
             GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer)
-            GL.vertexAttribPointer(attributes.Colour, 3, GL.FLOAT, false, 0, 0)
+            GL.vertexAttribPointer(attributes.Colour, 4, GL.FLOAT, false, 0, 0)
         }
         else
         {

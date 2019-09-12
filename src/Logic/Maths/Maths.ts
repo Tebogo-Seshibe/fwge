@@ -1,4 +1,4 @@
-const SIGNIFICANT_FIGURES = Math.pow(10, 6)
+const SIGNIFICANT_FIGURES = Math.pow(10, 5)
 
 export { }
 

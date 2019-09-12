@@ -1,9 +1,11 @@
+import { Animations } from './Logic/Animation/Animation';
+import Colour3 from './Logic/Colour/Colour3';
+import Colour4 from './Logic/Colour/Colour4';
 import { GameObjects } from './Logic/GameObject';
 import Input from './Logic/Input/Input';
-import Time from './Logic/Utility/Time';
-import { Animations } from './Logic/Animation/Animation';
-import Colour4 from './Logic/Colour/Colour4';
 import { ParticleSystems } from './Logic/Particle System/ParticleSystem';
+import Time from './Logic/Utility/Time';
+import { UpdatePhysics } from './Physics/PhysicsEngine';
 import { InitRender, UpdateRender } from './Render/Renderer';
 
 export let GL: WebGLRenderingContext
@@ -13,7 +15,7 @@ export class IFWGE
     canvas: HTMLCanvasElement
     renderUpdate?: number
     physicsUpdate?: number
-    clear?: Colour4 | Float32Array | number[]
+    clear?: Colour4 | Colour3 | Float32Array | number[]
 }
 
 export default class FWGE
@@ -56,6 +58,8 @@ export default class FWGE
         {
             throw new Error('Webgl context could not be initialized.')
         }
+
+        console.log(clear)
         
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
 
@@ -73,7 +77,7 @@ export default class FWGE
 
         Time.Render.Reset()
         Time.Physics.Reset()
-        FWGE.Run()
+        FWGE.GameLoop()
     }
     
     public static Stop(): void
@@ -84,15 +88,12 @@ export default class FWGE
         }
     }
     
-    private static Run(): void
+    private static GameLoop(): void
     {
-        FWGE.animationFrame = window.requestAnimationFrame(FWGE.Run)
+        FWGE.animationFrame = window.requestAnimationFrame(FWGE.GameLoop)
         
         // Time
         Time.Update()
-        
-        // Input
-        // Events Hanle thiss
         
         // Game
         for (let gameObject of GameObjects)
@@ -100,17 +101,21 @@ export default class FWGE
             gameObject.Update()
         }
         
-        for (let particleSystem of ParticleSystems)
-        {
-            particleSystem.Update()
-        }
-        
         for (let animation of Animations)
         {
             animation.Update()
         }
         
-        // PhysicsEngine.Update();
+        for (let particleSystem of ParticleSystems)
+        {
+            particleSystem.Update()
+        }
+        
+        // Physics
+        if (Time.Physics.Ready)
+        {
+            UpdatePhysics()
+        }
         
         // Render
         if (Time.Render.Ready)

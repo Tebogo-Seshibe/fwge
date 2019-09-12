@@ -11,9 +11,9 @@ export default class SphereCollider extends Collider
 
     constructor()
     constructor(sphereCollider: ISphereCollider)
-    constructor({ name = 'Sphere Collider', position, radius = 1.0 }: ISphereCollider = new ISphereCollider)
+    constructor({ name = 'Sphere Collider', transform, radius = 1.0 }: ISphereCollider = new ISphereCollider)
     {
-        super({ name, position })
+        super({ name, transform })
 
         this.Radius = radius
     }
@@ -23,8 +23,8 @@ export default class SphereCollider extends Collider
         return new SphereCollider(
         {
             name:       this.Name + ' Clone',
-            position:   this.Position.Clone(),
-            radius:     this.Radius  
+            transform:  this.Transform.Clone(),
+            radius:     this.Radius
         })
     }
 }

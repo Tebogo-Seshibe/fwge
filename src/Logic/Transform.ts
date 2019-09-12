@@ -1,4 +1,5 @@
 import Vector3 from './Maths/Vector3'
+import Cloneable from './Interfaces/Cloneable'
 
 export class ITransform
 {
@@ -8,7 +9,7 @@ export class ITransform
     shear?: Vector3 | Float32Array | number[]
 }
 
-export default class Transform
+export default class Transform implements Cloneable<Transform>
 {
     public Position: Vector3
     public Rotation: Vector3
@@ -23,6 +24,17 @@ export default class Transform
         this.Rotation = new Vector3(rotation as number[])
         this.Scale = new Vector3(scale as number[])
         this.Shear = new Vector3(shear as number[])
+    }
+
+    public Clone(): Transform
+    {
+        return new Transform(
+        {
+            position:   this.Position,
+            rotation:   this.Rotation,
+            scale:      this.Scale,
+            shear:      this.Shear
+        })
     }
 
     public static get UP(): Vector3

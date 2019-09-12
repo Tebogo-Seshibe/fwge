@@ -143,7 +143,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         let to = new Vector3(Vector3.Destructure(x, y, z))
 
-        return Vector3.Lerp(this, to, time)
+        return this.Set(Vector3.Lerp(this, to, time))
     }
 
     public Cross(x: number, y: number, z: number): Vector3

@@ -11,9 +11,9 @@ export default class CircleCollider extends Collider
 
     constructor()
     constructor(sphereCollider: ICircleCollider)
-    constructor({ name = 'Sphere Collider', position, radius = 1.0 }: ICircleCollider = new ICircleCollider)
+    constructor({ name = 'Sphere Collider', transform, radius = 1.0 }: ICircleCollider = new ICircleCollider)
     {
-        super({ name, position })
+        super({ name, transform })
 
         this.Radius = radius
     }
@@ -23,8 +23,8 @@ export default class CircleCollider extends Collider
         return new CircleCollider(
         {
             name:       this.Name + ' Clone',
-            position:   this.Position.Clone(),
-            radius:     this.Radius  
+            transform:  this.Transform.Clone(),
+            radius:     this.Radius
         })
     }
 }
