@@ -197,7 +197,7 @@ function BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
         }
     }
     
-    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
 }
 
 function SetObjectUniforms(material: Material, uniforms: ShaderUniforms, mv: Matrix4): void
@@ -305,7 +305,7 @@ function Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
 {
     // GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_BYTE, 0)
+    GL.drawElements(GL.LINES, vertexCount, GL.UNSIGNED_BYTE, 0)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 }
 

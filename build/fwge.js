@@ -29,6 +29,9 @@ class FWGE {
         this.physicsUpdate = physicsUpdate;
         Time_1.default.Init(this.physicsUpdate, this.physicsUpdate);
     }
+    static get GL() {
+        return exports.GL;
+    }
     static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }) {
         if (!canvas) {
             throw new Error('Field {canvas: HTMLCanvasElement} is required');
@@ -1284,10 +1287,7 @@ exports.IDirectionalLight = IDirectionalLight;
 class DirectionalLight extends LightItem_1.default {
     constructor({ name = 'Directional Light', colour, intensity, direction = [0, 0, 1], shadows = false } = new IDirectionalLight) {
         super({ name, colour, intensity });
-        this.Direction = Vector3_1.default.ZERO;
-        if (direction) {
-            direction = new Vector3_1.default(direction);
-        }
+        this.Direction = new Vector3_1.default(direction);
         this.Shadows = shadows;
         exports.DirectionalLights.Add(this);
     }
@@ -3636,7 +3636,7 @@ function BindAttributes(mesh, attributes) {
             FWGE_1.GL.disableVertexAttribArray(attributes.Normal);
         }
     }
-    FWGE_1.GL.bindBuffer(FWGE_1.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+    FWGE_1.GL.bindBuffer(FWGE_1.GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer);
 }
 function SetObjectUniforms(material, uniforms, mv) {
     FWGE_1.GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv);
@@ -3715,7 +3715,7 @@ function SetGlobalUniforms() {
 }
 function Draw(vertexCount, framebuffer) {
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
-    FWGE_1.GL.drawElements(FWGE_1.GL.TRIANGLES, vertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
+    FWGE_1.GL.drawElements(FWGE_1.GL.LINES, vertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
 }
 function SetAttributes(shader, fields) {

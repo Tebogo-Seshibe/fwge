@@ -44,7 +44,12 @@ export default class FWGE
         this.physicsUpdate = physicsUpdate
         Time.Init(this.physicsUpdate, this.physicsUpdate)
     }
-       
+     
+    public static get GL(): WebGLRenderingContext
+    {
+        return GL
+    }
+
     public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
     {
         if (!canvas)
