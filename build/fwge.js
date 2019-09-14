@@ -1285,9 +1285,7 @@ class DirectionalLight extends LightItem_1.default {
     constructor({ name = 'Directional Light', colour, intensity, direction = [0, 0, 1], shadows = false } = new IDirectionalLight) {
         super({ name, colour, intensity });
         this.Direction = Vector3_1.default.ZERO;
-        if (direction) {
-            direction = new Vector3_1.default(direction);
-        }
+        this.Direction = new Vector3_1.default(direction);
         this.Shadows = shadows;
         exports.DirectionalLights.Add(this);
     }

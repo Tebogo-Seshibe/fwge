@@ -21,11 +21,7 @@ export default class DirectionalLight extends LightItem
     {
         super({ name, colour, intensity })
 
-        if (direction)
-        {
-            direction = new Vector3(direction as number[])
-        }
-
+        this.Direction = new Vector3(direction as number[])
         this.Shadows = shadows
 
         DirectionalLights.Add(this)
