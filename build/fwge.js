@@ -1366,7 +1366,7 @@ class IMaterial {
 }
 exports.IMaterial = IMaterial;
 class Material extends Item_1.default {
-    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.0], diffuse = [0.65, 0.65, 0.65, 1.0], specular = [0.75, 0.75, 0.75, 1.0], alpha = 1.0, shininess = 32.0, shader, imagemap, normalmap, specularmap } = new IMaterial) {
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.0], diffuse = [0.65, 0.65, 0.65, 1.0], specular = [0.75, 0.75, 0.75, 1.0], alpha = 1.0, shininess = 10, shader, imagemap, normalmap, specularmap } = new IMaterial) {
         super(name);
         this.Ambient = new Colour4_1.default(ambient);
         this.Diffuse = new Colour4_1.default(diffuse);
