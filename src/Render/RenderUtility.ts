@@ -5,9 +5,13 @@ import Matrix3 from "../Logic/Maths/Matrix3";
 import { GL } from "../FWGE";
 import GameObject, { GameObjects } from "../Logic/GameObject";
 import ModelView from "./ModelView";
+import Mesh from "../Logic/Mesh";
+import Material from "../Logic/Material";
 
 type ObjectListType =
 {
+    mesh: Mesh
+    material: Material
     modelView: Matrix4
     normal: Matrix3
 }
@@ -45,65 +49,132 @@ export function Init(): void
 
 }
 
-export function ClearBuffers(shader: Shader): void
+export function Update(): void
 {
-    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
-    GL.viewport(0, 0, shader.Width, shader.Height)
-    GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3])
+    ClearBuffer()
+    CalculateMatrices(Camera.Main)
+    Shaders.filter(shader => shader.Dynamic).forEach(shader =>
+    {
+        RunProgram(shader)
+    })
+}
+
+export function ClearScreen(): void
+{
+    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+    GL.clearColor(0.0, 0.0, 0.0, 0.0)
+    GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+}
+
+export function ClearBuffer(shader?: Shader): void
+{
+    let width = shader ? shader.Width : GL.drawingBufferWidth; 
+    let height = shader ? shader.Height : GL.drawingBufferHeight; 
+    let buffer = shader ? shader.FrameBuffer : null
+    let clear = shader ? shader.Clear : [0, 0, 0, 0]
+
+    GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
+    GL.viewport(0, 0, width, height)
+    GL.clearColor(clear[0], clear[1], clear[2], clear[3])
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 }
 
 export function RunProgram(shader: Shader): void
 {
-    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-    GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-    
-    Shaders.filter(shader => shader.Dynamic).forEach(shader =>
-    {
-        GL.useProgram(shader.Program)
-        ClearBuffers(shader)
+    GL.useProgram(shader.Program)
 
-        if (shader.Attribute.size > 0)
+    ClearBuffer(shader)
+    
+    if (shader.Attribute.size <= 0)
+    {
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        GL.drawElements(GL.TRIANGLES, 0, GL.UNSIGNED_BYTE, 0)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+    }
+    else
+    {
+        shader.Objects.forEach(objectId => 
         {
-            RenderToBuffer(shader)
+            let object = ObjectList.get(objectId)
+
+            BindAttributes(shader, object.mesh)
+            BindUniforms(shader, object.material)
+
+            GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+            GL.drawElements(GL.TRIANGLES, 0, GL.UNSIGNED_BYTE, 0)
+            GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        })
+    }
+
+    GL.useProgram(null)    
+}
+
+export function BindAttributes(shader: Shader, mesh: Mesh): void
+{    
+    GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
+
+    const position = shader.Attribute.get('A_Position')
+    const uv = shader.Attribute.get('A_UV')
+    const normal = shader.Attribute.get('A_Normal')
+    const colour = shader.Attribute.get('A_Colour')
+
+    if (position !== -1)
+    {
+        if (mesh.PositionBuffer)
+        {
+            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
+            GL.vertexAttribPointer(position, 3, GL.FLOAT, false, 0, 0)
         }
         else
         {
-            RenderToTexture()
+            GL.disableVertexAttribArray(position)
         }
+    }
 
-        GL.useProgram(null)
-    })
-    
-}
-
-
-export function RenderToTexture(): void
-{
-    
-}
-
-export function RenderToBuffer(shader: Shader): void
-{
-    shader.Objects.forEach(objectId => 
+    if (uv !== -1)
     {
-        let object = ObjectList.get(objectId)
-        BindAttributes()
-    })
-}
-
-export function BindUniforms(): void
-{
+        if (mesh.UVBuffer)
+        {
+            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.UVBuffer)
+            GL.vertexAttribPointer(uv, 2, GL.FLOAT, false, 0, 0)
+        }
+        else
+        {
+            GL.disableVertexAttribArray(uv)
+        }
+    }
     
-}
-
-export function BindAttributes(): void
-{
+    if (colour !== -1)
+    {
+        if (mesh.ColourBuffer)
+        {
+            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer)
+            GL.vertexAttribPointer(colour, 4, GL.FLOAT, false, 0, 0)
+        }
+        else
+        {
+            GL.disableVertexAttribArray(colour)
+        }
+    }
     
+    if (normal !== -1)
+    {
+        if (!!mesh.NormalBuffer)
+        {
+            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.NormalBuffer)
+            GL.vertexAttribPointer(normal, 3, GL.FLOAT, false, 0, 0)
+        }
+        else
+        {
+            GL.disableVertexAttribArray(normal)
+        }
+    }
+    
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)    
 }
 
-export function Render(): void
+export function BindUniforms(shader: Shader, material: Material): void
 {
     
 }
@@ -138,7 +209,13 @@ export function CalculateModelViewMatrix(gameObject: GameObject): void
 
     ObjectList.set(gameObject.ID,
     {
+        mesh: gameObject.Mesh,
+        material: gameObject.Material,
         modelView: mv,
         normal: new Matrix3(mv.Clone().Inverse())
     })
+
+    gameObject.Children.forEach(child => CalculateModelViewMatrix(child))
+
+    ModelView.Pop()
 }
