@@ -1,7 +1,9 @@
 import Item from '../../Item';
-import { GL } from '../../FWGE';
+import FWGE, { GL } from '../../FWGE';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
+import Colour4 from '../Colour/Colour4';
+import Colour3 from '../Colour/Colour3';
 
 export let Shaders: Shader[] = []
 
@@ -13,27 +15,34 @@ export type UniformField =
 
 export class IShader
 {
+    clear: Colour4 | Colour3 | Float32Array | number[]
     name?: string
     height?: number
     width?: number
     vertex: string
     fragment: string
+    dynamic?: boolean
 }
 
 export default class Shader extends Item
 {
+    public Clear: Colour4
     public Program: WebGLProgram
-    public Texture: WebGLTexture
-    public FrameBuffer: WebGLFramebuffer
-    public RenderBuffer: WebGLRenderbuffer
     public Height: number
     public Width: number
 
+    public Texture: WebGLTexture
+    public FrameBuffer: WebGLFramebuffer
+    public RenderBuffer: WebGLRenderbuffer
+    
     public Attribute: Map<string, number>
     public Uniform: Map<string, UniformField>
 
     public Attributes: ShaderAttributes
     public Uniforms: ShaderUniforms
+
+    public Dynamic: boolean
+    public Objects: number[]
 
     private vertexShader: string
     public get VertexShader(): string
@@ -59,22 +68,26 @@ export default class Shader extends Item
 
     constructor()
     constructor(shader: IShader)
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment}: IShader = new IShader)
+    constructor({ name = 'Shader', clear = [0,0,0, 1], dynamic = true, height, width, vertex, fragment}: IShader = new IShader)
     {
         super(name)
+
+        this.Clear = new Colour4(clear as number[])
 
         this.Program = GL.createProgram()
         this.Texture = GL.createTexture()
         this.FrameBuffer = GL.createFramebuffer()
         this.RenderBuffer = GL.createRenderbuffer()
-        this.Height = height
-        this.Width = width
+
+        this.Height = height || FWGE.Height
+        this.Width = width || FWGE.Width
         this.vertexShader = vertex
         this.fragmentShader = fragment        
         
         this.Attribute = new Map
         this.Uniform = new Map
         
+        this.Dynamic = dynamic
         
         this.Build()
 

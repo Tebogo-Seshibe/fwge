@@ -49,7 +49,7 @@ export default class Material extends Item
         diffuse = [0.65, 0.65, 0.65, 1.0],
         specular = [0.75, 0.75, 0.75, 1.0],
         alpha = 1.0,
-        shininess = 10,
+        shininess = 32.0,
         shader,
         imagemap, normalmap, specularmap
     }: IMaterial = new IMaterial)

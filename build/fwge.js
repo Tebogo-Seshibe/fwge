@@ -29,7 +29,10 @@ class FWGE {
         this.physicsUpdate = physicsUpdate;
         Time_1.default.Init(this.physicsUpdate, this.physicsUpdate);
     }
-    static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }) {
+    static get GL() {
+        return exports.GL;
+    }
+    static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }) {
         if (!canvas) {
             throw new Error('Field {canvas: HTMLCanvasElement} is required');
         }
@@ -37,7 +40,8 @@ class FWGE {
         if (!exports.GL) {
             throw new Error('Webgl context could not be initialized.');
         }
-        console.log(clear);
+        this.Height = canvas.height = height;
+        this.Width = canvas.width = width;
         exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
         Input_1.default.Init(canvas);
         Time_1.default.Init(renderUpdate, physicsUpdate);
@@ -1372,7 +1376,6 @@ exports.IDirectionalLight = IDirectionalLight;
 class DirectionalLight extends LightItem_1.default {
     constructor({ name = 'Directional Light', colour, intensity, direction = [0, 0, 1], shadows = false } = new IDirectionalLight) {
         super({ name, colour, intensity });
-        this.Direction = Vector3_1.default.ZERO;
         this.Direction = new Vector3_1.default(direction);
         this.Shadows = shadows;
         exports.DirectionalLights.Add(this);
@@ -1452,7 +1455,7 @@ class IMaterial {
 }
 exports.IMaterial = IMaterial;
 class Material extends Item_1.default {
-    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.0], diffuse = [0.65, 0.65, 0.65, 1.0], specular = [0.75, 0.75, 0.75, 1.0], alpha = 1.0, shininess = 10, shader, imagemap, normalmap, specularmap } = new IMaterial) {
+    constructor({ name = 'Render Material', ambient = [0.50, 0.50, 0.50, 1.0], diffuse = [0.65, 0.65, 0.65, 1.0], specular = [0.75, 0.75, 0.75, 1.0], alpha = 1.0, shininess = 32.0, shader, imagemap, normalmap, specularmap } = new IMaterial) {
         super(name);
         this.Ambient = new Colour4_1.default(ambient);
         this.Diffuse = new Colour4_1.default(diffuse);
@@ -3033,9 +3036,16 @@ exports.default = ShaderUniforms;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../../Item"));
-const FWGE_1 = require("../../FWGE");
+const FWGE_1 = __importStar(require("../../FWGE"));
 const ShaderAttributes_1 = __importDefault(require("./Instance/ShaderAttributes"));
 const ShaderUniforms_1 = __importDefault(require("./Instance/ShaderUniforms"));
 exports.Shaders = [];
@@ -3057,14 +3067,14 @@ class Shader extends Item_1.default {
         this.fragmentShader = fragmentShader;
         this.Build();
     }
-    constructor({ name = 'Shader', height = 1024, width = 1024, vertex, fragment } = new IShader) {
+    constructor({ name = 'Shader', height, width, vertex, fragment } = new IShader) {
         super(name);
         this.Program = FWGE_1.GL.createProgram();
         this.Texture = FWGE_1.GL.createTexture();
         this.FrameBuffer = FWGE_1.GL.createFramebuffer();
         this.RenderBuffer = FWGE_1.GL.createRenderbuffer();
-        this.Height = height;
-        this.Width = width;
+        this.Height = height || FWGE_1.default.Height;
+        this.Width = width || FWGE_1.default.Width;
         this.vertexShader = vertex;
         this.fragmentShader = fragment;
         this.Attribute = new Map;
@@ -3700,6 +3710,9 @@ exports.default = ModelView;
 
 },{"../Logic/Maths/Maths":32,"../Logic/Maths/Matrix4":35,"../Logic/Utility/Stack":57}],63:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -3707,21 +3720,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const FWGE_1 = require("../FWGE");
-const GameObject_1 = __importStar(require("../Logic/GameObject"));
-const Matrix3_1 = __importDefault(require("../Logic/Maths/Matrix3"));
-const List_1 = __importDefault(require("../Logic/Utility/List"));
 const Camera_1 = __importDefault(require("../Logic/Camera/Camera"));
+const GameObject_1 = __importStar(require("../Logic/GameObject"));
 const AmbientLight_1 = __importStar(require("../Logic/Light/AmbientLight"));
 const DirectionalLight_1 = __importStar(require("../Logic/Light/DirectionalLight"));
 const PointLight_1 = __importStar(require("../Logic/Light/PointLight"));
-const ModelView_1 = __importDefault(require("./ModelView"));
+const Matrix3_1 = __importDefault(require("../Logic/Maths/Matrix3"));
 const ParticleSystem_1 = __importStar(require("../Logic/Particle System/ParticleSystem"));
 const Shader_1 = require("../Logic/Shader/Shader");
+const List_1 = __importDefault(require("../Logic/Utility/List"));
+const ModelView_1 = __importDefault(require("./ModelView"));
 function InitRender() {
     FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
     FWGE_1.GL.disable(FWGE_1.GL.BLEND);

@@ -12,7 +12,7 @@ export class IDirectionalLight extends ILightItem
 
 export default class DirectionalLight extends LightItem
 {
-    public Direction: Vector3 = Vector3.ZERO
+    public Direction: Vector3
     public Shadows: boolean
 
     constructor()

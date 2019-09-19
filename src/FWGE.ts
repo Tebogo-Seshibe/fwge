@@ -16,6 +16,8 @@ export class IFWGE
     renderUpdate?: number
     physicsUpdate?: number
     clear?: Colour4 | Colour3 | Float32Array | number[]
+    height: number
+    width: number
 }
 
 export default class FWGE
@@ -44,8 +46,16 @@ export default class FWGE
         this.physicsUpdate = physicsUpdate
         Time.Init(this.physicsUpdate, this.physicsUpdate)
     }
-       
-    public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1] }: IFWGE): void
+     
+    public static get GL(): WebGLRenderingContext
+    {
+        return GL
+    }
+
+    public static Height: number
+    public static Width: number
+
+    public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE): void
     {
         if (!canvas)
         {
@@ -53,13 +63,14 @@ export default class FWGE
         }
 
         GL = canvas.getContext('webgl') as WebGLRenderingContext
-
+        
         if (!GL)
         {
             throw new Error('Webgl context could not be initialized.')
         }
-
-        console.log(clear)
+    
+        this.Height = canvas.height = height
+        this.Width = canvas.width = width
         
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
 
