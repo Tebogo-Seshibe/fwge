@@ -83,7 +83,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     public Sum(vector: Vector4): Vector3
     public Sum(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
     {
-        return Vector3.Sum(this, x, y, z)
+        return this.Set(Vector3.Sum(this, x, y, z))
     }
     
     public Diff(x: number, y: number, z: number): Vector3
@@ -217,7 +217,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         [ x, y, z ] = Vector3.Destructure(x, y, z)
 
-        return Vector3.Set(vector, vector.X + x, vector.Y + y, vector.Z + z)
+        return new Vector3(vector.X + x, vector.Y + y, vector.Z + z)
     }
 
     public static Diff(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3

@@ -14,9 +14,11 @@ declare global
 		Viewer: any
 		ViewMode: any
 
-		BoxCollider: any
 		Collider: any
+		CircleCollider: any
+		SquareCollider: any
 		SphereCollider: any
+		CubeCollider: any
 		CollisionEvent: any
 		PhysicsMaterial: any
 
@@ -82,9 +84,11 @@ window.ICamera = require('./Logic/Camera/Camera').ICamera
 window.Viewer = require('./Logic/Camera/Viewer').default
 window.ViewMode = require('./Logic/Camera/Viewer').ViewMode
 
-window.BoxCollider = require('./Logic/Collision/BoxCollider').default
 window.Collider = require('./Logic/Collision/Collider').default
+window.CircleCollider = require('./Logic/Collision/CircleCollider').default
+window.SquareCollider = require('./Logic/Collision/SquareCollider').default
 window.SphereCollider = require('./Logic/Collision/SphereCollider').default
+window.CubeCollider = require('./Logic/Collision/CubeCollider').default
 window.CollisionEvent = require('./Logic/Collision/CollisionEvent').default
 window.PhysicsMaterial = require('./Logic/Collision/PhysicsMaterial').default
 

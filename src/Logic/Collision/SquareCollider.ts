@@ -1,22 +1,26 @@
+import Vector2 from '../Maths/Vector2';
 import Collider, { ICollider } from './Collider';
 
-export class IBoxCollider extends ICollider
+export class ISquareCollider extends ICollider
 {
+    position: Vector2 | Float32Array | number[]
     height?: number
     width?: number
 }
 
 export default class SquareCollider extends Collider
 {
+    public Position: Vector2 | Float32Array | number[]
     public Height: number
     public Width: number
     
     constructor()
-    constructor(boxCollider: IBoxCollider)
-    constructor({ name = 'BoxCollider', transform, height = 1.0, width = 1.0 }: IBoxCollider = new IBoxCollider)
+    constructor(boxCollider: ISquareCollider)
+    constructor({ name = 'BoxCollider', position = [0, 0, 0], height = 1.0, width = 1.0 }: ISquareCollider = new ISquareCollider)
     {
-        super({ name, transform })
+        super({ name })
 
+        this.Position = new Vector2(position as number[])
         this.Height = height
         this.Width = width
     }
@@ -26,7 +30,7 @@ export default class SquareCollider extends Collider
         return new SquareCollider(
         {
             name:       this.Name + ' Clone',
-            transform:  this.Transform.Clone(),
+            position:   this.Position,
             height:     this.Height,
             width:      this.Width
         })

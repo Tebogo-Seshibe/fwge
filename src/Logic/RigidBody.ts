@@ -1,5 +1,7 @@
 import Item from '../Item';
 import Cloneable from './Interfaces/Cloneable';
+import Vector3 from './Maths/Vector3';
+import Updateable from './Interfaces/Updateable';
 
 export class IRigidBody
 {
@@ -10,23 +12,18 @@ export class IRigidBody
     lockz?: boolean
 }
 
-export default class RigidBody extends Item implements Cloneable<RigidBody>
+export default class RigidBody extends Item implements Cloneable<RigidBody>, Updateable
 {
     public Mass: number
     public LockX: boolean
     public LockY: boolean
     public LockZ: boolean
     
-    private speed: number
+    public Speed: Vector3
 
     public get Velocity(): number
     {
         return 0
-    }
-
-    public get Speed(): number
-    {
-        return this.speed
     }
     
     constructor()
@@ -50,5 +47,10 @@ export default class RigidBody extends Item implements Cloneable<RigidBody>
             locky:  this.LockY,
             lockz:  this.LockZ
         })
+    }
+
+    public Update(): void
+    {
+        
     }
 }

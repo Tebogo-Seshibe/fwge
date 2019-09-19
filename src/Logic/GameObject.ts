@@ -73,6 +73,11 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         this.Update = update.bind(this)
         this.End = end.bind(this)
 
+        if (this.Collider)
+        {
+            this.Collider.Parent = this
+        }
+
         for (let child of children)
         {
             this.Children.push(child)
@@ -95,11 +100,8 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
             material:       this.Material,
             mesh:           this.Mesh,
             visible:        this.Visible,
-            rigidbody:      this.RigidBody.Clone(),
-            collider:       this.Collider.Clone(),
-            begin:          this.Begin,
-            update:         this.Update,
-            end:            this.End,
+            rigidbody:      this.RigidBody ? this.RigidBody.Clone() : undefined,
+            collider:       this.Collider ? this.Collider.Clone() : undefined,
             children:       this.Children.map(child => child.Clone())
         });
     }
