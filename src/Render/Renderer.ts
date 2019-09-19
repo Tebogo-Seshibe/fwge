@@ -1,20 +1,28 @@
 import { GL } from '../FWGE';
-import GameObject, { GameObjects } from '../Logic/GameObject';
-import Matrix3 from '../Logic/Maths/Matrix3';
-import Matrix4 from '../Logic/Maths/Matrix4';
-import Mesh from '../Logic/Mesh';
-import List from '../Logic/Utility/List';
 import Camera from '../Logic/Camera/Camera';
+import GameObject, { GameObjects } from '../Logic/GameObject';
 import AmbientLight, { AmbientLights } from '../Logic/Light/AmbientLight';
 import DirectionalLight, { DirectionalLights } from '../Logic/Light/DirectionalLight';
 import LightItem from '../Logic/Light/LightItem';
 import PointLight, { PointLights } from '../Logic/Light/PointLight';
-import ModelView from './ModelView';
-import ParticleSystem, { ParticleSystems } from '../Logic/Particle System/ParticleSystem';
 import Material from '../Logic/Material';
+import Matrix3 from '../Logic/Maths/Matrix3';
+import Matrix4 from '../Logic/Maths/Matrix4';
+import Mesh from '../Logic/Mesh';
+import ParticleSystem, { ParticleSystems } from '../Logic/Particle System/ParticleSystem';
 import ShaderAttributes from '../Logic/Shader/Instance/ShaderAttributes';
 import ShaderUniforms from '../Logic/Shader/Instance/ShaderUniforms';
 import Shader, { Shaders } from '../Logic/Shader/Shader';
+import List from '../Logic/Utility/List';
+import ModelView from './ModelView';
+
+export type ActiveShader =
+{
+    Shader: Shader
+    GameObject: GameObject[]
+}
+
+export const ActiveShaders: ActiveShader[] = []
 
 type Renderable = 
 {
@@ -53,6 +61,7 @@ function ClearBuffers(): void
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
         GL.viewport(0, 0, shader.Width, shader.Height)
+        GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3])
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
     }
     
@@ -153,6 +162,11 @@ function RenderObject({ mesh, material, shader, modelView }: Renderable): void
     GL.useProgram(null)
 }
 
+function BindEmptyAttributes(shader: Shader): void
+{
+
+}
+
 function BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
 {
     GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
@@ -197,7 +211,7 @@ function BindAttributes(mesh: Mesh, attributes: ShaderAttributes): void
         }
     }
     
-    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
 }
 
 function SetObjectUniforms(material: Material, uniforms: ShaderUniforms, mv: Matrix4): void
@@ -303,28 +317,34 @@ function SetGlobalUniforms(): void
 
 function Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
 {
-    // GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    GL.drawElements(GL.LINES, vertexCount, GL.UNSIGNED_BYTE, 0)
+    GL.drawElements(GL.TRIANGLES, vertexCount, GL.UNSIGNED_BYTE, 0)
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 }
 
-/*function DrawWirefra0me(mesh: Mesh, mv: Matrix4): void
+function DrawShaderProgram(shader: Shader, mesh: Mesh)
 {
-    GL.useProgram(WireframeShader.Program)
+    // Use Program
+    GL.useProgram(shader.Program)
     
-    GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
-    GL.vertexAttribPointer(WireframeShader.Attributes.Position, 3, GL.FLOAT, false, 0, 0)
-    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-    
-    GL.uniformMatrix4fv(WireframeShader.Uniforms.Matrix.ModelView, false, mv)
-    GL.uniformMatrix4fv(WireframeShader.Uniforms.Matrix.Projection, false, Projection.ViewerMatrix.Buffer)
-    //GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer)
-    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_SHORT, 0)
-    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+    // Bind attributes
+    SetAttributes(shader, new Map<string, [number, any]>(
+    [
+        ['position',    [shader.Attribute.get('position'),  mesh.PositionBuffer]],
+        ['colour',      [shader.Attribute.get('colour'),    mesh.ColourBuffer]],
+        ['normal',      [shader.Attribute.get('normal'),    mesh.PositionBuffer]],
+        ['uv',          [shader.Attribute.get('uv'),        mesh.UVBuffer]]
+    ]))
+    // Bind uniforms
+
+    SetUniforms(shader, new Map<string, any>(
+    [
+        ['', ''] 
+    ]))
+
+    // Unuse Program
     GL.useProgram(null)
-}*/
+}
 
 function SetAttributes(shader: Shader, fields: Map<string, [number, any]>): void
 {
