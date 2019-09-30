@@ -13,8 +13,8 @@ export let GL: WebGLRenderingContext
 export class IFWGE
 {
     canvas: HTMLCanvasElement
-    renderUpdate?: number
-    physicsUpdate?: number
+    render?: number
+    physics?: number
     clear?: Colour4 | Colour3 | Float32Array | number[]
     height: number
     width: number
@@ -55,7 +55,7 @@ export default class FWGE
     public static Height: number
     public static Width: number
 
-    public static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE): void
+    public static Init({ canvas, render = 60, physics = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE): void
     {
         if (!canvas)
         {
@@ -75,7 +75,7 @@ export default class FWGE
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
 
         Input.Init(canvas)
-        Time.Init(renderUpdate, physicsUpdate)
+        Time.Init(render, physics)
         InitRender()
     }
     

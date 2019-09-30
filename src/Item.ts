@@ -28,4 +28,3 @@ export default class Item
         this.Name = name
     }
 }
-

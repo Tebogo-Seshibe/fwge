@@ -32,7 +32,7 @@ class FWGE {
     static get GL() {
         return exports.GL;
     }
-    static Init({ canvas, renderUpdate = 60, physicsUpdate = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }) {
+    static Init({ canvas, render = 60, physics = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }) {
         if (!canvas) {
             throw new Error('Field {canvas: HTMLCanvasElement} is required');
         }
@@ -44,7 +44,7 @@ class FWGE {
         this.Width = canvas.width = width;
         exports.GL.clearColor(clear[0], clear[1], clear[2], clear[3]);
         Input_1.default.Init(canvas);
-        Time_1.default.Init(renderUpdate, physicsUpdate);
+        Time_1.default.Init(render, physics);
         Renderer_1.InitRender();
     }
     static Start() {
@@ -390,8 +390,11 @@ class ICollider {
 }
 exports.ICollider = ICollider;
 class Collider extends Item_1.default {
-    constructor({ name = 'Collider' } = new ICollider) {
+    constructor({ name = 'Collider', onCollisionEnter = function (other) { }, onCollision = function (other) { }, onCollisionExit = function (other) { } } = new ICollider) {
         super(name);
+        this.OnCollisionEnter = onCollisionEnter;
+        this.OnCollision = onCollision;
+        this.OnCollisionExit = onCollisionExit;
         exports.Colliders.push(this);
     }
     Clone() { return null; }
@@ -2875,9 +2878,6 @@ class RigidBody extends Item_1.default {
     get Velocity() {
         return 0;
     }
-    get Speed() {
-        return this.speed;
-    }
     constructor({ name = 'Physics Body', mass = 1.0, lockx = true, locky = false, lockz = false } = new IRigidBody) {
         super(name);
         this.Mass = mass;
@@ -2892,6 +2892,8 @@ class RigidBody extends Item_1.default {
             locky: this.LockY,
             lockz: this.LockZ
         });
+    }
+    Update() {
     }
 }
 exports.default = RigidBody;
@@ -3048,46 +3050,70 @@ const Item_1 = __importDefault(require("../../Item"));
 const FWGE_1 = __importStar(require("../../FWGE"));
 const ShaderAttributes_1 = __importDefault(require("./Instance/ShaderAttributes"));
 const ShaderUniforms_1 = __importDefault(require("./Instance/ShaderUniforms"));
+const Colour4_1 = __importDefault(require("../Colour/Colour4"));
 exports.Shaders = [];
 class IShader {
 }
 exports.IShader = IShader;
 class Shader extends Item_1.default {
-    get VertexShader() {
-        return this.vertexShader;
+    get VertexProgram() {
+        return this.vertexProgram;
     }
-    set VertexShader(vertexShader) {
-        this.vertexShader = vertexShader;
+    set VertexProgram(vertexProgram) {
+        this.vertexProgram = vertexProgram;
         this.Build();
     }
-    get FragmentShader() {
-        return this.fragmentShader;
+    get FragmentProgram() {
+        return this.fragmentProgram;
     }
-    set FragmentShader(fragmentShader) {
-        this.fragmentShader = fragmentShader;
+    set FragmentProgram(fragmentProgram) {
+        this.fragmentProgram = fragmentProgram;
         this.Build();
     }
-    constructor({ name = 'Shader', height, width, vertex, fragment } = new IShader) {
+    constructor({ name = 'Shader', height = FWGE_1.default.Height, width = FWGE_1.default.Width, filter = true, clear = [0, 0, 0, 1], vertex, fragment } = new IShader) {
         super(name);
-        this.Program = FWGE_1.GL.createProgram();
-        this.Texture = FWGE_1.GL.createTexture();
-        this.FrameBuffer = FWGE_1.GL.createFramebuffer();
-        this.RenderBuffer = FWGE_1.GL.createRenderbuffer();
-        this.Height = height || FWGE_1.default.Height;
-        this.Width = width || FWGE_1.default.Width;
-        this.vertexShader = vertex;
-        this.fragmentShader = fragment;
-        this.Attribute = new Map;
-        this.Uniform = new Map;
+        this.Height = height;
+        this.Width = width;
+        this.Filter = filter;
+        this.Clear = new Colour4_1.default(clear);
+        this.vertexProgram = vertex;
+        this.fragmentProgram = fragment;
+        this.Attribute = new Map();
+        this.Uniform = new Map();
         this.Build();
         exports.Shaders.push(this);
     }
     Build() {
+        this.ClearShader();
         this.BuildShaders();
-        this.Attributes = new ShaderAttributes_1.default(FWGE_1.GL, this.Program);
-        this.Uniforms = new ShaderUniforms_1.default(FWGE_1.GL, this.Program);
         this.CreateBuffers();
         this.ParseProperties();
+        this.Attributes = new ShaderAttributes_1.default(FWGE_1.GL, this.Program);
+        this.Uniforms = new ShaderUniforms_1.default(FWGE_1.GL, this.Program);
+    }
+    ClearShader() {
+        if (this.Program) {
+            FWGE_1.GL.deleteProgram(this.Program);
+        }
+        if (this.Texture) {
+            FWGE_1.GL.deleteTexture(this.Texture);
+        }
+        if (this.VertexShader) {
+            FWGE_1.GL.deleteShader(this.VertexShader);
+        }
+        if (this.FragmentShader) {
+            FWGE_1.GL.deleteShader(this.FragmentShader);
+        }
+        if (this.FrameBuffer) {
+            FWGE_1.GL.deleteFramebuffer(this.FrameBuffer);
+        }
+        if (this.RenderBuffer) {
+            FWGE_1.GL.deleteRenderbuffer(this.RenderBuffer);
+        }
+        this.Program = FWGE_1.GL.createProgram();
+        this.Texture = FWGE_1.GL.createTexture();
+        this.FrameBuffer = FWGE_1.GL.createFramebuffer();
+        this.RenderBuffer = FWGE_1.GL.createRenderbuffer();
     }
     ParseProperties() {
         const regex = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/;
@@ -3122,20 +3148,20 @@ class Shader extends Item_1.default {
     }
     BuildShaders() {
         let errorLog = [];
-        const vs = FWGE_1.GL.createShader(FWGE_1.GL.VERTEX_SHADER);
-        FWGE_1.GL.shaderSource(vs, this.VertexShader);
-        FWGE_1.GL.compileShader(vs);
-        if (!FWGE_1.GL.getShaderParameter(vs, FWGE_1.GL.COMPILE_STATUS)) {
-            errorLog.push('Vertex Shader: ' + FWGE_1.GL.getShaderInfoLog(vs));
+        this.VertexShader = FWGE_1.GL.createShader(FWGE_1.GL.VERTEX_SHADER);
+        FWGE_1.GL.shaderSource(this.VertexShader, this.VertexProgram);
+        FWGE_1.GL.compileShader(this.VertexShader);
+        if (!FWGE_1.GL.getShaderParameter(this.VertexShader, FWGE_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Vertex Shader: ' + FWGE_1.GL.getShaderInfoLog(this.VertexShader));
         }
-        const fs = FWGE_1.GL.createShader(FWGE_1.GL.FRAGMENT_SHADER);
-        FWGE_1.GL.shaderSource(fs, this.FragmentShader);
-        FWGE_1.GL.compileShader(fs);
-        if (!FWGE_1.GL.getShaderParameter(fs, FWGE_1.GL.COMPILE_STATUS)) {
-            errorLog.push('Fragment Shader: ' + FWGE_1.GL.getShaderInfoLog(fs));
+        this.FragmentShader = FWGE_1.GL.createShader(FWGE_1.GL.FRAGMENT_SHADER);
+        FWGE_1.GL.shaderSource(this.FragmentShader, this.FragmentProgram);
+        FWGE_1.GL.compileShader(this.FragmentShader);
+        if (!FWGE_1.GL.getShaderParameter(this.FragmentShader, FWGE_1.GL.COMPILE_STATUS)) {
+            errorLog.push('Fragment Shader: ' + FWGE_1.GL.getShaderInfoLog(this.FragmentShader));
         }
-        FWGE_1.GL.attachShader(this.Program, vs);
-        FWGE_1.GL.attachShader(this.Program, fs);
+        FWGE_1.GL.attachShader(this.Program, this.VertexShader);
+        FWGE_1.GL.attachShader(this.Program, this.FragmentShader);
         FWGE_1.GL.linkProgram(this.Program);
         if (!FWGE_1.GL.getProgramParameter(this.Program, FWGE_1.GL.LINK_STATUS)) {
             errorLog.push(FWGE_1.GL.getProgramInfoLog(this.Program));
@@ -3147,7 +3173,7 @@ class Shader extends Item_1.default {
 }
 exports.default = Shader;
 
-},{"../../FWGE":1,"../../Item":2,"./Instance/ShaderAttributes":49,"./Instance/ShaderUniforms":50}],52:[function(require,module,exports){
+},{"../../FWGE":1,"../../Item":2,"../Colour/Colour4":15,"./Instance/ShaderAttributes":49,"./Instance/ShaderUniforms":50}],52:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3586,12 +3612,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Collider_1 = require("../Logic/Collision/Collider");
 const CircleCollider_1 = __importDefault(require("../Logic/Collision/CircleCollider"));
-const SquareCollider_1 = __importDefault(require("../Logic/Collision/SquareCollider"));
+const Collider_1 = require("../Logic/Collision/Collider");
 const CubeCollider_1 = __importDefault(require("../Logic/Collision/CubeCollider"));
-const CollisionDetection_1 = require("./CollisionDetection");
 const SphereCollider_1 = __importDefault(require("../Logic/Collision/SphereCollider"));
+const SquareCollider_1 = __importDefault(require("../Logic/Collision/SquareCollider"));
+const CollisionDetection_1 = require("./CollisionDetection");
+exports.GRAVITY = 9.81;
+exports.Force = (mass) => exports.GRAVITY * mass;
 function UpdatePhysics() {
     let colliders = [...Collider_1.Colliders];
     colliders.forEach((curr, _, arr) => {
@@ -3732,6 +3760,7 @@ const ParticleSystem_1 = __importStar(require("../Logic/Particle System/Particle
 const Shader_1 = require("../Logic/Shader/Shader");
 const List_1 = __importDefault(require("../Logic/Utility/List"));
 const ModelView_1 = __importDefault(require("./ModelView"));
+exports.ActiveShaders = [];
 function InitRender() {
     FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
     FWGE_1.GL.disable(FWGE_1.GL.BLEND);
@@ -3753,6 +3782,7 @@ function ClearBuffers() {
     for (let shader of Shader_1.Shaders) {
         FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, shader.FrameBuffer);
         FWGE_1.GL.viewport(0, 0, shader.Width, shader.Height);
+        FWGE_1.GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3]);
         FWGE_1.GL.clear(FWGE_1.GL.COLOR_BUFFER_BIT | FWGE_1.GL.DEPTH_BUFFER_BIT);
     }
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
@@ -3821,6 +3851,8 @@ function RenderObject({ mesh, material, shader, modelView }) {
         FWGE_1.GL.disableVertexAttribArray(shader.Attributes.UV);
     }
     FWGE_1.GL.useProgram(null);
+}
+function BindEmptyAttributes(shader) {
 }
 function BindAttributes(mesh, attributes) {
     FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.PositionBuffer);
@@ -3933,6 +3965,19 @@ function Draw(vertexCount, framebuffer) {
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
     FWGE_1.GL.drawElements(FWGE_1.GL.TRIANGLES, vertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
     FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
+}
+function DrawShaderProgram(shader, mesh) {
+    FWGE_1.GL.useProgram(shader.Program);
+    SetAttributes(shader, new Map([
+        ['position', [shader.Attribute.get('position'), mesh.PositionBuffer]],
+        ['colour', [shader.Attribute.get('colour'), mesh.ColourBuffer]],
+        ['normal', [shader.Attribute.get('normal'), mesh.PositionBuffer]],
+        ['uv', [shader.Attribute.get('uv'), mesh.UVBuffer]]
+    ]));
+    SetUniforms(shader, new Map([
+        ['', '']
+    ]));
+    FWGE_1.GL.useProgram(null);
 }
 function SetAttributes(shader, fields) {
     for (const [name, [size, field]] of fields) {

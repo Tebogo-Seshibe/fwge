@@ -15,13 +15,13 @@ export type UniformField =
 
 export class IShader
 {
-    clear: Colour4 | Colour3 | Float32Array | number[]
     name?: string
     height?: number
     width?: number
+    filter?: boolean
+    clear?: Colour4 | Colour3 | Float32Array | number[]
     vertex: string
     fragment: string
-    dynamic?: boolean
 }
 
 export default class Shader extends Item
@@ -41,53 +41,49 @@ export default class Shader extends Item
     public Attributes: ShaderAttributes
     public Uniforms: ShaderUniforms
 
-    public Dynamic: boolean
+    public Filter: boolean
     public Objects: number[]
 
-    private vertexShader: string
-    public get VertexShader(): string
+    public VertexShader: WebGLShader
+    public FragmentShader: WebGLShader
+
+    private vertexProgram: string
+    public get VertexProgram(): string
     {
-        return this.vertexShader
+        return this.vertexProgram
     }
-    public set VertexShader(vertexShader: string)
+    public set VertexProgram(vertexProgram: string)
     {
-        this.vertexShader = vertexShader
+        this.vertexProgram = vertexProgram
         this.Build()
     }
 
-    private fragmentShader: string
-    public get FragmentShader(): string
+    private fragmentProgram: string
+    public get FragmentProgram(): string
     {
-        return this.fragmentShader
+        return this.fragmentProgram
     }
-    public set FragmentShader(fragmentShader: string)
+    public set FragmentProgram(fragmentProgram: string)
     {
-        this.fragmentShader = fragmentShader
+        this.fragmentProgram = fragmentProgram
         this.Build()
     }
 
     constructor()
     constructor(shader: IShader)
-    constructor({ name = 'Shader', clear = [0,0,0, 1], dynamic = true, height, width, vertex, fragment}: IShader = new IShader)
+    constructor({ name = 'Shader', height = FWGE.Height, width = FWGE.Width, filter = true, clear = [0, 0, 0, 1], vertex, fragment }: IShader = new IShader)
     {
         super(name)
 
+        this.Height = height
+        this.Width = width
+        this.Filter = filter
         this.Clear = new Colour4(clear as number[])
-
-        this.Program = GL.createProgram()
-        this.Texture = GL.createTexture()
-        this.FrameBuffer = GL.createFramebuffer()
-        this.RenderBuffer = GL.createRenderbuffer()
-
-        this.Height = height || FWGE.Height
-        this.Width = width || FWGE.Width
-        this.vertexShader = vertex
-        this.fragmentShader = fragment        
+        this.vertexProgram = vertex
+        this.fragmentProgram = fragment
         
-        this.Attribute = new Map
-        this.Uniform = new Map
-        
-        this.Dynamic = dynamic
+        this.Attribute = new Map<string, number>()
+        this.Uniform = new Map<string, UniformField>()
         
         this.Build()
 
@@ -96,13 +92,51 @@ export default class Shader extends Item
 
     private Build(): void
     {
+        this.ClearShader()
         this.BuildShaders()
+        this.CreateBuffers()
+        this.ParseProperties()
 
         this.Attributes = new ShaderAttributes(GL, this.Program)
         this.Uniforms = new ShaderUniforms(GL, this.Program)
-        
-        this.CreateBuffers()
-        this.ParseProperties()
+    }
+
+    private ClearShader(): void
+    {
+        if (this.Program)
+        {
+            GL.deleteProgram(this.Program)
+        }
+
+        if (this.Texture)
+        {
+            GL.deleteTexture(this.Texture)
+        }
+
+        if (this.VertexShader)
+        {
+            GL.deleteShader(this.VertexShader)
+        }
+
+        if (this.FragmentShader)
+        {
+            GL.deleteShader(this.FragmentShader)
+        }
+
+        if (this.FrameBuffer)
+        {
+            GL.deleteFramebuffer(this.FrameBuffer)
+        }
+
+        if (this.RenderBuffer)
+        {
+            GL.deleteRenderbuffer(this.RenderBuffer)
+        }        
+
+        this.Program = GL.createProgram()
+        this.Texture = GL.createTexture()
+        this.FrameBuffer = GL.createFramebuffer()
+        this.RenderBuffer = GL.createRenderbuffer()
     }
     
     private ParseProperties(): void
@@ -151,26 +185,26 @@ export default class Shader extends Item
     {
         let errorLog: string[] = []
 
-        const vs = GL.createShader(GL.VERTEX_SHADER)
-        GL.shaderSource(vs, this.VertexShader)
-        GL.compileShader(vs)
+        this.VertexShader = GL.createShader(GL.VERTEX_SHADER)
+        GL.shaderSource(this.VertexShader, this.VertexProgram)
+        GL.compileShader(this.VertexShader)
 
-        if (!GL.getShaderParameter(vs, GL.COMPILE_STATUS))
+        if (!GL.getShaderParameter(this.VertexShader, GL.COMPILE_STATUS))
         {
-            errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(vs))
+            errorLog.push('Vertex Shader: ' + GL.getShaderInfoLog(this.VertexShader))
         }
         
-        const fs = GL.createShader(GL.FRAGMENT_SHADER)
-        GL.shaderSource(fs, this.FragmentShader)
-        GL.compileShader(fs)
+        this.FragmentShader = GL.createShader(GL.FRAGMENT_SHADER)
+        GL.shaderSource(this.FragmentShader, this.FragmentProgram)
+        GL.compileShader(this.FragmentShader)
 
-        if (!GL.getShaderParameter(fs, GL.COMPILE_STATUS))
+        if (!GL.getShaderParameter(this.FragmentShader, GL.COMPILE_STATUS))
         {
-            errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(fs))
+            errorLog.push('Fragment Shader: ' + GL.getShaderInfoLog(this.FragmentShader))
         }
         
-        GL.attachShader(this.Program, vs)
-        GL.attachShader(this.Program, fs)
+        GL.attachShader(this.Program, this.VertexShader)
+        GL.attachShader(this.Program, this.FragmentShader)
         GL.linkProgram(this.Program)
         if (!GL.getProgramParameter(this.Program, GL.LINK_STATUS))
         {

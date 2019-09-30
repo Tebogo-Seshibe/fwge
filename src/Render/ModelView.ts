@@ -16,11 +16,15 @@ export default class ModelView
                     this.Rotate(
                         this.Translate(
                             this.Peek(),
-                            transform.Position),
-                        transform.Rotation),
-                    transform.Scale),
-                transform.Shear)
+                            transform.Position
+                        ),
+                        transform.Rotation
+                    ),
+                    transform.Scale
+                ),
+                transform.Shear
             )
+        )
             
         return ModelView.Peek()
     }
