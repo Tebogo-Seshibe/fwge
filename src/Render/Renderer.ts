@@ -322,49 +322,11 @@ function Draw(vertexCount: number, framebuffer: WebGLRenderbuffer): void
     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 }
 
-function DrawShaderProgram(shader: Shader, mesh: Mesh)
-{
-    // Use Program
-    GL.useProgram(shader.Program)
-    
-    // Bind attributes
-    SetAttributes(shader, new Map<string, [number, any]>(
-    [
-        ['position',    [shader.Attribute.get('position'),  mesh.PositionBuffer]],
-        ['colour',      [shader.Attribute.get('colour'),    mesh.ColourBuffer]],
-        ['normal',      [shader.Attribute.get('normal'),    mesh.PositionBuffer]],
-        ['uv',          [shader.Attribute.get('uv'),        mesh.UVBuffer]]
-    ]))
-    // Bind uniforms
-
-    SetUniforms(shader, new Map<string, any>(
-    [
-        ['', ''] 
-    ]))
-
-    // Unuse Program
-    GL.useProgram(null)
-}
-
-function SetAttributes(shader: Shader, fields: Map<string, [number, any]>): void
-{
-    for (const [name, [size, field]] of fields)
-    {
-        let index = shader.Attribute.get(name)
-        
-        if (index !== -1)
-        {
-            GL.bindBuffer(GL.ARRAY_BUFFER, field)
-            GL.vertexAttribPointer(index, size, GL.FLOAT, false, 0, 0)
-        }
-    }
-}
-
 function SetUniforms(shader: Shader, fields: Map<string, any>): void
 {
     for (const [name, field] of fields)
     {
-        let { type, index } = shader.Uniform.get(name)
+        let { type, index } = shader.UserUniforms.get(name)
 
         switch (type)
         {

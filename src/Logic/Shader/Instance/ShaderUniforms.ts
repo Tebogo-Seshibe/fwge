@@ -9,6 +9,9 @@ export default class ShaderUniforms
     public readonly Matrix: MatrixUniforms
     public readonly Light: LightUniforms
     public readonly Sampler: SamplerUniforms
+    
+    public readonly Time: WebGLUniformLocation
+    public readonly Resolution: WebGLUniformLocation
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {
@@ -16,5 +19,8 @@ export default class ShaderUniforms
         this.Matrix = new MatrixUniforms(gl, program)
         this.Light = new LightUniforms(gl, program)
         this.Sampler = new SamplerUniforms(gl, program)
+
+        this.Time = gl.getUniformLocation(program, 'U_Time')
+        this.Resolution = gl.getUniformLocation(program, 'U_Resolution')
     }
 }

@@ -1,7 +1,6 @@
 import { GL } from "../FWGE";
-import Camera, { Cameras } from "../Logic/Camera/Camera";
+import Camera from "../Logic/Camera/Camera";
 import GameObject, { GameObjects } from "../Logic/GameObject";
-import { AmbientLights } from "../Logic/Light/AmbientLight";
 import { DirectionalLights } from "../Logic/Light/DirectionalLight";
 import { PointLights } from "../Logic/Light/PointLight";
 import Material from "../Logic/Material";
@@ -50,21 +49,22 @@ let ObjectList: Map<number, ObjectListType> = new Map
 export function Init(): void
 {
     ClearBuffer()
-    CalculateMatrices()
+    GameObjects.forEach(object => CalculateModelViewMatrix(object))
     Shaders.filter(shader => shader.Filter).forEach(shader =>
     {
-        RunProgram(shader)
+        RunProgram(shader, null)
     })
 }
 
 export function Update(): void
 {
     ClearBuffer()
-    CalculateMatrices()
-    Shaders.filter(shader => !shader.Filter).forEach(shader =>
+    GameObjects.forEach(object => CalculateModelViewMatrix(object))
+    ObjectList.forEach(object =>
     {
-        RunProgram(shader)
+        RunProgram(object.material.Shader, object)
     })
+    CombineShaders()
 }
 
 export function ClearScreen(): void
@@ -88,30 +88,25 @@ export function ClearBuffer(shader?: Shader): void
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 }
 
-export function RunProgram(shader: Shader): void
+export function RunProgram(shader: Shader, object?: ObjectListType): void
 {
     GL.useProgram(shader.Program)
 
     ClearBuffer(shader)
-    BindUniforms(shader)
+    BindGlobalUniforms(shader)
 
-    if (shader.Attribute.size <= 0)
+    if (!shader.Attributes.Exists || !object)
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         GL.drawElements(GL.TRIANGLES, 0, GL.UNSIGNED_BYTE, 0)
     }
     else
     {
-        shader.Objects.forEach(objectId => 
-        {
-            let object = ObjectList.get(objectId)
+        BindAttributes(shader, object.mesh)
+        BindObjectUniforms(shader, object.material, object.modelView, object.normal)
 
-            BindAttributes(shader, object.mesh)
-            BindShaderUniforms(shader, object)
-
-            GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
-            GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
-        })
+        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
+        GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
     }
 
     GL.useProgram(null)    
@@ -119,10 +114,10 @@ export function RunProgram(shader: Shader): void
 
 export function BindAttributes(shader: Shader, mesh: Mesh): void
 {    
-    const position: number = shader.Attribute.get('A_Position')
-    const normal: number = shader.Attribute.get('A_Normal')
-    const uv: number = shader.Attribute.get('A_UV')
-    const colour: number = shader.Attribute.get('A_Colour')
+    const position: number = shader.Attributes.Position
+    const normal: number = shader.Attributes.Normal
+    const uv: number = shader.Attributes.UV
+    const colour: number = shader.Attributes.Colour
     
     if (position !== -1)
     {
@@ -181,124 +176,96 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
 }
 
-export function BindUniforms(shader: Shader): void
+export function BindGlobalUniforms(shader: Shader): void
 {
-    for (let light of AmbientLights)
-    {
-        GL.uniform4fv(shader.Uniforms.Light.Ambient.Colour, light.Colour)
-        GL.uniform1f(shader.Uniforms.Light.Ambient.Intensity, light.Intensity)
-    }
-
+    let directional_count: number = 0
     for (let light of DirectionalLights)
     {
-        GL.uniform4fv(shader.Uniforms.Light.Directional.Colour, light.Colour)
-        GL.uniform1f(shader.Uniforms.Light.Directional.Intensity, light.Intensity)
-        GL.uniform3fv(shader.Uniforms.Light.Directional.Direction, light.Direction)
+        GL.uniform4fv(shader.BaseUniforms.DirectionalLights[directional_count].Colour, light.Colour)
+        GL.uniform1f(shader.BaseUniforms.DirectionalLights[directional_count].Intensity, light.Intensity)
+        GL.uniform3fv(shader.BaseUniforms.DirectionalLights[directional_count].Direction, light.Direction)
+
+        ++directional_count
     }
     
     let point_count: number = 0
     for (let light of PointLights)
     {
-        GL.uniform4fv(shader.Uniforms.Light.Point[point_count].Colour, light.Colour)
-        GL.uniform1f(shader.Uniforms.Light.Point[point_count].Intensity, light.Intensity)
-        GL.uniform3fv(shader.Uniforms.Light.Point[point_count].Position, light.Position)
-        GL.uniform1f(shader.Uniforms.Light.Point[point_count].Radius, light.Radius)
-        GL.uniform1f(shader.Uniforms.Light.Point[point_count].Angle, light.Angle)
+        GL.uniform4fv(shader.BaseUniforms.PointLights[point_count].Colour, light.Colour)
+        GL.uniform1f(shader.BaseUniforms.PointLights[point_count].Intensity, light.Intensity)
+        GL.uniform3fv(shader.BaseUniforms.PointLights[point_count].Position, light.Position)
+        GL.uniform1f(shader.BaseUniforms.PointLights[point_count].Radius, light.Radius)
+        GL.uniform1f(shader.BaseUniforms.PointLights[point_count].Angle, light.Angle)
 
         ++point_count
     }
 
-    GL.uniform1i(shader.Uniforms.Light.PointCount, point_count)
-    GL.uniformMatrix4fv(shader.Uniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
+    GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now())
+    GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)
 }
 
-export function BindShaderUniforms(shader: Shader, object: ObjectListType): void
+export function BindObjectUniforms(shader: Shader, material: Material, mv: Matrix4, n: Matrix3): void
 {
-    GL.uniformMatrix4fv(shader.Uniforms.Matrix.ModelView, false, object.modelView)
-    GL.uniformMatrix3fv(shader.Uniforms.Matrix.Normal, false, object.normal)
+    GL.uniform4fv(shader.BaseUniforms.Material.AmbientColour, material.Ambient)
+    GL.uniform4fv(shader.BaseUniforms.Material.DiffuseColour, material.Diffuse)
+    GL.uniform4fv(shader.BaseUniforms.Material.SpecularColour, material.Specular)
+    GL.uniform1f(shader.BaseUniforms.Material.Shininess, material.Shininess)
+    GL.uniform1f(shader.BaseUniforms.Material.Alpha, material.Alpha)
 
-    GL.uniform4fv(shader.Uniforms.Material.Ambient, object.material.Ambient)
-    GL.uniform4fv(shader.Uniforms.Material.Diffuse, object.material.Diffuse)
-    GL.uniform4fv(shader.Uniforms.Material.Specular, object.material.Specular)
-    GL.uniform1f(shader.Uniforms.Material.Shininess, object.material.Shininess)
-    GL.uniform1f(shader.Uniforms.Material.Alpha, object.material.Alpha)
-
-    if (object.material.ImageMap)
+    if (material.ImageMap)
     {
         GL.activeTexture(GL.TEXTURE0)
-        GL.bindTexture(GL.TEXTURE_2D, object.material.ImageMap)
-        GL.uniform1i(shader.Uniforms.Material.HasImage, 1)
-        GL.uniform1i(shader.Uniforms.Sampler.Image, 0)
+        GL.bindTexture(GL.TEXTURE_2D, material.ImageMap)
+        GL.uniform1i(shader.BaseUniforms.Material.ImageSampler, 0)
     }
     else
     {
         GL.activeTexture(GL.TEXTURE0)
         GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.uniform1i(shader.Uniforms.Material.HasImage, 0)
     }
     
-    if (object.material.BumpMap)
+    if (material.BumpMap)
     {
         GL.activeTexture(GL.TEXTURE1)
-        GL.bindTexture(GL.TEXTURE_2D, object.material.BumpMap)
-        GL.uniform1i(shader.Uniforms.Material.HasBump, 1)
-        GL.uniform1i(shader.Uniforms.Sampler.Bump, 1)
+        GL.bindTexture(GL.TEXTURE_2D, material.BumpMap)
+        GL.uniform1i(shader.BaseUniforms.Material.BumpSampler, 0)
     }
     else
     {
         GL.activeTexture(GL.TEXTURE1)
         GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.uniform1i(shader.Uniforms.Material.HasBump, 0)
     }
     
-    if (object.material.SpecularMap)
+    if (material.SpecularMap)
     {
         GL.activeTexture(GL.TEXTURE2)
-        GL.bindTexture(GL.TEXTURE_2D, object.material.SpecularMap)
-        GL.uniform1i(shader.Uniforms.Material.HasSpecular, 1)
-        GL.uniform1i(shader.Uniforms.Sampler.Specular, 2)
+        GL.bindTexture(GL.TEXTURE_2D, material.SpecularMap)
+        GL.uniform1i(shader.BaseUniforms.Material.SpecularSampler, 0)
     }
     else
     {
         GL.activeTexture(GL.TEXTURE2)
         GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.uniform1i(shader.Uniforms.Material.HasBump, 0)
-    }   
+    }
+
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.ModelView, false, mv)
+    GL.uniformMatrix3fv(shader.BaseUniforms.Matrix.Normal, false, n)
 }
 
 export function CombineShaders(): void
 {
     let shaderCount: number = 0
 
-    Shaders.filter(shader => shader.Filter).forEach((shader, index) =>
+    // use main shader program
+    
+    Shaders.filter(shader => shader.Filter).forEach(shader =>
     {
         GL.activeTexture(GL.TEXTURE0 + shaderCount++)
         GL.bindTexture(GL.TEXTURE_2D, shader.Texture)
     })
 
-    // base shader
-}
-
-export function CalculateMatrices(): void
-{
-    Cameras.forEach(camera =>
-    {
-        // Projection
-        const projectionMatrix = camera.ProjectionMatrix
-        
-        // ModelView
-        GameObjects.forEach(object => 
-        {
-            CalculateModelViewMatrix(object)
-            
-            let obj = ObjectList.get(object.ID)
-
-            // GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, obj.modelView)
-            // GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, obj.normal)
-        })        
-        
-        // Normal
-    })
+    // draw shaders together
 }
 
 export function CalculateModelViewMatrix(gameObject: GameObject): void

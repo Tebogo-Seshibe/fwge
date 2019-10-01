@@ -172,11 +172,6 @@ export type ShaderField =
     ShaderVec2  | ShaderVec3    | ShaderVec4    |
     ShaderMat2  | ShaderMat3    | ShaderMat4
 
-export enum ShaderFieldScale
-{
-    Self
-}
-
 export class ShaderNode
 {
     public Name: string

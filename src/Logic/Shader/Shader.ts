@@ -1,9 +1,11 @@
-import Item from '../../Item';
 import FWGE, { GL } from '../../FWGE';
+import Item from '../../Item';
+import Colour3 from '../Colour/Colour3';
+import Colour4 from '../Colour/Colour4';
+import ShaderAttribute from './Definition/ShaderAttribute';
+import { default as ShaderBaseUniform, default as ShaderBaseUniforms } from './Definition/ShaderBaseUniform';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
-import Colour4 from '../Colour/Colour4';
-import Colour3 from '../Colour/Colour3';
 
 export let Shaders: Shader[] = []
 
@@ -26,18 +28,19 @@ export class IShader
 
 export default class Shader extends Item
 {
-    public Clear: Colour4
     public Program: WebGLProgram
     public Height: number
     public Width: number
+    public Clear: Colour4
 
     public Texture: WebGLTexture
     public FrameBuffer: WebGLFramebuffer
     public RenderBuffer: WebGLRenderbuffer
     
-    public Attribute: Map<string, number>
-    public Uniform: Map<string, UniformField>
-
+    public Attribute: ShaderAttribute
+    public BaseUniforms: ShaderBaseUniform
+    public UserUniforms: Map<string, UniformField>
+    
     public Attributes: ShaderAttributes
     public Uniforms: ShaderUniforms
 
@@ -81,10 +84,7 @@ export default class Shader extends Item
         this.Clear = new Colour4(clear as number[])
         this.vertexProgram = vertex
         this.fragmentProgram = fragment
-        
-        this.Attribute = new Map<string, number>()
-        this.Uniform = new Map<string, UniformField>()
-        
+                
         this.Build()
 
         Shaders.push(this)
@@ -94,11 +94,14 @@ export default class Shader extends Item
     {
         this.ClearShader()
         this.BuildShaders()
-        this.CreateBuffers()
-        this.ParseProperties()
 
-        this.Attributes = new ShaderAttributes(GL, this.Program)
+        this.Attributes = new ShaderAttributes(this.Program)
+        this.CreateBuffers()
+        
         this.Uniforms = new ShaderUniforms(GL, this.Program)
+        this.BaseUniforms = new ShaderBaseUniforms(this.Program)
+        this.UserUniforms = new Map<string, UniformField>()
+        this.ParseProperties()
     }
 
     private ClearShader(): void
@@ -138,48 +141,6 @@ export default class Shader extends Item
         this.FrameBuffer = GL.createFramebuffer()
         this.RenderBuffer = GL.createRenderbuffer()
     }
-    
-    private ParseProperties(): void
-    {
-        const regex: RegExp = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/
-        const regexGroup: RegExp = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g
-
-        let text = this.VertexShader + "\n" + this.FragmentShader
-        let matches = text.match(regexGroup) || []
-
-        for (const match of matches)
-        {   
-            let groups = match.match(regex)
-
-            let type = groups.groups.type
-            let name = groups.groups.name
-            let index = GL.getUniformLocation(this.Program, name)
-
-            if (!this.Uniform.has(name))
-            {
-                this.Uniform.set(name, {index, type})
-            }
-        }
-    }
-
-    private CreateBuffers(): void
-    {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer)
-        GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer)
-        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height)
-        GL.bindTexture(GL.TEXTURE_2D, this.Texture)
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
-        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0)
-        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer)
-                    
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.bindRenderbuffer(GL.RENDERBUFFER, null)
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    }
 
     private BuildShaders(): void
     {
@@ -215,5 +176,47 @@ export default class Shader extends Item
         {
             throw errorLog
         }
+    }
+    
+    private ParseProperties(): void
+    {
+        const regex: RegExp = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/
+        const regexGroup: RegExp = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g
+
+        let text = this.VertexShader + "\n" + this.FragmentShader
+        let matches = text.match(regexGroup) || []
+
+        for (const match of matches)
+        {   
+            let groups = match.match(regex)
+
+            let type = groups.groups.type
+            let name = groups.groups.name
+            let index = GL.getUniformLocation(this.Program, name)
+
+            if (!this.UserUniforms.has(name))
+            {
+                this.UserUniforms.set(name, {index, type})
+            }
+        }
+    }
+
+    private CreateBuffers(): void
+    {
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer)
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height)
+        GL.bindTexture(GL.TEXTURE_2D, this.Texture)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0)
+        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer)
+                    
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
     }
 }

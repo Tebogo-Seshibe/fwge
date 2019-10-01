@@ -1,6 +1,6 @@
 import { GL } from "../../../FWGE";
 
-export default class ShaderAttributes
+export default class ShaderAttribute
 {
     public readonly Position: number
     public readonly Colour: number
