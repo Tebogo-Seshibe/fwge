@@ -3,9 +3,9 @@ import Item from '../../Item';
 import Colour3 from '../Colour/Colour3';
 import Colour4 from '../Colour/Colour4';
 import ShaderAttribute from './Definition/ShaderAttribute';
-import { default as ShaderBaseUniform, default as ShaderBaseUniforms } from './Definition/ShaderBaseUniform';
 import ShaderAttributes from './Instance/ShaderAttributes';
 import ShaderUniforms from './Instance/ShaderUniforms';
+import ShaderBaseUniform from './Definition/ShaderBaseUniform';
 
 export let Shaders: Shader[] = []
 
@@ -99,7 +99,7 @@ export default class Shader extends Item
         this.CreateBuffers()
         
         this.Uniforms = new ShaderUniforms(GL, this.Program)
-        this.BaseUniforms = new ShaderBaseUniforms(this.Program)
+        this.BaseUniforms = new ShaderBaseUniform(this.Program)
         this.UserUniforms = new Map<string, UniformField>()
         this.ParseProperties()
     }
@@ -183,7 +183,7 @@ export default class Shader extends Item
         const regex: RegExp = /uniform\s+(?<type>bool|int|float|([biu]?vec|mat)[2-4])\s+(?<name>\w+);/
         const regexGroup: RegExp = /uniform\s+(bool|int|float|([biu]?vec|mat)[2-4])\s+(\w+);/g
 
-        let text = this.VertexShader + "\n" + this.FragmentShader
+        let text = this.VertexProgram + "\n" + this.FragmentProgram
         let matches = text.match(regexGroup) || []
 
         for (const match of matches)

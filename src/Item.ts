@@ -1,6 +1,6 @@
 let ID_COUNTER: number = 0
 
-function Hashcode(number: number): number
+export function hash(number: number): number
 {
     var i = 0
     var hash = 0
@@ -24,7 +24,7 @@ export default class Item
 
     constructor(name = 'Item')
     {
-        this.ID = Hashcode(ID_COUNTER++)
+        this.ID = hash(ID_COUNTER++)
         this.Name = name
     }
 }

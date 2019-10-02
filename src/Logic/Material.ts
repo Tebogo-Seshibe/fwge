@@ -1,7 +1,7 @@
-import Item from '../Item';
-import './Maths/Maths';
 import { GL } from '../FWGE';
+import Item from '../Item';
 import Colour4 from './Colour/Colour4';
+import './Maths/Maths';
 import Shader from './Shader/Shader';
 
 export enum ImageMapType
@@ -9,6 +9,70 @@ export enum ImageMapType
     TEXTURE,
     NORMAL,
     SPECULAR
+}
+
+
+export function ApplyImage(material: Material, src: string, type: ImageMapType): void
+{
+    let img: HTMLImageElement = new Image()
+    let texture: WebGLTexture = null
+
+    switch (type)
+    {
+        case ImageMapType.TEXTURE:
+            if (material.ImageMap)
+            {
+                GL.deleteTexture(material.ImageMap)
+            }
+            material.ImageMap = GL.createTexture();
+            texture = material.ImageMap;
+        break
+
+        case ImageMapType.NORMAL:
+            if (material.BumpMap)
+            {
+                GL.deleteTexture(material.BumpMap)
+            }
+            material.BumpMap = GL.createTexture();
+            texture = material.BumpMap;
+        break
+
+        case ImageMapType.SPECULAR:
+            if (material.SpecularMap)
+            {
+                GL.deleteTexture(material.SpecularMap)
+            }
+            material.SpecularMap = GL.createTexture();
+            texture = material.SpecularMap;
+        break
+    }
+
+    GL.bindTexture(GL.TEXTURE_2D, texture);
+    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+
+    img.onload = e =>
+    {
+        GL.bindTexture(GL.TEXTURE_2D, texture)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
+
+        if (Math.isPowerOf2(img.width) && Math.isPowerOf2(img.height))
+        {
+            GL.generateMipmap(GL.TEXTURE_2D)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
+        }
+        else
+        {
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+        }
+
+        //GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);                
+        GL.bindTexture(GL.TEXTURE_2D, null);
+    }
+
+    img.src = src
 }
 
 export class IMaterial
@@ -65,63 +129,17 @@ export default class Material extends Item
 
         this.Shader = shader
 
-        if (imagemap) Material.ApplyImage(this, imagemap, ImageMapType.TEXTURE)
-        if (normalmap) Material.ApplyImage(this, normalmap, ImageMapType.NORMAL)
-        if (specularmap) Material.ApplyImage(this, specularmap, ImageMapType.SPECULAR)
-    }
-
-    public static ApplyImage(material: Material, src: string, type: ImageMapType): void
-    {
-        let img: HTMLImageElement = new Image()
-        let texture: WebGLTexture = null
-
-        switch (type)
+        if (imagemap)
         {
-            case ImageMapType.TEXTURE:
-                material.ImageMap = GL.createTexture();
-                texture = material.ImageMap;
-            break;
-
-            case ImageMapType.NORMAL:
-                material.BumpMap = GL.createTexture();
-                texture = material.BumpMap;
-            break;
-
-            case ImageMapType.SPECULAR:
-                material.SpecularMap = GL.createTexture();
-                texture = material.SpecularMap;
-            break;
-
-            default: texture = null;
+            ApplyImage(this, imagemap, ImageMapType.TEXTURE)
         }
-
-        GL.bindTexture(GL.TEXTURE_2D, texture);
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
-
-        img.onload = function()
+        if (normalmap)
         {
-            GL.bindTexture(GL.TEXTURE_2D, texture);
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
-
-            // then either generate mips if the image uses power-of-2 dimensions or 
-            // set the filtering correctly for non-power-of-2 images.
-            if (Math.isPowerOf2(img.width) && Math.isPowerOf2(img.height))
-            {
-                GL.generateMipmap(GL.TEXTURE_2D);
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
-            }
-            else
-            {
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-            }
-
-            //GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);                
-            GL.bindTexture(GL.TEXTURE_2D, null);
+            ApplyImage(this, normalmap, ImageMapType.NORMAL)
         }
-
-        img.src = src
+        if (specularmap)
+        {
+            ApplyImage(this, specularmap, ImageMapType.SPECULAR)
+        }
     }
 }

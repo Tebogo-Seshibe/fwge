@@ -28,6 +28,7 @@ export class IGameObject
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
+    public Root: GameObject
     public Transform: Transform
     public Material: Material
     public Mesh: Mesh
@@ -80,7 +81,14 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
         for (let child of children)
         {
+            child.Root = this
             this.Children.push(child)
+            
+            let index: number = GameObjects.indexOf(child)
+            if (index !== -1)
+            {
+                GameObjects.splice(index, 1)
+            }
         }
         
         GameObjects.push(this)
@@ -88,7 +96,25 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
 
     public Destroy(delay: number = 0): void
     {
-        setTimeout(() => GameObjects = GameObjects.slice(GameObjects.indexOf(this), 1), delay)
+        setTimeout(() =>
+        {
+            this.Children.forEach(child => child.Destroy())
+
+            let index = GameObjects.indexOf(this)
+            if (index !== -1)
+            {
+                GameObjects.splice(index, 1)
+            }
+
+            if (this.Root)
+            {
+                index = this.Root.Children.indexOf(this)
+                if (index !== -1)
+                {
+                    this.Root.Children.splice(index)
+                }
+            }
+        }, delay)
     }
 
     public Clone(): GameObject
@@ -103,6 +129,6 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
             rigidbody:      this.RigidBody ? this.RigidBody.Clone() : undefined,
             collider:       this.Collider ? this.Collider.Clone() : undefined,
             children:       this.Children.map(child => child.Clone())
-        });
+        })
     }
 }

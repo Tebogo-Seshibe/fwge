@@ -46,8 +46,85 @@ let ObjectList: Map<number, ObjectListType> = new Map
 //              -> Draw with 0 as vertex count to buffer
 //  -> Sample and combine all shader on to the screen
 
+let BaseMesh: Mesh
+let BaseShader: Shader
+
+let vs = 
+`#ifdef GL_VERTEX_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+    precision mediump int;
+
+attribute vec3 A_Position;
+attribute vec3 A_UV;
+
+varying vec2 V_UV;
+
+void main()
+{
+    V_UV = vec2(A_UV);
+
+    gl_Position = vec4(A_Position, 1.0);
+}`
+
+let fs =
+`#ifdef GL_VERTEX_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+    precision mediump int;
+
+const int MAX_SAMPLERS = 16;
+uniform int U_SamplerCount;
+uniform sampler2D samplers[MAX_SAMPLERS];
+
+varying vec2 V_UV;
+
+void main()
+{
+    vec4 colour = vec4(1.0);
+
+    for (int i = 0; i < MAX_SAMPLERS; ++i)
+    {
+        if (i >= U_SamplerCount)
+        {
+            break;
+        }
+
+        colour *= texture2D(samplers[i], V_UV);
+    }
+
+    gl_FragColor = colour;
+}
+`
+
 export function Init(): void
 {
+    BaseMesh = new Mesh(
+    {
+        position: [
+             -1.0,  1.0,  0.0,
+             -1.0, -1.0,  0.0,
+              1.0, -1.0,  0.0,
+              1.0,  1.0,  0.0
+        ],
+        uv: [
+            0.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ],
+        index: [
+            0, 1, 2,
+            0, 2, 3
+        ]
+    })
+    BaseShader = new Shader({ vertex: vs, fragment: fs })
+    Shaders.splice(Shaders.indexOf(BaseShader), 1)
+
     ClearBuffer()
     GameObjects.forEach(object => CalculateModelViewMatrix(object))
     Shaders.filter(shader => shader.Filter).forEach(shader =>
@@ -59,28 +136,18 @@ export function Init(): void
 export function Update(): void
 {
     ClearBuffer()
+    Shaders.filter(shader => !shader.Filter).forEach(shader => ClearBuffer(shader))
     GameObjects.forEach(object => CalculateModelViewMatrix(object))
-    ObjectList.forEach(object =>
-    {
-        RunProgram(object.material.Shader, object)
-    })
-    CombineShaders()
-}
-
-export function ClearScreen(): void
-{
-    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-    GL.clearColor(0.0, 0.0, 0.0, 0.0)
-    GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+    ObjectList.forEach(object => RunProgram(object.material.Shader, object))
+    //CombineShaders()
 }
 
 export function ClearBuffer(shader?: Shader): void
 {
-    let width = shader ? shader.Width : GL.drawingBufferWidth; 
-    let height = shader ? shader.Height : GL.drawingBufferHeight; 
+    let width = shader ? shader.Width : GL.drawingBufferWidth
+    let height = shader ? shader.Height : GL.drawingBufferHeight
     let buffer = shader ? shader.FrameBuffer : null
-    let clear = shader ? shader.Clear : [0, 0, 0, 0]
+    let clear = shader ? shader.Clear : [0.0, 0.0, 0.0, 0.0]
 
     GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
     GL.viewport(0, 0, width, height)
@@ -105,7 +172,7 @@ export function RunProgram(shader: Shader, object?: ObjectListType): void
         BindAttributes(shader, object.mesh)
         BindObjectUniforms(shader, object.material, object.modelView, object.normal)
 
-        GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
         GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
     }
 
@@ -258,14 +325,18 @@ export function CombineShaders(): void
     let shaderCount: number = 0
 
     // use main shader program
-    
+    GL.useProgram(BaseShader.Program)
     Shaders.filter(shader => shader.Filter).forEach(shader =>
     {
         GL.activeTexture(GL.TEXTURE0 + shaderCount++)
         GL.bindTexture(GL.TEXTURE_2D, shader.Texture)
     })
 
-    // draw shaders together
+    GL.uniform1i(BaseShader.UserUniforms.get('U_SamplerCount').index, shaderCount)
+    BindAttributes(BaseShader, BaseMesh)
+    
+    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+    GL.drawElements(GL.TRIANGLES, BaseMesh.VertexCount, GL.UNSIGNED_BYTE, 0)
 }
 
 export function CalculateModelViewMatrix(gameObject: GameObject): void

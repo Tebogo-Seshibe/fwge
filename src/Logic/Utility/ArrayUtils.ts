@@ -2,7 +2,7 @@ import Vector2 from '../Maths/Vector2';
 import Vector3 from '../Maths/Vector3';
 import Vector4 from '../Maths/Vector4';
 
-export default class ArrayUtiils
+export default class ArrayUtils
 {
     public static Flatten(vector: Vector4[]): number[]
     public static Flatten(vector: Vector3[]): number[]

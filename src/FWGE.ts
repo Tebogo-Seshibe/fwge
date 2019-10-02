@@ -7,6 +7,7 @@ import { ParticleSystems } from './Logic/Particle System/ParticleSystem';
 import Time from './Logic/Utility/Time';
 import { UpdatePhysics } from './Physics/PhysicsEngine';
 import { InitRender, UpdateRender } from './Render/Renderer';
+import { Init, Update } from './Render/RenderUtility';
 
 export let GL: WebGLRenderingContext
 
@@ -57,11 +58,6 @@ export default class FWGE
 
     public static Init({ canvas, render = 60, physics = 30, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE): void
     {
-        if (!canvas)
-        {
-            throw new Error('Field {canvas: HTMLCanvasElement} is required')
-        }
-
         GL = canvas.getContext('webgl') as WebGLRenderingContext
         
         if (!GL)
@@ -77,6 +73,7 @@ export default class FWGE
         Input.Init(canvas)
         Time.Init(render, physics)
         InitRender()
+        Init()
     }
     
     public static Start(): void
@@ -132,6 +129,7 @@ export default class FWGE
         if (Time.Render.Ready)
         {
             UpdateRender()
+            //Update()
         }
     }
 }

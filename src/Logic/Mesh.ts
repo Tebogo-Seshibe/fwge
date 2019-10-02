@@ -1,14 +1,35 @@
+import { GL } from '../FWGE';
 import Item from '../Item';
+import Colour4 from './Colour/Colour4';
 import Vector2 from './Maths/Vector2';
 import Vector3 from './Maths/Vector3';
 import Vector4 from './Maths/Vector4';
-import ArrayUtiils from './Utility/ArrayUtils';
-import { GL } from '../FWGE';
+import ArrayUtils from './Utility/ArrayUtils';
 
 export enum BufferType
 {
     INDEX,
     POSITION
+}
+
+export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
+{
+    let buffer = GL.createBuffer()
+
+    switch (type)
+    {
+        case BufferType.INDEX:
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), GL.STATIC_DRAW)
+        break
+
+        case BufferType.POSITION:
+            GL.bindBuffer(GL.ARRAY_BUFFER, buffer)
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(data), GL.STATIC_DRAW)
+        break
+    }
+
+    return buffer
 }
 
 export class IMesh
@@ -31,69 +52,58 @@ export default class Mesh extends Item
     public readonly IndexBuffer: WebGLBuffer
     public readonly WireframeBuffer: WebGLBuffer
     public readonly VertexCount: number
+    public readonly WireframeCount: number
 
-    constructor({ name = 'Mesh', position, uv, colour, normal, index, wireframe }: IMesh = new IMesh)
+    constructor({ name = 'Mesh', position = [], uv = [], colour = [], normal = [], index = [], wireframe = [] }: IMesh = new IMesh)
     {
         super(name)
 
-        if (colour && colour.length === 0)
+        if (position.length > 0)
         {
-            colour = undefined
+            if(position[0] instanceof Vector3)
+            {
+                position = ArrayUtils.Flatten(position)
+            }
+
+            this.PositionBuffer = BindBufferData(BufferType.POSITION, position as number[])
         }
 
-        if (uv && uv.length === 0)
+        if (normal.length > 0)
         {
-            uv = undefined
+            if (normal[0] instanceof Vector3)
+            {
+                normal = ArrayUtils.Flatten(normal)
+            }
+
+            this.NormalBuffer = BindBufferData(BufferType.POSITION, normal as number[])
         }
 
-        if (wireframe && wireframe.length === 0)
+        if (colour.length > 0)
         {
-            wireframe = undefined
+            if (colour[0] instanceof Colour4)
+            {
+                colour = ArrayUtils.Flatten(colour)
+            }
+
+            this.ColourBuffer = BindBufferData(BufferType.POSITION, colour as number[])
         }
 
-        this.PositionBuffer = this.Bind(GL, BufferType.POSITION, position)
-        this.UVBuffer = this.Bind(GL, BufferType.POSITION, uv)
-        this.ColourBuffer = this.Bind(GL, BufferType.POSITION, colour)
-        this.NormalBuffer = this.Bind(GL, BufferType.POSITION, normal)
-        this.IndexBuffer = this.Bind(GL, BufferType.INDEX, index)
-        this.WireframeBuffer = this.Bind(GL, BufferType.INDEX, wireframe)
+        if (uv.length > 0)
+        {
+            if (uv[0] instanceof Vector2)
+            {
+                uv = ArrayUtils.Flatten(uv)
+            }
+
+            this.UVBuffer = BindBufferData(BufferType.POSITION, uv as number[])
+        }
+
+        this.IndexBuffer = BindBufferData(BufferType.INDEX, index as number[])
+        this.WireframeBuffer = BindBufferData(BufferType.INDEX, wireframe as number[])
 
         this.VertexCount = index.length
-    }
-
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Uint8Array | number[]): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Float32Array | number[]): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector2[] | Float32Array | number[]): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector3[] | Float32Array | number[]): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector4[] | Float32Array | number[]): WebGLBuffer
-    private Bind(gl: WebGLRenderingContext, type: BufferType, data?: Vector4[] | Vector3[] | Vector2[] | Float32Array | Uint8Array | number[]): WebGLBuffer
-    {
-        if (!data)
-        {
-            return null
-        }
-
-        let buffer = gl.createBuffer()
-        data = ArrayUtiils.Flatten(data)        
-
-        switch (type)
-        {
-            case BufferType.INDEX:
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW)
-            break
-
-            case BufferType.POSITION:
-                gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
-            break
-        }
-
-        return buffer
-    }
-
-    private Unbind(gl: WebGLRenderingContext, buffer: WebGLBuffer): void
-    {
-        gl.deleteBuffer(buffer)
+        this.WireframeCount = wireframe.length
     }
 }
+
+
