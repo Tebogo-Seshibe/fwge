@@ -28,7 +28,7 @@ Math.cot = (radian: number): number =>
 
 Math.clamp = (value: number, min: number, max: number): number =>
 {
-    return Math.max(Math.min(value, Math.max(min, max), Math.min(min, max)))
+    return Math.min(max, Math.max(min, value))
 }
 
 Math.randBetween = (min: number, max: number): number =>

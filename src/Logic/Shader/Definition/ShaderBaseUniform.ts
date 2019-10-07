@@ -67,7 +67,6 @@ export class MaterialUniform
         this.SpecularColour = sc
         this.Shininess = s
         this.Alpha = a
-
         this.ImageSampler = is
         this.BumpSampler = bs
         this.SpecularSampler = ss
@@ -94,7 +93,9 @@ export default class ShaderBaseUniform
     public readonly Matrix: MatrixUniform
     public readonly Material: MaterialUniform
     public readonly DirectionalLights: DirectionalLightUniform[]
+    public readonly DirectionalLightCount: WebGLUniformLocation
     public readonly PointLights: PointLightUniform[]
+    public readonly PointLightCount: WebGLUniformLocation
     public readonly Global: GlobalUniform    
 
     constructor(program: WebGLProgram)
@@ -115,8 +116,9 @@ export default class ShaderBaseUniform
                 GL.getUniformLocation(program, `U_Directional[${i}].Colour`),
                 GL.getUniformLocation(program, `U_Directional[${i}].Intensity`),
                 GL.getUniformLocation(program, `U_Directional[${i}].Direction`)
-            ))
-        }
+                ))
+            }
+        this.DirectionalLightCount = GL.getUniformLocation(program, `U_Directional_Count`)
 
         this.PointLights = []
         for (let i: number = 0; i < this.POINT_COUNT; ++i)
@@ -130,6 +132,7 @@ export default class ShaderBaseUniform
                 GL.getUniformLocation(program, `U_Point[${i}].Angle`)
             ))
         }
+        this.PointLightCount = GL.getUniformLocation(program, `U_Point_Count`)
 
         this.Material = new MaterialUniform
         (
@@ -137,11 +140,10 @@ export default class ShaderBaseUniform
             GL.getUniformLocation(program, 'U_Material.Diffuse'),
             GL.getUniformLocation(program, 'U_Material.Specular'),
             GL.getUniformLocation(program, 'U_Material.Shininess'),
-            GL.getUniformLocation(program, 'U_Material.Alpha'),
-            
-            GL.getUniformLocation(program, 'U_Material.Image'),
-            GL.getUniformLocation(program, 'U_Material.Bump'),
-            GL.getUniformLocation(program, 'U_Material.Specular')
+            GL.getUniformLocation(program, 'U_Material.Alpha'),            
+            GL.getUniformLocation(program, 'U_Material.ImageMap'),
+            GL.getUniformLocation(program, 'U_Material.BumpMap'),
+            GL.getUniformLocation(program, 'U_Material.SpecularMap')
         )
 
         this.Global = new GlobalUniform

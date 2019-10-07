@@ -75,8 +75,9 @@ class FWGE {
             PhysicsEngine_1.UpdatePhysics();
         }
         if (Time_1.default.Render.Ready) {
-            Renderer_1.UpdateRender();
+            RenderUtility_1.Update();
         }
+        Input_1.default.Reset();
     }
 }
 FWGE.Running = false;
@@ -938,6 +939,9 @@ class Input {
         Input.Keyboard = new KeyboardInput_1.default();
         Input.Mouse = new MouseInput_1.default(canvas);
     }
+    static Reset() {
+        Input.Mouse.Reset();
+    }
 }
 Input.Controllers = new List_1.default();
 exports.default = Input;
@@ -1295,9 +1299,9 @@ class MouseInput {
             e.cancelBubble = true;
         };
         element.onwheel = (e) => {
-            this.wheel = e.detail > 0
+            this.wheel = e.deltaY > 0
                 ? InputState_1.WheelState.DOWN
-                : e.detail < 0
+                : e.deltaY < 0
                     ? InputState_1.WheelState.UP
                     : InputState_1.WheelState.CENTERED;
             e.cancelBubble = true;
@@ -1332,6 +1336,9 @@ class MouseInput {
     }
     get Wheel() {
         return this.wheel;
+    }
+    Reset() {
+        this.wheel = InputState_1.WheelState.CENTERED;
     }
 }
 exports.default = MouseInput;
@@ -1618,7 +1625,7 @@ Math.cot = (radian) => {
     return 1 / Math.tan(radian);
 };
 Math.clamp = (value, min, max) => {
-    return Math.max(Math.min(value, Math.max(min, max), Math.min(min, max)));
+    return Math.min(max, Math.max(min, value));
 };
 Math.randBetween = (min, max) => {
     return (Math.random() * max) + min;
@@ -2996,11 +3003,13 @@ class ShaderBaseUniform {
         for (let i = 0; i < this.DIRECTIONAL_COUNT; ++i) {
             this.DirectionalLights.push(new DirectionalLightUniform(FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Colour`), FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Intensity`), FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Direction`)));
         }
+        this.DirectionalLightCount = FWGE_1.GL.getUniformLocation(program, `U_Directional_Count`);
         this.PointLights = [];
         for (let i = 0; i < this.POINT_COUNT; ++i) {
             this.PointLights.push(new PointLightUniform(FWGE_1.GL.getUniformLocation(program, `U_Point[${i}].Colour`), FWGE_1.GL.getUniformLocation(program, `U_Point[${i}].Intensity`), FWGE_1.GL.getUniformLocation(program, `U_Point[${i}].Position`), FWGE_1.GL.getUniformLocation(program, `U_Point[${i}].Radius`), FWGE_1.GL.getUniformLocation(program, `U_Point[${i}].Angle`)));
         }
-        this.Material = new MaterialUniform(FWGE_1.GL.getUniformLocation(program, 'U_Material.Ambient'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Diffuse'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Specular'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Shininess'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Alpha'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Image'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Bump'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Specular'));
+        this.PointLightCount = FWGE_1.GL.getUniformLocation(program, `U_Point_Count`);
+        this.Material = new MaterialUniform(FWGE_1.GL.getUniformLocation(program, 'U_Material.Ambient'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Diffuse'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Specular'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Shininess'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Alpha'), FWGE_1.GL.getUniformLocation(program, 'U_Material.ImageMap'), FWGE_1.GL.getUniformLocation(program, 'U_Material.BumpMap'), FWGE_1.GL.getUniformLocation(program, 'U_Material.SpecularMap'));
         this.Global = new GlobalUniform(FWGE_1.GL.getUniformLocation(program, 'U_Global.Time'), FWGE_1.GL.getUniformLocation(program, 'U_Global.Resolution'));
     }
 }
@@ -3740,58 +3749,58 @@ function UpdatePhysics() {
         others.forEach(other => {
             if (curr instanceof CircleCollider_1.default) {
                 if (other instanceof CircleCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleCircle(curr, other));
+                    CollisionDetection_1.CircleCircle(curr, other);
                 }
                 else if (other instanceof SquareCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleSquare(curr, other));
+                    CollisionDetection_1.CircleSquare(curr, other);
                 }
                 else if (other instanceof SphereCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleSphere(curr, other));
+                    CollisionDetection_1.CircleSphere(curr, other);
                 }
                 else if (other instanceof CubeCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleCube(curr, other));
+                    CollisionDetection_1.CircleCube(curr, other);
                 }
             }
             else if (curr instanceof SquareCollider_1.default) {
                 if (other instanceof CircleCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleSquare(other, curr));
+                    CollisionDetection_1.CircleSquare(other, curr);
                 }
                 else if (other instanceof SquareCollider_1.default) {
-                    console.log(CollisionDetection_1.SquareSquare(curr, other));
+                    CollisionDetection_1.SquareSquare(curr, other);
                 }
                 else if (other instanceof SphereCollider_1.default) {
-                    console.log(CollisionDetection_1.SquareSphere(curr, other));
+                    CollisionDetection_1.SquareSphere(curr, other);
                 }
                 else if (other instanceof CubeCollider_1.default) {
-                    console.log(CollisionDetection_1.SquareCube(curr, other));
+                    CollisionDetection_1.SquareCube(curr, other);
                 }
             }
             else if (curr instanceof SphereCollider_1.default) {
                 if (other instanceof CircleCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleSphere(other, curr));
+                    CollisionDetection_1.CircleSphere(other, curr);
                 }
                 else if (other instanceof SquareCollider_1.default) {
-                    console.log(CollisionDetection_1.SquareSphere(other, curr));
+                    CollisionDetection_1.SquareSphere(other, curr);
                 }
                 else if (other instanceof SphereCollider_1.default) {
-                    console.log(CollisionDetection_1.SphereSphere(curr, other));
+                    CollisionDetection_1.SphereSphere(curr, other);
                 }
                 else if (other instanceof CubeCollider_1.default) {
-                    console.log(CollisionDetection_1.SphereCube(curr, other));
+                    CollisionDetection_1.SphereCube(curr, other);
                 }
             }
             else if (curr instanceof CubeCollider_1.default) {
                 if (other instanceof CircleCollider_1.default) {
-                    console.log(CollisionDetection_1.CircleCube(other, curr));
+                    CollisionDetection_1.CircleCube(other, curr);
                 }
                 else if (other instanceof SquareCollider_1.default) {
-                    console.log(CollisionDetection_1.SquareCube(other, curr));
+                    CollisionDetection_1.SquareCube(other, curr);
                 }
                 else if (other instanceof SphereCollider_1.default) {
-                    console.log(CollisionDetection_1.SphereCube(other, curr));
+                    CollisionDetection_1.SphereCube(other, curr);
                 }
                 else if (other instanceof CubeCollider_1.default) {
-                    console.log(CollisionDetection_1.CubeCube(curr, other));
+                    CollisionDetection_1.CubeCube(curr, other);
                 }
             }
         });
@@ -3992,6 +4001,7 @@ function BindAttributes(shader, mesh) {
     const colour = shader.Attributes.Colour;
     if (position !== -1) {
         if (mesh.PositionBuffer) {
+            FWGE_1.GL.enableVertexAttribArray(position);
             FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.PositionBuffer);
             FWGE_1.GL.vertexAttribPointer(position, 3, FWGE_1.GL.FLOAT, false, 0, 0);
         }
@@ -4001,6 +4011,7 @@ function BindAttributes(shader, mesh) {
     }
     if (normal !== -1) {
         if (mesh.NormalBuffer) {
+            FWGE_1.GL.enableVertexAttribArray(normal);
             FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.NormalBuffer);
             FWGE_1.GL.vertexAttribPointer(normal, 3, FWGE_1.GL.FLOAT, false, 0, 0);
         }
@@ -4010,6 +4021,7 @@ function BindAttributes(shader, mesh) {
     }
     if (uv !== -1) {
         if (mesh.UVBuffer) {
+            FWGE_1.GL.enableVertexAttribArray(uv);
             FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.UVBuffer);
             FWGE_1.GL.vertexAttribPointer(uv, 2, FWGE_1.GL.FLOAT, false, 0, 0);
         }
@@ -4019,6 +4031,7 @@ function BindAttributes(shader, mesh) {
     }
     if (colour !== -1) {
         if (mesh.ColourBuffer) {
+            FWGE_1.GL.enableVertexAttribArray(colour);
             FWGE_1.GL.bindBuffer(FWGE_1.GL.ARRAY_BUFFER, mesh.ColourBuffer);
             FWGE_1.GL.vertexAttribPointer(colour, 4, FWGE_1.GL.FLOAT, false, 0, 0);
         }
@@ -4046,6 +4059,8 @@ function BindGlobalUniforms(shader) {
         FWGE_1.GL.uniform1f(shader.BaseUniforms.PointLights[point_count].Angle, light.Angle);
         ++point_count;
     }
+    FWGE_1.GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count);
+    FWGE_1.GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count);
     FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera_1.default.Main.ProjectionMatrix);
     FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now());
     FWGE_1.GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height);

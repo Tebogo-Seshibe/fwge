@@ -103,13 +103,18 @@ export default class MouseInput
 
         element.onwheel = (e: WheelEvent) =>
         {
-            this.wheel = e.detail > 0
+            this.wheel = e.deltaY > 0
                 ? WheelState.DOWN
-                : e.detail < 0 
+                : e.deltaY < 0 
                     ? WheelState.UP
                     : WheelState.CENTERED
 
             e.cancelBubble = true
         }
+    }
+
+    Reset(): void
+    {
+        this.wheel = WheelState.CENTERED   
     }
 }

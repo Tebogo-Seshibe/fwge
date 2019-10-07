@@ -190,6 +190,7 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     {
         if(mesh.PositionBuffer)
         {
+            GL.enableVertexAttribArray(position)
             GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
             GL.vertexAttribPointer(position, 3, GL.FLOAT, false, 0, 0)
         }
@@ -203,6 +204,7 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     {
         if (mesh.NormalBuffer)
         {
+            GL.enableVertexAttribArray(normal)
             GL.bindBuffer(GL.ARRAY_BUFFER, mesh.NormalBuffer)
             GL.vertexAttribPointer(normal, 3, GL.FLOAT, false, 0, 0)
         }
@@ -216,6 +218,7 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     {
         if (mesh.UVBuffer)
         {
+            GL.enableVertexAttribArray(uv)
             GL.bindBuffer(GL.ARRAY_BUFFER, mesh.UVBuffer)
             GL.vertexAttribPointer(uv, 2, GL.FLOAT, false, 0, 0)
         }
@@ -230,6 +233,7 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     {
         if (mesh.ColourBuffer)
         {
+            GL.enableVertexAttribArray(colour)
             GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer)
             GL.vertexAttribPointer(colour, 4, GL.FLOAT, false, 0, 0)
         }
@@ -267,6 +271,8 @@ export function BindGlobalUniforms(shader: Shader): void
         ++point_count
     }
 
+    GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count)
+    GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count)
     GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
     GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now())
     GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)

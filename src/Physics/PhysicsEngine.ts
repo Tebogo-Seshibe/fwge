@@ -35,76 +35,76 @@ export function UpdatePhysics(): void
             {
                 if (other instanceof CircleCollider)
                 {
-                    console.log(CircleCircle(curr, other))
+                    CircleCircle(curr, other)
                 }
                 else if (other instanceof SquareCollider)
                 {
-                    console.log(CircleSquare(curr, other))
+                    CircleSquare(curr, other)
                 }
                 else if (other instanceof SphereCollider)
                 {
-                    console.log(CircleSphere(curr, other))
+                    CircleSphere(curr, other)
                 }
                 else if (other instanceof CubeCollider)
                 {
-                    console.log(CircleCube(curr, other))
+                    CircleCube(curr, other)
                 }
             }
             else if (curr instanceof SquareCollider)
             {
                 if (other instanceof CircleCollider)
                 {
-                    console.log(CircleSquare(other, curr))
+                    CircleSquare(other, curr)
                 }
                 else if (other instanceof SquareCollider)
                 {
-                    console.log(SquareSquare(curr, other))
+                    SquareSquare(curr, other)
                 }
                 else if (other instanceof SphereCollider)
                 {
-                    console.log(SquareSphere(curr, other))
+                    SquareSphere(curr, other)
                 }
                 else if (other instanceof CubeCollider)
                 {
-                    console.log(SquareCube(curr, other))
+                    SquareCube(curr, other)
                 }
             }
             else if (curr instanceof SphereCollider)
             {
                 if (other instanceof CircleCollider)
                 {
-                    console.log(CircleSphere(other, curr))
+                    CircleSphere(other, curr)
                 }
                 else if (other instanceof SquareCollider)
                 {
-                    console.log(SquareSphere(other, curr))
+                    SquareSphere(other, curr)
                 }
                 else if (other instanceof SphereCollider)
                 {
-                    console.log(SphereSphere(curr, other))
+                    SphereSphere(curr, other)
                 }
                 else if (other instanceof CubeCollider)
                 {
-                    console.log(SphereCube(curr, other))
+                    SphereCube(curr, other)
                 }
             }
             else if (curr instanceof CubeCollider)
             {
                 if (other instanceof CircleCollider)
                 {
-                    console.log(CircleCube(other, curr))
+                    CircleCube(other, curr)
                 }
                 else if (other instanceof SquareCollider)
                 {
-                    console.log(SquareCube(other, curr))
+                    SquareCube(other, curr)
                 }
                 else if (other instanceof SphereCollider)
                 {
-                    console.log(SphereCube(other, curr))
+                    SphereCube(other, curr)
                 }
                 else if (other instanceof CubeCollider)
                 {
-                    console.log(CubeCube(curr, other))
+                    CubeCube(curr, other)
                 }
             }
         })

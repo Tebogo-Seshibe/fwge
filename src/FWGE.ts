@@ -128,8 +128,10 @@ export default class FWGE
         // Render
         if (Time.Render.Ready)
         {
-            UpdateRender()
-            //Update()
+            //UpdateRender()
+            Update()
         }
+
+        Input.Reset()
     }
 }
