@@ -3,9 +3,9 @@ import Item from '../../Item';
 import Colour3 from '../Colour/Colour3';
 import Colour4 from '../Colour/Colour4';
 import ShaderAttribute from './Definition/ShaderAttribute';
-import ShaderAttributes from './Instance/ShaderAttributes';
-import ShaderUniforms from './Instance/ShaderUniforms';
 import ShaderBaseUniform from './Definition/ShaderBaseUniform';
+import List from '../Utility/List';
+import ArrayUtils from '../Utility/ArrayUtils';
 
 export let Shaders: Shader[] = []
 
@@ -41,9 +41,6 @@ export default class Shader extends Item
     public BaseUniforms: ShaderBaseUniform
     public UserUniforms: Map<string, UniformField>
     
-    public Attributes: ShaderAttributes
-    public Uniforms: ShaderUniforms
-
     public Filter: boolean
     public Objects: number[]
 
@@ -94,13 +91,12 @@ export default class Shader extends Item
     {
         this.ClearShader()
         this.BuildShaders()
-
-        this.Attributes = new ShaderAttributes(this.Program)
         this.CreateBuffers()
-        
-        this.Uniforms = new ShaderUniforms(GL, this.Program)
+
+        this.Attribute = new ShaderAttribute(this.Program)
         this.BaseUniforms = new ShaderBaseUniform(this.Program)
         this.UserUniforms = new Map<string, UniformField>()
+        
         this.ParseProperties()
     }
 
@@ -203,6 +199,14 @@ export default class Shader extends Item
 
     private CreateBuffers(): void
     {
+        let data = []
+        for (let i = 0; i < this.Height * this.Width; ++i)
+        {
+            data.push(255, 255, 255, 255)
+        }
+
+        let arr: Uint8Array = new Uint8Array(data)
+
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.FrameBuffer)
         GL.bindRenderbuffer(GL.RENDERBUFFER, this.RenderBuffer)
         GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height)
@@ -211,7 +215,7 @@ export default class Shader extends Item
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, undefined)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, arr)
         GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this.Texture, 0)
         GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, this.RenderBuffer)
                     
