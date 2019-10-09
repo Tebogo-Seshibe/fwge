@@ -57,6 +57,9 @@ export function ClearBuffer(shader?: Shader): void
 
 export function RunProgram(shader: Shader, object?: ObjectListType): void
 {
+    if (!shader)
+        return
+
     GL.useProgram(shader.Program)
 
     ClearBuffer(shader)
@@ -187,6 +190,7 @@ export function BindGlobalUniforms(shader: Shader): void
     GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count)
     GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count)
     GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Camera, false, Camera.Main.LocationMatrix)
     GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now())
     GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)
 }

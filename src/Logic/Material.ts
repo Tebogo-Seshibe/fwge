@@ -83,7 +83,7 @@ export class IMaterial
     specular?: Colour4 | Float32Array | number[]
     alpha?: number
     shininess?: number
-    shader: Shader
+    shader?: Shader
     imagemap?: string
     normalmap?: string
     specularmap?: string

@@ -246,6 +246,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
 const Vector3_1 = __importDefault(require("../Maths/Vector3"));
 const Viewer_1 = __importStar(require("./Viewer"));
+const Transform_1 = __importDefault(require("../Transform"));
+const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
 exports.Cameras = [];
 class ICamera {
 }
@@ -270,6 +272,9 @@ class Camera extends Viewer_1.default {
     get Perspective() {
         return Camera.Perspective(this.NearClipping, this.FarClipping, this.FieldOfView, this.AspectRatio);
     }
+    get LocationMatrix() {
+        return Camera.LocationMatrix(this.Transform.Position, this.Transform.Rotation);
+    }
     static get Main() {
         return exports.Cameras[0];
     }
@@ -278,6 +283,7 @@ class Camera extends Viewer_1.default {
         this.Position = new Vector3_1.default(position);
         this.Target = new Vector3_1.default(target);
         this.Up = new Vector3_1.default(up);
+        this.Transform = new Transform_1.default();
         exports.Cameras.push(this);
     }
     static LookAt(position, target, up = new Vector3_1.default(0, 1, 0)) {
@@ -306,11 +312,19 @@ class Camera extends Viewer_1.default {
         let depth = far - near;
         return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
     }
+    static LocationMatrix(position, rotation) {
+        let x = Math.radian(rotation.X);
+        let y = Math.radian(rotation.Y);
+        let z = Math.radian(rotation.Z);
+        let pos = position.Clone().Scale(-1);
+        let rot = new Matrix3_1.default(Math.cos(z), -Math.sin(z), 0, Math.sin(z), Math.cos(z), 0, 0, 0, 1).Mult(Math.cos(y), 0, Math.sin(y), 0, 1, 0, -Math.sin(y), 0, Math.cos(y)).Mult(1, 0, 0, 0, Math.cos(x), -Math.sin(x), 0, Math.sin(x), Math.cos(x));
+        return new Matrix4_1.default(rot.M11, rot.M12, rot.M13, pos.X, rot.M21, rot.M22, rot.M23, pos.Y, rot.M31, rot.M32, rot.M33, pos.Z, 0, 0, 0, 1);
+    }
 }
 exports.default = Camera;
 new Camera();
 
-},{"../Maths/Matrix4":35,"../Maths/Vector3":37,"./Viewer":6}],6:[function(require,module,exports){
+},{"../Maths/Matrix3":34,"../Maths/Matrix4":35,"../Maths/Vector3":37,"../Transform":45,"./Viewer":6}],6:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3780,6 +3794,8 @@ function ClearBuffer(shader) {
 }
 exports.ClearBuffer = ClearBuffer;
 function RunProgram(shader, object) {
+    if (!shader)
+        return;
     FWGE_1.GL.useProgram(shader.Program);
     ClearBuffer(shader);
     BindGlobalUniforms(shader);
@@ -3872,6 +3888,7 @@ function BindGlobalUniforms(shader) {
     FWGE_1.GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count);
     FWGE_1.GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count);
     FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera_1.default.Main.ProjectionMatrix);
+    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Camera, false, Camera_1.default.Main.LocationMatrix);
     FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now());
     FWGE_1.GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height);
 }
