@@ -313,12 +313,11 @@ class Camera extends Viewer_1.default {
         return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
     }
     static LocationMatrix(position, rotation) {
-        let x = Math.radian(rotation.X);
-        let y = Math.radian(rotation.Y);
-        let z = Math.radian(rotation.Z);
-        let pos = position.Clone().Scale(-1);
-        let rot = new Matrix3_1.default(Math.cos(z), -Math.sin(z), 0, Math.sin(z), Math.cos(z), 0, 0, 0, 1).Mult(Math.cos(y), 0, Math.sin(y), 0, 1, 0, -Math.sin(y), 0, Math.cos(y)).Mult(1, 0, 0, 0, Math.cos(x), -Math.sin(x), 0, Math.sin(x), Math.cos(x));
-        return new Matrix4_1.default(rot.M11, rot.M12, rot.M13, pos.X, rot.M21, rot.M22, rot.M23, pos.Y, rot.M31, rot.M32, rot.M33, pos.Z, 0, 0, 0, 1);
+        const x = Math.radian(rotation.X);
+        const y = Math.radian(rotation.Y);
+        const z = Math.radian(rotation.Z);
+        let rot = new Matrix3_1.default(Math.cos(z), -Math.sin(z), 0, Math.sin(z), Math.cos(z), 0, 0, 0, 1).Mult(Math.cos(y), 0, Math.sin(y), 0, 1, 0, -Math.sin(y), 0, Math.cos(y)).Mult(1, 0, 0, 0, Math.cos(x), -Math.sin(x), 0, Math.sin(x), Math.cos(x)).Inverse();
+        return new Matrix4_1.default(rot.M11, rot.M12, rot.M13, position.X, rot.M21, rot.M22, rot.M23, position.Y, rot.M31, rot.M32, rot.M33, position.Z, 0, 0, 0, 1);
     }
 }
 exports.default = Camera;
