@@ -287,11 +287,11 @@ class Camera extends Viewer_1.default {
         exports.Cameras.push(this);
     }
     static LookAt(position, target, up = new Vector3_1.default(0, 1, 0)) {
-        let n = Vector3_1.default.Diff(position, target).Unit();
-        let u = Vector3_1.default.Cross(up, n).Unit();
-        let v = Vector3_1.default.Cross(n, u).Unit();
-        let p = position;
-        return new Matrix4_1.default(v.X, v.Y, v.Z, 0.0, u.X, u.Y, u.Z, 0.0, n.X, n.Y, n.Z, 0.0, 0.0, 0.0, 0.0, 1.0).Mult(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, p.X, p.Y, p.Z, 1.0);
+        let f = position.Clone().Diff(target).Unit();
+        let r = up.Clone().Cross(f).Unit();
+        let u = f.Clone().Cross(r).Unit();
+        let p = new Vector3_1.default(r.Dot(position), u.Dot(position), f.Dot(position));
+        return new Matrix4_1.default(r.X, r.Y, r.Z, -p.X, u.X, u.Y, u.Z, -p.Y, f.X, f.Y, f.Z, -p.Z, 0, 0, 0, 1);
     }
     static Orthographic(left, right, top, bottom, near, far, theta, phi) {
         theta = Math.cot(Math.radian(theta));
@@ -2139,6 +2139,14 @@ class Matrix4 extends Float32Array {
     Clone() {
         return new Matrix4(this);
     }
+    toString() {
+        return [
+            `| ${this.M11} | ${this.M12} | ${this.M13} | ${this.M14} |`,
+            `| ${this.M21} | ${this.M22} | ${this.M23} | ${this.M24} |`,
+            `| ${this.M31} | ${this.M32} | ${this.M33} | ${this.M34} |`,
+            `| ${this.M41} | ${this.M42} | ${this.M43} | ${this.M44} |`
+        ].join('\n');
+    }
     static get ZERO() {
         return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
@@ -3887,7 +3895,7 @@ function BindGlobalUniforms(shader) {
     FWGE_1.GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count);
     FWGE_1.GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count);
     FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera_1.default.Main.ProjectionMatrix);
-    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Camera, false, Camera_1.default.Main.LocationMatrix);
+    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Camera, false, Camera_1.default.Main.LookAt);
     FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now());
     FWGE_1.GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height);
 }

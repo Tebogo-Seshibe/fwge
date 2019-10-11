@@ -101,21 +101,17 @@ export default class Camera extends Viewer
     //#region Static Methods
     public static LookAt(position: Vector3, target: Vector3, up: Vector3 = new Vector3(0, 1, 0)): Matrix4
     {
-        let n = Vector3.Diff(position, target).Unit()
-        let u = Vector3.Cross(up, n).Unit()
-        let v = Vector3.Cross(n, u).Unit()
-        let p = position
+        let f = position.Clone().Diff(target).Unit() // forward
+        let r = up.Clone().Cross(f).Unit() // right
+        let u = f.Clone().Cross(r).Unit() // up
+        let p = new Vector3(r.Dot(position), u.Dot(position), f.Dot(position))
 
-        return new Matrix4(
-            v.X, v.Y, v.Z, 0.0,
-            u.X, u.Y, u.Z, 0.0,
-            n.X, n.Y, n.Z, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        ).Mult(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            p.X, p.Y, p.Z, 1.0
+        return new Matrix4
+        (
+             r.X,  r.Y,  r.Z, -p.X,
+             u.X,  u.Y,  u.Z, -p.Y,
+             f.X,  f.Y,  f.Z, -p.Z,
+               0,    0,    0,    1
         )
     }
 
