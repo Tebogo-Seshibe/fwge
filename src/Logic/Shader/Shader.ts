@@ -4,8 +4,6 @@ import Colour3 from '../Colour/Colour3';
 import Colour4 from '../Colour/Colour4';
 import ShaderAttribute from './Definition/ShaderAttribute';
 import ShaderBaseUniform from './Definition/ShaderBaseUniform';
-import List from '../Utility/List';
-import ArrayUtils from '../Utility/ArrayUtils';
 
 export let Shaders: Shader[] = []
 

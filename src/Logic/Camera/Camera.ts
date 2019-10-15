@@ -1,4 +1,4 @@
-import Matrix4 from '../Maths/Matrix4';
+ import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
 import Viewer, { ViewMode } from './Viewer';
 import Transform from '../Transform';

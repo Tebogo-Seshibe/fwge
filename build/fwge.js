@@ -2983,10 +2983,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FWGE_1 = require("../../../FWGE");
 class MatrixUniform {
     constructor(mv, p, n, c) {
-        this.ModelView = mv;
+        this.Model = mv;
         this.Projection = p;
         this.Normal = n;
-        this.Camera = c;
+        this.View = c;
     }
 }
 exports.MatrixUniform = MatrixUniform;
@@ -3032,7 +3032,7 @@ class ShaderBaseUniform {
     constructor(program) {
         this.DIRECTIONAL_COUNT = 3;
         this.POINT_COUNT = 8;
-        this.Matrix = new MatrixUniform(FWGE_1.GL.getUniformLocation(program, 'U_Matrix.ModelView'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Projection'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Normal'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Camera'));
+        this.Matrix = new MatrixUniform(FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Model'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Projection'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.Normal'), FWGE_1.GL.getUniformLocation(program, 'U_Matrix.View'));
         this.DirectionalLights = [];
         for (let i = 0; i < this.DIRECTIONAL_COUNT; ++i) {
             this.DirectionalLights.push(new DirectionalLightUniform(FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Colour`), FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Intensity`), FWGE_1.GL.getUniformLocation(program, `U_Directional[${i}].Direction`)));
@@ -3895,7 +3895,7 @@ function BindGlobalUniforms(shader) {
     FWGE_1.GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count);
     FWGE_1.GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count);
     FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera_1.default.Main.ProjectionMatrix);
-    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Camera, false, Camera_1.default.Main.LookAt);
+    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera_1.default.Main.LocationMatrix);
     FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now());
     FWGE_1.GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height);
 }
@@ -3933,7 +3933,7 @@ function BindObjectUniforms(shader, material, mv, n) {
         FWGE_1.GL.activeTexture(FWGE_1.GL.TEXTURE2);
         FWGE_1.GL.bindTexture(FWGE_1.GL.TEXTURE_2D, null);
     }
-    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.ModelView, false, mv);
+    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Model, false, mv);
     FWGE_1.GL.uniformMatrix3fv(shader.BaseUniforms.Matrix.Normal, false, n);
 }
 exports.BindObjectUniforms = BindObjectUniforms;
