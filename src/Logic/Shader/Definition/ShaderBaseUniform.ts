@@ -77,11 +77,21 @@ export class GlobalUniform
 {
     public readonly Time: WebGLUniformLocation
     public readonly Resolution: WebGLUniformLocation
+
+    public readonly NearClip: WebGLUniformLocation
+    public readonly FarClip: WebGLUniformLocation
+
+    public readonly ObjectID: WebGLUniformLocation
+    public readonly ObjectCount: WebGLUniformLocation
     
-    constructor(t: WebGLUniformLocation, r: WebGLUniformLocation)
+    constructor(t: WebGLUniformLocation, r: WebGLUniformLocation, n: WebGLUniformLocation, f: WebGLUniformLocation, oid: WebGLUniformLocation, oc: WebGLUniformLocation)
     {
         this.Time = t
         this.Resolution = r
+        this.NearClip = n
+        this.FarClip = f
+        this.ObjectID = oid
+        this.ObjectCount = oc
     }
 }
 
@@ -149,7 +159,11 @@ export default class ShaderBaseUniform
         this.Global = new GlobalUniform
         (
             GL.getUniformLocation(program, 'U_Global.Time'),
-            GL.getUniformLocation(program, 'U_Global.Resolution')
+            GL.getUniformLocation(program, 'U_Global.Resolution'),
+            GL.getUniformLocation(program, 'U_Global.NearClip'),
+            GL.getUniformLocation(program, 'U_Global.FarClip'),
+            GL.getUniformLocation(program, 'U_Global.ObjectID'),
+            GL.getUniformLocation(program, 'U_Global.ObjectCount')
         )
     }
 }

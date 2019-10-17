@@ -11,6 +11,7 @@ const ParticleSystem_1 = require("./Logic/Particle System/ParticleSystem");
 const Time_1 = __importDefault(require("./Logic/Utility/Time"));
 const PhysicsEngine_1 = require("./Physics/PhysicsEngine");
 const Renderer_1 = require("./Render/Renderer");
+const Shaders_1 = require("./Render/Shaders");
 class IFWGE {
 }
 exports.IFWGE = IFWGE;
@@ -43,6 +44,7 @@ class FWGE {
         Input_1.default.Init(canvas);
         Time_1.default.Init(render, physics);
         Renderer_1.InitRender();
+        Shaders_1.InitShaders();
     }
     static Start() {
         if (FWGE.animationFrame !== -1) {
@@ -82,7 +84,7 @@ FWGE.Running = false;
 FWGE.animationFrame = -1;
 exports.default = FWGE;
 
-},{"./Logic/Animation/Animation":3,"./Logic/GameObject":17,"./Logic/Input/Input":18,"./Logic/Particle System/ParticleSystem":40,"./Logic/Utility/Time":51,"./Physics/PhysicsEngine":54,"./Render/Renderer":56}],2:[function(require,module,exports){
+},{"./Logic/Animation/Animation":3,"./Logic/GameObject":17,"./Logic/Input/Input":18,"./Logic/Particle System/ParticleSystem":40,"./Logic/Utility/Time":51,"./Physics/PhysicsEngine":54,"./Render/Renderer":57,"./Render/Shaders":58}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 let ID_COUNTER = 0;
@@ -243,11 +245,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Matrix4_1 = __importDefault(require("../Maths/Matrix4"));
+const Projection_1 = require("../../Render/Projection");
 const Vector3_1 = __importDefault(require("../Maths/Vector3"));
-const Viewer_1 = __importStar(require("./Viewer"));
 const Transform_1 = __importDefault(require("../Transform"));
-const Matrix3_1 = __importDefault(require("../Maths/Matrix3"));
+const Viewer_1 = __importStar(require("./Viewer"));
 exports.Cameras = [];
 class ICamera {
 }
@@ -264,66 +265,32 @@ class Camera extends Viewer_1.default {
         }
     }
     get LookAt() {
-        return Camera.LookAt(this.Position, this.Target, this.Up);
+        return Projection_1.LookAt(this.Transform.Position, this.Target, new Vector3_1.default(0, 1, 0));
     }
     get Orthographic() {
-        return Camera.Orthographic(this.Left, this.Right, this.Top, this.Bottom, this.NearClipping, this.FarClipping, this.HorizontalTilt, this.VericalTilt);
+        return Projection_1.Orthographic(this.Left, this.Right, this.Top, this.Bottom, this.NearClipping, this.FarClipping, this.HorizontalTilt, this.VericalTilt);
     }
     get Perspective() {
-        return Camera.Perspective(this.NearClipping, this.FarClipping, this.FieldOfView, this.AspectRatio);
+        return Projection_1.Perspective(this.NearClipping, this.FarClipping, this.FieldOfView, this.AspectRatio);
     }
     get LocationMatrix() {
-        return Camera.LocationMatrix(this.Transform.Position, this.Transform.Rotation);
+        return Projection_1.LocationMatrix(this.Transform.Position, this.Transform.Rotation);
     }
     static get Main() {
         return exports.Cameras[0];
     }
-    constructor({ name = 'Viewer', position = [0, 0, -10], target = [0, 0, 0], up = [0, 1, 0] } = new ICamera) {
+    constructor({ name = 'Viewer', transform = new Transform_1.default, target = [0, 0, -1], up = [0, 1, 0] } = new ICamera) {
         super(name);
-        this.Position = new Vector3_1.default(position);
+        this.Transform = transform;
         this.Target = new Vector3_1.default(target);
         this.Up = new Vector3_1.default(up);
-        this.Transform = new Transform_1.default();
         exports.Cameras.push(this);
-    }
-    static LookAt(position, target, up = new Vector3_1.default(0, 1, 0)) {
-        let f = position.Clone().Diff(target).Unit();
-        let r = up.Clone().Cross(f).Unit();
-        let u = f.Clone().Cross(r).Unit();
-        let p = new Vector3_1.default(r.Dot(position), u.Dot(position), f.Dot(position));
-        return new Matrix4_1.default(r.X, r.Y, r.Z, -p.X, u.X, u.Y, u.Z, -p.Y, f.X, f.Y, f.Z, -p.Z, 0, 0, 0, 1);
-    }
-    static Orthographic(left, right, top, bottom, near, far, theta, phi) {
-        theta = Math.cot(Math.radian(theta));
-        phi = Math.cot(Math.radian(phi));
-        left -= near * theta;
-        right -= near * theta;
-        top -= near * phi;
-        bottom -= near * phi;
-        return new Matrix4_1.default(2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, theta, phi, -2 / (far - near), 0, -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1);
-    }
-    static Perspective(near, far, fieldOfView, aspectRatio) {
-        let top = near * Math.tan(Math.radian(fieldOfView));
-        let right = top * aspectRatio;
-        let left = -right;
-        let bottom = -top;
-        let width = right - left;
-        let height = top - bottom;
-        let depth = far - near;
-        return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
-    }
-    static LocationMatrix(position, rotation) {
-        const x = Math.radian(rotation.X);
-        const y = Math.radian(rotation.Y);
-        const z = Math.radian(rotation.Z);
-        let rot = new Matrix3_1.default(Math.cos(z), -Math.sin(z), 0, Math.sin(z), Math.cos(z), 0, 0, 0, 1).Mult(Math.cos(y), 0, Math.sin(y), 0, 1, 0, -Math.sin(y), 0, Math.cos(y)).Mult(1, 0, 0, 0, Math.cos(x), -Math.sin(x), 0, Math.sin(x), Math.cos(x)).Inverse();
-        return new Matrix4_1.default(rot.M11, rot.M12, rot.M13, position.X, rot.M21, rot.M22, rot.M23, position.Y, rot.M31, rot.M32, rot.M33, position.Z, 0, 0, 0, 1);
     }
 }
 exports.default = Camera;
 new Camera();
 
-},{"../Maths/Matrix3":34,"../Maths/Matrix4":35,"../Maths/Vector3":37,"../Transform":45,"./Viewer":6}],6:[function(require,module,exports){
+},{"../../Render/Projection":56,"../Maths/Vector3":37,"../Transform":45,"./Viewer":6}],6:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -875,6 +842,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Item_1 = __importDefault(require("../Item"));
 const Transform_1 = __importDefault(require("./Transform"));
+let OBJECT_COUNTER = 0;
 exports.GameObjects = [];
 class IGameObject {
 }
@@ -882,6 +850,7 @@ exports.IGameObject = IGameObject;
 class GameObject extends Item_1.default {
     constructor({ name = 'GameObject', transform = new Transform_1.default(), material, mesh, visible = true, rigidbody, collider, animation, children = [], begin = function () { }, update = function () { }, end = function () { }, } = new IGameObject) {
         super(name);
+        this.ObjectID = OBJECT_COUNTER++;
         this.Transform = transform;
         this.Material = material;
         this.Mesh = mesh;
@@ -1454,6 +1423,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Projection_1 = require("../../Render/Projection");
 const Vector3_1 = __importDefault(require("../Maths/Vector3"));
 const List_1 = __importDefault(require("../Utility/List"));
 const LightItem_1 = __importStar(require("./LightItem"));
@@ -1462,6 +1432,9 @@ class IPointLight extends LightItem_1.ILightItem {
 }
 exports.IPointLight = IPointLight;
 class PointLight extends LightItem_1.default {
+    LookAt(target) {
+        return Projection_1.LookAt(this.Position, target, new Vector3_1.default(0, 1, 0));
+    }
     constructor({ name = 'Point Light', colour, intensity, position, radius = 5, angle = 180, shadows = false } = new IPointLight) {
         super({ name, colour, intensity });
         this.Position = new Vector3_1.default(position);
@@ -1473,7 +1446,7 @@ class PointLight extends LightItem_1.default {
 }
 exports.default = PointLight;
 
-},{"../Maths/Vector3":37,"../Utility/List":48,"./LightItem":28}],30:[function(require,module,exports){
+},{"../../Render/Projection":56,"../Maths/Vector3":37,"../Utility/List":48,"./LightItem":28}],30:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1691,7 +1664,7 @@ class Matrix2 extends Float32Array {
     }
     constructor(m11, m12, m21, m22) {
         super(4);
-        if (m11) {
+        if (m11 !== undefined) {
             Matrix2.Set(this, m11, m12, m21, m22);
         }
     }
@@ -1867,7 +1840,7 @@ class Matrix3 extends Float32Array {
     }
     constructor(m11, m12, m13, m21, m22, m23, m31, m32, m33) {
         super(9);
-        if (m11) {
+        if (m11 !== undefined) {
             Matrix3.Set(this, m11, m12, m13, m21, m22, m23, m31, m32, m33);
         }
     }
@@ -2111,7 +2084,7 @@ class Matrix4 extends Float32Array {
     }
     constructor(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
         super(16);
-        if (m11) {
+        if (m11 !== undefined) {
             Matrix4.Set(this, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
         }
     }
@@ -2387,7 +2360,7 @@ class Vector2 extends Float32Array {
     }
     constructor(x, y) {
         super(2);
-        if (x) {
+        if (x !== undefined) {
             Vector2.Set(this, x, y);
         }
     }
@@ -2516,7 +2489,7 @@ class Vector3 extends Float32Array {
     }
     constructor(x, y, z) {
         super(3);
-        if (x) {
+        if (x !== undefined) {
             Vector3.Set(this, x, y, z);
         }
     }
@@ -2667,7 +2640,7 @@ class Vector4 extends Float32Array {
     }
     constructor(x, y, z, w) {
         super(4);
-        if (x) {
+        if (x !== undefined) {
             Vector4.Set(this, x, y, z, w);
         }
     }
@@ -2790,6 +2763,8 @@ var BufferType;
     BufferType[BufferType["POSITION"] = 1] = "POSITION";
 })(BufferType = exports.BufferType || (exports.BufferType = {}));
 function BindBufferData(type, data) {
+    if (!data || data.length <= 0)
+        return null;
     let buffer = FWGE_1.GL.createBuffer();
     switch (type) {
         case BufferType.INDEX:
@@ -3022,9 +2997,13 @@ class MaterialUniform {
 }
 exports.MaterialUniform = MaterialUniform;
 class GlobalUniform {
-    constructor(t, r) {
+    constructor(t, r, n, f, oid, oc) {
         this.Time = t;
         this.Resolution = r;
+        this.NearClip = n;
+        this.FarClip = f;
+        this.ObjectID = oid;
+        this.ObjectCount = oc;
     }
 }
 exports.GlobalUniform = GlobalUniform;
@@ -3044,7 +3023,7 @@ class ShaderBaseUniform {
         }
         this.PointLightCount = FWGE_1.GL.getUniformLocation(program, `U_Point_Count`);
         this.Material = new MaterialUniform(FWGE_1.GL.getUniformLocation(program, 'U_Material.Ambient'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Diffuse'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Specular'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Shininess'), FWGE_1.GL.getUniformLocation(program, 'U_Material.Alpha'), FWGE_1.GL.getUniformLocation(program, 'U_Material.ImageMap'), FWGE_1.GL.getUniformLocation(program, 'U_Material.BumpMap'), FWGE_1.GL.getUniformLocation(program, 'U_Material.SpecularMap'));
-        this.Global = new GlobalUniform(FWGE_1.GL.getUniformLocation(program, 'U_Global.Time'), FWGE_1.GL.getUniformLocation(program, 'U_Global.Resolution'));
+        this.Global = new GlobalUniform(FWGE_1.GL.getUniformLocation(program, 'U_Global.Time'), FWGE_1.GL.getUniformLocation(program, 'U_Global.Resolution'), FWGE_1.GL.getUniformLocation(program, 'U_Global.NearClip'), FWGE_1.GL.getUniformLocation(program, 'U_Global.FarClip'), FWGE_1.GL.getUniformLocation(program, 'U_Global.ObjectID'), FWGE_1.GL.getUniformLocation(program, 'U_Global.ObjectCount'));
     }
 }
 exports.default = ShaderBaseUniform;
@@ -3718,7 +3697,7 @@ const Stack_1 = __importDefault(require("../Logic/Utility/Stack"));
 let MVStack = new Stack_1.default();
 class ModelView {
     static Push(transform) {
-        MVStack.Push(this.Shear(this.Scale(this.Rotate(this.Translate(this.Peek(), transform.Position), transform.Rotation), transform.Scale), transform.Shear));
+        MVStack.Push(this.Translate(this.Rotate(this.Scale(this.Peek(), transform.Position), transform.Rotation), transform.Scale));
         return ModelView.Peek();
     }
     static Peek() {
@@ -3762,6 +3741,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Matrix3_1 = __importDefault(require("../Logic/Maths/Matrix3"));
+const Matrix4_1 = __importDefault(require("../Logic/Maths/Matrix4"));
+function LookAt(position, target, up) {
+    let f = target.Clone().Diff(position).Unit();
+    let r = up.Clone().Cross(f).Unit();
+    let u = f.Clone().Cross(r).Unit();
+    let p = position.Clone();
+    return new Matrix4_1.default(r.X, u.X, f.X, p.X, r.Y, u.Y, f.Y, p.Y, r.Z, u.Z, f.Z, p.Z, 0, 0, 0, 1).Transpose().Inverse();
+}
+exports.LookAt = LookAt;
+function Orthographic(left, right, top, bottom, near, far, theta, phi) {
+    theta = Math.cot(Math.radian(theta));
+    phi = Math.cot(Math.radian(phi));
+    left -= near * theta;
+    right -= near * theta;
+    top -= near * phi;
+    bottom -= near * phi;
+    return new Matrix4_1.default(2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, theta, phi, -2 / (far - near), 0, -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1);
+}
+exports.Orthographic = Orthographic;
+function Perspective(near, far, fieldOfView, aspectRatio) {
+    let top = near * Math.tan(Math.radian(fieldOfView));
+    let right = top * aspectRatio;
+    let left = -right;
+    let bottom = -top;
+    let width = right - left;
+    let height = top - bottom;
+    let depth = far - near;
+    return new Matrix4_1.default(2 * near / width, 0, 0, 0, 0, 2 * near / height, 0, 0, (right + left) / width, (top + bottom) / height, -(far + near) / depth, -1, 0, 0, -(2 * far * near) / depth, 1);
+}
+exports.Perspective = Perspective;
+function LocationMatrix(position, rotation) {
+    const x = Math.radian(rotation.X);
+    const y = Math.radian(rotation.Y);
+    const z = Math.radian(rotation.Z);
+    let rot = new Matrix3_1.default(Math.cos(z), -Math.sin(z), 0, Math.sin(z), Math.cos(z), 0, 0, 0, 1).Mult(Math.cos(y), 0, Math.sin(y), 0, 1, 0, -Math.sin(y), 0, Math.cos(y)).Mult(1, 0, 0, 0, Math.cos(x), -Math.sin(x), 0, Math.sin(x), Math.cos(x)).Inverse();
+    return new Matrix4_1.default(rot.M11, rot.M12, rot.M13, position.X, rot.M21, rot.M22, rot.M23, position.Y, rot.M31, rot.M32, rot.M33, position.Z, 0, 0, 0, 1);
+}
+exports.LocationMatrix = LocationMatrix;
+
+},{"../Logic/Maths/Matrix3":34,"../Logic/Maths/Matrix4":35}],57:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 const FWGE_1 = require("../FWGE");
 const Camera_1 = __importDefault(require("../Logic/Camera/Camera"));
 const GameObject_1 = require("../Logic/GameObject");
@@ -3770,6 +3795,7 @@ const PointLight_1 = require("../Logic/Light/PointLight");
 const Matrix3_1 = __importDefault(require("../Logic/Maths/Matrix3"));
 const Shader_1 = require("../Logic/Shader/Shader");
 const ModelView_1 = __importDefault(require("./ModelView"));
+const Shaders_1 = require("./Shaders");
 let ObjectList = new Map;
 function InitRender() {
     FWGE_1.GL.enable(FWGE_1.GL.DEPTH_TEST);
@@ -3786,7 +3812,7 @@ function UpdateRender() {
     ClearBuffer();
     Shader_1.Shaders.filter(shader => !shader.Filter).forEach(shader => ClearBuffer(shader));
     GameObject_1.GameObjects.forEach(object => CalculateObjectMatrices(object));
-    ObjectList.forEach(object => RunProgram(object.material.Shader, object));
+    MainPass();
 }
 exports.UpdateRender = UpdateRender;
 function ClearBuffer(shader) {
@@ -3817,6 +3843,7 @@ function RunProgram(shader, object) {
         }
         BindAttributes(shader, object.mesh);
         BindObjectUniforms(shader, object.material, object.modelView, object.normal);
+        FWGE_1.GL.uniform1i(shader.BaseUniforms.Global.ObjectID, object.id);
         FWGE_1.GL.bindFramebuffer(FWGE_1.GL.FRAMEBUFFER, null);
         FWGE_1.GL.drawElements(FWGE_1.GL.TRIANGLES, object.mesh.VertexCount, FWGE_1.GL.UNSIGNED_BYTE, 0);
         if (object.material.Alpha !== 1.0) {
@@ -3895,9 +3922,12 @@ function BindGlobalUniforms(shader) {
     FWGE_1.GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count);
     FWGE_1.GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count);
     FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera_1.default.Main.ProjectionMatrix);
-    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera_1.default.Main.LocationMatrix);
-    FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now());
+    FWGE_1.GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera_1.default.Main.LookAt);
+    FWGE_1.GL.uniform1i(shader.BaseUniforms.Global.Time, Date.now());
     FWGE_1.GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height);
+    FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.NearClip, Camera_1.default.Main.NearClipping);
+    FWGE_1.GL.uniform1f(shader.BaseUniforms.Global.FarClip, Camera_1.default.Main.FarClipping);
+    FWGE_1.GL.uniform1i(shader.BaseUniforms.Global.ObjectCount, GameObject_1.GameObjects.length);
 }
 exports.BindGlobalUniforms = BindGlobalUniforms;
 function BindObjectUniforms(shader, material, mv, n) {
@@ -3941,6 +3971,7 @@ function CalculateObjectMatrices(gameObject) {
     ModelView_1.default.Push(gameObject.Transform);
     let mv = ModelView_1.default.Peek();
     ObjectList.set(gameObject.ID, {
+        id: gameObject.ObjectID,
         mesh: gameObject.Mesh,
         material: gameObject.Material,
         modelView: mv,
@@ -3950,8 +3981,82 @@ function CalculateObjectMatrices(gameObject) {
     ModelView_1.default.Pop();
 }
 exports.CalculateObjectMatrices = CalculateObjectMatrices;
+function ShadowPass() {
+    for (var light of PointLight_1.PointLights) {
+        ObjectList.forEach(object => RunProgram(Shaders_1.DepthShader, object));
+    }
+}
+exports.ShadowPass = ShadowPass;
+function MainPass() {
+    ObjectList.forEach(object => RunProgram(object.material.Shader, object));
+}
+exports.MainPass = MainPass;
+function PostprocessingPass() {
+}
+exports.PostprocessingPass = PostprocessingPass;
 
-},{"../FWGE":1,"../Logic/Camera/Camera":5,"../Logic/GameObject":17,"../Logic/Light/DirectionalLight":27,"../Logic/Light/PointLight":29,"../Logic/Maths/Matrix3":34,"../Logic/Shader/Shader":44,"./ModelView":55}],57:[function(require,module,exports){
+},{"../FWGE":1,"../Logic/Camera/Camera":5,"../Logic/GameObject":17,"../Logic/Light/DirectionalLight":27,"../Logic/Light/PointLight":29,"../Logic/Maths/Matrix3":34,"../Logic/Shader/Shader":44,"./ModelView":55,"./Shaders":58}],58:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Shader_1 = __importDefault(require("../Logic/Shader/Shader"));
+function InitShaders() {
+    exports.DepthShader = new Shader_1.default({
+        clear: [0, 0, 0, 0],
+        filter: false,
+        vertex: `#ifdef GL_VERTEX_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+    precision mediump int;
+
+attribute vec3 A_Position;
+
+struct Matrix
+{
+    mat4 ModelView;
+    mat4 Projection;
+    mat4 Camera;
+};
+uniform Matrix U_Matrix;
+
+varying vec4 V_Position;
+
+void main(void)
+{
+    V_Position = U_Matrix.Camera * U_Matrix.ModelView * vec4(A_Position, 1.0);
+    
+    gl_Position = U_Matrix.Projection * V_Position;
+}`,
+        fragment: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+    precision mediump int;
+
+struct Global
+{
+    int U_ObjectID;
+};
+uniform Global U_Global;
+
+varying vec4 V_Position;
+
+void main(void)
+{ 
+    gl_FragColor = vec4(float(U_Global.U_ObjectID), 0.0, 0.0, V_Position.z);
+}`,
+        width: 1024,
+        height: 1024
+    });
+}
+exports.InitShaders = InitShaders;
+
+},{"../Logic/Shader/Shader":44}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 window.FWGE = require('./FWGE').default;
@@ -4008,4 +4113,4 @@ window.Mesh = require('./Logic/Mesh').default;
 window.RigidBody = require('./Logic/RigidBody').default;
 window.Transform = require('./Logic/Transform').default;
 
-},{"./FWGE":1,"./Logic/Animation/Animation":3,"./Logic/Camera/Camera":5,"./Logic/Camera/Viewer":6,"./Logic/Collision/CircleCollider":7,"./Logic/Collision/Collider":8,"./Logic/Collision/CollisionEvent":9,"./Logic/Collision/CubeCollider":10,"./Logic/Collision/PhysicsMaterial":11,"./Logic/Collision/SphereCollider":12,"./Logic/Collision/SquareCollider":13,"./Logic/Colour/Colour3":14,"./Logic/Colour/Colour4":15,"./Logic/Converter/OBJConverter":16,"./Logic/GameObject":17,"./Logic/Input/Input":18,"./Logic/Input/InputState":19,"./Logic/Interfaces/Attachable":22,"./Logic/Interfaces/Cloneable":23,"./Logic/Interfaces/Destroyable":24,"./Logic/Interfaces/Updateable":25,"./Logic/Light/AmbientLight":26,"./Logic/Light/DirectionalLight":27,"./Logic/Light/PointLight":29,"./Logic/Material":30,"./Logic/Maths/Maths":32,"./Logic/Maths/Matrix2":33,"./Logic/Maths/Matrix3":34,"./Logic/Maths/Matrix4":35,"./Logic/Maths/Vector2":36,"./Logic/Maths/Vector3":37,"./Logic/Maths/Vector4":38,"./Logic/Mesh":39,"./Logic/Particle System/ParticleSystem":40,"./Logic/RigidBody":41,"./Logic/Shader/Shader":44,"./Logic/Transform":45,"./Logic/Utility/ArrayUtils":46,"./Logic/Utility/BinaryTree":47,"./Logic/Utility/List":48,"./Logic/Utility/ListUtils":49,"./Logic/Utility/Stack":50,"./Logic/Utility/Time":51,"./Logic/Utility/Tree":52}]},{},[57]);
+},{"./FWGE":1,"./Logic/Animation/Animation":3,"./Logic/Camera/Camera":5,"./Logic/Camera/Viewer":6,"./Logic/Collision/CircleCollider":7,"./Logic/Collision/Collider":8,"./Logic/Collision/CollisionEvent":9,"./Logic/Collision/CubeCollider":10,"./Logic/Collision/PhysicsMaterial":11,"./Logic/Collision/SphereCollider":12,"./Logic/Collision/SquareCollider":13,"./Logic/Colour/Colour3":14,"./Logic/Colour/Colour4":15,"./Logic/Converter/OBJConverter":16,"./Logic/GameObject":17,"./Logic/Input/Input":18,"./Logic/Input/InputState":19,"./Logic/Interfaces/Attachable":22,"./Logic/Interfaces/Cloneable":23,"./Logic/Interfaces/Destroyable":24,"./Logic/Interfaces/Updateable":25,"./Logic/Light/AmbientLight":26,"./Logic/Light/DirectionalLight":27,"./Logic/Light/PointLight":29,"./Logic/Material":30,"./Logic/Maths/Maths":32,"./Logic/Maths/Matrix2":33,"./Logic/Maths/Matrix3":34,"./Logic/Maths/Matrix4":35,"./Logic/Maths/Vector2":36,"./Logic/Maths/Vector3":37,"./Logic/Maths/Vector4":38,"./Logic/Mesh":39,"./Logic/Particle System/ParticleSystem":40,"./Logic/RigidBody":41,"./Logic/Shader/Shader":44,"./Logic/Transform":45,"./Logic/Utility/ArrayUtils":46,"./Logic/Utility/BinaryTree":47,"./Logic/Utility/List":48,"./Logic/Utility/ListUtils":49,"./Logic/Utility/Stack":50,"./Logic/Utility/Time":51,"./Logic/Utility/Tree":52}]},{},[59]);

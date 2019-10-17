@@ -8,6 +8,8 @@ import Mesh from './Mesh';
 import RigidBody from './RigidBody';
 import Transform from './Transform';
 
+let OBJECT_COUNTER: number = 0
+
 export let GameObjects: GameObject[] = []
 
 export class IGameObject
@@ -28,6 +30,7 @@ export class IGameObject
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
+    public ObjectID: number
     public Root: GameObject
     public Transform: Transform
     public Material: Material
@@ -62,6 +65,8 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     {
         super(name)
 
+        this.ObjectID = OBJECT_COUNTER++
+        
         this.Transform = transform        
         this.Material = material
         this.Mesh = mesh

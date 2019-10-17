@@ -9,9 +9,11 @@ import Matrix4 from "../Logic/Maths/Matrix4";
 import Mesh from "../Logic/Mesh";
 import Shader, { Shaders } from "../Logic/Shader/Shader";
 import ModelView from "./ModelView";
+import { DepthShader } from "./Shaders";
 
 type ObjectListType =
 {
+    id: number
     mesh: Mesh
     material: Material
     modelView: Matrix4
@@ -39,7 +41,11 @@ export function UpdateRender(): void
     ClearBuffer()
     Shaders.filter(shader => !shader.Filter).forEach(shader => ClearBuffer(shader))
     GameObjects.forEach(object => CalculateObjectMatrices(object))
-    ObjectList.forEach(object => RunProgram(object.material.Shader, object))
+
+    //ShadowPass()
+    MainPass()
+    //PostprocessingPass()
+    
 }
 
 export function ClearBuffer(shader?: Shader): void
@@ -80,6 +86,7 @@ export function RunProgram(shader: Shader, object?: ObjectListType): void
 
         BindAttributes(shader, object.mesh)
         BindObjectUniforms(shader, object.material, object.modelView, object.normal)
+        GL.uniform1i(shader.BaseUniforms.Global.ObjectID, object.id)
 
         GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
         GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
@@ -190,9 +197,13 @@ export function BindGlobalUniforms(shader: Shader): void
     GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count)
     GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count)
     GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
-    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera.Main.LocationMatrix)
-    GL.uniform1f(shader.BaseUniforms.Global.Time, Date.now())
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera.Main.LookAt)
+    
+    GL.uniform1i(shader.BaseUniforms.Global.Time, Date.now())
     GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)
+    GL.uniform1f(shader.BaseUniforms.Global.NearClip, Camera.Main.NearClipping)
+    GL.uniform1f(shader.BaseUniforms.Global.FarClip, Camera.Main.FarClipping)
+    GL.uniform1i(shader.BaseUniforms.Global.ObjectCount, GameObjects.length)
 }
 
 export function BindObjectUniforms(shader: Shader, material: Material, mv: Matrix4, n: Matrix3): void
@@ -250,6 +261,7 @@ export function CalculateObjectMatrices(gameObject: GameObject): void
 
     ObjectList.set(gameObject.ID,
     {
+        id: gameObject.ObjectID,
         mesh: gameObject.Mesh,
         material: gameObject.Material,
         modelView: mv,
@@ -259,4 +271,22 @@ export function CalculateObjectMatrices(gameObject: GameObject): void
     gameObject.Children.forEach(child => CalculateObjectMatrices(child))
 
     ModelView.Pop()
+}
+
+export function ShadowPass()
+{
+    for (var light of PointLights)
+    {
+        ObjectList.forEach(object => RunProgram(DepthShader, object))
+    }
+}
+
+export function MainPass()
+{
+    ObjectList.forEach(object => RunProgram(object.material.Shader, object))
+}
+
+export function PostprocessingPass()
+{
+
 }

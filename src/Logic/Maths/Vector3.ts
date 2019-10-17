@@ -56,7 +56,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         super(3)
 
-        if (x)
+        if (x !== undefined)
         {
             Vector3.Set(this, x, y, z)
         }

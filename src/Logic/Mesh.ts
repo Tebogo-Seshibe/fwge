@@ -14,6 +14,9 @@ export enum BufferType
 
 export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
 {
+    if (!data || data.length <= 0)
+        return null
+    
     let buffer = GL.createBuffer()
 
     switch (type)

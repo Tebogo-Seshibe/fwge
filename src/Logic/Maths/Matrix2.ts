@@ -66,7 +66,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     {
         super(4)
 
-        if (m11)
+        if (m11 !== undefined)
         {
             Matrix2.Set
             (

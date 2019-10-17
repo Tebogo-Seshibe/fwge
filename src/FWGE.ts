@@ -7,6 +7,7 @@ import { ParticleSystems } from './Logic/Particle System/ParticleSystem';
 import Time from './Logic/Utility/Time';
 import { UpdatePhysics } from './Physics/PhysicsEngine';
 import {InitRender, UpdateRender } from './Render/Renderer';
+import { InitShaders } from './Render/Shaders';
 
 export let GL: WebGLRenderingContext
 
@@ -72,6 +73,7 @@ export default class FWGE
         Input.Init(canvas)
         Time.Init(render, physics)
         InitRender()
+        InitShaders()
     }
     
     public static Start(): void

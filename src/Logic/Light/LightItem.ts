@@ -13,7 +13,7 @@ export default class LightItem extends Item
 {
     public Colour: Colour4
     public Intensity: number
-
+    
     constructor()
     constructor(light: ILightItem)
     constructor({ name, colour = [255, 255, 255, 255], intensity = 1.0}: ILightItem = new ILightItem)

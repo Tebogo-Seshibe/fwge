@@ -1,3 +1,5 @@
+import { LookAt } from '../../Render/Projection';
+import Matrix4 from '../Maths/Matrix4';
 import Vector3 from '../Maths/Vector3';
 import List from '../Utility/List';
 import LightItem, { ILightItem } from './LightItem';
@@ -18,6 +20,11 @@ export default class PointLight extends LightItem
     public Radius: number
     public Angle: number
     public Shadows: boolean
+
+    public LookAt(target: Vector3): Matrix4
+    {
+        return LookAt(this.Position, target, new Vector3(0, 1, 0))
+    }
 
     constructor()
     constructor(pointLight: IPointLight)

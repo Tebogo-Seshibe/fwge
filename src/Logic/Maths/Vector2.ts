@@ -46,7 +46,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     {
         super(2)
 
-        if (x)
+        if (x !== undefined)
         {
             Vector2.Set(this, x, y)
         }

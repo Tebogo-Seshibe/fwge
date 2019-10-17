@@ -11,18 +11,15 @@ export default class ModelView
     public static Push(transform: Transform): Matrix4
     {
         MVStack.Push(
-            this.Shear(
-                this.Scale(
-                    this.Rotate(
-                        this.Translate(
-                            this.Peek(),
-                            transform.Position
-                        ),
-                        transform.Rotation
+            this.Translate(
+                this.Rotate(
+                    this.Scale(
+                       this.Peek(),
+                        transform.Position
                     ),
-                    transform.Scale
+                    transform.Rotation
                 ),
-                transform.Shear
+                transform.Scale
             )
         )
             

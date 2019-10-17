@@ -186,7 +186,7 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
     {
         super(16)
 
-        if (m11)
+        if (m11 !== undefined)
         {
             Matrix4.Set
             (
