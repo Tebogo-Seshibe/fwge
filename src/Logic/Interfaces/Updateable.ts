@@ -1,4 +1,4 @@
 export default interface Updateable
 {
-    Update(): void
+    Update(delta: number): void
 }

@@ -1,8 +1,8 @@
-import CircleCollider from "../Logic/Collision/CircleCollider";
-import { Colliders } from "../Logic/Collision/Collider";
-import CubeCollider from "../Logic/Collision/CubeCollider";
-import SphereCollider from "../Logic/Collision/SphereCollider";
-import SquareCollider from "../Logic/Collision/SquareCollider";
+import CircleCollider from "./Collision/CircleCollider";
+import { Colliders } from "./Collision/Collider";
+import CubeCollider from "./Collision/CubeCollider";
+import SphereCollider from "./Collision/SphereCollider";
+import SquareCollider from "./Collision/SquareCollider";
 import { 
     CircleCircle,
     CircleCube,
@@ -13,15 +13,36 @@ import {
     SphereSphere,
     SquareCube,
     SquareSphere,
-    SquareSquare
+    SquareSquare,
+    IsColission
 } from "./CollisionDetection";
 import { Equation } from "../Logic/Maths/Equation";
+import IEngine from '../IEngine'
+
+export default class PhysicsEngine implements IEngine
+{
+    public Init(): void 
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public Update(): void
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public Reset(): void
+    {
+        throw new Error("Method not implemented.");
+    }
+}
+
 
 export const GRAVITY: number = 9.81
 
 export const Force: Equation = (mass) => GRAVITY * mass 
 
-export function UpdatePhysics(): void
+export function UpdatePhysics(delta: number): void
 {
     let colliders = [...Colliders]
     
@@ -29,84 +50,6 @@ export function UpdatePhysics(): void
     {
         let others = arr.filter(c => c !== curr)
         
-        others.forEach(other =>
-        {
-            if (curr instanceof CircleCollider)
-            {
-                if (other instanceof CircleCollider)
-                {
-                    CircleCircle(curr, other)
-                }
-                else if (other instanceof SquareCollider)
-                {
-                    CircleSquare(curr, other)
-                }
-                else if (other instanceof SphereCollider)
-                {
-                    CircleSphere(curr, other)
-                }
-                else if (other instanceof CubeCollider)
-                {
-                    CircleCube(curr, other)
-                }
-            }
-            else if (curr instanceof SquareCollider)
-            {
-                if (other instanceof CircleCollider)
-                {
-                    CircleSquare(other, curr)
-                }
-                else if (other instanceof SquareCollider)
-                {
-                    SquareSquare(curr, other)
-                }
-                else if (other instanceof SphereCollider)
-                {
-                    SquareSphere(curr, other)
-                }
-                else if (other instanceof CubeCollider)
-                {
-                    SquareCube(curr, other)
-                }
-            }
-            else if (curr instanceof SphereCollider)
-            {
-                if (other instanceof CircleCollider)
-                {
-                    CircleSphere(other, curr)
-                }
-                else if (other instanceof SquareCollider)
-                {
-                    SquareSphere(other, curr)
-                }
-                else if (other instanceof SphereCollider)
-                {
-                    SphereSphere(curr, other)
-                }
-                else if (other instanceof CubeCollider)
-                {
-                    SphereCube(curr, other)
-                }
-            }
-            else if (curr instanceof CubeCollider)
-            {
-                if (other instanceof CircleCollider)
-                {
-                    CircleCube(other, curr)
-                }
-                else if (other instanceof SquareCollider)
-                {
-                    SquareCube(other, curr)
-                }
-                else if (other instanceof SphereCollider)
-                {
-                    SphereCube(other, curr)
-                }
-                else if (other instanceof CubeCollider)
-                {
-                    CubeCube(curr, other)
-                }
-            }
-        })
+        others.forEach(other => IsColission(curr, other))
     })
 }

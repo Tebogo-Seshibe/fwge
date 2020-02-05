@@ -4,9 +4,9 @@ import Vector3 from "../Logic/Maths/Vector3";
 
 export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
 {
-    let f = target.Clone().Diff(position).Unit() // forward
-    let r = up.Clone().Cross(f).Unit() // right
-    let u = f.Clone().Cross(r).Unit() // up
+    let f = target.Clone().Diff(position).Unit()
+    let r = up.Clone().Cross(f).Unit()
+    let u = f.Clone().Cross(r).Unit()
     let p = position.Clone() // origin
 
     return new Matrix4
@@ -14,7 +14,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
         r.X, u.X, f.X, p.X,
         r.Y, u.Y, f.Y, p.Y,
         r.Z, u.Z, f.Z, p.Z,
-          0,   0,   0,   1
+            0,   0,   0,   1
     ).Transpose().Inverse()
 }
 
@@ -50,10 +50,10 @@ export function Perspective(near: number, far: number, fieldOfView: number, aspe
 
     return new Matrix4
     (
-                2 * near / width,                       0,                         0,  0,
-                                0,       2 * near / height,                         0,  0,
-        (right + left) / width, (top + bottom) / height,     -(far + near) / depth, -1,
-                                0,                       0, -(2 * far * near) / depth,  1
+                    2 * near / width,                        0,                         0,  0,
+                                0,        2 * near / height,                         0,  0,
+            (right + left) / width,  (top + bottom) / height,     -(far + near) / depth, -1,
+                                0,                        0, -(2 * far * near) / depth,  1
     )
 }
 
@@ -64,18 +64,15 @@ export function LocationMatrix(position: Vector3, rotation: Vector3): Matrix4
     const z = Math.radian(rotation.Z)
 
     let rot = new Matrix3(
-        // Z rotation
         Math.cos(z), -Math.sin(z), 0,
         Math.sin(z),  Math.cos(z), 0,
                     0,            0, 1
     ).Mult(
-        // Y rotation
             Math.cos(y), 0, Math.sin(y),
                     0, 1,           0,
         -Math.sin(y), 0, Math.cos(y)
     ).Mult(
-        // X rotation
-        1,          0,             0,
+        1,           0,            0,
         0, Math.cos(x), -Math.sin(x),
         0, Math.sin(x),  Math.cos(x)
     ).Inverse()

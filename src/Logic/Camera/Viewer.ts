@@ -1,4 +1,4 @@
-import Item from '../../Item';
+import Item from '../Object/Item';
 
 export enum ViewMode
 {
@@ -10,6 +10,7 @@ export enum ViewMode
 export default class Viewer extends Item
 {
     public Mode: ViewMode = ViewMode.PERSPECTIVE
+    
     public FieldOfView: number = 35
     public AspectRatio: number = 16 / 9
 

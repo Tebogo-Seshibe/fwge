@@ -1,11 +1,10 @@
 import Updateable from '../Interfaces/Updateable';
-import Item from '../../Item';
+import Item from '../Object/Item';
+import Material from '../Object/Material';
 import { Equation, Unary, UnaryExpressionType } from '../Maths/Equation';
 import Vector3 from '../Maths/Vector3';
-import Mesh from '../Mesh';
-import Material from '../Material';
-import Transform, { ITransform } from '../Transform';
-import Time from '../Utility/Time';
+import Mesh from '../Object/Mesh';
+import Transform, { ITransform } from '../Object/Transform';
 
 export let ParticleSystems: ParticleSystem[] = []
 
@@ -115,14 +114,14 @@ export default class ParticleSystem extends Item implements Updateable
                 continue
             }
             
-            let offset = Time.Render.Delta
+            let offset = 0//Time.Render.Delta
             if (currentTime + offset > this.MaxTime)
             {
                 if (this.Loop)
                 {
                     this.UpdateParticle(particle, this.MaxTime, i)
                     currentTime = 0
-                    offset = Time.Render.Delta - offset
+                    offset = 0//Time.Render.Delta - offset
                 }
                 else
                 {
@@ -132,7 +131,7 @@ export default class ParticleSystem extends Item implements Updateable
             this.UpdateParticle(particle, currentTime, i)
         }
 
-        this.CurrentTime += Time.Render.Delta
+        this.CurrentTime += 0//Time.Render.Delta
     }
 
     private UpdateParticle(particle: Transform, time: number, index: number): void

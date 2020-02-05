@@ -1,13 +1,111 @@
-import CircleCollider from "../Logic/Collision/CircleCollider";
-import CubeCollider from "../Logic/Collision/CubeCollider";
-import SphereCollider from "../Logic/Collision/SphereCollider";
-import SquareCollider from "../Logic/Collision/SquareCollider";
+import CircleCollider from "./Collision/CircleCollider";
+import Collider from "./Collision/Collider";
+import CubeCollider from "./Collision/CubeCollider";
+import SphereCollider from "./Collision/SphereCollider";
+import SquareCollider from "./Collision/SquareCollider";
 import Vector2 from "../Logic/Maths/Vector2";
 import Vector3 from "../Logic/Maths/Vector3";
 
+export function IsColission(first: Collider, second: Collider): boolean
+{
+    if (first instanceof CircleCollider)
+    {
+        if (second instanceof CircleCollider)
+        {
+            return CircleCircle(first, second)
+        }
+
+        if (second instanceof SquareCollider)
+        {
+            return CircleSquare(first, second)
+        }
+        
+        if (second instanceof SphereCollider)
+        {
+            return CircleSphere(first, second)
+        }
+        
+        if (second instanceof CubeCollider)
+        {
+            return CircleCube(first, second)
+        }
+    }
+
+    if (first instanceof SquareCollider)
+    {
+        if (second instanceof CircleCollider)
+        {
+            return CircleSquare(second, first)
+        }
+        
+        if (second instanceof SquareCollider)
+        {
+            return SquareSquare(first, second)
+        }
+
+        if (second instanceof SphereCollider)
+        {
+            return SquareSphere(first, second)
+        }
+        
+        if (second instanceof CubeCollider)
+        {
+            return SquareCube(first, second)
+        }
+    }
+
+    if (first instanceof SphereCollider)
+    {
+        if (second instanceof CircleCollider)
+        {
+            return CircleSphere(second, first)
+        }
+        
+        if (second instanceof SquareCollider)
+        {
+            return SquareSphere(second, first)
+        }
+        
+        if (second instanceof SphereCollider)
+        {
+            return SphereSphere(first, second)
+        }
+        
+        if (second instanceof CubeCollider)
+        {
+            return SphereCube(first, second)
+        }
+    }
+
+    if (first instanceof CubeCollider)
+    {
+        if (second instanceof CircleCollider)
+        {
+            return CircleCube(second, first)
+        }
+        
+        if (second instanceof SquareCollider)
+        {
+            return SquareCube(second, first)
+        }
+        
+        if (second instanceof SphereCollider)
+        {
+            return SphereCube(second, first)
+        }
+        
+        if (second instanceof CubeCollider)
+        {
+            return CubeCube(first, second)
+        }
+    }
+
+    return false
+}
+
 export function CircleCircle(first: CircleCollider, second: CircleCollider): boolean
 {
-    return Vector2.Length(Vector2.Diff(first.Position, second.Position)) > first.Radius + second.Radius
+    return first.Position.Clone().Diff(second.Position).Length < first.Radius + second.Radius
 }
 
 export function CircleSquare(first: CircleCollider, second: SquareCollider): boolean
@@ -42,7 +140,7 @@ export function SquareCube(first: SquareCollider, second: CubeCollider): boolean
 
 export function SphereSphere(first: SphereCollider, second: SphereCollider): boolean
 {
-    return Vector3.Length(Vector3.Diff(first.Position, second.Position)) < first.Radius + second.Radius
+    return first.Position.Clone().Diff(second.Position).Length < first.Radius + second.Radius
 }
 
 export function SphereCube(first: SphereCollider, second: CubeCollider): boolean

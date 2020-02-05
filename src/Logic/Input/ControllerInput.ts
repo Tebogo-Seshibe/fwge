@@ -3,8 +3,20 @@ import { ButtonState } from "./InputState";
 
 export default class ControllerInput
 {
-    public LeftStick: Vector2 // <axis[0], axis[1]>
-    public RightStick: Vector2 // <axis[2], axis[3]>
+    // region Private Fields
+    private axis: Vector2[] = []
+    private buttons: ButtonState[] = []
+    // endregion
+
+    public get LeftStick(): Vector2 // <axis[0], axis[1]>
+    {
+        return this.axis[0].Clone()
+    }
+
+    public get RightStick(): Vector2 // <axis[2], axis[3]>
+    {
+        return this.axis[1].Clone()
+    }
 
     public DirectionalUp: ButtonState // buttons[12] -> [ U ]
     public DirectionalDown: ButtonState // buttons[13] -> [ D ]
@@ -27,8 +39,8 @@ export default class ControllerInput
     public LeftTrigger: ButtonState // buttons[6] -> [ RB ]-> ( L2 )
     public RightTrigger: ButtonState // buttons[7] -> [ RT ]-> ( R2 )
 
-
-    constructor()
+    
+    constructor(element: HTMLCanvasElement)
     {
         
     }

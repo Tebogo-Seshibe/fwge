@@ -1,20 +1,27 @@
+import Colour4 from '../../Render/Colour/Colour4';
 import List from '../Utility/List';
-import LightItem, { ILightItem } from './LightItem';
+import Light, { ShadowQuality } from './Light';
 
-export let AmbientLights: List<AmbientLight> = new List<AmbientLight>(1)
+export const AmbientLights: List<AmbientLight> = new List<AmbientLight>(1)
 
-export class IAmbientLight extends ILightItem
+export class IAmbientLight
 {
-
+    name?: string
+    colour?: Colour4 | number[]
+    intensity?: number
 }
 
-export default class AmbientLight extends LightItem
+export default class AmbientLight extends Light
 {
     constructor()
     constructor(ambientLight: IAmbientLight)
-    constructor({ name = 'Ambient Light', colour, intensity }: IAmbientLight = new IAmbientLight)
+    constructor({ name = 'Directional Light', colour = [1, 1, 1], intensity = 1 }: IAmbientLight = new IAmbientLight)
     {
-        super({ name, colour, intensity })
+        super(name)
+
+        this.Colour = new Colour4([ ...colour ])
+        this.Intensity = intensity
+        this.Shadows = ShadowQuality.NONE
 
         AmbientLights.Add(this)
     }

@@ -1,8 +1,6 @@
 import Cloneable from '../Interfaces/Cloneable';
-import './Maths';
 import List from '../Utility/List';
-import Vector2 from './Vector2';
-import Vector4 from './Vector4';
+import './Math';
 
 export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 {
@@ -39,7 +37,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 
     public get Length(): number
     {
-        return Vector3.Length(this)
+        return Math.clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
     }
     //#endregion
 
@@ -49,16 +47,20 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     constructor(array: Float32Array)
     constructor(array: number[])
     constructor(list: List<number>)
-    constructor(vector: Vector2)
-    constructor(vector: Vector3)
-    constructor(vector: Vector4)
-    constructor(x?: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number)
+    constructor(x?: number | Float32Array | number[] | List<number>, y?: number, z?: number)
     {
         super(3)
 
         if (x !== undefined)
         {
-            Vector3.Set(this, x, y, z)
+            if (typeof x === 'number')
+            {
+                this.Set(x, y, z)
+            }
+            else
+            {
+                this.Set([ ...x ])
+            }
         }
     }
 
@@ -66,108 +68,112 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     public Set(array: Float32Array): Vector3
     public Set(array: number[]): Vector3
     public Set(list: List<number>): Vector3
-    public Set(vector: Vector2): Vector3
-    public Set(vector: Vector3): Vector3
-    public Set(vector: Vector4): Vector3
-    public Set(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Set(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        return Vector3.Set(this, x, y, z)
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
+
+        this.X = x
+        this.Y = y
+        this.Z = z
+        
+        return this
     }
 
     public Sum(x: number, y: number, z: number): Vector3
     public Sum(array: Float32Array): Vector3
     public Sum(array: number[]): Vector3
     public Sum(list: List<number>): Vector3
-    public Sum(vector: Vector2): Vector3
-    public Sum(vector: Vector3): Vector3
-    public Sum(vector: Vector4): Vector3
-    public Sum(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Sum(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        return this.Set(Vector3.Sum(this, x, y, z))
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
+
+        this.X += x
+        this.Y += y
+        this.Z += z
+        
+        return this
     }
     
     public Diff(x: number, y: number, z: number): Vector3
     public Diff(array: Float32Array): Vector3
     public Diff(array: number[]): Vector3
     public Diff(list: List<number>): Vector3
-    public Diff(vector: Vector2): Vector3
-    public Diff(vector: Vector3): Vector3
-    public Diff(vector: Vector4): Vector3
-    public Diff(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Diff(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        if (x instanceof Float32Array || x instanceof Array)
-        {
-            [ x, y, z ] = x
-        }
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
 
-        return Vector3.Diff(this, x, y, z)
+        this.X -= x
+        this.Y -= y
+        this.Z -= z
+        
+        return this
     }
 
     public Mult(x: number, y: number, z: number): Vector3
     public Mult(array: Float32Array): Vector3
     public Mult(array: number[]): Vector3
     public Mult(list: List<number>): Vector3
-    public Mult(vector: Vector2): Vector3
-    public Mult(vector: Vector3): Vector3
-    public Mult(vector: Vector4): Vector3
-    public Mult(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Mult(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        return Vector3.Mult(this, x, y, z)
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
+
+        return this.Set(this.X * x, this.Y * y, this.Z * z)
     }
 
     public Scale(scalar: number): Vector3
     {
-        return Vector3.Scale(this, scalar)
+        return this.Mult(scalar, scalar, scalar)
     }
 
     public Dot(x: number, y: number, z: number): number
     public Dot(array: Float32Array): number
     public Dot(array: number[]): number
     public Dot(list: List<number>): number
-    public Dot(vector: Vector2): number
-    public Dot(vector: Vector3): number
-    public Dot(vector: Vector4): number
-    public Dot(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): number
+    public Dot(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): number
     {
-        return Vector3.Dot(this, x, y, z)
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
+
+        return Math.clean(this.X * x + this.Y * y + this.Z * z)
     }
     
     public Lerp(time: number, x: number, y: number, z: number): Vector3
     public Lerp(time: number, array: Float32Array): Vector3
     public Lerp(time: number, array: number[]): Vector3
     public Lerp(time: number, list: List<number>): Vector3
-    public Lerp(time: number, vector: Vector2): Vector3
-    public Lerp(time: number, vector: Vector3): Vector3
-    public Lerp(time: number, vector: Vector4): Vector3
-    public Lerp(time: number, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Lerp(time: number, x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        let to = new Vector3(Vector3.Destructure(x, y, z))
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
 
-        return this.Set(Vector3.Lerp(this, to, time))
+        return this.Set(
+            Math.lerp(this.X, x, time),
+            Math.lerp(this.Y, y, time),
+            Math.lerp(this.Z, z, time)
+        )
     }
 
     public Cross(x: number, y: number, z: number): Vector3
     public Cross(array: Float32Array): Vector3
     public Cross(array: number[]): Vector3
     public Cross(list: List<number>): Vector3
-    public Cross(vector: Vector2): Vector3
-    public Cross(vector: Vector3): Vector3
-    public Cross(vector: Vector4): Vector3
-    public Cross(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
+    public Cross(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
     {
-        return Vector3.Cross(this, x, y, z)
+        [ x, y, z ] = Vector3.Destructure(x, y, z)
+
+        return this.Set(this.Y * z - this.Z * y, this.Z * x - this.X * z, this.X * y - this.Y * x)
     }
 
     public Unit(): Vector3
     {
-        return Vector3.Unit(this)
+        let length = this.Length
+
+        if (length !== 0)
+        {
+            this.Scale(1 / length)
+        }
+
+        return this
     }
 
-    public toString(): string
-    {
-        return `<${this.X}, ${this.Y}, ${this.Z}>`
-    }
-    
     public Clone(): Vector3
     {
         return new Vector3(this)
@@ -189,105 +195,12 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3))
     }
-
-    public static Length(x?: Vector3 | Float32Array | number[] | number, y?: number, z?: number)
-    {
-        if (x instanceof Float32Array || x instanceof Array)
-        {
-            [ x, y, z ] = x
-        }
-
-        return Math.clean(Math.sqrt(x ** 2 + y ** 2 + z ** 2))
-    }
-    //#endregion
-
-    //#region  Static Methods
-    public static Set(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        vector.X = x
-        vector.Y = y
-        vector.Z = z
-
-        return vector
-    }
-
-    public static Sum(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return new Vector3(vector.X + x, vector.Y + y, vector.Z + z)
-    }
-
-    public static Diff(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return Vector3.Set(vector, vector.X - x, vector.Y - y, vector.Z - z)
-    }
-
-    public static Mult(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return Vector3.Set(vector, vector.X * x, vector.Y * y, vector.Z * z)
-    }
-
-    public static Cross(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return Vector3.Set(vector, vector.Y * z - vector.Z * y, vector.Z * x - vector.X * z, vector.X * y - vector.Y * x)
-    }
-
-    public static Scale(vector: Vector3, scalar: number): Vector3
-    {
-        return Vector3.Mult(vector, scalar, scalar, scalar)
-    }
-
-    public static Dot(vector: Vector3, x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): number
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return Math.clean(vector.X * x + vector.Y * y + vector.Z * z)
-    }
-
-    public static Unit(vector: Vector3): Vector3
-    {
-        var length = vector.Length;
-
-        if (length !== 0)
-        {
-            Vector3.Scale(vector, 1 / length)
-        }
-
-        return vector
-    }
-
-    public static Lerp(from: Vector3, to: Vector3, time: number): Vector3
-    {
-        return new Vector3
-        (
-            Math.lerp(from.X, to.X, time),
-            Math.lerp(from.Y, to.Y, time),
-            Math.lerp(from.Z, to.Z, time)
-        )
-    }
     //#endregion
 
     //#region Static Helpers
-    private static Destructure(x: Float32Array | number[] | List<number> | Vector2 | Vector3 | Vector4 | number, y?: number, z?: number): number[]
+    private static Destructure(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): number[]
     {
-        if (x instanceof Vector2)
-        {
-            [ x, y, z ] = [ x.X, x.Y, 0 ]
-        }
-        else if (x instanceof Vector3 || x instanceof Vector4)
-        {
-            [ x, y, z ] = [ x.X, x.Y, x.Z ]
-        }
-        else if (x instanceof Float32Array || x instanceof Array || x instanceof List)
+        if (x instanceof Float32Array || x instanceof Array || x instanceof List)
         {
             [ x, y, z ] = x
         }

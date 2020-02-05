@@ -1,13 +1,13 @@
-import { GL } from "../FWGE";
+import { GL } from "../Main";
 import Camera from "../Logic/Camera/Camera";
-import GameObject, { GameObjects } from "../Logic/GameObject";
+import GameObject, { GameObjects } from "../Logic/Object/GameObject";
 import { DirectionalLights } from "../Logic/Light/DirectionalLight";
 import { PointLights } from "../Logic/Light/PointLight";
-import Material from "../Logic/Material";
+import Material from "../Logic/Object/Material";
 import Matrix3 from "../Logic/Maths/Matrix3";
 import Matrix4 from "../Logic/Maths/Matrix4";
-import Mesh from "../Logic/Mesh";
-import Shader, { Shaders } from "../Logic/Shader/Shader";
+import Mesh from "../Logic/Object/Mesh";
+import Shader, { Shaders } from "./Shader/Shader";
 import ModelView from "./ModelView";
 import { DepthShader } from "./Shaders";
 
@@ -36,7 +36,7 @@ export function InitRender(): void
     })
 }
 
-export function UpdateRender(): void
+export function UpdateRender(delta: number): void
 {
     ClearBuffer()
     Shaders.filter(shader => !shader.Filter).forEach(shader => ClearBuffer(shader))
@@ -196,8 +196,8 @@ export function BindGlobalUniforms(shader: Shader): void
 
     GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count)
     GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count)
-    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, Camera.Main.ProjectionMatrix)
-    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, Camera.Main.LookAt)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, [])//Camera.Main.ProjectionMatrix)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, [])//Camera.Main.LookAt)
     
     GL.uniform1i(shader.BaseUniforms.Global.Time, Date.now())
     GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)
@@ -256,8 +256,8 @@ export function BindObjectUniforms(shader: Shader, material: Material, mv: Matri
 
 export function CalculateObjectMatrices(gameObject: GameObject): void
 {
-    ModelView.Push(gameObject.Transform)
-    let mv = ModelView.Peek()
+    //ModelView.Push(gameObject.Transform)
+    let mv = Matrix4.ZERO//ModelView.Peek()
 
     ObjectList.set(gameObject.ID,
     {
@@ -270,7 +270,7 @@ export function CalculateObjectMatrices(gameObject: GameObject): void
 
     gameObject.Children.forEach(child => CalculateObjectMatrices(child))
 
-    ModelView.Pop()
+    //ModelView.Pop()
 }
 
 export function ShadowPass()

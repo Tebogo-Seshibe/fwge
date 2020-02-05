@@ -1,16 +1,16 @@
-import Colour4 from '../Colour/Colour4';
-import GameObject from '../GameObject';
-import Material, { IMaterial } from '../Material';
+import Colour4 from '../../Render/Colour/Colour4';
+import GameObject from '../Object/GameObject';
+import Material, { IMaterial } from '../Object/Material';
 import Vector2 from '../Maths/Vector2';
 import Vector3 from '../Maths/Vector3';
 import Vector4 from '../Maths/Vector4';
-import Mesh, { IMesh } from '../Mesh';
-import Converter from './Converter';
+import Mesh, { IMesh } from '../Object/Mesh';
+import IConverter from './IConverter';
 
 
-export default class OBJConverter implements Converter
+export default class OBJConverter implements IConverter
 {
-    public static Parse(obj: string, mtl: string): GameObject
+    public Parse(obj: string, mtl: string): GameObject
     {
         return new GameObject(
         {

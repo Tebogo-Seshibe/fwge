@@ -2,21 +2,35 @@ import List from "../Utility/List";
 import ControllerInput from "./ControllerInput";
 import KeyboardInput from "./KeyboardInput";
 import MouseInput from "./MouseInput";
+import IEngine from "../../IEngine";
 
-export default class Input
+export default class Input implements IEngine
 {
-    public static Keyboard: KeyboardInput
-    public static Mouse: MouseInput
-    public static Controllers: List<ControllerInput> = new List<ControllerInput>()
-
-    public static Init(canvas: HTMLCanvasElement)
+    public Keyboard: KeyboardInput
+    public Mouse: MouseInput
+    public Controllers: Map<number, ControllerInput>
+    
+    public Init(canvas: HTMLCanvasElement)
     {
-        Input.Keyboard = new KeyboardInput()
-        Input.Mouse = new MouseInput(canvas)
+        this.Keyboard = new KeyboardInput()
+        this.Mouse = new MouseInput(canvas)
+        this.Controllers = new Map<number, ControllerInput>()
+
+        // window.gamepadconnected", (event: GamepadEvent) =>
+        // {
+        //     this.Controllers.set(event., new ControllerInput(canvas))
+
+        //     return
+        // }
     }
 
-    public static Reset(): void
+    public Update():void
     {
-        Input.Mouse.Reset()
+        // UPDATE
+    }
+
+    public Reset(): void
+    {
+        this.Mouse.Reset()
     }
 }

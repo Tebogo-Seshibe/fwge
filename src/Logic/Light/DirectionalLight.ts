@@ -1,27 +1,34 @@
 import Vector3 from '../Maths/Vector3';
 import List from '../Utility/List';
-import LightItem, { ILightItem } from './LightItem';
+import Light, { ShadowQuality } from './Light';
+import Colour4 from '../../Render/Colour/Colour4';
 
-export let DirectionalLights: List<DirectionalLight> = new List<DirectionalLight>(3)
+export const MAX_DIRECTIONAL_LIGHTS: number = 3
 
-export class IDirectionalLight extends ILightItem
+export const DirectionalLights: List<DirectionalLight> = new List<DirectionalLight>(MAX_DIRECTIONAL_LIGHTS)
+
+export class IDirectionalLight
 {
-    direction?: Vector3 | Float32Array | number[]
-    shadows?: boolean
+    name?: string
+    colour?: Colour4 | number[]
+    intensity?: number
+    direction?: Vector3 | number[]    
+    shadows?: ShadowQuality
 }
 
-export default class DirectionalLight extends LightItem
+export default class DirectionalLight extends Light
 {
     public Direction: Vector3
-    public Shadows: boolean
 
     constructor()
-    constructor(directionalLight: IDirectionalLight)
-    constructor({ name = 'Directional Light', colour, intensity, direction = [0, 0, 1], shadows = false }: IDirectionalLight = new IDirectionalLight)
+    constructor(ambientLight: IDirectionalLight)
+    constructor({ name = 'Ambient Light', colour = [1, 1, 1], intensity = 1 , direction = [0, 0, 1], shadows = ShadowQuality.NONE }: IDirectionalLight = new IDirectionalLight)
     {
-        super({ name, colour, intensity })
+        super(name)
 
-        this.Direction = new Vector3(direction as number[])
+        this.Colour = new Colour4([ ...colour ])
+        this.Intensity = intensity
+        this.Direction = new Vector3([ ...direction ])
         this.Shadows = shadows
 
         DirectionalLights.Add(this)

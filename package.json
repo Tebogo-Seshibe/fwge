@@ -4,7 +4,8 @@
   "description": "",
   "main": "",
   "scripts": {
-    "build": "browserify ./src/index.ts -p [ tsify --noImplicitAny --target ES6 ] > ./build/fwge.js",
+    "start": "node watch",
+    "build": "browserify ./src/index.ts -p [ tsify --noImplicitAny --target ES6 ]  > ./build/fwge.js",
     "test": "mocha --require ts-node/register ./test/*.ts"
   },
   "repository": {

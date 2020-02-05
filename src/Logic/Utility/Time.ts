@@ -1,66 +1,84 @@
 import Updateable from '../Interfaces/Updateable';
+import IEngine from '../../IEngine';
 
 class TimeKeep implements Updateable
 {
-    private Now: number
-    private Then: number
+    private now: number
+    private then: number
 
-    public Delta: number
-    public Period: number
-    public Ready: boolean
+    private delta: number
+    private period: number
+    private ready: boolean
 
     constructor(period: number)
     {
-        this.Period = 1000 / period
+        this.period = 1000 / period
         this.Reset()
     }
 
     public Reset(): void
     {
-        this.Ready = false
-        this.Then = this.Now = Date.now()
-        this.Delta = 0
+        this.ready = false
+        this.then = this.now = Date.now()
+        this.delta = 0
     }
 
     public Update(): void
     {
-        this.Then = this.Now
-        this.Now = Date.now()
+        this.then = this.now
+        this.now = Date.now()
 
-        if (this.Ready)
+        if (this.ready)
         {
-            this.Delta = this.Now - this.Then
+            this.delta = this.now - this.then
         }
         else
         {
-            this.Delta += this.Now - this.Then
+            this.delta += this.now - this.then
         }
         
-        if (this.Delta > this.Period)
+        if (this.delta > this.period)
         {
-            this.Ready = true
+            this.ready = true
         }
         else
         {
-            this.Ready = false
+            this.ready = false
         }
+    }
+
+
+    public get Delta(): number
+    {
+        return this.delta
+    }
+
+    public get Ready(): boolean
+    {
+        return this.ready
     }
 }
 
-export default class Time
+export default class Time implements IEngine
 {
-    public static Render: TimeKeep
-    public static Physics: TimeKeep
+    public Render: TimeKeep
+    public Physics: TimeKeep
 
-    public static Init(render: number, physics: number)
+    public Init(render: number, physics: number)
     {
-        Time.Render = new TimeKeep(render)
-        Time.Physics = new TimeKeep(physics)
+        this.Render = new TimeKeep(render)
+        this.Physics = new TimeKeep(physics)
     }
 
-    public static Update(): void
+    public Update(): void
     {
-        Time.Render.Update()
-        Time.Physics.Update()
+        this.Render.Update()
+        this.Physics.Update()
+    }
+
+    public Reset(): void
+    {
+        this.Render.Reset()
+        this.Physics.Reset()
     }
 }

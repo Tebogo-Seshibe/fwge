@@ -1,20 +1,19 @@
-import '../Logic/Maths/Maths';
+import '../Logic/Maths/Math';
 import Matrix4 from '../Logic/Maths/Matrix4';
 import Vector3 from '../Logic/Maths/Vector3';
-import Transform from '../Logic/Transform';
+import Transform from '../Logic/Object/Transform';
 import Stack from '../Logic/Utility/Stack';
-
-let MVStack: Stack<Matrix4> = new Stack<Matrix4>()
 
 export default class ModelView
 {
-    public static Push(transform: Transform): Matrix4
+    private MVStack: Stack<Matrix4> = new Stack<Matrix4>()
+    public Push(transform: Transform): Matrix4
     {
-        MVStack.Push(
-            this.Translate(
-                this.Rotate(
-                    this.Scale(
-                       this.Peek(),
+        this.MVStack.Push(
+            ModelView.Translate(
+                ModelView.Rotate(
+                    ModelView.Scale(
+                        this.Peek(),
                         transform.Position
                     ),
                     transform.Rotation
@@ -23,12 +22,12 @@ export default class ModelView
             )
         )
             
-        return ModelView.Peek()
+        return this.Peek()
     }
         
-    public static Peek(): Matrix4
+    public Peek(): Matrix4
     {
-        let mat = MVStack.Peek()
+        let mat = this.MVStack.Peek()
         if (!mat)
         {
             return Matrix4.IDENTITY
@@ -37,9 +36,9 @@ export default class ModelView
         return mat
     }
     
-    public static Pop(): Matrix4
+    public Pop(): Matrix4
     {
-        let mat = MVStack.Pop()
+        let mat = this.MVStack.Pop()
         if (!mat)
         {
             return Matrix4.IDENTITY
@@ -48,7 +47,7 @@ export default class ModelView
         return mat
     }
         
-    private static Translate(matrix: Matrix4, translation: Vector3): Matrix4
+    public static Translate(matrix: Matrix4, translation: Vector3): Matrix4
     {
         return new Matrix4
         (
@@ -63,7 +62,7 @@ export default class ModelView
         );
     }
     
-    private static Rotate(matrix: Matrix4, rotation: Vector3): Matrix4
+    public static Rotate(matrix: Matrix4, rotation: Vector3): Matrix4
     {
         let x = Math.radian(rotation.X)
         let y = Math.radian(rotation.Y)
@@ -76,10 +75,10 @@ export default class ModelView
                     0.0,          0.0, 1.0, 0.0,
                     0.0,          0.0, 0.0, 1.0
         ).Mult(
-             Math.cos(y), 0.0, Math.sin(y), 0.0,
-                     0.0, 1.0,         0.0, 0.0,
+            Math.cos(y), 0.0, Math.sin(y), 0.0,
+                    0.0, 1.0,         0.0, 0.0,
             -Math.sin(y), 0.0, Math.cos(y), 0.0,
-                     0.0, 0.0,         0.0, 1.0
+                    0.0, 0.0,         0.0, 1.0
         ).Mult(
             1.0,         0.0,          0.0, 0.0,
             0.0, Math.cos(x), -Math.sin(x), 0.0,
@@ -88,7 +87,7 @@ export default class ModelView
         ).Mult(matrix)
     }
 
-    private static Scale(matrix: Matrix4, scalers: Vector3): Matrix4
+    public static Scale(matrix: Matrix4, scalers: Vector3): Matrix4
     {                    
         return new Matrix4
         (
@@ -99,7 +98,7 @@ export default class ModelView
         )
     }
     
-    private static Shear(matrix: Matrix4, angles: Vector3): Matrix4
+    public static Shear(matrix: Matrix4, angles: Vector3): Matrix4
     {
         var phi = Math.radian(angles.X)
         var theta = Math.radian(angles.Y)
@@ -107,10 +106,10 @@ export default class ModelView
 
         return new Matrix4
         (
-                      1.0,             0.0, Math.tan(rho), 0.0,
+                    1.0,             0.0, Math.tan(rho), 0.0,
             Math.tan(phi),             1.0,           0.0, 0.0,
-                      0.0, Math.tan(theta),           1.0, 0.0,
-                      0.0,             0.0,           0.0, 1.0
+                    0.0, Math.tan(theta),           1.0, 0.0,
+                    0.0,             0.0,           0.0, 1.0
         ).Mult(matrix)
     }
 }

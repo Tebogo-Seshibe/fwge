@@ -28,19 +28,9 @@ export default class MouseInput
         return this.buttons[2]
     }
 
-    public get Thumb1(): ButtonState
-    {
-        return this.buttons[3]
-    }
-    
-    public get Thumb2(): ButtonState
-    {
-        return this.buttons[4]
-    }
-
     public get Buttons(): ButtonState[]
     {
-        return [...this.buttons]
+        return this.buttons.slice(3)
     }
     //#endregion
 
