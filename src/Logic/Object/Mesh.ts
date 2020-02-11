@@ -38,10 +38,10 @@ export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
 export class IMesh
 {
     name?: string
-    position: Vector3[] | Float32Array | number[][] | number[]
-    uv?: Vector2[] | Float32Array | number[][] | number[]
-    colour?: Vector4[] | Float32Array | number[][] | number[]
-    normal?: Vector3[] | Float32Array | number[][] | number[]
+    position: Float32Array[] | Float32Array | number[][] | number[]
+    uv?: Float32Array[] | Float32Array | number[][] | number[]
+    colour?: Float32Array[] | Float32Array | number[][] | number[]
+    normal?: Float32Array[] | Float32Array | number[][] | number[]
     index: Uint8Array | number[]
     wireframe?: Uint8Array | number[]
 }
