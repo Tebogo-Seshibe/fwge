@@ -1,6 +1,6 @@
-import Matrix3 from "../Logic/Maths/Matrix3";
-import Matrix4 from "../Logic/Maths/Matrix4";
-import Vector3 from "../Logic/Maths/Vector3";
+import Matrix3 from "../../Logic/Maths/Matrix3";
+import Matrix4 from "../../Logic/Maths/Matrix4";
+import Vector3 from "../../Logic/Maths/Vector3";
 
 export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
 {

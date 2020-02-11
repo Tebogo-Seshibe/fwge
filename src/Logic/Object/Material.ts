@@ -1,4 +1,4 @@
-import { GL } from '../../Main';
+import { GL } from '../../FWGE';
 import Colour4 from '../../Render/Colour/Colour4';
 import Shader from '../../Render/Shader/Shader';
 import Item from './Item';

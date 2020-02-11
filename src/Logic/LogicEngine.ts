@@ -1,20 +1,34 @@
 import IEngine from '../IEngine';
+import { GameObjects } from './Object/GameObject';
+import { TimeKeep } from './Utility/Time';
 
 
 export default class LogicEngine implements IEngine
 {
     public Init(): void 
     {
-        throw new Error("Method not implemented.")
+        
     }
 
-    public Update(): void
+    public Update(timekeep: TimeKeep): void
     {
-        throw new Error("Method not implemented.")
+        // if (!timekeep.Ready) {
+        //     return;
+        // }
+        
+        GameObjects.forEach(gameObject => 
+        {
+            gameObject.Update(timekeep.Delta)
+            
+            if (gameObject.Collider)
+            {
+                gameObject.Collider.Update()
+            }
+        })
     }
 
     public Reset(): void
     {
-        throw new Error("Method not implemented.")
+        
     }
 }

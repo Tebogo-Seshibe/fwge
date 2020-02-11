@@ -23,18 +23,23 @@ export class IGameObject
     transform?: Transform
     material?: Material
     mesh?: Mesh
-    rigidbody?: RigidBody
+    rigidBody?: RigidBody
     collider?: Collider
     animation?: Animation
 
+    collisionBegin?: (this: GameObject, other: Collider) => void
+    collisionUpdate?: (this: GameObject, other: Collider) => void
+    collisionEnd?: (this: GameObject, other: Collider) => void
+
     begin?: (this: GameObject) => void
     update?: (this: GameObject, delta: number) => void
+    physicsUpdate?: (this: GameObject, delta: number) => void
     end?: (this: GameObject) => void
 }
 
 export default class GameObject extends Item implements Cloneable<GameObject>, Destroyable, Updateable
 {
-    public ObjectID: number
+    public ObjectID: number = OBJECT_COUNTER++
     public Visible: boolean
 
     public Parent: GameObject
@@ -47,8 +52,13 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     public Collider: Collider
     public Animation: Animation    
     
+    public OnCollisionBegin: (this: GameObject, other: Collider) => void
+    public OnCollisionUpdate: (this: GameObject, other: Collider) => void
+    public OnCollisionEnd: (this: GameObject, other: Collider) => void
+
     public Begin: (this: GameObject) => void
     public Update: (this: GameObject, delta: number) => void
+    public PhysicsUpdate: (this: GameObject, delta: number) => void
     public End: (this: GameObject) => void
 
     constructor()
@@ -64,32 +74,41 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         transform = new Transform(),
         material,
         mesh,
-        rigidbody,
+        rigidBody,
         collider,
         animation,
 
+        collisionBegin = function(this: GameObject, other: Collider) { },
+        collisionUpdate = function(this: GameObject, other: Collider) { },
+        collisionEnd = function(this: GameObject, other: Collider) { },
+
         begin = function(this: GameObject) { },
-        update = () => { },
-        end = () => { },
+        update = function(this: GameObject, delta: number) { },
+        physicsUpdate = function(this: GameObject, delta: number) { },
+        end = function(this: GameObject) { },
     }: IGameObject = new IGameObject)
     {
         super(name)
 
-        this.ObjectID = OBJECT_COUNTER++
         this.Visible = visible
         
         this.Parent = parent
         this.Children = []
 
-        this.Transform = transform        
+        this.Transform = transform
         this.Material = material
         this.Mesh = mesh
-        this.RigidBody = rigidbody
+        this.RigidBody = rigidBody
         this.Collider = collider
         this.Animation = animation
 
+        this.OnCollisionBegin = collisionBegin
+        this.OnCollisionUpdate = collisionUpdate
+        this.OnCollisionEnd = collisionEnd
+
         this.Begin = begin
         this.Update = update
+        this.PhysicsUpdate = physicsUpdate
         this.End = end
 
         if (this.Collider)
@@ -139,20 +158,30 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     {
         return new GameObject(
         {
-            name:       this.Name + " Clone",
-            visible:    this.Visible,
+            name:           this.Name + " Clone",
+            visible:        this.Visible,
 
-            children:   this.Children.map(child => child.Clone()),
+            children:       this.Children.map(child => child.Clone()),
 
-            transform:  this.Transform.Clone(),
-            material:   this.Material,
-            mesh:       this.Mesh,
-            rigidbody:  this.RigidBody ? this.RigidBody.Clone() : undefined,
-            collider:   this.Collider ? this.Collider.Clone() : undefined,
+            transform:      this.Transform.Clone(),
+            material:       this.Material,
+            mesh:           this.Mesh,
+            rigidBody:      this.RigidBody ? this.RigidBody.Clone() : undefined,
+            collider:       this.Collider ? this.Collider.Clone() : undefined,
 
-            begin:      this.Begin,
-            update:     this.Update,
-            end:        this.End
+            collisionBegin: this.OnCollisionBegin,
+            collisionUpdate:this.OnCollisionUpdate,
+            collisionEnd:   this.OnCollisionEnd,
+
+            begin:          this.Begin,
+            update:         this.Update,
+            physicsUpdate:  this.PhysicsUpdate,
+            end:            this.End
         })
+    }
+
+    public OnCollision()
+    {
+
     }
 }

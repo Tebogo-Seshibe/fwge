@@ -9,9 +9,9 @@ export default class ArrayUtils
     public static Flatten(vector: Vector2[]): number[]
     public static Flatten(array: Float32Array): number[]
     public static Flatten(array: Uint8Array): number[]
-    public static Flatten(array: number[]): number[]
-    public static Flatten(data: Vector4[] | Vector3[] | Vector2[]| Float32Array | Uint8Array | number[]): number[]
-    public static Flatten(data: Vector4[] | Vector3[] | Vector2[]| Float32Array | Uint8Array | number[]): number[]
+    public static Flatten(array: number[][]): number[]
+    public static Flatten(data: Vector4[] | Vector3[] | Vector2[]| Float32Array | Uint8Array | number[][]): number[]
+    public static Flatten(data: Vector4[] | Vector3[] | Vector2[]| Float32Array | Uint8Array | number[][]): number[]
     {
         let flattened: number[] = new Array<number>()
 

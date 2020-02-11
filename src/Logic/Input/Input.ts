@@ -1,8 +1,7 @@
-import List from "../Utility/List";
+import IEngine from "../../IEngine";
 import ControllerInput from "./ControllerInput";
 import KeyboardInput from "./KeyboardInput";
 import MouseInput from "./MouseInput";
-import IEngine from "../../IEngine";
 
 export default class Input implements IEngine
 {

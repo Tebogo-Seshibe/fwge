@@ -1,6 +1,6 @@
 export default interface IEngine
 {
     Init(...args: any): void
-    Update(): void
-    Reset(): void
+    Update(...args: any): void
+    Reset(...args: any): void
 }

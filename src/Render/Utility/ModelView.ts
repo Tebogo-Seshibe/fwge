@@ -1,18 +1,19 @@
-import '../Logic/Maths/Math';
-import Matrix4 from '../Logic/Maths/Matrix4';
-import Vector3 from '../Logic/Maths/Vector3';
-import Transform from '../Logic/Object/Transform';
-import Stack from '../Logic/Utility/Stack';
+import '../../Logic/Maths/Math';
+import Matrix4 from '../../Logic/Maths/Matrix4';
+import Vector3 from '../../Logic/Maths/Vector3';
+import Transform from '../../Logic/Object/Transform';
+import Stack from '../../Logic/Utility/Stack';
 
 export default class ModelView
 {
     private MVStack: Stack<Matrix4> = new Stack<Matrix4>()
+
     public Push(transform: Transform): Matrix4
     {
         this.MVStack.Push(
-            ModelView.Translate(
+            ModelView.Scale(
                 ModelView.Rotate(
-                    ModelView.Scale(
+                    ModelView.Translate(
                         this.Peek(),
                         transform.Position
                     ),

@@ -18,13 +18,7 @@ export default class RigidBody extends Item implements Cloneable<RigidBody>, Upd
     public LockX: boolean
     public LockY: boolean
     public LockZ: boolean
-    
-    public Speed: Vector3
-
-    public get Velocity(): number
-    {
-        return 0
-    }
+    public Velocity: Vector3
     
     constructor()
     constructor(physicsBody: IRigidBody)
@@ -36,6 +30,7 @@ export default class RigidBody extends Item implements Cloneable<RigidBody>, Upd
         this.LockX = lockx
         this.LockY = locky
         this.LockZ = lockz
+        this.Velocity = new Vector3
     }
 
     public Clone(): RigidBody

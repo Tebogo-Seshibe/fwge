@@ -1,4 +1,4 @@
-export interface StringIndexer<T>
+export default interface StringIndexer<T>
 {
     [name: string]: T
 }

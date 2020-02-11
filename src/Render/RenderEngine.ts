@@ -1,15 +1,41 @@
-import { GL } from "../Main";
-import Camera from "../Logic/Camera/Camera";
-import GameObject, { GameObjects } from "../Logic/Object/GameObject";
+import IEngine from "../IEngine";
+import BuildShaders, { CombinedShader, GUIShader, LightShader, NormalDepthShader, PostProcessingShader, SSAOShader } from "./Shader/Shaders";
+import { Shader } from ".";
+import { Shaders } from "./Shader/Shader";
+import { Mesh, Material, GameObject } from "../Logic/Object";
+import { Matrix4, Matrix3 } from "../Logic/Maths";
 import { DirectionalLights } from "../Logic/Light/DirectionalLight";
 import { PointLights } from "../Logic/Light/PointLight";
-import Material from "../Logic/Object/Material";
-import Matrix3 from "../Logic/Maths/Matrix3";
-import Matrix4 from "../Logic/Maths/Matrix4";
-import Mesh from "../Logic/Object/Mesh";
-import Shader, { Shaders } from "./Shader/Shader";
-import ModelView from "./ModelView";
-import { DepthShader } from "./Shaders";
+import { GameObjects } from "../Logic/Object/GameObject";
+import { Camera, ViewMode } from "../Logic/Camera";
+import { Perspective, Orthographic, LookAt } from "./Utility/Projection";
+import ModelView from "./Utility/ModelView";
+
+/**
+ * 1) Depth Pass -> Main camera
+ * 2) Point/Spot Light Pass -> Main Camera
+ * 3) Directional Pass -> Main Camera
+ * 4) G-Buffer
+ * 5) Screen Space Ambient Occlusion Pass
+ * 6) Post-Processing Pass
+ * 6.1) Shadows
+ * 6.2) AA
+ * 6.3) DoF
+ * 6.4) Motion Blur
+ * 6.5) Reflections
+ * 6.6) Glows
+ * 6.7) Vigette
+ * 6.8) Edge Detection
+ * 7) GUI Pass
+ */
+
+ /**
+  * Pass Process
+  * -> Clear buffer
+  * -> Render to texture
+  */
+
+let GL: WebGLRenderingContext
 
 type ObjectListType =
 {
@@ -22,38 +48,12 @@ type ObjectListType =
 
 let ObjectList: Map<number, ObjectListType> = new Map
 
-export function InitRender(): void
+function ClearBuffer(shader?: Shader): void
 {
-    GL.enable(GL.DEPTH_TEST)
-    GL.disable(GL.BLEND)
-    GL.blendFunc(GL.SRC_ALPHA, GL.ONE)
-
-    ClearBuffer()
-    GameObjects.forEach(object => CalculateObjectMatrices(object))
-    Shaders.filter(shader => shader.Filter).forEach(shader =>
-    {
-        RunProgram(shader, null)
-    })
-}
-
-export function UpdateRender(delta: number): void
-{
-    ClearBuffer()
-    Shaders.filter(shader => !shader.Filter).forEach(shader => ClearBuffer(shader))
-    GameObjects.forEach(object => CalculateObjectMatrices(object))
-
-    //ShadowPass()
-    MainPass()
-    //PostprocessingPass()
-    
-}
-
-export function ClearBuffer(shader?: Shader): void
-{
-    let width = shader ? shader.Width : GL.drawingBufferWidth
-    let height = shader ? shader.Height : GL.drawingBufferHeight
-    let buffer = shader ? shader.FrameBuffer : null
-    let clear = shader ? shader.Clear : [0.0, 0.0, 0.0, 0.0]
+    const width = shader ? shader.Width : GL.drawingBufferWidth
+    const height = shader ? shader.Height : GL.drawingBufferHeight
+    const buffer = shader ? shader.FrameBuffer : null
+    const clear = shader ? shader.Clear : [0.0, 0.0, 0.0, 0.0]
 
     GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
     GL.viewport(0, 0, width, height)
@@ -61,48 +61,7 @@ export function ClearBuffer(shader?: Shader): void
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 }
 
-export function RunProgram(shader: Shader, object?: ObjectListType): void
-{
-    if (!shader)
-        return
-
-    GL.useProgram(shader.Program)
-
-    ClearBuffer(shader)
-    BindGlobalUniforms(shader)
-
-    if (!shader.Attribute.Exists || !object)
-    {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        GL.drawElements(GL.TRIANGLES, 0, GL.UNSIGNED_BYTE, 0)
-    }
-    else
-    {
-        if (object.material.Alpha !== 1.0)
-        {
-            GL.enable(GL.BLEND)
-            GL.disable(GL.DEPTH_TEST)
-        }
-
-        BindAttributes(shader, object.mesh)
-        BindObjectUniforms(shader, object.material, object.modelView, object.normal)
-        GL.uniform1i(shader.BaseUniforms.Global.ObjectID, object.id)
-
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
-        GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
-
-
-        if (object.material.Alpha !== 1.0)
-        {
-            GL.enable(GL.DEPTH_TEST)
-            GL.disable(GL.BLEND)
-        }
-    }
-
-    GL.useProgram(null)    
-}
-
-export function BindAttributes(shader: Shader, mesh: Mesh): void
+function BindAttributes(shader: Shader, mesh: Mesh): void
 {    
     const position: number = shader.Attribute.Position
     const normal: number = shader.Attribute.Normal
@@ -170,7 +129,7 @@ export function BindAttributes(shader: Shader, mesh: Mesh): void
     // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
 }
 
-export function BindGlobalUniforms(shader: Shader): void
+function BindGlobalUniforms(shader: Shader): void
 {
     let directional_count: number = 0
     for (let light of DirectionalLights)
@@ -194,10 +153,17 @@ export function BindGlobalUniforms(shader: Shader): void
         ++point_count
     }
 
+    let projectionMatrix = 
+        Camera.Main.Mode == ViewMode.PERSPECTIVE
+        ? Perspective(Camera.Main.NearClipping, Camera.Main.FarClipping, Camera.Main.FieldOfView, Camera.Main.AspectRatio)
+        : Orthographic(Camera.Main.Left, Camera.Main.Right, Camera.Main.Top, Camera.Main.Bottom, Camera.Main.NearClipping, Camera.Main.FarClipping, Camera.Main.HorizontalTilt, Camera.Main.VericalTilt)
+
+    let lookAtMatrix = LookAt(Camera.Main.Position, Camera.Main.Target, Camera.Main.Up)
+
     GL.uniform1i(shader.BaseUniforms.DirectionalLightCount, directional_count)
     GL.uniform1i(shader.BaseUniforms.PointLightCount, point_count)
-    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, [])//Camera.Main.ProjectionMatrix)
-    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, [])//Camera.Main.LookAt)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.Projection, false, projectionMatrix)
+    GL.uniformMatrix4fv(shader.BaseUniforms.Matrix.View, false, lookAtMatrix)
     
     GL.uniform1i(shader.BaseUniforms.Global.Time, Date.now())
     GL.uniform2f(shader.BaseUniforms.Global.Resolution, shader.Width, shader.Height)
@@ -206,7 +172,7 @@ export function BindGlobalUniforms(shader: Shader): void
     GL.uniform1i(shader.BaseUniforms.Global.ObjectCount, GameObjects.length)
 }
 
-export function BindObjectUniforms(shader: Shader, material: Material, mv: Matrix4, n: Matrix3): void
+function BindObjectUniforms(shader: Shader, material: Material, mv: Matrix4, n: Matrix3): void
 {
     GL.uniform4fv(shader.BaseUniforms.Material.AmbientColour, material.Ambient)
     GL.uniform4fv(shader.BaseUniforms.Material.DiffuseColour, material.Diffuse)
@@ -254,39 +220,108 @@ export function BindObjectUniforms(shader: Shader, material: Material, mv: Matri
     GL.uniformMatrix3fv(shader.BaseUniforms.Matrix.Normal, false, n)
 }
 
-export function CalculateObjectMatrices(gameObject: GameObject): void
+function CalculateObjectMatrices(gameObject: GameObject, mv: ModelView): void
 {
-    //ModelView.Push(gameObject.Transform)
-    let mv = Matrix4.ZERO//ModelView.Peek()
+    mv.Push(gameObject.Transform)
+    let modelView: Matrix4  = mv.Peek()
+    let inverse: Matrix4 = modelView.Clone().Inverse()
 
     ObjectList.set(gameObject.ID,
     {
         id: gameObject.ObjectID,
         mesh: gameObject.Mesh,
         material: gameObject.Material,
-        modelView: mv,
-        normal: new Matrix3(mv.Clone().Inverse())
+        modelView,
+        normal: new Matrix3(
+            inverse.M11, inverse.M12, inverse.M13,
+            inverse.M21, inverse.M22, inverse.M23,
+            inverse.M31, inverse.M32, inverse.M33
+        )
     })
 
-    gameObject.Children.forEach(child => CalculateObjectMatrices(child))
+    gameObject.Children.forEach(child => CalculateObjectMatrices(child, mv))
 
-    //ModelView.Pop()
+    mv.Pop()
 }
 
-export function ShadowPass()
+function RunProgram(shader: Shader, object?: ObjectListType): void
 {
-    for (var light of PointLights)
+    GL.useProgram(shader.Program)
+
+    ClearBuffer(shader)
+    BindGlobalUniforms(shader)
+
+    if (!shader.Attribute.Exists || !object)
     {
-        ObjectList.forEach(object => RunProgram(DepthShader, object))
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        GL.drawElements(GL.TRIANGLES, 0, GL.UNSIGNED_BYTE, 0)
     }
+    else
+    {
+        if (object.material.Alpha !== 1.0)
+        {
+            GL.enable(GL.BLEND)
+            GL.disable(GL.DEPTH_TEST)
+        }
+
+        BindAttributes(shader, object.mesh)
+        BindObjectUniforms(shader, object.material, object.modelView, object.normal)
+        GL.uniform1i(shader.BaseUniforms.Global.ObjectID, object.id)
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
+        GL.drawElements(GL.TRIANGLES, object.mesh.VertexCount, GL.UNSIGNED_BYTE, 0)
+
+
+        if (object.material.Alpha !== 1.0)
+        {
+            GL.enable(GL.DEPTH_TEST)
+            GL.disable(GL.BLEND)
+        }
+    }
+
+    GL.useProgram(null)    
 }
 
-export function MainPass()
+function MainPass()
 {
     ObjectList.forEach(object => RunProgram(object.material.Shader, object))
 }
 
-export function PostprocessingPass()
+export default class RenderEngine implements IEngine
 {
+    private modelView: ModelView = new ModelView
 
+    public Init(gl: WebGLRenderingContext): void
+    {
+        GL = gl
+        
+        BuildShaders()
+
+        GL.enable(GL.DEPTH_TEST)
+        GL.disable(GL.BLEND)
+        GL.blendFunc(GL.SRC_ALPHA, GL.ONE)
+
+        Shaders.filter(shader => shader.Filter).forEach(shader => RunProgram(shader, null))
+    }
+
+    public Update(): void
+    {
+        GameObjects.forEach(object => CalculateObjectMatrices(object, this.modelView))
+        
+        // ObjectList.forEach(object => RunProgram(NormalDepthShader, object))
+        // ObjectList.forEach(object => RunProgram(LightShader, object))
+        // ObjectList.forEach(object => RunProgram(CombinedShader, object))
+        // ObjectList.forEach(object => RunProgram(PostProcessingShader, object))
+        // ObjectList.forEach(object => RunProgram(SSAOShader, object))
+        // ObjectList.forEach(object => RunProgram(GUIShader, object))
+
+        ClearBuffer()
+        ObjectList.forEach(object => RunProgram(object.material.Shader, object))
+        //RunProgram(null)
+    }
+
+    public Reset(): void
+    {
+        Shaders.forEach(shader => ClearBuffer(shader))
+    }
 }

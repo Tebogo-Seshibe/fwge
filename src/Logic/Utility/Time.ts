@@ -1,7 +1,7 @@
 import Updateable from '../Interfaces/Updateable';
 import IEngine from '../../IEngine';
 
-class TimeKeep implements Updateable
+export class TimeKeep implements Updateable
 {
     private now: number
     private then: number

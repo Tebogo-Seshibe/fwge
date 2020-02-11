@@ -59,6 +59,7 @@ export default class MouseInput
     constructor(element: HTMLCanvasElement)
     {
         this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
+        element.onresize = (_: UIEvent) => this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
 
         for (var i = 0; i < this.TOTAL_BUTTONS; ++i)
         {

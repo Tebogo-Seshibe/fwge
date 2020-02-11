@@ -15,10 +15,13 @@ export class ICamera
 }
 
 export default class Camera extends Viewer
-{
-    public static Main: Camera
-    
-    public Transform: Transform
+{    
+    public static get Main(): Camera
+    {
+        return Cameras[0]
+    }
+
+    public Transform: Transform = new Transform
     public Position: Vector3
     public Rotation: Vector3
     public Target: Vector3
@@ -31,7 +34,7 @@ export default class Camera extends Viewer
         super(name)
 
         this.Mode = mode
-        this.Target = new Vector3(position as number[])
+        this.Position = new Vector3(position as number[])
         this.Rotation = new Vector3(rotation as number[])
         this.Target = new Vector3(target as number[])
         this.Up = new Vector3(up as number[])
@@ -39,3 +42,5 @@ export default class Camera extends Viewer
         Cameras.push(this)
     }
 }
+
+new Camera

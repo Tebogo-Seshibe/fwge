@@ -78,7 +78,7 @@ export default class Colour4 extends Float32Array
     
     constructor()
     constructor(r: number, g: number, b: number, a: number)
-    constructor(hex: string, alpha: number)
+    constructor(hex: string, alpha?: number)
     constructor(colour: Colour3)
     constructor(colour: Colour4)
     constructor(array: Float32Array)
@@ -95,6 +95,11 @@ export default class Colour4 extends Float32Array
             }
             else if (typeof r === 'string')
             {
+                if (!Number.isSafeInteger(g))
+                {
+                    g = 1.0
+                }
+
                 this.Set(r, g)
             }
             else
@@ -128,19 +133,19 @@ export default class Colour4 extends Float32Array
         {
             let alpha: number = Number.isSafeInteger(g) ? g : 1
 
-            if (r.match(/#([0-9A-F]{3}){1,2}/i))
+            if (r.match(/#([0-9A-F]{3})/i))
             {
                 [ r, g, b ] = r.substring(1)
                                     .toUpperCase()
                                     .split('')
-                                    .map(c => parseInt(c, 16))
+                                    .map(c => parseInt(c + c, 16) / 255)
             }
             else if (r.match(/#[0-9A-F]{6}/i))
             {
                 [ r, g, b ] = r.substring(1)
                                 .toUpperCase()
                                 .split(/(?=(?:..)*$)/)
-                                .map(c => parseInt(c, 16))
+                                .map(c => parseInt(c, 16) / 255)
             }
             else
             {

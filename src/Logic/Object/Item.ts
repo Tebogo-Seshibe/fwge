@@ -1,6 +1,6 @@
 let ID_COUNTER: number = 0
 
-export function hash(number: number): number
+function hash(number: number): number
 {
     var i = 0
     var hash = 0

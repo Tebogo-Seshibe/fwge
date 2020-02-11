@@ -1,4 +1,4 @@
-import { GL } from '../../Main';
+import { GL } from '../../FWGE';
 import Item from './Item';
 import Colour4 from '../../Render/Colour/Colour4';
 import Vector2 from '../Maths/Vector2';
@@ -38,11 +38,11 @@ export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
 export class IMesh
 {
     name?: string
-    position?: Vector3[] | Float32Array | number[]
-    uv?: Vector2[] | Float32Array | number[]
-    colour?: Vector4[] | Float32Array | number[]
-    normal?: Vector3[] | Float32Array | number[]
-    index?: Uint8Array | number[]
+    position: Vector3[] | Float32Array | number[][] | number[]
+    uv?: Vector2[] | Float32Array | number[][] | number[]
+    colour?: Vector4[] | Float32Array | number[][] | number[]
+    normal?: Vector3[] | Float32Array | number[][] | number[]
+    index: Uint8Array | number[]
     wireframe?: Uint8Array | number[]
 }
 
@@ -63,9 +63,9 @@ export default class Mesh extends Item
 
         if (position.length > 0)
         {
-            if(position[0] instanceof Vector3)
+            if(position[0] instanceof Float32Array || position[0] instanceof Array)
             {
-                position = ArrayUtils.Flatten(position)
+                position = ArrayUtils.Flatten(position as number[][])
             }
 
             this.PositionBuffer = BindBufferData(BufferType.POSITION, position as number[])
@@ -73,9 +73,9 @@ export default class Mesh extends Item
 
         if (normal.length > 0)
         {
-            if (normal[0] instanceof Vector3)
+            if (normal[0] instanceof Vector3 || position[0] instanceof Array)
             {
-                normal = ArrayUtils.Flatten(normal)
+                normal = ArrayUtils.Flatten(normal as number[][])
             }
 
             this.NormalBuffer = BindBufferData(BufferType.POSITION, normal as number[])
@@ -83,9 +83,9 @@ export default class Mesh extends Item
 
         if (colour.length > 0)
         {
-            if (colour[0] instanceof Colour4)
+            if (colour[0] instanceof Colour4 || position[0] instanceof Array)
             {
-                colour = ArrayUtils.Flatten(colour)
+                colour = ArrayUtils.Flatten(colour as number[][])
             }
 
             this.ColourBuffer = BindBufferData(BufferType.POSITION, colour as number[])
@@ -93,9 +93,9 @@ export default class Mesh extends Item
 
         if (uv.length > 0)
         {
-            if (uv[0] instanceof Vector2)
+            if (uv[0] instanceof Vector2 || position[0] instanceof Array)
             {
-                uv = ArrayUtils.Flatten(uv)
+                uv = ArrayUtils.Flatten(uv as number[][])
             }
 
             this.UVBuffer = BindBufferData(BufferType.POSITION, uv as number[])
