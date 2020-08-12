@@ -3,10 +3,10 @@ import Cloneable from '../Interfaces/Cloneable'
 
 export class ITransform
 {
-    position?: Vector3 | Float32Array | number[]
-    rotation?: Vector3 | Float32Array | number[]
-    scale?: Vector3 | Float32Array | number[]
-    shear?: Vector3 | Float32Array | number[]
+    position?: Float32Array | number[]
+    rotation?: Float32Array | number[]
+    scale?: Float32Array | number[]
+    shear?: Float32Array | number[]
 }
 
 export default class Transform implements Cloneable<Transform>
@@ -18,12 +18,30 @@ export default class Transform implements Cloneable<Transform>
 
     constructor()
     constructor(transform: ITransform)
-    constructor({ position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = new ITransform)
+    constructor(transform: Transform)
+    constructor(args?: ITransform | Transform)
     {
-        this.Position = new Vector3(position as number[])
-        this.Rotation = new Vector3(rotation as number[])
-        this.Scale = new Vector3(scale as number[])
-        this.Shear = new Vector3(shear as number[])
+        let { position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = new ITransform
+        
+        if (args instanceof ITransform)
+        {
+            position = args.position || position
+            rotation = args.rotation || rotation
+            scale = args.scale || scale
+            shear = args.shear || shear
+        }
+        else if (args instanceof Transform)
+        {
+            position = args.Position as Float32Array
+            rotation = args.Position as Float32Array
+            scale = args.Position as Float32Array
+            shear = args.Position as Float32Array
+        }
+
+        this.Position = new Vector3(position as Float32Array)
+        this.Rotation = new Vector3(rotation as Float32Array)
+        this.Scale = new Vector3(scale as Float32Array)
+        this.Shear = new Vector3(shear as Float32Array)
     }
 
     public Clone(): Transform

@@ -1,5 +1,6 @@
 import '../../Logic/Maths/Math';
 import Colour4 from './Colour4';
+import { clean, clamp } from '../../Logic/Maths/Math';
 
 export default class Colour3 extends Float32Array
 {    
@@ -10,7 +11,7 @@ export default class Colour3 extends Float32Array
 
     public set R(red: number)
     {
-        this[0] = Math.clean(Math.clamp(red, 0, 1))
+        this[0] = clean(clamp(red, 0, 1))
     }
         
     public get G(): number
@@ -20,7 +21,7 @@ export default class Colour3 extends Float32Array
 
     public set G(green: number)
     {
-        this[1] = Math.clean(Math.clamp(green, 0, 1))
+        this[1] = clean(clamp(green, 0, 1))
     }
         
     public get B(): number
@@ -30,7 +31,7 @@ export default class Colour3 extends Float32Array
 
     public set B(blue: number)
     {
-        this[2] = Math.clean(Math.clamp(blue, 0, 1))
+        this[2] = clean(clamp(blue, 0, 1))
     }
 
     public get BIN(): string

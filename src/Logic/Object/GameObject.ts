@@ -7,6 +7,7 @@ import Material from './Material';
 import Mesh from './Mesh';
 import RigidBody from './RigidBody';
 import Transform from './Transform';
+import { Animation } from '../../Animation';
 
 let OBJECT_COUNTER: number = 0
 
@@ -78,14 +79,14 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         collider,
         animation,
 
-        collisionBegin = function(this: GameObject, other: Collider) { },
-        collisionUpdate = function(this: GameObject, other: Collider) { },
-        collisionEnd = function(this: GameObject, other: Collider) { },
+        collisionBegin = () => { },
+        collisionUpdate = () => { },
+        collisionEnd = () => { },
 
-        begin = function(this: GameObject) { },
-        update = function(this: GameObject, delta: number) { },
-        physicsUpdate = function(this: GameObject, delta: number) { },
-        end = function(this: GameObject) { },
+        begin = () => { },
+        update = () => { },
+        physicsUpdate = () => { },
+        end = () => { },
     }: IGameObject = new IGameObject)
     {
         super(name)

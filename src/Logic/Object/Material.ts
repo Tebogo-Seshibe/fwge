@@ -2,7 +2,7 @@ import { GL } from '../../FWGE';
 import Colour4 from '../../Render/Colour/Colour4';
 import Shader from '../../Render/Shader/Shader';
 import Item from './Item';
-import '../Maths/Math';
+import { isPowerOf2 } from '../Maths/Math';
 
 export enum ImageMapType
 {
@@ -55,7 +55,7 @@ export function ApplyImage(material: Material, src: string, type: ImageMapType):
         GL.bindTexture(GL.TEXTURE_2D, texture)
         GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
 
-        if (Math.isPowerOf2(img.width) && Math.isPowerOf2(img.height))
+        if (isPowerOf2(img.width) && isPowerOf2(img.height))
         {
             GL.generateMipmap(GL.TEXTURE_2D)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)

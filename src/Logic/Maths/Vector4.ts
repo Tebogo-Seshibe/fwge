@@ -1,6 +1,7 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
 import './Math';
+import { clean, lerp } from './Math';
 
 export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 {
@@ -12,7 +13,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 
     public set X(x: number)
     {
-        this[0] = Math.clean(x)
+        this[0] = clean(x)
     }
 
     public get Y(): number
@@ -22,7 +23,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 
     public set Y(y: number)
     {
-        this[1] = Math.clean(y)
+        this[1] = clean(y)
     }
 
     public get Z(): number
@@ -32,7 +33,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 
     public set Z(z: number)
     {
-        this[2] = Math.clean(z)
+        this[2] = clean(z)
     }
 
     public get W(): number
@@ -42,12 +43,12 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
 
     public set W(w: number)
     {
-        this[3] = Math.clean(w)
+        this[3] = clean(w)
     }
 
     public get Length(): number
     {
-        return Math.clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2 + this.W ** 2))
+        return clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2 + this.W ** 2))
     }
     //#endregion
 
@@ -146,7 +147,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
-        return Math.clean(this.X * x + this.Y * y + this.Z * z + this.W * w)
+        return clean(this.X * x + this.Y * y + this.Z * z + this.W * w)
     }
     
     public Lerp(time: number, x: number, y: number, z: number, w: number): Vector4
@@ -158,11 +159,11 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
         return this.Set(
-            Math.lerp(this.X, x, time),
-            Math.lerp(this.Y, y, time),
-            Math.lerp(this.Z, z, time),
-            Math.lerp(this.W, w, time)
-            )
+            lerp(this.X, x, time),
+            lerp(this.Y, y, time),
+            lerp(this.Z, z, time),
+            lerp(this.W, w, time)
+        )
     }
     
     public Unit(): Vector4

@@ -1,6 +1,7 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
 import './Math';
+import { clean, lerp } from './Math';
 
 export default class Vector2 extends Float32Array implements Cloneable<Vector2>
 {
@@ -12,7 +13,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
 
     public set X(x: number)
     {
-        this[0] = Math.clean(x)
+        this[0] = clean(x)
     }
 
     public get Y(): number
@@ -22,12 +23,12 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
 
     public set Y(y: number)
     {
-        this[1] = Math.clean(y)
+        this[1] = clean(y)
     }
 
     public get Length(): number
     {
-        return Math.clean(Math.sqrt(this.X ** 2 + this.Y ** 2))
+        return clean(Math.sqrt(this.X ** 2 + this.Y ** 2))
     }
     //#endregion
 
@@ -120,7 +121,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
-        return Math.clean(this.X * x + this.Y * y)
+        return clean(this.X * x + this.Y * y)
     }
     
     public Lerp(time: number, x: number, y: number): Vector2
@@ -132,8 +133,8 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
         [ x, y ] = Vector2.Destructure(x, y)
 
         return this.Set(
-            Math.lerp(this.X, x, time),
-            Math.lerp(this.Y, y, time)
+            lerp(this.X, x, time),
+            lerp(this.Y, y, time)
         )
     }
 

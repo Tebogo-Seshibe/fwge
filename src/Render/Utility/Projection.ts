@@ -1,6 +1,7 @@
 import Matrix3 from "../../Logic/Maths/Matrix3";
 import Matrix4 from "../../Logic/Maths/Matrix4";
 import Vector3 from "../../Logic/Maths/Vector3";
+import { cot, radian } from "../../Logic/Maths/Math";
 
 export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
 {
@@ -20,8 +21,8 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
 
 export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number): Matrix4
 {
-    theta = Math.cot(Math.radian(theta))
-    phi = Math.cot(Math.radian(phi))
+    theta = cot(radian(theta))
+    phi = cot(radian(phi))
 
     left -= near * theta
     right -= near * theta
@@ -39,7 +40,7 @@ export function Orthographic(left: number, right: number, top: number, bottom: n
 
 export function Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number): Matrix4
 {
-    let top: number = near * Math.tan(Math.radian(fieldOfView))
+    let top: number = near * Math.tan(radian(fieldOfView))
 
     let right: number = top * aspectRatio
     let left: number = -right
@@ -59,9 +60,9 @@ export function Perspective(near: number, far: number, fieldOfView: number, aspe
 
 export function LocationMatrix(position: Vector3, rotation: Vector3): Matrix4
 {
-    const x = Math.radian(rotation.X)
-    const y = Math.radian(rotation.Y)
-    const z = Math.radian(rotation.Z)
+    const x = radian(rotation.X)
+    const y = radian(rotation.Y)
+    const z = radian(rotation.Z)
 
     let rot = new Matrix3(
         Math.cos(z), -Math.sin(z), 0,

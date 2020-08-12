@@ -1,6 +1,7 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
 import './Math';
+import { clean } from './Math';
 
 export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 {
@@ -12,7 +13,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     
     public set M11(m11: number)
     {
-        this[0] = Math.clean(m11)
+        this[0] = clean(m11)
     }
     
     public get M12(): number
@@ -22,7 +23,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
     public set M12(m12: number)
     {
-        this[1] = Math.clean(m12)
+        this[1] = clean(m12)
     }
     
     public get M21(): number
@@ -32,7 +33,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
     public set M21(m21: number)
     {
-        this[2] = Math.clean(m21)
+        this[2] = clean(m21)
     }
     
     public get M22(): number
@@ -42,12 +43,12 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
 
     public set M22(m22: number)
     {
-        this[3] = Math.clean(m22)
+        this[3] = clean(m22)
     }
     
     public get Determinant(): number
     {
-        return Math.clean(this.M11 * this.M22 - this.M21 * this.M12)
+        return clean(this.M11 * this.M22 - this.M21 * this.M12)
     }
     //#endregion
 

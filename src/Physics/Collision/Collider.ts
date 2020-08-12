@@ -1,8 +1,8 @@
-import Item from '../../Logic/Object/Item';
 import Cloneable from '../../Logic/Interfaces/Cloneable';
-import ColliderMaterial from './PhysicsMaterial';
-import GameObject from '../../Logic/Object/GameObject';
 import Updateable from '../../Logic/Interfaces/Updateable';
+import GameObject from '../../Logic/Object/GameObject';
+import Item from '../../Logic/Object/Item';
+import ColliderMaterial from './PhysicsMaterial';
 
 export let Colliders: Collider[] = []
 
@@ -15,7 +15,6 @@ export default class Collider extends Item implements Cloneable<Collider>, Updat
 {
     public Parent: GameObject
     public Material: ColliderMaterial
-    public CollisionDetected: boolean
     
     constructor({ name = 'Collider' }: ICollider = new ICollider)
     {

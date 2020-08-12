@@ -5,6 +5,7 @@ import Collider, { Colliders } from "./Collision/Collider";
 import { IsColission } from "./CollisionDetection";
 import { SphereCollider } from './Collision';
 import { GameObjects } from '../Logic/Object/GameObject';
+import { clean } from '../Logic/Maths/Math';
 
 interface IVelocity
 {
@@ -31,8 +32,8 @@ interface IParticle
 
 function rotate(velocity: IVelocity, angle: number) {
     const rotatedVelocities = {
-        x: Math.clean(velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle)),
-        y: Math.clean(velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle))
+        x: clean(velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle)),
+        y: clean(velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle))
     };
 
     return rotatedVelocities;
@@ -47,11 +48,11 @@ function rotate(velocity: IVelocity, angle: number) {
  */
 
 function resolveCollision(particle: IParticle, otherParticle: IParticle): void {
-    const xVelocityDiff = Math.clean(particle.velocity.x - otherParticle.velocity.x);
-    const yVelocityDiff = Math.clean(particle.velocity.y - otherParticle.velocity.y);
+    const xVelocityDiff = clean(particle.velocity.x - otherParticle.velocity.x);
+    const yVelocityDiff = clean(particle.velocity.y - otherParticle.velocity.y);
 
-    const xDist = Math.clean(otherParticle.x - particle.x);
-    const yDist = Math.clean(otherParticle.y - particle.y);
+    const xDist = clean(otherParticle.x - particle.x);
+    const yDist = clean(otherParticle.y - particle.y);
 
     // Prevent accidental overlap of particles
     if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
@@ -68,8 +69,8 @@ function resolveCollision(particle: IParticle, otherParticle: IParticle): void {
         const u2 = rotate(otherParticle.velocity, angle);
 
         // Velocity after 1d collision equation
-        const v1 = { x: Math.clean(u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2)), y: u1.y };
-        const v2 = { x: Math.clean(u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2)), y: u2.y };
+        const v1 = { x: clean(u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2)), y: u1.y };
+        const v2 = { x: clean(u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2)), y: u2.y };
 
         // Final velocity after rotating axis back to original location
         const vFinal1 = rotate(v1, -angle);

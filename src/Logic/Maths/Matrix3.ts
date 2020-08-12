@@ -1,6 +1,7 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
 import './Math';
+import { clean } from './Math';
 
 export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 {
@@ -12,7 +13,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M11(m11: number)
     {
-        this[0] = Math.clean(m11)
+        this[0] = clean(m11)
     }
     
     public get M12(): number
@@ -22,7 +23,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M12(m12: number)
     {
-        this[1] = Math.clean(m12)
+        this[1] = clean(m12)
     }
     
     public get M13(): number
@@ -32,7 +33,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M13(m13: number)
     {
-        this[2] = Math.clean(m13)
+        this[2] = clean(m13)
     }
 
     public get M21(): number
@@ -42,7 +43,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M21(m21: number)
     {
-        this[3] = Math.clean(m21)
+        this[3] = clean(m21)
     }
 
     public get M22(): number
@@ -52,7 +53,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M22(m22: number)
     {
-        this[4] = Math.clean(m22)
+        this[4] = clean(m22)
     }
 
     public get M23(): number
@@ -62,7 +63,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M23(m23: number)
     {
-        this[5] = Math.clean(m23)
+        this[5] = clean(m23)
     }
 
     public get M31(): number
@@ -72,7 +73,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M31(m31: number)
     {
-        this[6] = Math.clean(m31)
+        this[6] = clean(m31)
     }
 
     public get M32(): number
@@ -82,7 +83,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M32(m32: number)
     {
-        this[7] = Math.clean(m32)
+        this[7] = clean(m32)
     }
 
     public get M33(): number
@@ -92,12 +93,12 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
 
     public set M33(m33: number)
     {
-        this[8] = Math.clean(m33)
+        this[8] = clean(m33)
     }
 
     public get Determinant(): number
     {
-        return Math.clean(
+        return clean(
             this.M11 * (this.M22 * this.M33 - this.M23 * this.M32) -
             this.M12 * (this.M21 * this.M33 - this.M23 * this.M31) + 
             this.M13 * (this.M21 * this.M32 - this.M22 * this.M31)

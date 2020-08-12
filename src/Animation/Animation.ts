@@ -1,35 +1,36 @@
 import '../Audio/Audio';
-import GameObject from '../Logic/Object/GameObject';
 import Updateable from '../Logic/Interfaces/Updateable';
+import GameObject from '../Logic/Object/GameObject';
 import Item from '../Logic/Object/Item';
-import Vector3 from "../Logic/Maths/Vector3";
 import List from '../Logic/Utility/List';
-import AnimationFrame, { IAnimationFrame } from './AnimationFrame';
+import AnimationFrame from './AnimationFrame';
 
 export let Animations: Animation[] = []
 
 export class IAnimation
 {
     name?: string
-    gameObject?: GameObject
-    frames?: IAnimationFrame[] | List<IAnimationFrame>
     loop?: boolean
+    frames?: AnimationFrame[] | List<AnimationFrame>
 }
 
 export default class Animation extends Item implements Updateable
 {
+    public StartFrame: AnimationFrame
+    public EndFrame: AnimationFrame
     public Frames: AnimationFrame[]
-    public GameObject: GameObject
-    public Length: number
     public Loop: boolean = false
+    public Length: number
+    
+    public Parent: GameObject
 
     private FrameTime: number
     private MaxFrameTime: number
-    private CurrentFrame: number
+    private CurrentFrame: AnimationFrame
 
     constructor()
     constructor(animation: IAnimation)
-    constructor({ name = 'Animation', gameObject, frames, loop }: IAnimation = new IAnimation)
+    constructor({ name = 'Animation', frames, loop }: IAnimation = new IAnimation)
     {
         super(name)
         
@@ -38,111 +39,76 @@ export default class Animation extends Item implements Updateable
             frames = frames.ToArray()
         }
 
-        this.Frames = new Array<AnimationFrame>()
-        this.GameObject = gameObject
-        this.Length = 0
         this.Loop = loop
+        this.Frames = frames
+        this.Length = frames.map(frame => frame.Length).reduce((p: number, c: number) => p + c, 0)
+        
+        this.Frames.reduce((previous: AnimationFrame, current: AnimationFrame) => previous.Next = current)
 
-        let start: number = 0
-        frames.forEach((current: IAnimationFrame, index: number, array: IAnimationFrame[]) =>
-        {
-            let next: IAnimationFrame = index === array.length - 1
-                ? array[0]
-                : array[index + 1]
-
-            let offset = current.time * 1000
-            let colour: number[] = [
-                (next.colour[0] - current.colour[0]) / offset,
-                (next.colour[1] - current.colour[1]) / offset,
-                (next.colour[2] - current.colour[2]) / offset,
-                (next.colour[3] - current.colour[3]) / offset
-            ]
-
-            let position: number[] = [
-                (next.position[0] - current.position[0]) / offset,
-                (next.position[1] - current.position[1]) / offset,
-                (next.position[2] - current.position[2]) / offset
-            ]
-
-            let rotation: number[] = [
-                (next.rotation[0] - current.rotation[0]) / offset,
-                (next.rotation[1] - current.rotation[1]) / offset,
-                (next.rotation[2] - current.rotation[2]) / offset
-            ]
-
-            let scale: number[] = [
-                (next.scale[0] - current.scale[0]) / offset,
-                (next.scale[1] - current.scale[1]) / offset,
-                (next.scale[2] - current.scale[2]) / offset
-            ]
-
-            this.Length += current.time
-            this.Frames.push(new AnimationFrame(start, start + offset, colour, position, rotation, scale))
-
-            start += offset
-        })
-
-        this.FrameTime = 0
-        this.MaxFrameTime = this.Length * 1000
-        this.CurrentFrame = 0
+        this.CurrentFrame = undefined
 
         Animations.push(this)
     }
 
-    public Update(): void
+    public Start(): void
     {
-        if (this.FrameTime >= this.MaxFrameTime)
+
+    }
+    
+    public Update(delta: number): void
+    {
+        this.EndFrame.Next = this.Loop ? this.StartFrame : undefined
+
+        if (this.CurrentFrame.Length <= 0 && !this.Loop)
         {
-            if (!this.Loop)
-            {
-                return
-            }
-            else
-            {
-                this.FrameTime = 0
-                this.CurrentFrame = 0
-            }
+            return
         }
 
-        let currentFrame = this.Frames[this.CurrentFrame]
-        let offset = 0 //Time.Render.Delta
-        if (this.FrameTime + offset > currentFrame.End)
-        {
-            let offset = currentFrame.End - this.FrameTime
-            
-            this.FrameTime += offset
-            this.UpdateObject(currentFrame, offset)
-            
-            if (this.FrameTime + offset >= this.MaxFrameTime)
-            {
-                if (this.Loop)
-                {
-                    this.FrameTime = 0
-                    this.CurrentFrame = 0
-                }
-            }
-            else
-            {
-                ++this.CurrentFrame
-            }
-
-            currentFrame = this.Frames[this.CurrentFrame]            
-            offset = 0 //Time.Render.Delta - offset
-        }
+        const timePassed = delta * 1000
         
-        this.FrameTime += offset
-        this.UpdateObject(currentFrame, offset)
+        if (this.CurrentFrame.Length < timePassed)
+        {
+            const remainingTime = this.CurrentFrame.Length - timePassed
+            if (!this.CurrentFrame.Next)
+            {
+                this.Set()
+
+            }
+            this.CurrentFrame = this.StartFrame.Clone()
+            remainingTime = -remainingTime
+        }
+        else
+        {
+            this.Set(timePassed / 1000)
+            this.CurrentFrame.Timestamp += timePassed
+        }
     }
 
-    private UpdateObject(frame: AnimationFrame, length: number): void
+    private Set(reset: boolean = false)
     {
-        this.GameObject.Transform.Position.Sum(new Vector3(frame.Position).Scale(length))
-        this.GameObject.Transform.Rotation.Sum(new Vector3(frame.Rotation).Scale(length))
-        this.GameObject.Transform.Scale.Sum(new Vector3(frame.Scale).Scale(length))
-        
-        this.GameObject.Material.Ambient.R += frame.Colour[0] * length
-        this.GameObject.Material.Ambient.G += frame.Colour[1] * length
-        this.GameObject.Material.Ambient.B += frame.Colour[2] * length
-        this.GameObject.Material.Ambient.A += frame.Colour[3] * length
+        const offset = this.CurrentFrame.Timestamp / this.CurrentFrame.Length
+    
+        if (reset)
+        {
+            this.Parent.Material.Diffuse.Set(this.CurrentFrame.Colour)
+            this.Parent.Transform.Position.Set(this.CurrentFrame.Transform.Position)
+            this.Parent.Transform.Rotation.Set(this.CurrentFrame.Transform.Rotation)
+            this.Parent.Transform.Scale.Set(this.CurrentFrame.Transform.Scale)
+            this.Parent.Transform.Shear.Set(this.CurrentFrame.Transform.Shear)
+        }
+        else
+        {
+            this.Parent.Material.Diffuse.Set(
+                this.CurrentFrame.Colour.R * offset,
+                this.CurrentFrame.Colour.G * offset,
+                this.CurrentFrame.Colour.B * offset,
+                this.CurrentFrame.Colour.A * offset
+            )
+            
+            this.Parent.Transform.Position.Lerp(offset, this.CurrentFrame.Transform.Position)
+            this.Parent.Transform.Rotation.Lerp(offset, this.CurrentFrame.Transform.Rotation)
+            this.Parent.Transform.Scale.Lerp(offset, this.CurrentFrame.Transform.Scale)
+            this.Parent.Transform.Shear.Lerp(offset, this.CurrentFrame.Transform.Shear)
+        }
     }
 }

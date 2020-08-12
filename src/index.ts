@@ -1,15 +1,17 @@
 import FWGE from './FWGE'
 
+export * from './Audio/Audio'
 
-declare global
-{
-	interface Window
-	{
-		FWGE: any
-	}
-}
+export * from './Animation'
 
+export * from './Logic/Camera'
+export * from './Logic/Converter'
+export * from './Logic/Input'
+export * from './Logic/Interfaces'
+export * from './Logic/Light'
+export * from './Logic/Maths'
+export * from './Logic/Object'
+export * from './Logic/Particle System'
+export * from './Logic/Utility'
 
-window.FWGE = new FWGE
-
-export { }
+export default FWGE

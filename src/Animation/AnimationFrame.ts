@@ -1,32 +1,45 @@
-export class IAnimationFrame
+import { Transform } from "../Logic/Object"
+import { Colour4 } from "../Render"
+import Cloneable from "../Logic/Interfaces/Cloneable"
+
+class IAnimationFrame
 {
-    colour?: number[]
-    position?: number[]
-    rotation?: number[]
-    scale?: number[]
-    time: number
+    length: number
+    next?: AnimationFrame
+    colour?: Colour4
+    transform?: Transform
 }
 
-export default class AnimationFrame
+export default class AnimationFrame implements Cloneable<AnimationFrame>
 {
     //#region Public Properties
-    public Start: number
-    public End: number
-    public Colour: number[]
-    public Position: number[]
-    public Rotation: number[]
-    public Scale: number[]
+    public Timestamp: number
+    public Length: number
+    
+    public Next: AnimationFrame
+    public Colour: Colour4
+    public Transform: Transform
     //#endregion
 
     //#region Public Properties
-    constructor(start: number, end: number, colour: number[], position: number[], rotation: number[], scale: number[])
+    constructor({ length, next, colour, transform }: IAnimationFrame)
     {
-        this.Start = start
-        this.End = end
-        this.Colour = colour
-        this.Position = position
-        this.Rotation = rotation
-        this.Scale = scale
+        this.Timestamp = 0
+        this.Length = length
+        this.Next = next
+        this.Colour = new Colour4(colour)
+        this.Transform = new Transform(transform)
+    }
+
+    public Clone(): AnimationFrame
+    {
+        return new AnimationFrame(
+        {
+            length: this.Length,
+            next: this.Next,
+            colour: this.Colour,
+            transform: this.Transform  
+        })
     }
     //#endregion
 }

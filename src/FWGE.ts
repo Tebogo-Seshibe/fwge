@@ -11,6 +11,8 @@ import PhysicsEngine from './Physics/PhysicsEngine'
 import { Colour3, Colour4, Shader } from './Render/index'
 import RenderEngine from './Render/RenderEngine'
 import { CircleCollider, CubeCollider, PhysicsMaterial, SphereCollider, SquareCollider } from './Physics/Collision/index'
+import Item from './Logic/Object/Item'
+import { clamp } from './Logic/Maths/Math'
 
 let height: number = 1080
 let width: number = 1920
@@ -28,6 +30,8 @@ interface IFWGE
     width: number
 }
 
+export const names: Map<string, Item> = new Map<string, Item>()
+export const tags: Map<string, Item[]> = new Map<string, Item[]>()
 export let GL: WebGLRenderingContext = undefined
 
 export default class FWGE
@@ -88,7 +92,7 @@ export default class FWGE
 
     public set Height(height: number)
     {
-        height = Math.clamp(height, 0, Number.MAX_SAFE_INTEGER)
+        height = clamp(height, 0, Number.MAX_SAFE_INTEGER)
     }
     
     public get Width(): number
@@ -98,7 +102,7 @@ export default class FWGE
 
     public set Width(width: number)
     {
-        width = Math.clamp(width, 0, Number.MAX_SAFE_INTEGER)
+        width = clamp(width, 0, Number.MAX_SAFE_INTEGER)
     }
 
     public get RenderUpdate(): number
@@ -108,7 +112,7 @@ export default class FWGE
 
     public set RenderUpdate(renderUpdate: number)
     {
-        renderUpdate = Math.clamp(renderUpdate, 0, Number.MAX_SAFE_INTEGER)
+        renderUpdate = clamp(renderUpdate, 0, Number.MAX_SAFE_INTEGER)
         this.Time.Init(renderUpdate, physicsUpdate)
     }
 
@@ -119,7 +123,7 @@ export default class FWGE
 
     public set PhysicsUpdate(physicsUpdate: number)
     {
-        physicsUpdate = Math.clamp(physicsUpdate, 0, Number.MAX_SAFE_INTEGER)
+        physicsUpdate = clamp(physicsUpdate, 0, Number.MAX_SAFE_INTEGER)
         this.Time.Init(physicsUpdate, physicsUpdate)
     }
      

@@ -1,5 +1,6 @@
 import '../../Logic/Maths/Math';
 import Colour3 from './Colour3';
+import { clean, clamp, lerp } from '../../Logic/Maths/Math';
 
 export default class Colour4 extends Float32Array
 {    
@@ -10,7 +11,7 @@ export default class Colour4 extends Float32Array
 
     public set R(red: number)
     {
-        this[0] = Math.clean(Math.clamp(red, 0, 1))
+        this[0] = clean(clamp(red, 0, 1))
     }
         
     public get G(): number
@@ -20,7 +21,7 @@ export default class Colour4 extends Float32Array
 
     public set G(green: number)
     {
-        this[1] = Math.clean(Math.clamp(green, 0, 1))
+        this[1] = clean(clamp(green, 0, 1))
     }
         
     public get B(): number
@@ -30,7 +31,7 @@ export default class Colour4 extends Float32Array
 
     public set B(blue: number)
     {
-        this[2] = Math.clean(Math.clamp(blue, 0, 1))
+        this[2] = clean(clamp(blue, 0, 1))
     }
         
     public get A(): number
@@ -40,7 +41,7 @@ export default class Colour4 extends Float32Array
 
     public set A(alpha: number)
     {
-        this[3] = Math.clean(Math.clamp(alpha, 0, 1))
+        this[3] = clean(clamp(alpha, 0, 1))
     }
 
     public get BIN(): string
@@ -125,6 +126,15 @@ export default class Colour4 extends Float32Array
         this.A = a
 
         return this
+    }
+
+    public static Lerp(number: number, r1: number, g1: number, b1: number, a1: number, r2: number, g2: number, b2: number, a2: number): Colour4
+    public static Lerp(number: number, hex1: string, hex2: string): Colour4
+    public static Lerp(number: number, array1: number[], array: number[]): Colour4
+    public static Lerp(number: number, array1: Float32Array, array2: Float32Array): Colour4
+    public static Lerp(number: number, r1: number | string | number[] | Float32Array, g1: number | string | number[] | Float32Array, b1?: number, a1?: number, r2?: number, g2?: number, b2?: number, a2?: number): Colour4
+    {
+        return lerp()
     }
 
     private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]

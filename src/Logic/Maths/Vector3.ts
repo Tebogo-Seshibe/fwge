@@ -1,6 +1,8 @@
 import Cloneable from '../Interfaces/Cloneable';
 import List from '../Utility/List';
 import './Math';
+import { clean, lerp } from './Math';
+import { Vector2 } from '.';
 
 export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 {
@@ -12,7 +14,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 
     public set X(x: number)
     {
-        this[0] = Math.clean(x)
+        this[0] = clean(x)
     }
 
     public get Y(): number
@@ -22,7 +24,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 
     public set Y(y: number)
     {
-        this[1] = Math.clean(y)
+        this[1] = clean(y)
     }
 
     public get Z(): number
@@ -32,12 +34,12 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
 
     public set Z(z: number)
     {
-        this[2] = Math.clean(z)
+        this[2] = clean(z)
     }
 
     public get Length(): number
     {
-        return Math.clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
+        return clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
     }
     //#endregion
 
@@ -133,22 +135,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     {
         [ x, y, z ] = Vector3.Destructure(x, y, z)
 
-        return Math.clean(this.X * x + this.Y * y + this.Z * z)
-    }
-    
-    public Lerp(time: number, x: number, y: number, z: number): Vector3
-    public Lerp(time: number, array: Float32Array): Vector3
-    public Lerp(time: number, array: number[]): Vector3
-    public Lerp(time: number, list: List<number>): Vector3
-    public Lerp(time: number, x: number | Float32Array | number[] | List<number>, y?: number, z?: number): Vector3
-    {
-        [ x, y, z ] = Vector3.Destructure(x, y, z)
-
-        return this.Set(
-            Math.lerp(this.X, x, time),
-            Math.lerp(this.Y, y, time),
-            Math.lerp(this.Z, z, time)
-        )
+        return clean(this.X * x + this.Y * y + this.Z * z)
     }
 
     public Cross(x: number, y: number, z: number): Vector3
@@ -196,6 +183,34 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
         return new Vector3(Math.sqrt(1/3), Math.sqrt(1/3), Math.sqrt(1/3))
     }
     //#endregion
+
+    public static Lerp(time: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    public static Lerp(time: number, array1: Float32Array, array2: Float32Array): Vector3
+    public static Lerp(time: number, array1: number[], array2: number[]): Vector3
+    public static Lerp(time: number, list1: List<number>, list2: List<number>): Vector3
+    public static Lerp(time: number, x1: number | Float32Array | number[] | List<number>, y1: number | Float32Array | number[] | List<number>, z1?: number, x2?: number, y2?: number, z2?: number): Vector3
+    {
+        let [vector1, vector2] = [new Vector3, new Vector3]
+
+        if ((x1 instanceof Float32Array && y1 instanceof Float32Array) 
+        || (x1 instanceof List && y1 instanceof List)
+        || (x1 instanceof Array && y1 instanceof Array))
+        {
+            vector1.Set([...x1])
+            vector2.Set([...y1])
+        }
+        else if (typeof x1 === 'number' && typeof y1 === 'number')
+        {
+            vector1.Set(x1, y1, z1)
+            vector2.Set(x2, y2, z2)
+        }
+        
+        return new Vector3(
+            lerp(vector1.X, vector2.X, time),
+            lerp(vector1.Y, vector2.Y, time),
+            lerp(vector1.Z, vector2.Z, time)
+        )
+    }
 
     //#region Static Helpers
     private static Destructure(x: number | Float32Array | number[] | List<number>, y?: number, z?: number): number[]

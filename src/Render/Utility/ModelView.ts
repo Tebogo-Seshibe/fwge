@@ -3,6 +3,7 @@ import Matrix4 from '../../Logic/Maths/Matrix4';
 import Vector3 from '../../Logic/Maths/Vector3';
 import Transform from '../../Logic/Object/Transform';
 import Stack from '../../Logic/Utility/Stack';
+import { radian } from '../../Logic/Maths/Math';
 
 export default class ModelView
 {
@@ -65,9 +66,9 @@ export default class ModelView
     
     public static Rotate(matrix: Matrix4, rotation: Vector3): Matrix4
     {
-        let x = Math.radian(rotation.X)
-        let y = Math.radian(rotation.Y)
-        let z = Math.radian(rotation.Z)
+        let x = radian(rotation.X)
+        let y = radian(rotation.Y)
+        let z = radian(rotation.Z)
 
         return new Matrix4
         (
@@ -101,16 +102,16 @@ export default class ModelView
     
     public static Shear(matrix: Matrix4, angles: Vector3): Matrix4
     {
-        var phi = Math.radian(angles.X)
-        var theta = Math.radian(angles.Y)
-        var rho = Math.radian(angles.Z)
+        var phi = radian(angles.X)
+        var theta = radian(angles.Y)
+        var rho = radian(angles.Z)
 
         return new Matrix4
         (
-                    1.0,             0.0, Math.tan(rho), 0.0,
+                      1.0,             0.0, Math.tan(rho), 0.0,
             Math.tan(phi),             1.0,           0.0, 0.0,
-                    0.0, Math.tan(theta),           1.0, 0.0,
-                    0.0,             0.0,           0.0, 1.0
+                      0.0, Math.tan(theta),           1.0, 0.0,
+                      0.0,             0.0,           0.0, 1.0
         ).Mult(matrix)
     }
 }
