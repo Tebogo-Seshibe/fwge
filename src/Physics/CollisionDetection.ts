@@ -3,8 +3,6 @@ import Collider from "./Collision/Collider";
 import CubeCollider from "./Collision/CubeCollider";
 import SphereCollider from "./Collision/SphereCollider";
 import SquareCollider from "./Collision/SquareCollider";
-import Vector2 from "../Logic/Maths/Vector2";
-import Vector3 from "../Logic/Maths/Vector3";
 
 export function IsColission(first: Collider, second: Collider): boolean
 {

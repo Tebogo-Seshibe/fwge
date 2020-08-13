@@ -1,4 +1,4 @@
-import Vector3 from '../../Logic/Maths/Vector3';
+import Vector3 from '../../Maths/Vector3';
 import Collider, { ICollider } from './Collider';
 
 export class ICubeCollider extends ICollider

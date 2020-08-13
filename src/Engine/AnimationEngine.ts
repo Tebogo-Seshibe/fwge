@@ -1,7 +1,6 @@
-import IEngine from '../Engine/IEngine'
+import IEngine from './IEngine'
 
-
-export default class Audio implements IEngine
+export default class AnimationEngine implements IEngine
 {
     public Init(): void 
     {

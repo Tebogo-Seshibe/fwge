@@ -1,4 +1,4 @@
-import Vector2 from '../../Logic/Maths/Vector2';
+import Vector2 from '../../Maths/Vector2';
 import Collider, { ICollider } from './Collider';
 
 export class ICircleCollider extends ICollider
@@ -29,7 +29,6 @@ export default class CircleCollider extends Collider
     {
         return new CircleCollider(
         {
-            name:       this.Name + ' Clone',
             radius:     this.Radius,
             position:   this.Position,
             scale:      this.Scale

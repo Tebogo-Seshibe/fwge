@@ -1,4 +1,4 @@
-import Item from '../../Logic/Object/Item';
+import Item from '../../Object/Item';
 
 export class IPhysicsMaterial
 {

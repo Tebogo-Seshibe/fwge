@@ -1,9 +1,10 @@
 import '../Audio/Audio';
-import Updateable from '../Logic/Interfaces/Updateable';
-import GameObject from '../Logic/Object/GameObject';
-import Item from '../Logic/Object/Item';
-import List from '../Logic/Utility/List';
+import Updateable from '../Interfaces/Updateable';
+import GameObject from '../Object/GameObject';
+import Item from '../Object/Item';
+import List from '../Utility/List';
 import AnimationFrame from './AnimationFrame';
+import Vector3 from '../Maths/Vector3';
 
 export let Animations: Animation[] = []
 
@@ -68,7 +69,7 @@ export default class Animation extends Item implements Updateable
         
         if (this.CurrentFrame.Length < timePassed)
         {
-            const remainingTime = this.CurrentFrame.Length - timePassed
+            let remainingTime = this.CurrentFrame.Length - timePassed
             if (!this.CurrentFrame.Next)
             {
                 this.Set()
@@ -79,7 +80,7 @@ export default class Animation extends Item implements Updateable
         }
         else
         {
-            this.Set(timePassed / 1000)
+            this.Set()
             this.CurrentFrame.Timestamp += timePassed
         }
     }
@@ -105,10 +106,37 @@ export default class Animation extends Item implements Updateable
                 this.CurrentFrame.Colour.A * offset
             )
             
-            this.Parent.Transform.Position.Lerp(offset, this.CurrentFrame.Transform.Position)
-            this.Parent.Transform.Rotation.Lerp(offset, this.CurrentFrame.Transform.Rotation)
-            this.Parent.Transform.Scale.Lerp(offset, this.CurrentFrame.Transform.Scale)
-            this.Parent.Transform.Shear.Lerp(offset, this.CurrentFrame.Transform.Shear)
+            this.Parent.Transform.Position.Set(
+                Vector3.Lerp(
+                    offset,
+                    this.CurrentFrame.Transform.Position,
+                    this.CurrentFrame.Next.Transform.Position
+                )
+            )
+
+            this.Parent.Transform.Rotation.Set(
+                Vector3.Lerp(
+                    offset,
+                    this.CurrentFrame.Transform.Rotation,
+                    this.CurrentFrame.Next.Transform.Rotation
+                )
+            )
+
+            this.Parent.Transform.Scale.Set(
+                Vector3.Lerp(
+                    offset,
+                    this.CurrentFrame.Transform.Scale,
+                    this.CurrentFrame.Next.Transform.Scale
+                )
+            )
+
+            this.Parent.Transform.Shear.Set(
+                Vector3.Lerp(
+                    offset,
+                    this.CurrentFrame.Transform.Shear,
+                    this.CurrentFrame.Next.Transform.Shear
+                )
+            )
         }
     }
 }

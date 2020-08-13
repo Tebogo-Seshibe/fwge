@@ -1,7 +1,7 @@
-import Cloneable from '../../Logic/Interfaces/Cloneable';
-import Updateable from '../../Logic/Interfaces/Updateable';
-import GameObject from '../../Logic/Object/GameObject';
-import Item from '../../Logic/Object/Item';
+import Cloneable from '../../Interfaces/Cloneable';
+import Updateable from '../../Interfaces/Updateable';
+import GameObject from '../../Object/GameObject';
+import Item from '../../Object/Item';
 import ColliderMaterial from './PhysicsMaterial';
 
 export let Colliders: Collider[] = []

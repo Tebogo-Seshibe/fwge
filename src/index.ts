@@ -4,14 +4,14 @@ export * from './Audio/Audio'
 
 export * from './Animation'
 
-export * from './Logic/Camera'
-export * from './Logic/Converter'
-export * from './Logic/Input'
-export * from './Logic/Interfaces'
-export * from './Logic/Light'
-export * from './Logic/Maths'
-export * from './Logic/Object'
-export * from './Logic/Particle System'
-export * from './Logic/Utility'
+export * from './Camera'
+export * from './Engine/Converter'
+export * from './Engine/Input'
+export * from './Engine/Interfaces'
+export * from './Engine/Light'
+export * from './Engine/Maths'
+export * from './Engine/Object'
+export * from './Engine/Particle System'
+export * from './Engine/Utility'
 
 export default FWGE

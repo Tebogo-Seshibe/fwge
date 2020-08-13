@@ -1,4 +1,4 @@
-import Vector2 from '../../Logic/Maths/Vector2';
+import Vector2 from '../../Maths/Vector2';
 import Collider, { ICollider } from './Collider';
 
 export class ISquareCollider extends ICollider

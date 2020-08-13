@@ -1,6 +1,6 @@
-import { Transform } from "../Logic/Object"
+import { Transform } from "../Object"
 import { Colour4 } from "../Render"
-import Cloneable from "../Logic/Interfaces/Cloneable"
+import Cloneable from "../Interfaces/Cloneable"
 
 class IAnimationFrame
 {
