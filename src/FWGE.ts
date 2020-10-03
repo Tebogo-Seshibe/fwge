@@ -1,18 +1,12 @@
-import { Animation, AnimationFrame } from './Animation/index'
-import { Camera } from './Camera/index'
 import { OBJConverter } from './Converter/index'
-import { ButtonState, Input, KeyboardState, WheelState } from './Input/index'
-import { AmbientLight, DirectionalLight, PointLight, ShadowQuality } from './Light/index'
 import LogicEngine from './Engine/LogicEngine'
-import { Equations, Matrix2, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from './Maths/index'
-import { GameObject, Material, Mesh, RigidBody, Transform } from './Object/index'
-import { ArrayUtils, BinaryTree, List, ListUtils, Stack, Time, Tree } from './Utility/index'
 import PhysicsEngine from './Engine/PhysicsEngine'
-import { Colour3, Colour4, Shader } from './Render/index'
 import RenderEngine from './Engine/RenderEngine'
-import { CircleCollider, CubeCollider, PhysicsMaterial, SphereCollider, SquareCollider } from './Physics/Collision/index'
-import Item from './Object/Item'
+import { Input } from './Input/index'
 import { clamp } from './Maths/Math'
+import Item from './Object/Item'
+import { Colour3, Colour4 } from './Render/index'
+import { Time } from './Utility/index'
 
 let height: number = 1080
 let width: number = 1920
@@ -37,45 +31,9 @@ export let GL: WebGLRenderingContext = undefined
 export default class FWGE
 {
     //#region Components
-    public readonly Animation: any = Animation
-    public readonly AnimationFrame: any = AnimationFrame
-    public readonly Camera: any = Camera
     public readonly OBJConverter: OBJConverter = new OBJConverter
     public readonly Input: Input = new Input
-    public readonly ButtonState: any = ButtonState
-    public readonly KeyboardState: any = KeyboardState
-    public readonly WheelState: any = WheelState
-    public readonly AmbientLight: any = AmbientLight
-    public readonly DirectionalLight: any = DirectionalLight
-    public readonly PointLight: any = PointLight
-    public readonly ShadowQuality: any = ShadowQuality
-    public readonly Equations: any = Equations
-    public readonly Matrix2: any = Matrix2
-    public readonly Matrix3: any = Matrix3
-    public readonly Matrix4: any = Matrix4
-    public readonly Vector2: any = Vector2
-    public readonly Vector3: any = Vector3
-    public readonly Vector4: any = Vector4
-    public readonly GameObject: any = GameObject
-    public readonly Material: any = Material
-    public readonly Mesh: any = Mesh
-    public readonly RigidBody: any = RigidBody
-    public readonly Transform: any = Transform
-    public readonly ArrayUtils: any = ArrayUtils
-    public readonly BinaryTree: any = BinaryTree
-    public readonly List: any = List
-    public readonly ListUtils: any = ListUtils
-    public readonly Stack: any = Stack
     public readonly Time: Time = new Time
-    public readonly Tree: any = Tree
-    public readonly Colour3: any = Colour3
-    public readonly Colour4: any = Colour4
-    public readonly Shader: any = Shader
-    public readonly CircleCollider: any = CircleCollider
-    public readonly CubeCollider: any = CubeCollider
-    public readonly PhysicsMaterial: any = PhysicsMaterial
-    public readonly SphereCollider: any = SphereCollider
-    public readonly SquareCollider: any = SquareCollider
     //#endregion
 
     //#region Engines
