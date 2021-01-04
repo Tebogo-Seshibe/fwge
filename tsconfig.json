@@ -1,10 +1,16 @@
 {
     "compilerOptions": {
-        "module": "CommonJS",
+        /*"module": "CommonJS",*/
         "target": "ES6", /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
         "declaration": true, /* Generates corresponding '.d.ts' file. */
         "sourceMap": true, /* Generates corresponding '.map' file. */
-        "outDir": "./build", /* Concatenate and emit output to single file. */
+        "rootDir": "./src",
+        "lib": [
+            "es5",
+            "es6",
+            "dom"
+        ],
+        "outFile": "./build/fwge-1.0.0.js", /* Concatenate and emit output to single file. */
         "noImplicitAny": true, /* Raise error on expressions and declarations with an implied 'any' type. */
         "strictFunctionTypes": true, /* Enable strict checking of function types. */
         "noImplicitThis": true, /* Raise error on 'this' expressions with an implied 'any' type. */
@@ -18,5 +24,8 @@
     // "include": [
     //     "src/**/*"
     // ],
+    "exclude": [
+        "src/**/*.test.ts"
+    ],
     "compilerOnSave": true
 }
