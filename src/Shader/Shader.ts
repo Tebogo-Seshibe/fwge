@@ -124,13 +124,13 @@ function ParseProperties(shader: Shader): void
     {   
         let groups = match.match(regex)
 
-        let type = groups.groups.type
-        let name = groups.groups.name
+        let type = groups!.groups!.type
+        let name = groups!.groups!.name
         let index = GL.getUniformLocation(shader.Program, name)
 
-        if (!shader.UserUniforms.has(name))
+        if (!shader.UserUniforms!.has(name))
         {
-            shader.UserUniforms.set(name, {index, type})
+            shader.UserUniforms!.set(name, {index, type})
         }
     }
 }
@@ -164,24 +164,24 @@ function CreateBuffers(shader: Shader): void
 
 export default class Shader extends Item
 {
-    public Program: WebGLProgram
+    public Program: WebGLProgram | undefined
     public Height: number
     public Width: number
     public Clear: Colour4
 
-    public Texture: WebGLTexture
-    public FrameBuffer: WebGLFramebuffer
-    public RenderBuffer: WebGLRenderbuffer
+    public Texture: WebGLTexture | undefined
+    public FrameBuffer: WebGLFramebuffer | undefined
+    public RenderBuffer: WebGLRenderbuffer | undefined
     
-    public Attribute: ShaderAttribute
-    public BaseUniforms: ShaderBaseUniform
-    public UserUniforms: Map<string, UniformField>
+    public Attribute: ShaderAttribute | undefined
+    public BaseUniforms: ShaderBaseUniform | undefined
+    public UserUniforms: Map<string, UniformField> | undefined
     
     public Filter: boolean
-    public Objects: number[]
+    public Objects: number[] | undefined
 
-    public VertexShader: WebGLShader
-    public FragmentShader: WebGLShader
+    public VertexShader: WebGLShader | undefined
+    public FragmentShader: WebGLShader | undefined
 
     private vertexProgram: string
     private fragmentProgram: string

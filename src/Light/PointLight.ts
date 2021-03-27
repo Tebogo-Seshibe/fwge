@@ -1,18 +1,19 @@
-import Colour4 from '../Colour/Colour4';
-import Vector3 from '../Maths/Vector3';
-import List from '../Utility/List';
+// import Colour4 from '../Colour/Colour4';
+// import Vector3 from '../Maths/Vector3';
+// import List from '../Utility/List';
 import Light, { ShadowQuality } from './Light';
 
 export const MAX_POINT_LIGHT: number = 12
 
-export const PointLights: List<PointLight> = new List<PointLight>(MAX_POINT_LIGHT)
+// export const PointLights: List<PointLight> = new List<PointLight>(MAX_POINT_LIGHT)
+export const PointLights: Array<PointLight> = new Array<PointLight>()
 
 export class IPointLight
 {
     name?: string
-    colour?: Colour4 | number[]
+    colour?: [number, number, number, number]
     intensity?: number
-    position?: Vector3 | number[]
+    position?: [number, number, number]
     radius?: number
     angle?: number
     shadows?: ShadowQuality
@@ -20,7 +21,7 @@ export class IPointLight
 
 export default class PointLight extends Light
 {
-    public Position: Vector3
+    public Position: [number, number, number]
     public Radius: number
     public Angle: number
     public Shadows: ShadowQuality
@@ -40,13 +41,13 @@ export default class PointLight extends Light
     {
         super(name)
 
-        this.Colour = new Colour4([ ...colour ])
+        this.Colour = [ ...colour ]
         this.Intensity = intensity
-        this.Position = new Vector3([ ...position ])
+        this.Position = [ ...position ]
         this.Radius = radius
         this.Angle = angle
         this.Shadows = shadows
 
-        PointLights.Add(this)
+        PointLights.push(this)
     }
 }

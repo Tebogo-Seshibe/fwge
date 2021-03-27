@@ -1,4 +1,3 @@
-import '../Audio/Audio';
 import Updateable from '../Interfaces/Updateable';
 import GameObject from '../Object/GameObject';
 import Item from '../Object/Item';
@@ -100,10 +99,10 @@ export default class Animation extends Item implements Updateable
         else
         {
             this.Parent.Material.Diffuse.Set(
-                this.CurrentFrame.Colour.R * offset,
-                this.CurrentFrame.Colour.G * offset,
-                this.CurrentFrame.Colour.B * offset,
-                this.CurrentFrame.Colour.A * offset
+                this.CurrentFrame.Colour[0] * offset,
+                this.CurrentFrame.Colour[1] * offset,
+                this.CurrentFrame.Colour[2] * offset,
+                this.CurrentFrame.Colour[3] * offset
             )
             
             this.Parent.Transform.Position.Set(

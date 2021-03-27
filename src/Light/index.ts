@@ -3,7 +3,7 @@ import DirectionalLight from "./DirectionalLight"
 import PointLight from "./PointLight"
 import { ShadowQuality } from "./Light"
 
-export 
+export
 {
     AmbientLight,
     DirectionalLight,

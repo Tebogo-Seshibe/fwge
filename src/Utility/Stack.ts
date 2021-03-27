@@ -1,7 +1,7 @@
 class StackNode<T>
 {
 	public Value: T
-	public Predecessor: StackNode<T>
+	public Predecessor: StackNode<T> | undefined
 
 	constructor(value: T, predecessor?: StackNode<T>)
 	{
@@ -12,7 +12,7 @@ class StackNode<T>
 
 export default class Stack<T>
 {
-	private head: StackNode<T>
+	private head: StackNode<T> | undefined
 
 	constructor()
 	{
@@ -32,7 +32,7 @@ export default class Stack<T>
 		}
 	}
 
-	public Peek(): T
+	public Peek(): T | undefined
 	{
 		if (!this.head)
 		{
@@ -42,7 +42,7 @@ export default class Stack<T>
 		return this.head.Value
 	}
 
-	public Pop(): T
+	public Pop(): T | undefined
 	{
 		if (!this.head)
 		{
@@ -59,7 +59,7 @@ export default class Stack<T>
 	{
 		let height: number = 0
 
-		let curr: StackNode<T> = this.head
+		let curr: StackNode<T> | undefined = this.head
 
 		while (curr)
 		{
@@ -71,14 +71,13 @@ export default class Stack<T>
 	}
 
 	public toString(): string
-	{
-		
+	{		
 		if (!this.head)
 		{
 			return '[]'
 		}
 		
-		let curr: StackNode<T> = this.head.Predecessor
+		let curr: StackNode<T> | undefined = this.head.Predecessor
 		let str: string = '[' + this.head.Value
 
 		while (curr)

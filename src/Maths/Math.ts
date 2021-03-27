@@ -38,10 +38,47 @@ export const lerp = (min: number, max: number, time: number): number =>
 
 export const inverseLerp = (min: number, max: number, value: number): number =>
 {
-    return clean(value - min) / (max - min))
+    return clean((value - min) / (max - min))
 }
 
 export const remap = (inputMin: number, inputMax: number, outputMin: number, outputMax: number, inputVal: number): number =>
 {
     return clean(lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, inputVal)))
+}
+
+export const factorial = (n: number): number =>
+{
+    if (n <= 1)
+    {
+        return 1
+    }
+
+    let value = n
+
+    while (--n > 1)
+    {
+        value *= n
+    }
+
+    return value
+}
+
+export const combination = (from: number, choose: number): number =>
+{
+    if (choose > from)
+    {
+        throw 'Choosing more than the maximum provided'
+    }
+
+    return factorial(from) / (factorial(choose) * factorial(from - choose))
+}
+
+export const permutation = (from: number, permute: number): number =>
+{
+    if (permute > from)
+    {
+        throw 'Permuting more than the maximum provided'
+    }
+
+    return factorial(from) / factorial(from - permute)
 }

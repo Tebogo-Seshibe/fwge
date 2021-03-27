@@ -18,9 +18,9 @@ export default class LogicEngine implements IEngine
         
         GameObjects.forEach(gameObject => 
         {
-            gameObject.Update(timekeep.Delta)
-            gameObject.Collider?.Update()
-            gameObject.Animation?.Update(timekeep.Delta)
+            // gameObject.Update(timekeep.Delta)
+            // gameObject.Collider?.Update()
+            // gameObject.Animation?.Update(timekeep.Delta)
         })
     }
 

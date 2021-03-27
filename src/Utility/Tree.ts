@@ -1,8 +1,8 @@
-import List from './List';
+import List from './List'
 
 class TreeNode<T>
 {
-    public Value: T
+    public Value: T | undefined
     public Children: List<TreeNode<T>>
 
     constructor(children: number, value?: T)
@@ -15,7 +15,7 @@ class TreeNode<T>
 export default class Tree<T>
 {
     private readonly size: number
-    private root: TreeNode<T>
+    private root: TreeNode<T> | undefined
 
     constructor(size: number = 0)
     {

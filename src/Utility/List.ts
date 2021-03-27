@@ -1,10 +1,10 @@
 class ListNode<T>
 {
-    public Previous: ListNode<T>
-    public Next: ListNode<T>
-    public Value: T
+    public Previous?: ListNode<T>
+    public Next?: ListNode<T>
+    public Value?: T
 
-    constructor(value: T, previous?: ListNode<T>, next?: ListNode<T>)
+    constructor(value?: T, previous?: ListNode<T>, next?: ListNode<T>)
     {
         this.Previous = previous
         this.Next = next
@@ -14,7 +14,7 @@ class ListNode<T>
 
 export class ListIterator<T> implements IterableIterator<T>
 {
-    private curr: ListNode<T>
+    private curr: ListNode<T> | undefined
 
     constructor(root: ListNode<T>)
     {
@@ -28,7 +28,7 @@ export class ListIterator<T> implements IterableIterator<T>
     
     next(value?: any): IteratorResult<T>
     {
-        let result: IteratorResult<T> = {
+        let result: IteratorResult<T> | undefined = {
             done: !this.curr,
             value: undefined
         }
@@ -58,7 +58,7 @@ export default class List<T> implements Iterable<T>
     [index: number]: T
 
     public readonly Size: number
-    private head: ListNode<T>
+    private head: ListNode<T> | undefined
 
     constructor()
     constructor(size: number)
@@ -86,7 +86,7 @@ export default class List<T> implements Iterable<T>
 
     public get Count(): number
     {
-        let node: ListNode<T> = this.head
+        let node: ListNode<T> | undefined = this.head
         let count: number = 0
 
         while (node)
@@ -100,7 +100,7 @@ export default class List<T> implements Iterable<T>
 
     public Add(value: T): boolean
     public Add(value: T, index: number): boolean
-    public Add(value: T, index?: number): boolean
+    public Add(value: T, index: number = 0): boolean
     {
         if (!this.head)
         {
@@ -113,7 +113,7 @@ export default class List<T> implements Iterable<T>
                 index = this.Count
             }
 
-            let previous = this.head
+            let previous: ListNode<T> | undefined = this.head
             while (previous && --index > 0)
             {
                 previous = previous.Next
@@ -146,14 +146,14 @@ export default class List<T> implements Iterable<T>
         this.AddMany(...values)
     }
 
-    public Get(index: number): T
+    public Get(index: number): T | undefined
     {
         if (index < 0 || index > this.Count)
         {
             return undefined
         }
 
-        let node: ListNode<T> = this.head
+        let node: ListNode<T> | undefined = this.head
 
         while (node && --index >= 0)
         {
@@ -172,7 +172,7 @@ export default class List<T> implements Iterable<T>
     {
         let index = 0
 
-        for (let curr: ListNode<T> = this.head; curr && curr.Value != value; curr = curr.Next)
+        for (let curr: ListNode<T> | undefined = this.head; curr && curr.Value != value; curr = curr.Next)
         {
             ++index
         }
@@ -184,7 +184,7 @@ export default class List<T> implements Iterable<T>
     public Remove(value: T, index: number): boolean
     public Remove(value: T, index?: number): boolean
     {
-        let node: ListNode<T> = this.head
+        let node: ListNode<T> | undefined = this.head
         let found = false
         let count = 0
 
@@ -193,7 +193,7 @@ export default class List<T> implements Iterable<T>
             node = node.Next
             ++count
 
-            if (node.Value == value)
+            if (node!.Value == value)
             {
                 if (index === undefined || index >= count)
                 {
@@ -207,8 +207,8 @@ export default class List<T> implements Iterable<T>
             return false
         }
         
-        node.Previous.Next = node.Next
-        node.Next.Previous = node.Previous
+        node!.Previous!.Next = node.Next
+        node!.Next!.Previous = node.Previous
 
         return true
     }
@@ -242,28 +242,26 @@ export default class List<T> implements Iterable<T>
 
     public toString(): string
     {
-        let count = this.Count
+		if (!this.head)
+		{
+			return '()'
+		}
+		
+		let curr: ListNode<T> | undefined = this.head.Next
+		let str: string = '(' + this.head.Value
 
-        if (count === 0)
-        {
-            return "()"
-        }
+		while (curr)
+		{
+			str += ', ' + curr.Value
+			curr = curr.Next
+		}
+		str += ')'
 
-        let node = this.head.Next
-        let str = "(" + this.head.Value
-
-        while (node)
-        {
-            str += "," + node.Value
-            node = node.Next
-        }
-        str += ")"
-
-        return str
+		return str
     }
 
-    [Symbol.iterator](): IterableIterator<T>
+    [Symbol.iterator](): IterableIterator<ListNode<T | undefined> | undefined>
     {
-        return new ListIterator<T>(this.head)
+        return new ListIterator<ListNode<T> | undefined>(this.head)
     }
 }

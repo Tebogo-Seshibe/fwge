@@ -6,7 +6,7 @@ export const ItemNameGenerator = (function* NameGenerator(name: string, starting
         yield `${name} ${startingIndex++}`
 })('Item', 1)
 
-function hash(number: number): number
+const hash = (number: number): number =>
 {
     const string = number + ''
     var hash = 0
@@ -59,10 +59,10 @@ export default class Item
     constructor()
     constructor(name: string)
     constructor(name: string, tag: string)
-    constructor(name = ItemNameGenerator.next().value || '', tag?: string)
+    constructor(name = ItemNameGenerator.next().value || '', tag: string = 'Default')
     {
         this.ID = hash(ID_COUNTER++)
-        this.Name = name
-        this.Tag = tag
+        this.name = name
+        this.tag = tag
     }
 }

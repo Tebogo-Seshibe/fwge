@@ -14,6 +14,11 @@ export class TimeKeep implements Updateable
     {
         this.period = 1000 / period
         this.Reset()
+
+        this.now = 0
+        this.then = 0
+        this.delta = 0
+        this.ready = false
     }
 
     public Reset(): void
@@ -63,6 +68,12 @@ export default class Time implements IEngine
 {
     public Render: TimeKeep
     public Physics: TimeKeep
+
+    constructor()
+    {
+        this.Render = new TimeKeep(Number.MAX_SAFE_INTEGER)
+        this.Physics = new TimeKeep(Number.MAX_SAFE_INTEGER)
+    }
 
     public Init(render: number, physics: number)
     {

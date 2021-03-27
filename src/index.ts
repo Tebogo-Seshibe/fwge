@@ -1,8 +1,5 @@
-import FWGE from './FWGE'
+// import FWGE from './FWGE'
 
-export * from './Audio/Audio'
-export * from './Animation'
-export * from './Camera'
-export * from './Colour'
+export * from './Light'
 
-export default FWGE
+export default {}

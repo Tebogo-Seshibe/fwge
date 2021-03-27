@@ -2,11 +2,15 @@
     "name": "fwge",
     "version": "1.0.0",
     "description": "Just a thing",
-    "main": "build/index.js",
-    "types": "build/index.d.ts",
-    "author": "Tebogo Christopher Seshibe",
+    "author": {
+        "name": "Tebogo Christopher Seshibe",
+        "email": "tseshibe@gmail.com"
+    },
+    "type": "cpmmonjs",
+    "main": "./dist/",
     "license": "ISC",
     "scripts": {
+        "build": "tsc",
         "test": "nyc --reporter=lcov --reporter=text-summary mocha --require ts-node/register ./src/**/*.test.ts"
     },
     "repository": {

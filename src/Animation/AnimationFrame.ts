@@ -1,12 +1,18 @@
-import { Transform } from "../Object"
-import { Colour4 } from "../Render"
+// import { Transform } from "../Object"
+// import { Colour4 } from "../Render"
 import Cloneable from "../Interfaces/Cloneable"
 
+type Transform = {
+    Position: Float32Array
+    Rotation: Float32Array
+    Scale: Float32Array
+    Shear: Float32Array
+}
 class IAnimationFrame
 {
     length: number
     next?: AnimationFrame
-    colour?: Colour4
+    colour?: Float32Array
     transform?: Transform
 }
 
@@ -17,7 +23,7 @@ export default class AnimationFrame implements Cloneable<AnimationFrame>
     public Length: number
     
     public Next: AnimationFrame
-    public Colour: Colour4
+    public Colour: Float32Array
     public Transform: Transform
     //#endregion
 
@@ -27,8 +33,8 @@ export default class AnimationFrame implements Cloneable<AnimationFrame>
         this.Timestamp = 0
         this.Length = length
         this.Next = next
-        this.Colour = new Colour4(colour)
-        this.Transform = new Transform(transform)
+        this.Colour = new Float32Array(colour)
+        this.Transform = transform
     }
 
     public Clone(): AnimationFrame
