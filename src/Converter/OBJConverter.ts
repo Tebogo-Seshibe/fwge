@@ -14,12 +14,12 @@ export default class OBJConverter implements IConverter
     {
         return new GameObject(
         {
-            mesh: OBJConverter.ParseMesh(obj),
-            material: OBJConverter.ParseRenderMaterial(mtl)
+            mesh: OBJConverter.ParseOBJ(obj),
+            material: OBJConverter.ParseMTL(mtl)
         })
     }    
 
-    public static ParseMesh(obj: string): Mesh
+    public static ParseOBJ(obj: string): Mesh
     {
         let lines: string[] = obj.split('\n')
         
@@ -119,7 +119,7 @@ export default class OBJConverter implements IConverter
         return new Mesh({ name, position, normal, uv, colour, index, wireframe })
     }
             
-    public static ParseRenderMaterial(mtl: string): Material
+    public static ParseMTL(mtl: string): Material
     {
         let lines: string[] = mtl.split('\n')
         let {
