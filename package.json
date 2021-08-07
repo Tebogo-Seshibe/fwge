@@ -6,12 +6,11 @@
         "name": "Tebogo Christopher Seshibe",
         "email": "tseshibe@gmail.com"
     },
-    "type": "cpmmonjs",
-    "main": "./dist/",
     "license": "ISC",
+    "main": "dist/index",
     "scripts": {
         "start": "node app/index.js",
-        "build": "tsc",
+        "build": "npx tsc",
         "test": "nyc --reporter=lcov --reporter=text-summary mocha --require ts-node/register ./src/**/*.test.ts"
     },
     "repository": {

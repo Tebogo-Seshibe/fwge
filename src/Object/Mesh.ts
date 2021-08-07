@@ -12,7 +12,7 @@ enum BufferType
     POSITION
 }
 
-export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
+export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer | null
 {
     if (!data || data.length <= 0)
         return null
@@ -35,7 +35,7 @@ export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer
     return buffer
 }
 
-export class IMesh
+export interface IMesh
 {
     name?: string
     position: Float32Array[] | Float32Array | number[][] | number[]
@@ -48,16 +48,16 @@ export class IMesh
 
 export default class Mesh extends Item
 {
-    public readonly PositionBuffer: WebGLBuffer
-    public readonly UVBuffer: WebGLBuffer
-    public readonly ColourBuffer: WebGLBuffer
-    public readonly NormalBuffer: WebGLBuffer
-    public readonly IndexBuffer: WebGLBuffer
-    public readonly WireframeBuffer: WebGLBuffer
+    public readonly PositionBuffer: WebGLBuffer | null = null
+    public readonly UVBuffer: WebGLBuffer | null = null
+    public readonly ColourBuffer: WebGLBuffer | null = null
+    public readonly NormalBuffer: WebGLBuffer | null = null
+    public readonly IndexBuffer: WebGLBuffer | null = null
+    public readonly WireframeBuffer: WebGLBuffer | null = null
     public readonly VertexCount: number
     public readonly WireframeCount: number
 
-    constructor({ name = 'Mesh', position = [], uv = [], colour = [], normal = [], index = [], wireframe = [] }: IMesh = new IMesh)
+    constructor({ name = 'Mesh', position = [], uv = [], colour = [], normal = [], index = [], wireframe = [] }: IMesh)
     {
         super(name)
 

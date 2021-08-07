@@ -2,12 +2,12 @@ import { GL } from "../../FWGE";
 
 export class MatrixUniform
 {
-    public readonly Model: WebGLUniformLocation
-    public readonly Projection: WebGLUniformLocation
-    public readonly Normal: WebGLUniformLocation
-    public readonly View: WebGLUniformLocation
+    public readonly Model: WebGLUniformLocation | null
+    public readonly Projection: WebGLUniformLocation | null
+    public readonly Normal: WebGLUniformLocation | null
+    public readonly View: WebGLUniformLocation | null
 
-    constructor(mv: WebGLUniformLocation, p: WebGLUniformLocation, n: WebGLUniformLocation, c: WebGLUniformLocation)
+    constructor(mv: WebGLUniformLocation | null, p: WebGLUniformLocation | null, n: WebGLUniformLocation | null, c: WebGLUniformLocation | null)
     {
         this.Model = mv
         this.Projection = p
@@ -18,11 +18,11 @@ export class MatrixUniform
 
 export class DirectionalLightUniform
 {
-    public readonly Colour: WebGLUniformLocation
-    public readonly Intensity: WebGLUniformLocation
-    public readonly Direction: WebGLUniformLocation
+    public readonly Colour: WebGLUniformLocation | null
+    public readonly Intensity: WebGLUniformLocation | null
+    public readonly Direction: WebGLUniformLocation | null
     
-    constructor(c: WebGLUniformLocation, i: WebGLUniformLocation, d: WebGLUniformLocation)
+    constructor(c: WebGLUniformLocation | null, i: WebGLUniformLocation | null, d: WebGLUniformLocation | null)
     {
         this.Colour = c
         this.Intensity = i
@@ -32,13 +32,13 @@ export class DirectionalLightUniform
 
 export class PointLightUniform
 {
-    public readonly Colour: WebGLUniformLocation
-    public readonly Intensity: WebGLUniformLocation
-    public readonly Position: WebGLUniformLocation
-    public readonly Radius: WebGLUniformLocation
-    public readonly Angle: WebGLUniformLocation
+    public readonly Colour: WebGLUniformLocation | null
+    public readonly Intensity: WebGLUniformLocation | null
+    public readonly Position: WebGLUniformLocation | null
+    public readonly Radius: WebGLUniformLocation | null
+    public readonly Angle: WebGLUniformLocation | null
 
-    constructor(c: WebGLUniformLocation, i: WebGLUniformLocation, p: WebGLUniformLocation, r: WebGLUniformLocation, a: WebGLUniformLocation)
+    constructor(c: WebGLUniformLocation | null, i: WebGLUniformLocation | null, p: WebGLUniformLocation | null, r: WebGLUniformLocation | null, a: WebGLUniformLocation | null)
     {
         this.Colour = c
         this.Intensity = i
@@ -50,17 +50,17 @@ export class PointLightUniform
 
 export class MaterialUniform
 {
-    public readonly AmbientColour: WebGLUniformLocation
-    public readonly DiffuseColour: WebGLUniformLocation
-    public readonly SpecularColour: WebGLUniformLocation
-    public readonly Shininess: WebGLUniformLocation
-    public readonly Alpha: WebGLUniformLocation
+    public readonly AmbientColour: WebGLUniformLocation | null
+    public readonly DiffuseColour: WebGLUniformLocation | null
+    public readonly SpecularColour: WebGLUniformLocation | null
+    public readonly Shininess: WebGLUniformLocation | null
+    public readonly Alpha: WebGLUniformLocation | null
 
-    public readonly ImageSampler: WebGLUniformLocation
-    public readonly BumpSampler: WebGLUniformLocation
-    public readonly SpecularSampler: WebGLUniformLocation
+    public readonly ImageSampler: WebGLUniformLocation | null
+    public readonly BumpSampler: WebGLUniformLocation | null
+    public readonly SpecularSampler: WebGLUniformLocation | null
     
-    constructor(ac: WebGLUniformLocation, dc: WebGLUniformLocation, sc: WebGLUniformLocation, s: WebGLUniformLocation, a: WebGLUniformLocation, is: WebGLUniformLocation, bs: WebGLUniformLocation, ss: WebGLUniformLocation)
+    constructor(ac: WebGLUniformLocation | null, dc: WebGLUniformLocation | null, sc: WebGLUniformLocation | null, s: WebGLUniformLocation | null, a: WebGLUniformLocation | null, is: WebGLUniformLocation | null, bs: WebGLUniformLocation | null, ss: WebGLUniformLocation | null)
     {
         this.AmbientColour = ac
         this.DiffuseColour = dc
@@ -75,16 +75,16 @@ export class MaterialUniform
 
 export class GlobalUniform
 {
-    public readonly Time: WebGLUniformLocation
-    public readonly Resolution: WebGLUniformLocation
+    public readonly Time: WebGLUniformLocation | null
+    public readonly Resolution: WebGLUniformLocation | null
 
-    public readonly NearClip: WebGLUniformLocation
-    public readonly FarClip: WebGLUniformLocation
+    public readonly NearClip: WebGLUniformLocation | null
+    public readonly FarClip: WebGLUniformLocation | null
 
-    public readonly ObjectID: WebGLUniformLocation
-    public readonly ObjectCount: WebGLUniformLocation
+    public readonly ObjectID: WebGLUniformLocation | null
+    public readonly ObjectCount: WebGLUniformLocation | null
     
-    constructor(t: WebGLUniformLocation, r: WebGLUniformLocation, n: WebGLUniformLocation, f: WebGLUniformLocation, oid: WebGLUniformLocation, oc: WebGLUniformLocation)
+    constructor(t: WebGLUniformLocation | null, r: WebGLUniformLocation | null, n: WebGLUniformLocation | null, f: WebGLUniformLocation | null, oid: WebGLUniformLocation | null, oc: WebGLUniformLocation | null)
     {
         this.Time = t
         this.Resolution = r
@@ -103,9 +103,9 @@ export default class ShaderBaseUniform
     public readonly Matrix: MatrixUniform
     public readonly Material: MaterialUniform
     public readonly DirectionalLights: DirectionalLightUniform[]
-    public readonly DirectionalLightCount: WebGLUniformLocation
+    public readonly DirectionalLightCount: WebGLUniformLocation | null
     public readonly PointLights: PointLightUniform[]
-    public readonly PointLightCount: WebGLUniformLocation
+    public readonly PointLightCount: WebGLUniformLocation | null
     public readonly Global: GlobalUniform    
 
     constructor(program: WebGLProgram)

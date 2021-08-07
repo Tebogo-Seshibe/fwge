@@ -111,8 +111,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
     constructor(array: Float32Array)
     constructor(array: number[])
-    constructor(list: List<number>)
-    constructor(m11?: number | Float32Array | number[] | List<number>, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
+    constructor(m11?: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
     {
         super(9)
 
@@ -121,9 +120,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
             if (typeof m11 === 'number')
             {
                 this.Set(
-                    m11, m12, m13,
-                    m21, m22, m23,
-                    m31, m32, m33
+                    m11, m12!, m13!,
+                    m21!, m22!, m23!,
+                    m31!, m32!, m33!
                 )
             }
             else 
@@ -136,8 +135,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     public Set(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
     public Set(array: Float32Array): Matrix3
     public Set(array: number[]): Matrix3
-    public Set(list: List<number>): Matrix3
-    public Set(m11: number | Float32Array | number[] | List<number>, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    public Set(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
     {
         [
             m11, m12, m13,
@@ -167,8 +165,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     public Sum(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
     public Sum(array: Float32Array): Matrix3
     public Sum(array: number[]): Matrix3
-    public Sum(list: List<number>): Matrix3
-    public Sum(m11: number | Float32Array | number[] | List<number>, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    public Sum(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
     {
         [
             m11, m12, m13,
@@ -198,8 +195,7 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     public Mult(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
     public Mult(array: Float32Array): Matrix3
     public Mult(array: number[]): Matrix3
-    public Mult(list: List<number>): Matrix3
-    public Mult(m11: number | Float32Array | number[] | List<number>, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    public Mult(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
     {
         [
             m11, m12, m13,
@@ -312,9 +308,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
     //#endregion
 
     //#region Static Helpers
-    private static Destructure(m11: number | Float32Array | number[] | List<number>, m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number[]
+    private static Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number[]
     {
-        if (m11 instanceof Float32Array || m11 instanceof Array || m11 instanceof List)
+        if (m11 instanceof Float32Array || m11 instanceof Array)
         {
             [
                 m11, m12, m13,
@@ -324,9 +320,9 @@ export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
         }
 
         return [
-            m11, m12, m13,
-            m21, m22, m23,
-            m31, m32, m33
+            m11, m12!, m13!,
+            m21!, m22!, m23!,
+            m31!, m32!, m33!
         ]
     }
     //#endregion

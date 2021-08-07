@@ -179,7 +179,7 @@ export class ShaderNode
     public Inputs: ShaderNode[]
     public Output: ShaderField
 
-    constructor(name: string, content: ShaderField[], output: ShaderField, inputs?: ShaderNode[])
+    constructor(name: string, content: ShaderField[], output: ShaderField, inputs: ShaderNode[] = [])
     {
         this.Name = name
         this.Content = content

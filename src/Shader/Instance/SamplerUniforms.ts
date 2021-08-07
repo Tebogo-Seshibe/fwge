@@ -1,8 +1,8 @@
 export default class SamplerUniforms
 {
-    public readonly Image: WebGLUniformLocation
-    public readonly Bump: WebGLUniformLocation
-    public readonly Specular: WebGLUniformLocation
+    public readonly Image: WebGLUniformLocation | null
+    public readonly Bump: WebGLUniformLocation | null
+    public readonly Specular: WebGLUniformLocation | null
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

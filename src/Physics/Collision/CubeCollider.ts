@@ -50,6 +50,6 @@ export default class CubeCollider extends Collider
 
     public Update(): void
     {
-        this.position.Set(this.Parent.Transform.Position).Sum(this.Offset)
+        this.position.Set(this.Parent!.Transform.Position).Sum(this.Offset)
     }
 }

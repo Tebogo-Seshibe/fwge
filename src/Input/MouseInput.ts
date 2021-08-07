@@ -56,7 +56,7 @@ export default class MouseInput
     }
     //#endregion
 
-    constructor(element: HTMLCanvasElement)
+    Init(element: HTMLCanvasElement)
     {
         this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
         element.onresize = (_: UIEvent) => this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
@@ -68,7 +68,7 @@ export default class MouseInput
         
         element.onclick = element.ondblclick
                         = element.oncontextmenu
-                        = undefined
+                        = null
 
         element.onmouseup = (e: MouseEvent) =>
         {

@@ -4,15 +4,12 @@
         "declaration": true,
         "sourceMap": true,
         "module": "commonjs",
-        "rootDir": "./src",
-        "outDir": "./dist",
         "esModuleInterop": true,
-        // "noImplicitAny": true,
-        // "strict": true,
-        "watch": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "rootDir": "./src/",
+        "outDir": "./dist",
+        "watch": true
     },
-    "compileOnSave": true,
-    "include": [
-        "./src/index.ts"
-    ]
+    "compileOnSave": true
 }

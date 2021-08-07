@@ -169,6 +169,6 @@ export default class OBJConverter implements IConverter
             }
         }
 
-        return new Material({ name, shininess, ambient, diffuse, specular, alpha, imagemap, shader: null })
+        return new Material({ name, shininess, ambient, diffuse, specular, alpha, imagemap })
     }
 }

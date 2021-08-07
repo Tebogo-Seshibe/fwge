@@ -1,7 +1,7 @@
 import Vector3 from '../../Maths/Vector3';
 import Collider, { ICollider } from './Collider';
 
-export class ISphereCollider extends ICollider
+export interface ISphereCollider extends ICollider
 {
     radius: number
     offset: Vector3 | Float32Array | number[]
@@ -16,12 +16,11 @@ export default class SphereCollider extends Collider
     
     public get Position(): Vector3
     {
-        return this.Parent.Transform.Position.Clone().Sum(this.Offset)
+        return this.Parent!.Transform.Position.Clone().Sum(this.Offset)
     }
 
-    constructor()
     constructor(sphereCollider: ISphereCollider)
-    constructor({ name = 'Sphere Collider', offset = [0, 0, 0], scale = [1, 1, 1], radius = 1.0 }: ISphereCollider = new ISphereCollider)
+    constructor({ name = 'Sphere Collider', offset = [0, 0, 0], scale = [1, 1, 1], radius = 1.0 }: ISphereCollider)
     {
         super({ name })
 

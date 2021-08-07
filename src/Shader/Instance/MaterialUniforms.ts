@@ -1,13 +1,13 @@
 export default class MaterialUniforms
 {
-    public readonly Ambient: WebGLUniformLocation
-    public readonly Diffuse: WebGLUniformLocation
-    public readonly Specular: WebGLUniformLocation
-    public readonly Shininess: WebGLUniformLocation
-    public readonly Alpha: WebGLUniformLocation
-    public readonly HasImage: WebGLUniformLocation
-    public readonly HasBump: WebGLUniformLocation
-    public readonly HasSpecular: WebGLUniformLocation
+    public readonly Ambient: WebGLUniformLocation | null
+    public readonly Diffuse: WebGLUniformLocation | null
+    public readonly Specular: WebGLUniformLocation | null
+    public readonly Shininess: WebGLUniformLocation | null
+    public readonly Alpha: WebGLUniformLocation | null
+    public readonly HasImage: WebGLUniformLocation | null
+    public readonly HasBump: WebGLUniformLocation | null
+    public readonly HasSpecular: WebGLUniformLocation | null
     
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

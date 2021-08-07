@@ -213,10 +213,10 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
             if (typeof m11 === 'number')
             {
                 this.Set(
-                    m11, m12, m13, m14,
-                    m21, m22, m23, m24,
-                    m31, m32, m33, m34,
-                    m41, m42, m43, m44
+                    m11, m12!, m13!, m14!,
+                    m21!, m22!, m23!, m24!,
+                    m31!, m32!, m33!, m34!,
+                    m41!, m42!, m43!, m44!
                 )
             }
             else 
@@ -560,10 +560,10 @@ export default class Matrix4 extends Float32Array implements Cloneable<Matrix4>
         }
 
         return [
-            m11, m12, m13, m14,
-            m21, m22, m23, m24,
-            m31, m32, m33, m34,
-            m41, m42, m43, m44
+            m11, m12!, m13!, m14!,
+            m21!, m22!, m23!, m24!,
+            m31!, m32!, m33!, m34!,
+            m41!, m42!, m43!, m44!
         ]
     }
     //#endregion

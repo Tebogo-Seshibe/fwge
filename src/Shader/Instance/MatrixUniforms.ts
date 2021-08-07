@@ -1,9 +1,9 @@
 export default class MatrixUniforms
 {
-    public readonly ModelView: WebGLUniformLocation
-    public readonly Projection: WebGLUniformLocation
-    public readonly Normal: WebGLUniformLocation
-    public readonly Camera: WebGLUniformLocation
+    public readonly ModelView: WebGLUniformLocation | null
+    public readonly Projection: WebGLUniformLocation | null
+    public readonly Normal: WebGLUniformLocation | null
+    public readonly Camera: WebGLUniformLocation | null
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

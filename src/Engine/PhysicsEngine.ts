@@ -114,10 +114,13 @@ function MapCollisions()
         
         others.forEach(next => 
         {
-            let { other, state }: CollidedItem = collisions.has(curr)
-                ? collisions.get(curr)
-                : { other: next, state: CollisionState.NONE }
-
+            let { other, state }: CollidedItem = { other: next, state: CollisionState.NONE }
+            if (collisions.has(curr))
+            {
+                other = collisions.get(curr)!.other
+                state = collisions.get(curr)!.state
+            }
+            
             if (state === undefined)
             {
                 state = CollisionState.NONE
@@ -173,10 +176,10 @@ function RunCollisions()
         {
             x: (<SphereCollider>orig).Position.X,
             y: (<SphereCollider>orig).Position.Y,
-            mass: (<SphereCollider>orig).Parent.RigidBody.Mass,
+            mass: (<SphereCollider>orig).Parent!.RigidBody!.Mass,
             velocity: {
-                x: (<SphereCollider>orig).Parent.RigidBody.Velocity.X,
-                y: (<SphereCollider>orig).Parent.RigidBody.Velocity.Y
+                x: (<SphereCollider>orig).Parent!.RigidBody!.Velocity.X,
+                y: (<SphereCollider>orig).Parent!.RigidBody!.Velocity.Y
             }
         }
 
@@ -184,32 +187,32 @@ function RunCollisions()
         {
             x: (<SphereCollider>other).Position.X,
             y: (<SphereCollider>other).Position.Y,
-            mass: (<SphereCollider>other).Parent.RigidBody.Mass,
+            mass: (<SphereCollider>other).Parent!.RigidBody!.Mass,
             velocity: {
-                x: (<SphereCollider>other).Parent.RigidBody.Velocity.X,
-                y: (<SphereCollider>other).Parent.RigidBody.Velocity.Y
+                x: (<SphereCollider>other).Parent!.RigidBody!.Velocity.X,
+                y: (<SphereCollider>other).Parent!.RigidBody!.Velocity.Y
             }
         }
 
         switch (state)
         {
             case CollisionState.BEGIN:
-                orig.Parent.OnCollisionBegin(other)
+                orig.Parent!.OnCollisionBegin(other)
                 resolveCollision(left, right)
                 break
                 
             case CollisionState.CONTINUE:
-                orig.Parent.OnCollisionUpdate(other)
+                orig.Parent!.OnCollisionUpdate(other)
                 resolveCollision(left, right)
                 break
 
             case CollisionState.END:
-                orig.Parent.OnCollisionEnd(other)
+                orig.Parent!.OnCollisionEnd(other)
                 break
         }
 
-        (<SphereCollider>orig).Parent.RigidBody.Velocity.Set(left.velocity.x, left.velocity.y, 0);
-        (<SphereCollider>other).Parent.RigidBody.Velocity.Set(right.velocity.x, right.velocity.y, 0);
+        (<SphereCollider>orig).Parent!.RigidBody!.Velocity.Set(left.velocity.x, left.velocity.y, 0);
+        (<SphereCollider>other).Parent!.RigidBody!.Velocity.Set(right.velocity.x, right.velocity.y, 0);
     }
 }
 
@@ -217,11 +220,11 @@ function RunMaths(delta: number)
 {
     GameObjects.filter(g => 
     {
-        return g.RigidBody !== undefined
+        return g.RigidBody! !== undefined
     }).
     forEach(g =>
     { 
-        let velocity = g.RigidBody.Velocity.Clone();
+        let velocity = g.RigidBody!.Velocity.Clone();
         velocity.Scale(1/delta)
 
         g.Transform.Position.Sum(velocity)

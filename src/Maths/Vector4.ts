@@ -57,8 +57,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     constructor(x: number, y: number, z: number, w: number)
     constructor(array: Float32Array)
     constructor(array: number[])
-    constructor(list: List<number>)
-    constructor(x?: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number)
+    constructor(x?: number | Float32Array | number[], y?: number, z?: number, w?: number)
     {
         super(4)
 
@@ -66,7 +65,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
         {
             if (typeof x === 'number')
             {
-                this.Set(x, y, z, w)
+                this.Set(x, y!, z!, w!)
             }
             else
             {
@@ -78,8 +77,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Set(x: number, y: number, z: number, w: number): Vector4
     public Set(array: Float32Array): Vector4
     public Set(array: number[]): Vector4
-    public Set(list: List<number>): Vector4
-    public Set(x?: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): Vector4
+    public Set(x: number | Float32Array | number[], y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -94,8 +92,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Sum(x: number, y: number, z: number, w: number): Vector4
     public Sum(array: Float32Array): Vector4
     public Sum(array: number[]): Vector4
-    public Sum(list: List<number>): Vector4
-    public Sum(x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): Vector4
+    public Sum(x: number | Float32Array | number[], y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -110,8 +107,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Diff(x: number, y: number, z: number, w: number): Vector4
     public Diff(array: Float32Array): Vector4
     public Diff(array: number[]): Vector4
-    public Diff(list: List<number>): Vector4
-    public Diff(x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): Vector4
+    public Diff(x: number | Float32Array | number[], y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -131,8 +127,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Mult(x: number, y: number, z: number, w: number): Vector4
     public Mult(array: Float32Array): Vector4
     public Mult(array: number[]): Vector4
-    public Mult(list: List<number>): Vector4
-    public Mult(x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): Vector4
+    public Mult(x: number | Float32Array | number[], y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -142,8 +137,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Dot(x: number, y: number, z: number, w: number): number
     public Dot(array: Float32Array): number
     public Dot(array: number[]): number
-    public Dot(list: List<number>): number
-    public Dot(x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): number
+    public Dot(x: number | Float32Array | number[], y?: number, z?: number, w?: number): number
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -153,8 +147,7 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     public Lerp(time: number, x: number, y: number, z: number, w: number): Vector4
     public Lerp(time: number, array: Float32Array): Vector4
     public Lerp(time: number, array: number[]): Vector4
-    public Lerp(time: number, list: List<number>): Vector4
-    public Lerp(time: number, x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): Vector4
+    public Lerp(time: number, x: number | Float32Array | number[], y?: number, z?: number, w?: number): Vector4
     {
         [ x, y, z, w ] = Vector4.Destructure(x, y, z, w)
 
@@ -202,14 +195,14 @@ export default class Vector4 extends Float32Array implements Cloneable<Vector4>
     //#endregion    
 
     //#region Static Helpers
-    private static Destructure(x: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number): number[]
+    private static Destructure(x: number | Float32Array | number[], y?: number, z?: number, w?: number): number[]
     {
-        if (x instanceof Float32Array || x instanceof Array || x instanceof List)
+        if (x instanceof Float32Array || x instanceof Array)
         {
             [ x, y, z, w ] = x
         }
 
-        return [ x, y, z, w ]
+        return [ x, y!, z!, w! ]
     }
     //#endregion
 }

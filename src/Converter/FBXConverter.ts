@@ -5,6 +5,6 @@ export default class FBXConverter implements IConverter
 {
     public Parse(fbx: string): GameObject
     {
-        return null
+        return new GameObject({})
     }
 }

@@ -12,48 +12,48 @@ class ListNode<T>
     }
 }
 
-export class ListIterator<T> implements IterableIterator<T>
-{
-    private curr: ListNode<T> | undefined
+// export class ListIterator<T> implements IterableIterator<T>
+// {
+//     private curr: ListNode<T> | undefined
 
-    constructor(root: ListNode<T>)
-    {
-        this.curr = root
-    }
+//     constructor(root: ListNode<T>)
+//     {
+//         this.curr = root
+//     }
 
-    [Symbol.iterator](): ListIterator<T>
-    {
-        return this
-    }
+//     [Symbol.iterator](): ListIterator<T>
+//     {
+//         return this
+//     }
     
-    next(value?: any): IteratorResult<T>
-    {
-        let result: IteratorResult<T> | undefined = {
-            done: !this.curr,
-            value: undefined
-        }
+//     next(value?: any): IteratorResult<T>
+//     {
+//         let result: IteratorResult<T> | undefined = {
+//             done: this.curr === undefined,
+//             value: undefined
+//         }
 
-        if (this.curr)
-        {
-            result.value = this.curr.Value
-            this.curr = this.curr.Next
-        }
+//         if (this.curr)
+//         {
+//             result.value = this.curr.Value
+//             this.curr = this.curr.Next
+//         }
 
-        return result
-    }
+//         return result
+//     }
     
-    return?(value?: any): IteratorResult<T>
-    {
-        return this.next(value)
-    }
+//     return?(value?: any): IteratorResult<T>
+//     {
+//         return this.next(value)
+//     }
 
-    throw?(e?: any): IteratorResult<T>
-    {
-        throw new Error(e)
-    }    
-}
+//     throw?(e?: any): IteratorResult<T>
+//     {
+//         throw new Error(e)
+//     }    
+// }
 
-export default class List<T> implements Iterable<T>
+export default class List<T> //implements Iterable<T>
 {
     [index: number]: T
 
@@ -143,7 +143,7 @@ export default class List<T> implements Iterable<T>
     public AddRange(values: List<T>): void
     public AddRange(values: T[] | List<T>): void
     {
-        this.AddMany(...values)
+        // this.AddMany(...values)
     }
 
     public Get(index: number): T | undefined
@@ -225,17 +225,17 @@ export default class List<T> implements Iterable<T>
     public RemoveRange(values: List<T>): void
     public RemoveRange(values: T[] | List<T>): void
     {
-        this.RemoveMany(...values)
+        // this.RemoveMany(...values)
     }    
 
     public ToArray(): T[]
     {
         let array: T[] = new Array<T>()
 
-        for (let value of this)
-        {
-            array.push(value)
-        }
+        // for (let value of this)
+        // {
+        //     array.push(value)
+        // }
 
         return array
     }
@@ -260,8 +260,8 @@ export default class List<T> implements Iterable<T>
 		return str
     }
 
-    [Symbol.iterator](): IterableIterator<ListNode<T | undefined> | undefined>
-    {
-        return new ListIterator<ListNode<T> | undefined>(this.head)
-    }
+    // [Symbol.iterator](): IterableIterator<ListNode<T | undefined> | undefined>
+    // {
+    //     return new ListIterator<ListNode<T> | undefined>(this.head)
+    // }
 }

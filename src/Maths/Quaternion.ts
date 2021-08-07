@@ -7,8 +7,7 @@ export class Quaternion extends Vector4
     constructor(x: number, y: number, z: number, w: number)
     constructor(array: Float32Array)
     constructor(array: number[])
-    constructor(list: List<number>)
-    constructor(x?: number | Float32Array | number[] | List<number>, y?: number, z?: number, w?: number)
+    constructor(x?: number | Float32Array | number[], y?: number, z?: number, w?: number)
     {
         super()
         
@@ -16,7 +15,7 @@ export class Quaternion extends Vector4
         {
             if (typeof x === 'number')
             {
-                this.Set(x, y, z, w)
+                this.Set(x, y!, z!, w!)
             }
             else
             {

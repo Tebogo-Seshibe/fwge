@@ -1,7 +1,7 @@
-import LightUniforms from './LightUniforms';
-import MaterialUniforms from './MaterialUniforms';
-import MatrixUniforms from './MatrixUniforms';
-import SamplerUniforms from './SamplerUniforms';
+import LightUniforms from './LightUniforms'
+import MaterialUniforms from './MaterialUniforms'
+import MatrixUniforms from './MatrixUniforms'
+import SamplerUniforms from './SamplerUniforms'
 
 export default class ShaderUniforms
 {
@@ -10,8 +10,8 @@ export default class ShaderUniforms
     public readonly Light: LightUniforms
     public readonly Sampler: SamplerUniforms
     
-    public readonly Time: WebGLUniformLocation
-    public readonly Resolution: WebGLUniformLocation
+    public readonly Time: WebGLUniformLocation | null
+    public readonly Resolution: WebGLUniformLocation | null
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

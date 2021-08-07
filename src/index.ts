@@ -1,5 +1,19 @@
-// import FWGE from './FWGE'
-
+export * from './Animation'
+// export * from './Audio'
+export * from './Camera'
+export * from './Colour'
+export * from './Converter'
+// export * from './Engine'
+export * from './Input'
+export * from './Interfaces'
 export * from './Light'
+export * from './Maths'
+export * from './Object'
+export * from './Particle System'
+// export * from './Physics'
+export * from './Render'
+// export * from './Shader'
+export * from './Utility'
+export * from './FWGE'
 
 export default {}

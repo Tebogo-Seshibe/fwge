@@ -37,8 +37,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     constructor(x: number, y: number)
     constructor(array: Float32Array)
     constructor(array: number[])
-    constructor(list: List<number>)
-    constructor(x?: number | Float32Array | number[] | List<number>, y?: number)
+    constructor(x?: number | Float32Array | number[], y?: number)
     {
         super(2)
 
@@ -46,7 +45,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
         {
             if (typeof x === 'number')
             {
-                this.Set(x, y)                    
+                this.Set(x, y!)                    
             }
             else
             {
@@ -58,8 +57,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Set(x: number, y: number): Vector2
     public Set(array: Float32Array): Vector2
     public Set(array: number[]): Vector2
-    public Set(list: List<number>): Vector2
-    public Set(x: number | Float32Array | number[] | List<number>, y?: number): Vector2
+    public Set(x: number | Float32Array | number[], y?: number): Vector2
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -72,8 +70,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Sum(x: number, y: number): Vector2
     public Sum(array: Float32Array): Vector2
     public Sum(array: number[]): Vector2
-    public Sum(list: List<number>): Vector2
-    public Sum(x: number | Float32Array | number[] | List<number>, y?: number): Vector2
+    public Sum(x: number | Float32Array | number[], y?: number): Vector2
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -86,8 +83,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Diff(x: number, y: number): Vector2
     public Diff(array: Float32Array): Vector2
     public Diff(array: number[]): Vector2
-    public Diff(list: List<number>): Vector2
-    public Diff(x: number | Float32Array | number[] | List<number>, y?: number): Vector2
+    public Diff(x: number | Float32Array | number[], y?: number): Vector2
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -100,8 +96,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Mult(x: number, y: number): Vector2
     public Mult(array: Float32Array): Vector2
     public Mult(array: number[]): Vector2
-    public Mult(list: List<number>): Vector2
-    public Mult(x: number | Float32Array | number[] | List<number>, y?: number): Vector2
+    public Mult(x: number | Float32Array | number[], y?: number): Vector2
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -116,8 +111,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Dot(x: number, y: number): number
     public Dot(array: Float32Array): number
     public Dot(array: number[]): number
-    public Dot(list: List<number>): number
-    public Dot(x: number | Float32Array | number[] | List<number>, y?: number): number
+    public Dot(x: number | Float32Array | number[], y?: number): number
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -127,8 +121,7 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     public Lerp(time: number, x: number, y: number): Vector2
     public Lerp(time: number, array: Float32Array): Vector2
     public Lerp(time: number, array: number[]): Vector2
-    public Lerp(time: number, list: List<number>): Vector2
-    public Lerp(time: number, x: number | Float32Array | number[] | List<number>, y?: number): Vector2
+    public Lerp(time: number, x: number | Float32Array | number[], y?: number): Vector2
     {
         [ x, y ] = Vector2.Destructure(x, y)
 
@@ -174,14 +167,14 @@ export default class Vector2 extends Float32Array implements Cloneable<Vector2>
     //#endregion
 
     //#region Static Helpers
-    private static Destructure(x: number | Float32Array | number[] | List<number>, y?: number): number[]
+    private static Destructure(x: number | Float32Array | number[], y?: number): number[]
     {
-        if (x instanceof Float32Array || x instanceof List || x instanceof Array)
+        if (x instanceof Float32Array || x instanceof Array)
         {
             [ x, y ] = x
         }
 
-        return [ x, y ]
+        return [ x, y! ]
     }
     //#endregion
 }

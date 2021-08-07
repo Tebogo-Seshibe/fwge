@@ -1,5 +1,5 @@
-import Updateable from '../Interfaces/Updateable';
-import IEngine from '../Engine/IEngine';
+import IEngine from '../Engine/IEngine'
+import Updateable from '../Interfaces/Updateable'
 
 export class TimeKeep implements Updateable
 {

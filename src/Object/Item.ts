@@ -25,35 +25,27 @@ export default class Item
 {
     public readonly ID: number
 
-    private name: string
-    private tag: string
+    private _name: string
+    private _tag: string
 
     public get Name(): string
     {
-        return this.name
+        return this._name
     }
 
     public set Name(name: string)
     {
-        // names.delete(this.name)
-
-        this.name = name
-
-        // names.set(this.name, this)
+        this._name = name
     }
 
     public get Tag(): string
     {
-        return this.tag
+        return this._tag
     }
 
     public set Tag(tag: string)
     {
-        // const arr = tags.get(tag)
-        // arr?.splice(arr?.indexOf(this))
-
-        this.tag = tag
-        // tags.set(this.tag, [...tags.get(tag) || [], this])
+        this._tag = tag
     }
 
     constructor()
@@ -62,7 +54,7 @@ export default class Item
     constructor(name = ItemNameGenerator.next().value || '', tag: string = 'Default')
     {
         this.ID = hash(ID_COUNTER++)
-        this.name = name
-        this.tag = tag
+        this._name = name
+        this._tag = tag
     }
 }

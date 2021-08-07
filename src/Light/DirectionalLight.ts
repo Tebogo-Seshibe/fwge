@@ -11,26 +11,23 @@ export const DirectionalLights: Array<DirectionalLight> = new Array<DirectionalL
 export class IDirectionalLight
 {
     name?: string
-    colour?: [number, number, number, number]
+    colour?: number[] | Float32Array
     intensity?: number
-    direction?: [number, number, number]
+    direction?: number[] | Float32Array
     shadows?: ShadowQuality
 }
 
 export default class DirectionalLight extends Light
 {
-    public Direction: [number, number, number]
+    public Direction: number[]
 
     constructor()
     constructor(ambientLight: IDirectionalLight)
     constructor({ name = 'Ambient Light', colour = [1, 1, 1, 1], intensity = 1 , direction = [0, 0, 1], shadows = ShadowQuality.NONE }: IDirectionalLight = new IDirectionalLight)
     {
-        super(name)
-
-        this.Colour = [ ...colour ]
-        this.Intensity = intensity
+        super(name, colour, intensity, shadows)
+        
         this.Direction = [ ...direction ]
-        this.Shadows = shadows
 
         DirectionalLights.push(this)
     }

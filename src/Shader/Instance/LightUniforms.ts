@@ -8,7 +8,7 @@ export default class LightUniforms
     
     public readonly Ambient: AmbientUniforms
     public readonly Directional: DirectionalUniforms
-    public readonly PointCount: WebGLUniformLocation
+    public readonly PointCount: WebGLUniformLocation | null
     public readonly Point: Array<PointUniform>
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)

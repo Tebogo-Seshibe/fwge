@@ -8,7 +8,7 @@ type Transform = {
     Scale: Float32Array
     Shear: Float32Array
 }
-class IAnimationFrame
+interface IAnimationFrame
 {
     length: number
     next?: AnimationFrame
@@ -22,9 +22,9 @@ export default class AnimationFrame implements Cloneable<AnimationFrame>
     public Timestamp: number
     public Length: number
     
-    public Next: AnimationFrame
-    public Colour: Float32Array
-    public Transform: Transform
+    public Next?: AnimationFrame
+    public Colour?: Float32Array
+    public Transform?: Transform
     //#endregion
 
     //#region Public Properties
@@ -33,7 +33,7 @@ export default class AnimationFrame implements Cloneable<AnimationFrame>
         this.Timestamp = 0
         this.Length = length
         this.Next = next
-        this.Colour = new Float32Array(colour)
+        this.Colour = colour
         this.Transform = transform
     }
 

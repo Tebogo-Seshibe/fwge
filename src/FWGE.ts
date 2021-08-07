@@ -26,9 +26,9 @@ interface IFWGE
 
 export const names: Map<string, Item> = new Map<string, Item>()
 export const tags: Map<string, Item[]> = new Map<string, Item[]>()
-export let GL: WebGLRenderingContext = undefined
+export let GL: WebGLRenderingContext
 
-export default class FWGE
+export class FWGE
 {
     //#region Components
     public readonly OBJConverter: OBJConverter = new OBJConverter
@@ -37,9 +37,9 @@ export default class FWGE
     //#endregion
 
     //#region Engines
-    private RenderEngine: RenderEngine = new RenderEngine
-    private LogicEngine: LogicEngine = new LogicEngine
-    private PhysicsEngine: PhysicsEngine = new PhysicsEngine
+    private RenderEngine: RenderEngine
+    private LogicEngine: LogicEngine
+    private PhysicsEngine: PhysicsEngine
     //#endregion
     
     //#region Public Properties
@@ -92,13 +92,13 @@ export default class FWGE
     //#endregion
 
     //#region Main Methods
-    public Init({ canvas, render = 60, physics = 60, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE): boolean
+    public constructor({ canvas, render = 60, physics = 60, clear = [0, 0, 0, 1], height = 1080, width = 1920 }: IFWGE)
     {
         GL = canvas.getContext('webgl') as WebGLRenderingContext
         
         if (GL === undefined || GL === null)
         {
-            return false
+            throw false
         }
 
         GL.clearColor(clear[0], clear[1], clear[2], clear[3])
@@ -109,11 +109,9 @@ export default class FWGE
         this.Height = canvas.height = height
         this.Width = canvas.width = width
         
-        this.LogicEngine.Init()
-        this.PhysicsEngine.Init()
-        this.RenderEngine.Init(GL)
-
-        return true
+        this.LogicEngine = new LogicEngine()
+        this.PhysicsEngine = new PhysicsEngine()
+        this.RenderEngine = new RenderEngine(GL)
     }
     
     public Start(): void
@@ -141,7 +139,6 @@ export default class FWGE
     private Update(): void
     {
         animationFrame = window.requestAnimationFrame(() => this.Update())
-        
 
         this.Time.Update()
         this.LogicEngine.Update(this.Time.Render)

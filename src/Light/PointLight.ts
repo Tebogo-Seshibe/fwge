@@ -11,9 +11,9 @@ export const PointLights: Array<PointLight> = new Array<PointLight>()
 export class IPointLight
 {
     name?: string
-    colour?: [number, number, number, number]
+    colour?: number[]
     intensity?: number
-    position?: [number, number, number]
+    position?: number[]
     radius?: number
     angle?: number
     shadows?: ShadowQuality
@@ -21,10 +21,9 @@ export class IPointLight
 
 export default class PointLight extends Light
 {
-    public Position: [number, number, number]
+    public Position: number[]
     public Radius: number
     public Angle: number
-    public Shadows: ShadowQuality
 
     constructor()
     constructor(pointLight: IPointLight)
@@ -39,14 +38,11 @@ export default class PointLight extends Light
         shadows = ShadowQuality.NONE 
     }: IPointLight = new IPointLight)
     {
-        super(name)
-
-        this.Colour = [ ...colour ]
-        this.Intensity = intensity
+        super(name, colour, intensity, shadows)
+        
         this.Position = [ ...position ]
         this.Radius = radius
         this.Angle = angle
-        this.Shadows = shadows
 
         PointLights.push(this)
     }

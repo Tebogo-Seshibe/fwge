@@ -5,14 +5,14 @@ import MouseInput from "./MouseInput";
 
 export default class Input implements IEngine
 {
-    public Keyboard: KeyboardInput
-    public Mouse: MouseInput
-    public Controllers: Map<number, ControllerInput>
+    public Keyboard: KeyboardInput = new KeyboardInput()
+    public Mouse: MouseInput = new MouseInput()
+    public Controllers: Map<number, ControllerInput> = new Map()
     
     public Init(canvas: HTMLCanvasElement)
     {
-        this.Keyboard = new KeyboardInput()
-        this.Mouse = new MouseInput(canvas)
+        this.Keyboard.Init(canvas)
+        this.Mouse.Init(canvas)
         this.Controllers = new Map<number, ControllerInput>()
 
         // window.gamepadconnected", (event: GamepadEvent) =>

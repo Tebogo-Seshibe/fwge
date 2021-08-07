@@ -13,7 +13,7 @@ let OBJECT_COUNTER: number = 0
 
 export let GameObjects: GameObject[] = []
 
-export class IGameObject
+export interface IGameObject
 {
     name?: string
     visible?: boolean
@@ -43,15 +43,15 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     public ObjectID: number = OBJECT_COUNTER++
     public Visible: boolean
 
-    public Parent: GameObject
+    public Parent?: GameObject
     public Children: GameObject[]
     
     public Transform: Transform
-    public Material: Material
-    public Mesh: Mesh
-    public RigidBody: RigidBody
-    public Collider: Collider
-    public Animation: Animation    
+    public Material?: Material
+    public Mesh?: Mesh
+    public RigidBody?: RigidBody
+    public Collider?: Collider
+    public Animation?: Animation    
     
     public OnCollisionBegin: (this: GameObject, other: Collider) => void
     public OnCollisionUpdate: (this: GameObject, other: Collider) => void
@@ -62,7 +62,6 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
     public PhysicsUpdate: (this: GameObject, delta: number) => void
     public End: (this: GameObject) => void
 
-    constructor()
     constructor(gameObject: IGameObject)
     constructor(
     { 
@@ -87,7 +86,7 @@ export default class GameObject extends Item implements Cloneable<GameObject>, D
         update = () => { },
         physicsUpdate = () => { },
         end = () => { },
-    }: IGameObject = new IGameObject)
+    }: IGameObject)
     {
         super(name)
 

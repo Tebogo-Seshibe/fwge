@@ -1,7 +1,7 @@
 import Vector2 from '../../Maths/Vector2';
 import Collider, { ICollider } from './Collider';
 
-export class ISquareCollider extends ICollider
+export interface ISquareCollider extends ICollider
 {
     position: Vector2 | Float32Array | number[]
     height?: number
@@ -14,9 +14,8 @@ export default class SquareCollider extends Collider
     public Height: number
     public Width: number
     
-    constructor()
     constructor(boxCollider: ISquareCollider)
-    constructor({ name = 'BoxCollider', position = [0, 0, 0], height = 1.0, width = 1.0 }: ISquareCollider = new ISquareCollider)
+    constructor({ name = 'BoxCollider', position = [0, 0, 0], height = 1.0, width = 1.0 }: ISquareCollider)
     {
         super({ name })
 

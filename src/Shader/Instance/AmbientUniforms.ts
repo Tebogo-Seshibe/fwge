@@ -1,7 +1,7 @@
 export default class AmbientUniforms
 {
-    public readonly Colour: WebGLUniformLocation
-    public readonly Intensity: WebGLUniformLocation
+    public readonly Colour: WebGLUniformLocation | null
+    public readonly Intensity: WebGLUniformLocation | null
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

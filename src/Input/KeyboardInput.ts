@@ -470,7 +470,7 @@ export default class KeyboardInput
     }    
     //#endregion
     
-    constructor()
+    Init(canvas: HTMLCanvasElement)
     {
         for (var i = 0; i < this.TOTAL_KEYS; ++i)
         {
@@ -479,20 +479,20 @@ export default class KeyboardInput
 
         window.onkeyup = (e: KeyboardEvent) =>
         {
-            this.keys[e.keyCode] = KeyboardState.UP
+            this.keys[e.detail] = KeyboardState.UP
 
             e.cancelBubble = true
         }
         
         window.onkeydown = (e: KeyboardEvent) =>
         {
-            if (this.keys[e.keyCode] == KeyboardState.PRESSED)
+            if (this.keys[e.detail] == KeyboardState.PRESSED)
             {
-                this.keys[e.keyCode] = KeyboardState.DOWN
+                this.keys[e.detail] = KeyboardState.DOWN
             }
             else
             {
-                this.keys[e.keyCode] = KeyboardState.PRESSED
+                this.keys[e.detail] = KeyboardState.PRESSED
             }
             
             e.cancelBubble = true

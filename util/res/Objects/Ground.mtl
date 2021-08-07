@@ -1,0 +1,766 @@
+# Blender MTL File: 'Ground.blend'
+# Material Count: 85
+
+newmtl None
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+
+newmtl None_grass.jpg.002
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.003
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.004
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.005
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.006
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.007
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.009
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.010
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.011
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.012
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.013
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.014
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.015
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.016
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.017
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.018
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.019
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.020
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.021
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.022
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.023
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.024
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.025
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.026
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.027
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.028
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.029
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.030
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.031
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.032
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.042
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.043
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.044
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.045
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.046
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.047
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.048
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.049
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.050
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.051
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.052
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.053
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.054
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.055
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.056
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.057
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.058
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.059
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.060
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.061
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.062
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.063
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.064
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.065
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.066
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.067
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.068
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.069
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.070
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.071
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.072
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.073
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.074
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.075
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.076
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.077
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.078
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.079
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.080
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.081
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.082
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.083
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.084
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.085
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.086
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.087
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.088
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.089
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.090
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.091
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.092
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.093
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.094
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg
+
+newmtl None_grass.jpg.095
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd C:\Users\Tebogo\Documents\FWGE\www\Images\grass.jpg

@@ -13,8 +13,8 @@ export class ICollider
 
 export default class Collider extends Item implements Cloneable<Collider>, Updateable
 {
-    public Parent: GameObject
-    public Material: ColliderMaterial
+    public Parent?: GameObject
+    public Material?: ColliderMaterial
     
     constructor({ name = 'Collider' }: ICollider = new ICollider)
     {
@@ -23,7 +23,7 @@ export default class Collider extends Item implements Cloneable<Collider>, Updat
         Colliders.push(this)
     }
 
-    public Clone(): Collider { return null }
+    public Clone(): Collider { return this }
 
     public Update(): void { }
 }

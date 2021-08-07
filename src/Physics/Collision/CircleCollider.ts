@@ -1,7 +1,7 @@
 import Vector2 from '../../Maths/Vector2';
 import Collider, { ICollider } from './Collider';
 
-export class ICircleCollider extends ICollider
+export interface ICircleCollider extends ICollider
 {
     radius: number
     position: Vector2 | Float32Array | number[]
@@ -14,9 +14,8 @@ export default class CircleCollider extends Collider
     public Position: Vector2
     public Scale: Vector2
 
-    constructor()
     constructor(sphereCollider: ICircleCollider)
-    constructor({ name = 'Sphere Collider', position = [0, 0], scale = [1, 1], radius = 1.0 }: ICircleCollider = new ICircleCollider)
+    constructor({ name = 'Sphere Collider', position = [0, 0], scale = [1, 1], radius = 1.0 }: ICircleCollider)
     {
         super({ name })
 

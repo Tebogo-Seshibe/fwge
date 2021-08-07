@@ -1,4 +1,4 @@
-import { GL } from "../../FWGE";
+import { GL } from "../../FWGE"
 
 export default class ShaderAttributes
 {

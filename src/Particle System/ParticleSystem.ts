@@ -8,7 +8,7 @@ import Transform, { ITransform } from '../Object/Transform';
 
 export let ParticleSystems: ParticleSystem[] = []
 
-export class IParticleSystem
+export interface IParticleSystem
 {
     name: string
     mesh: Mesh
@@ -49,16 +49,15 @@ export default class ParticleSystem extends Item implements Updateable
 
     public Delay: ParticleUpdateEquation
 
-    constructor()
     constructor(particleSystem: IParticleSystem)
-    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, count }: IParticleSystem = new IParticleSystem)
+    constructor({ name = 'Particle System', mesh, length = 0, material, transform, position = [df0, df0, df0], rotation = [df0, df0, df0], scale = [df1, df1, df1], colour = [df0, df0, df0, df0], loop = true, delay, count }: IParticleSystem)
     {
         super(name)
 
         this.Mesh = mesh
         this.Material = material
         this.Delay = delay
-        this.MaxTime = length + this.Delay(null, count - 1)
+        this.MaxTime = length + this.Delay(-1, count - 1)
         this.CurrentTime = 0
         this.Loop = loop
 

@@ -15,7 +15,7 @@ export enum ImageMapType
 export function ApplyImage(material: Material, src: string, type: ImageMapType): void
 {
     let img: HTMLImageElement = new Image()
-    let texture: WebGLTexture = null
+    let texture: WebGLTexture | null = null
 
     switch (type)
     {
@@ -98,11 +98,11 @@ export default class Material extends Item
     public Alpha: number
     public Shininess: number
 
-    public ImageMap: WebGLTexture
-    public BumpMap: WebGLTexture
-    public SpecularMap: WebGLTexture
+    public ImageMap: WebGLTexture | null = null
+    public BumpMap: WebGLTexture | null = null
+    public SpecularMap: WebGLTexture | null = null
 
-    public Shader: Shader
+    public Shader?: Shader
 
     constructor()
     constructor(renderMaterial: IMaterial)

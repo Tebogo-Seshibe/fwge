@@ -10,12 +10,16 @@ export enum ShadowQuality
 
 export default class Light extends Item
 {
-    public Colour: [number, number, number, number]
+    public Colour: number[]
     public Intensity: number
     public Shadows: ShadowQuality
 
-    constructor(name: string)
+    constructor(name: string, colour: number[] | Float32Array, intensity: number, shadows: ShadowQuality)
     {
         super(name)
+
+        this.Colour = [...colour]
+        this.Intensity = intensity
+        this.Shadows = shadows
     }
 }

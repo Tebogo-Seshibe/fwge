@@ -1,8 +1,8 @@
 export default class DirectionalUniforms
 {
-    public readonly Colour: WebGLUniformLocation
-    public readonly Intensity: WebGLUniformLocation
-    public readonly Direction: WebGLUniformLocation
+    public readonly Colour: WebGLUniformLocation | null
+    public readonly Intensity: WebGLUniformLocation | null
+    public readonly Direction: WebGLUniformLocation | null
 
     constructor(gl: WebGLRenderingContext, program: WebGLProgram)
     {

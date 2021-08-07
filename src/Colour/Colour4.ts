@@ -1,6 +1,5 @@
-import '../../Engine/Maths/Math';
-import Colour3 from './Colour3';
-import { clean, clamp, lerp } from '../Maths/Math';
+import { clamp, clean } from '../Maths/Math'
+import Colour3 from './Colour3'
 
 export default class Colour4 extends Float32Array
 {    
@@ -92,16 +91,16 @@ export default class Colour4 extends Float32Array
         {
             if (typeof r === 'number')
             {
-                this.Set(r, g, b, a)
+                this.Set(r, g!, b!, a!)
             }
             else if (typeof r === 'string')
             {
-                if (!Number.isSafeInteger(g))
+                if (g !== undefined)
                 {
                     g = 1.0
                 }
 
-                this.Set(r, g)
+                this.Set(r, g!)
             }
             else
             {
@@ -128,21 +127,21 @@ export default class Colour4 extends Float32Array
         return this
     }
 
-    public static Lerp(number: number, r1: number, g1: number, b1: number, a1: number, r2: number, g2: number, b2: number, a2: number): Colour4
-    public static Lerp(number: number, hex1: string, hex2: string): Colour4
-    public static Lerp(number: number, array1: number[], array: number[]): Colour4
-    public static Lerp(number: number, array1: Float32Array, array2: Float32Array): Colour4
-    public static Lerp(number: number, r1: number | string | number[] | Float32Array, g1: number | string | number[] | Float32Array, b1?: number, a1?: number, r2?: number, g2?: number, b2?: number, a2?: number): Colour4
-    {
-        // return lerp()
-        return null
-    }
+    // public static Lerp(number: number, r1: number, g1: number, b1: number, a1: number, r2: number, g2: number, b2: number, a2: number): Colour4
+    // public static Lerp(number: number, hex1: string, hex2: string): Colour4
+    // public static Lerp(number: number, array1: number[], array: number[]): Colour4
+    // public static Lerp(number: number, array1: Float32Array, array2: Float32Array): Colour4
+    // public static Lerp(number: number, r1: number | string | number[] | Float32Array, g1: number | string | number[] | Float32Array, b1?: number, a1?: number, r2?: number, g2?: number, b2?: number, a2?: number): Colour4
+    // {
+    //     // return lerp()
+    //     return 
+    // }
 
-    private static Deconstruct(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
+    private static Deconstruct(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
     {
         if (typeof r === 'string')
         {
-            let alpha: number = Number.isSafeInteger(g) ? g : 1
+            let alpha: number = g !== undefined ? g : 1
 
             if (r.match(/#([0-9A-F]{3})/i))
             {
@@ -170,6 +169,6 @@ export default class Colour4 extends Float32Array
             [ r = 0, g = 0, b = 0, a = 0 ] = r
         }
 
-        return [ r, g, b, a ]
+        return [ r, g!, b!, a! ]
     }
 }

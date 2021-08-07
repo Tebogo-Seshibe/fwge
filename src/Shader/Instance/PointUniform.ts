@@ -1,10 +1,10 @@
 export default class PointUniform
 {
-    public readonly Colour: WebGLUniformLocation
-    public readonly Intensity: WebGLUniformLocation
-    public readonly Position: WebGLUniformLocation
-    public readonly Radius: WebGLUniformLocation
-    public readonly Angle: WebGLUniformLocation
+    public readonly Colour: WebGLUniformLocation | null
+    public readonly Intensity: WebGLUniformLocation | null
+    public readonly Position: WebGLUniformLocation | null
+    public readonly Radius: WebGLUniformLocation | null
+    public readonly Angle: WebGLUniformLocation | null
     
     constructor(gl: WebGLRenderingContext, program: WebGLProgram, index: number)
     {

@@ -57,8 +57,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     constructor(m11: number, m12: number, m21: number, m22: number)
     constructor(array: Float32Array)
     constructor(array: number[])
-    constructor(list: List<number>)
-    constructor(m11?: number | Float32Array | number[] | List<number>, m12?: number, m21?: number, m22?: number)
+    constructor(m11?: number | Float32Array | number[], m12?: number, m21?: number, m22?: number)
     {
         super(4)
 
@@ -67,8 +66,8 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
             if (typeof m11 === 'number')
             {
                 this.Set(
-                    m11, m12,
-                    m21, m22
+                    m11, m12!,
+                    m21!, m22!
                 )
             }
             else 
@@ -81,8 +80,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     public Set(m11: number, m12: number, m21: number, m22: number): Matrix2
     public Set(array: Float32Array): Matrix2
     public Set(array: number[]): Matrix2
-    public Set(list: List<number>): Matrix2
-    public Set(m11: number | Float32Array | number[] | List<number>, m12?: number, m21?: number, m22?: number): Matrix2
+    public Set(m11: number | Float32Array | number[], m12?: number, m21?: number, m22?: number): Matrix2
     {
         [
             m11, m12, 
@@ -104,8 +102,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     public Sum(m11: number, m12: number, m21: number, m22: number): Matrix2
     public Sum(array: Float32Array): Matrix2
     public Sum(array: number[]): Matrix2
-    public Sum(list: List<number>): Matrix2
-    public Sum(m11: number | Float32Array | number[] | List<number>, m12?: number, m21?: number, m22?: number): Matrix2
+    public Sum(m11: number | Float32Array | number[], m12?: number, m21?: number, m22?: number): Matrix2
     {
         [
             m11, m12, 
@@ -127,8 +124,7 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     public Mult(m11: number, m12: number, m21: number, m22: number): Matrix2
     public Mult(array: Float32Array): Matrix2
     public Mult(array: number[]): Matrix2
-    public Mult(list: List<number>): Matrix2
-    public Mult(m11: number | Float32Array | number[] | List<number>, m12?: number, m21?: number, m22?: number): Matrix2
+    public Mult(m11: number | Float32Array | number[], m12?: number, m21?: number, m22?: number): Matrix2
     {
         [
             m11, m12, 
@@ -213,9 +209,9 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
     //#endregion
 
     //#region Helper Methods
-    private static Destructure(m11: number | Float32Array | number[] | List<number>, m12?: number, m21?: number, m22?: number): number[]
+    private static Destructure(m11: number | Float32Array | number[], m12?: number, m21?: number, m22?: number): number[]
     {
-        if (m11 instanceof Float32Array || m11 instanceof List || m11 instanceof Array)
+        if (m11 instanceof Float32Array || m11 instanceof Array)
         {
             [
                 m11, m12,
@@ -224,8 +220,8 @@ export default class Matrix2 extends Float32Array implements Cloneable<Matrix2>
         }
 
         return [
-            m11, m12,
-            m21, m22
+            m11, m12!,
+            m21!, m22!
         ]
     }
     //#endregion

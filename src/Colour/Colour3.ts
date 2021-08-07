@@ -1,6 +1,5 @@
-import '../../Engine/Maths/Math';
-import Colour4 from './Colour4';
-import { clean, clamp } from '../Maths/Math';
+import { clamp, clean } from '../Maths/Math'
+import Colour4 from './Colour4'
 
 export default class Colour3 extends Float32Array
 {    
@@ -82,7 +81,7 @@ export default class Colour3 extends Float32Array
         {
             if (typeof r === 'number')
             {
-                this.Set(r, g, b)
+                this.Set(r, g!, b!)
             }
             else if (typeof r === 'string')
             {
@@ -117,19 +116,19 @@ export default class Colour3 extends Float32Array
     {
         if (typeof r === 'string')
         {
-            if (r.match(/#([0-9A-F]{3}){1,2}/i))
+            if (r.match(/#[0-9A-F]{6}/i))
+            {
+                [ r, g, b ] = r.substring(1)
+                .toUpperCase()
+                .split(/(?=(?:..)*$)/)
+                .map(c => parseInt(c, 16))
+            }
+            else if (r.match(/#([0-9A-F]{3}){1,2}/i))
             {
                 [ r, g, b ] = r.substring(1)
                                 .toUpperCase()
                                 .split('')
                                 .map(c => parseInt(c, 16))
-            }
-            else if (r.match(/#[0-9A-F]{6}/i))
-            {
-                [ r, g, b ] = r.substring(1)
-                            .toUpperCase()
-                            .split(/(?=(?:..)*$)/)
-                            .map(c => parseInt(c, 16))
             }
             else
             {
@@ -138,9 +137,9 @@ export default class Colour3 extends Float32Array
         }
         else if (r instanceof Float32Array || r instanceof Array)
         {
-            [ r, g, b ] = r
+            [ r = 0, g = 0, b = 0 ] = r
         }
 
-        return [ r, g, b ]
+        return [ r, g!, b! ]
     }
 }

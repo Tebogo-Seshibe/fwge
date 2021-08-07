@@ -21,12 +21,12 @@ export enum BinaryExpressionType
     LOGARITHMIC
 }
 
-export function Var(variable: number): Equation | undefined
+export function Var(variable: number): Equation
 {
     return (...x: number[]) => x[variable]
 }
 
-export function Unary(type: UnaryExpressionType, arg: Equation | number): Equation | undefined
+export function Unary(type: UnaryExpressionType, arg: Equation | number): Equation
 {
     switch (type)
     {
@@ -49,11 +49,11 @@ export function Unary(type: UnaryExpressionType, arg: Equation | number): Equati
             return (...x: number[]) => Math.tan(typeof arg === 'number' ? arg : arg(...x))
                 
         default:
-            return undefined
+            throw 'no'
     }
 }
 
-export function Binary(type: BinaryExpressionType, left: Equation | number, right: Equation | number): Equation | undefined
+export function Binary(type: BinaryExpressionType, left: Equation | number, right: Equation | number): Equation
 {
     switch (type)
     {
@@ -75,7 +75,7 @@ export function Binary(type: BinaryExpressionType, left: Equation | number, righ
         case BinaryExpressionType.ROOT:
             return (...x: number[]) => (typeof left === 'number' ? left : left(...x)) ** (1 / (typeof right === 'number' ? right : right(...x)))
 
-        default: 
-            return undefined
+        default:
+            throw 'no'
     }
 }
