@@ -1,10 +1,6 @@
-import Cloneable from '../Interfaces/Cloneable';
-import List from '../Utility/List';
-import './Math';
-import { clean, lerp } from './Math';
-import { Vector2 } from '.';
+import { clean, lerp } from './Math'
 
-export default class Vector3 extends Float32Array implements Cloneable<Vector3>
+export default class Vector3 extends Float32Array
 {
     //#region Public Properties
     public get X(): number
@@ -47,8 +43,9 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     constructor()
     constructor(x: number, y: number, z: number)
     constructor(array: Float32Array)
+    constructor(array: Float64Array)
     constructor(array: number[])
-    constructor(x?: number | Float32Array | number[], y?: number, z?: number)
+    constructor(x?: number | Float64Array | Float32Array | number[], y?: number, z?: number)
     {
         super(3)
 
@@ -180,7 +177,7 @@ export default class Vector3 extends Float32Array implements Cloneable<Vector3>
     public static Lerp(time: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
     public static Lerp(time: number, array1: Float32Array, array2: Float32Array): Vector3
     public static Lerp(time: number, array1: number[], array2: number[]): Vector3
-    public static Lerp(time: number, x1: number | Float32Array | number[] | List<number>, y1: number | Float32Array | number[] | List<number>, z1?: number, x2?: number, y2?: number, z2?: number): Vector3
+    public static Lerp(time: number, x1: number | Float32Array | number[], y1: number | Float32Array | number[], z1?: number, x2?: number, y2?: number, z2?: number): Vector3
     {
         let [vector1, vector2] = [new Vector3, new Vector3]
 

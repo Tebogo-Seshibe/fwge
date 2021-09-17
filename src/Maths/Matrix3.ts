@@ -1,9 +1,6 @@
-import Cloneable from '../Interfaces/Cloneable';
-import List from '../Utility/List';
-import './Math';
-import { clean } from './Math';
+import { clean } from './Math'
 
-export default class Matrix3 extends Float32Array implements Cloneable<Matrix3>
+export default class Matrix3 extends Float32Array
 {
     //#region Public Properties
     public get M11(): number

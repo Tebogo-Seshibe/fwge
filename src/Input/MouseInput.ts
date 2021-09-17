@@ -10,6 +10,7 @@ export default class MouseInput
     private delta: Vector2 = new Vector2()
     private offset: Vector2 = new Vector2()
     private wheel: WheelState = WheelState.CENTERED
+    private isMoving?: NodeJS.Timeout
     //#endregion
     
     //#region Buttons
@@ -56,7 +57,7 @@ export default class MouseInput
     }
     //#endregion
 
-    Init(element: HTMLCanvasElement)
+    Init(element: HTMLCanvasElement, delta: number)
     {
         this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
         element.onresize = (_: UIEvent) => this.offset.Set(element.clientWidth, element.clientHeight).Scale(0.5)
@@ -68,10 +69,11 @@ export default class MouseInput
         
         element.onclick = element.ondblclick
                         = element.oncontextmenu
-                        = null
-
+                        = e => e.preventDefault()
+                        
         element.onmouseup = (e: MouseEvent) =>
         {
+            e.preventDefault()
             this.buttons[e.button] = ButtonState.RAISED
 
             e.cancelBubble = true
@@ -79,6 +81,7 @@ export default class MouseInput
         
         element.onmousedown = (e: MouseEvent) =>
         {
+            e.preventDefault()
             this.buttons[e.button] = ButtonState.PRESSED
 
             e.cancelBubble = true
@@ -86,6 +89,13 @@ export default class MouseInput
         
         element.onmousemove = (e: MouseEvent) =>
         {
+            e.preventDefault()
+            if (this.isMoving)
+            {
+                clearTimeout(this.isMoving)
+            }
+            this.isMoving = setTimeout(() => this.Reset(), delta)
+            
             this.delta.Set(e.movementX, e.movementY)
             this.position.Set(e.clientX, e.clientY)
             
@@ -94,6 +104,13 @@ export default class MouseInput
 
         element.onwheel = (e: WheelEvent) =>
         {
+            e.preventDefault()
+            if (this.isMoving)
+            {
+                clearTimeout(this.isMoving)
+            }
+            this.isMoving = setTimeout(() => this.Reset(), delta)
+
             this.wheel = e.deltaY > 0
                 ? WheelState.DOWN
                 : e.deltaY < 0 
@@ -104,8 +121,17 @@ export default class MouseInput
         }
     }
 
+    Update(): void
+    {
+        if (!this.isMoving)
+        {
+            this.Delta.Set(0, 0)
+        }
+    }
+
     Reset(): void
     {
-        this.wheel = WheelState.CENTERED   
+        this.wheel = WheelState.CENTERED
+        this.delta.Set(0, 0)
     }
 }

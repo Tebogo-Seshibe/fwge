@@ -1,4 +1,4 @@
-export const DECIMAL_PLACES: number = 5
+export const DECIMAL_PLACES: number = 6
 export const SIGNIFICANT_FIGURES: number = Math.pow(10, DECIMAL_PLACES)
 
 export const radian = (degree: number): number =>

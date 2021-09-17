@@ -1,5 +1,5 @@
-// import Colour4 from '../Colour/Colour4';
-import Item from '../Object/Item';
+import Colour4 from '../Colour/Colour4'
+import Item from '../Object/Item'
 
 export enum ShadowQuality
 {
@@ -10,7 +10,7 @@ export enum ShadowQuality
 
 export default class Light extends Item
 {
-    public Colour: number[]
+    public Colour: Colour4
     public Intensity: number
     public Shadows: ShadowQuality
 
@@ -18,7 +18,7 @@ export default class Light extends Item
     {
         super(name)
 
-        this.Colour = [...colour]
+        this.Colour = new Colour4(colour as Float32Array)
         this.Intensity = intensity
         this.Shadows = shadows
     }

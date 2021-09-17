@@ -1,12 +1,12 @@
 import Vector3 from '../Maths/Vector3'
 import Cloneable from '../Interfaces/Cloneable'
 
-export class ITransform
+export interface ITransform
 {
-    position?: Float32Array | number[]
-    rotation?: Float32Array | number[]
-    scale?: Float32Array | number[]
-    shear?: Float32Array | number[]
+    position?: Float64Array | Float32Array | number[]
+    rotation?: Float64Array | Float32Array | number[]
+    scale?: Float64Array | Float32Array | number[]
+    shear?: Float64Array | Float32Array | number[]
 }
 
 export default class Transform implements Cloneable<Transform>
@@ -21,21 +21,21 @@ export default class Transform implements Cloneable<Transform>
     constructor(transform: Transform)
     constructor(args?: ITransform | Transform)
     {
-        let { position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = new ITransform
+        let { position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], shear = [0, 0, 0] }: ITransform = { }
         
-        if (args instanceof ITransform)
+        if (args instanceof Transform)
+        {
+            position = args.Position as Float32Array
+            rotation = args.Rotation as Float32Array
+            scale = args.Scale as Float32Array
+            shear = args.Shear as Float32Array
+        }
+        else if (args !== undefined)
         {
             position = args.position || position
             rotation = args.rotation || rotation
             scale = args.scale || scale
             shear = args.shear || shear
-        }
-        else if (args instanceof Transform)
-        {
-            position = args.Position as Float32Array
-            rotation = args.Position as Float32Array
-            scale = args.Position as Float32Array
-            shear = args.Position as Float32Array
         }
 
         this.Position = new Vector3(position as Float32Array)
@@ -55,33 +55,10 @@ export default class Transform implements Cloneable<Transform>
         })
     }
 
-    public static get UP(): Vector3
-    {
-        return new Vector3(0, 1, 0)
-    }
-
-    public static get DOWN(): Vector3
-    {
-        return new Vector3(0, -1, 0)
-    }
-
-    public static get FORWARD(): Vector3
-    {
-        return new Vector3(0, 0, 1)
-    }
-
-    public static get BACKWARD(): Vector3
-    {
-        return new Vector3(0, 0, -1)
-    }
-
-    public static get RIGHT(): Vector3
-    {
-        return new Vector3(1, 0, 0)
-    }
-
-    public static get LEFT(): Vector3
-    {
-        return new Vector3(-1, 0, 0)
-    }
+    public readonly UP = new Vector3(0, 1, 0)
+    public readonly DOWN = new Vector3(0, -1, 0)
+    public readonly FORWARD = new Vector3(0, 0, 1)
+    public readonly BACKWARD = new Vector3(0, 0, -1)
+    public readonly RIGHT = new Vector3(1, 0, 0)
+    public readonly LEFT = new Vector3(-1, 0, 0)
 }

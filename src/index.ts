@@ -15,5 +15,3 @@ export * from './Render'
 // export * from './Shader'
 export * from './Utility'
 export * from './FWGE'
-
-export default {}

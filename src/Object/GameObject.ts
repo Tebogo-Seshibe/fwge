@@ -7,7 +7,7 @@ import Material from './Material';
 import Mesh from './Mesh';
 import RigidBody from './RigidBody';
 import Transform from './Transform';
-import { Animation } from '../Animation';
+import Animation from '../Animation/Animation';
 
 let OBJECT_COUNTER: number = 0
 

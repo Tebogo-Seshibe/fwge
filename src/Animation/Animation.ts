@@ -1,9 +1,8 @@
-import Updateable from '../Interfaces/Updateable';
-import GameObject from '../Object/GameObject';
-import Item from '../Object/Item';
-import List from '../Utility/List';
-import AnimationFrame from './AnimationFrame';
-import Vector3 from '../Maths/Vector3';
+import Updateable from '../Interfaces/Updateable'
+import GameObject from '../Object/GameObject'
+import Item from '../Object/Item'
+import List from '../Utility/List'
+import AnimationFrame from './AnimationFrame'
 
 export let Animations: Animation[] = []
 

@@ -1,4 +1,5 @@
-import * as Equations from "./Equation"
+export * from "./Equation"
+export * from "./Math"
 import Matrix2 from "./Matrix2"
 import Matrix3 from "./Matrix3"
 import Matrix4 from "./Matrix4"
@@ -8,7 +9,6 @@ import Vector4 from "./Vector4"
 
 export
 {
-    Equations,
     Matrix2,
     Matrix3,
     Matrix4,

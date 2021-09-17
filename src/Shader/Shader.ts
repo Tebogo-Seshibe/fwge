@@ -187,8 +187,8 @@ export default class Shader extends Item
         {   
             let groups = match.match(regex)
 
-            let type = groups!.groups!.type
-            let name = groups!.groups!.name
+            let type = groups![0]//groups!.type
+            let name = groups![1]//.groups!.name
             let index = GL.getUniformLocation(this.Program!, name)
 
             if (!this.UserUniforms!.has(name) && index != null)

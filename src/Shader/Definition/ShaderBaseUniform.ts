@@ -2,17 +2,17 @@ import { GL } from "../../FWGE";
 
 export class MatrixUniform
 {
-    public readonly Model: WebGLUniformLocation | null
+    public readonly ModelView: WebGLUniformLocation | null
     public readonly Projection: WebGLUniformLocation | null
     public readonly Normal: WebGLUniformLocation | null
-    public readonly View: WebGLUniformLocation | null
+    public readonly Camera: WebGLUniformLocation | null
 
     constructor(mv: WebGLUniformLocation | null, p: WebGLUniformLocation | null, n: WebGLUniformLocation | null, c: WebGLUniformLocation | null)
     {
-        this.Model = mv
+        this.ModelView = mv
         this.Projection = p
         this.Normal = n
-        this.View = c
+        this.Camera = c
     }
 }
 
@@ -112,10 +112,10 @@ export default class ShaderBaseUniform
     {
         this.Matrix = new MatrixUniform
         (
-            GL.getUniformLocation(program, 'U_Matrix.Model'),
+            GL.getUniformLocation(program, 'U_Matrix.ModelView'),
             GL.getUniformLocation(program, 'U_Matrix.Projection'),
             GL.getUniformLocation(program, 'U_Matrix.Normal'),
-            GL.getUniformLocation(program, 'U_Matrix.View')
+            GL.getUniformLocation(program, 'U_Matrix.Camera')
         )
 
         this.DirectionalLights = []

@@ -1,6 +1,6 @@
-import Vector2 from '../Maths/Vector2';
-import Vector3 from '../Maths/Vector3';
-import Vector4 from '../Maths/Vector4';
+import Vector2 from '../maths/Vector2';
+import Vector3 from '../maths/Vector3';
+import Vector4 from '../maths/Vector4';
 
 export default class ArrayUtils
 {

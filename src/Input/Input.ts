@@ -9,10 +9,10 @@ export default class Input implements IEngine
     public Mouse: MouseInput = new MouseInput()
     public Controllers: Map<number, ControllerInput> = new Map()
     
-    public Init(canvas: HTMLCanvasElement)
+    public Init(canvas: HTMLCanvasElement, delta: number)
     {
         this.Keyboard.Init(canvas)
-        this.Mouse.Init(canvas)
+        this.Mouse.Init(canvas, delta)
         this.Controllers = new Map<number, ControllerInput>()
 
         // window.gamepadconnected", (event: GamepadEvent) =>

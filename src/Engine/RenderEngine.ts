@@ -1,15 +1,15 @@
-import IEngine from "./IEngine";
-import BuildShaders, { CombinedShader, GUIShader, LightShader, NormalDepthShader, PostProcessingShader, SSAOShader } from "../Shader/Shaders";
-import { Shader } from "../Render";
-import { Shaders } from "../Shader/Shader";
-import { Mesh, Material, GameObject } from "../Object";
-import { Matrix4, Matrix3 } from "../Maths";
-import { DirectionalLights } from "../Light/DirectionalLight";
-import { PointLights } from "../Light/PointLight";
-import { GameObjects } from "../Object/GameObject";
-import { Camera, ViewMode } from "../Camera";
-import { Perspective, Orthographic, LookAt } from "../Render/Projection";
-import ModelView from "../Render/ModelView";
+import { Camera, ViewMode } from "../Camera/index"
+import { DirectionalLights } from "../Light/DirectionalLight"
+import { PointLights } from "../Light/PointLight"
+import Matrix3 from "../Maths/Matrix3"
+import Matrix4 from "../Maths/Matrix4"
+import GameObject, { GameObjects } from "../Object/GameObject"
+import { Material, Mesh } from "../Object/index"
+import { Shader } from "../Render/index"
+import ModelView from "../Render/ModelView"
+import { LookAt, Orthographic, Perspective } from "../Render/Projection"
+import { Shaders } from "../Shader/Shader"
+import IEngine from "./IEngine"
 
 /**
  * 1) Depth Pass -> Main camera
@@ -57,13 +57,11 @@ export default class RenderEngine implements IEngine
     {
         this.GL = gl
 
-        BuildShaders()
-
+        // BuildShaders()
+        Shaders.forEach(shader => this.ClearBuffer(shader))
+        this.ClearBuffer()
         this.GL.enable(this.GL.DEPTH_TEST)
         this.GL.disable(this.GL.BLEND)
-        this.GL.blendFunc(this.GL.SRC_ALPHA, this.GL.ONE)
-
-        Shaders.filter(shader => shader.Filter).forEach(shader => this.RunProgram(shader, null))
     }
 
     public Update(): void
@@ -77,25 +75,28 @@ export default class RenderEngine implements IEngine
         // ObjectList.forEach(object => RunProgram(SSAOShader, object))
         // ObjectList.forEach(object => RunProgram(GUIShader, object))
 
-        this.ClearBuffer()
-        // ObjectList.forEach(object => RunProgram(object.material.Shader, object))
-        // RunProgram(null)
+        Shaders.forEach(shader => this.ClearBuffer(shader))
+        // this.ClearBuffer()
+
+        ObjectList.forEach(object => this.RunProgram(object.material!.Shader!, object))
+        // this.RunProgram(NormalDepthShader)
     }
 
     public Reset(): void
     {
         Shaders.forEach(shader => this.ClearBuffer(shader))
+        this.ClearBuffer()
     }
 
         
     public ClearBuffer(shader?: Shader): void
-    {   
-        const width = shader ? shader.Width : this.GL.drawingBufferWidth
-        const height = shader ? shader.Height : this.GL.drawingBufferHeight
+    {
+        const width = this.GL.drawingBufferWidth //shader ? shader.Width : this.GL.canvas.width
+        const height = this.GL.drawingBufferHeight //shader ? shader.Height : this.GL.canvas.width
         const buffer = shader ? shader.FrameBuffer : null
-        const clear = shader ? shader.Clear : [0.0, 0.0, 0.0, 0.0]
+        const clear = shader ? shader.Clear : [0.3, 0.6, 0.9, 1.0]
 
-        this.GL.bindFramebuffer(this.GL.FRAMEBUFFER, buffer)
+        this.GL.bindFramebuffer(this.GL.FRAMEBUFFER, null)
         this.GL.viewport(0, 0, width, height)
         this.GL.clearColor(clear[0], clear[1], clear[2], clear[3])
         this.GL.clear(this.GL.COLOR_BUFFER_BIT | this.GL.DEPTH_BUFFER_BIT)
@@ -110,7 +111,7 @@ export default class RenderEngine implements IEngine
 
         if (position !== -1)
         {
-            if(mesh.PositionBuffer)
+            if (mesh.PositionBuffer)
             {
                 this.GL.enableVertexAttribArray(position)
                 this.GL.bindBuffer(this.GL.ARRAY_BUFFER, mesh.PositionBuffer)
@@ -164,9 +165,6 @@ export default class RenderEngine implements IEngine
                 this.GL.disableVertexAttribArray(colour)
             }
         }
-
-        this.GL.bindBuffer(this.GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-        // this.GL.bindBuffer(this.GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
     }
 
     public BindGlobalUniforms(shader: Shader): void
@@ -200,11 +198,9 @@ export default class RenderEngine implements IEngine
 
         let lookAtMatrix = LookAt(Camera.Main.Position, Camera.Main.Target, Camera.Main.Up)
 
-        console.log(shader)
         this.GL.uniform1i(shader.BaseUniforms!.DirectionalLightCount, directional_count)
         this.GL.uniform1i(shader.BaseUniforms!.PointLightCount, point_count)
         this.GL.uniformMatrix4fv(shader.BaseUniforms!.Matrix.Projection, false, projectionMatrix)
-        this.GL.uniformMatrix4fv(shader.BaseUniforms!.Matrix.View, false, lookAtMatrix)
 
         this.GL.uniform1i(shader.BaseUniforms!.Global.Time, Date.now())
         this.GL.uniform2f(shader.BaseUniforms!.Global.Resolution, shader.Width, shader.Height)
@@ -257,7 +253,7 @@ export default class RenderEngine implements IEngine
             this.GL.bindTexture(this.GL.TEXTURE_2D, null)
         }
 
-        this.GL.uniformMatrix4fv(shader.BaseUniforms!.Matrix.Model, false, mv)
+        this.GL.uniformMatrix4fv(shader.BaseUniforms!.Matrix.ModelView, false, mv)
         this.GL.uniformMatrix3fv(shader.BaseUniforms!.Matrix.Normal, false, n)
     }
 
@@ -280,16 +276,15 @@ export default class RenderEngine implements IEngine
             )
         })
 
-        gameObject.Children.forEach(child => this.CalculateObjectMatrices(child, mv))
+        gameObject.Children.forEach((child: GameObject) => this.CalculateObjectMatrices(child, mv))
 
         mv.Pop()
     }
 
-    public RunProgram(shader: Shader, object: ObjectListType | null): void
+    public RunProgram(shader: Shader, object?: ObjectListType): void
     {
         this.GL.useProgram(shader.Program)
 
-        this.ClearBuffer(shader)
         this.BindGlobalUniforms(shader)
 
         if (!shader.Attribute!.Exists || !object)
@@ -307,10 +302,20 @@ export default class RenderEngine implements IEngine
 
             this.BindAttributes(shader, object.mesh!)
             this.BindObjectUniforms(shader, object.material!, object.modelView, object.normal)
+            
+            // this.GL.bindBuffer(this.GL.ELEMENT_ARRAY_BUFFER, object.mesh!.WireframeBuffer)
             this.GL.uniform1i(shader.BaseUniforms!.Global.ObjectID, object.id)
-
+            
+            if (object.mesh!.IndexBuffer)
+            {
+                this.GL.bindBuffer(this.GL.ELEMENT_ARRAY_BUFFER, object.mesh!.IndexBuffer)
+                this.GL.drawElements(this.GL.TRIANGLES, object.mesh!.VertexCount, this.GL.UNSIGNED_BYTE, 0)                
+            }
+            else
+            {
+                this.GL.drawArrays(this.GL.LINE_STRIP, 0, object.mesh!.PointCount)
+            }
             this.GL.bindFramebuffer(this.GL.FRAMEBUFFER, null) //shader.FrameBuffer)
-            this.GL.drawElements(this.GL.TRIANGLES, object.mesh!.VertexCount, this.GL.UNSIGNED_BYTE, 0)
 
 
             if (object.material!.Alpha !== 1.0)

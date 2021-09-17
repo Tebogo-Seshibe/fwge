@@ -1,5 +1,5 @@
 // import Colour4 from '../Colour/Colour4';
-// import Vector3 from '../Maths/Vector3';
+import Vector3 from '../Maths/Vector3';
 // import List from '../Utility/List';
 import Light, { ShadowQuality } from './Light';
 
@@ -11,9 +11,9 @@ export const PointLights: Array<PointLight> = new Array<PointLight>()
 export class IPointLight
 {
     name?: string
-    colour?: number[]
+    colour?: number[] | Float32Array
     intensity?: number
-    position?: number[]
+    position?: number[] | Float32Array | Float64Array | Vector3
     radius?: number
     angle?: number
     shadows?: ShadowQuality
@@ -21,7 +21,7 @@ export class IPointLight
 
 export default class PointLight extends Light
 {
-    public Position: number[]
+    public Position: Vector3
     public Radius: number
     public Angle: number
 
@@ -40,7 +40,7 @@ export default class PointLight extends Light
     {
         super(name, colour, intensity, shadows)
         
-        this.Position = [ ...position ]
+        this.Position = new Vector3(position as Float64Array)
         this.Radius = radius
         this.Angle = angle
 

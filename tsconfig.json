@@ -1,15 +1,27 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "declaration": true,
-        "sourceMap": true,
-        "module": "commonjs",
+        "module": "ES2015",
+        "moduleResolution": "node",
         "esModuleInterop": true,
         "noImplicitAny": true,
+        "declaration": true,
+        "sourceMap": true,
         "strict": true,
-        "rootDir": "./src/",
-        "outDir": "./dist",
-        "watch": true
+        "rootDir": "./src",
+        "outDir": "./build",
+        "skipLibCheck": true,
+        "watch": true,
+        "baseUrl": "src",
+        "paths": {
+            "@core/*": [ "core" ],
+            "@render/*": [ "render" ],
+            "@physics/*": [ "physics" ],
+            "@maths/*": [ "maths" ],
+            "@audio/*": [ "audio" ],
+            "@animation/*": [ "animation" ]
+        }
     },
-    "compileOnSave": true
+    "compileOnSave": true,
+
 }

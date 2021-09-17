@@ -1,10 +1,9 @@
-import { GL } from '../FWGE';
-import Item from './Item';
-import Colour4 from '../Colour/Colour4';
-import Vector2 from '../Maths/Vector2';
-import Vector3 from '../Maths/Vector3';
-import Vector4 from '../Maths/Vector4';
-import ArrayUtils from '../Utility/ArrayUtils';
+import Colour4 from '../Colour/Colour4'
+import { GL } from '../FWGE'
+import Vector2 from '../Maths/Vector2'
+import Vector3 from '../Maths/Vector3'
+import ArrayUtils from '../Utility/ArrayUtils'
+import Item from './Item'
 
 enum BufferType
 {
@@ -38,11 +37,11 @@ export function BindBufferData(type: BufferType, data: number[]): WebGLBuffer | 
 export interface IMesh
 {
     name?: string
-    position: Float32Array[] | Float32Array | number[][] | number[]
-    uv?: Float32Array[] | Float32Array | number[][] | number[]
-    colour?: Float32Array[] | Float32Array | number[][] | number[]
-    normal?: Float32Array[] | Float32Array | number[][] | number[]
-    index: Uint8Array | number[]
+    position: Float32Array[] | Float32Array | Vector3[] | [number, number, number][] | number[][] | number[]
+    uv?: Float32Array[] | Float32Array | Vector2[] | [number, number][] | number[][] | number[]
+    colour?: Float32Array[] | Float32Array | Colour4[] | [number, number, number, number][] | number[][] | number[]
+    normal?: Float32Array[] | Float32Array | Vector3[] | [number, number, number][] | number[][] | number[]
+    index?: Uint8Array | number[]
     wireframe?: Uint8Array | number[]
 }
 
@@ -54,6 +53,7 @@ export default class Mesh extends Item
     public readonly NormalBuffer: WebGLBuffer | null = null
     public readonly IndexBuffer: WebGLBuffer | null = null
     public readonly WireframeBuffer: WebGLBuffer | null = null
+    public readonly PointCount: number
     public readonly VertexCount: number
     public readonly WireframeCount: number
 
@@ -63,7 +63,7 @@ export default class Mesh extends Item
 
         if (position.length > 0)
         {
-            if(position[0] instanceof Float32Array || position[0] instanceof Array)
+            if (position[0] instanceof Float32Array || position[0] instanceof Array)
             {
                 position = ArrayUtils.Flatten(position as number[][])
             }
@@ -104,8 +104,9 @@ export default class Mesh extends Item
         this.IndexBuffer = BindBufferData(BufferType.INDEX, index as number[])
         this.WireframeBuffer = BindBufferData(BufferType.INDEX, wireframe as number[])
 
-        this.VertexCount = index.length
-        this.WireframeCount = wireframe.length
+        this.PointCount = position.length
+        this.VertexCount = index.length || 0
+        this.WireframeCount = wireframe.length || 0
     }
 }
 

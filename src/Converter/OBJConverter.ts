@@ -1,4 +1,4 @@
-import Colour4 from '..//Colour/Colour4';
+import Colour4 from '../Colour/Colour4';
 import GameObject from '../Object/GameObject';
 import Material, { IMaterial } from '../Object/Material';
 import Vector2 from '../Maths/Vector2';
@@ -21,38 +21,31 @@ export default class OBJConverter implements IConverter
 
     public static ParseOBJ(obj: string): Mesh
     {
-        let lines: string[] = obj.split('\n')
+        const lines: string[] = obj.split('\n')
         
-        let vertices: Array<Vector3> = []
-        let normals: Array<Vector3> = []
-        let uvs: Array<Vector2> = []
-
-        let face_offset: number = 0
-        let wireframe_offset: number = 0
-
+        const vertices: Array<Vector3> = []
+        const normals: Array<Vector3> = []
+        const uvs: Array<Vector2> = []
         let {
             name,
             position,
             normal,
             uv,
-            colour,
-            index,
-            wireframe
+            colour
         }: IMesh = {
             position: new Array<Vector3>(),
             normal: new Array<Vector3>(),
             uv: new Array<Vector2>(),
-            colour: new Array<Vector4>(),
-            index: new Array<number>(),
-            wireframe: new Array<number>()
+            colour: new Array<Vector4>()
         }
 
+        let line_number = 5
         for (let line of lines)
         {
             line = line.trim()
-            let key: string = line.split(' ')[0]
-            let value: string = line.substring(key.length).trim()
-            let values: string[] = value.split(' ')
+            const key: string = line.split(' ')[0]
+            const value: string = line.substring(key.length).trim()
+            const values: string[] = value.split(' ')
 
             switch (key)
             {
@@ -61,7 +54,17 @@ export default class OBJConverter implements IConverter
                 break
                 
                 case 'v':
-                    vertices.push(new Vector3(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])))
+                {
+                    let [x, y, z] = [ parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]) ]
+                    vertices.push(new Vector3(x, y, z))
+                    if (line_number < 9)
+                    {
+                        console.log(`[${line_number}]: ${ values[0] }, ${ values[1] }, ${ values[2] }`)
+                        console.log(`[${line_number}]: ${ x }, ${ y }, ${ z }`)
+                        line_number++
+                        console.log(vertices.toString())
+                    }
+                }
                 break
                 
                 case 'vn':
@@ -75,11 +78,12 @@ export default class OBJConverter implements IConverter
                 case 'f':
                     for (var i: number = 0; i < values.length; ++i)
                     {
-                        let faces = values[i].split('/').map(val => parseInt(val) - 1)
-
+                        const faces = values[i].split('/').map(val => parseInt(val) - 1)
+                        
                         if (!isNaN(faces[0]))
                         {
                             position.push(vertices[faces[0]])
+                            console.log(`[${faces[0]}]: ${vertices[faces[0]]}`)
                         }
                         
                         if (!isNaN(faces[1]))
@@ -91,32 +95,16 @@ export default class OBJConverter implements IConverter
                         {
                             normal.push(normals[faces[2]])
                         }
-
-                        if (i >= 2)
-                        {
-                            index.push(face_offset, face_offset + i - 1, face_offset + i)
-                        }
                     }
-                    
-                    for (var i = 0; i < values.length; ++i)
-                    {
-                        if (i === values.length - 1)
-                        {
-                            wireframe.concat(wireframe_offset + i, wireframe_offset)
-                        }
-                        else
-                        {
-                            wireframe.concat(wireframe_offset + i, wireframe_offset + i + 1)
-                        }
-                    }
-
-                    wireframe_offset += values.length
-                    face_offset += values.length
-                break
+                    console.log({ name, position, normal, uv, colour })
+                    return new Mesh({ name, position, normal, uv, colour })
+                    // break
+                }
+                
             }
-        }
-
-        return new Mesh({ name, position, normal, uv, colour, index, wireframe })
+            return new Mesh({ name, position, normal, uv, colour })
+            
+        // console.log({ name, position, normal, uv, colour })
     }
             
     public static ParseMTL(mtl: string): Material

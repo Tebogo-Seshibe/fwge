@@ -1,9 +1,6 @@
-import Cloneable from '../Interfaces/Cloneable';
-import List from '../Utility/List';
-import './Math';
-import { clean, lerp } from './Math';
+import { clean, lerp } from './Math'
 
-export default class Vector2 extends Float32Array implements Cloneable<Vector2>
+export default class Vector2 extends Float32Array
 {
     //#region Public Properties
     public get X(): number

@@ -68,7 +68,7 @@ export function ApplyImage(material: Material, src: string, type: ImageMapType):
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
         }
 
-        //GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);                
+        GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
         GL.bindTexture(GL.TEXTURE_2D, null);
     }
 

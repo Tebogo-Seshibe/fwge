@@ -19,7 +19,7 @@ interface IFWGE
     canvas: HTMLCanvasElement
     render?: number
     physics?: number
-    clear?: Colour4 | Colour3 | number[]
+    clear?: Colour4 | Colour3 | [number, number, number, number] | [number, number, number]
     height: number
     width: number
 }
@@ -101,13 +101,22 @@ export class FWGE
             throw false
         }
 
-        GL.clearColor(clear[0], clear[1], clear[2], clear[3])
+        GL.canvas.onresize = (_: UIEvent) => {
+            
+            GL.canvas.height = (<HTMLElement>GL.canvas).clientHeight
+            GL.canvas.width = (<HTMLElement>GL.canvas).clientWidth
+        } 
+        GL.canvas.height = (<HTMLElement>GL.canvas).clientHeight
+        GL.canvas.width = (<HTMLElement>GL.canvas).clientWidth
+
+        GL.clearColor(clear[0], clear[1], clear[2], clear[3] || 1.0)
+        GL.clear(this.GL.COLOR_BUFFER_BIT | this.GL.DEPTH_BUFFER_BIT)
     
-        this.Input.Init(canvas)
+        this.Input.Init(canvas, render)
         this.Time.Init(render, physics)
 
-        this.Height = canvas.height = height
-        this.Width = canvas.width = width
+        // this.Height = canvas.height = height
+        // this.Width = canvas.width = width
         
         this.LogicEngine = new LogicEngine()
         this.PhysicsEngine = new PhysicsEngine()
@@ -141,6 +150,7 @@ export class FWGE
         animationFrame = window.requestAnimationFrame(() => this.Update())
 
         this.Time.Update()
+        this.Input.Update()
         this.LogicEngine.Update(this.Time.Render)
         this.PhysicsEngine.Update(this.Time.Physics)
         this.RenderEngine.Update()

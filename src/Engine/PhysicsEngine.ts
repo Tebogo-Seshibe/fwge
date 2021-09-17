@@ -3,7 +3,7 @@ import { Equation } from "../Maths/Equation";
 import { TimeKeep } from '../Utility/Time';
 import Collider, { Colliders } from "../Physics/Collision/Collider";
 import { IsColission } from "../Physics/CollisionDetection";
-import { SphereCollider } from '../Physics/Collision';
+import { SphereCollider } from '../Physics/Collision/index';
 import { GameObjects } from '../Object/GameObject';
 import { clean } from '../Maths/Math';
 

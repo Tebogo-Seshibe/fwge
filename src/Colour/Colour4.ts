@@ -77,9 +77,11 @@ export default class Colour4 extends Float32Array
 
     
     constructor()
+    constructor(rgba: number)
     constructor(r: number, g: number, b: number, a: number)
     constructor(hex: string, alpha?: number)
     constructor(colour: Colour3)
+    constructor(colour: Colour3, a: number)
     constructor(colour: Colour4)
     constructor(array: Float32Array)
     constructor(array: number[])
