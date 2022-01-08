@@ -13,10 +13,10 @@ interface ITransform
 
 export class Transform extends Component
 {    
-    private _position: Vector3 = Vector3.ZERO
-    private _rotation: Vector3 = Vector3.ZERO
-    private _scale: Vector3 = Vector3.ONE
-    private _shear: Vector3 = Vector3.ZERO
+    private _position!: Vector3
+    private _rotation!: Vector3
+    private _scale!: Vector3
+    private _shear!: Vector3
 
     public static readonly UP = new Vector3(0, 1, 0)
     public static readonly DOWN = new Vector3(0, -1, 0)
@@ -32,7 +32,7 @@ export class Transform extends Component
 
     public set Position(position: Vector3 | Float32Array | [number, number, number])
     {
-        this._position = new Vector3(position as Float32Array)
+        this._position = new Vector3([...position])
     }
 
     public get Rotation(): Vector3
@@ -42,7 +42,7 @@ export class Transform extends Component
 
     public set Rotation(rotation: Vector3 | Float32Array | [number, number, number])
     {
-        this._rotation = new Vector3(rotation as Float32Array)
+        this._rotation = new Vector3([...rotation])
     }
 
     public get Scale(): Vector3
@@ -52,7 +52,7 @@ export class Transform extends Component
 
     public set Scale(scale: Vector3 | Float32Array | [number, number, number])
     {
-        this._scale = new Vector3(scale as Float32Array)
+        this._scale = new Vector3([...scale])
     }
 
     public get Shear(): Vector3
@@ -62,7 +62,7 @@ export class Transform extends Component
 
     public set Shear(shear: Vector3 | Float32Array | [number, number, number])
     {
-        this._shear = new Vector3(shear as Float32Array)
+        this._shear = new Vector3([...shear])
     }
 
     public get Matrix(): Matrix4
@@ -70,20 +70,21 @@ export class Transform extends Component
         return CalcuateModelView(this)
     }
 
-    constructor(transform: ITransform = { })
+    constructor()
+    constructor(transform: ITransform)
+    constructor(args: ITransform = 
+    {
+        position: Vector3.ZERO,
+        rotation: Vector3.ZERO,
+        scale: Vector3.ONE,
+        shear: Vector3.ZERO
+    })
     {
         super(Transform)
-
-        const {
-            position = [0, 0, 0],
-            rotation = [0, 0, 0],
-            scale = [1, 1, 1],
-            shear = [0, 0, 0]
-        }: ITransform = transform
         
-        this.Position = position
-        this.Rotation = rotation
-        this.Scale = scale
-        this.Shear = shear
+        this.Position = args.position!
+        this.Rotation = args.rotation!
+        this.Scale = args.scale!
+        this.Shear = args.shear!
     }
 }

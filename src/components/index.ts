@@ -6,4 +6,3 @@ export * from './Shader'
 export * from './Tag'
 export * from './Transform'
 export * from './UIComponent'
-

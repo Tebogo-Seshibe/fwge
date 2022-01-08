@@ -17,11 +17,18 @@
     "private": true,
     "license": "ISC",
     "scripts": {
-        "build": "npx tsc",
+        "build": "tsc",
         "test": "nyc --reporter=lcov --reporter=text-summary mocha --require ts-node/register ./src/**/*.test.ts"
     },
     "type": "module",
-    "main": "./build/index.js",
+    "exports": {
+        ".": "./build/index.js",
+        "./atoms": "./build/atoms/index.js",
+        "./components": "./build/components/index.js",
+        "./ecs": "./build/ecs/index.js",
+        "./systems": "./build/systems/index.js",
+        "./utils": "./build/utils/index.js"
+    },
     "dependencies": {},
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.1",

@@ -8,6 +8,6 @@ export abstract class Component
     constructor(componentType: Class<Component>)
     {
         this.Id = Registry.getNextComponentId(componentType)
-        this.Type = Registry.getComponentTypeId(componentType)!
+        this.Type = Registry.getComponentTypeId(componentType)
     }
 }

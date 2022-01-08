@@ -1,44 +1,44 @@
-import { Camera } from "../atoms/Camera"
+import { Camera } from "../entities/Camera"
 import { IUpdateable } from "../atoms/Updateable"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
 import { GL } from "./Game"
-import { Class, Constructor, EntityId, Registry, SceneId } from "./Registry"
+import { Class, Constructor, EntityId, Registry, SceneId, Tail } from "./Registry"
 import { System } from "./System"
+import { Light } from "entities/lights/Light"
 
 export class Scene implements IUpdateable
 {
-    private entities: Entity[] = []
-    private cameras: Camera[] = []
-    private mainCamera?: Camera
-    public Systems: Map<Class<System>, System> = new Map()
+    private _entities: Array<Entity | undefined> = []
+    private _cameras: Camera[] = []
+    private _lights: Light[] = []
+    private _mainCamera?: Camera
+    private _systems: Map<Class<System>, System> = new Map()
     
     public get Camera(): Camera | undefined
     {
-        return this.mainCamera
+        return this._mainCamera
     }
 
-    constructor(
-        public readonly Id: SceneId
-    ) { }
+    constructor(public readonly Id: SceneId) { }
 
     //#region Control
     public Init(): void
     {
-        if (this.cameras.length === 0)
+        if (this._cameras.length === 0)
         {
             throw new Error('No cameras in the scene')
         }
 
-        if (!this.mainCamera)
+        if (!this._mainCamera)
         {
-            this.mainCamera = this.cameras[0]
+            this._mainCamera = this._cameras[0]
         }
           
         GL.canvas.height = 1080
         GL.canvas.width = 1920
         
-        for (const [ , system ] of this.Systems)
+        for (const [ , system ] of this._systems)
         {
             system.Init()
         }
@@ -46,7 +46,7 @@ export class Scene implements IUpdateable
     
     public Start(): void
     {
-        for (const [ , system ] of this.Systems)
+        for (const [ , system ] of this._systems)
         {
             system.Start()
         }
@@ -54,7 +54,7 @@ export class Scene implements IUpdateable
 
     public Update(delta: number): void
     {
-        for (const [ , system ] of this.Systems)
+        for (const [ , system ] of this._systems)
         {
             system.Update(delta)
         }
@@ -62,7 +62,7 @@ export class Scene implements IUpdateable
 
     public Stop(): void
     {
-        for (const [ , system ] of this.Systems)
+        for (const [ , system ] of this._systems)
         {
             system.Stop()
         }
@@ -77,7 +77,7 @@ export class Scene implements IUpdateable
             if (Registry.getComponentType(this.Id, system.name) === -1)
             {
                 Registry.registerComponentType(this.Id, system.name)
-                this.Systems.set(system as Class<T>, new system(this))
+                this._systems.set(system as Class<T>, new system(this))
             }
         })
 
@@ -99,10 +99,13 @@ export class Scene implements IUpdateable
     //#endregion
     
     //#region Entity
-    public CreateEntity(): Entity
+    public CreateEntity<T extends Entity, U extends any[]>(constructor: Constructor<T, [Scene, ...U]>, ...args: U): T
     {
-        const entity = new Entity(this, this.entities.length)
-        this.entities.push(entity)
+        console.log(constructor)
+        console.log(args)
+
+        const entity = new constructor(this, ...args)
+        this._entities.push(entity)
         this.OnEntity(entity)
 
         return entity
@@ -110,29 +113,28 @@ export class Scene implements IUpdateable
 
     public GetEntity(entityId: EntityId): Entity | undefined
     {
-        return this.entities[entityId]
-    }
-
-    public CreateCamera(): Camera
-    {
-        const camera = new Camera(this)
-        this.cameras.push(camera)
-
-        return camera
+        return this._entities[entityId]
     }
 
     public RemoveEntity(entityId: EntityId): void
     public RemoveEntity(entity: Entity): void
     public RemoveEntity(arg: EntityId | Entity): void
     {
-        // if ()
-        // Registry.
+        const entity = typeof arg === 'number'
+            ? this.GetEntity(arg)
+            : arg
+
+        if (entity)
+        {
+            this._entities[entity.Id] = undefined
+            this.OnEntity(entity)
+        }
     }
 
     public OnEntity(entity: Entity): void
     {
         
-        for (const [, system] of this.Systems)
+        for (const [, system] of this._systems)
         {
             system.OnUpdateEntity(entity)
         }

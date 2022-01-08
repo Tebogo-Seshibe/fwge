@@ -1,7 +1,7 @@
 import { clamp, clean } from '../helpers/Math'
 import { Colour3 } from './Colour3'
 
-export default class Colour4 extends Float32Array
+export class Colour4 extends Float32Array
 {    
     public get R(): number
     {

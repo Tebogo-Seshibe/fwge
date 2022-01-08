@@ -77,7 +77,6 @@ export class Colour3 extends Float32Array
     constructor(r?: Float32Array | number[] | number | string, g?: number, b?: number)
     {
         super(3)
-        const [ red, greeen, blue ] = Deconstruct(r!, g, b)
 
         if (r !== undefined)
         {

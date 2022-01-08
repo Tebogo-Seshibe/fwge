@@ -162,7 +162,10 @@ export class Game
                 throw new Error(`Component of type "${ type.name }" not registered`)
             }
 
-            this._libraries[libraryIndex] = new Library(type)
+            if (!this._libraries[libraryIndex])
+            {
+                this._libraries[libraryIndex] = new Library(type)
+            }
         }
     }
 

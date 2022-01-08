@@ -8,13 +8,13 @@ export class Prefab
     private _components: Map<TypeId, [ Component ] | [ Constructor<Component, any>, any[] ]> = new Map()
 
     public AddComponent<T extends Component>(component: T): Prefab
-    public AddComponent<T extends Component, K extends any[]>(constructor: Constructor<T, K>, ...args: K): Prefab
-    public AddComponent<T extends Component, K extends any[]>(type: Constructor<T, K> | T, ...args: K): Prefab
+    public AddComponent<T extends Component, U extends any[]>(constructor: Constructor<T, U>, ...args: U): Prefab
+    public AddComponent<T extends Component, U extends any[]>(type: Constructor<T, U> | T, ...args: U): Prefab
     {
         if (args && args.length > 0)
         {
             const typeId = Registry.getComponentTypeId(type as Class<T>)
-            this._components.set(typeId, [ type as Constructor<T, K>, args ])
+            this._components.set(typeId, [ type as Constructor<T, U>, args ])
         }
         else
         {
@@ -41,7 +41,7 @@ export class Prefab
 
     public Intstance(scene: Scene): Entity
     {
-        const entity = scene.CreateEntity()
+        const entity = scene.CreateEntity(Entity)
 
         for (const [, [ component, args ]] of this._components)
         {

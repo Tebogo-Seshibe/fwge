@@ -1,5 +1,5 @@
 import { isPowerOf2 } from "../atoms/helpers/Math"
-import { Colour4 } from "../colour/Colour4"
+import { Colour4 } from "../atoms"
 import { Component } from "../ecs/Component"
 import { GL } from "../ecs/Game"
 
@@ -40,6 +40,7 @@ export class Material extends Component
             ApplyImage(this._imageTexture!, src)
         }
     }
+
     public set NormalMap(src: string | null)
     {
         GL.deleteTexture(this._normalTexture)
@@ -50,6 +51,7 @@ export class Material extends Component
             ApplyImage(this._normalTexture!, src)
         }
     }
+
     public set SpecularMap(src: string | null)
     {
         GL.deleteTexture(this._specularTexture)
@@ -66,40 +68,40 @@ export class Material extends Component
     {
         return this._imageTexture
     }
+
     private _normalTexture: WebGLTexture | null = null
     public get NormalTexture(): WebGLTexture | null
     {
         return this._normalTexture
     }
+
     private _specularTexture: WebGLTexture | null = null
     public get SpecularTexture(): WebGLTexture | null
     {
         return this._specularTexture
     }
 
-    constructor(args: IMaterial)
+    constructor()
+    constructor(material: IMaterial)
+    constructor(args: IMaterial =
+    {
+        ambient: new Colour4(0.50, 0.50, 0.50, 1.0),
+        diffuse: new Colour4(0.65, 0.65, 0.65, 1.0),
+        specular: new Colour4(0.75, 0.75, 0.75, 1.0),
+        alpha: 1.0,
+        shininess: 1.0
+    })
     {
         super(Material)
 
-        const {
-            ambient = new Colour4(0.50, 0.50, 0.50, 1.0),
-            diffuse = new Colour4(0.65, 0.65, 0.65, 1.0),
-            specular = new Colour4(0.75, 0.75, 0.75, 1.0),
-            alpha = 1.0,
-            shininess = 32.0,
-            imagemap, normalmap, specularmap
-        } = args
-
-        this.Ambient = ambient
-        this.Diffuse = diffuse
-        this.Specular = specular
-
-        this.Alpha = alpha
-        this.Shininess = shininess
-
-        this.ImageMap = imagemap ?? null
-        this.NormalMap = normalmap ?? null
-        this.SpecularMap = specularmap ?? null
+        this.Ambient = args.ambient
+        this.Diffuse = args.diffuse
+        this.Specular = args.specular
+        this.Alpha = args.alpha
+        this.Shininess = args.shininess
+        this.ImageMap = args.imagemap ?? null
+        this.NormalMap = args.normalmap ?? null
+        this.SpecularMap = args.specularmap ?? null
     }
 
 }

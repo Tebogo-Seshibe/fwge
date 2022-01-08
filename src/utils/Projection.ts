@@ -2,13 +2,12 @@ import { cot, radian } from "../atoms/helpers/Math"
 import { Matrix3, Matrix4 } from "../atoms/matrix"
 import { Vector3 } from "../atoms/vector"
 
-
 export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
 {
     const f = target.Clone().Diff(position).Unit()
     const r = up.Clone().Cross(f).Unit()
     const u = f.Clone().Cross(r).Unit()
-    const p = position.Clone() // origin
+    const p = position.Clone()
     
     return new Matrix4
     (

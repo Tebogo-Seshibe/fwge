@@ -1,5 +1,4 @@
-import { Vector2, Vector3, Vector4 } from "../atoms/vector"
-import { Colour4 } from "../colour/Colour4"
+import { Colour4, Vector2, Vector3, Vector4 } from "../atoms"
 import { Component } from "../ecs/Component"
 import { GL } from "../ecs/Game"
 
@@ -22,6 +21,7 @@ function flatten(src: Vector2[] | Vector3[] | Vector4[]): Float32Array
     {
         dest.push(...vec)
     }
+
     return new Float32Array(dest)
 }
 
@@ -38,11 +38,8 @@ export class Mesh extends Component
     public _wireframe: number = 0
     public _dynamic: boolean = false
     
-    
     public set Position(buffer: Float32Array | Vector3[] | number[])
     {
-        buffer = new Float32Array(buffer[0] instanceof Vector3 ? flatten(buffer as Vector3[]) : buffer as number[])
-
         if (!this._dynamic)
         {
             GL.deleteBuffer(this._positionBuffer)
@@ -53,6 +50,7 @@ export class Mesh extends Component
             this._positionBuffer = GL.createBuffer()
         }
 
+        buffer = new Float32Array(buffer[0] instanceof Vector3 ? flatten(buffer as Vector3[]) : buffer as number[])
         GL.bindBuffer(GL.ARRAY_BUFFER, this._positionBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
         

@@ -1,14 +1,11 @@
-import { Colour4 } from "../colour/Colour4"
-import { Component } from "../ecs/Component"
-import { GL } from "../ecs/Game"
+import { Colour3, Colour4 } from "../atoms"
+import { GL, Component } from "../ecs"
 
 export interface IShader
 {
-    vertexShader: string
-    fragmentShader: string
     height?: number
     width?: number
-    baseColour?: Colour4 | [number, number, number, number]
+    baseColour?: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4
 }
 
 export type UniformField =
@@ -107,9 +104,12 @@ export class ShaderUniforms
 }
 
 export class Shader extends Component
-{    
+{
+    private _clear!: Colour4
+    private _height!: number
+    private _width!: number
+
     public Program: WebGLProgram | null = null
-    public Clear: Colour4 = new Colour4(0, 0, 0, 1)
     public Filter: boolean = false
 
     public OffsetX: number = 0
@@ -126,7 +126,15 @@ export class Shader extends Component
     public FrameBuffer: WebGLFramebuffer | null = null
     public RenderBuffer: WebGLRenderbuffer | null = null
 
-    private _height: number = 0
+    public get Clear(): Colour4
+    {
+        return this._clear
+    }
+    public set Clear(clear: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4)
+    {
+        this._clear = new Colour4([...clear])
+    }
+
     public get Height(): number
     {
         return this._height
@@ -141,7 +149,6 @@ export class Shader extends Component
         }
     }
     
-    private _width: number = 0
     public get Width(): number
     {
         return this._width
@@ -178,21 +185,20 @@ export class Shader extends Component
         }
     }
 
-    constructor(args: IShader)
+    constructor(vertexShader: string, fragmentShader: string)
+    constructor(vertexShader: string, fragmentShader: string, properties: IShader)
+    constructor(vertexShader: string, fragmentShader: string, args: IShader =
+    { 
+        height: 1080,
+        width: 1920,
+        baseColour: new Colour4(0.0, 0.0, 0.0, 1.0)
+    })
     {
         super(Shader)
 
-        const {
-            vertexShader,
-            fragmentShader,
-            height = 1080,
-            width = 1920,
-            baseColour = [1, 1, 1, 1]
-        } = args
-
-        this._height = height
-        this._width = width
-        this.Clear = new Colour4(baseColour as number[])
+        this.Height = args.height!
+        this.Width = args.width!
+        this.Clear = args.baseColour!
 
         this.Vertex = vertexShader
         this.Fragment = fragmentShader
@@ -300,7 +306,7 @@ function BuildShader(shader: Shader): void
     )
 }
 
-function BuildBuffers(shader: Shader)
+function BuildBuffers(shader: Shader): void
 {
     GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
     GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer)

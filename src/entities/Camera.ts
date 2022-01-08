@@ -1,9 +1,10 @@
 import { Transform } from '../components'
 import { Entity } from '../ecs/Entity'
 import { Scene } from '../ecs/Scene'
-import { Matrix4 } from './matrix/Matrix4'
-import { Vector3 } from './vector/Vector3'
-import { LookAt, Orthographic, Perspective } from '../utils//Projection'
+import { Matrix4 } from '../atoms/matrix/Matrix4'
+import { Vector3 } from '../atoms/vector/Vector3'
+import { LookAt, Orthographic, Perspective } from '../utils/Projection'
+import { Component, Class, Registry } from '../ecs/'
 
 export enum ViewMode
 {
@@ -14,6 +15,11 @@ export enum ViewMode
 
 export class Camera extends Entity
 {
+    public get Transform(): Transform
+    {
+        return this.GetComponent(Transform)!
+    }
+
     private _matrix: Matrix4 = Matrix4.IDENTITY
     public get Matrix(): Matrix4
     {
@@ -60,5 +66,15 @@ export class Camera extends Entity
                 this._matrix = LookAt(this.GetComponent(Transform)!.Position, this.Target, this.Up)
                 break
         }
+    }
+    
+    public override RemoveComponent<T extends Component>(type: Class<T>): Entity
+    {
+        if (Registry.getComponentTypeId(type) !== Registry.getComponentTypeId(Transform))
+        {
+            return super.RemoveComponent(type)
+        }
+
+        return this
     }
 }

@@ -1,3 +1,4 @@
+import { Light } from '../entities/lights/Light'
 import { Matrix3 } from '../atoms/matrix/Matrix3'
 import { Matrix4 } from '../atoms/matrix/Matrix4'
 import { Material, Mesh, Shader, ShaderAttribute, ShaderUniforms } from '../components'
@@ -10,6 +11,7 @@ import { System } from '../ecs/System'
 export class RenderSystem extends System
 {
     private shaders: Set<Shader> = new Set()
+    private lights: Set<Light> = new Set()
 
     constructor(manager: Scene)
     {
@@ -22,9 +24,17 @@ export class RenderSystem extends System
         for (const entityId of this.entities)
         {
             const entity = this.scene.GetEntity(entityId)!
-            const shader = entity.GetComponent(Shader)!
+
+            if (entity instanceof Light)
+            {
+                this.lights.add(entity)
+            }
+            else
+            {
+                const shader = entity.GetComponent(Shader)!
+                this.shaders.add(shader)
+            }
             
-            this.shaders.add(shader)
         }
     }
 
