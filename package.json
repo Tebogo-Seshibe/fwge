@@ -21,6 +21,10 @@
         "test": "nyc --reporter=lcov --reporter=text-summary mocha --require ts-node/register ./src/**/*.test.ts"
     },
     "type": "module",
+    "main": "build/index.js",
+    "files": [
+        "build/"
+    ],
     "exports": {
         ".": "./build/index.js",
         "./atoms": "./build/atoms/index.js",

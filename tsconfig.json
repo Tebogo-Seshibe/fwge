@@ -15,11 +15,11 @@
         "baseUrl": "src",
         "removeComments": false,
         "paths": {
-            "@atoms": [ "./atoms" ],
-            "@components": [ "./components" ],
-            "@ecs": [ "./ecs" ],
-            "@systems": [ "./systems" ],
-            "@utils": [ "./utils" ]
+            "@atoms/*": [ "./atoms/*" ],
+            "@components/*": [ "./components/*" ],
+            "@ecs/*": [ "./ecs/*" ],
+            "@systems/*": [ "./systems/*" ],
+            "@utils/*": [ "./utils/*" ]
         }
     },
     "compileOnSave": true,

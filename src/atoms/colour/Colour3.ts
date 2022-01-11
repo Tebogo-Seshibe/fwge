@@ -1,3 +1,4 @@
+import { Colour4 } from '.'
 import { clamp, clean } from '../helpers/Math'
 
 export class Colour3 extends Float32Array
@@ -73,6 +74,8 @@ export class Colour3 extends Float32Array
     constructor(r: number, g: number, b: number)
     constructor(hex: string)
     constructor(array: Float32Array)
+    constructor(colour: Colour3)
+    constructor(colour: Colour4)
     constructor(array: number[])
     constructor(r?: Float32Array | number[] | number | string, g?: number, b?: number)
     {
@@ -97,6 +100,8 @@ export class Colour3 extends Float32Array
     
     public Set(r: number, g: number, b: number): Colour3
     public Set(hex: string): Colour3
+    public Set(colour: Colour3): Colour3
+    public Set(colour: Colour4): Colour3
     public Set(array: Float32Array): Colour3
     public Set(array: number[]): Colour3
     public Set(r: Float32Array | number[] | number | string, g?: number, b?: number): Colour3

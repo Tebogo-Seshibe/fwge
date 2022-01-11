@@ -1,5 +1,5 @@
 import { Scene } from "ecs/"
-import { Colour4 } from "atoms/colour"
+import { Colour4 } from "../../atoms/colour"
 import { Light } from "./Light"
 
 interface IAreaLight

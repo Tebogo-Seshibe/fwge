@@ -1,11 +1,10 @@
-import { Camera } from "../entities/Camera"
 import { IUpdateable } from "../atoms/Updateable"
+import { Camera } from "../entities/Camera"
+import { Light } from "../entities/lights/Light"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
-import { GL } from "./Game"
-import { Class, Constructor, EntityId, Registry, SceneId, Tail } from "./Registry"
+import { Class, Constructor, EntityId, Registry, SceneId } from "./Registry"
 import { System } from "./System"
-import { Light } from "entities/lights/Light"
 
 export class Scene implements IUpdateable
 {
@@ -34,9 +33,6 @@ export class Scene implements IUpdateable
         {
             this._mainCamera = this._cameras[0]
         }
-          
-        GL.canvas.height = 1080
-        GL.canvas.width = 1920
         
         for (const [ , system ] of this._systems)
         {
@@ -105,8 +101,19 @@ export class Scene implements IUpdateable
         console.log(args)
 
         const entity = new constructor(this, ...args)
-        this._entities.push(entity)
-        this.OnEntity(entity)
+        if (entity instanceof Camera)
+        {
+            this._cameras.push(entity)
+        }
+        else if (entity instanceof Light)
+        {
+            this._lights.push(entity)
+        }
+        else
+        {
+            this._entities.push(entity)
+            this.OnEntity(entity)
+        }
 
         return entity
     }
