@@ -2,168 +2,168 @@ import { clean } from '../helpers/Math'
 
 export class Matrix4 extends Float32Array
 {
-    //#region Public Properties
-    public get M11(): number
+    //#region Properties
+    get M11(): number
     { 
         return this[0]
     }
 
-    public set M11(m11: number)
+    set M11(m11: number)
     {
         this[0] = clean(m11)
     }
 
-    public get M12(): number
+    get M12(): number
     { 
         return this[1]
     }
 
-    public set M12(m12: number)
+    set M12(m12: number)
     {
         this[1] = clean(m12)
     }
 
-    public get M13(): number
+    get M13(): number
     { 
         return this[2]
     }
 
-    public set M13(m13: number)
+    set M13(m13: number)
     {
         this[2] = clean(m13)
     }
 
-    public get M14(): number
+    get M14(): number
     { 
         return this[3]
     }
 
-    public set M14(m14: number)
+    set M14(m14: number)
     {
         this[3] = clean(m14)
     }
 
-    public get M21(): number
+    get M21(): number
     { 
         return this[4]
     }
 
-    public set M21(m21: number)
+    set M21(m21: number)
     {
         this[4] = clean(m21)
     }
 
-    public get M22(): number
+    get M22(): number
     { 
         return this[5]
     }
 
-    public set M22(m22: number)
+    set M22(m22: number)
     {
         this[5] = clean(m22)
     }
 
-    public get M23(): number
+    get M23(): number
     { 
         return this[6]
     }
 
-    public set M23(m23: number)
+    set M23(m23: number)
     {
         this[6] = clean(m23)
     }
 
-    public get M24(): number
+    get M24(): number
     { 
         return this[7]
     }
 
-    public set M24(m24: number)
+    set M24(m24: number)
     {
         this[7] = clean(m24)
     }
 
-    public get M31(): number
+    get M31(): number
     { 
         return this[8]
     }
 
-    public set M31(m31: number)
+    set M31(m31: number)
     {
         this[8] = clean(m31)
     }
 
-    public get M32(): number
+    get M32(): number
     { 
         return this[9]
     }
 
-    public set M32(m32: number)
+    set M32(m32: number)
     {
         this[9] = clean(m32)
     }
 
-    public get M33(): number
+    get M33(): number
     { 
         return this[10]
     }
 
-    public set M33(m33: number)
+    set M33(m33: number)
     {
         this[10] = clean(m33)
     }
 
-    public get M34(): number
+    get M34(): number
     { 
         return this[11]
     }
 
-    public set M34(m34: number)
+    set M34(m34: number)
     {
         this[11] = clean(m34)
     }
 
-    public get M41(): number
+    get M41(): number
     { 
         return this[12]
     }
 
-    public set M41(m41: number)
+    set M41(m41: number)
     {
         this[12] = clean(m41)
     }    
 
-    public get M42(): number
+    get M42(): number
     { 
         return this[13]
     }
 
-    public set M42(m42: number)
+    set M42(m42: number)
     {
         this[13] = clean(m42)
     }
 
-    public get M43(): number
+    get M43(): number
     { 
         return this[14]
     }
     
-    public set M43(m43: number)
+    set M43(m43: number)
     {
         this[14] = clean(m43)
     }
 
-    public get M44(): number
+    get M44(): number
     { 
         return this[15]
     }
 
-    public set M44(m44: number)
+    set M44(m44: number)
     {
         this[15] = clean(m44)
     }
 
-    public get Determinant(): number
+    get Determinant(): number
     {
         return clean(
             this.M11 * this.M22 * this.M33 * this.M44 +
@@ -194,7 +194,7 @@ export class Matrix4 extends Float32Array
     }
     //#endregion
 
-    //#region Public Methods
+    //#region Methods
     constructor()
     constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
     constructor(thisrix: Matrix4)
@@ -223,17 +223,17 @@ export class Matrix4 extends Float32Array
         }
     }
 
-    public Set(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    public Set(array: Float32Array): Matrix4
-    public Set(array: number[]): Matrix4
-    public Set(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Set(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
+    Set(array: Float32Array): Matrix4
+    Set(array: number[]): Matrix4
+    Set(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         [ 
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
             m41, m42, m43, m44
-        ] = Matrix4.Destructure(
+        ] = Destructure(
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
@@ -263,17 +263,17 @@ export class Matrix4 extends Float32Array
         return this
     }
 
-    public Sum(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    public Sum(array: Float32Array): Matrix4
-    public Sum(array: number[]): Matrix4
-    public Sum(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Sum(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
+    Sum(array: Float32Array): Matrix4
+    Sum(array: number[]): Matrix4
+    Sum(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         [ 
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
             m41, m42, m43, m44
-        ] = Matrix4.Destructure(
+        ] = Destructure(
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
@@ -303,17 +303,17 @@ export class Matrix4 extends Float32Array
         return this
     }
 
-    public Mult(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
-    public Mult(array: Float32Array): Matrix4
-    public Mult(array: number[]): Matrix4
-    public Mult(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
+    Mult(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
+    Mult(array: Float32Array): Matrix4
+    Mult(array: number[]): Matrix4
+    Mult(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): Matrix4
     {
         [ 
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
             m41, m42, m43, m44
-        ] = Matrix4.Destructure(
+        ] = Destructure(
             m11, m12, m13, m14,
             m21, m22, m23, m24,
             m31, m32, m33, m34,
@@ -343,7 +343,7 @@ export class Matrix4 extends Float32Array
         )
     }
     
-    public Scale(scaler: number): Matrix4
+    Scale(scaler: number): Matrix4
     {
         this.M11 *= scaler
         this.M12 *= scaler
@@ -368,7 +368,7 @@ export class Matrix4 extends Float32Array
         return this
     }
 
-    public Transpose(): Matrix4
+    Transpose(): Matrix4
     {
         return this.Set(
             this.M11, this.M21, this.M31, this.M41,
@@ -378,7 +378,7 @@ export class Matrix4 extends Float32Array
         )
     }
 
-    public Inverse(): Matrix4
+    Inverse(): Matrix4
     {
         var det = this.Determinant
 
@@ -505,7 +505,7 @@ export class Matrix4 extends Float32Array
         return this
     }
 
-    public Identity(): Matrix4
+    Identity(): Matrix4
     {
         return this.Set(
             1, 0, 0, 0,
@@ -515,19 +515,19 @@ export class Matrix4 extends Float32Array
         )
     }
 
-    public Clone(): Matrix4
+    Clone(): Matrix4
     {
         return new Matrix4(this)
     }
 
-    public override toString(): string
+    override toString(): string
     {
         return `[ ${(this.M11 < 0 ? '' : ' ') + this.M11.toFixed(3)}  ][ ${(this.M12 < 0 ? '' : ' ') + this.M12.toFixed(3)}  ][ ${(this.M13 < 0 ? '' : ' ') + this.M13.toFixed(3)}  ][ ${(this.M14 < 0 ? '' : ' ') + this.M14.toFixed(3)}  ]\n[ ${(this.M21 < 0 ? '' : ' ') + this.M21.toFixed(3)}  ][ ${(this.M22 < 0 ? '' : ' ') + this.M22.toFixed(3)}  ][ ${(this.M23 < 0 ? '' : ' ') + this.M23.toFixed(3)}  ][ ${(this.M24 < 0 ? '' : ' ') + this.M24.toFixed(3)}  ]\n[ ${(this.M31 < 0 ? '' : ' ') + this.M31.toFixed(3)}  ][ ${(this.M32 < 0 ? '' : ' ') + this.M32.toFixed(3)}  ][ ${(this.M33 < 0 ? '' : ' ') + this.M33.toFixed(3)}  ][ ${(this.M34 < 0 ? '' : ' ') + this.M34.toFixed(3)}  ]\n[ ${(this.M41 < 0 ? '' : ' ') + this.M41.toFixed(3)}  ][ ${(this.M42 < 0 ? '' : ' ') + this.M42.toFixed(3)}  ][ ${(this.M43 < 0 ? '' : ' ') + this.M43.toFixed(3)}  ][ ${(this.M44 < 0 ? '' : ' ') + this.M44.toFixed(3)}  ]`
     }
     //#endregion
 
     //#region Static Properties
-    public static get ZERO()
+    static get ZERO()
     {
         return new Matrix4(
             0, 0, 0, 0,
@@ -537,7 +537,7 @@ export class Matrix4 extends Float32Array
         )
     }
 
-    public static get IDENTITY()
+    static get IDENTITY()
     {
         return new Matrix4(
             1, 0, 0, 0,
@@ -547,26 +547,24 @@ export class Matrix4 extends Float32Array
         )
     }
     //#endregion
+}
 
-    //#region Static Helpers
-    private static Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): number[]
+function Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): number[]
+{
+    if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array)
     {
-        if (m11 instanceof Matrix4 || m11 instanceof Float32Array || m11 instanceof Array)
-        {
-            [
-                m11, m12, m13, m14,
-                m21, m22, m23, m24,
-                m31, m32, m33, m34,
-                m41, m42, m43, m44
-            ] = m11
-        }
-
-        return [
-            m11,  m12!, m13!, m14!,
-            m21!, m22!, m23!, m24!,
-            m31!, m32!, m33!, m34!,
-            m41!, m42!, m43!, m44!
-        ]
+        [
+            m11, m12, m13, m14,
+            m21, m22, m23, m24,
+            m31, m32, m33, m34,
+            m41, m42, m43, m44
+        ] = m11
     }
-    //#endregion
+
+    return [
+        m11,  m12!, m13!, m14!,
+        m21!, m22!, m23!, m24!,
+        m31!, m32!, m33!, m34!,
+        m41!, m42!, m43!, m44!
+    ]
 }

@@ -8,7 +8,7 @@ export class Tag extends Component
     constructor(name: string)
     constructor(name: string = 'Default')
     {
-        super(Tag)
+        super()
 
         this.Name = name
     }

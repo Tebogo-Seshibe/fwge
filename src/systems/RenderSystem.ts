@@ -3,7 +3,7 @@ import { Matrix3 } from '../atoms/matrix/Matrix3'
 import { Matrix4 } from '../atoms/matrix/Matrix4'
 import { Material, Mesh, Shader, ShaderAttribute, ShaderUniforms } from '../components'
 import { Transform } from '../components/Transform'
-import { GL, glUseProgram } from '../ecs/Game'
+import { GL } from '../ecs/GL'
 import { EntityId } from '../ecs/Registry'
 import { Scene } from '../ecs/Scene'
 import { System } from '../ecs/System'
@@ -91,14 +91,14 @@ export class RenderSystem extends System
     {
         const [ mv, normal ] = this.CalculateMatrices(transform)
 
-        glUseProgram(shader.Program)
+        GL.useProgram(shader.Program)
 
         this.BindAttributes(shader.Attributes!, mesh)
         this.BindUniforms(shader.BaseUniforms!, material, mv, normal, delta, entityId)
         this.BindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
         this.Render(shader, mesh)
 
-        glUseProgram(null)
+        GL.useProgram(null)
     }
 
     private PostProcess(): void

@@ -1,39 +1,39 @@
-import { Colour4 } from '.'
 import { clamp, clean } from '../helpers/Math'
+import { Colour4 } from './Colour4'
 
 export class Colour3 extends Float32Array
 {    
-    public get R(): number
+    get R(): number
     {
         return this[0]
     }
 
-    public set R(red: number)
+    set R(red: number)
     {
         this[0] = clean(clamp(red, 0, 1))
     }
         
-    public get G(): number
+    get G(): number
     {
         return this[1]
     }
 
-    public set G(green: number)
+    set G(green: number)
     {
         this[1] = clean(clamp(green, 0, 1))
     }
         
-    public get B(): number
+    get B(): number
     {
         return this[2]
     }
 
-    public set B(blue: number)
+    set B(blue: number)
     {
         this[2] = clean(clamp(blue, 0, 1))
     }
 
-    public get BIN(): string
+    get BIN(): string
     {
         let str = 'b'
         this.forEach(i => str += Math.round(i * 255).toString(2))
@@ -41,7 +41,7 @@ export class Colour3 extends Float32Array
         return str
     }
 
-    public get OCT(): string
+    get OCT(): string
     {
         let str = 'o'
         this.forEach(i => str += Math.round(i * 255).toString(8))
@@ -49,7 +49,7 @@ export class Colour3 extends Float32Array
         return str
     }
 
-    public get DEC(): string
+    get DEC(): string
     {
         let str = ''
         this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
@@ -57,7 +57,7 @@ export class Colour3 extends Float32Array
         return str.substring(0, str.length - 1)
     }
 
-    public get HEX(): string
+    get HEX(): string
     {
         let str = '#' 
         this.forEach(i => str += Math.round(i * 255).toString(16))
@@ -65,7 +65,7 @@ export class Colour3 extends Float32Array
         return str
     }
 
-    public get HSV(): string
+    get HSV(): string
     {
         return 'TODO'
     }
@@ -98,13 +98,13 @@ export class Colour3 extends Float32Array
         }
     }
     
-    public Set(r: number, g: number, b: number): Colour3
-    public Set(hex: string): Colour3
-    public Set(colour: Colour3): Colour3
-    public Set(colour: Colour4): Colour3
-    public Set(array: Float32Array): Colour3
-    public Set(array: number[]): Colour3
-    public Set(r: Float32Array | number[] | number | string, g?: number, b?: number): Colour3
+    Set(r: number, g: number, b: number): Colour3
+    Set(hex: string): Colour3
+    Set(colour: Colour3): Colour3
+    Set(colour: Colour4): Colour3
+    Set(array: Float32Array): Colour3
+    Set(array: number[]): Colour3
+    Set(r: Float32Array | number[] | number | string, g?: number, b?: number): Colour3
     {
         [ r, g, b ] = Deconstruct(r, g, b)        
 

@@ -13,7 +13,7 @@ export class SpotLight extends Light
     constructor(scene: Scene, light: ISpotLight)
     constructor(scene: Scene, light: ISpotLight =
     {
-        colour:  new Colour4(1.0, 1.0, 1.0, 1.0)
+        colour: new Colour4(1.0, 1.0, 1.0, 1.0)
     })
     {
         super(scene, light.colour!)

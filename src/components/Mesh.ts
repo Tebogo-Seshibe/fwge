@@ -1,6 +1,6 @@
 import { Colour4, Vector2, Vector3, Vector4 } from "../atoms"
 import { Component } from "../ecs/Component"
-import { GL } from "../ecs/Game"
+import { GL } from "../ecs/GL"
 
 export interface IMesh
 {
@@ -27,46 +27,46 @@ function flatten(src: Vector2[] | Vector3[] | Vector4[]): Float32Array
 
 export class Mesh extends Component
 {
-    public _positionBuffer: WebGLBuffer | null = null
-    public _normalBuffer: WebGLBuffer | null = null
-    public _colourBuffer: WebGLBuffer | null = null
-    public _uvBuffer: WebGLBuffer | null = null
-    public _indexBuffer: WebGLBuffer | null = null
-    public _wireframeBuffer: WebGLBuffer | null = null
-    public _vertices: number = 0
-    public _indices: number = 0
-    public _wireframe: number = 0
-    public _dynamic: boolean = false
+    #positionBuffer: WebGLBuffer | null = null
+    #normalBuffer: WebGLBuffer | null = null
+    #colourBuffer: WebGLBuffer | null = null
+    #uvBuffer: WebGLBuffer | null = null
+    #indexBuffer: WebGLBuffer | null = null
+    #wireframeBuffer: WebGLBuffer | null = null
+    #vertices: number = 0
+    #indices: number = 0
+    #wireframe: number = 0
+    #dynamic: boolean = false
     
-    public set Position(buffer: Float32Array | Vector3[] | number[])
+    set Position(buffer: Float32Array | Vector3[] | number[])
     {
-        if (!this._dynamic)
+        if (!this.#dynamic)
         {
-            GL.deleteBuffer(this._positionBuffer)
+            GL.deleteBuffer(this.#positionBuffer)
         }
 
-        if (!this._positionBuffer)
+        if (!this.#positionBuffer)
         {
-            this._positionBuffer = GL.createBuffer()
+            this.#positionBuffer = GL.createBuffer()
         }
 
         buffer = new Float32Array(buffer[0] instanceof Vector3 ? flatten(buffer as Vector3[]) : buffer as number[])
-        GL.bindBuffer(GL.ARRAY_BUFFER, this._positionBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.#positionBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
         
-        this._vertices = buffer.length
+        this.#vertices = buffer.length
     }
 
-    public get PositionBuffer(): WebGLBuffer | null
+    get PositionBuffer(): WebGLBuffer | null
     {
-        return this._positionBuffer
+        return this.#positionBuffer
     }
 
-    public set Normal(buffer: Float32Array | Vector3[] | number[] | null)
+    set Normal(buffer: Float32Array | Vector3[] | number[] | null)
     {
-        if (!this._dynamic || !buffer)
+        if (!this.#dynamic || !buffer)
         {
-            GL.deleteBuffer(this._normalBuffer)
+            GL.deleteBuffer(this.#normalBuffer)
         }
         
         if (!buffer)
@@ -74,26 +74,26 @@ export class Mesh extends Component
             return
         }
         
-        if (!this._normalBuffer)
+        if (!this.#normalBuffer)
         {
-            this._normalBuffer = GL.createBuffer()
+            this.#normalBuffer = GL.createBuffer()
         }
         
         buffer = new Float32Array(buffer[0] instanceof Vector3 ? flatten(buffer as Vector3[]) : buffer as number[])
-        GL.bindBuffer(GL.ARRAY_BUFFER, this._normalBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.#normalBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
     }
 
-    public get NormalBuffer(): WebGLBuffer | null
+    get NormalBuffer(): WebGLBuffer | null
     {
-        return this._normalBuffer
+        return this.#normalBuffer
     }
 
-    public set UV(buffer: Float32Array | Vector2[] | number[] | null)
+    set UV(buffer: Float32Array | Vector2[] | number[] | null)
     {
-        if (!this._dynamic || !buffer)
+        if (!this.#dynamic || !buffer)
         {
-            GL.deleteBuffer(this._uvBuffer)
+            GL.deleteBuffer(this.#uvBuffer)
         }
         
         if (!buffer)
@@ -101,26 +101,26 @@ export class Mesh extends Component
             return
         }
         
-        if (!this._uvBuffer)
+        if (!this.#uvBuffer)
         {
-            this._uvBuffer = GL.createBuffer()
+            this.#uvBuffer = GL.createBuffer()
         }
         
         buffer = new Float32Array(buffer[0] instanceof Vector2 ? flatten(buffer as Vector2[]) : buffer as number[])
-        GL.bindBuffer(GL.ARRAY_BUFFER, this._uvBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.#uvBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
     }
 
-    public get UVBuffer(): WebGLBuffer | null
+    get UVBuffer(): WebGLBuffer | null
     {
-        return this._uvBuffer
+        return this.#uvBuffer
     }
 
-    public set Colour(buffer: Float32Array | Vector4[] | Colour4[] | number[] | null)
+    set Colour(buffer: Float32Array | Vector4[] | Colour4[] | number[] | null)
     {
-        if (!this._dynamic || !buffer)
+        if (!this.#dynamic || !buffer)
         {
-            GL.deleteBuffer(this._colourBuffer)
+            GL.deleteBuffer(this.#colourBuffer)
         }
         
         if (!buffer)
@@ -128,26 +128,26 @@ export class Mesh extends Component
             return
         }
         
-        if (!this._colourBuffer)
+        if (!this.#colourBuffer)
         {
-            this._colourBuffer = GL.createBuffer()
+            this.#colourBuffer = GL.createBuffer()
         }
         
         buffer = new Float32Array(buffer[0] instanceof Vector4 ? flatten(buffer as Vector4[]) : buffer as number[])
-        GL.bindBuffer(GL.ARRAY_BUFFER, this._colourBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.#colourBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
     }
 
-    public get ColourBuffer(): WebGLBuffer | null
+    get ColourBuffer(): WebGLBuffer | null
     {
-        return this._colourBuffer
+        return this.#colourBuffer
     }
 
-    public set Index(buffer: Uint8Array | number[] | null)
+    set Index(buffer: Uint8Array | number[] | null)
     {
-        if (!this._dynamic || !buffer)
+        if (!this.#dynamic || !buffer)
         {
-            GL.deleteBuffer(this._indexBuffer)
+            GL.deleteBuffer(this.#indexBuffer)
         }
         
         if (!buffer)
@@ -155,28 +155,28 @@ export class Mesh extends Component
             return
         }
         
-        if (!this._indexBuffer)
+        if (!this.#indexBuffer)
         {
-            this._indexBuffer = GL.createBuffer()
+            this.#indexBuffer = GL.createBuffer()
         }
         
         buffer = new Uint8Array(buffer)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._indexBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.#indexBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this._indices = buffer.length
+        this.#indices = buffer.length
     }
 
-    public get IndexBuffer(): WebGLBuffer | null
+    get IndexBuffer(): WebGLBuffer | null
     {
-        return this._indexBuffer
+        return this.#indexBuffer
     }
 
-    public set Wireframe(buffer: Uint8Array | number[] | null)
+    set Wireframe(buffer: Uint8Array | number[] | null)
     {
-        if (!this._dynamic || !buffer)
+        if (!this.#dynamic || !buffer)
         {
-            GL.deleteBuffer(this._wireframeBuffer)
+            GL.deleteBuffer(this.#wireframeBuffer)
         }
         
         if (!buffer)
@@ -184,41 +184,41 @@ export class Mesh extends Component
             return
         }
         
-        if (!this._wireframeBuffer)
+        if (!this.#wireframeBuffer)
         {
-            this._wireframeBuffer = GL.createBuffer()
+            this.#wireframeBuffer = GL.createBuffer()
         }
         
         buffer = new Uint8Array(buffer)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._wireframeBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.#wireframeBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this.#dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this._wireframe = buffer.length
+        this.#wireframe = buffer.length
     }
 
-    public get WireframeBuffer(): WebGLBuffer | null
+    get WireframeBuffer(): WebGLBuffer | null
     {
-        return this._wireframeBuffer
+        return this.#wireframeBuffer
     }
 
-    public get VertexCount(): number
+    get VertexCount(): number
     {
-        return this._vertices
+        return this.#vertices
     }
 
-    public get IndexCount(): number
+    get IndexCount(): number
     {
-        return this._indices
+        return this.#indices
     }
 
-    public get WireframeCount(): number
+    get WireframeCount(): number
     {
-        return this._wireframe
+        return this.#wireframe
     }
 
     constructor(args: IMesh)
     {
-        super(Mesh)
+        super()
         
         this.Position = args.position
         this.Normal = args.normal ?? null
@@ -226,6 +226,6 @@ export class Mesh extends Component
         this.UV = args.uv ?? null
         this.Index = args.index ?? null
         this.Wireframe = args.wireframe ?? null
-        this._dynamic = args.dynamic ?? false
+        this.#dynamic = args.dynamic ?? false
     }
 }

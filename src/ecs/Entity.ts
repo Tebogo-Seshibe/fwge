@@ -1,117 +1,141 @@
+import { TypeId } from '.'
 import { Component } from './Component'
 import { Class, ComponentId, EntityId, Registry } from './Registry'
 import { Scene } from './Scene'
 
 export class Entity
 {
-    private _components: Array<ComponentId | undefined> = []
-    private _children: EntityId[] = []
-    private _parent?: EntityId
+    #components: Array<ComponentId | undefined> = []
+    #children: EntityId[] = []
+    #parent?: EntityId
+    #scene: Scene
 
-    public readonly Id: EntityId
+    readonly Id: EntityId
     
-    public get Parent(): Entity | undefined
+    get Parent(): Entity | undefined
     {
-        return this._parent !== undefined
-            ? this._scene.GetEntity(this._parent)
+        return this.#parent !== undefined
+            ? this.#scene.GetEntity(this.#parent)
             : undefined
     }
 
-    constructor(private readonly _scene: Scene)
+    constructor(scene: Scene)
     {
+        this.#scene = scene
         this.Id = Registry.createEntity()
     }
 
     //#region Component
-    public AddComponent<T extends Component>(component: T): Entity
+    AddComponent<T extends Component>(component: T): Entity
     {
         Registry.addComponent(component.Type, component)
         Registry.attachComponent(this.Id, component)
 
-        this._components[component.Type] = component.Id
+        this.#components[component.Type] = component.Id
         
-        this._scene.OnEntity(this)
+        this.#scene.OnEntity(this)
 
         return this
     }
 
-    public GetComponent<T extends Component>(type: Class<T>): T | undefined
+    GetComponent(typeId: TypeId): Component | undefined
+    GetComponent<T extends Component>(type: Class<T>): T | undefined
+    GetComponent<T extends Component>(type: TypeId | Class<T>): T | undefined
     {
-        const typeId = Registry.getComponentTypeId(type)!
+        const typeId = typeof type === 'number'
+            ? type
+            : Registry.getComponentTypeId(type)!
 
-        return Registry.getComponent(typeId, this._components[typeId]!)
+        return Registry.getComponent(typeId, this.#components[typeId]!)
     }
 
-    public HasComponent<T extends Component>(type: Class<T>): boolean
+    GetComponents(): Component[]
     {
-        return Boolean(this._components[Registry.getComponentTypeId(type)])
+        const components: Component[] = []
+
+        for (let typeId = 0; typeId < this.#components.length; ++typeId)
+        {
+            const componentId = this.#components[typeId]
+            if (!Number.isNaN(componentId))
+            {
+                components.push(Registry.getComponent(typeId, componentId!)!)
+            }
+        }
+
+        return components
+    }
+
+    HasComponent<T extends Component>(type: Class<T>): boolean
+    {
+        return Boolean(this.#components[Registry.getComponentTypeId(type)])
     }
     
-    public RemoveComponent<T extends Component>(type: Class<T>): Entity
+    RemoveComponent<T extends Component>(type: Class<T>): Entity
     {
         const component = this.GetComponent(type)
 
         if (component)
         {
             Registry.detachComponent(this.Id, component)
-            this._components[component.Type] = undefined
+            this.#components[component.Type] = undefined
         }
 
-        this._scene.OnEntity(this)
+        this.#scene.OnEntity(this)
         
         return this
     }
     //#endregion
 
     //#region Children Entity
-    public SetParent(entity?: Entity): void
+    SetParent(entity?: Entity): void
     {
-        this._parent = entity?.Id
+        this.#parent = entity?.Id
+        console.log(entity)
     }
 
-    public AddChild(entity: Entity): Entity
-    public AddChild(entity: EntityId): Entity
-    public AddChild(arg: EntityId | Entity): Entity
+    AddChild(entity: Entity): Entity
+    AddChild(entity: EntityId): Entity
+    AddChild(arg: EntityId | Entity): Entity
     {
         const entity = typeof arg === 'number'
-            ? this._scene.GetEntity(arg)!
+            ? this.#scene.GetEntity(arg)!
             : arg
 
-        if (this.Id !== entity.Id && !this._children.includes(entity.Id))
+        if (this.Id !== entity.Id && !this.#children.includes(entity.Id))
         {
-            this._children.push(entity.Id)
+            this.#children.push(entity.Id)
             entity.SetParent(this)
         }
 
         return this
     }
 
-    public GetChildren(): Entity[]
+    GetChildren(): Entity[]
     {
-        return this._children.map((_, index) => this.GetChild(index))
+        return this.#children.map((_, index) => this.GetChild(index))
     }
 
-    public GetChild(index: number): Entity
+    GetChild(index: number): Entity
     {
-        if (index >= this._children.length)
+        if (index >= this.#children.length)
         {
             throw new Error(`Index out of range`)
         }
         
-        return this._scene.GetEntity(this._children[index])!
+        return this.#scene.GetEntity(this.#children[index])!
     }
 
-    public RemoveChild(arg: Entity): Entity
-    public RemoveChild(arg: EntityId): Entity
-    public RemoveChild(arg: EntityId | Entity): Entity
+    RemoveChild(arg: Entity): Entity
+    RemoveChild(arg: EntityId): Entity
+    RemoveChild(arg: EntityId | Entity): Entity
     {
         const entity = typeof arg === 'number'
-            ? this._scene.GetEntity(arg)!
+            ? this.#scene.GetEntity(arg)!
             : arg
 
-        if (this.Id !== entity.Id && this._children.includes(entity.Id))
+        if (this.Id !== entity.Id && this.#children.includes(entity.Id))
         {
-            this._children = this._children.filter(entityId => entityId !== entity.Id)
+            this.#children = this.#children.filter(entityId => entityId !== entity.Id)
             entity.SetParent(this)
         }
 

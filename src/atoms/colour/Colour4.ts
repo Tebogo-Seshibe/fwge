@@ -3,47 +3,47 @@ import { Colour3 } from './Colour3'
 
 export class Colour4 extends Float32Array
 {    
-    public get R(): number
+    get R(): number
     {
         return this[0]
     }
 
-    public set R(red: number)
+    set R(red: number)
     {
         this[0] = clean(clamp(red, 0, 1))
     }
         
-    public get G(): number
+    get G(): number
     {
         return this[1]
     }
 
-    public set G(green: number)
+    set G(green: number)
     {
         this[1] = clean(clamp(green, 0, 1))
     }
         
-    public get B(): number
+    get B(): number
     {
         return this[2]
     }
 
-    public set B(blue: number)
+    set B(blue: number)
     {
         this[2] = clean(clamp(blue, 0, 1))
     }
         
-    public get A(): number
+    get A(): number
     {
         return this[3]
     }
 
-    public set A(alpha: number)
+    set A(alpha: number)
     {
         this[3] = clean(clamp(alpha, 0, 1))
     }
 
-    public get BIN(): string
+    get BIN(): string
     {
         let str = 'b'
         this.forEach(i => str += Math.round(i * 255).toString(2))
@@ -51,7 +51,7 @@ export class Colour4 extends Float32Array
         return str
     }
 
-    public get OCT(): string
+    get OCT(): string
     {
         let str = 'o'
         this.forEach(i => str += Math.round(i * 255).toString(8))
@@ -59,7 +59,7 @@ export class Colour4 extends Float32Array
         return str
     }
 
-    public get DEC(): string
+    get DEC(): string
     {
         let str = ''
         this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
@@ -67,7 +67,7 @@ export class Colour4 extends Float32Array
         return str.substring(0, str.length - 1)
     }
 
-    public get HEX(): string
+    get HEX(): string
     {
         let str = '#' 
         this.forEach(i => str += Math.round(i * 255).toString(16))
@@ -75,7 +75,7 @@ export class Colour4 extends Float32Array
         return str
     }
 
-    public get HSV(): string
+    get HSV(): string
     {
         return 'TODO'
     }
@@ -116,15 +116,15 @@ export class Colour4 extends Float32Array
         }
     }
 
-    public Set(r: number, g: number, b: number, a: number): Colour4
-    public Set(hex: string, alpha: number): Colour4
-    public Set(colour: Colour3): Colour4
-    public Set(colour: Colour4): Colour4
-    public Set(array: Float32Array): Colour4
-    public Set(array: number[]): Colour4
-    public Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
+    Set(r: number, g: number, b: number, a: number): Colour4
+    Set(hex: string, alpha: number): Colour4
+    Set(colour: Colour3): Colour4
+    Set(colour: Colour4): Colour4
+    Set(array: Float32Array): Colour4
+    Set(array: number[]): Colour4
+    Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
     {
-        [ r, g, b, a ] = Colour4.Deconstruct(r, g, b, a)
+        [ r, g, b, a ] = Deconstruct(r, g, b, a)
 
         this.R = r
         this.G = g
@@ -134,48 +134,49 @@ export class Colour4 extends Float32Array
         return this
     }
 
-    // public static Lerp(number: number, r1: number, g1: number, b1: number, a1: number, r2: number, g2: number, b2: number, a2: number): Colour4
-    // public static Lerp(number: number, hex1: string, hex2: string): Colour4
-    // public static Lerp(number: number, array1: number[], array: number[]): Colour4
-    // public static Lerp(number: number, array1: Float32Array, array2: Float32Array): Colour4
-    // public static Lerp(number: number, r1: number | string | number[] | Float32Array, g1: number | string | number[] | Float32Array, b1?: number, a1?: number, r2?: number, g2?: number, b2?: number, a2?: number): Colour4
+    // static Lerp(number: number, r1: number, g1: number, b1: number, a1: number, r2: number, g2: number, b2: number, a2: number): Colour4
+    // static Lerp(number: number, hex1: string, hex2: string): Colour4
+    // static Lerp(number: number, array1: number[], array: number[]): Colour4
+    // static Lerp(number: number, array1: Float32Array, array2: Float32Array): Colour4
+    // static Lerp(number: number, r1: number | string | number[] | Float32Array, g1: number | string | number[] | Float32Array, b1?: number, a1?: number, r2?: number, g2?: number, b2?: number, a2?: number): Colour4
     // {
     //     // return lerp()
     //     return 
     // }
 
-    private static Deconstruct(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
+}
+
+function Deconstruct(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
+{
+    if (typeof r === 'string')
     {
-        if (typeof r === 'string')
-        {
-            let alpha: number = g !== undefined ? g : 1
+        let alpha: number = g !== undefined ? g : 1
 
-            if (r.match(/#([0-9A-F]{3})/i))
-            {
-                [ r, g, b ] = r.substring(1)
-                                    .toUpperCase()
-                                    .split('')
-                                    .map(c => parseInt(c + c, 16) / 255)
-            }
-            else if (r.match(/#[0-9A-F]{6}/i))
-            {
-                [ r, g, b ] = r.substring(1)
+        if (r.match(/#([0-9A-F]{3})/i))
+        {
+            [ r, g, b ] = r.substring(1)
                                 .toUpperCase()
-                                .split(/(?=(?:..)*$)/)
-                                .map(c => parseInt(c, 16) / 255)
-            }
-            else
-            {
-                [ r, g, b ] = [ 0, 0, 0 ]
-            }
-            
-            a = alpha
+                                .split('')
+                                .map(c => parseInt(c + c, 16) / 255)
         }
-        else if (r instanceof Float32Array || r instanceof Array)
+        else if (r.match(/#[0-9A-F]{6}/i))
         {
-            [ r = 0, g = 0, b = 0, a = 0 ] = r
+            [ r, g, b ] = r.substring(1)
+                            .toUpperCase()
+                            .split(/(?=(?:..)*$)/)
+                            .map(c => parseInt(c, 16) / 255)
         }
-
-        return [ r, g!, b!, a! ]
+        else
+        {
+            [ r, g, b ] = [ 0, 0, 0 ]
+        }
+        
+        a = alpha
     }
+    else if (r instanceof Float32Array || r instanceof Array)
+    {
+        [ r = 0, g = 0, b = 0, a = 0 ] = r
+    }
+
+    return [ r, g!, b!, a! ]
 }

@@ -35,7 +35,7 @@ export class Script extends Component
         collisionEnd: function(){}
     })
     {
-        super(Script)
+        super()
 
         this.Start = args.start!
         this.Update = args.update!

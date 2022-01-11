@@ -1,147 +1,144 @@
+import { TypeId } from "."
 import { Component } from "./Component"
+import { GL, setContext } from "./GL"
 import { Library } from "./Library"
 import { Prefab } from "./Prefab"
 import { Class, Registry, SceneId } from "./Registry"
 import { Scene } from "./Scene"
 
-export let GL: WebGLRenderingContext
-
-export function glUseProgram(progamId: WebGLProgram | null)
-{
-    (GL as WebGLRenderingContext).useProgram(progamId)
-}
-
 export class Game
 {
-    private _libraries: Library<Component>[] = []
-    private _prefabs: Map<string, Prefab> = new Map()
+    #libraries: Library<Component>[] = []
+    #prefabs: Map<string, Prefab> = new Map()
 
-    private _scenes: Scene[] = []
-    private _activeScene?: Scene
-    
-    private _currTick: number = -1
-    private _prevTick: number = -1
-    private _tickId?: number
+    #scenes: Scene[] = []
+    #activeScene?: Scene
+       
+    #currTick: number = -1
+    #prevTick: number = -1
+    #tickId?: number
 
     constructor(canvas: HTMLCanvasElement)
     {
-        GL = canvas.getContext('webgl') as WebGLRenderingContext
+        const gl = canvas.getContext('webgl') as WebGLRenderingContext
 
-        if (!GL)
+        if (!gl)
         {
             throw new Error('Failed to create a webgl context')
         }
+        
+        setContext(gl)
     }
 
     //#region Control
-    public Start(): void
+    Start(): void
     {
-        if (this._scenes.length === 0)
+        if (this.#scenes.length === 0)
         {
             throw new Error('No scenes to run')
         }
 
-        if (!this._activeScene)
+        if (!this.#activeScene)
         {
-            this._activeScene = this._scenes[0]
+            this.#activeScene = this.#scenes[0]
         }
 
-        this._currTick = this._prevTick = Date.now()
+        this.#currTick = this.#prevTick = Date.now()
 
-        this._activeScene!.Init()
-        this._activeScene!.Start()
-        this._tickId = window.requestAnimationFrame(() => this.Update(0))
+        this.#activeScene!.Init()
+        this.#activeScene!.Start()
+        this.#tickId = window.requestAnimationFrame(() => this.#Update(0))
     }
     
-    private Update(delta: number): void
+    #Update(delta: number): void
     {
-        this._activeScene!.Update(delta)
+        this.#activeScene!.Update(delta)
         
-        this._prevTick = this._currTick
-        this._currTick = Date.now()
-        this._tickId = window.requestAnimationFrame(() => this.Update(this._currTick - this._prevTick))
+        this.#prevTick = this.#currTick
+        this.#currTick = Date.now()
+        this.#tickId = window.requestAnimationFrame(() => this.#Update(this.#currTick - this.#prevTick))
     }
     
-    public Stop(delay: number = 0): void
+    Stop(delay: number = 0): void
     {        
         setTimeout(() =>
         {
-            if (this._tickId !== undefined)
+            if (this.#tickId !== undefined)
             {
-                window.cancelAnimationFrame(this._tickId)
-                this._activeScene!.Stop()
+                window.cancelAnimationFrame(this.#tickId)
+                this.#activeScene!.Stop()
 
-                this._tickId = undefined
+                this.#tickId = undefined
             }
         }, delay)
     }
     //#endregion
 
     //#region Scene
-    public CreateScene(): Scene
+    CreateScene(): Scene
     {
-        const scene = new Scene(this._scenes.length)
-        this._scenes.push(scene)
+        const scene = new Scene(this.#scenes.length)
+        this.#scenes.push(scene)
 
         return scene
     }
 
-    public SetScene(index: SceneId): void
-    public SetScene(scene: Scene): void
-    public SetScene(arg: Scene | SceneId): void
+    SetScene(index: SceneId): void
+    SetScene(scene: Scene): void
+    SetScene(arg: Scene | SceneId): void
     {
         if (arg instanceof Scene)
         {
-            arg = this._scenes.indexOf(arg)
+            arg = this.#scenes.indexOf(arg)
         }
 
-        if (arg >= 0 && arg < this._scenes.length)
+        if (arg >= 0 && arg < this.#scenes.length)
         {
-            this._activeScene = this._scenes[arg]
+            this.#activeScene = this.#scenes[arg]
         }
     }
 
-    public GetScene(index: SceneId): Scene | undefined
+    GetScene(index: SceneId): Scene | undefined
     {
-        return this._scenes[index]
+        return this.#scenes[index]
     }
 
-    public RemoveScene(index: SceneId): void
-    public RemoveScene(scene: Scene): void
-    public RemoveScene(arg: Scene | SceneId): void
+    RemoveScene(index: SceneId): void
+    RemoveScene(scene: Scene): void
+    RemoveScene(arg: Scene | SceneId): void
     {
         if (arg instanceof Scene)
         {
-            arg = this._scenes.indexOf(arg)
+            arg = this.#scenes.indexOf(arg)
         }
 
-        if (arg >= 0 && arg < this._scenes.length)
+        if (arg >= 0 && arg < this.#scenes.length)
         {
-            this._scenes.splice(arg, 1)
+            this.#scenes.splice(arg, 1)
         }
     }
     
-    public RegisterPrefab(name: string): Prefab
+    RegisterPrefab(name: string): Prefab
     {
         const prefab = new Prefab()
-        this._prefabs.set(name, prefab)
+        this.#prefabs.set(name, prefab)
 
         return prefab
     }
 
-    public GetPrefab(name: string): Prefab
+    GetPrefab(name: string): Prefab
     {
-        if (!this._prefabs.has(name))
+        if (!this.#prefabs.has(name))
         {
             throw new Error(`Prefab with name "${ name }" does not exist`);
         }
 
-        return this._prefabs.get(name)!
+        return this.#prefabs.get(name)!
     }
     //#endregion
 
     //#region Library
-    public RegisterComponents(...types: Class<Component>[]): void
+    RegisterComponents(...types: Class<Component>[]): void
     {
         for (const type of types)
         {
@@ -152,7 +149,7 @@ export class Game
         }
     }
 
-    public CreateLibraries(...types: Class<Component>[]): void
+    CreateLibraries(...types: Class<Component>[]): void
     {
         for (const type of types)
         {
@@ -162,25 +159,30 @@ export class Game
                 throw new Error(`Component of type "${ type.name }" not registered`)
             }
 
-            if (!this._libraries[libraryIndex])
+            if (!this.#libraries[libraryIndex])
             {
-                this._libraries[libraryIndex] = new Library(type)
+                this.#libraries[libraryIndex] = new Library(type)
             }
         }
     }
 
-    public GetLibrary<T extends Component>(type: Class<T>): Library<T>
+    GetLibrary(typeId: TypeId): Library<Component>
+    GetLibrary<T extends Component>(type: Class<T>): Library<T>
+    GetLibrary<T extends Component>(type:  TypeId | Class<T>): Library<T>
     {
-        const libraryIndex = Registry.getComponentTypeId(type)
+        const libraryIndex =  typeof type === 'number'
+            ? type
+            : Registry.getComponentTypeId(type)
+        
         if (libraryIndex === -1)
         {
-            throw new Error(`Component of type "${ type.name }" not registered`)
+            throw new Error(`Component type not registered`)
         }
 
-        const library = this._libraries[libraryIndex]
+        const library = this.#libraries[libraryIndex]
         if (!library)
         {
-            throw new Error(`Library of type "${ type.name }" not created`)
+            throw new Error(`Library not created`)
         }
         
         return library as Library<T>

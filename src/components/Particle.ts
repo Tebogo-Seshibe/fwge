@@ -40,7 +40,7 @@ export class Particle extends Component
         position: Vector3.ZERO
     })
     {
-        super(Particle)
+        super()
         
         this.Position = args.position!
         this.Colour = args.colour!

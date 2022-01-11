@@ -1,5 +1,6 @@
+import { GL } from "../ecs/GL"
 import { Colour3, Colour4 } from "../atoms"
-import { GL, Component } from "../ecs"
+import { Component } from "../ecs"
 
 export interface IShader
 {
@@ -194,7 +195,7 @@ export class Shader extends Component
         baseColour: new Colour4(0.0, 0.0, 0.0, 1.0)
     })
     {
-        super(Shader)
+        super()
 
         this.Height = args.height!
         this.Width = args.width!

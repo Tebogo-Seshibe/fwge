@@ -1,4 +1,4 @@
-import { Scene } from "ecs"
+import { Scene } from "../../ecs"
 import { Colour4 } from "../../atoms/colour"
 import { Light } from "./Light"
 
@@ -13,7 +13,7 @@ export class DiffuseLight extends Light
     constructor(scene: Scene, light: IDiffuseLight)
     constructor(scene: Scene, light: IDiffuseLight =
     {
-        colour:  new Colour4(1.0, 1.0, 1.0, 1.0)
+        colour: new Colour4(1.0, 1.0, 1.0, 1.0)
     })
     {
         super(scene, light.colour!)

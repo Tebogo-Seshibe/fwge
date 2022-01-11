@@ -80,7 +80,7 @@ export class Transform extends Component
         shear: Vector3.ZERO
     })
     {
-        super(Transform)
+        super()
         
         this.Position = args.position!
         this.Rotation = args.rotation!

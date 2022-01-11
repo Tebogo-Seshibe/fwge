@@ -43,16 +43,16 @@ export class Prefab
     {
         const entity = scene.CreateEntity(Entity)
 
-        for (const [, [ component, args ]] of this._components)
+        for (let [, [ component, args ]] of this._components)
         {
-            if ('Id' in component)
+            const isClass = typeof (component as Constructor<any, any>) === 'function'
+            
+            if (isClass)
             {
-                entity.AddComponent(component)
+                component = new (component as Constructor<any, any>)(...args!)
             }
-            else
-            {
-                entity.AddComponent(new component(...args!))
-            }
+            
+            entity.AddComponent(component as Component)
         }
 
         return entity

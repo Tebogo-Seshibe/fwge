@@ -14,6 +14,6 @@ export class UIComponent extends Component
 {
     constructor(name: string)
     {
-        super(UIComponent)
+        super()
     }
 }

@@ -1,9 +1,9 @@
 export class Atom
 {
-    protected dirty: boolean = false
+    #dirty: boolean = false
 
-    public Dirty(): boolean
+    get Dirty(): boolean
     {
-        return this.dirty
+        return this.#dirty
     }
 }

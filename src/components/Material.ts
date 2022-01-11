@@ -1,7 +1,7 @@
 import { isPowerOf2 } from "../atoms/helpers/Math"
 import { Colour4 } from "../atoms"
 import { Component } from "../ecs/Component"
-import { GL } from "../ecs/Game"
+import { GL } from "../ecs/GL"
 
 export enum ImageMapType
 {
@@ -24,61 +24,61 @@ interface IMaterial
 
 export class Material extends Component
 {
-    public Ambient: Colour4
-    public Diffuse: Colour4
-    public Specular: Colour4
-    public Alpha: number
-    public Shininess: number
+    Ambient: Colour4
+    Diffuse: Colour4
+    Specular: Colour4
+    Alpha: number
+    Shininess: number
 
-    public set ImageMap(src: string | null)
+    set ImageMap(src: string | null)
     {
-        GL.deleteTexture(this._imageTexture)
+        GL.deleteTexture(this.#imageTexture)
 
         if (src)
         {
-            this._imageTexture = GL.createTexture()
-            ApplyImage(this._imageTexture!, src)
+            this.#imageTexture = GL.createTexture()
+            ApplyImage(this.#imageTexture!, src)
         }
     }
 
-    public set NormalMap(src: string | null)
+    set NormalMap(src: string | null)
     {
-        GL.deleteTexture(this._normalTexture)
+        GL.deleteTexture(this.#normalTexture)
 
         if (src)
         {
-            this._normalTexture = GL.createTexture()
-            ApplyImage(this._normalTexture!, src)
+            this.#normalTexture = GL.createTexture()
+            ApplyImage(this.#normalTexture!, src)
         }
     }
 
-    public set SpecularMap(src: string | null)
+    set SpecularMap(src: string | null)
     {
-        GL.deleteTexture(this._specularTexture)
+        GL.deleteTexture(this.#specularTexture)
 
         if (src)
         {
-            this._specularTexture = GL.createTexture()
-            ApplyImage(this._specularTexture!, src)
+            this.#specularTexture = GL.createTexture()
+            ApplyImage(this.#specularTexture!, src)
         }
     }
 
-    private _imageTexture: WebGLTexture | null = null
-    public get ImageTexture(): WebGLTexture | null
+    #imageTexture: WebGLTexture | null = null
+    get ImageTexture(): WebGLTexture | null
     {
-        return this._imageTexture
+        return this.#imageTexture
     }
 
-    private _normalTexture: WebGLTexture | null = null
-    public get NormalTexture(): WebGLTexture | null
+    #normalTexture: WebGLTexture | null = null
+    get NormalTexture(): WebGLTexture | null
     {
-        return this._normalTexture
+        return this.#normalTexture
     }
 
-    private _specularTexture: WebGLTexture | null = null
-    public get SpecularTexture(): WebGLTexture | null
+    #specularTexture: WebGLTexture | null = null
+    get SpecularTexture(): WebGLTexture | null
     {
-        return this._specularTexture
+        return this.#specularTexture
     }
 
     constructor()
@@ -92,7 +92,7 @@ export class Material extends Component
         shininess: 1.0
     })
     {
-        super(Material)
+        super()
 
         this.Ambient = args.ambient
         this.Diffuse = args.diffuse

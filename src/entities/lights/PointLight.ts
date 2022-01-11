@@ -13,7 +13,7 @@ export class PointLight extends Light
     constructor(scene: Scene, light: IPointLight)
     constructor(scene: Scene, light: IPointLight =
     {
-        colour:  new Colour4(1.0, 1.0, 1.0, 1.0)
+        colour: new Colour4(1.0, 1.0, 1.0, 1.0)
     })
     {
         super(scene, light.colour!)

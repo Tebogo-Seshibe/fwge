@@ -95,12 +95,14 @@ export class Scene implements IUpdateable
     //#endregion
     
     //#region Entity
+    public CreateEntity(): Entity
     public CreateEntity<T extends Entity, U extends any[]>(constructor: Constructor<T, [Scene, ...U]>, ...args: U): T
+    public CreateEntity<T extends Entity, U extends any[]>(constructor?: Constructor<T, [Scene, ...U]>, ...args: U): T | Entity
     {
-        console.log(constructor)
-        console.log(args)
-
-        const entity = new constructor(this, ...args)
+        const entity = constructor 
+            ? new constructor(this, ...args)
+            : new Entity(this)
+            
         if (entity instanceof Camera)
         {
             this._cameras.push(entity)
@@ -120,7 +122,7 @@ export class Scene implements IUpdateable
 
     public GetEntity(entityId: EntityId): Entity | undefined
     {
-        return this._entities[entityId]
+        return this._entities.find(entity => entity?.Id === entityId)
     }
 
     public RemoveEntity(entityId: EntityId): void
