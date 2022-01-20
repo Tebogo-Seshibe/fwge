@@ -41,7 +41,7 @@ export class Registry
     private static readonly componentId: Map<Class<Component>, ComponentId> = new Map()
 
     //#region Scene
-    public static registerComponentType(sceneId: SceneId, name: any): TypeId
+    static registerComponentType(sceneId: SceneId, name: any): TypeId
     {
         const types = this.componentTypeId.get(sceneId) ?? new Map()
         
@@ -51,13 +51,13 @@ export class Registry
         return types.get(name) ?? -1
     }
 
-    public static getComponentType(sceneId: SceneId, name: any): TypeId
+    static getComponentType(sceneId: SceneId, name: any): TypeId
     {
         const types = this.componentTypeId.get(sceneId) ?? new Map()
         return types.get(name) ?? -1
     }
     
-    public static registerSystemType(sceneId: SceneId, name: any): SystemId
+    static registerSystemType(sceneId: SceneId, name: any): SystemId
     {
         const types = this.systemTypeId.get(sceneId) ?? new Map()
         
@@ -67,7 +67,7 @@ export class Registry
         return types.get(name) ?? -1
     }
 
-    public static getSystemType(sceneId: SceneId, name: any): SystemId
+    static getSystemType(sceneId: SceneId, name: any): SystemId
     {
         const types = this.systemTypeId.get(sceneId) ?? new Map()
         return types.get(name) ?? -1
@@ -75,7 +75,7 @@ export class Registry
     //#endregion
 
 
-    public static createEntity(): EntityId
+    static createEntity(): EntityId
     {
         const entityId = Registry.entities.length
         this.entities.push([])
@@ -84,7 +84,7 @@ export class Registry
     }
 
     //#region Component Id
-    public static getNextComponentId<T extends Component>(type: Class<T>): TypeId
+    static getNextComponentId<T extends Component>(type: Class<T>): TypeId
     {
         const id = Registry.componentId.get(type) ?? 0
         Registry.componentId.set(type, id + 1)
@@ -92,12 +92,12 @@ export class Registry
         return id
     }
 
-    public static getComponentTypeId<T extends Component>(type: Class<T>): TypeId
+    static getComponentTypeId<T extends Component>(type: Class<T>): TypeId
     {
         return Registry.componentType.get(type) ?? -1
     }
 
-    public static setComponentTypeId<T extends Component>(type: Class<T>): void
+    static setComponentTypeId<T extends Component>(type: Class<T>): void
     {
         if (!Registry.componentType.has(type))
         {
@@ -108,17 +108,17 @@ export class Registry
     //#endregion
 
     //#region Component
-    public static addComponent<T extends Component>(typeId: TypeId, component: T): void
+    static addComponent<T extends Component>(typeId: TypeId, component: T): void
     {
         this.component[typeId].set(component.Id, component)
     }
 
-    public static getComponent<T extends Component>(typeId: TypeId, componentId: ComponentId): T | undefined
+    static getComponent<T extends Component>(typeId: TypeId, componentId: ComponentId): T | undefined
     {
         return this.component[typeId].get(componentId) as T
     }
 
-    public static attachComponent<T extends Component>(entityId: EntityId, component: T): void
+    static attachComponent<T extends Component>(entityId: EntityId, component: T): void
     {
         const entity = this.entityList.has(entityId)
             ? this.entityList.get(entityId)!
@@ -129,7 +129,7 @@ export class Registry
         this.entityList.set(entityId, entity)
     }
 
-    public static detachComponent<T extends Component>(entityId: EntityId, component: T): void
+    static detachComponent<T extends Component>(entityId: EntityId, component: T): void
     {
         const ent = this.entityList.has(entityId) 
             ? this.entityList.get(entityId)!

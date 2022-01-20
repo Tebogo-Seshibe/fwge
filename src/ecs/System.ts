@@ -1,10 +1,10 @@
+import { Material, Mesh, Shader, Tag, Transform } from "../components"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
 import { Class, EntityId } from "./Registry"
 import { Scene } from "./Scene"
-import { IUpdateable } from "../atoms/Updateable"
 
-export abstract class System implements IUpdateable
+export abstract class System
 {
     protected scene: Scene
     protected entities: Set<EntityId> = new Set()
@@ -18,22 +18,24 @@ export abstract class System implements IUpdateable
 
     public Init(): void { }
     public Start(): void { }
-    public Update(delta: number): void { }
+    public Update(_: number): void { }
     public Stop(): void { }
 
     public OnUpdateEntity(entity: Entity): void
     {
-        if (this.IsValid(entity) && !this.entities.has(entity.Id))
+        const isValid = this.#IsValidEntity(entity)
+    
+        if (isValid && !this.entities.has(entity.Id))
         {
             this.entities.add(entity.Id)
         }
-        else if (!this.IsValid(entity) && this.entities.has(entity.Id))
+        else if (!isValid && this.entities.has(entity.Id))
         {
             this.entities.delete(entity.Id)
         }
     }
 
-    protected IsValid(entity: Entity): boolean
+    #IsValidEntity(entity: Entity): boolean
     {
         let valid = true
 
@@ -41,7 +43,7 @@ export abstract class System implements IUpdateable
         {
             valid = valid && entity.HasComponent(componentType)
         }
-        
+
         return valid
     }
 }

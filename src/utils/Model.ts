@@ -1,4 +1,3 @@
-import "../atoms/helpers/Math"
 import { radian } from "../atoms/helpers/Math"
 import { Matrix4 } from "../atoms/matrix/Matrix4"
 import { Vector3 } from "../atoms/vector/Vector3"

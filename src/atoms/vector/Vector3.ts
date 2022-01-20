@@ -2,7 +2,6 @@ import { clean, lerp } from '../helpers/Math'
 
 export class Vector3 extends Float32Array
 {
-    //#region Properties
     get X(): number
     {
         return this[0]
@@ -37,9 +36,7 @@ export class Vector3 extends Float32Array
     {
         return clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
     }
-    //#endregion
 
-    //#region Methods
     constructor()
     constructor(xyz: number)
     constructor(x: number, y: number, z: number)
@@ -161,9 +158,7 @@ export class Vector3 extends Float32Array
     {
         return new Vector3(this)
     }
-    //#endregion
 
-    //#region Static Properties
     static get ZERO(): Vector3
     {
         return new Vector3(0, 0, 0)
@@ -183,7 +178,6 @@ export class Vector3 extends Float32Array
     {
         return 3
     }
-    //#endregion
 
     override toString(): string
     {

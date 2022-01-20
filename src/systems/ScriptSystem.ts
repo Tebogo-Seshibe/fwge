@@ -9,7 +9,7 @@ export class ScriptSystem extends System
         super(scene, Script)
     }
 
-    public Start(): void
+    Start(): void
     {
         for (const entityId of this.entities)
         {
@@ -20,7 +20,7 @@ export class ScriptSystem extends System
         }
     }
 
-    public Update(delta: number): void
+    Update(delta: number): void
     {
         for (const entityId of this.entities)
         {
@@ -31,7 +31,7 @@ export class ScriptSystem extends System
         }
     }
 
-    public Stop(): void
+    Stop(): void
     {
         for (const entityId of this.entities)
         {

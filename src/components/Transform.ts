@@ -1,90 +1,100 @@
 import { Vector3 } from '../atoms/vector/Vector3'
 import { Component } from '../ecs/Component'
-import { Matrix4 } from '../atoms/matrix/Matrix4'
-import { CalcuateModelView } from '../utils/Model'
 
 interface ITransform
 {
-    position?: Vector3 | Float32Array | [number, number, number]
-    rotation?: Vector3 | Float32Array | [number, number, number]
-    scale?: Vector3 | Float32Array | [number, number, number]
-    shear?: Vector3 | Float32Array | [number, number, number]
+    position?: Vector3 | [number, number, number]
+    rotation?: Vector3 | [number, number, number]
+    scale?: Vector3 | [number, number, number]
+    shear?: Vector3 | [number, number, number]
 }
 
 export class Transform extends Component
 {    
-    private _position!: Vector3
-    private _rotation!: Vector3
-    private _scale!: Vector3
-    private _shear!: Vector3
+    #position!: Vector3
+    #rotation!: Vector3
+    #scale!: Vector3
+    #shear!: Vector3
 
-    public static readonly UP = new Vector3(0, 1, 0)
-    public static readonly DOWN = new Vector3(0, -1, 0)
-    public static readonly FORWARD = new Vector3(0, 0, 1)
-    public static readonly BACKWARD = new Vector3(0, 0, -1)
-    public static readonly RIGHT = new Vector3(1, 0, 0)
-    public static readonly LEFT = new Vector3(-1, 0, 0)
-
-    public get Position(): Vector3
+    get Position(): Vector3
     {
-        return this._position
+        return this.#position
     }
 
-    public set Position(position: Vector3 | Float32Array | [number, number, number])
+    set Position(position: Vector3 | [number, number, number])
     {
-        this._position = new Vector3([...position])
+        this.#position = new Vector3([...position])
     }
 
-    public get Rotation(): Vector3
+    get Rotation(): Vector3
     {
-        return this._rotation
+        return this.#rotation
     }
 
-    public set Rotation(rotation: Vector3 | Float32Array | [number, number, number])
+    set Rotation(rotation: Vector3 | [number, number, number])
     {
-        this._rotation = new Vector3([...rotation])
+        this.#rotation = new Vector3([...rotation])
     }
 
-    public get Scale(): Vector3
+    get Scale(): Vector3
     {
-        return this._scale
+        return this.#scale
     }
 
-    public set Scale(scale: Vector3 | Float32Array | [number, number, number])
+    set Scale(scale: Vector3 | [number, number, number])
     {
-        this._scale = new Vector3([...scale])
+        this.#scale = new Vector3([...scale])
     }
 
-    public get Shear(): Vector3
+    get Shear(): Vector3
     {
-        return this._shear
+        return this.#shear
     }
 
-    public set Shear(shear: Vector3 | Float32Array | [number, number, number])
+    set Shear(shear: Vector3 | [number, number, number])
     {
-        this._shear = new Vector3([...shear])
-    }
-
-    public get Matrix(): Matrix4
-    {
-        return CalcuateModelView(this)
+        this.#shear = new Vector3([...shear])
     }
 
     constructor()
     constructor(transform: ITransform)
-    constructor(args: ITransform = 
-    {
-        position: Vector3.ZERO,
-        rotation: Vector3.ZERO,
-        scale: Vector3.ONE,
-        shear: Vector3.ZERO
-    })
+    constructor(args: ITransform = { })
     {
         super()
         
-        this.Position = args.position!
-        this.Rotation = args.rotation!
-        this.Scale = args.scale!
-        this.Shear = args.shear!
+        this.Position = args.position ?? Vector3.ZERO
+        this.Rotation = args.rotation ?? Vector3.ZERO
+        this.Scale = args.scale ?? Vector3.ONE
+        this.Shear = args.shear ?? Vector3.ZERO
+    }    
+
+    static get UP(): Vector3
+    {
+        return new Vector3(0, 1, 0)
+    }
+
+    static get DOWN(): Vector3
+    {
+        return new Vector3(0, -1, 0)
+    }
+
+    static get FORWARD(): Vector3
+    {
+        return new Vector3(0, 0, 1)
+    }
+
+    static get BACKWARD(): Vector3
+    {
+        return new Vector3(0, 0, -1)
+    }
+
+    static get RIGHT(): Vector3
+    {
+        return new Vector3(1, 0, 0)
+    }
+
+    static get LEFT(): Vector3
+    {
+        return new Vector3(-1, 0, 0)
     }
 }

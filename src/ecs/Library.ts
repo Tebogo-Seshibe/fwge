@@ -3,17 +3,17 @@ import { Class, EntityId, Registry, TypeId } from "./Registry"
 
 export class Library<T extends Component>
 {
-    private _components: Map<string, EntityId> = new Map()
-    private _componentTypeId: TypeId
+    #components: Map<string, EntityId> = new Map()
+    #componentTypeId: TypeId
 
     constructor(componentType: Class<T>)
     {
-        this._componentTypeId = Registry.getComponentTypeId(componentType)!
+        this.#componentTypeId = Registry.getComponentTypeId(componentType)!
     }
     
     public Add(name: string, component: T): Library<T>
     {
-        this._components.set(name, component.Id)
+        this.#components.set(name, component.Id)
 
         if (!Registry.getComponent<T>(component.Type, component.Id))
         {
@@ -25,18 +25,19 @@ export class Library<T extends Component>
 
     public Get(name: string): T
     {
-        const componentId = this._components.get(name) ?? -1
-        if (componentId === -1)
+        const componentId = this.#components.get(name)
+
+        if (componentId === undefined)
         {
             throw new Error(`Component with name "${ name }" does not exist`)
         }
 
-        return Registry.getComponent<T>(this._componentTypeId, componentId)!
+        return Registry.getComponent<T>(this.#componentTypeId, componentId)!
     }
 
     public Remove(name: string): Library<T>
     {
-        this._components.delete(name)
+        this.#components.delete(name)
 
         return this
     }

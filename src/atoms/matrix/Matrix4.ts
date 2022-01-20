@@ -2,7 +2,6 @@ import { clean } from '../helpers/Math'
 
 export class Matrix4 extends Float32Array
 {
-    //#region Properties
     get M11(): number
     { 
         return this[0]
@@ -192,9 +191,7 @@ export class Matrix4 extends Float32Array
             this.M14 * this.M23 * this.M31 * this.M42
         )  
     }
-    //#endregion
 
-    //#region Methods
     constructor()
     constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
     constructor(thisrix: Matrix4)
@@ -524,9 +521,7 @@ export class Matrix4 extends Float32Array
     {
         return `[ ${(this.M11 < 0 ? '' : ' ') + this.M11.toFixed(3)}  ][ ${(this.M12 < 0 ? '' : ' ') + this.M12.toFixed(3)}  ][ ${(this.M13 < 0 ? '' : ' ') + this.M13.toFixed(3)}  ][ ${(this.M14 < 0 ? '' : ' ') + this.M14.toFixed(3)}  ]\n[ ${(this.M21 < 0 ? '' : ' ') + this.M21.toFixed(3)}  ][ ${(this.M22 < 0 ? '' : ' ') + this.M22.toFixed(3)}  ][ ${(this.M23 < 0 ? '' : ' ') + this.M23.toFixed(3)}  ][ ${(this.M24 < 0 ? '' : ' ') + this.M24.toFixed(3)}  ]\n[ ${(this.M31 < 0 ? '' : ' ') + this.M31.toFixed(3)}  ][ ${(this.M32 < 0 ? '' : ' ') + this.M32.toFixed(3)}  ][ ${(this.M33 < 0 ? '' : ' ') + this.M33.toFixed(3)}  ][ ${(this.M34 < 0 ? '' : ' ') + this.M34.toFixed(3)}  ]\n[ ${(this.M41 < 0 ? '' : ' ') + this.M41.toFixed(3)}  ][ ${(this.M42 < 0 ? '' : ' ') + this.M42.toFixed(3)}  ][ ${(this.M43 < 0 ? '' : ' ') + this.M43.toFixed(3)}  ][ ${(this.M44 < 0 ? '' : ' ') + this.M44.toFixed(3)}  ]`
     }
-    //#endregion
 
-    //#region Static Properties
     static get ZERO()
     {
         return new Matrix4(
@@ -546,7 +541,6 @@ export class Matrix4 extends Float32Array
             0, 0, 0, 1
         )
     }
-    //#endregion
 }
 
 function Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m14?: number, m21?: number, m22?: number, m23?: number, m24?: number, m31?: number, m32?: number, m33?: number, m34?: number, m41?: number, m42?: number, m43?: number, m44?: number): number[]

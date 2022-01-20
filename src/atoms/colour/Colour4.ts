@@ -80,7 +80,6 @@ export class Colour4 extends Float32Array
         return 'TODO'
     }
 
-    
     constructor()
     constructor(rgba: number)
     constructor(r: number, g: number, b: number, a: number)

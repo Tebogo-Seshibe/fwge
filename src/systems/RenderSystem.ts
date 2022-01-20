@@ -1,25 +1,27 @@
-import { Light } from '../entities/lights/Light'
+import { PointLight } from '../components/lights'
 import { Matrix3 } from '../atoms/matrix/Matrix3'
 import { Matrix4 } from '../atoms/matrix/Matrix4'
-import { Material, Mesh, Shader, ShaderAttribute, ShaderUniforms } from '../components'
+import { Material, Mesh, Shader } from '../components'
+import { ShaderAttribute } from '../components/shader/ShaderAttribute'
+import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 import { Transform } from '../components/Transform'
+import { Entity, Scene, System } from '../ecs'
 import { GL } from '../ecs/GL'
 import { EntityId } from '../ecs/Registry'
-import { Scene } from '../ecs/Scene'
-import { System } from '../ecs/System'
+import { Light } from '../components/lights/Light'
+import { CalcuateModelView } from '../utils'
 
 export class RenderSystem extends System
 {
-    private shaders: Set<Shader> = new Set()
-    private lights: Set<Light> = new Set()
+    #shaders: Set<Shader> = new Set()
+    #lights: Set<Light> = new Set()
 
     constructor(manager: Scene)
     {
         super(manager, Transform, Mesh, Material, Shader)
     }
 
-    //#region Updateable
-    public Init(): void
+    Init(): void
     {
         for (const entityId of this.entities)
         {
@@ -27,55 +29,46 @@ export class RenderSystem extends System
 
             if (entity instanceof Light)
             {
-                this.lights.add(entity)
+                this.#lights.add(entity)
             }
             else
             {
                 const shader = entity.GetComponent(Shader)!
-                this.shaders.add(shader)
+                this.#shaders.add(shader)
             }
-            
         }
     }
 
-    public Start(): void
-    {
-        GL.enable(GL.BLEND)
-        GL.disable(GL.DEPTH_TEST)
-    }
-
-    public Update(delta: number): void
-    {
-        this.ClearCanvas()
-
-        for (const entityId of this.entities)
-        {
-            const entity = this.scene.GetEntity(entityId)!
-            const [ transform, shader, mesh, material ] = [
-                entity.GetComponent(Transform)!,
-                entity.GetComponent(Shader)!,
-                entity.GetComponent(Mesh)!,
-                entity.GetComponent(Material)!
-            ]
-
-            this.Draw(transform, shader, mesh, material, delta, entityId)
-        }
-
-        this.PostProcess()
-        this.CombineRenders()
-    }
-
-    public Stop(): void
+    Start(): void
     {
         GL.enable(GL.DEPTH_TEST)
         GL.disable(GL.BLEND)
     }
-    //#endregion
 
-    //#region Render
-    private ClearCanvas(): void
+    Update(delta: number): void
     {
-        for (const shader of this.shaders)
+        this.#ClearCanvas()
+
+        for (const entityId of this.entities)
+        {
+            const entity = this.scene.GetEntity(entityId)!
+
+            this.#Draw(entity, delta, entityId)
+        }
+
+        this.#PostProcess()
+        this.#CombineRenders()
+    }
+
+    Stop(): void
+    {
+        GL.enable(GL.BLEND)
+        GL.disable(GL.DEPTH_TEST)
+    }
+    
+    #ClearCanvas(): void
+    {
+        for (const shader of this.#shaders)
         {
             GL.viewport(shader.OffsetX, shader.OffsetY, shader.Width, shader.Height)
             GL.clearColor(shader.Clear.R, shader.Clear.G, shader.Clear.B, shader.Clear.A)
@@ -87,21 +80,26 @@ export class RenderSystem extends System
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
     }
 
-    private Draw(transform: Transform, shader: Shader, mesh: Mesh, material: Material, delta: number, entityId: EntityId): void
+    #Draw(entity: Entity, delta: number, entityId: EntityId): void
     {
-        const [ mv, normal ] = this.CalculateMatrices(transform)
+        const [ mv, normal ] = this.#CalculateEntityMatrices(entity)
+        const [ shader, mesh, material ] = [
+            entity.GetComponent(Shader)!,
+            entity.GetComponent(Mesh)!,
+            entity.GetComponent(Material)!
+        ]
 
         GL.useProgram(shader.Program)
 
-        this.BindAttributes(shader.Attributes!, mesh)
-        this.BindUniforms(shader.BaseUniforms!, material, mv, normal, delta, entityId)
-        this.BindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
-        this.Render(shader, mesh)
+        this.#BindAttributes(shader.Attributes!, mesh)
+        this.#BindUniforms(shader.BaseUniforms!, material, mv, normal, delta, entityId)
+        this.#BindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
+        this.#Render(shader, mesh)
 
         GL.useProgram(null)
     }
 
-    private PostProcess(): void
+    #PostProcess(): void
     {
         // Bloom
         // Blur
@@ -110,14 +108,12 @@ export class RenderSystem extends System
         // Other 
     }
 
-    private CombineRenders(): void
+    #CombineRenders(): void
     {
         
     }
-    //#endregion
-
-    //#region Helpers
-    private BindAttributes(attributes: ShaderAttribute, mesh: Mesh): void
+    
+    #BindAttributes(attributes: ShaderAttribute, mesh: Mesh): void
     {
         if (attributes.Position !== -1)
         {
@@ -177,7 +173,7 @@ export class RenderSystem extends System
         }
     }
 
-    private BindUniforms(uniforms: ShaderUniforms, material: Material, mv: Matrix4, n: Matrix3, delta: number, entityId:  EntityId): void
+    #BindUniforms(uniforms: ShaderUniforms, material: Material, mv: Matrix4, n: Matrix3, delta: number, entityId:  EntityId): void
     {
         GL.uniform4fv(uniforms.Material.AmbientColour, material.Ambient)
         GL.uniform4fv(uniforms.Material.DiffuseColour, material.Diffuse)
@@ -227,34 +223,31 @@ export class RenderSystem extends System
         GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, n)
     }
 
-    private BindGlobalUniforms(uniforms: ShaderUniforms, width: number, height: number): void
+    #BindGlobalUniforms(uniforms: ShaderUniforms, width: number, height: number): void
     {
-        // let directional_count: number = 0
-        // for (let light of DirectionalLights)
-        // {
-        //     GL.uniform4fv(shader.BaseUniforms!.DirectionalLights[directional_count].Colour, light.Colour)
-        //     GL.uniform1f(shader.BaseUniforms!.DirectionalLights[directional_count].Intensity, light.Intensity)
-        //     GL.uniform3fv(shader.BaseUniforms!.DirectionalLights[directional_count].Direction, light.Direction)
+        let point_count: number = 0
 
-        //     ++directional_count
-        // }
+        for (let light of this.#lights)
+        {
+            if (light instanceof PointLight)
+            {                
+                GL.uniform4fv(uniforms.PointLights[point_count].Colour, light.Colour)
+                GL.uniform1f(uniforms.PointLights[point_count].Intensity, light.Intensity)
+                GL.uniform3fv(uniforms.PointLights[point_count].Position, light.Position)
+                GL.uniform1f(uniforms.PointLights[point_count].Radius, light.Radius)
+                GL.uniform1f(uniforms.PointLights[point_count].Angle, light.Angle)
 
-        // let point_count: number = 0
-        // for (let light of PointLights)
-        // {
-        //     GL.uniform4fv(shader.BaseUniforms!.PointLights[point_count].Colour, light.Colour)
-        //     GL.uniform1f(shader.BaseUniforms!.PointLights[point_count].Intensity, light.Intensity)
-        //     GL.uniform3fv(shader.BaseUniforms!.PointLights[point_count].Position, light.Position)
-        //     GL.uniform1f(shader.BaseUniforms!.PointLights[point_count].Radius, light.Radius)
-        //     GL.uniform1f(shader.BaseUniforms!.PointLights[point_count].Angle, light.Angle)
-
-        //     ++point_count
-        // }
+                ++point_count
+            }
+        }
 
         const camera = this.scene.Camera!
 
-        // GL.uniform1i(shader.BaseUniforms!.DirectionalLightCount, directional_count)
-        // GL.uniform1i(shader.BaseUniforms!.PointLightCount, point_count)
+        if (point_count > 0)
+        {
+            GL.uniform1i(uniforms.PointLightCount, point_count)
+        }
+
         GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Matrix)
 
         GL.uniform1i(uniforms.Global.Time, Date.now())
@@ -264,10 +257,24 @@ export class RenderSystem extends System
         GL.uniform1i(uniforms.Global.ObjectCount, this.entities.size)
     }
 
-    private CalculateMatrices(transform: Transform): [ Matrix4, Matrix3 ]
+    #CalculateEntityMatrices(entity: Entity): [ Matrix4, Matrix3 ]
     {
-        const modelView = transform.Matrix.Clone()
-        const inverse = modelView.Clone().Inverse()
+        let matrix = Matrix4.IDENTITY
+        let curr: Entity | undefined = entity
+
+        while (curr)
+        {
+            const transform = curr.GetComponent(Transform)
+            if (transform)
+            {
+                const other = CalcuateModelView(transform)
+                matrix.Mult(other)
+            }
+            curr = curr.Parent
+        }
+        
+        const modelView = matrix.Clone()
+        const inverse = matrix.Inverse()
         const normal = new Matrix3(
             inverse.M11, inverse.M12, inverse.M13,
             inverse.M21, inverse.M22, inverse.M23,
@@ -277,7 +284,7 @@ export class RenderSystem extends System
         return [ modelView, normal ]
     }
 
-    private Render(_: Shader, mesh: Mesh): void
+    #Render(_: Shader, mesh: Mesh): void
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
 
@@ -296,5 +303,4 @@ export class RenderSystem extends System
             GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
         }
     }
-    //#endregion
 }

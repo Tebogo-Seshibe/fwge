@@ -2,7 +2,6 @@ import { clean, lerp } from '../helpers/Math'
 
 export class Vector4 extends Float32Array
 {
-    //#region Properties
     get X(): number
     {
         return this[0]
@@ -47,9 +46,7 @@ export class Vector4 extends Float32Array
     {
         return clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2 + this.W ** 2))
     }
-    //#endregion
 
-    //#region Methods
     constructor()
     constructor(x: number, y: number, z: number, w: number)
     constructor(array: Float32Array)
@@ -172,9 +169,7 @@ export class Vector4 extends Float32Array
     {
         return new Vector4(this)
     }
-    //#endregion
-    
-    //#region Static Properties
+
     static get ZERO(): Vector4
     {
         return new Vector4(0, 0, 0, 0)
@@ -194,7 +189,6 @@ export class Vector4 extends Float32Array
     {
         return 4
     }
-    //#endregion
 }
 
 function Destructure(x: number | Float32Array | number[], y?: number, z?: number, w?: number): number[]

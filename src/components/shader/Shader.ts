@@ -1,148 +1,71 @@
-import { GL } from "../ecs/GL"
-import { Colour3, Colour4 } from "../atoms"
-import { Component } from "../ecs"
+import { Colour3, Colour4 } from "../../atoms"
+import { Component } from "../../ecs"
+import { GL } from "../../ecs/GL"
+import { AmbientLightUniform } from "./AmbientLightUniform"
+import { DirectionalLightUniform } from "./DirectionalLightUniform"
+import { GlobalUniform } from "./GlobalUniform"
+import { MaterialUniform } from "./MaterialUniform"
+import { MatrixUniform } from "./MatrixUniform"
+import { PointLightUniform } from "./PointLightUniform"
+import { ShaderAttribute } from "./ShaderAttribute"
+import { ShaderUniforms } from "./ShaderUniforms"
 
-export interface IShader
+interface IShader
 {
     height?: number
     width?: number
-    baseColour?: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4
+    baseColour?: Colour4 | Colour3 | [number, number, number, number] | [number, number, number]
 }
 
-export type UniformField =
+type UniformField =
 {
     type: string
     index: WebGLUniformLocation
 }
 
-export class ShaderAttribute
-{
-    constructor(
-        public readonly Position: number = -1,
-        public readonly Colour: number = -1,
-        public readonly UV: number = -1,
-        public readonly Normal: number = -1
-    ) { }
-}
-
-export class MatrixUniform
-{
-    constructor(
-        public readonly ModelView: WebGLUniformLocation | null,
-        public readonly Projection: WebGLUniformLocation | null,
-        public readonly Normal: WebGLUniformLocation | null,
-        public readonly Camera: WebGLUniformLocation | null
-    ) { }
-}
-
-export class AmbientLightUniform
-{
-    constructor(
-        public readonly Colour: WebGLUniformLocation | null,
-        public readonly Intensity: WebGLUniformLocation | null
-    ) { }
-}
-
-export class DirectionalLightUniform
-{
-    constructor(
-        public readonly Colour: WebGLUniformLocation | null,
-        public readonly Intensity: WebGLUniformLocation | null,
-        public readonly Direction: WebGLUniformLocation | null
-    ) { }
-}
-
-export class PointLightUniform
-{
-    constructor(
-        public readonly Colour: WebGLUniformLocation | null,
-        public readonly Intensity: WebGLUniformLocation | null,
-        public readonly Position: WebGLUniformLocation | null,
-        public readonly Radius: WebGLUniformLocation | null,
-        public readonly Angle: WebGLUniformLocation | null
-    ) { }
-}
-
-export class MaterialUniform
-{
-    constructor(
-        public readonly AmbientColour: WebGLUniformLocation | null,
-        public readonly DiffuseColour: WebGLUniformLocation | null,
-        public readonly SpecularColour: WebGLUniformLocation | null,
-        public readonly Shininess: WebGLUniformLocation | null,
-        public readonly Alpha: WebGLUniformLocation | null,
-        
-        public readonly ImageSampler: WebGLUniformLocation | null,
-        public readonly BumpSampler: WebGLUniformLocation | null,
-        public readonly SpecularSampler: WebGLUniformLocation | null
-    ) { }
-}
-
-export class GlobalUniform
-{
-    constructor(        
-        public readonly Time: WebGLUniformLocation | null,
-        public readonly Resolution: WebGLUniformLocation | null,
-        public readonly NearClip: WebGLUniformLocation | null,
-        public readonly FarClip: WebGLUniformLocation | null,
-        public readonly ObjectID: WebGLUniformLocation | null,
-        public readonly ObjectCount: WebGLUniformLocation | null
-    ) { }
-}
-
-export class ShaderUniforms
-{
-    constructor(
-        public readonly Matrix: MatrixUniform,
-        public readonly Material: MaterialUniform,
-        public readonly AmbientLight: AmbientLightUniform,
-        public readonly DirectionalLights: DirectionalLightUniform[],
-        public readonly DirectionalLightCount: WebGLUniformLocation | null,
-        public readonly PointLights: PointLightUniform[],
-        public readonly PointLightCount: WebGLUniformLocation | null,
-        public readonly Global: GlobalUniform
-    ) { }
-}
-
 export class Shader extends Component
 {
-    private _clear!: Colour4
-    private _height!: number
-    private _width!: number
+    #clear!: Colour4
+    #height!: number
+    #width!: number
+    #vertexSrc: string | null = null
+    #fragmentSrc: string | null = null
 
-    public Program: WebGLProgram | null = null
-    public Filter: boolean = false
+    Program: WebGLProgram | null = null
+    Filter: boolean = false
 
-    public OffsetX: number = 0
-    public OffsetY: number = 0
-    public Layers: number = 0
+    OffsetX: number = 0
+    OffsetY: number = 0
+    Layers: number = 0
     
-    public Attributes?: ShaderAttribute
-    public BaseUniforms?: ShaderUniforms
-    public UserUniforms: Map<string, UniformField> = new Map()
+    Attributes?: ShaderAttribute
+    BaseUniforms?: ShaderUniforms
+    UserUniforms: Map<string, UniformField> = new Map()
 
-    public VertexShader: WebGLShader | null = null
-    public FragmentShader: WebGLShader | null = null
-    public Texture: WebGLTexture | null = null
-    public FrameBuffer: WebGLFramebuffer | null = null
-    public RenderBuffer: WebGLRenderbuffer | null = null
+    VertexShader: WebGLShader | null = null
+    FragmentShader: WebGLShader | null = null
+    Texture: WebGLTexture | null = null
+    FrameBuffer: WebGLFramebuffer | null = null
+    RenderBuffer: WebGLRenderbuffer | null = null
 
-    public get Clear(): Colour4
+    get Clear(): Colour4
     {
-        return this._clear
-    }
-    public set Clear(clear: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4)
-    {
-        this._clear = new Colour4([...clear])
+        return this.#clear
     }
 
-    public get Height(): number
+    set Clear(clear: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4)
     {
-        return this._height
+        this.#clear = new Colour4([...clear])
     }
-    public set Height(height: number)
+
+    get Height(): number
     {
-        this._height = height
+        return this.#height
+    }
+
+    set Height(height: number)
+    {
+        this.#height = height
 
         if (this.Program)
         {
@@ -150,13 +73,14 @@ export class Shader extends Component
         }
     }
     
-    public get Width(): number
+    get Width(): number
     {
-        return this._width
+        return this.#width
     }
-    public set Width(width: number)
+
+    set Width(width: number)
     {
-        this._width = width
+        this.#width = width
 
         if (this.Program)
         {
@@ -164,59 +88,52 @@ export class Shader extends Component
         }
     }
 
-    public _vertexSrc?: string
-    public set Vertex(src: string)
+    set VertexSource(src: string | null)
     {
-        this._vertexSrc = src
+        this.#vertexSrc = src
 
-        if (this._vertexSrc && this._fragmentSrc)
+        if (this.#vertexSrc && this.#fragmentSrc)
         {
-            BuildShader(this)
+            BuildShader(this, this.#vertexSrc!, this.#fragmentSrc!)
+        }
+        else
+        {
+            ClearFunction(this)
         }
     }
 
-    public _fragmentSrc?: string
-    public set Fragment(src: string)
+    set FragmentSource(src: string | null)
     {
-        this._fragmentSrc = src
+        this.#fragmentSrc = src
 
-        if (this._vertexSrc && this._fragmentSrc)
+        if (this.#vertexSrc && this.#fragmentSrc)
         {
-            BuildShader(this)
+            BuildShader(this, this.#vertexSrc!, this.#fragmentSrc!)
+        }
+        else
+        {
+            ClearFunction(this)
         }
     }
 
     constructor(vertexShader: string, fragmentShader: string)
     constructor(vertexShader: string, fragmentShader: string, properties: IShader)
-    constructor(vertexShader: string, fragmentShader: string, args: IShader =
-    { 
-        height: 1080,
-        width: 1920,
-        baseColour: new Colour4(0.0, 0.0, 0.0, 1.0)
-    })
+    constructor(vertexShader: string, fragmentShader: string, args: IShader = { })
     {
         super()
 
-        this.Height = args.height!
-        this.Width = args.width!
-        this.Clear = args.baseColour!
+        this.Height = args.height ?? 1080
+        this.Width = args.width ?? 1920
+        this.Clear = args.baseColour ?? new Colour4(0.0, 0.0, 0.0, 1.0)
 
-        this.Vertex = vertexShader
-        this.Fragment = fragmentShader
+        this.VertexSource = vertexShader
+        this.FragmentSource = fragmentShader
     }
 }
 
-function BuildShader(shader: Shader): void
+function BuildShader(shader: Shader, vertexSrc: string, fragmentSrc: string): void
 {
-    if (shader.Program)
-    {
-        GL.deleteFramebuffer(shader.FrameBuffer)
-        GL.deleteRenderbuffer(shader.RenderBuffer)
-        GL.deleteTexture(shader.Texture)
-        GL.deleteShader(shader.VertexShader)
-        GL.deleteShader(shader.FragmentShader)
-        GL.deleteProgram(shader.Program)
-    }
+    ClearFunction(shader)
 
     shader.Program = GL.createProgram()!
     shader.VertexShader = GL.createShader(GL.VERTEX_SHADER)!
@@ -225,7 +142,7 @@ function BuildShader(shader: Shader): void
     shader.FrameBuffer = GL.createFramebuffer()!
     shader.RenderBuffer = GL.createRenderbuffer()!
 
-    GL.shaderSource(shader.VertexShader, shader._vertexSrc!)
+    GL.shaderSource(shader.VertexShader, vertexSrc)
     GL.compileShader(shader.VertexShader)
     if (!GL.getShaderParameter(shader.VertexShader, GL.COMPILE_STATUS))
     {
@@ -233,7 +150,7 @@ function BuildShader(shader: Shader): void
     }
     
     
-    GL.shaderSource(shader.FragmentShader, shader._fragmentSrc!)
+    GL.shaderSource(shader.FragmentShader, fragmentSrc)
     GL.compileShader(shader.FragmentShader)
     if (!GL.getShaderParameter(shader.FragmentShader, GL.COMPILE_STATUS))
     {
@@ -305,6 +222,19 @@ function BuildShader(shader: Shader): void
             GL.getUniformLocation(shader.Program, 'U_Global.ObjectCount')
         )
     )
+}
+
+function ClearFunction(shader: Shader)
+{
+    if (shader.Program)
+    {
+        GL.deleteFramebuffer(shader.FrameBuffer)
+        GL.deleteRenderbuffer(shader.RenderBuffer)
+        GL.deleteTexture(shader.Texture)
+        GL.deleteShader(shader.VertexShader)
+        GL.deleteShader(shader.FragmentShader)
+        GL.deleteProgram(shader.Program)
+    }
 }
 
 function BuildBuffers(shader: Shader): void

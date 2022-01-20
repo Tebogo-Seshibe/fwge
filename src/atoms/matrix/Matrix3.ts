@@ -2,7 +2,6 @@ import { clean } from '../helpers/Math'
 
 export class Matrix3 extends Float32Array
 {
-    //#region Properties
     get M11(): number
     {
         return this[0]
@@ -101,9 +100,7 @@ export class Matrix3 extends Float32Array
             this.M13 * (this.M21 * this.M32 - this.M22 * this.M31)
         )
     }
-    //#endregion
 
-    //#region Methods
     constructor()
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
     constructor(array: Float32Array)
@@ -282,9 +279,7 @@ export class Matrix3 extends Float32Array
     {
         return new Matrix3(this)
     }
-    //#endregion
 
-    //#region Static Properties
     static get ZERO(): Matrix3
     {
         return new Matrix3(
@@ -302,7 +297,6 @@ export class Matrix3 extends Float32Array
             0, 0, 1
         )
     }
-    //#endregion
 }
 
 function Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number[]

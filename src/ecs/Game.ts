@@ -1,10 +1,16 @@
 import { TypeId } from "."
 import { Component } from "./Component"
-import { GL, setContext } from "./GL"
+import { setContext } from "./GL"
 import { Library } from "./Library"
 import { Prefab } from "./Prefab"
 import { Class, Registry, SceneId } from "./Registry"
 import { Scene } from "./Scene"
+
+interface IGame
+{
+    height?: number
+    width?: number
+}
 
 export class Game
 {
@@ -19,6 +25,8 @@ export class Game
     #tickId?: number
 
     constructor(canvas: HTMLCanvasElement)
+    constructor(canvas: HTMLCanvasElement, config: IGame)
+    constructor(canvas: HTMLCanvasElement, config: IGame = { })
     {
         const gl = canvas.getContext('webgl') as WebGLRenderingContext
 
@@ -28,9 +36,11 @@ export class Game
         }
         
         setContext(gl)
+
+        gl.canvas.height = config.height ?? 1080
+        gl.canvas.width = config.width ?? 1920
     }
 
-    //#region Control
     Start(): void
     {
         if (this.#scenes.length === 0)
@@ -59,6 +69,8 @@ export class Game
         this.#tickId = window.requestAnimationFrame(() => this.#Update(this.#currTick - this.#prevTick))
     }
     
+    Stop(): void
+    Stop(delay: number): void
     Stop(delay: number = 0): void
     {        
         setTimeout(() =>
@@ -72,12 +84,10 @@ export class Game
             }
         }, delay)
     }
-    //#endregion
-
-    //#region Scene
+    
     CreateScene(): Scene
     {
-        const scene = new Scene(this.#scenes.length)
+        const scene = new Scene()
         this.#scenes.push(scene)
 
         return scene
@@ -94,13 +104,13 @@ export class Game
 
         if (arg >= 0 && arg < this.#scenes.length)
         {
-            this.#activeScene = this.#scenes[arg]
+            this.#activeScene = this.GetScene(arg)
         }
     }
 
     GetScene(index: SceneId): Scene | undefined
     {
-        return this.#scenes[index]
+        return this.#scenes.find(scene => scene.Id === index)
     }
 
     RemoveScene(index: SceneId): void
@@ -135,9 +145,7 @@ export class Game
 
         return this.#prefabs.get(name)!
     }
-    //#endregion
 
-    //#region Library
     RegisterComponents(...types: Class<Component>[]): void
     {
         for (const type of types)
@@ -154,6 +162,7 @@ export class Game
         for (const type of types)
         {
             const libraryIndex = Registry.getComponentTypeId(type)
+
             if (libraryIndex === -1)
             {
                 throw new Error(`Component of type "${ type.name }" not registered`)
@@ -168,7 +177,7 @@ export class Game
 
     GetLibrary(typeId: TypeId): Library<Component>
     GetLibrary<T extends Component>(type: Class<T>): Library<T>
-    GetLibrary<T extends Component>(type:  TypeId | Class<T>): Library<T>
+    GetLibrary<T extends Component>(type: TypeId | Class<T>): Library<T>
     {
         const libraryIndex =  typeof type === 'number'
             ? type
@@ -180,6 +189,7 @@ export class Game
         }
 
         const library = this.#libraries[libraryIndex]
+
         if (!library)
         {
             throw new Error(`Library not created`)
@@ -187,5 +197,4 @@ export class Game
         
         return library as Library<T>
     }
-    //#endregion
 }

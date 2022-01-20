@@ -2,27 +2,15 @@ import { Colour4, Vector2, Vector3, Vector4 } from "../atoms"
 import { Component } from "../ecs/Component"
 import { GL } from "../ecs/GL"
 
-export interface IMesh
+interface IMesh
 {
-    position: Vector3[] | number[]
+    position?: Vector3[] | number[]
     normal?: Vector3[] | number[]
     colour?: Vector4[] | Colour4[] | number[]
     uv?: Vector2[] | number[]
     index?: number[]
     wireframe?: number[]
     dynamic?: boolean
-}
-
-function flatten(src: Vector2[] | Vector3[] | Vector4[]): Float32Array
-{
-    const dest: number[] = []
-
-    for (const vec of src)
-    {
-        dest.push(...vec)
-    }
-
-    return new Float32Array(dest)
 }
 
 export class Mesh extends Component
@@ -38,11 +26,16 @@ export class Mesh extends Component
     #wireframe: number = 0
     #dynamic: boolean = false
     
-    set Position(buffer: Float32Array | Vector3[] | number[])
+    set Position(buffer: Float32Array | Vector3[] | number[] | null)
     {
         if (!this.#dynamic)
         {
             GL.deleteBuffer(this.#positionBuffer)
+        }
+
+        if (!buffer)
+        {
+            return
         }
 
         if (!this.#positionBuffer)
@@ -216,11 +209,13 @@ export class Mesh extends Component
         return this.#wireframe
     }
 
+    constructor()
     constructor(args: IMesh)
+    constructor(args: IMesh = { })
     {
         super()
         
-        this.Position = args.position
+        this.Position = args.position ?? null
         this.Normal = args.normal ?? null
         this.Colour = args.colour ?? null
         this.UV = args.uv ?? null
@@ -228,4 +223,16 @@ export class Mesh extends Component
         this.Wireframe = args.wireframe ?? null
         this.#dynamic = args.dynamic ?? false
     }
+}
+
+function flatten(src: Vector2[] | Vector3[] | Vector4[]): Float32Array
+{
+    const dest: number[] = []
+
+    for (const vec of src)
+    {
+        dest.push(...vec)
+    }
+
+    return new Float32Array(dest)
 }

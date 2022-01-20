@@ -1,22 +1,15 @@
-import { isPowerOf2 } from "../atoms/helpers/Math"
 import { Colour4 } from "../atoms"
+import { isPowerOf2 } from "../atoms/helpers/Math"
 import { Component } from "../ecs/Component"
 import { GL } from "../ecs/GL"
 
-export enum ImageMapType
-{
-    TEXTURE,
-    NORMAL,
-    SPECULAR
-}
-
 interface IMaterial
 {
-    ambient: Colour4
-    diffuse: Colour4
-    specular: Colour4
-    alpha: number
-    shininess: number
+    ambient?: Colour4 | [number, number, number, number]
+    diffuse?: Colour4 | [number, number, number, number]
+    specular?: Colour4 | [number, number, number, number]
+    alpha?: number
+    shininess?: number
     imagemap?: string
     normalmap?: string
     specularmap?: string
@@ -24,11 +17,64 @@ interface IMaterial
 
 export class Material extends Component
 {
-    Ambient: Colour4
-    Diffuse: Colour4
-    Specular: Colour4
-    Alpha: number
-    Shininess: number
+    #ambient!: Colour4
+    #diffuse!: Colour4
+    #specular!: Colour4
+    #alpha!: number
+    #shininess!: number
+    #imageTexture: WebGLTexture | null = null
+    #normalTexture: WebGLTexture | null = null
+    #specularTexture: WebGLTexture | null = null
+
+    get Ambient(): Colour4
+    {
+        return this.#ambient
+    }
+
+    set Ambient(ambient: Colour4 | [number, number, number, number])
+    {
+        this.#ambient = new Colour4([...ambient])
+    }
+
+    get Diffuse(): Colour4
+    {
+        return this.#diffuse
+    }
+
+    set Diffuse(diffuse: Colour4 | [number, number, number, number])
+    {
+        this.#diffuse = new Colour4([...diffuse])
+    }
+
+    get Specular(): Colour4
+    {
+        return this.#specular
+    }
+
+    set Specular(specular: Colour4 | [number, number, number, number])
+    {
+        this.#specular = new Colour4([...specular])
+    }
+
+    get Alpha(): number
+    {
+        return this.#alpha
+    }
+
+    set Alpha(alpha: number)
+    {
+        this.#alpha = alpha
+    }
+
+    get Shininess(): number
+    {
+        return this.#shininess
+    }
+
+    set Shininess(shininess: number)
+    {
+        this.#shininess = shininess
+    }
 
     set ImageMap(src: string | null)
     {
@@ -63,19 +109,16 @@ export class Material extends Component
         }
     }
 
-    #imageTexture: WebGLTexture | null = null
     get ImageTexture(): WebGLTexture | null
     {
         return this.#imageTexture
     }
 
-    #normalTexture: WebGLTexture | null = null
     get NormalTexture(): WebGLTexture | null
     {
         return this.#normalTexture
     }
 
-    #specularTexture: WebGLTexture | null = null
     get SpecularTexture(): WebGLTexture | null
     {
         return this.#specularTexture
@@ -83,22 +126,15 @@ export class Material extends Component
 
     constructor()
     constructor(material: IMaterial)
-    constructor(args: IMaterial =
-    {
-        ambient: new Colour4(0.50, 0.50, 0.50, 1.0),
-        diffuse: new Colour4(0.65, 0.65, 0.65, 1.0),
-        specular: new Colour4(0.75, 0.75, 0.75, 1.0),
-        alpha: 1.0,
-        shininess: 1.0
-    })
+    constructor(args: IMaterial = { })
     {
         super()
 
-        this.Ambient = args.ambient
-        this.Diffuse = args.diffuse
-        this.Specular = args.specular
-        this.Alpha = args.alpha
-        this.Shininess = args.shininess
+        this.Ambient = args.ambient ?? new Colour4(0.50, 0.50, 0.50, 1.0)
+        this.Diffuse = args.diffuse ?? new Colour4(0.65, 0.65, 0.65, 1.0)
+        this.Specular = args.specular ?? new Colour4(0.75, 0.75, 0.75, 1.0)
+        this.Alpha = args.alpha ?? 1.0
+        this.Shininess = args.shininess ?? 1.0
         this.ImageMap = args.imagemap ?? null
         this.NormalMap = args.normalmap ?? null
         this.SpecularMap = args.specularmap ?? null
