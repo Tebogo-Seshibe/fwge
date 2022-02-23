@@ -1,5 +1,6 @@
+import { Scene } from 'core/Scene'
 import { Component } from './Component'
-import { System } from './System'
+import { Entity } from './Entity'
 
 export type TypeId = number
 export type SystemId = number
@@ -7,8 +8,9 @@ export type SceneId = number
 export type EntityId = number
 export type ComponentId = number
 export type PrefabId = number
+export type RegistryId = `${SceneId}-${EntityId}-${TypeId}`
 export type Head<T extends unknown[]> = T[0]
-export type Tail<T extends unknown[]> = T extends [any, ...infer TailType] ? TailType : never
+export type Tail<T extends unknown[]> = T extends [Head<T>, ...infer TailType] ? TailType : never
 
 export type Class<T> = 
 {
@@ -20,7 +22,8 @@ export type Constructor<T, U extends any[]> =
     new (...args: U): T
 }
 
-export type a = Tail<[number, string]>
+export type z = Head<[number, boolean, string]>
+export type a = Tail<[number, boolean, string]>
 
 export interface IConstruct<T extends new (...args: any) => any>
 {
@@ -31,113 +34,57 @@ export const components: Map<Class<Component>, Component[]> = new Map()
 
 export class Registry
 {
-    private static readonly componentTypeId: Map<SceneId, Map<string, TypeId>> = new Map()
-    private static readonly systemTypeId: Map<SceneId, Map<string, SystemId>> = new Map()
-    private static readonly entities: ComponentId[][] = []
-    private static readonly systems: System[] = []
-    private static readonly entityList: Map<EntityId, Map<TypeId, ComponentId>> = new Map()
-    private static readonly component: Map<ComponentId, Component>[] = []
-    private static readonly componentType: Map<Class<Component>, TypeId> = new Map()
-    private static readonly componentId: Map<Class<Component>, ComponentId> = new Map()
+    private static entityId: EntityId = 0
+    private static componentId: TypeId = 1
+    private static readonly components: Map<RegistryId, Component> = new Map()
+    private static readonly componentIds: Map<Class<Component>, TypeId> = new Map()
 
-    //#region Scene
-    static registerComponentType(sceneId: SceneId, name: any): TypeId
+
+    //#region Entity
+    static setEntityComponent<T extends Component>(scene: Scene, entity: Entity, component: T)
     {
-        const types = this.componentTypeId.get(sceneId) ?? new Map()
-        
-        types.set(name, types.size)
-        this.componentTypeId.set(sceneId, types)
-
-        return types.get(name) ?? -1
-    }
-
-    static getComponentType(sceneId: SceneId, name: any): TypeId
-    {
-        const types = this.componentTypeId.get(sceneId) ?? new Map()
-        return types.get(name) ?? -1
+        const registryId: RegistryId = `${scene.Id}-${entity.Id}-${component.TypeId}`
+        this.components.set(registryId, component)
     }
     
-    static registerSystemType(sceneId: SceneId, name: any): SystemId
+    static getEntityComponent<T extends Component>(scene: Scene | SceneId, entity: Entity | EntityId, componentType: Class<T> | TypeId): T | undefined
     {
-        const types = this.systemTypeId.get(sceneId) ?? new Map()
-        
-        types.set(name, types.size)
-        this.componentTypeId.set(sceneId, types)
-
-        return types.get(name) ?? -1
+        const registryId: RegistryId = `${typeof scene === 'number' ? scene: scene.Id}-${typeof entity === 'number' ? entity: entity.Id}-${typeof componentType === 'number' ? componentType : this.getComponentType(componentType)}`
+        return this.components.get(registryId) as T
     }
 
-    static getSystemType(sceneId: SceneId, name: any): SystemId
+    static removeEntityComponent<T extends Component>(scene: Scene | SceneId, entity: Entity | EntityId, componentType: Class<T> | TypeId): T | undefined
     {
-        const types = this.systemTypeId.get(sceneId) ?? new Map()
-        return types.get(name) ?? -1
+        const registryId: RegistryId = `${typeof scene === 'number' ? scene: scene.Id}-${typeof entity === 'number' ? entity: entity.Id}-${typeof componentType === 'number' ? componentType : this.getComponentType(componentType)}`
+        const component = this.components.get(registryId) as T
+        this.components.delete(registryId)
+        return component
     }
     //#endregion
 
 
-    static createEntity(): EntityId
+    //#region Ids
+    static createEntity()
     {
-        const entityId = Registry.entities.length
-        this.entities.push([])
-
-        return entityId
+        return this.entityId++
     }
 
-    //#region Component Id
-    static getNextComponentId<T extends Component>(type: Class<T>): TypeId
+    static registerComponentType<T extends Component>(componentType: Class<T>): void
     {
-        const id = Registry.componentId.get(type) ?? 0
-        Registry.componentId.set(type, id + 1)
-
-        return id
+        if (this.componentIds.has(componentType))
+            return
+         
+            
+        this.componentIds.set(componentType, this.componentId)
+        this.componentId = this.componentId << 1
     }
 
-    static getComponentTypeId<T extends Component>(type: Class<T>): TypeId
+    static getComponentType<T extends Component>(componentType: Class<T>): TypeId
     {
-        return Registry.componentType.get(type) ?? -1
-    }
-
-    static setComponentTypeId<T extends Component>(type: Class<T>): void
-    {
-        if (!Registry.componentType.has(type))
-        {
-            Registry.componentType.set(type, Registry.componentType.size)
-            this.component[Registry.componentType.get(type)!] = new Map()
-        }
-    }
-    //#endregion
-
-    //#region Component
-    static addComponent<T extends Component>(typeId: TypeId, component: T): void
-    {
-        this.component[typeId].set(component.Id, component)
-    }
-
-    static getComponent<T extends Component>(typeId: TypeId, componentId: ComponentId): T | undefined
-    {
-        return this.component[typeId].get(componentId) as T
-    }
-
-    static attachComponent<T extends Component>(entityId: EntityId, component: T): void
-    {
-        const entity = this.entityList.has(entityId)
-            ? this.entityList.get(entityId)!
-            : new Map()
-
-        entity.set(component.Type, component.Id)
-
-        this.entityList.set(entityId, entity)
-    }
-
-    static detachComponent<T extends Component>(entityId: EntityId, component: T): void
-    {
-        const ent = this.entityList.has(entityId) 
-            ? this.entityList.get(entityId)!
-            : new Map()
-
-        ent.delete(component.Type)
-
-        this.entityList.set(entityId, ent)
+        if (!this.componentIds.has(componentType))
+            throw 'oops'
+            
+        return this.componentIds.get(componentType)!
     }
     //#endregion
 }

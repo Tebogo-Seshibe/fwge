@@ -1,9 +1,9 @@
-import { TypeId } from "."
-import { Component } from "./Component"
-import { setContext } from "./GL"
+import { TypeId } from "../ecs"
+import { Component } from "../ecs/Component"
+import { setContext } from "../utils/GL"
 import { Library } from "./Library"
 import { Prefab } from "./Prefab"
-import { Class, Registry, SceneId } from "./Registry"
+import { Class, Registry, SceneId } from "../ecs/Registry"
 import { Scene } from "./Scene"
 
 interface IGame
@@ -14,15 +14,13 @@ interface IGame
 
 export class Game
 {
-    #libraries: Library<Component>[] = []
-    #prefabs: Map<string, Prefab> = new Map()
-
-    #scenes: Scene[] = []
-    #activeScene?: Scene
-       
-    #currTick: number = -1
-    #prevTick: number = -1
-    #tickId?: number
+    private scenes: Scene[] = []
+    private libraries: Library<Component>[] = []
+    private prefabs: Map<string, Prefab> = new Map()    
+    private activeScene?: Scene
+    private currTick: number = -1
+    private prevTick: number = -1
+    private tickId?: number
 
     constructor(canvas: HTMLCanvasElement)
     constructor(canvas: HTMLCanvasElement, config: IGame)
@@ -43,30 +41,30 @@ export class Game
 
     Start(): void
     {
-        if (this.#scenes.length === 0)
+        if (this.scenes.length === 0)
         {
             throw new Error('No scenes to run')
         }
 
-        if (!this.#activeScene)
+        if (!this.activeScene)
         {
-            this.#activeScene = this.#scenes[0]
+            this.activeScene = this.scenes[0]
         }
 
-        this.#currTick = this.#prevTick = Date.now()
+        this.currTick = this.prevTick = Date.now()
 
-        this.#activeScene!.Init()
-        this.#activeScene!.Start()
-        this.#tickId = window.requestAnimationFrame(() => this.#Update(0))
+        this.activeScene!.Init()
+        this.activeScene!.Start()
+        this.tickId = window.requestAnimationFrame(() => this.#Update(0))
     }
     
     #Update(delta: number): void
     {
-        this.#activeScene!.Update(delta)
+        this.activeScene!.Update(delta)
         
-        this.#prevTick = this.#currTick
-        this.#currTick = Date.now()
-        this.#tickId = window.requestAnimationFrame(() => this.#Update(this.#currTick - this.#prevTick))
+        this.prevTick = this.currTick
+        this.currTick = Date.now()
+        this.tickId = window.requestAnimationFrame(() => this.#Update(this.currTick - this.prevTick))
     }
     
     Stop(): void
@@ -75,12 +73,12 @@ export class Game
     {        
         setTimeout(() =>
         {
-            if (this.#tickId !== undefined)
+            if (this.tickId !== undefined)
             {
-                window.cancelAnimationFrame(this.#tickId)
-                this.#activeScene!.Stop()
+                window.cancelAnimationFrame(this.tickId)
+                this.activeScene!.Stop()
 
-                this.#tickId = undefined
+                this.tickId = undefined
             }
         }, delay)
     }
@@ -88,7 +86,7 @@ export class Game
     CreateScene(): Scene
     {
         const scene = new Scene()
-        this.#scenes.push(scene)
+        this.scenes.push(scene)
 
         return scene
     }
@@ -99,18 +97,18 @@ export class Game
     {
         if (arg instanceof Scene)
         {
-            arg = this.#scenes.indexOf(arg)
+            arg = this.scenes.indexOf(arg)
         }
 
-        if (arg >= 0 && arg < this.#scenes.length)
+        if (arg >= 0 && arg < this.scenes.length)
         {
-            this.#activeScene = this.GetScene(arg)
+            this.activeScene = this.GetScene(arg)
         }
     }
 
     GetScene(index: SceneId): Scene | undefined
     {
-        return this.#scenes.find(scene => scene.Id === index)
+        return this.scenes.find(scene => scene.Id === index)
     }
 
     RemoveScene(index: SceneId): void
@@ -119,41 +117,38 @@ export class Game
     {
         if (arg instanceof Scene)
         {
-            arg = this.#scenes.indexOf(arg)
+            arg = this.scenes.indexOf(arg)
         }
 
-        if (arg >= 0 && arg < this.#scenes.length)
+        if (arg >= 0 && arg < this.scenes.length)
         {
-            this.#scenes.splice(arg, 1)
+            this.scenes.splice(arg, 1)
         }
     }
     
     RegisterPrefab(name: string): Prefab
     {
         const prefab = new Prefab()
-        this.#prefabs.set(name, prefab)
+        this.prefabs.set(name, prefab)
 
         return prefab
     }
 
     GetPrefab(name: string): Prefab
     {
-        if (!this.#prefabs.has(name))
+        if (!this.prefabs.has(name))
         {
             throw new Error(`Prefab with name "${ name }" does not exist`);
         }
 
-        return this.#prefabs.get(name)!
+        return this.prefabs.get(name)!
     }
 
     RegisterComponents(...types: Class<Component>[]): void
     {
         for (const type of types)
         {
-            if (Registry.getComponentTypeId(type) === -1)
-            {
-                Registry.setComponentTypeId(type)
-            }
+            Registry.registerComponentType(type)
         }
     }
 
@@ -161,16 +156,16 @@ export class Game
     {
         for (const type of types)
         {
-            const libraryIndex = Registry.getComponentTypeId(type)
+            const libraryIndex = Registry.getComponentType(type)
 
             if (libraryIndex === -1)
             {
                 throw new Error(`Component of type "${ type.name }" not registered`)
             }
 
-            if (!this.#libraries[libraryIndex])
+            if (!this.libraries[libraryIndex])
             {
-                this.#libraries[libraryIndex] = new Library(type)
+                this.libraries[libraryIndex] = new Library(type)
             }
         }
     }
@@ -181,14 +176,14 @@ export class Game
     {
         const libraryIndex =  typeof type === 'number'
             ? type
-            : Registry.getComponentTypeId(type)
+            : Registry.getComponentType(type)
         
         if (libraryIndex === -1)
         {
             throw new Error(`Component type not registered`)
         }
 
-        const library = this.#libraries[libraryIndex]
+        const library = this.libraries[libraryIndex]
 
         if (!library)
         {

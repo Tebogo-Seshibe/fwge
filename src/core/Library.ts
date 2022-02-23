@@ -1,25 +1,19 @@
-import { Component } from "./Component"
-import { Class, EntityId, Registry, TypeId } from "./Registry"
+import { Component } from "../ecs/Component"
+import { Class, Registry, TypeId } from "../ecs/Registry"
 
 export class Library<T extends Component>
 {
-    #components: Map<string, EntityId> = new Map()
+    #components: Map<string, Component> = new Map()
     #componentTypeId: TypeId
 
     constructor(componentType: Class<T>)
     {
-        this.#componentTypeId = Registry.getComponentTypeId(componentType)!
+        this.#componentTypeId = Registry.getComponentType(componentType)!
     }
     
     public Add(name: string, component: T): Library<T>
     {
-        this.#components.set(name, component.Id)
-
-        if (!Registry.getComponent<T>(component.Type, component.Id))
-        {
-            Registry.addComponent<T>(component.Type, component)
-        }
-
+        this.#components.set(name, component)
         return this
     }
 
@@ -32,7 +26,7 @@ export class Library<T extends Component>
             throw new Error(`Component with name "${ name }" does not exist`)
         }
 
-        return Registry.getComponent<T>(this.#componentTypeId, componentId)!
+        return this.#components.get(name)! as T
     }
 
     public Remove(name: string): Library<T>

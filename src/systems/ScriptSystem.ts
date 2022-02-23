@@ -1,5 +1,6 @@
+import { Registry, RegistryId } from "../ecs"
 import { Script } from "../components/Script"
-import { Scene } from "../ecs/Scene"
+import { Scene } from "../core/Scene"
 import { System } from "../ecs/System"
 
 export class ScriptSystem extends System
@@ -25,7 +26,7 @@ export class ScriptSystem extends System
         for (const entityId of this.entities)
         {
             const entity = this.scene.GetEntity(entityId)!
-            const script = entity.GetComponent(Script)!
+            const script = Registry.getEntityComponent(this.scene, entityId, Script)!
 
             script.Update.call(entity, delta)
         }

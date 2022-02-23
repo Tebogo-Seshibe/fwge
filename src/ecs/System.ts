@@ -1,19 +1,20 @@
-import { Material, Mesh, Shader, Tag, Transform } from "../components"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
-import { Class, EntityId } from "./Registry"
-import { Scene } from "./Scene"
+import { Class, EntityId, Registry, TypeId } from "./Registry"
+import { Scene } from "../core/Scene"
 
 export abstract class System
 {
     protected scene: Scene
     protected entities: Set<EntityId> = new Set()
     protected componentTypes: Set<Class<Component>> = new Set()
+    protected componentTypeIds: TypeId[] = []
 
     constructor(scene: Scene, ...componentTypes: Class<Component>[])
     {
         this.scene = scene
         this.componentTypes = new Set(componentTypes)
+        this.componentTypeIds = componentTypes.map(x => Registry.getComponentType(x))
     }
 
     public Init(): void { }
@@ -37,7 +38,7 @@ export abstract class System
 
     #IsValidEntity(entity: Entity): boolean
     {
-        let valid = true
+        let valid = this.componentTypes.size > 0
 
         for (const componentType of this.componentTypes)
         {

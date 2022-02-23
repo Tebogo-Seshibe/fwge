@@ -1,5 +1,5 @@
 import { Entity } from "./Entity"
-import { Class, ComponentId, Registry, TypeId } from "./Registry"
+import { Class, Registry, TypeId } from "./Registry"
 
 export abstract class Component
 {
@@ -16,7 +16,7 @@ export abstract class Component
     }
 
     constructor(
-        readonly Id: ComponentId = Registry.getNextComponentId(new.target as unknown as Class<Component>),
-        readonly Type: TypeId = Registry.getComponentTypeId(new.target as unknown as Class<Component>),
+        readonly TypeId: TypeId = Registry.getComponentType(new.target as unknown as Class<Component>),
+        readonly Type: Class<Component> = new.target as unknown as Class<Component>,
     ) { }
 }

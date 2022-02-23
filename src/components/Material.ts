@@ -1,7 +1,7 @@
 import { Colour4 } from "../atoms"
 import { isPowerOf2 } from "../atoms/helpers/Math"
 import { Component } from "../ecs/Component"
-import { GL } from "../ecs/GL"
+import { GL } from "../utils/GL"
 
 interface IMaterial
 {

@@ -1,13 +1,15 @@
 import { Camera } from "../components/Camera"
 import { IUpdateable } from "../atoms/Updateable"
-import { Entity } from "./Entity"
-import { Class, Constructor, EntityId, Registry, SceneId } from "./Registry"
-import { System } from "./System"
+import { Entity } from "../ecs/Entity"
+import { Class, Constructor, EntityId, Registry, SceneId } from "../ecs/Registry"
+import { System } from "../ecs/System"
+import { Window } from "core/Window"
 
 export class Scene implements IUpdateable
 {
     static #sceneId: SceneId = 0
 
+    #windows: Window[] = []
     #entities: Entity[] = []
     #cameras: Camera[] = []
     #mainCamera?: Camera
@@ -66,11 +68,7 @@ export class Scene implements IUpdateable
     {
         systems.forEach(system =>
         {
-            if (Registry.getComponentType(this.Id, system.name) === -1)
-            {
-                Registry.registerComponentType(this.Id, system.name)
-                this.#systems.set(system as Class<T>, new system(this))
-            }
+            this.#systems.set(system as Class<T>, new system(this))
         })
 
         return this

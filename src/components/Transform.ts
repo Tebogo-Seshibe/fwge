@@ -11,50 +11,10 @@ interface ITransform
 
 export class Transform extends Component
 {    
-    #position!: Vector3
-    #rotation!: Vector3
-    #scale!: Vector3
-    #shear!: Vector3
-
-    get Position(): Vector3
-    {
-        return this.#position
-    }
-
-    set Position(position: Vector3 | [number, number, number])
-    {
-        this.#position = new Vector3([...position])
-    }
-
-    get Rotation(): Vector3
-    {
-        return this.#rotation
-    }
-
-    set Rotation(rotation: Vector3 | [number, number, number])
-    {
-        this.#rotation = new Vector3([...rotation])
-    }
-
-    get Scale(): Vector3
-    {
-        return this.#scale
-    }
-
-    set Scale(scale: Vector3 | [number, number, number])
-    {
-        this.#scale = new Vector3([...scale])
-    }
-
-    get Shear(): Vector3
-    {
-        return this.#shear
-    }
-
-    set Shear(shear: Vector3 | [number, number, number])
-    {
-        this.#shear = new Vector3([...shear])
-    }
+    Position!: Vector3
+    Rotation!: Vector3
+    Scale!: Vector3
+    Shear!: Vector3
 
     constructor()
     constructor(transform: ITransform)
@@ -62,10 +22,10 @@ export class Transform extends Component
     {
         super()
         
-        this.Position = args.position ?? Vector3.ZERO
-        this.Rotation = args.rotation ?? Vector3.ZERO
-        this.Scale = args.scale ?? Vector3.ONE
-        this.Shear = args.shear ?? Vector3.ZERO
+        this.Position = args.position ? new Vector3(args.position! as number[]) : Vector3.ZERO
+        this.Rotation = args.rotation ? new Vector3(args.rotation! as number[]) : Vector3.ZERO
+        this.Scale = args.scale ? new Vector3(args.scale! as number[]) : Vector3.ONE
+        this.Shear = args.shear ? new Vector3(args.shear! as number[]) : Vector3.ZERO
     }    
 
     static get UP(): Vector3

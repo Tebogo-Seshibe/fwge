@@ -1,4 +1,4 @@
-import { clean, lerp } from '../helpers/Math'
+import { lerp } from '../helpers/Math'
 
 export class Vector3 extends Float32Array
 {
@@ -9,7 +9,7 @@ export class Vector3 extends Float32Array
 
     set X(x: number)
     {
-        this[0] = clean(x)
+        this[0] = (x)
     }
 
     get Y(): number
@@ -19,7 +19,7 @@ export class Vector3 extends Float32Array
 
     set Y(y: number)
     {
-        this[1] = clean(y)
+        this[1] = (y)
     }
 
     get Z(): number
@@ -29,12 +29,12 @@ export class Vector3 extends Float32Array
 
     set Z(z: number)
     {
-        this[2] = clean(z)
+        this[2] = (z)
     }
 
     get Length(): number
     {
-        return clean(Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
+        return (Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2))
     }
 
     constructor()
@@ -129,7 +129,7 @@ export class Vector3 extends Float32Array
     {
         [ x, y, z ] = Destructure(x, y, z)
 
-        return clean(this.X * x + this.Y * y + this.Z * z)
+        return (this.X * x + this.Y * y + this.Z * z)
     }
 
     Cross(x: number, y: number, z: number): Vector3

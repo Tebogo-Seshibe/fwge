@@ -1,16 +1,18 @@
 import { TypeId } from '.'
+import { Scene } from '../core/Scene'
 import { Component } from './Component'
 import { Class, ComponentId, EntityId, Registry } from './Registry'
-import { Scene } from './Scene'
 
 export class Entity
 {
+    static #entityId: EntityId = 0
+
     #components: Array<ComponentId | undefined> = []
     #children: EntityId[] = []
     #parent?: EntityId
     #scene: Scene
 
-    readonly Id: EntityId = Registry.createEntity()
+    readonly Id: EntityId = Entity.#entityId++
     
     get Parent(): Entity | undefined
     {
@@ -47,7 +49,7 @@ export class Entity
             const componentId = this.#components[typeId]
             if (componentId !== undefined)
             {
-                components.push(Registry.getComponent(typeId, componentId!)!)
+                components.push(Registry.getEntityComponent(this.#scene.Id, this.Id,typeId)!)
             }
         }
 
@@ -61,59 +63,34 @@ export class Entity
 
     AddComponent<T extends Component>(component: T): Entity
     {
-        Registry.addComponent(component.Type, component)
-        Registry.attachComponent(this.Id, component)
+        Registry.setEntityComponent(this.#scene, this, component)
 
-        component.Parent = this
-
-        this.#components[component.Type] = component.Id        
+        component.Parent = this     
         this.#scene.OnEntity(this)
 
         return this
     }
 
-    GetComponent(typeId: TypeId): Component | undefined
-    GetComponent<T extends Component>(type: Class<T>): T | undefined
-    GetComponent<T extends Component>(type: TypeId | Class<T>): T | undefined
+    GetComponent<T extends Component>(componentType: Class<T>): T | undefined
     {
-        const typeId = typeof type === 'number'
-            ? type
-            : Registry.getComponentTypeId(type)!
-
-        return Registry.getComponent(typeId, this.#components[typeId]!)
+        return Registry.getEntityComponent(this.#scene, this.Id, componentType)
     }
 
-    HasComponent(typeId: TypeId): boolean
-    HasComponent<T extends Component>(type: Class<T>): boolean
-    HasComponent<T extends Component>(type: TypeId | Class<T>): boolean
+    HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        const typeId = typeof type === 'number'
-            ? type
-            : Registry.getComponentTypeId(type)!
-
-        return this.#components[typeId] !== undefined
+        return this.GetComponent(componentType) !== undefined
     }
     
-    RemoveComponent(typeId: TypeId): Entity
     RemoveComponent<T extends Component>(type: Class<T>): Entity
-    RemoveComponent<T extends Component>(type: TypeId | Class<T>): Entity
     {
-        const typeId = typeof type === 'number'
-            ? type
-            : Registry.getComponentTypeId(type)!
-
-        const component = this.GetComponent(typeId)
-        
+        const component = Registry.removeEntityComponent(this.#scene, this, type)
         
         if (component)
         {
-            Registry.detachComponent(this.Id, component)
-            this.#components[component.Type] = undefined
             component.Parent = undefined
+            this.#scene.OnEntity(this)
         }
 
-        this.#scene.OnEntity(this)
-        
         return this
     }
     

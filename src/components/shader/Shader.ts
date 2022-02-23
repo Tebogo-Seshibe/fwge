@@ -1,6 +1,6 @@
 import { Colour3, Colour4 } from "../../atoms"
 import { Component } from "../../ecs"
-import { GL } from "../../ecs/GL"
+import { GL } from "../../utils/GL"
 import { AmbientLightUniform } from "./AmbientLightUniform"
 import { DirectionalLightUniform } from "./DirectionalLightUniform"
 import { GlobalUniform } from "./GlobalUniform"

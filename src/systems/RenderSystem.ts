@@ -1,14 +1,14 @@
-import { PointLight } from '../components/lights'
 import { Matrix3 } from '../atoms/matrix/Matrix3'
 import { Matrix4 } from '../atoms/matrix/Matrix4'
 import { Material, Mesh, Shader } from '../components'
+import { PointLight } from '../components/lights'
+import { Light } from '../components/lights/Light'
 import { ShaderAttribute } from '../components/shader/ShaderAttribute'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 import { Transform } from '../components/Transform'
 import { Entity, Scene, System } from '../ecs'
-import { GL } from '../ecs/GL'
-import { EntityId } from '../ecs/Registry'
-import { Light } from '../components/lights/Light'
+import { GL } from '../utils/GL'
+import { EntityId, Registry } from '../ecs/Registry'
 import { CalcuateModelView } from '../utils'
 
 export class RenderSystem extends System
@@ -16,9 +16,19 @@ export class RenderSystem extends System
     #shaders: Set<Shader> = new Set()
     #lights: Set<Light> = new Set()
 
+    #transform: number = 0
+    #mesh: number = 1
+    #material: number = 2
+    #shader: number = 3
+
     constructor(manager: Scene)
     {
         super(manager, Transform, Mesh, Material, Shader)
+
+        this.#transform = this.componentTypeIds[this.#transform]
+        this.#mesh = this.componentTypeIds[this.#mesh]
+        this.#material = this.componentTypeIds[this.#material]
+        this.#shader = this.componentTypeIds[this.#shader]
     }
 
     Init(): void
@@ -71,7 +81,7 @@ export class RenderSystem extends System
         for (const shader of this.#shaders)
         {
             GL.viewport(shader.OffsetX, shader.OffsetY, shader.Width, shader.Height)
-            GL.clearColor(shader.Clear.R, shader.Clear.G, shader.Clear.B, shader.Clear.A)
+            GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3])
             GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
         }
         
@@ -83,12 +93,10 @@ export class RenderSystem extends System
     #Draw(entity: Entity, delta: number, entityId: EntityId): void
     {
         const [ mv, normal ] = this.#CalculateEntityMatrices(entity)
-        const [ shader, mesh, material ] = [
-            entity.GetComponent(Shader)!,
-            entity.GetComponent(Mesh)!,
-            entity.GetComponent(Material)!
-        ]
-
+        const shader = Registry.getEntityComponent(this.scene, entity, this.#shader)! as Shader
+        const mesh = Registry.getEntityComponent(this.scene, entity, this.#mesh)! as Mesh
+        const material = Registry.getEntityComponent(this.scene, entity, this.#material)! as Material
+        
         GL.useProgram(shader.Program)
 
         this.#BindAttributes(shader.Attributes!, mesh)
@@ -264,7 +272,7 @@ export class RenderSystem extends System
 
         while (curr)
         {
-            const transform = curr.GetComponent(Transform)
+            const transform = Registry.getEntityComponent(this.scene, curr.Id, this.#transform) as Transform
             if (transform)
             {
                 const other = CalcuateModelView(transform)
@@ -276,9 +284,9 @@ export class RenderSystem extends System
         const modelView = matrix.Clone()
         const inverse = matrix.Inverse()
         const normal = new Matrix3(
-            inverse.M11, inverse.M12, inverse.M13,
-            inverse.M21, inverse.M22, inverse.M23,
-            inverse.M31, inverse.M32, inverse.M33
+            inverse[0], inverse[1], inverse[2],
+            inverse[3], inverse[4], inverse[5],
+            inverse[6], inverse[7], inverse[8]
         )
 
         return [ modelView, normal ]

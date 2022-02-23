@@ -1,6 +1,6 @@
 import { Colour4, Vector2, Vector3, Vector4 } from "../atoms"
 import { Component } from "../ecs/Component"
-import { GL } from "../ecs/GL"
+import { GL } from "../utils/GL"
 
 interface IMesh
 {

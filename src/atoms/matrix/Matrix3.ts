@@ -1,5 +1,3 @@
-import { clean } from '../helpers/Math'
-
 export class Matrix3 extends Float32Array
 {
     get M11(): number
@@ -9,7 +7,7 @@ export class Matrix3 extends Float32Array
 
     set M11(m11: number)
     {
-        this[0] = clean(m11)
+        this[0] = (m11)
     }
     
     get M12(): number
@@ -19,7 +17,7 @@ export class Matrix3 extends Float32Array
 
     set M12(m12: number)
     {
-        this[1] = clean(m12)
+        this[1] = (m12)
     }
     
     get M13(): number
@@ -29,7 +27,7 @@ export class Matrix3 extends Float32Array
 
     set M13(m13: number)
     {
-        this[2] = clean(m13)
+        this[2] = (m13)
     }
 
     get M21(): number
@@ -39,7 +37,7 @@ export class Matrix3 extends Float32Array
 
     set M21(m21: number)
     {
-        this[3] = clean(m21)
+        this[3] = (m21)
     }
 
     get M22(): number
@@ -49,7 +47,7 @@ export class Matrix3 extends Float32Array
 
     set M22(m22: number)
     {
-        this[4] = clean(m22)
+        this[4] = (m22)
     }
 
     get M23(): number
@@ -59,7 +57,7 @@ export class Matrix3 extends Float32Array
 
     set M23(m23: number)
     {
-        this[5] = clean(m23)
+        this[5] = (m23)
     }
 
     get M31(): number
@@ -69,7 +67,7 @@ export class Matrix3 extends Float32Array
 
     set M31(m31: number)
     {
-        this[6] = clean(m31)
+        this[6] = (m31)
     }
 
     get M32(): number
@@ -79,7 +77,7 @@ export class Matrix3 extends Float32Array
 
     set M32(m32: number)
     {
-        this[7] = clean(m32)
+        this[7] = (m32)
     }
 
     get M33(): number
@@ -89,146 +87,120 @@ export class Matrix3 extends Float32Array
 
     set M33(m33: number)
     {
-        this[8] = clean(m33)
+        this[8] = (m33)
     }
 
     get Determinant(): number
     {
-        return clean(
-            this.M11 * (this.M22 * this.M33 - this.M23 * this.M32) -
-            this.M12 * (this.M21 * this.M33 - this.M23 * this.M31) + 
-            this.M13 * (this.M21 * this.M32 - this.M22 * this.M31)
+        return (
+            this[0] * (this[4] * this[8] - this[5] * this[7]) -
+            this[1] * (this[3] * this[8] - this[5] * this[6]) + 
+            this[2] * (this[3] * this[7] - this[4] * this[6])
         )
     }
 
     constructor()
+    constructor(matrix: Matrix3)
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
-    constructor(array: Float32Array)
-    constructor(array: number[])
-    constructor(m11?: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number)
+    constructor(array: [number | number | number | number | number | number | number | number | number])
+    constructor(m11: Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0)
     {
-        super(9)
-
-        if (m11 !== undefined)
-        {
-            if (typeof m11 === 'number')
-            {
-                this.Set(
-                    m11, m12!, m13!,
-                    m21!, m22!, m23!,
-                    m31!, m32!, m33!
-                )
-            }
-            else 
-            {
-                this.Set([ ...m11 ])
-            }
-        }
+        super(typeof m11 === 'number' ?
+        [ 
+            m11, m12, m13,
+            m21, m22, m23,
+            m31, m32, m33
+        ] : m11)
     }
 
+    Set(matrix: Matrix3): Matrix3
     Set(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
-    Set(array: Float32Array): Matrix3
-    Set(array: number[]): Matrix3
-    Set(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    Set(array: [number | number | number | number | number | number | number | number | number]): Matrix3
+    Set(m11: Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0): Matrix3
     {
-        [
+        m11 = typeof m11 === 'number' ?
+        [ 
             m11, m12, m13,
             m21, m22, m23,
             m31, m32, m33
-        ] = Destructure(
-            m11, m12, m13,
-            m21, m22, m23,
-            m31, m32, m33
-        )
+        ] : m11
 
-        this.M11 = m11
-        this.M12 = m12
-        this.M13 = m13
-
-        this.M21 = m21
-        this.M22 = m22
-        this.M23 = m23
-
-        this.M31 = m31
-        this.M32 = m32
-        this.M33 = m33
+        this[0] = m11[0]
+        this[1] = m11[1]
+        this[2] = m11[2]
+        this[3] = m11[3]
+        this[4] = m11[4]
+        this[5] = m11[5]
+        this[6] = m11[6]
+        this[7] = m11[7]
+        this[8] = m11[8]
 
         return this
     }
     
+    Sum(matrix: Matrix3): Matrix3
     Sum(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
-    Sum(array: Float32Array): Matrix3
-    Sum(array: number[]): Matrix3
-    Sum(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    Sum(array: [number | number | number | number | number | number | number | number | number]): Matrix3
+    Sum(m11: Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0): Matrix3
     {
-        [
+        m11 = typeof m11 === 'number' ?
+        [ 
             m11, m12, m13,
             m21, m22, m23,
             m31, m32, m33
-        ] = Destructure(
-            m11, m12, m13,
-            m21, m22, m23,
-            m31, m32, m33
-        )
+        ] : m11
 
-        this.M11 += m11
-        this.M12 += m12
-        this.M13 += m13
-
-        this.M21 += m21
-        this.M22 += m22
-        this.M23 += m23
-
-        this.M31 += m31
-        this.M32 += m32
-        this.M33 += m33
+        this[0] += m11[0]
+        this[1] += m11[1]
+        this[2] += m11[2]
+        this[3] += m11[3]
+        this[4] += m11[4]
+        this[5] += m11[5]
+        this[6] += m11[6]
+        this[7] += m11[7]
+        this[8] += m11[8]
 
         return this
     }
 
+    Mult(matrix: Matrix3): Matrix3
     Mult(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number): Matrix3
-    Mult(array: Float32Array): Matrix3
-    Mult(array: number[]): Matrix3
-    Mult(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): Matrix3
+    Mult(array: [number | number | number | number | number | number | number | number | number]): Matrix3
+    Mult(m11: Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0): Matrix3
     {
-        [
+        m11 = typeof m11 === 'number' ?
+        [ 
             m11, m12, m13,
             m21, m22, m23,
             m31, m32, m33
-        ] = Destructure(
-            m11, m12, m13,
-            m21, m22, m23,
-            m31, m32, m33
-        )
+        ] : m11
 
         return this.Set(
-            this.M11 * m11 + this.M12 * m21 + this.M13 * m31,
-            this.M11 * m12 + this.M12 * m22 + this.M13 * m32,
-            this.M11 * m13 + this.M12 * m23 + this.M13 * m33,
+            this[0] * m11[0] + this[1] * m11[3] + this[2] * m11[6],
+            this[0] * m11[1] + this[1] * m11[4] + this[2] * m11[7],
+            this[0] * m11[2] + this[1] * m11[5] + this[2] * m11[8],
 
-            this.M21 * m11 + this.M22 * m21 + this.M23 * m31,
-            this.M21 * m12 + this.M22 * m22 + this.M23 * m32,
-            this.M21 * m13 + this.M22 * m23 + this.M23 * m33,
+            this[3] * m11[0] + this[4] * m11[3] + this[5] * m11[6],
+            this[3] * m11[1] + this[4] * m11[4] + this[5] * m11[7],
+            this[3] * m11[2] + this[4] * m11[5] + this[5] * m11[8],
 
-            this.M31 * m11 + this.M32 * m21 + this.M33 * m31,
-            this.M31 * m12 + this.M32 * m22 + this.M33 * m32,
-            this.M31 * m13 + this.M32 * m23 + this.M33 * m33
+            this[6] * m11[0] + this[7] * m11[3] + this[8] * m11[6],
+            this[6] * m11[1] + this[7] * m11[4] + this[8] * m11[7],
+            this[6] * m11[2] + this[7] * m11[5] + this[8] * m11[8]
         )
     }
 
     Scale(scaler: number): Matrix3
     {
-        this.M11 *= scaler
-        this.M12 *= scaler
-        this.M13 *= scaler
-
-        this.M21 *= scaler
-        this.M22 *= scaler
-        this.M23 *= scaler
-
-        this.M31 *= scaler
-        this.M32 *= scaler
-        this.M33 *= scaler
+        this[0] *= scaler
+        this[1] *= scaler
+        this[2] *= scaler
+        this[3] *= scaler
+        this[4] *= scaler
+        this[5] *= scaler
+        this[6] *= scaler
+        this[7] *= scaler
+        this[8] *= scaler
 
         return this
     }
@@ -236,30 +208,30 @@ export class Matrix3 extends Float32Array
     Transpose(): Matrix3
     {
         return this.Set(
-            this.M11, this.M21, this.M31,
-            this.M12, this.M22, this.M32,
-            this.M13, this.M23, this.M33
+            this[0], this[3], this[6],
+            this[1], this[4], this[7],
+            this[2], this[5], this[8]
         )
     }
 
     Inverse(): Matrix3
     {
-        let det = this.Determinant
+        const det = this.Determinant
 
         if (det !== 0)
         {
             this.Set(
-                (this.M22 * this.M33 - this.M32 * this.M23) / det,
-                (this.M32 * this.M13 - this.M12 * this.M33) / det,
-                (this.M12 * this.M23 - this.M22 * this.M13) / det,
+                (this[4] * this[8] - this[7] * this[5]) / det,
+                (this[7] * this[2] - this[1] * this[8]) / det,
+                (this[1] * this[5] - this[4] * this[2]) / det,
 
-                (this.M31 * this.M23 - this.M21 * this.M33) / det,
-                (this.M11 * this.M33 - this.M31 * this.M13) / det,
-                (this.M21 * this.M13 - this.M11 * this.M23) / det,
+                (this[6] * this[5] - this[3] * this[8]) / det,
+                (this[0] * this[8] - this[6] * this[2]) / det,
+                (this[3] * this[2] - this[0] * this[5]) / det,
 
-                (this.M21 * this.M32 - this.M31 * this.M22) / det,
-                (this.M31 * this.M12 - this.M11 * this.M32) / det,
-                (this.M11 * this.M22 - this.M21 * this.M12) / det
+                (this[3] * this[7] - this[6] * this[4]) / det,
+                (this[6] * this[1] - this[0] * this[7]) / det,
+                (this[0] * this[4] - this[3] * this[1]) / det
             )
         }
 
@@ -297,22 +269,4 @@ export class Matrix3 extends Float32Array
             0, 0, 1
         )
     }
-}
-
-function Destructure(m11: number | Float32Array | number[], m12?: number, m13?: number, m21?: number, m22?: number, m23?: number, m31?: number, m32?: number, m33?: number): number[]
-{
-    if (m11 instanceof Float32Array || m11 instanceof Array)
-    {
-        [
-            m11, m12, m13,
-            m21, m22, m23,
-            m31, m32, m33
-        ] = m11
-    }
-
-    return [
-        m11, m12!, m13!,
-        m21!, m22!, m23!,
-        m31!, m32!, m33!
-    ]
 }
