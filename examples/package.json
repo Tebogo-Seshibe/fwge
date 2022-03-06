@@ -1,0 +1,21 @@
+{
+  "name": "examples",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@fwge/audio": "file:../audio",
+    "@fwge/common": "file:../common",
+    "@fwge/core": "file:../core",
+    "@fwge/input": "file:../input",
+    "@fwge/physics": "file:../physics",
+    "@fwge/render": "file:../render",
+    "@fwge/ui": "file:../ui",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0"
+  }
+}

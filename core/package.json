@@ -1,0 +1,12 @@
+{
+  "name": "@fwge/core",
+  "version": "1.0.0",
+  "description": "Core library for the FWGE package",
+  "author": "Tebogo Christopher Seshibe",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fwge/common": "file:../common"
+  }
+}

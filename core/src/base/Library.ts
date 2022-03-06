@@ -1,0 +1,41 @@
+import { SharedComponent } from "../ecs/Component"
+import { Class, Registry, ComponentId } from "../ecs/Registry"
+
+export class Library<T extends SharedComponent>
+{
+    private components: Map<string, ComponentId> = new Map()
+
+    constructor(
+        private componentType: Class<T>,
+        private registry: Registry
+    ) { }
+    
+    public Add(name: string, component: T): Library<T>
+    {
+        if (!component.Id)
+        {
+            this.registry.createComponent(component)
+        }
+        this.components.set(name, component.Id!)
+        return this
+    }
+
+    public Get(name: string): T
+    {
+        const componentId = this.components.get(name)
+
+        if (componentId === undefined)
+        {
+            throw new Error(`Component with name "${ name }" does not exist`)
+        }
+
+        return this.registry.getComponent<T>(this.componentType, componentId)!
+    }
+
+    public Remove(name: string): Library<T>
+    {
+        this.components.delete(name)
+
+        return this
+    }
+}

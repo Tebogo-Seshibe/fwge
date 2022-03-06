@@ -1,0 +1,28 @@
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+body {
+    margin: 0;
+    background: #272727;
+}
+
+div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white;
+}
+canvas {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 90vw;
+    left: 5vw;
+    cursor: none;
+}
