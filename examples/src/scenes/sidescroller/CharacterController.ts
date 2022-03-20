@@ -16,8 +16,6 @@ export class CharacterController extends Entity
     {
         super(scene)
 
-        const _this: CharacterController = this
-
         this.AddComponent(args.mesh)
         this.AddComponent(args.material)
         this.AddComponent(args.shader)
@@ -25,7 +23,7 @@ export class CharacterController extends Entity
 
         this.AddComponent(new Input(
         {
-            onInput({ Keyboard }: IInputArgs, delta: number)
+            onInput: ({ Keyboard }: IInputArgs, delta: number) =>
             {
                 if (Keyboard.KeyF5 !== KeyState.UP)
                 {
@@ -36,33 +34,33 @@ export class CharacterController extends Entity
                 const movement = new Vector3(0, 0, 0)
                 const direction = (Keyboard.KeyShift === KeyState.DOWN) ? 1 : -1
 
-                _this.movementSpeed = clamp(
-                    _this.movementSpeed + (direction * (_this.deltaMoveSpeed * delta * _this.movementSpeed)),
-                    _this.minMoveSpeed,
-                    _this.maxMoveSpeed
+                this.movementSpeed = clamp(
+                    this.movementSpeed + (direction * (this.deltaMoveSpeed * delta * this.movementSpeed)),
+                    this.minMoveSpeed,
+                    this.maxMoveSpeed
                 )
 
                 if (Keyboard.KeyA === KeyState.DOWN)
                 {
-                    movement.X -= _this.movementSpeed
+                    movement.X -= this.movementSpeed
                 }
 
                 if (Keyboard.KeyD === KeyState.DOWN)
                 {
-                    movement.X += _this.movementSpeed
+                    movement.X += this.movementSpeed
                 }
 
                 if (Keyboard.KeyW === KeyState.DOWN)
                 {
-                    movement.Y += _this.movementSpeed
+                    movement.Y += this.movementSpeed
                 }
 
                 if (Keyboard.KeyS === KeyState.DOWN)
                 {
-                    movement.Y -= _this.movementSpeed
+                    movement.Y -= this.movementSpeed
                 }
 
-                _this.transform.Position.Sum(movement)
+                this.transform.Position.Sum(movement)
             }
         }))
     }

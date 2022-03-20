@@ -7,37 +7,43 @@ import { Scene } from "./Scene"
 
 interface IGame
 {
-    canvas: HTMLCanvasElement
+    canvas?: HTMLCanvasElement
     components: Class<Component>[]
     libraries: Class<SharedComponent>[]
 }
 
 export class Game
 {
-    private scenes: Scene[] = []
-    private libraries: Map<Class<SharedComponent>, Library<SharedComponent>> = new Map()
-    private prefabs: Map<string, Prefab> = new Map()
-    private activeScene?: Scene
-    private currTick: number = -1
-    private prevTick: number = -1
-    private tickId?: number
-    private canvas: HTMLCanvasElement
-    private registry: Registry = new Registry()
+    private _scenes: Scene[] = []
+    private _libraries: Map<Class<SharedComponent>, Library<SharedComponent>> = new Map()
+    private _prefabs: Map<string, Prefab> = new Map()
+    private _activeScene?: Scene
+    private _currTick: number = -1
+    private _prevTick: number = -1
+    private _tickId?: number
+    private _canvas: HTMLCanvasElement
+    private _registry: Registry = new Registry()
 
     constructor(args: IGame)
     {
-        const gl = args.canvas.getContext('webgl')
+        if (!args.canvas)
+        {
+            args.canvas = document.createElement('canvas')
+            document.body.appendChild(args.canvas)
+        }
+            
+        const gl = args.canvas.getContext('webgl2')
         if (!gl)
         {
             throw new Error('No WebGL context could be generated!')
         }
 
-        this.canvas = args.canvas
+        this._canvas = args.canvas
         setContext(gl)
 
         for (const type of args.components)
         {
-            this.registry.registerComponentType(type)
+            this._registry.registerComponentType(type)
         }
 
         for (const type of args.libraries)
@@ -49,30 +55,30 @@ export class Game
     //#region Controls
     Start(): void
     {
-        if (this.scenes.length === 0)
+        if (this._scenes.length === 0)
         {
             console.warn('No scenes to run')
         }
 
-        if (!this.activeScene)
+        if (!this._activeScene)
         {
-            this.activeScene = this.scenes.first()
+            this._activeScene = this._scenes.first()
         }
 
-        this.currTick = this.prevTick = Date.now()
+        this._currTick = this._prevTick = Date.now()
 
-        this.activeScene?.Init()
-        this.activeScene?.Start()
-        this.tickId = window.requestAnimationFrame(() => this.Update(0))
+        this._activeScene?.Init()
+        this._activeScene?.Start()
+        this._tickId = window.requestAnimationFrame(() => this.Update(0))
     }
     
     private Update(delta: number): void
     {
-        this.activeScene?.Update(delta)
+        this._activeScene?.Update(delta)
         
-        this.prevTick = this.currTick
-        this.currTick = Date.now()
-        this.tickId = window.requestAnimationFrame(() => this.Update(this.currTick - this.prevTick))
+        this._prevTick = this._currTick
+        this._currTick = Date.now()
+        this._tickId = window.requestAnimationFrame(() => this.Update(this._currTick - this._prevTick))
     }
     
     Stop(): void
@@ -86,12 +92,12 @@ export class Game
 
         setTimeout(() =>
         {
-            if (this.tickId !== undefined)
+            if (this._tickId !== undefined)
             {
-                window.cancelAnimationFrame(this.tickId)
-                this.activeScene?.Stop()
+                window.cancelAnimationFrame(this._tickId)
+                this._activeScene?.Stop()
 
-                this.tickId = undefined
+                this._tickId = undefined
             }
         }, delay)
     }
@@ -100,16 +106,16 @@ export class Game
     //#region Scene
     CreateScene()
     {
-        const scene = new Scene(this.registry)
-        this.scenes.push(scene)
-        scene.SetContext(this.canvas)
+        const scene = new Scene(this._registry)
+        this._scenes.push(scene)
+        scene.SetContext(this._canvas)
 
         return scene
     }
 
     GetScene(sceneId: SceneId): Scene | undefined
     {
-        return this.scenes.find(scene => scene.Id === sceneId)
+        return this._scenes.find(scene => scene.Id === sceneId)
     }
 
     RemoveScene(index: SceneId): void
@@ -120,7 +126,7 @@ export class Game
             ? arg
             : arg.Id
 
-        this.scenes = this.scenes.filter(scene =>
+        this._scenes = this._scenes.filter(scene =>
         {
             const isRemove = scene.Id !== sceneId
             if (isRemove)
@@ -136,12 +142,12 @@ export class Game
     SetActiveScene(arg: Scene | SceneId): void
     {        
         const scene = typeof arg === 'number'
-            ? this.scenes.find(x => x.Id === arg)
-            : this.scenes.find(x => x.Id === arg.Id)
+            ? this._scenes.find(x => x.Id === arg)
+            : this._scenes.find(x => x.Id === arg.Id)
 
         if (scene)
         {
-            this.activeScene = scene
+            this._activeScene = scene
         }
     }
     //#endregion
@@ -149,17 +155,17 @@ export class Game
     //#region Library
     CreateLibrary<T extends SharedComponent>(type: Class<T>): Library<T>
     {
-        if (!this.libraries.has(type))
+        if (!this._libraries.has(type))
         {
-            this.libraries.set(type, new Library(type, this.registry))
+            this._libraries.set(type, new Library(type, this._registry))
         }
 
-        return this.libraries.get(type) as Library<T>
+        return this._libraries.get(type) as Library<T>
     }
 
     GetLibrary<T extends SharedComponent>(type: Class<T>): Library<T>
     {
-        const library = this.libraries.get(type)
+        const library = this._libraries.get(type)
 
         if (!library)
         {
@@ -173,19 +179,19 @@ export class Game
     //#region Prefab
     CreatePrefab(name: string): Prefab
     {
-        if (this.prefabs.has(name))
+        if (this._prefabs.has(name))
         {
             throw new Error(`Name ${ name } already exists`)
         }
 
         const prefab = new Prefab()
-        this.prefabs.set(name, prefab)
+        this._prefabs.set(name, prefab)
         return prefab
     }
 
     GetPrefab(name: string): Prefab | undefined
     {
-        return this.prefabs.get(name)
+        return this._prefabs.get(name)
     }
     //#endregion
 

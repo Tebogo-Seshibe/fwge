@@ -1,5 +1,4 @@
 import { Scene, System } from "@fwge/core"
-import { KeyboardState } from "../base"
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
 import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler"
@@ -7,9 +6,9 @@ import { Input } from "../components"
 
 export class InputSystem extends System
 {
-    keyboard: KeyboardInputHandler = new KeyboardInputHandler(this.scene.Context!)
-    mouse: MouseInputHandler = new MouseInputHandler(this.scene.Context!)
-    controllers: ControllerInputHandler = new ControllerInputHandler()
+    private _keyboard: KeyboardInputHandler = new KeyboardInputHandler(this.scene.Context!)
+    private _mouse: MouseInputHandler = new MouseInputHandler(this.scene.Context!)
+    private _controllers: ControllerInputHandler = new ControllerInputHandler()
 
     constructor(scene: Scene)
     {
@@ -18,16 +17,16 @@ export class InputSystem extends System
 
     Start(): void        
     {
-        this.keyboard.Start()
-        this.mouse.Start()
-        this.controllers.Start()
+        this._keyboard.Start()
+        this._mouse.Start()
+        this._controllers.Start()
     }
 
     Update(delta: number): void
     {
-        this.keyboard.Update(delta)
-        this.mouse.Update(delta)
-        this.controllers.Update(delta)
+        this._keyboard.Update(delta)
+        this._mouse.Update(delta)
+        this._controllers.Update(delta)
     
         for (const entityId of this.entities)
         {
@@ -36,17 +35,17 @@ export class InputSystem extends System
 
             inputComponent.OnInput.call(entity,
             {
-                Keyboard: this.keyboard.State,
-                Mouse: this.mouse.State,
-                Controllers: this.controllers.State
+                Keyboard: this._keyboard.State,
+                Mouse: this._mouse.State,
+                Controllers: this._controllers.State
             }, delta)
         }
     }
 
     Stop(): void        
     {
-        this.keyboard.Stop()
-        this.mouse.Stop()
-        this.controllers.Stop()
+        this._keyboard.Stop()
+        this._mouse.Stop()
+        this._controllers.Stop()
     }
 }

@@ -18,7 +18,7 @@ export class ControllerInputHandler
     static readonly RightTrigger: number = 18
     static readonly Buttons: number = 19
 
-    #state: number[][] = []
+    private _state: number[][] = []
 
     get State()
     {

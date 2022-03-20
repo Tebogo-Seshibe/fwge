@@ -1,4 +1,5 @@
-import { Vector3 } from '@fwge/common'
+import { CalcuateModelView, Matrix3, Matrix4, Vector3 } from '@fwge/common'
+import { Entity } from '../ecs'
 import { UniqueComponent } from '../ecs/Component'
 
 interface ITransform
@@ -10,11 +11,105 @@ interface ITransform
 }
 
 export class Transform extends UniqueComponent
-{    
-    Position!: Vector3
-    Rotation!: Vector3
-    Scale!: Vector3
-    Shear!: Vector3
+{
+    private _position: Vector3 = Vector3.ZERO
+    private _rotation: Vector3 = Vector3.ZERO
+    private _scale: Vector3 = Vector3.ONE
+    private _shear: Vector3 = Vector3.ZERO
+
+    private _modelViewMatrix: Matrix4 = Matrix4.IDENTITY
+    private _normalMatrix: Matrix3 = Matrix3.IDENTITY
+
+    private _recalculateMatrices()
+    {
+        let parent: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
+        this._modelViewMatrix = CalcuateModelView(
+            this._position,
+            this._rotation,
+            this._scale
+        )
+
+        while (parent)
+        {
+            this._modelViewMatrix.Mult(
+                CalcuateModelView(
+                    parent._position,
+                    parent._rotation,
+                    parent._scale
+                )
+            )
+            parent = parent.Owner?.Parent?.GetComponent(Transform)
+        }
+
+        const mat = this._modelViewMatrix.Clone().Inverse()
+        
+        this._normalMatrix = new Matrix3(
+            mat[0], mat[1],  mat[2],
+            mat[4], mat[5],  mat[6],
+            mat[8], mat[9], mat[10]
+        )
+    }
+    
+    get ModelViewMatrix(): Matrix4
+    {
+        if (this._position.Dirty || this.Rotation.Dirty || this.Scale.Dirty)
+        {
+            this._recalculateMatrices()
+        }
+
+        return this._modelViewMatrix
+    }
+
+    get NormalMatrix(): Matrix3
+    {
+        if (this._position.Dirty || this.Rotation.Dirty || this.Scale.Dirty)
+        {
+            this._recalculateMatrices()
+        }
+
+        return this._normalMatrix
+    }
+
+
+    get Position(): Vector3
+    {
+        return this._position
+    }
+
+    set Position(position: Vector3)
+    {
+        this._position = position
+    }
+
+    get Rotation(): Vector3
+    {
+        return this._rotation
+    }
+
+    set Rotation(rotation: Vector3)
+    {
+        this._rotation = rotation
+    }
+
+    get Scale(): Vector3
+    {
+        return this._scale
+    }
+
+    set Scale(scale: Vector3)
+    {
+        this._scale = scale
+    }
+
+    get Shear(): Vector3
+    {
+        return this._shear
+    }
+
+    set Shear(shear: Vector3)
+    {
+        this._shear = shear
+    }
 
     constructor()
     constructor(transform: ITransform)

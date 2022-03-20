@@ -7,5 +7,3 @@ export class AudioListenerComponent extends UniqueComponent
         super()
     }
 }
-
-Object.setPrototypeOf(AudioListenerComponent.prototype, null)

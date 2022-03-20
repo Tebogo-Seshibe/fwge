@@ -1,6 +1,6 @@
+import { GL, Vector2 } from "@fwge/common"
+import { Class, Component, Entity, SharedComponent } from "@fwge/core"
 import { Colour3, Colour4 } from "../../base/colour"
-import { SharedComponent } from "@fwge/core"
-import { GL } from "@fwge/common"
 import { AmbientLightUniform } from "./AmbientLightUniform"
 import { DirectionalLightUniform } from "./DirectionalLightUniform"
 import { GlobalUniform } from "./GlobalUniform"
@@ -9,12 +9,56 @@ import { MatrixUniform } from "./MatrixUniform"
 import { PointLightUniform } from "./PointLightUniform"
 import { ShaderAttribute } from "./ShaderAttribute"
 import { ShaderUniforms } from "./ShaderUniforms"
+import { ShaderFieldType } from "./types/Types"
 
-interface IShader
+export type ValidateShape<Object, Target> = 
+    Object extends Target
+        ? Exclude<keyof Object, keyof Target> extends never 
+            ? Target
+            : never
+        : never
+export type IgnoreUnderscore<T> = {
+    [
+        K in keyof T as K extends `_${infer _}`
+        ? never
+        : K
+    ]: T[K]
+}
+export type PickByType<T, U> = {
+    [
+        K in keyof T as T[K] extends U
+        ? K
+        : never
+    ]: ValidateShape<T[K], U>
+}
+
+export class Attribute<T extends Component>
+{
+    constructor(
+        public sourceType: Class<ShaderFieldType<any>>,
+        public sourceName: string,
+        public selector?: (arg: Entity) => WebGLBuffer
+    ) { }
+}
+
+export class Uniform<T extends any>
+{
+    constructor(
+        public sourceType: Class<ShaderFieldType<any>>,
+        public sourceName: string,
+        public selector?: (arg: Entity) => any
+    ) { }
+}
+
+
+interface IShader<>
 {
     height?: number
     width?: number
     baseColour?: Colour4 | Colour3 | [number, number, number, number] | [number, number, number]
+
+    attributes?: Attribute<any>[]
+    uniforms?: Uniform<any>[]
 }
 
 type UniformField =
@@ -25,95 +69,107 @@ type UniformField =
 
 export class Shader extends SharedComponent
 {
-    #clear!: Colour4
-    #height!: number
-    #width!: number
-    #vertexSrc: string | null = null
-    #fragmentSrc: string | null = null
+    _clear!: Colour4
+    _height!: number
+    _width!: number
+    _vertexSrc: string = ''
+    _fragmentSrc: string = ''
+    _program: WebGLProgram | null = null
+    _vertexShader: WebGLShader | null = null
+    _fragmentShader: WebGLShader | null = null
+    _texture: WebGLTexture | null = null
+    _frameBuffer: WebGLFramebuffer | null = null
+    _renderBuffer: WebGLRenderbuffer | null = null
 
-    Program: WebGLProgram | null = null
     Filter: boolean = false
-
-    OffsetX: number = 0
-    OffsetY: number = 0
-    Layers: number = 0
+    Offset: Vector2 = new Vector2(0)
     
+    AttributeList: Map<string, ShaderFieldType<any>> = new Map()
+    UniformList: Map<string, ShaderFieldType<any>> = new Map()
+
     Attributes?: ShaderAttribute
     BaseUniforms?: ShaderUniforms
     UserUniforms: Map<string, UniformField> = new Map()
 
-    VertexShader: WebGLShader | null = null
-    FragmentShader: WebGLShader | null = null
-    Texture: WebGLTexture | null = null
-    FrameBuffer: WebGLFramebuffer | null = null
-    RenderBuffer: WebGLRenderbuffer | null = null
+
+    get Texture(): WebGLTexture | null
+    {
+        return this._texture
+    }
+
+    get FrameBuffer(): WebGLFramebuffer | null
+    {
+        return this._frameBuffer
+    }
+
+    get RenderBuffer(): WebGLRenderbuffer | null
+    {
+        return this._renderBuffer
+    }
+
+    get Program()
+    {
+        return this._program
+    }
 
     get Clear(): Colour4
     {
-        return this.#clear
+        return this._clear
     }
 
     set Clear(clear: Float32Array | [number, number, number] | [number, number, number, number] | Colour3 | Colour4)
     {
-        this.#clear = new Colour4(clear[0], clear[1], clear[2], clear[3] ?? 1)
+        this._clear = new Colour4(clear[0], clear[1], clear[2], clear[3] ?? 1)
     }
 
     get Height(): number
     {
-        return this.#height
+        return this._height
     }
 
     set Height(height: number)
     {
-        this.#height = height
+        this._height = height
 
         if (this.Program)
         {
-            BuildBuffers(this)
+            this._buildBuffers()
         }
     }
     
     get Width(): number
     {
-        return this.#width
+        return this._width
     }
 
     set Width(width: number)
     {
-        this.#width = width
+        this._width = width
 
         if (this.Program)
         {
-            BuildBuffers(this)
+            this._buildBuffers()
         }
     }
 
-    set VertexSource(src: string | null)
+    get VertexSource()
     {
-        this.#vertexSrc = src
-
-        if (this.#vertexSrc && this.#fragmentSrc)
-        {
-            BuildShader(this, this.#vertexSrc!, this.#fragmentSrc!)
-        }
-        else
-        {
-            ClearFunction(this)
-        }
+        return this._vertexSrc
     }
 
-    set FragmentSource(src: string | null)
+    get FragmentSource()
     {
-        this.#fragmentSrc = src
+        return this._fragmentSrc
+    }
 
-        if (this.#vertexSrc && this.#fragmentSrc)
-        {
-            BuildShader(this, this.#vertexSrc!, this.#fragmentSrc!)
-        }
-        else
-        {
-            ClearFunction(this)
-        }
+    get VertexShader()
+    {
+        return this._vertexShader
+    }
+
+    get FragmentShader()
+    {
+        return this._fragmentShader
     }
 
     constructor(vertexShader: string, fragmentShader: string)
@@ -122,138 +178,234 @@ export class Shader extends SharedComponent
     {
         super()
 
-        this.Height = args.height ?? 1080
-        this.Width = args.width ?? 1920
-        this.Clear = args.baseColour ?? new Colour4(0.0, 0.0, 0.0, 1.0)
+        this._height = args.height ?? 1080
+        this._width = args.width ?? 1920
+        this._clear = args.baseColour !== undefined
+            ? new Colour4(args.baseColour[0], args.baseColour[1], args.baseColour[2], args.baseColour[3] ?? 1.0)
+            : new Colour4(1.0)
 
-        this.VertexSource = vertexShader
-        this.FragmentSource = fragmentShader
+        this._vertexSrc = vertexShader
+        this._fragmentSrc = fragmentShader
+        
+        args.attributes?.forEach(attribute => {
+            const attrib = new attribute.sourceType(attribute.selector)
+            this.AttributeList.set(attribute.sourceName, attrib)
+        })
+
+        args.uniforms?.forEach(uniform => {
+            const unif = new uniform.sourceType(uniform.selector)
+            this.UniformList.set(uniform.sourceName, unif)
+        })
+
+        this._build()
+        console.log(this)
     }
-}
 
-function BuildShader(shader: Shader, vertexSrc: string, fragmentSrc: string): void
-{
-    ClearFunction(shader)
-
-    shader.Program = GL.createProgram()!
-    shader.VertexShader = GL.createShader(GL.VERTEX_SHADER)!
-    shader.FragmentShader = GL.createShader(GL.FRAGMENT_SHADER)!
-    shader.Texture = GL.createTexture()!
-    shader.FrameBuffer = GL.createFramebuffer()!
-    shader.RenderBuffer = GL.createRenderbuffer()!
-
-    GL.shaderSource(shader.VertexShader, vertexSrc)
-    GL.compileShader(shader.VertexShader)
-    if (!GL.getShaderParameter(shader.VertexShader, GL.COMPILE_STATUS))
+    private _build()
     {
-        console.info('Vertex Shader: ' + GL.getShaderInfoLog(shader.VertexShader!))
+        this._resetShader()
+        this._compileShaders()
+        this._buildBuffers()
+        this._getProperties()
     }
     
-    
-    GL.shaderSource(shader.FragmentShader, fragmentSrc)
-    GL.compileShader(shader.FragmentShader)
-    if (!GL.getShaderParameter(shader.FragmentShader, GL.COMPILE_STATUS))
+    private _resetShader()
     {
-        console.info('Fragment Shader: ' + GL.getShaderInfoLog(shader.FragmentShader!))
+        if (this.Program)
+        {
+            GL.deleteFramebuffer(this.FrameBuffer)
+            GL.deleteRenderbuffer(this.RenderBuffer)
+            GL.deleteTexture(this.Texture)
+            GL.deleteShader(this.VertexShader)
+            GL.deleteShader(this.FragmentShader)
+            GL.deleteProgram(this.Program)
+        }
     }
 
-    GL.attachShader(shader.Program, shader.VertexShader)
-    GL.attachShader(shader.Program, shader.FragmentShader)
-    GL.linkProgram(shader.Program)
-    if (!GL.getProgramParameter(shader.Program, GL.LINK_STATUS))
+    private _compileShaders(): void
     {
-        console.info(GL.getProgramInfoLog(shader.Program)!)
+        const program = GL.createProgram()
+        const vertexShader = GL.createShader(GL.VERTEX_SHADER)
+        const fragmentShader = GL.createShader(GL.FRAGMENT_SHADER)
+
+        if (!program)
+        {
+            throw new Error('WebGL failed to create shader program')
+        }
+
+        if (!vertexShader)
+        {
+            throw new Error('WebGL failed to create vertext shader')
+        }
+
+        if (!fragmentShader)
+        {
+            throw new Error('WebGL failed to create fragment shader')
+        }
+
+        const log = []
+
+        GL.shaderSource(vertexShader, this.VertexSource)
+        GL.compileShader(vertexShader)
+        if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
+        {
+            log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
+        }
+        
+        
+        GL.shaderSource(fragmentShader, this._fragmentSrc)
+        GL.compileShader(fragmentShader)
+        if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
+        {
+            log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
+        }
+
+        GL.attachShader(program, vertexShader)
+        GL.attachShader(program, fragmentShader)
+        GL.linkProgram(program)
+        if (!GL.getProgramParameter(program, GL.LINK_STATUS))
+        {
+            log.push(GL.getProgramInfoLog(program))
+        }
+
+        if (log.length > 0)
+        {
+            console.error(log.join('\n'))
+            throw new Error()
+        }
+
+        this._program = program
+        this._vertexShader = vertexShader
+        this._fragmentShader = fragmentShader
+    }
+
+    private _buildBuffers(): void
+    {
+        const texture = GL.createTexture()
+        const frameBuffer = GL.createFramebuffer()
+        const renderBuffer = GL.createRenderbuffer()
+
+        if (!texture)
+        {
+            throw new Error('WebGL failed to create texture')
+        }
+
+        if (!frameBuffer)
+        {
+            throw new Error('WebGL failed to create vertext shader')
+        }
+
+        if (!renderBuffer)
+        {
+            throw new Error('WebGL failed to create fragment shader')
+        }
+
+        GL.bindTexture(GL.TEXTURE_2D, texture)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.Width, this.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array(this.Width * this.Height * 4))
+        GL.bindTexture(GL.TEXTURE_2D, null)
+
+        GL.bindRenderbuffer(GL.RENDERBUFFER, renderBuffer)
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, this.Width, this.Height)
+        GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, frameBuffer)
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
+        GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, renderBuffer)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        
+    
+        if (this._texture)
+        {
+            GL.deleteTexture(this._texture)
+        }
+
+        if (this._renderBuffer)
+        {
+            GL.deleteRenderbuffer(this._renderBuffer)
+        }
+
+        if (this._frameBuffer)
+        {
+            GL.deleteFramebuffer(this._frameBuffer)
+        }
+
+        this._texture = texture
+        this._fragmentShader = frameBuffer
+        this._renderBuffer = renderBuffer
     }
     
-    BuildBuffers(shader)
+    private _getProperties(): void
+    {
+        if (this.Program === null) 
+        {
+            return
+        }
 
-    shader.Attributes = new ShaderAttribute(
-        GL.getAttribLocation(shader.Program, 'A_Position'),
-        GL.getAttribLocation(shader.Program, 'A_Colour'),
-        GL.getAttribLocation(shader.Program, 'A_UV'),
-        GL.getAttribLocation(shader.Program, 'A_Normal')
-    )
+        this.AttributeList.forEach((attribute, name) => {
+            attribute.Id = GL.getAttribLocation(this.Program!, name)
+        })
+        this.UniformList.forEach((uniform, name) => {
+            uniform.Location = GL.getUniformLocation(this.Program!, name)
+        })
 
-    shader.BaseUniforms = new ShaderUniforms(
-        new MatrixUniform(
-            GL.getUniformLocation(shader.Program, 'U_Matrix.ModelView'),
-            GL.getUniformLocation(shader.Program, 'U_Matrix.Projection'),
-            GL.getUniformLocation(shader.Program, 'U_Matrix.Normal'),
-            GL.getUniformLocation(shader.Program, 'U_Matrix.Camera')
-        ),
-        new MaterialUniform(
-            GL.getUniformLocation(shader.Program, 'U_Material.Ambient'),
-            GL.getUniformLocation(shader.Program, 'U_Material.Diffuse'),
-            GL.getUniformLocation(shader.Program, 'U_Material.Specular'),
-            GL.getUniformLocation(shader.Program, 'U_Material.Shininess'),
-            GL.getUniformLocation(shader.Program, 'U_Material.Alpha'),
-            GL.getUniformLocation(shader.Program, 'U_Material.ImageMap'),
-            GL.getUniformLocation(shader.Program, 'U_Material.BumpMap'),
-            GL.getUniformLocation(shader.Program, 'U_Material.SpecularMap'),
-            GL.getUniformLocation(shader.Program, 'U_Material.HasImageMap')
-        ),
-        new AmbientLightUniform(
-            GL.getUniformLocation(shader.Program, `U_Ambient.Colour`),
-            GL.getUniformLocation(shader.Program, `U_Ambient.Intensity`)
-        ),
-        new Array(3).fill(undefined).map((_, index) => 
-            new DirectionalLightUniform(
-                GL.getUniformLocation(shader.Program!, `U_Directional[${index}].Colour`),
-                GL.getUniformLocation(shader.Program!, `U_Directional[${index}].Intensity`),
-                GL.getUniformLocation(shader.Program!, `U_Directional[${index}].Direction`)
-            )
-        ),
-        3,
-        new Array(8).fill(undefined).map((_, index) => 
-            new PointLightUniform(
-                GL.getUniformLocation(shader.Program!, `U_Point[${index}].Colour`),
-                GL.getUniformLocation(shader.Program!, `U_Point[${index}].Intensity`),
-                GL.getUniformLocation(shader.Program!, `U_Point[${index}].Position`),
-                GL.getUniformLocation(shader.Program!, `U_Point[${index}].Radius`),
-                GL.getUniformLocation(shader.Program!, `U_Point[${index}].Angle`)
-            )
-        ),
-        8,
-        new GlobalUniform(
-            GL.getUniformLocation(shader.Program, 'U_Global.Time'),
-            GL.getUniformLocation(shader.Program, 'U_Global.Resolution'),
-            GL.getUniformLocation(shader.Program, 'U_Global.NearClip'),
-            GL.getUniformLocation(shader.Program, 'U_Global.FarClip'),
-            GL.getUniformLocation(shader.Program, 'U_Global.ObjectID'),
-            GL.getUniformLocation(shader.Program, 'U_Global.ObjectCount')
+        this.Attributes = new ShaderAttribute(
+            GL.getAttribLocation(this.Program, 'A_Position'),
+            GL.getAttribLocation(this.Program, 'A_Colour'),
+            GL.getAttribLocation(this.Program, 'A_UV'),
+            GL.getAttribLocation(this.Program, 'A_Normal')
         )
-    )
-}
 
-function ClearFunction(shader: Shader)
-{
-    if (shader.Program)
-    {
-        GL.deleteFramebuffer(shader.FrameBuffer)
-        GL.deleteRenderbuffer(shader.RenderBuffer)
-        GL.deleteTexture(shader.Texture)
-        GL.deleteShader(shader.VertexShader)
-        GL.deleteShader(shader.FragmentShader)
-        GL.deleteProgram(shader.Program)
+        this.BaseUniforms = new ShaderUniforms(
+            new MatrixUniform(
+                GL.getUniformLocation(this.Program, 'U_Matrix.ModelView'),
+                GL.getUniformLocation(this.Program, 'U_Matrix.Projection'),
+                GL.getUniformLocation(this.Program, 'U_Matrix.Normal'),
+                GL.getUniformLocation(this.Program, 'U_Matrix.View')
+            ),
+            new MaterialUniform(
+                GL.getUniformLocation(this.Program, 'U_Material.Ambient'),
+                GL.getUniformLocation(this.Program, 'U_Material.Diffuse'),
+                GL.getUniformLocation(this.Program, 'U_Material.Specular'),
+                GL.getUniformLocation(this.Program, 'U_Material.Shininess'),
+                GL.getUniformLocation(this.Program, 'U_Material.Alpha'),
+                GL.getUniformLocation(this.Program, 'U_Material.ImageMap'),
+                GL.getUniformLocation(this.Program, 'U_Material.BumpMap'),
+                GL.getUniformLocation(this.Program, 'U_Material.SpecularMap'),
+                GL.getUniformLocation(this.Program, 'U_Material.HasImageMap')
+            ),
+            new AmbientLightUniform(
+                GL.getUniformLocation(this.Program, `U_Ambient.Colour`),
+                GL.getUniformLocation(this.Program, `U_Ambient.Intensity`)
+            ),
+            new Array(3).fill(undefined).map((_, index) => 
+                new DirectionalLightUniform(
+                    GL.getUniformLocation(this.Program!, `U_Directional[${index}].Colour`),
+                    GL.getUniformLocation(this.Program!, `U_Directional[${index}].Intensity`),
+                    GL.getUniformLocation(this.Program!, `U_Directional[${index}].Direction`)
+                )
+            ),
+            GL.getUniformLocation(this.Program, 'U_Directional_Count'),
+            new Array(8).fill(undefined).map((_, index) => 
+                new PointLightUniform(
+                    GL.getUniformLocation(this.Program!, `U_Point[${index}].Colour`),
+                    GL.getUniformLocation(this.Program!, `U_Point[${index}].Intensity`),
+                    GL.getUniformLocation(this.Program!, `U_Point[${index}].Position`),
+                    GL.getUniformLocation(this.Program!, `U_Point[${index}].Radius`),
+                )
+            ),
+            GL.getUniformLocation(this.Program, 'U_Point_Count'),
+            new GlobalUniform(
+                GL.getUniformLocation(this.Program, 'U_Global.Time'),
+                GL.getUniformLocation(this.Program, 'U_Global.Resolution'),
+                GL.getUniformLocation(this.Program, 'U_Global.NearClip'),
+                GL.getUniformLocation(this.Program, 'U_Global.FarClip'),
+                GL.getUniformLocation(this.Program, 'U_Global.ObjectID'),
+                GL.getUniformLocation(this.Program, 'U_Global.ObjectCount')
+            )
+        )
     }
-}
-
-function BuildBuffers(shader: Shader): void
-{
-    GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
-    GL.bindRenderbuffer(GL.RENDERBUFFER, shader.RenderBuffer)
-    GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, shader.Width, shader.Height)
-
-    GL.bindTexture(GL.TEXTURE_2D, shader.Texture)
-    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-    GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, shader.Width, shader.Height, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array(shader.Width * shader.Height * 4))
-    GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, shader.Texture, 0)
-    GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, shader.RenderBuffer)
-                
-    GL.bindTexture(GL.TEXTURE_2D, null)
-    GL.bindRenderbuffer(GL.RENDERBUFFER, null)
-    GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 }

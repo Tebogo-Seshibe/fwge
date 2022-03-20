@@ -5,11 +5,11 @@ export class KeyboardInputHandler
 {
     static readonly TOTAL_KEYS: number = 128
 
-    #state: KeyState[] = []
+    private _state: KeyState[] = []
     
     public get State(): KeyboardState
     {
-        return new KeyboardState(this.#state)
+        return new KeyboardState(this._state)
     }
 
 
@@ -17,15 +17,15 @@ export class KeyboardInputHandler
     {
         for (var i = 0; i < KeyboardInputHandler.TOTAL_KEYS; ++i)
         {
-            this.#state.push(KeyState.UP)
+            this._state.push(KeyState.UP)
         }
     }
     
     Start(): void        
     {
-        this.canvas.ownerDocument.documentElement.addEventListener('keydown', this.#keydown.bind(this))
-        this.canvas.ownerDocument.documentElement.addEventListener('keypress', this.#keypress.bind(this))
-        this.canvas.ownerDocument.documentElement.addEventListener('keyup', this.#keyup.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('keydown', this._keydown.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('keypress', this._keypress.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('keyup', this._keyup.bind(this))
     }
 
     Update(_: number): void
@@ -35,29 +35,29 @@ export class KeyboardInputHandler
 
     Stop(): void        
     {
-        this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this.#keydown.bind(this))
-        this.canvas.ownerDocument.documentElement.removeEventListener('keypress', this.#keypress.bind(this))
-        this.canvas.ownerDocument.documentElement.removeEventListener('keyup', this.#keyup.bind(this))
+        this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this._keydown.bind(this))
+        this.canvas.ownerDocument.documentElement.removeEventListener('keypress', this._keypress.bind(this))
+        this.canvas.ownerDocument.documentElement.removeEventListener('keyup', this._keyup.bind(this))
     }
 
-    #keydown(e: KeyboardEvent)
+    private _keydown(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this.#state[e.which] = KeyState.DOWN
+        this._state[e.which] = KeyState.DOWN
     }
 
-    #keypress(e: KeyboardEvent)
+    private _keypress(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this.#state[e.which] = KeyState.PRESSED
+        this._state[e.which] = KeyState.PRESSED
     }
 
-    #keyup(e: KeyboardEvent)
+    private _keyup(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this.#state[e.which] = KeyState.UP
+        this._state[e.which] = KeyState.UP
     }
 }

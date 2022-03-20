@@ -10,7 +10,7 @@ export class Colour3 extends Float32Array
 
     set R(red: number)
     {
-        this[0] = clean(clamp(red, 0, 1))
+        this[0] = clamp(red, 0, 1)
     }
         
     get G(): number
@@ -20,7 +20,7 @@ export class Colour3 extends Float32Array
 
     set G(green: number)
     {
-        this[1] = clean(clamp(green, 0, 1))
+        this[1] = clamp(green, 0, 1)
     }
         
     get B(): number
@@ -30,7 +30,7 @@ export class Colour3 extends Float32Array
 
     set B(blue: number)
     {
-        this[2] = clean(clamp(blue, 0, 1))
+        this[2] = clamp(blue, 0, 1)
     }
 
     get BIN(): string

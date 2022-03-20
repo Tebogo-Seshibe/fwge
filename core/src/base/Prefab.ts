@@ -5,18 +5,18 @@ import { Scene } from './Scene'
 
 export class Prefab
 {
-    private components: Map<Class<Component>, [ Constructor<Component, any>, any[] ]> = new Map()
+    private _components: Map<Class<Component>, [ Constructor<Component, any>, any[] ]> = new Map()
 
     AddComponent<T extends Component, U extends any[]>(constructor: Constructor<T, U>, ...args: U): Prefab
     {
-        this.components.set(constructor as Class<T>, [ constructor, args ])
+        this._components.set(constructor as Class<T>, [ constructor, args ])
 
         return this
     }
 
     RemoveComponent<T extends Component>(componentType: Class<T>): Prefab
     {
-        this.components.delete(componentType)        
+        this._components.delete(componentType)        
 
         return this
     }
@@ -25,7 +25,7 @@ export class Prefab
     {
         const entity = scene.CreateEntity()
 
-        for (let [, [ constructor, args ]] of this.components)
+        for (let [, [ constructor, args ]] of this._components)
         {
             const component = new constructor(...args!)            
             entity.AddComponent(component)

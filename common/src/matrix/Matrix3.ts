@@ -1,5 +1,11 @@
 export class Matrix3 extends Float32Array
 {
+    private _dirty: boolean = true
+    get Dirty(): boolean
+    {
+        return this._dirty
+    }
+    
     get M11(): number
     {
         return this[0]
@@ -7,7 +13,7 @@ export class Matrix3 extends Float32Array
 
     set M11(m11: number)
     {
-        this[0] = (m11)
+        this[0] = m11
     }
     
     get M12(): number
@@ -17,7 +23,7 @@ export class Matrix3 extends Float32Array
 
     set M12(m12: number)
     {
-        this[1] = (m12)
+        this[1] = m12
     }
     
     get M13(): number
@@ -27,7 +33,7 @@ export class Matrix3 extends Float32Array
 
     set M13(m13: number)
     {
-        this[2] = (m13)
+        this[2] = m13
     }
 
     get M21(): number
@@ -37,7 +43,7 @@ export class Matrix3 extends Float32Array
 
     set M21(m21: number)
     {
-        this[3] = (m21)
+        this[3] = m21
     }
 
     get M22(): number
@@ -47,7 +53,7 @@ export class Matrix3 extends Float32Array
 
     set M22(m22: number)
     {
-        this[4] = (m22)
+        this[4] = m22
     }
 
     get M23(): number
@@ -57,7 +63,7 @@ export class Matrix3 extends Float32Array
 
     set M23(m23: number)
     {
-        this[5] = (m23)
+        this[5] = m23
     }
 
     get M31(): number
@@ -67,7 +73,7 @@ export class Matrix3 extends Float32Array
 
     set M31(m31: number)
     {
-        this[6] = (m31)
+        this[6] = m31
     }
 
     get M32(): number
@@ -77,7 +83,7 @@ export class Matrix3 extends Float32Array
 
     set M32(m32: number)
     {
-        this[7] = (m32)
+        this[7] = m32
     }
 
     get M33(): number
@@ -87,7 +93,7 @@ export class Matrix3 extends Float32Array
 
     set M33(m33: number)
     {
-        this[8] = (m33)
+        this[8] = m33
     }
 
     get Determinant(): number

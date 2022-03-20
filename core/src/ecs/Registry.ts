@@ -10,11 +10,13 @@ export type Tail<T extends unknown[]> = T extends [Head<T>, ...infer TailType] ?
 
 export type Class<T> = 
 {
+    _typeIndex?: TypeId
     new (...args: any[]): T
 }
 
 export type Constructor<T, U extends any[]> = 
 {
+    _typeIndex?: TypeId
     new (...args: U): T
 }
 
@@ -23,61 +25,51 @@ export interface IConstruct<T extends new (...args: any) => any>
     type: new (...args: ConstructorParameters<T>) => InstanceType<T>
 }
 
-export const GetComponentId = Symbol.for('GetComponentId')
-export const SetComponentId = Symbol.for('SetComponentId')
-
 export class Registry
 {
-    #entityId: EntityId = 0
-    #componentId: TypeId = 0
-    #componentIds: Map<Class<Component>, TypeId> = new Map()
-    #components: Map<Class<Component>, Component[]> = new Map()
+    private _entityId: EntityId = 0
+    private _componentId: TypeId = 0
+    private _components: Component[][] = []
 
     //#region Ids
     createEntity(): EntityId
     {
-        return this.#entityId++
+        return this._entityId++
     }
 
     createComponent<T extends Component>(component: T): ComponentId
     {
-        const componentId = this.#components.get(component.Type)!.length
-        this.#components.get(component.Type)![componentId] = component
-        component.Id = componentId
+        const componentList = this._components[component.Type._typeIndex!]
 
-        return componentId
+        component.Id = componentList.length
+        componentList.push(component)
+
+        return component.Id
     }
 
     getComponent<T extends Component>(componentType: Class<T>, componentId?: ComponentId): T | undefined
     {
         return !Number.isNaN(componentId)
-            ? this.#components.get(componentType)![componentId!] as T
+            ? this._components[componentType._typeIndex!][componentId!] as T
             : undefined
     }
 
-    removeComponent()
+    removeComponent<T extends Component>(component: T): void
+    removeComponent<T extends Component>(componentType: Class<T>, componentId: ComponentId): void
+    removeComponent<T extends Component>(arg: T | Class<T>, componentId?: ComponentId): void
     {
         
     }
 
     registerComponentType<T extends Component>(componentType: Class<T>): void
     {
-        if (this.#componentIds.has(componentType))
+        if (componentType._typeIndex !== undefined)
             return        
             
-        this.#componentIds.set(componentType, this.#componentId)
-        this.#componentId = this.#componentId + 1
-        this.#components.set(componentType, [])
-    }
+        componentType._typeIndex = this._componentId
+        this._componentId = this._componentId + 1
 
-    getComponentType<T extends Component>(componentType: Class<T>): TypeId
-    {
-        if (!this.#componentIds.has(componentType))
-        {
-            throw new Error(`Component type ${componentType} not registered`)
-        }
-            
-        return this.#componentIds.get(componentType)!
+        this._components[componentType._typeIndex] = []
     }
     //#endregion
 }

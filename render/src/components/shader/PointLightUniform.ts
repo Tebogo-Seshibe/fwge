@@ -5,7 +5,6 @@ export class PointLightUniform
         public readonly Intensity: WebGLUniformLocation | null,
         public readonly Position: WebGLUniformLocation | null,
         public readonly Radius: WebGLUniformLocation | null,
-        public readonly Angle: WebGLUniformLocation | null
     ) { }
 }
 

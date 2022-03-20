@@ -1,14 +1,16 @@
-import { Game } from "@fwge/core"
-import { Colour4, Shader } from "@fwge/render"
+import { Entity, Game } from "@fwge/core"
+import { Attribute, Colour4, Material, Mesh, Shader, Uniform } from "@fwge/render"
+import { ShaderBool, ShaderFloat, ShaderVec2, ShaderVec3, ShaderVec4 } from "@fwge/render/lib/components/shader/types/Types"
 
 export function configureShaders(game: Game): void
 {
     const shaderLibrary = game.GetLibrary(Shader)
 
     shaderLibrary.Add(
-        'Basic',
+        'Simple',
         new Shader(
-            `attribute vec3 A_Position;
+            `#version 300 es
+            in vec3 A_Position;
 
             struct Matrix
             {
@@ -22,7 +24,61 @@ export function configureShaders(game: Game): void
                 gl_Position = U_Matrix.Projection * U_Matrix.ModelView * vec4(A_Position, 1.0);
             }`,
             
-            `precision mediump float;
+            `#version 300 es
+            precision mediump float;
+
+            uniform vec4 colour;
+            out vec4 FragColor;
+            void main(void)
+            {
+                FragColor = colour;
+            }`,
+            {
+                
+                baseColour: new Colour4(0, 0, 0, 1),
+                height: 1080,
+                width: 1920,
+                attributes:
+                [
+                    new Attribute(
+                        ShaderVec3, 'A_Position',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.PositionBuffer!
+                    ),
+                ],
+                uniforms:
+                [
+                    new Uniform(
+                        ShaderVec4, 'colour',
+                        (entity: Entity) => entity.GetComponent(Material)!.Diffuse
+                    )
+                ]
+            }
+        )
+    )
+
+    shaderLibrary.Add(
+        'Basic',
+        new Shader(
+            `#version 300 es
+            in vec3 A_Position;
+            in vec4 A_Colour;
+
+            struct Matrix
+            {
+                mat4 ModelView;
+                mat4 Projection;
+            };
+            uniform Matrix U_Matrix;
+
+            out vec4 V_Colour;
+            void main(void)
+            {
+                V_Colour = A_Colour;
+                gl_Position = U_Matrix.Projection * U_Matrix.ModelView * vec4(A_Position, 1.0);
+            }`,
+            
+            `#version 300 es
+            precision mediump float;
 
             struct Global
             {
@@ -31,14 +87,31 @@ export function configureShaders(game: Game): void
             };
             uniform Global U_Global;
 
+            in vec4 V_Colour;
+            out vec4 FragColor;
             void main(void)
             {
-                gl_FragColor = vec4(vec3(float(U_Global.ObjectID) / float(U_Global.ObjectCount)), 1.0);
+                FragColor = V_Colour;
+                // gl_FragColor = vec4(vec3(float(U_Global.ObjectID) / float(U_Global.ObjectCount)), 1.0);
             }`,
             {
                 baseColour: new Colour4(0, 0, 0, 1),
                 height: 1080,
-                width: 1920
+                width: 1920,
+                attributes:
+                [
+                    // new Attribute(
+                    //     ShaderVec3, 'A_Position',
+                    //     (entity: Entity) => entity.GetComponent(Mesh)!.PositionBuffer!
+                    // ),
+                    new Attribute(
+                        ShaderVec4, 'A_Colour',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.ColourBuffer!
+                    ),
+                ],
+                uniforms:
+                [
+                ]
             }
         )
     )
@@ -46,41 +119,42 @@ export function configureShaders(game: Game): void
     shaderLibrary.Add(
         'Default',
         new Shader(
-            `attribute vec3 A_Position;
-            attribute vec2 A_UV;
-            attribute vec4 A_Colour;
-            attribute vec3 A_Normal;
+            `#version 300 es
+            precision mediump float;
+            in vec3 A_Position;
+            in vec2 A_UV;
+            in vec4 A_Colour;
+            in vec3 A_Normal;
             
             struct Matrix
             {
                 mat3 Normal;
                 mat4 ModelView;
+                mat4 View;
                 mat4 Projection;
             };
             uniform Matrix U_Matrix;
             
-            varying vec4 V_Position;
-            varying vec2 V_UV;
-            varying vec3 V_Normal;
-            varying vec4 V_Colour;
-            varying vec4 V_Shadow;
+            out vec3 V_Position;
+            out vec2 V_UV;
+            out vec3 V_Normal;
+            out vec4 V_Colour;
+            out vec4 V_Shadow;
             
             void main(void)
             {
+                vec4 Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
+
+                V_Position = Position.xyz;
                 V_Colour = A_Colour;
-                V_UV = A_UV;
+                V_UV = A_UV;                
+                // V_Normal = U_Matrix.Normal * A_Normal;
+                V_Normal = normalize((U_Matrix.ModelView * vec4(A_Normal, 1.0)).xyz);
                 
-                V_Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
-                V_Normal = U_Matrix.Normal * A_Normal;
-                
-                V_Shadow = mat4(0.5, 0.0, 0.0, 0.0,
-                                0.0, 0.5, 0.0, 0.0,
-                                0.0, 0.0, 0.5, 0.0,
-                                0.5, 0.5, 0.5, 1.0) * vec4(A_Position, 1.0);
-                
-                gl_Position = U_Matrix.Projection * V_Position;
+                gl_Position = U_Matrix.Projection * U_Matrix.View * Position;
             }`,
-            `precision mediump float;
+            `#version 300 es
+            precision mediump float;
             const int MAX_LIGHTS = 4;
             
             struct Material 
@@ -94,23 +168,8 @@ export function configureShaders(game: Game): void
                 bool HasImageMap;
                 bool HasBumpMap;
             };
-            uniform Material U_Material;
-            
-            struct AmbientLight 
-            {
-                vec4 Colour;
-                float Intensity;
-            };
-            uniform AmbientLight U_Ambient;
-            
-            struct DirectionalLight
-            {
-                vec3 Direction;
-                vec4 Colour;
-                float Intensity;
-            };
-            uniform DirectionalLight U_Directional;
-            
+            uniform Material U_Material;        
+
             struct PointLight
             { 
                 vec3 Position;
@@ -130,81 +189,62 @@ export function configureShaders(game: Game): void
             };
             uniform Sampler U_Sampler;
             
-            varying vec4 V_Colour;
-            varying vec2 V_UV;
-            varying vec3 V_Normal;
-            varying vec4 V_Position;
-            varying vec4 V_Shadow;
+            in vec4 V_Colour;
+            in vec2 V_UV;
+            in vec3 V_Normal;
+            in vec3 V_Position;
+            in vec4 V_Shadow;
+            out vec4 FragColor;
             
-            vec4 Ambient()
-            {
-                return U_Material.Ambient * U_Ambient.Colour * U_Ambient.Intensity;
-            }
-            
-            vec4 Directional(in vec3 normal) 
-            { 
-                float weight = max(dot(normal, normalize(U_Directional.Direction)), 0.0);
-                vec4 diffuse = U_Directional.Colour * weight;
-                
-                return U_Material.Diffuse * diffuse * U_Directional.Intensity;
-            } 
-            
-            vec4 Point(in vec3 normal)
-            {
-                vec4 points = vec4(0.0);
-            
-                for (int i = 0; i < MAX_LIGHTS; ++i)
+            vec4 CalcPointLight(in PointLight point)
+            {                
+                float falloff = smoothstep(point.Radius, 0.0, min(length(point.Position - V_Position), point.Radius));
+                vec3 L = normalize(point.Position - V_Position);
+                vec3 E = -V_Position;
+                vec3 N = V_Normal;
+
+                vec3 H = normalize(L + E);
+                vec4 ambient = U_Material.Ambient;
+
+                float Kd = max(dot(L, H), 0.0);
+                vec4 diffuse = Kd * U_Material.Diffuse;
+
+                float Ks = pow(max(dot(N, H), 0.0), U_Material.Shininess);
+                vec4 specular = Ks * U_Material.Specular;
+
+                if (dot(L, H) < 0.0)
                 {
-                    if (i < U_Point_Count)
-                    {
-                        PointLight point = U_Point[i];
-                        float distance = length(point.Position - V_Position.xyz);
-            
-                        if (distance <= point.Radius)
-                        {
-                            vec4 colour = vec4(0.0);
-                            vec3 direction = normalize(point.Position - V_Position.xyz);
-                            vec3 eyeVector = normalize(-normal.xyz);
-                            vec3 reflection = reflect(direction, normal);
-                            
-                            float diffuse_weight = max(dot(normal, direction), 0.0);
-                            float specular_weight = pow(max(dot(reflection, eyeVector), 0.0), U_Material.Shininess);
-            
-                            colour = U_Material.Diffuse * point.Colour * diffuse_weight + U_Material.Specular * specular_weight;
-                            colour = colour * (1.0 - (distance / point.Radius));
-                            colour = colour * point.Intensity;
-                            points += colour;
-                        } 
-                    } 
-                    else break;
-                } 
-                
-                return points;
-            }
+                    specular = vec4(vec3(0.0), 1.0);
+                }
+
+                return vec4(
+                    (
+                        (ambient + diffuse + specular)
+                        * point.Colour
+                        * point.Intensity
+                        * falloff
+                    ).rgb,  1.0);
+                }
             
             vec4 Light()
             {
-                vec3 normal = normalize(U_Material.HasBumpMap
-                                        ? texture2D(U_Sampler.Bump, V_UV).xyz * V_Normal
-                                        : V_Normal);
-            
-                                        return vec4(1.0);
-                // return Ambient() + Directional(normal) + Point(normal);
-            }
-            
-            vec4 Shadow()
-            {                
-                return vec4(1.0);
+                vec4 light = vec4(0.0);
+                
+                light += CalcPointLight(U_Point[0]);
+                light += CalcPointLight(U_Point[1]);
+                light += CalcPointLight(U_Point[2]);
+
+                return light;
             }
             
             vec4 Colour()
             {
-                vec4 colour = Shadow();
-                
+                vec4 colour = V_Colour;
+
                 if (U_Material.HasImageMap)
-                    colour = texture2D(U_Sampler.Image, V_UV);
-                else
-                    colour = vec4(1.0);
+                {
+                    colour *= texture(U_Sampler.Image, V_UV);
+                }                
                 
                 return colour;
             }
@@ -214,9 +254,68 @@ export function configureShaders(game: Game): void
                 vec4 colour = Colour() * Light();
                 colour.a *= U_Material.Alpha;
                 
-                // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-                gl_FragColor = colour;
-            }`
+                FragColor = colour;
+            }`,
+            {
+                baseColour: new Colour4(0, 0, 0, 1),
+                height: 1080,
+                width: 1920,
+                attributes:
+                [
+                    new Attribute(
+                        ShaderVec3, 'A_Position',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.PositionBuffer!
+                    ),
+                    new Attribute(
+                        ShaderVec2, 'A_UV',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.UVBuffer!
+                    ),
+                    new Attribute(
+                        ShaderVec4, 'A_Colour',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.ColourBuffer!
+                    ),
+                    new Attribute(
+                        ShaderVec4, 'A_Normal',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.NormalBuffer!
+                    ),
+                    new Attribute(
+                        ShaderVec4, 'A_Normal',
+                        (entity: Entity) => entity.GetComponent(Mesh)!.NormalBuffer!
+                    ),
+                ],
+                uniforms:
+                [
+                    
+                    new Uniform(
+                        ShaderVec4, 'U_Material.Ambient',
+                        (entity: Entity) => entity.GetComponent(Material)!.Ambient
+                    ),
+                    new Uniform(
+                        ShaderVec4, 'U_Material.Diffuse',
+                        (entity: Entity) => entity.GetComponent(Material)!.Diffuse
+                    ),
+                    new Uniform(
+                        ShaderVec4, 'U_Material.Specular',
+                        (entity: Entity) => entity.GetComponent(Material)!.Specular
+                    ),
+                    new Uniform(
+                        ShaderFloat, 'U_Material.Shininess',
+                        (entity: Entity) => entity.GetComponent(Material)!.Shininess
+                    ),
+                    new Uniform(
+                        ShaderFloat, 'U_Material.Alpha',
+                        (entity: Entity) => entity.GetComponent(Material)!.Alpha
+                    ),
+                    new Uniform(
+                        ShaderBool, 'U_Material.HasImageMap',
+                        (entity: Entity) => entity.GetComponent(Material)!.HasImageMap
+                    ),
+                    new Uniform(
+                        ShaderBool, 'U_Material.HasBumpMap',
+                        (entity: Entity) => entity.GetComponent(Material)!.HasImageMap
+                    ),
+                ]
+            }
         )
     )
 }

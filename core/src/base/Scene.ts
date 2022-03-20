@@ -6,58 +6,58 @@ export class Scene
 {
     private static sceneId: SceneId = 0
 
-    #registry: Registry
+    private _registry: Registry
     public get Registry()
     {
-        return this.#registry
+        return this._registry
     }
 
     public get Context()
     {
-        return this.context
+        return this._context
     }
 
-    private context?: HTMLCanvasElement
-    private entities: Entity[] = []
-    private systems: Map<Class<System>, System> = new Map()
+    private _context?: HTMLCanvasElement
+    private _entities: Entity[] = []
+    private _systems: Map<Class<System>, System> = new Map()
 
     readonly Id: SceneId = Scene.sceneId++
     constructor(registry: Registry)
     {
-        this.#registry = registry
+        this._registry = registry
     }
 
     Init(): void
     {        
-        this.systems.forEach(system => system.Init())
+        this._systems.forEach(system => system.Init())
     }
     
     Start(): void
     {
-        this.systems.forEach(system => system.Start())
+        this._systems.forEach(system => system.Start())
     }
 
     Update(delta: number): void
     {
-        this.systems.forEach(system => system.Update(delta))
+        this._systems.forEach(system => system.Update(delta))
     }
 
     Stop(): void
     {
-        this.systems.forEach(system => system.Stop())
+        this._systems.forEach(system => system.Stop())
     }
     
     RegisterSystems<T extends System>(...systems: Constructor<T, [Scene]>[]): void
     {
         systems.forEach(system =>
         {
-            this.systems.set(system as Class<T>, new system(this))
+            this._systems.set(system as Class<T>, new system(this))
         })
     }
 
     SetContext(canvas?: HTMLCanvasElement): void
     {
-        this.context = canvas
+        this._context = canvas
     }
     
     CreateEntity(): Entity
@@ -65,7 +65,7 @@ export class Scene
     CreateEntity<T extends Entity, K extends any[]>(constructor?: Constructor<T, [Scene, ...K]>, ...args: K): T
     {
         const entity = constructor ? new constructor(this, ...args) : new Entity(this)
-        this.entities.push(entity)
+        this._entities.push(entity)
         this.OnEntity(entity)
 
         return entity as T
@@ -73,7 +73,7 @@ export class Scene
 
     GetEntity(entityId: EntityId): Entity | undefined
     {
-        return this.entities.find(entity => entity?.Id === entityId)
+        return this._entities.find(entity => entity?.Id === entityId)
     }
 
     RemoveEntity(entityId: EntityId): void
@@ -84,16 +84,16 @@ export class Scene
             ? this.GetEntity(arg)
             : arg
 
-        if (entity && this.entities.includes(entity))
+        if (entity && this._entities.includes(entity))
         {
-            this.entities = this.entities.filter(x =>  entity.Id === x.Id)
+            this._entities = this._entities.filter(x =>  entity.Id === x.Id)
             this.OnEntity(entity)
         }
     }
 
     OnEntity(entity: Entity): void
     {
-        for (const [, system] of this.systems)
+        for (const [, system] of this._systems)
         {
             system.OnUpdateEntity(entity)
         }

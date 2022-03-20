@@ -5,16 +5,12 @@ import { Class, EntityId, Registry, TypeId } from "./Registry"
 
 export abstract class System
 {
-    protected scene: Scene
     protected entities: Set<EntityId> = new Set()
     protected componentTypes: Set<Class<Component>> = new Set()
-    protected componentTypeIds: TypeId[] = []
 
-    constructor(scene: Scene, ...componentTypes: Class<Component>[])
+    constructor(protected scene: Scene, ...componentTypes: Class<Component>[])
     {
-        this.scene = scene
         this.componentTypes = new Set(componentTypes)
-        this.componentTypeIds = componentTypes.map(x => this.scene.Registry.getComponentType(x))
     }
 
     public Init(): void { }

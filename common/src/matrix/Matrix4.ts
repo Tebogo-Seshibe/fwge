@@ -1,5 +1,11 @@
 export class Matrix4 extends Float32Array
 {
+    private _dirty: boolean = true
+    get Dirty(): boolean
+    {
+        return this._dirty
+    }
+
     get M11(): number
     { 
         return this[0]
@@ -7,7 +13,8 @@ export class Matrix4 extends Float32Array
 
     set M11(m11: number)
     {
-        this[0] = (m11)
+        this[0] = m11
+        this._dirty = true
     }
 
     get M12(): number
@@ -17,7 +24,8 @@ export class Matrix4 extends Float32Array
 
     set M12(m12: number)
     {
-        this[1] = (m12)
+        this[1] = m12
+        this._dirty = true
     }
 
     get M13(): number
@@ -27,7 +35,8 @@ export class Matrix4 extends Float32Array
 
     set M13(m13: number)
     {
-        this[2] = (m13)
+        this[2] = m13
+        this._dirty = true
     }
 
     get M14(): number
@@ -37,7 +46,8 @@ export class Matrix4 extends Float32Array
 
     set M14(m14: number)
     {
-        this[3] = (m14)
+        this[3] = m14
+        this._dirty = true
     }
 
     get M21(): number
@@ -47,7 +57,8 @@ export class Matrix4 extends Float32Array
 
     set M21(m21: number)
     {
-        this[4] = (m21)
+        this[4] = m21
+        this._dirty = true
     }
 
     get M22(): number
@@ -57,7 +68,8 @@ export class Matrix4 extends Float32Array
 
     set M22(m22: number)
     {
-        this[5] = (m22)
+        this[5] = m22
+        this._dirty = true
     }
 
     get M23(): number
@@ -67,7 +79,8 @@ export class Matrix4 extends Float32Array
 
     set M23(m23: number)
     {
-        this[6] = (m23)
+        this[6] = m23
+        this._dirty = true
     }
 
     get M24(): number
@@ -77,7 +90,8 @@ export class Matrix4 extends Float32Array
 
     set M24(m24: number)
     {
-        this[7] = (m24)
+        this[7] = m24
+        this._dirty = true
     }
 
     get M31(): number
@@ -87,7 +101,8 @@ export class Matrix4 extends Float32Array
 
     set M31(m31: number)
     {
-        this[8] = (m31)
+        this[8] = m31
+        this._dirty = true
     }
 
     get M32(): number
@@ -97,7 +112,8 @@ export class Matrix4 extends Float32Array
 
     set M32(m32: number)
     {
-        this[9] = (m32)
+        this[9] = m32
+        this._dirty = true
     }
 
     get M33(): number
@@ -107,7 +123,8 @@ export class Matrix4 extends Float32Array
 
     set M33(m33: number)
     {
-        this[10] = (m33)
+        this[10] = m33
+        this._dirty = true
     }
 
     get M34(): number
@@ -117,7 +134,8 @@ export class Matrix4 extends Float32Array
 
     set M34(m34: number)
     {
-        this[11] = (m34)
+        this[11] = m34
+        this._dirty = true
     }
 
     get M41(): number
@@ -127,7 +145,8 @@ export class Matrix4 extends Float32Array
 
     set M41(m41: number)
     {
-        this[12] = (m41)
+        this[12] = m41
+        this._dirty = true
     }    
 
     get M42(): number
@@ -137,7 +156,8 @@ export class Matrix4 extends Float32Array
 
     set M42(m42: number)
     {
-        this[13] = (m42)
+        this[13] = m42
+        this._dirty = true
     }
 
     get M43(): number
@@ -147,7 +167,8 @@ export class Matrix4 extends Float32Array
     
     set M43(m43: number)
     {
-        this[14] = (m43)
+        this[14] = m43
+        this._dirty = true
     }
 
     get M44(): number
@@ -157,40 +178,48 @@ export class Matrix4 extends Float32Array
 
     set M44(m44: number)
     {
-        this[15] = (m44)
+        this[15] = m44
+        this._dirty = true
     }
 
+    private _determinant: number = 0
     get Determinant(): number
     {
-        return (
-            this[0] * this[5] * this[10] * this[15] +
-            this[0] * this[6] * this[11] * this[13] +
-            this[0] * this[7] * this[9]  * this[14] +
-            this[1] * this[4] * this[11] * this[14] +
-            this[1] * this[6] * this[8]  * this[15] +
-            this[1] * this[7] * this[10] * this[12] +
-            this[2] * this[4] * this[9]  * this[15] +
-            this[2] * this[5] * this[11] * this[12] +
-            this[2] * this[7] * this[8]  * this[13] +
-            this[3] * this[4] * this[10] * this[13] +
-            this[3] * this[5] * this[8]  * this[14] +
-            this[3] * this[6] * this[9]  * this[12] -
-            this[0] * this[5] * this[11] * this[14] -
-            this[0] * this[6] * this[9]  * this[15] -
-            this[0] * this[7] * this[10] * this[13] -
-            this[1] * this[4] * this[10] * this[15] -
-            this[1] * this[6] * this[11] * this[12] -
-            this[1] * this[7] * this[8]  * this[14] -
-            this[2] * this[4] * this[11] * this[13] -
-            this[2] * this[5] * this[8]  * this[15] -
-            this[2] * this[7] * this[9]  * this[12] -
-            this[3] * this[4] * this[9]  * this[14] -
-            this[3] * this[5] * this[10] * this[12] -
-            this[3] * this[6] * this[8]  * this[13]
-        )  
+        if (this._dirty)
+        {
+            this._determinant = (
+                this[0] * this[5] * this[10] * this[15] +
+                this[0] * this[6] * this[11] * this[13] +
+                this[0] * this[7] * this[9]  * this[14] +
+                this[1] * this[4] * this[11] * this[14] +
+                this[1] * this[6] * this[8]  * this[15] +
+                this[1] * this[7] * this[10] * this[12] +
+                this[2] * this[4] * this[9]  * this[15] +
+                this[2] * this[5] * this[11] * this[12] +
+                this[2] * this[7] * this[8]  * this[13] +
+                this[3] * this[4] * this[10] * this[13] +
+                this[3] * this[5] * this[8]  * this[14] +
+                this[3] * this[6] * this[9]  * this[12] -
+                this[0] * this[5] * this[11] * this[14] -
+                this[0] * this[6] * this[9]  * this[15] -
+                this[0] * this[7] * this[10] * this[13] -
+                this[1] * this[4] * this[10] * this[15] -
+                this[1] * this[6] * this[11] * this[12] -
+                this[1] * this[7] * this[8]  * this[14] -
+                this[2] * this[4] * this[11] * this[13] -
+                this[2] * this[5] * this[8]  * this[15] -
+                this[2] * this[7] * this[9]  * this[12] -
+                this[3] * this[4] * this[9]  * this[14] -
+                this[3] * this[5] * this[10] * this[12] -
+                this[3] * this[6] * this[8]  * this[13]
+            )  
+        }
+
+        return this._determinant
     }
 
     constructor()
+    constructor(m: number)
     constructor(matrix: Matrix4)
     constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
     constructor(array: [number | number | number | number | number | number | number | number | number | number | number | number | number | number | number | number])
@@ -235,6 +264,7 @@ export class Matrix4 extends Float32Array
         this[13] = m11[13]
         this[14] = m11[14]
         this[15] = m11[15]
+        this._dirty = true
 
         return this
     }
@@ -268,6 +298,7 @@ export class Matrix4 extends Float32Array
         this[13] += m11[13]
         this[14] += m11[14]
         this[15] += m11[15]
+        this._dirty = true
 
         return this
     }
@@ -323,6 +354,7 @@ export class Matrix4 extends Float32Array
         this[13] *= scaler
         this[14] *= scaler
         this[15] *= scaler
+        this._dirty = true
 
         return this
     }
@@ -419,7 +451,7 @@ export class Matrix4 extends Float32Array
 
 
                 (
-                    this[4] *  this[9] * this[15] +
+                    this[4] * this[9]  * this[15] +
                     this[5] * this[11] * this[12] +
                     this[7] * this[8]  * this[13] -
                     this[4] * this[11] * this[13] -

@@ -1,11 +1,9 @@
-import { UniqueComponent } from "@fwge/core"
+import { SharedComponent } from "@fwge/core"
 
-export class AudioPlayerComponent extends UniqueComponent
+export class AudioPlayerComponent extends SharedComponent
 {
     constructor()
     {
         super()
     }
 }
-
-Object.setPrototypeOf(AudioPlayerComponent.prototype, null)

@@ -4,63 +4,57 @@ import { Class, ComponentId } from "./Registry"
 export abstract class Component
 {
     public Id: ComponentId | undefined
-    protected parents: Entity[] = []
-    
-    get Parents(): Entity[] | undefined
-    {
-        return this.parents
-    }
-
-    get Parent(): Entity | undefined
-    {
-        return this.parents[0]
-    }
 
     constructor(
         readonly Type: Class<Component> = new.target as Class<Component>,
     ) { }
 
-    abstract AddParent(parent: Entity): void
-    abstract RemoveParent(parent: Entity): void
+    abstract AddOwner(owner: Entity): void
+    abstract RemoveOwner(owner: Entity): void
 }
 
-
-export class SharedComponent extends Component
+export abstract class SharedComponent extends Component
 {
-    readonly shared = true
+    private _owners: Entity[] = []
 
-    AddParent(parent: Entity)
+    get Owners(): Entity[] | undefined
     {
-        if (!this.parents.includes(parent))
+        return this._owners
+    }
+
+    AddOwner(owner: Entity)
+    {
+        if (!this._owners.includes(owner))
         {
-            this.parents.push(parent)
+            this._owners.push(owner)
         }
     }
 
-    RemoveParent(parent: Entity)
+    RemoveOwner(owner: Entity)
     {
-        if (this.parents.includes(parent))
+        if (this._owners.includes(owner))
         {
-            this.parents = this.parents.filter(x => x !== parent)
+            this._owners.splice(this._owners.indexOf(owner, 1))
         }
     }
 }
 
-export class UniqueComponent extends Component
+export abstract class UniqueComponent extends Component
 {
-    readonly unique = true
+    private _owner?: Entity
 
-    AddParent(parent: Entity)
+    get Owner(): Entity | undefined
     {
-        this.parents[0] = parent
+        return this._owner
     }
 
-    RemoveParent(parent: Entity)
+    AddOwner(owner: Entity)
     {
-        if (this.parents.includes(parent))
-        {
-            this.parents = []
-        }
+        this._owner = owner
+    }
+
+    RemoveOwner(_?: Entity)
+    {
+        this._owner = undefined
     }
 }
-

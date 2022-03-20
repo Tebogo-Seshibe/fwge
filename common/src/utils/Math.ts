@@ -3,17 +3,17 @@ export const SIGNIFICANT_FIGURES: number = Math.pow(10, DECIMAL_PLACES)
 
 export function radian(degree: number): number
 {
-    return clean(Math.PI / 180 * degree)
+    return Math.PI / 180 * degree
 }
 
 export function cot(radian: number): number
 {
-    return clean(1 / Math.tan(radian))
+    return 1 / Math.tan(radian)
 }
 
 export function clamp(value: number, min: number, max: number): number
 {
-    return clean(Math.min(max, Math.max(min, value)))
+    return Math.min(max, Math.max(min, value))
 }
 
 export function randBetween(min: number, max: number): number
@@ -33,17 +33,17 @@ export function isPowerOf2(value: number): boolean
 
 export function lerp(min: number, max: number, time: number): number
 {
-    return clean(min + (time * (max - min)))
+    return min + (time * (max - min))
 }
 
 export function inverseLerp(min: number, max: number, value: number): number
 {
-    return clean((value - min) / (max - min))
+    return (value - min) / (max - min)
 }
 
 export function remap(inputMin: number, inputMax: number, outputMin: number, outputMax: number, inputVal: number): number
 {
-    return clean(lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, inputVal)))
+    return lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, inputVal))
 }
 
 export function factorial(n: number): number

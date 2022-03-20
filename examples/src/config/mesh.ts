@@ -11,6 +11,7 @@ export function configureMeshes(game: Game): void
         'Vertex Square',
         new Mesh(
         {
+            dynamic: false,
             position:
             [
                 new Vector3(-0.5, 0.5, 0.0),
@@ -19,12 +20,39 @@ export function configureMeshes(game: Game): void
                 new Vector3(-0.5, 0.5, 0.0),
                 new Vector3( 0.5,-0.5, 0.0),
                 new Vector3( 0.5, 0.5, 0.0),
-            ]
+            ],
+            colour: 
+            [
+                new Colour4(1.0),
+                new Colour4(1.0),
+                new Colour4(1.0),
+                new Colour4(1.0),
+                new Colour4(1.0),
+                new Colour4(1.0),
+            ],
+            uv:
+            [
+                new Vector2(0.0, 1.0),
+                new Vector2(0.0, 0.0),
+                new Vector2(1.0, 0.0),
+                new Vector2(0.0, 1.0),
+                new Vector2(1.0, 0.0),
+                new Vector2(1.0, 1.0),
+            ],
+            normal:
+            [
+                new Vector3(0.0, 0.0, 1.0),
+                new Vector3(0.0, 0.0, 1.0),
+                new Vector3(0.0, 0.0, 1.0),
+                new Vector3(0.0, 0.0, 1.0),
+                new Vector3(0.0, 0.0, 1.0),
+                new Vector3(0.0, 0.0, 1.0),
+            ],
         })
     )
 
     meshLibrary.Add(
-        'Index Square',
+        'Indexed Square',
         new Mesh(
         {
             dynamic: false,
@@ -37,10 +65,10 @@ export function configureMeshes(game: Game): void
             ],
             colour:
             [
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0)
+                new Colour4(1.0, 0.0, 0.0, 1.0),
+                new Colour4(0.0, 1.0, 0.0, 1.0),
+                new Colour4(0.0, 0.0, 1.0, 1.0),
+                new Colour4(0.0, 1.0, 1.0, 1.0)
             ],
             normal:
             [
@@ -108,54 +136,22 @@ export function configureMeshes(game: Game): void
                 new Vector3( 0.5, -0.5, -0.5),
                 new Vector3( 0.5, -0.5,  0.5),
             ],
-            colour:
-            [
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-                new Colour4(1.0, 1.0, 1.0, 1.0),
-            ],
             normal:
             [
-                new Vector3( 0.0,  0.0,  1.0),
-                new Vector3( 0.0,  0.0,  1.0),
-                new Vector3( 0.0,  0.0,  1.0),
-                new Vector3( 0.0,  0.0,  1.0),
+                new Vector3( 0.0,  0.0, -1.0),
+                new Vector3( 0.0,  0.0, -1.0),
+                new Vector3( 0.0,  0.0, -1.0),
+                new Vector3( 0.0,  0.0, -1.0),
                 
                 new Vector3( 1.0,  0.0,  0.0),
                 new Vector3( 1.0,  0.0,  0.0),
                 new Vector3( 1.0,  0.0,  0.0),
                 new Vector3( 1.0,  0.0,  0.0),
                 
-                new Vector3( 0.0,  0.0, -1.0),
-                new Vector3( 0.0,  0.0, -1.0),
-                new Vector3( 0.0,  0.0, -1.0),
-                new Vector3( 0.0,  0.0, -1.0),
+                new Vector3( 0.0,  0.0,  1.0),
+                new Vector3( 0.0,  0.0,  1.0),
+                new Vector3( 0.0,  0.0,  1.0),
+                new Vector3( 0.0,  0.0,  1.0),
                 
                 new Vector3(-1.0,  0.0,  0.0),
                 new Vector3(-1.0,  0.0,  0.0),
@@ -172,13 +168,40 @@ export function configureMeshes(game: Game): void
                 new Vector3( 0.0, -1.0,  0.0),
                 new Vector3( 0.0, -1.0,  0.0),
             ],
-            uv:
+            colour:
             [
-                new Vector2(0.0, 1.0),
-                new Vector2(0.0, 0.0),
-                new Vector2(1.0, 0.0),
-                new Vector2(1.0, 1.0),
+                new Colour4(1.0, 0.0, 0.0, 1.0),
+                new Colour4(1.0, 0.0, 0.0, 1.0),
+                new Colour4(1.0, 0.0, 0.0, 1.0),
+                new Colour4(1.0, 0.0, 0.0, 1.0),
                 
+                new Colour4(0.0, 1.0, 0.0, 1.0),
+                new Colour4(0.0, 1.0, 0.0, 1.0),
+                new Colour4(0.0, 1.0, 0.0, 1.0),
+                new Colour4(0.0, 1.0, 0.0, 1.0),
+
+                new Colour4(0.0, 0.0, 1.0, 1.0),
+                new Colour4(0.0, 0.0, 1.0, 1.0),
+                new Colour4(0.0, 0.0, 1.0, 1.0),
+                new Colour4(0.0, 0.0, 1.0, 1.0),
+
+                new Colour4(1.0, 1.0, 0.0, 1.0),
+                new Colour4(1.0, 1.0, 0.0, 1.0),
+                new Colour4(1.0, 1.0, 0.0, 1.0),
+                new Colour4(1.0, 1.0, 0.0, 1.0),
+
+                new Colour4(0.0, 1.0, 1.0, 1.0),
+                new Colour4(0.0, 1.0, 1.0, 1.0),
+                new Colour4(0.0, 1.0, 1.0, 1.0),
+                new Colour4(0.0, 1.0, 1.0, 1.0),
+
+                new Colour4(1.0, 0.0, 1.0, 1.0),
+                new Colour4(1.0, 0.0, 1.0, 1.0),
+                new Colour4(1.0, 0.0, 1.0, 1.0),
+                new Colour4(1.0, 0.0, 1.0, 1.0),
+            ],
+            uv:
+            [                
                 new Vector2(0.0, 1.0),
                 new Vector2(0.0, 0.0),
                 new Vector2(1.0, 0.0),
