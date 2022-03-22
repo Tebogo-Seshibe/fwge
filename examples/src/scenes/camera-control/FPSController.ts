@@ -11,37 +11,29 @@ export class FPSController extends Entity
     private readonly turnSpeed = 5
 
     private movementSpeed: number = this.minMoveSpeed
-
     private transform: Transform
     private camera: Camera
 
     constructor(scene: Scene)
     {
         super(scene)
-
-        this.camera = this
-            .AddComponent(new Camera(
-            {
-                mode: ViewMode.PERSPECTIVE,
-                aspectRatio: 1920/1080,
-                fieldOfView: 45,
-                nearClipping: 0.1,
-                farClipping: 100
-            }))
-            .GetComponent(Camera)!
-
-        this.transform = this
-            .AddComponent(new Transform(
-            {
-                position: new Vector3(0, 0, -1)
-            }))
-            .GetComponent(Transform)!
-
+        
+        this.AddComponent(new Camera(
+        {
+            mode: ViewMode.PERSPECTIVE,
+            aspectRatio: 1920/1080,
+            fieldOfView: 45,
+            nearClipping: 0.1,
+            farClipping: 100
+        }))
+        this.AddComponent(new Transform(
+        {
+            position: new Vector3(0, 0, -1)
+        }))
         this.AddComponent(new Script(
         {
             start: () => Camera.Main = this.camera
         }))
-
         this.AddComponent(new Input(
         {
             onInput: ({ Keyboard, Mouse }: IInputArgs, delta: number) =>
@@ -52,6 +44,8 @@ export class FPSController extends Entity
                 }
 
                 const direction = (Keyboard.KeyShift === KeyState.DOWN) ? 1 : -1
+                const movement = new Vector3(0, 0, 0)
+                const rotation = new Vector3(0, 0, 0)
 
                 this.movementSpeed = clamp(
                     this.movementSpeed + (direction * (this.deltaMoveSpeed * delta * this.movementSpeed)),
@@ -59,29 +53,26 @@ export class FPSController extends Entity
                     this.maxMoveSpeed
                 )
 
-                const movement = new Vector3(0, 0, 0)
-                const rotation = new Vector3(0, 0, 0)
-
                 if (Keyboard.KeyA === KeyState.DOWN)
                 {
-                    movement.X -= this.movementSpeed
+                    movement.X -= 1
                 }
 
                 if (Keyboard.KeyD === KeyState.DOWN)
                 {
-                    movement.X += this.movementSpeed
+                    movement.X += 1
                 }
 
                 if (Keyboard.KeyW === KeyState.DOWN)
                 {
-                    movement.Z -= this.movementSpeed
+                    movement.Z -= 1
                 }
 
                 if (Keyboard.KeyS === KeyState.DOWN)
                 {
-                    movement.Z += this.movementSpeed
+                    movement.Z += 1
                 }
-
+                
                 if (Mouse.Left === ButtonState.PRESSED ||
                     Mouse.Middle === ButtonState.PRESSED ||
                     Mouse.Right === ButtonState.PRESSED)
@@ -90,9 +81,14 @@ export class FPSController extends Entity
                     rotation.X -= (this.turnSpeed / delta) * Mouse.Offset.Y
                 }
 
+                movement.Normalize().Scale(this.movementSpeed)
+
                 this.transform.Position.Sum(movement)
                 this.transform.Rotation.Sum(rotation)
             }
         }))
+        
+        this.camera = this.GetComponent(Camera)!
+        this.transform = this.GetComponent(Transform)!
     }
 }

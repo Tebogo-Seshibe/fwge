@@ -1,6 +1,6 @@
 import { Vector2, Vector3 } from "@fwge/common"
 import { Game } from "@fwge/core"
-import { Colour4, Mesh } from "@fwge/render"
+import { Colour4, StaticMesh, Mesh, } from "@fwge/render"
 
 
 export function configureMeshes(game: Game): void
@@ -9,9 +9,8 @@ export function configureMeshes(game: Game): void
 
     meshLibrary.Add(
         'Vertex Square',
-        new Mesh(
-        {
-            dynamic: false,
+        new StaticMesh(
+        { 
             position:
             [
                 new Vector3(-0.5, 0.5, 0.0),
@@ -53,9 +52,8 @@ export function configureMeshes(game: Game): void
 
     meshLibrary.Add(
         'Indexed Square',
-        new Mesh(
+        new StaticMesh(
         {
-            dynamic: false,
             position:
             [
                 new Vector3(-0.5,  0.5,  0.0),
@@ -101,9 +99,8 @@ export function configureMeshes(game: Game): void
 
     meshLibrary.Add(
         'Indexed Cube',
-        new Mesh(
+        new StaticMesh(
         {
-            dynamic: false,
             position:
             [
                 new Vector3(-0.5,  0.5,  0.5),

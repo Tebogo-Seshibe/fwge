@@ -1,6 +1,6 @@
 import { GL, Matrix3, Matrix4 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
-import { Camera, Material, Mesh, PointLight, Shader } from '../components'
+import { Camera, DynamicMesh, Material, Mesh, PointLight, Shader } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
@@ -177,7 +177,7 @@ export class MeshRenderSystem extends System
     private _BindGlobalUniforms(uniforms: ShaderUniforms, width: number, height: number): void
     {
         const camera = Camera.Main!
-        GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Matrix)
+        GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Projection)
 
         GL.uniform1i(uniforms.Global.Time, Date.now())
         GL.uniform2f(uniforms.Global.Resolution, width, height)
@@ -207,19 +207,22 @@ export class MeshRenderSystem extends System
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
 
-        if (mesh.IndexBuffer)
+        if (mesh instanceof DynamicMesh)
         {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else if (mesh.WireframeBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-            GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else
-        {
-            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
+            if (mesh.IndexBuffer)
+            {
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
+                GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
+            }
+            else if (mesh.WireframeBuffer)
+            {
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
+                GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
+            }
+            else
+            {
+                GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
+            }
         }
     }
 

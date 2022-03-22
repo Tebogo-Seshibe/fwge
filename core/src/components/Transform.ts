@@ -12,6 +12,7 @@ interface ITransform
 
 export class Transform extends UniqueComponent
 {
+    //#region Private fields
     private _position: Vector3 = Vector3.ZERO
     private _rotation: Vector3 = Vector3.ZERO
     private _scale: Vector3 = Vector3.ONE
@@ -23,7 +24,10 @@ export class Transform extends UniqueComponent
     private _recalculateMatrices()
     {
         let parent: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
-        this._modelViewMatrix = CalcuateModelView(
+        this._modelViewMatrix.Identity()
+
+        CalcuateModelView(
+            this._modelViewMatrix,
             this._position,
             this._rotation,
             this._scale
@@ -31,28 +35,35 @@ export class Transform extends UniqueComponent
 
         while (parent)
         {
-            this._modelViewMatrix.Mult(
-                CalcuateModelView(
-                    parent._position,
-                    parent._rotation,
-                    parent._scale
-                )
+            CalcuateModelView(
+                this._modelViewMatrix,
+                parent._position,
+                parent._rotation,
+                parent._scale
             )
             parent = parent.Owner?.Parent?.GetComponent(Transform)
         }
-
-        const mat = this._modelViewMatrix.Clone().Inverse()
         
-        this._normalMatrix = new Matrix3(
-            mat[0], mat[1],  mat[2],
-            mat[4], mat[5],  mat[6],
-            mat[8], mat[9], mat[10]
-        )
+        this._normalMatrix.Set(
+            this._modelViewMatrix[0], this._modelViewMatrix[1], this._modelViewMatrix[2],
+            this._modelViewMatrix[4], this._modelViewMatrix[5], this._modelViewMatrix[6],
+            this._modelViewMatrix[8], this._modelViewMatrix[9], this._modelViewMatrix[10]
+        ).Inverse()
+        
+        this.Position.Dirty = false
+        this.Rotation.Dirty = false
+        this.Scale.Dirty = false
+    }
+    //#endregion
+
+    public get Dirty(): boolean
+    {
+        return this._position.Dirty || this.Rotation.Dirty || this.Scale.Dirty
     }
     
     get ModelViewMatrix(): Matrix4
     {
-        if (this._position.Dirty || this.Rotation.Dirty || this.Scale.Dirty)
+        if (this.Dirty)
         {
             this._recalculateMatrices()
         }
@@ -62,7 +73,7 @@ export class Transform extends UniqueComponent
 
     get NormalMatrix(): Matrix3
     {
-        if (this._position.Dirty || this.Rotation.Dirty || this.Scale.Dirty)
+        if (this.Dirty)
         {
             this._recalculateMatrices()
         }
@@ -78,7 +89,7 @@ export class Transform extends UniqueComponent
 
     set Position(position: Vector3)
     {
-        this._position = position
+        this._position.Set(position)
     }
 
     get Rotation(): Vector3
@@ -88,7 +99,7 @@ export class Transform extends UniqueComponent
 
     set Rotation(rotation: Vector3)
     {
-        this._rotation = rotation
+        this._rotation.Set(rotation)
     }
 
     get Scale(): Vector3
@@ -98,7 +109,7 @@ export class Transform extends UniqueComponent
 
     set Scale(scale: Vector3)
     {
-        this._scale = scale
+        this._scale.Set(scale)
     }
 
     get Shear(): Vector3
@@ -108,7 +119,7 @@ export class Transform extends UniqueComponent
 
     set Shear(shear: Vector3)
     {
-        this._shear = shear
+        this._shear.Set(shear)
     }
 
     constructor()

@@ -47,10 +47,10 @@ export class Registry
         return component.Id
     }
 
-    getComponent<T extends Component>(componentType: Class<T>, componentId?: ComponentId): T | undefined
+    getComponent<T extends Component>(componentTypeId: TypeId, componentId?: ComponentId): T | undefined
     {
         return !Number.isNaN(componentId)
-            ? this._components[componentType._typeIndex!][componentId!] as T
+            ? this._components[componentTypeId][componentId!] as T
             : undefined
     }
 

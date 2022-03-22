@@ -1,5 +1,5 @@
 export * from './Camera'
 export * from './lights'
 export * from './Material'
-export * from './Mesh'
+export * from './mesh'
 export * from './shader'

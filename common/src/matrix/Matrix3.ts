@@ -6,6 +6,11 @@ export class Matrix3 extends Float32Array
         return this._dirty
     }
     
+    set Dirty(dirty: boolean)
+    {
+        this._dirty = dirty
+    }
+    
     get M11(): number
     {
         return this[0]

@@ -1,7 +1,7 @@
 import { randBetween, Vector3 } from "@fwge/common"
 import { Game, ScriptSystem, System, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { Material, Mesh, MeshRenderSystem, RenderSystem, Shader } from "@fwge/render"
+import { Material, Mesh, RenderSystem, Shader } from "@fwge/render"
 import { Cube } from "./Cube"
 import { FPSController } from "./FPSController"
 import { Light } from "./Light"
@@ -28,52 +28,24 @@ export function cameraControlScene(game: Game, fpsCounter: HTMLElement)
     scene.CreateEntity(Light)
     scene.CreateEntity(FPSController)
     const parent = scene.CreateEntity().AddComponent(new Transform())
-    for (var i = 0; i < 1;  ++i)
+    for (var i = 0; i < 500;  ++i)
     {
-        const [x, y, z] = [
-            // randBetween(-10, 10),
-            // randBetween(-5, 5),
-            // randBetween(-5, -25)
-            0,0,-5
-        ]
-
         const child = scene.CreateEntity(Cube,
         {
             mesh: meshLibrary.Get('Indexed Cube'),
             shader: shaderLibrary.Get('Default'),
             material: materialLibrary.Get('Default'),
-            transform: new Transform({ position: new Vector3(x, y, z) })
+            transform: new Transform(
+            {
+                position: new Vector3(
+                    randBetween(-10, 10),
+                    randBetween(-5, 5),
+                    randBetween(-5, -25)
+                )
+            })
         })
         parent.AddChild(child)
     }
-    // scene.CreateEntity(Cube,
-    // {
-    //     mesh: meshLibrary.Get('Indexed Cube'),
-    //     shader: shaderLibrary.Get('Default'),
-    //     material: materialLibrary.Get('Default'),
-    //     transform: new Transform({ position: new Vector3(-1, 1, -5) })
-    // })
-    // scene.CreateEntity(Cube,
-    // {
-    //     mesh: meshLibrary.Get('Indexed Cube'),
-    //     shader: shaderLibrary.Get('Default'),
-    //     material: materialLibrary.Get('Default'),
-    //     transform: new Transform({ position: new Vector3(-1, -1, -5) })
-    // })
-    // scene.CreateEntity(Cube,
-    // {
-    //     mesh: meshLibrary.Get('Indexed Cube'),
-    //     shader: shaderLibrary.Get('Default'),
-    //     material: materialLibrary.Get('Default'),
-    //     transform: new Transform({ position: new Vector3(1, 1, -5) })
-    // })
-    // scene.CreateEntity(Cube,
-    // {
-    //     mesh: meshLibrary.Get('Indexed Cube'),
-    //     shader: shaderLibrary.Get('Default'),
-    //     material: materialLibrary.Get('Default'),
-    //     transform: new Transform({ position: new Vector3(1, -1, -5) })
-    // })
-
+    console.log(parent)
     return scene
 }

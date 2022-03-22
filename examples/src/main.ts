@@ -6,6 +6,8 @@ import { configureMaterials, configureMeshes, configureScripts, configureShaders
 import { cameraControlScene, sidescrollerScene } from './scenes'
 
 const fpsCounter = document.querySelector<HTMLDivElement>('#fpsCounter')!
+const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!
+
 declare global
 {
     interface Window
@@ -16,6 +18,7 @@ declare global
 
 const game: Game = new Game(
 {
+    canvas: canvas,
     components:
     [
         Transform,

@@ -32,6 +32,22 @@ interface ICamera
 
 export class Camera extends UniqueComponent
 {
+    public static Main?: Camera
+    private _dirty: boolean = true
+    
+    private _view: Matrix4 = Matrix4.IDENTITY
+    get View(): Matrix4
+    {
+        const transform = this.Owner?.GetComponent(Transform)!
+        if (transform.Dirty)
+        {
+            this._view = transform.ModelViewMatrix.Inverse()
+        }
+        
+        return this._view
+    }
+    
+    private _matrix: Matrix4 = Matrix4.IDENTITY
     get Projection(): Matrix4
     {
         if (this._dirty)
@@ -54,11 +70,6 @@ export class Camera extends UniqueComponent
         
         return this._matrix
     }
-
-    public static Main?: Camera
-    private _dirty: boolean = true
-    private _matrix: Matrix4 = Matrix4.IDENTITY
-
     
     private _mode: ViewMode
     get Mode()

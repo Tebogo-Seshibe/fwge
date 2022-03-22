@@ -1,6 +1,6 @@
-import { Colour4 } from '../base'
 import { GL, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { SharedComponent } from "@fwge/core"
+import { Colour4 } from '../../base'
+import { Mesh } from './Mesh'
 
 interface IMesh
 {
@@ -13,7 +13,7 @@ interface IMesh
     dynamic?: boolean
 }
 
-export class Mesh extends SharedComponent
+export class DynamicMesh extends Mesh
 {
     _positionBuffer: WebGLBuffer | null = null
     _normalBuffer: WebGLBuffer | null = null
@@ -220,7 +220,7 @@ export class Mesh extends SharedComponent
     constructor(args: IMesh)
     constructor(args: IMesh = { })
     {
-        super()
+        super(Mesh)
         
         this.Position = args.position ?? null
         this.Normal = args.normal ?? null

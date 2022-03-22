@@ -2,15 +2,16 @@ import { Matrix4 } from "../matrix"
 import { Vector3 } from "../vector"
 import { radian } from "./Math"
 
-export function CalcuateModelView(translation: Vector3, rotation: Vector3, scale: Vector3): Matrix4
+export function CalcuateModelView(matrix: Matrix4, translation: Vector3, rotation: Vector3, scale: Vector3): void
 {
-    return Scale(scale)
-        .Mult(Rotate(rotation))
-        .Mult(Translate(translation))}
+    Scale(matrix, scale)
+    Rotate(matrix, rotation)
+    Translate(matrix, translation)
+}
 
-export function Translate(translation: Vector3): Matrix4
+export function Translate(matrix: Matrix4, translation: Vector3): void
 {
-    return new Matrix4(
+    matrix.Mult(
                      1,              0,              0, 0,
                      0,              1,              0, 0,
                      0,              0,              1, 0,
@@ -18,27 +19,35 @@ export function Translate(translation: Vector3): Matrix4
     );
 }
 
-export function Rotate(rotation: Vector3): Matrix4
+export function Rotate(matrix: Matrix4, rotation: Vector3): void
 {
     const x = radian(rotation[0])
     const y = radian(rotation[1])
     const z = radian(rotation[2])
 
-    return new Matrix4
+    const sin_x = Math.sin(x)
+    const sin_y = Math.sin(y)
+    const sin_z = Math.sin(z)
+
+    const cos_x = Math.cos(x)
+    const cos_y = Math.cos(y)
+    const cos_z = Math.cos(z)
+    
+    matrix.Mult
     (
-        Math.cos(y) * Math.cos(z),
-        Math.sin(x) * Math.sin(y) * Math.cos(z) - Math.cos(x) * Math.sin(z),
-        Math.cos(x) * Math.sin(y) * Math.cos(z) + Math.sin(x) * Math.sin(z),
+        cos_y * cos_z,
+        sin_x * sin_y * cos_z - cos_x * sin_z,
+        cos_x * sin_y * cos_z + sin_x * sin_z,
         0,
         
-        Math.cos(y) * Math.sin(z),
-        Math.sin(x) * Math.sin(y) * Math.sin(z) + Math.cos(x) * Math.cos(z),
-        Math.cos(x) * Math.sin(y) * Math.sin(z) - Math.sin(x) * Math.cos(z),
+        cos_y * sin_z,
+        sin_x * sin_y * sin_z + cos_x * cos_z,
+        cos_x * sin_y * sin_z - sin_x * cos_z,
         0,
         
-        -Math.sin(y),
-        Math.sin(x) * Math.cos(y),
-        Math.cos(x) * Math.cos(y),
+        -sin_y,
+        sin_x * cos_y,
+        cos_x * cos_y,
         0,
         
         0,
@@ -87,9 +96,9 @@ export function RotateZ(angle: number): Matrix4
     )
 }
 
-export function Scale(scalers: Vector3): Matrix4
+export function Scale(matrix: Matrix4, scalers: Vector3): void
 {                    
-    return new Matrix4
+    matrix.Mult
     (
         scalers[0],          0,          0, 0,
                  0, scalers[1],          0, 0,
@@ -98,13 +107,13 @@ export function Scale(scalers: Vector3): Matrix4
     )
 }
 
-export function Shear(angles: Vector3): Matrix4
+export function Shear(matrix: Matrix4, angles: Vector3): void
 {
     var phi   = radian(angles[0])
     var theta = radian(angles[1])
     var rho   = radian(angles[2])
 
-    return new Matrix4
+    matrix.Mult
     (
                   1.0,             0.0, Math.tan(rho), 0.0,
         Math.tan(phi),             1.0,           0.0, 0.0,

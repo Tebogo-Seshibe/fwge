@@ -1,34 +1,49 @@
+html,
 body {
-  margin: 0;
-  background: #272727;
   display: flex;
-  flex-direction: column;
+
+  top: 0;
+  left: 0;
   height: 100vh;
   width: 100vw;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  background: #272727;
+  flex-direction: column;
 
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-div {
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+section#controls {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  
-  height: 75px;
-  color: white;
-  text-shadow: 0px 0px 2px black;
+  height: 50px;
+  color: whitesmoke;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+section#viewport {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
 }
 
 canvas {
-  /* cursor: none; */
-  position: absolute;
-  top: 0px;
-  left: 0px ;
-  width: 100%;
-  height: 100%;
-}
-#fpsCounter {
-    z-index: 1;
+  display: flex;
+  cursor: none;
+  width: 100vw;
+  height: calc(100vh - 50px);
 }

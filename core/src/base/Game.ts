@@ -65,7 +65,7 @@ export class Game
             this._activeScene = this._scenes.first()
         }
 
-        this._currTick = this._prevTick = Date.now()
+        this._currTick = this._prevTick = performance.now()
 
         this._activeScene?.Init()
         this._activeScene?.Start()
@@ -77,7 +77,7 @@ export class Game
         this._activeScene?.Update(delta)
         
         this._prevTick = this._currTick
-        this._currTick = Date.now()
+        this._currTick = performance.now()
         this._tickId = window.requestAnimationFrame(() => this.Update(this._currTick - this._prevTick))
     }
     

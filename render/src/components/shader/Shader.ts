@@ -189,6 +189,10 @@ export class Shader extends SharedComponent
         
         args.attributes?.forEach(attribute => {
             const attrib = new attribute.sourceType(attribute.selector)
+            if (attrib.Id !== -1)
+            {
+                GL.enableVertexAttribArray(attrib.Id)
+            }
             this.AttributeList.set(attribute.sourceName, attrib)
         })
 
@@ -198,7 +202,6 @@ export class Shader extends SharedComponent
         })
 
         this._build()
-        console.log(this)
     }
 
     private _build()

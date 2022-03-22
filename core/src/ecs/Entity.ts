@@ -4,18 +4,18 @@ import { Class, ComponentId, EntityId } from './Registry'
 
 export class Entity
 {
-    private _components: Map<Class<Component>, ComponentId> = new Map()
+    private _components: Array<ComponentId | undefined> = []
     private _children: EntityId[] = []
     private _parent?: EntityId
     
-    get Parent(): Entity | undefined
+    public get Parent(): Entity | undefined
     {
         return this._parent !== undefined
             ? this._scene.GetEntity(this._parent)
             : undefined
     }
 
-    set Parent(parent: EntityId | Entity | undefined)
+    public set Parent(parent: EntityId | Entity | undefined)
     {
         const parentId = typeof parent === 'number'
             ? parent
@@ -27,23 +27,18 @@ export class Entity
         }
     }
     
-    get Children(): Entity[]
+    public get Children(): Entity[]
     {
         return this._children
             .map(child => this._scene.GetEntity(child))
             .filter(x => x !== undefined) as Entity[]
     }
 
-    get Components(): Component[]
+    public get Components(): Component[]
     {
-        const components: Component[] = []
-
-        for (const [type, id] of this._components)
-        {
-            components.push(this._scene.Registry.getComponent(type, id)!)
-        }
-
-        return components
+        return this._components
+            .map((componentId, typeId) => this._scene.Registry.getComponent(typeId, componentId)!)
+            .filter(x => x !== undefined)
     }
 
     constructor(
@@ -59,7 +54,7 @@ export class Entity
             this._scene.Registry.createComponent(component)
         }
 
-        this._components.set(component.Type, component.Id!)
+        this._components[component.Type._typeIndex!] = component.Id!
         this._scene.OnEntity(this)
 
         return this
@@ -67,14 +62,14 @@ export class Entity
 
     GetComponent<T extends Component>(componentType: Class<T>): T | undefined
     {
-        const componentId = this._components.get(componentType)
+        const componentId = this._components[componentType._typeIndex!]
 
-        return this._scene.Registry.getComponent<T>(componentType, componentId)
+        return this._scene.Registry.getComponent<T>(componentType._typeIndex!, componentId)
     }
 
     HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        return this._components.has(componentType)
+        return this._components[componentType._typeIndex!] !== undefined
     }
     
     RemoveComponent<T extends Component>(componentType: Class<T>): Entity
@@ -85,7 +80,7 @@ export class Entity
             component.RemoveOwner(this)
         }
 
-        this._components.delete(componentType)
+        this._components[componentType._typeIndex!] = undefined
         this._scene.OnEntity(this)
 
         return this

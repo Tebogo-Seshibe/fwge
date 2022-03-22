@@ -69,6 +69,8 @@ export class Colour3 extends Float32Array
     {
         return 'TODO'
     }
+
+    static SIZE: number = 3
     
     constructor()
     constructor(r: number, g: number, b: number)

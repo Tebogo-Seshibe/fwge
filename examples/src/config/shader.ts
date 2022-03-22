@@ -1,5 +1,5 @@
 import { Entity, Game } from "@fwge/core"
-import { Attribute, Colour4, Material, Mesh, Shader, Uniform } from "@fwge/render"
+import { Attribute, Colour4, DynamicMesh, Material, Mesh, Shader, StaticMesh, Uniform } from "@fwge/render"
 import { ShaderBool, ShaderFloat, ShaderVec2, ShaderVec3, ShaderVec4 } from "@fwge/render/lib/components/shader/types/Types"
 
 export function configureShaders(game: Game): void
@@ -42,7 +42,10 @@ export function configureShaders(game: Game): void
                 [
                     new Attribute(
                         ShaderVec3, 'A_Position',
-                        (entity: Entity) => entity.GetComponent(Mesh)!.PositionBuffer!
+                        (entity: Entity) => {
+                            const mesh = entity.GetComponent(Mesh)!
+                            return (mesh as DynamicMesh).PositionBuffer!
+                        }
                     ),
                 ],
                 uniforms:
@@ -106,7 +109,10 @@ export function configureShaders(game: Game): void
                     // ),
                     new Attribute(
                         ShaderVec4, 'A_Colour',
-                        (entity: Entity) => entity.GetComponent(Mesh)!.ColourBuffer!
+                        (entity: Entity) => {
+                            const mesh = entity.GetComponent(Mesh)!
+                            return (mesh as DynamicMesh).ColourBuffer!
+                        }
                     ),
                 ],
                 uniforms:
@@ -148,8 +154,8 @@ export function configureShaders(game: Game): void
                 V_Position = Position.xyz;
                 V_Colour = A_Colour;
                 V_UV = A_UV;                
-                // V_Normal = U_Matrix.Normal * A_Normal;
-                V_Normal = normalize((U_Matrix.ModelView * vec4(A_Normal, 1.0)).xyz);
+                V_Normal = U_Matrix.Normal * A_Normal;
+                // V_Normal = normalize((U_Matrix.ModelView * vec4(A_Normal, 1.0)).xyz);
                 
                 gl_Position = U_Matrix.Projection * U_Matrix.View * Position;
             }`,

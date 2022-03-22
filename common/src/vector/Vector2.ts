@@ -7,6 +7,11 @@ export class Vector2 extends Float32Array
     {
         return this._dirty
     }
+    
+    set Dirty(dirty: boolean)
+    {
+        this._dirty = dirty
+    }
 
     get X(): number
     {
@@ -203,8 +208,5 @@ export class Vector2 extends Float32Array
         return new Vector2(Math.sqrt(1/2))
     }
 
-    static get SIZE(): number
-    {
-        return 2
-    }
+    static SIZE: number = 2
 }

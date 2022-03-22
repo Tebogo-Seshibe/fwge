@@ -29,7 +29,7 @@ export class Library<T extends SharedComponent>
             throw new Error(`Component with name "${ name }" does not exist`)
         }
 
-        return this._registry.getComponent<T>(this._componentType, componentId)!
+        return this._registry.getComponent<T>(this._componentType._typeIndex!, componentId)!
     }
 
     public Remove(name: string): Library<T>

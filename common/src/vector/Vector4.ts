@@ -7,6 +7,11 @@ export class Vector4 extends Float32Array
     {
         return this._dirty
     }
+    
+    set Dirty(dirty: boolean)
+    {
+        this._dirty = dirty
+    }
 
     get X(): number
     {
@@ -253,8 +258,5 @@ export class Vector4 extends Float32Array
         return new Vector4(0.5)
     }
 
-    static get SIZE(): number
-    {
-        return 4
-    }
+    static SIZE: number = 4
 }

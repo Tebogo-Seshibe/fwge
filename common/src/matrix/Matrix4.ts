@@ -5,6 +5,11 @@ export class Matrix4 extends Float32Array
     {
         return this._dirty
     }
+    
+    set Dirty(dirty: boolean)
+    {
+        this._dirty = dirty
+    }
 
     get M11(): number
     { 
@@ -316,7 +321,7 @@ export class Matrix4 extends Float32Array
             m41, m42, m43, m44
         ] : m11
 
-        return this.Set(
+        m11 = [
             this[0]  * m11[0] + this[1]  * m11[4] + this[2]  * m11[8]  + this[3]  * m11[12],
             this[0]  * m11[1] + this[1]  * m11[5] + this[2]  * m11[9]  + this[3]  * m11[13],
             this[0]  * m11[2] + this[1]  * m11[6] + this[2]  * m11[10] + this[3]  * m11[14],
@@ -328,12 +333,31 @@ export class Matrix4 extends Float32Array
             this[8]  * m11[0] + this[9]  * m11[4] + this[10] * m11[8]  + this[11] * m11[12],
             this[8]  * m11[1] + this[9]  * m11[5] + this[10] * m11[9]  + this[11] * m11[13],
             this[8]  * m11[2] + this[9]  * m11[6] + this[10] * m11[10] + this[11] * m11[14],
-            this[8]  * m11[3] + this[9]  * m11[7] + this[10] * m11[11] + this[11] * m11[15],        
+            this[8]  * m11[3] + this[9]  * m11[7] + this[10] * m11[11] + this[11] * m11[15],
             this[12] * m11[0] + this[13] * m11[4] + this[14] * m11[8]  + this[15] * m11[12],
             this[12] * m11[1] + this[13] * m11[5] + this[14] * m11[9]  + this[15] * m11[13],
             this[12] * m11[2] + this[13] * m11[6] + this[14] * m11[10] + this[15] * m11[14],
-            this[12] * m11[3] + this[13] * m11[7] + this[14] * m11[11] + this[15] * m11[15]
-        )
+            this[12] * m11[3] + this[13] * m11[7] + this[14] * m11[11] + this[15] * m11[15],
+        ]
+
+        this[0] = m11[0]
+        this[1] = m11[1]
+        this[2] = m11[2]
+        this[3] = m11[3]
+        this[4] = m11[4]
+        this[5] = m11[5]
+        this[6] = m11[6]
+        this[7] = m11[7]
+        this[8] = m11[8]
+        this[9] = m11[9]
+        this[10] = m11[10]
+        this[11] = m11[11]
+        this[12] = m11[12]
+        this[13] = m11[13]
+        this[14] = m11[14]
+        this[15] = m11[15]
+
+        return this
     }
     
     Scale(scaler: number): Matrix4
@@ -528,14 +552,46 @@ export class Matrix4 extends Float32Array
         return this
     }
 
+    Zero(): Matrix4
+    {
+        this[0] = 0
+        this[1] = 0
+        this[2] = 0
+        this[3] = 0
+        this[4] = 0
+        this[5] = 0
+        this[6] = 0
+        this[7] = 0
+        this[8] = 0
+        this[9] = 0
+        this[10] = 0
+        this[11] = 0
+        this[12] = 0
+        this[13] = 0
+        this[14] = 0
+        this[15] = 0
+        return this
+    }
+    
     Identity(): Matrix4
     {
-        return this.Set(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        )
+        this[0] = 1
+        this[1] = 0
+        this[2] = 0
+        this[3] = 0
+        this[4] = 0
+        this[5] = 1
+        this[6] = 0
+        this[7] = 0
+        this[8] = 0
+        this[9] = 0
+        this[10] = 1
+        this[11] = 0
+        this[12] = 0
+        this[13] = 0
+        this[14] = 0
+        this[15] = 1
+        return this
     }
 
     Clone(): Matrix4

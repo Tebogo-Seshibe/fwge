@@ -40,35 +40,35 @@ export class Attributes
 
 const myAttributes = new Attributes()
 
-myAttributes
-    .Add(
-    {
-        sourceType: ShaderVec3,
-        sourceName: 'A_Position',
-        targetType: Mesh,
-        targetName: 'PositionBuffer'
-    })
-    .Add(
-    {
-        sourceType: ShaderVec4,
-        sourceName: 'A_Colour',
-        targetType: Mesh,
-        targetName: 'ColourBuffer'
-    })
-    .Add(
-    {
-        sourceType: ShaderVec3,
-        sourceName: 'A_Normal',
-        targetType: Mesh,
-        targetName: 'NormalBuffer'
-    })
-    .Add(
-    {
-        sourceType: ShaderVec2,
-        sourceName: 'A_UV',
-        targetType: Mesh,
-        targetName: 'UVBuffer'
-    })
+// myAttributes
+//     .Add(
+//     {
+//         sourceType: ShaderVec3,
+//         sourceName: 'A_Position',
+//         targetType: Mesh,
+//         targetName: 'PositionBuffer'
+//     })
+//     .Add(
+//     {
+//         sourceType: ShaderVec4,
+//         sourceName: 'A_Colour',
+//         targetType: Mesh,
+//         targetName: 'ColourBuffer'
+//     })
+//     .Add(
+//     {
+//         sourceType: ShaderVec3,
+//         sourceName: 'A_Normal',
+//         targetType: Mesh,
+//         targetName: 'NormalBuffer'
+//     })
+//     .Add(
+//     {
+//         sourceType: ShaderVec2,
+//         sourceName: 'A_UV',
+//         targetType: Mesh,
+//         targetName: 'UVBuffer'
+//     })
 
 
 

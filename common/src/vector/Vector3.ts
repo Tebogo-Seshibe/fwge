@@ -7,6 +7,11 @@ export class Vector3 extends Float32Array
     {
         return this._dirty
     }
+    
+    set Dirty(dirty: boolean)
+    {
+        this._dirty = dirty
+    }
 
     get X(): number
     {
@@ -257,10 +262,7 @@ export class Vector3 extends Float32Array
         return new Vector3(Math.sqrt(1/3))
     }
 
-    static get SIZE(): number
-    {
-        return 3
-    }
+    static SIZE: number = 3
 
     override toString(): string
     {
