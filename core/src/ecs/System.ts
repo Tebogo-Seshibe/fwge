@@ -5,7 +5,7 @@ import { Class, EntityId, Registry, TypeId } from "./Registry"
 
 export abstract class System
 {
-    protected entities: Set<EntityId> = new Set()
+    protected entities: Entity[] = []
     protected componentTypes: Set<Class<Component>> = new Set()
 
     constructor(protected scene: Scene, ...componentTypes: Class<Component>[])
@@ -22,13 +22,13 @@ export abstract class System
     {
         const isValid = this.IsValidEntity(entity)
     
-        if (isValid && !this.entities.has(entity.Id))
+        if (isValid && !this.entities.includes(entity))
         {
-            this.entities.add(entity.Id)
+            this.entities.push(entity)
         }
-        else if (!isValid && this.entities.has(entity.Id))
+        else if (!isValid && this.entities.includes(entity))
         {
-            this.entities.delete(entity.Id)
+            this.entities.splice(this.entities.indexOf(entity), 1)
         }
     }
 

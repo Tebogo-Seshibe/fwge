@@ -9,12 +9,12 @@ export function configureMaterials(game: Game): void
         'Default',
         new Material(
         {
-            ambient: new Colour4(0, 0, 0, 1),
-            diffuse: new Colour4(0.5, 0.5, 0.5, 1),
+            ambient: new Colour4(0.25, 0.25, 0.25, 1),
+            diffuse: new Colour4(0.75, 0.75, 0.75, 1),
             specular: new Colour4(1, 1, 1, 1),
             alpha: 1,
             shininess: 32,
-            imagemap: 'img/Tebogo.png'
+            imagemap: 'assets/img/Tebogo.png'
         })
     )
 }

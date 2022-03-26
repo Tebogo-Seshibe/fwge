@@ -11,6 +11,7 @@ export class Cube extends Entity
         material: Material,
         shader: Shader,
         transform: Transform,
+        script: Script,
     })
     {
         super(scene)
@@ -19,18 +20,7 @@ export class Cube extends Entity
         this.AddComponent(args.material)
         this.AddComponent(args.shader)
         this.AddComponent(args.transform)
-        this.AddComponent(new Script(
-        {
-            start: () =>
-            {
-                this.transform.Rotation.Set(0, Math.random() * 360, Math.random() * 360)
-            },
-            update: (delta: number) =>
-            {
-                this.transform.Rotation.Y += delta / 5
-                this.transform.Rotation.Z += delta / 12
-            }
-        }))
+        this.AddComponent(args.script)
 
         this.transform = this.GetComponent(Transform)!
     }

@@ -28,9 +28,8 @@ export class InputSystem extends System
         this._mouse.Update(delta)
         this._controllers.Update(delta)
     
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const inputComponent = entity.GetComponent(Input)!
 
             inputComponent.OnInput.call(entity,

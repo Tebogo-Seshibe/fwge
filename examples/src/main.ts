@@ -1,9 +1,11 @@
-import './style.css'
-import { Game, Scene, Script, Tag, Transform } from "@fwge/core"
-import { Input } from '@fwge/input'
-import { Camera, Material, Mesh, PointLight, Shader } from '@fwge/render'
+import { Game, Scene, Script, ScriptSystem, Tag, Transform } from "@fwge/core"
+import { Input, InputSystem } from '@fwge/input'
+import { Collider, PhysicsSystem, RigidBody } from "@fwge/physics"
+import { Camera, Material, Mesh, PointLight, RenderSystem, Shader } from '@fwge/render'
 import { configureMaterials, configureMeshes, configureScripts, configureShaders } from './config'
-import { cameraControlScene, sidescrollerScene } from './scenes'
+import { cameraControlScene, physicsInput, sidescrollerScene } from './scenes'
+import { FrameCounter } from './shared/FrameCounter'
+import './style.css'
 
 const fpsCounter = document.querySelector<HTMLDivElement>('#fpsCounter')!
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!
@@ -21,22 +23,32 @@ const game: Game = new Game(
     canvas: canvas,
     components:
     [
-        Transform,
-        Mesh,
-        Material,
-        Shader,
-        Tag,
-        Script,
-        PointLight,
-        Camera,
-        Input
+      Transform,
+      Mesh,
+      Material,
+      Shader,
+      Tag,
+      Script,
+      PointLight,
+      Camera,
+      Input,
+      RigidBody,
+      Collider
+    ],
+    systems: 
+    [
+      InputSystem,
+      ScriptSystem,
+      RenderSystem,
+      FrameCounter,
+      PhysicsSystem
     ],
     libraries:
     [
-        Mesh,
-        Material,
-        Shader,
-        Script
+      Mesh,
+      Material,
+      Shader,
+      Script
     ]
 })
 
@@ -45,28 +57,11 @@ configureMeshes(game)
 configureMaterials(game)
 configureScripts(game)
 
-const cameraControl: Scene = cameraControlScene(game, fpsCounter)
-const sidescroller: Scene = sidescrollerScene(game, fpsCounter)
+// const cameraControl: Scene = cameraControlScene(game, fpsCounter)
+// const sidescroller: Scene = sidescrollerScene(game, fpsCounter)
+const physics: Scene = physicsInput(game, fpsCounter)
 
-const changeScene = (id: number) =>
-{
-    game.Stop()
-    switch (id)
-    {
-        case 0:
-            game.SetActiveScene(cameraControl)
-            break
-            
-        case 1:
-            game.SetActiveScene(sidescroller)
-            break
-    }
-    game.Start()
-}
-const buttons = document.querySelectorAll<HTMLButtonElement>('.button')
-buttons.forEach((el, index) => el.addEventListener('click', () => changeScene(index)))
-
-game.SetActiveScene(cameraControl)
+game.SetActiveScene(physics)
 game.Start()
 
 window.game = game

@@ -1,4 +1,5 @@
 import { setContext } from "@fwge/common"
+import { System } from "../ecs"
 import { Component, SharedComponent } from "../ecs/Component"
 import { Class, Registry, SceneId } from "../ecs/Registry"
 import { Library } from "./Library"
@@ -8,6 +9,7 @@ import { Scene } from "./Scene"
 interface IGame
 {
     canvas?: HTMLCanvasElement
+    systems: Class<System>[]
     components: Class<Component>[]
     libraries: Class<SharedComponent>[]
 }
@@ -21,40 +23,52 @@ export class Game
     private _currTick: number = -1
     private _prevTick: number = -1
     private _tickId?: number
-    private _canvas: HTMLCanvasElement
+    private _canvas?: HTMLCanvasElement
     private _registry: Registry = new Registry()
 
     constructor(args: IGame)
     {
-        if (!args.canvas)
+        for (const componentType of args.components)
         {
-            args.canvas = document.createElement('canvas')
-            document.body.appendChild(args.canvas)
+          this._registry.registerComponentType(componentType)
         }
-            
-        const gl = args.canvas.getContext('webgl2')
+
+        for (const systemType of args.systems)
+        {
+          this._registry.registerSystemType(systemType)
+        }
+        for (const type of args.libraries)
+        {
+            this.CreateLibrary(type)
+        }
+        
+        if (args.canvas)
+        {
+            this.SetCanvas(args.canvas)
+        }
+    }
+
+    public SetCanvas(canvas: HTMLCanvasElement): void
+    {
+        const gl = canvas.getContext('webgl2')
         if (!gl)
         {
             throw new Error('No WebGL context could be generated!')
         }
 
-        this._canvas = args.canvas
+        this._canvas = canvas
+
         setContext(gl)
-
-        for (const type of args.components)
-        {
-            this._registry.registerComponentType(type)
-        }
-
-        for (const type of args.libraries)
-        {
-            this.CreateLibrary(type)
-        }
     }
 
     //#region Controls
     Start(): void
     {
+        if (!this._canvas)
+        {
+            throw new Error('No HTMLCanvasElement provided')
+        }
+
         if (this._scenes.length === 0)
         {
             console.warn('No scenes to run')
@@ -65,7 +79,7 @@ export class Game
             this._activeScene = this._scenes.first()
         }
 
-        this._currTick = this._prevTick = performance.now()
+        this._currTick = this._prevTick = Date.now()
 
         this._activeScene?.Init()
         this._activeScene?.Start()
@@ -77,7 +91,7 @@ export class Game
         this._activeScene?.Update(delta)
         
         this._prevTick = this._currTick
-        this._currTick = performance.now()
+        this._currTick = Date.now()
         this._tickId = window.requestAnimationFrame(() => this.Update(this._currTick - this._prevTick))
     }
     

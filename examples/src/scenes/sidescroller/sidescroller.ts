@@ -1,6 +1,7 @@
 import { Game, ScriptSystem, System } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { Material, Mesh, RenderSystem, Shader } from "@fwge/render"
+import { FrameCounter } from "../../shared/FrameCounter"
 import { CameraController } from "./CameraController"
 import { CharacterController } from "./CharacterController"
 
@@ -12,17 +13,10 @@ export function sidescrollerScene(game: Game, fpsCounter: HTMLElement)
     const materialLibrary = game.GetLibrary(Material)
     const shaderLibrary = game.GetLibrary(Shader)
 
-    scene.RegisterSystems(
-        InputSystem,
-        ScriptSystem,
-        RenderSystem,
-        class FrameCounter extends System
-        {
-            override Update(delta: number): void
-            {
-                fpsCounter.innerText = Math.round(1000 / delta) + 'fps'
-            }
-        })
+    scene.UseSystem(InputSystem)
+        .UseSystem(ScriptSystem)
+        .UseSystem(RenderSystem)
+        .UseSystem(FrameCounter, fpsCounter)
 
     scene.CreateEntity(CameraController)
     scene.CreateEntity(CharacterController, 

@@ -247,6 +247,27 @@ export class Vector3 extends Float32Array
         return new Vector3(this)
     }
 
+    Equals(other: Vector3): boolean
+    {
+        return this[0] === other[0] &&
+            this[1] === other[1] &&
+            this[2] === other[2]
+    }
+
+    Distance(other: Vector3): number
+    {
+        return Vector3.Distance(this, other)
+    }
+
+    static Distance(left: Vector3, right: Vector3): number
+    {
+        return Math.sqrt(
+            (right[0] - left[0]) ** 2 +
+            (right[1] - left[1]) ** 2 +
+            (right[2] - left[2]) ** 2
+        )
+    }
+
     static get ZERO(): Vector3
     {
         return new Vector3(0)

@@ -19,7 +19,7 @@ export class Scene
 
     private _context?: HTMLCanvasElement
     private _entities: Entity[] = []
-    private _systems: Map<Class<System>, System> = new Map()
+    private _systems: Set<System>= new Set()
 
     readonly Id: SceneId = Scene.sceneId++
     constructor(registry: Registry)
@@ -29,6 +29,7 @@ export class Scene
 
     Init(): void
     {        
+      console.log(this)
         this._systems.forEach(system => system.Init())
     }
     
@@ -47,17 +48,15 @@ export class Scene
         this._systems.forEach(system => system.Stop())
     }
     
-    RegisterSystems<T extends System>(...systems: Constructor<T, [Scene]>[]): void
+    UseSystem<T extends System, K extends any[]>(system: Constructor<T, [Scene, ...K]>, ...args: K): Scene
     {
-        systems.forEach(system =>
-        {
-            this._systems.set(system as Class<T>, new system(this))
-        })
+      this._systems.add(new system(this, ...args))
+      return this
     }
 
     SetContext(canvas?: HTMLCanvasElement): void
     {
-        this._context = canvas
+      this._context = canvas
     }
     
     CreateEntity(): Entity
@@ -93,7 +92,7 @@ export class Scene
 
     OnEntity(entity: Entity): void
     {
-        for (const [, system] of this._systems)
+        for (const system of this._systems)
         {
             system.OnUpdateEntity(entity)
         }

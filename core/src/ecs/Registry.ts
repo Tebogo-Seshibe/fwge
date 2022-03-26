@@ -1,4 +1,5 @@
 import { Component } from './Component'
+import { System } from './System'
 
 export type TypeId = number
 export type SceneId = number
@@ -30,6 +31,8 @@ export class Registry
     private _entityId: EntityId = 0
     private _componentId: TypeId = 0
     private _components: Component[][] = []
+    private _systemId: TypeId = 0
+    private systems: System[][] = []
 
     //#region Ids
     createEntity(): EntityId
@@ -70,6 +73,17 @@ export class Registry
         this._componentId = this._componentId + 1
 
         this._components[componentType._typeIndex] = []
+    }
+
+    registerSystemType<T extends System>(systemType: Class<T>): void
+    {
+        if (systemType._typeIndex !== undefined)
+            return        
+            
+            systemType._typeIndex = this._systemId
+        this._systemId = this._systemId + 1
+
+        this.systems[systemType._typeIndex] = []
     }
     //#endregion
 }

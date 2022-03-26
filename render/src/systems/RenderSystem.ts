@@ -19,9 +19,8 @@ export class RenderSystem extends System
 
     Init(): void
     {
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const shader = entity.GetComponent(Shader)!
 
             this._shaders.add(shader)
@@ -36,6 +35,8 @@ export class RenderSystem extends System
     Start(): void
     {
         console.log(this)
+        
+
         GL.enable(GL.DEPTH_TEST)
         GL.disable(GL.BLEND)
         GL.enable(GL.CULL_FACE)
@@ -51,7 +52,11 @@ export class RenderSystem extends System
 
     Update(delta: number): void
     {
-        this._clearCanvas()
+        GL.canvas.width = Camera.Main!.ScreenWidth
+        GL.canvas.height = Camera.Main!.ScreenHeight        
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0.0, 0.0, 0.0, 1.0)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
         let i = 0;
         for (const [shader, entityList] of this._groupedObjects)
@@ -85,23 +90,6 @@ export class RenderSystem extends System
             GL.disableVertexAttribArray(Attributes!.UV)
             GL.disableVertexAttribArray(Attributes!.Colour)
         }
-    }
-    
-    _clearCanvas(): void
-    {
-        for (const shader of this._shaders)
-        {
-            GL.viewport(shader.Offset[0], shader.Offset[1], shader.Width, shader.Height)
-            GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3])
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-        }
-
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0.0, 0.0, 0.0, 1.0)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-        
-        GL.canvas.width = Camera.Main!.ScreenWidth
-        GL.canvas.height = Camera.Main!.ScreenHeight
     }
 
     _draw(entity: Entity, delta: number, entityId: EntityId): void

@@ -356,6 +356,7 @@ export class Matrix4 extends Float32Array
         this[13] = m11[13]
         this[14] = m11[14]
         this[15] = m11[15]
+        this._dirty = true
 
         return this
     }

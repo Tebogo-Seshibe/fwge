@@ -17,9 +17,8 @@ export class MeshRenderSystem extends System
 
     Init(): void
     {
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const shader = entity.GetComponent(Shader)!
             
             this._shaders.add(shader)
@@ -51,9 +50,9 @@ export class MeshRenderSystem extends System
 
         if (Camera.Main)
         {
-            for (const entityId of this.entities)
+            for (const entity of this.entities)
             {
-                this._Draw(entityId, delta)
+                this._Draw(entity, delta)
             }
         }
 
@@ -95,9 +94,8 @@ export class MeshRenderSystem extends System
         GL.canvas.height = Camera.Main!.ScreenHeight
     }
 
-    private _Draw(entityId: EntityId, delta: number): void
+    private _Draw(entity: Entity, delta: number): void
     {
-        const entity = this.scene.GetEntity(entityId)!
         const shader = entity.GetComponent(Shader)!
         const mesh = entity.GetComponent(Mesh)!
         const material = entity.GetComponent(Material)!
@@ -119,7 +117,7 @@ export class MeshRenderSystem extends System
         const mat4 = transform.ModelViewMatrix
         const mat3 = transform.NormalMatrix
 
-        this._BindUniforms(shader.BaseUniforms!, material, mat4, mat3, delta, entityId)
+        this._BindUniforms(shader.BaseUniforms!, material, mat4, mat3, delta, entity.Id)
         this._BindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
         this._Render(shader, mesh)
 

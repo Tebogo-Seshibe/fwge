@@ -41,4 +41,17 @@ export function configureScripts(game: Game): void
                 }
             }
         }))
+        .Add('Rotator', new Script(
+          {
+              start()
+              {
+                this.GetComponent(Transform)!.Rotation.Set(0, Math.random() * 360, Math.random() * 360)
+              },
+              update(delta: number)
+              {
+                this.GetComponent(Transform)!.Rotation.Y += delta / 7
+                this.GetComponent(Transform)!.Rotation.Z += delta / 12
+              }
+          })
+        )
 }

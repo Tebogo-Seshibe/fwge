@@ -9,20 +9,20 @@ export abstract class Component
         readonly Type: Class<Component> = new.target as Class<Component>,
     ) { }
 
-    abstract AddOwner(owner: Entity): void
-    abstract RemoveOwner(owner: Entity): void
+    public abstract AddOwner(owner: Entity): void
+    public abstract RemoveOwner(owner: Entity): void
 }
 
 export abstract class SharedComponent extends Component
 {
     private _owners: Entity[] = []
 
-    get Owners(): Entity[] | undefined
+    public get Owners(): Entity[] | undefined
     {
         return this._owners
     }
 
-    AddOwner(owner: Entity)
+    public AddOwner(owner: Entity)
     {
         if (!this._owners.includes(owner))
         {
@@ -30,7 +30,7 @@ export abstract class SharedComponent extends Component
         }
     }
 
-    RemoveOwner(owner: Entity)
+    public RemoveOwner(owner: Entity)
     {
         if (this._owners.includes(owner))
         {
@@ -43,17 +43,17 @@ export abstract class UniqueComponent extends Component
 {
     private _owner?: Entity
 
-    get Owner(): Entity | undefined
+    public get Owner(): Entity | undefined
     {
         return this._owner
     }
 
-    AddOwner(owner: Entity)
+    public AddOwner(owner: Entity)
     {
         this._owner = owner
     }
 
-    RemoveOwner(_?: Entity)
+    public RemoveOwner(_?: Entity)
     {
         this._owner = undefined
     }
