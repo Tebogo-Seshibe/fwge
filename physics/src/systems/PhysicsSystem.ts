@@ -1,6 +1,6 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
-import { Collider, CubeCollider, RigidBody } from "../components"
+import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
 
 enum CollisionState
 {
@@ -65,11 +65,12 @@ export class PhysicsSystem extends System
                         break
                 }
 
-                // this._resolve(entity, other)
+                if (state !== CollisionState.None)
+                    this._resolve(entity, other)
             }
         }
 
-        // this._displace()
+        this._displace()
     }
 
     _detect(a: Entity, b: Entity): void
@@ -90,22 +91,18 @@ export class PhysicsSystem extends System
         {
             isCollision = this._AABB(aPosition, aCollider, bPosition, bCollider)   
         }
+        else if (aCollider instanceof SphereCollider && bCollider instanceof SphereCollider)
+        {
+            isCollision = this._SS(aPosition, aCollider.Radius, bPosition, bCollider.Radius)
+        }
         
         const leftCollisionState = this.collisionStates.get(a) ?? []
         const rightCollisionState = this.collisionStates.get(b) ?? []
 
         let leftCollision = leftCollisionState.find(x => x.other === b)
-        if (!leftCollision)
-        {
-            leftCollision = { other: b, state: CollisionState.None }
-            leftCollisionState.push(leftCollision)
-        }
+            ?? { other: b, state: CollisionState.None }
         let rightCollision = rightCollisionState.find(x => x.other === a)
-        if (!rightCollision)
-        {
-            rightCollision = { other: a, state: CollisionState.None }
-            rightCollisionState.push(rightCollision)
-        }
+            ?? { other: a, state: CollisionState.None }
 
         if (isCollision)
         {
@@ -113,6 +110,7 @@ export class PhysicsSystem extends System
             {
                 case CollisionState.None:
                     leftCollision.state = CollisionState.Enter
+                    leftCollisionState.push(leftCollision)
                     break
                 case CollisionState.Enter:
                     leftCollision.state = CollisionState.Update
@@ -123,6 +121,7 @@ export class PhysicsSystem extends System
             {
                 case CollisionState.None:
                     rightCollision.state = CollisionState.Enter
+                    rightCollisionState.push(rightCollision)
                     break
                 case CollisionState.Enter:
                     rightCollision.state = CollisionState.Update
@@ -138,6 +137,7 @@ export class PhysicsSystem extends System
                     break
                 case CollisionState.Exit:
                     leftCollision.state = CollisionState.None
+                    leftCollisionState.splice(leftCollisionState.findIndex(x => x.other === b), 1)
                     break
             }
 
@@ -148,72 +148,75 @@ export class PhysicsSystem extends System
                     break
                 case CollisionState.Exit:
                     rightCollision.state = CollisionState.None
+                    rightCollisionState.splice(rightCollisionState.findIndex(x => x.other === a), 1)
                     break
             }
         }
     }
 
-    _resolve(left: Entity, right: Entity): void
+    _resolve(current: Entity, target: Entity): void
     {
-        const leftPos = left.GetComponent(Transform)!.Position
-        const rightPos = right.GetComponent(Transform)!.Position
-        const leftCollider = left.GetComponent(Collider)! as CubeCollider
-        const rightCollider = right.GetComponent(Collider)! as CubeCollider
+        const currentPos = current.GetComponent(Transform)!.Position
+        const targetPos = target.GetComponent(Transform)!.Position
+        const currentCollider = current.GetComponent(Collider)! as SphereCollider
+        const targetCollider = target.GetComponent(Collider)! as SphereCollider
         
-        const direction = rightPos.Clone().Diff(leftPos).Normalize()
-        const overlap = this._calculateOverlap(leftPos, leftCollider, rightPos, rightCollider)
+        if (currentCollider.IsTrigger || targetCollider.IsTrigger)
+        {
+            return
+        }
 
-        const displacementL = this.displacements.get(left) ?? Vector3.ZERO
-        this.displacements.set(left, direction.Clone().Scale(-1).Sum(displacementL))
+        const overlap = (Vector3.Distance(currentPos, targetPos) - currentCollider.Radius - targetCollider.Radius) * 0.5
+        const direction = currentPos.Clone().Diff(targetPos).Normalize()
 
-        const displacementR = this.displacements.get(left) ?? Vector3.ZERO
-        this.displacements.set(right, direction.Clone().Scale(1).Sum(displacementR))
+        const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
+        this.displacements.set(current, currentDisplacement.Sum(direction.Clone().Scale(-overlap)))
     }
 
     private _calculateOverlap(leftPos: Vector3, leftCollider: CubeCollider, rightPos: Vector3, rightCollider: CubeCollider): Vector3
     {
         const overlap = new Vector3()
 
-        if (leftPos.X < rightPos.X)
+        if (leftPos[0] < rightPos[0])
         {
-            const r = rightPos.X - rightCollider.Width / 2
-            const l = leftPos.X + leftCollider.Width / 2
-            overlap.X = r - l
+            const r = rightPos[0] - rightCollider.Width / 2
+            const l = leftPos[0] + leftCollider.Width / 2
+            overlap[0] = r - l
         }
 
-        if (leftPos.X > rightPos.X)
+        if (leftPos[0] > rightPos[0])
         {
-            const r = rightPos.X + rightCollider.Width / 2
-            const l = leftPos.X - leftCollider.Width / 2
-            overlap.X = r - l
+            const r = rightPos[0] + rightCollider.Width / 2
+            const l = leftPos[0] - leftCollider.Width / 2
+            overlap[0] = r - l
         }
 
-        if (leftPos.Y < rightPos.Y)
+        if (leftPos[1] < rightPos[1])
         {
-            const r = rightPos.Y - rightCollider.Height / 2
-            const l = leftPos.Y + leftCollider.Height / 2
-            overlap.Y = r - l
+            const r = rightPos[1] - rightCollider.Height / 2
+            const l = leftPos[1] + leftCollider.Height / 2
+            overlap[1] = r - l
         }
 
-        if (leftPos.Y > rightPos.Y)
+        if (leftPos[1] > rightPos[1])
         {
-            const r = rightPos.Y + rightCollider.Height / 2
-            const l = leftPos.Y - leftCollider.Height / 2
-            overlap.Y = r - l
+            const r = rightPos[1] + rightCollider.Height / 2
+            const l = leftPos[1] - leftCollider.Height / 2
+            overlap[1] = r - l
         }
 
-        if (leftPos.Z < rightPos.Z)
+        if (leftPos[2] < rightPos[2])
         {
-            const r = rightPos.Z - rightCollider.Depth / 2
-            const l = leftPos.Z + leftCollider.Depth / 2
-            overlap.Z = r - l
+            const r = rightPos[2] - rightCollider.Depth / 2
+            const l = leftPos[2] + leftCollider.Depth / 2
+            overlap[2] = r - l
         }
 
-        if (leftPos.Z > rightPos.Z)
+        if (leftPos[2] > rightPos[2])
         {
-            const r = rightPos.Z + rightCollider.Depth / 2
-            const l = leftPos.Z - leftCollider.Depth / 2
-            overlap.Z = r - l
+            const r = rightPos[2] + rightCollider.Depth / 2
+            const l = leftPos[2] - leftCollider.Depth / 2
+            overlap[2] = r - l
         }
 
         return overlap
@@ -227,21 +230,31 @@ export class PhysicsSystem extends System
         }
     }
 
-    _AABB(aPosition: Vector3, aCollider: CubeCollider, bPosition: Vector3, bCollider: CubeCollider): boolean
+    //#region Algorithms
+    private _SS(aPosition: Vector3, aRadius: number, bPosition: Vector3, bRadius: number): boolean
     {
-        const a_min_x = aPosition.X - (aCollider.Width / 2)
-        const a_max_x = aPosition.X + (aCollider.Width / 2)
-        const a_min_y = aPosition.Y - (aCollider.Height / 2)
-        const a_max_y = aPosition.Y + (aCollider.Height / 2)
-        const a_min_z = aPosition.Z - (aCollider.Depth / 2)
-        const a_max_z = aPosition.Z + (aCollider.Depth / 2)
+        const distanceSquared = (aPosition[0] - bPosition[0]) **2 + 
+            (aPosition[1] - bPosition[1]) ** 2 + 
+            (aPosition[2] - bPosition[2]) ** 2
+
+        return distanceSquared <= (aRadius + bRadius) ** 2
+    }
+
+    private _AABB(aPosition: Vector3, aCollider: CubeCollider, bPosition: Vector3, bCollider: CubeCollider): boolean
+    {
+        const a_min_x = aPosition[0] - (aCollider.Width / 2)
+        const a_max_x = aPosition[0] + (aCollider.Width / 2)
+        const a_min_y = aPosition[1] - (aCollider.Height / 2)
+        const a_max_y = aPosition[1] + (aCollider.Height / 2)
+        const a_min_z = aPosition[2] - (aCollider.Depth / 2)
+        const a_max_z = aPosition[2] + (aCollider.Depth / 2)
         
-        const b_min_x = bPosition.X - (bCollider.Width / 2)
-        const b_max_x = bPosition.X + (bCollider.Width / 2)
-        const b_min_y = bPosition.Y - (bCollider.Height / 2)
-        const b_max_y = bPosition.Y + (bCollider.Height / 2)
-        const b_min_z = bPosition.Z - (bCollider.Depth / 2)
-        const b_max_z = bPosition.Z + (bCollider.Depth / 2)
+        const b_min_x = bPosition[0] - (bCollider.Width / 2)
+        const b_max_x = bPosition[0] + (bCollider.Width / 2)
+        const b_min_y = bPosition[1] - (bCollider.Height / 2)
+        const b_max_y = bPosition[1] + (bCollider.Height / 2)
+        const b_min_z = bPosition[2] - (bCollider.Depth / 2)
+        const b_max_z = bPosition[2] + (bCollider.Depth / 2)
 
         return (
             (a_min_x <= b_max_x && a_max_x >= b_min_x) &&
@@ -249,6 +262,7 @@ export class PhysicsSystem extends System
             (a_min_z <= b_max_z && a_max_z >= b_min_z)
         )
     }
+    //#endregion
 
     OnUpdateEntity(entity: Entity): void
     {
@@ -263,11 +277,4 @@ export class PhysicsSystem extends System
             this.collisionStates.delete(entity)
         }
     }
-}
-
-interface BB
-{
-    transform: Transform
-    collider: CubeCollider
-    rigidBody: RigidBody
 }

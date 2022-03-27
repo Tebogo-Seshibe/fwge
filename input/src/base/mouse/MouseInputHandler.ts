@@ -18,6 +18,8 @@ export class MouseInputHandler
     
     get State(): MouseState
     {
+        const { top, left, width, height } = this._canvas.getBoundingClientRect()
+
         return new MouseState(
             new Vector2(
                 this._state[MouseInputHandler.MouseDeltaX],
@@ -26,6 +28,10 @@ export class MouseInputHandler
             new Vector2(
                 this._state[MouseInputHandler.MouseRawX],
                 this._state[MouseInputHandler.MouseRawY]
+            ),
+            new Vector2(
+                this._state[MouseInputHandler.MouseRawX] - left - (width / 2),
+                -this._state[MouseInputHandler.MouseRawY] + top + (height / 2)
             ),
             this._state[MouseInputHandler.Wheel],
             this._state.slice(MouseInputHandler.Buttons)

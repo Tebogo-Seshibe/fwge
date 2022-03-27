@@ -1,7 +1,7 @@
 import { randBetween } from "@fwge/common"
 import { Game, Transform } from "@fwge/core"
 import { Input, InputSystem, KeyState } from "@fwge/input"
-import { CubeCollider, PhysicsSystem, RigidBody } from "@fwge/physics"
+import { Collider, CubeCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { Camera, Colour4, Material, Mesh, RenderSystem, Shader } from "@fwge/render"
 import { FrameCounter } from "../../shared/FrameCounter"
 
@@ -25,18 +25,14 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     const player = scene.CreateEntity()
         .AddComponent(new Transform(
         {
-            scale: [0.5,0.5,0.5],
-            position: [0, 0, -5]
+            position: [ 0, 0, -50 ]
         }))
-        .AddComponent(new CubeCollider(
+        .AddComponent(new SphereCollider(
         {
             onCollisionEnter(other)
             {
                 other.GetComponent(Material)!.Ambient = new Colour4(1.0,0.0,0.0,1.0)
-            },
-            onCollisionExit(other)
-            {
-                other.GetComponent(Material)!.Ambient = new Colour4(1.0,1.0,1.0,1.0)
+                // other.RemoveComponent(Collider)
             }
         }))
         .AddComponent(new RigidBody())
@@ -45,46 +41,75 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         .AddComponent(materialLibrary.Get('Default'))
         .AddComponent(new Input(
         {
-            onInput({ Mouse, Keyboard }, delta)
+            onInput({ Mouse }, delta)
             {
                 const transform = this.GetComponent(Transform)!
-                const speed = delta / 200
+                transform.Position.Set(
+                    Mouse.ScreenPosition.X / 25,
+                    Mouse.ScreenPosition.Y / 25,
+                    -50
+                )
 
-                if (Keyboard.KeyD === KeyState.DOWN)
-                {
-                    transform.Position.X += speed
-                }
+                // const speed = delta / (
+                //     Keyboard.KeyShift === KeyState.DOWN
+                //     ? 50
+                //     : 200
+                // )
 
-                if (Keyboard.KeyA === KeyState.DOWN)
-                {
-                    transform.Position.X -= speed
-                }
+                // if (Keyboard.KeyD === KeyState.DOWN)
+                // {
+                //     transform.Position.X += speed
+                // }
 
-                if (Keyboard.KeyW === KeyState.DOWN)
-                {
-                    transform.Position.Y += speed
-                }
+                // if (Keyboard.KeyA === KeyState.DOWN)
+                // {
+                //     transform.Position.X -= speed
+                // }
 
-                if (Keyboard.KeyS === KeyState.DOWN)
-                {
-                    transform.Position.Y -= speed
-                }
+                // if (Keyboard.KeyW === KeyState.DOWN)
+                // {
+                //     transform.Position.Y += speed
+                // }
+
+                // if (Keyboard.KeyS === KeyState.DOWN)
+                // {
+                //     transform.Position.Y -= speed
+                // }
+
+                console.log(Mouse.ScreenPosition)
             }
         }))
+
+    // scene.CreateEntity()
+    //     .AddComponent(meshLibrary.Get('Indexed Cube'))
+    //     .AddComponent(shaderLibrary.Get('Simple'))
+    //     .AddComponent(new SphereCollider())
+    //     .AddComponent(new RigidBody())
+    //     .AddComponent(new Transform(
+    //     {
+    //         position: [ 0, 0, -5 ]
+    //     }))
+    //     .AddComponent(new Material(
+    //     {
+    //         ambient: new Colour4(1.0,1.0,1.0,1.0)
+    //     }))
+
     for (let i = 0; i < 200; ++i)
     {
         scene.CreateEntity()
             .AddComponent(meshLibrary.Get('Indexed Cube'))
             .AddComponent(shaderLibrary.Get('Simple'))
-            .AddComponent(new CubeCollider())
+            .AddComponent(new SphereCollider(
+            {
+                isTrigger: false
+            }))
             .AddComponent(new RigidBody())
             .AddComponent(new Transform(
             {
-                scale: [0.5,0.5,0.5],
                 position: [
-                    randBetween(-2, 2),
-                    randBetween(-2, 2),
-                    -5
+                    randBetween(-35, 35),
+                    randBetween(-25, 25),
+                    -50
                 ]
             }))
             .AddComponent(new Material(
@@ -93,6 +118,5 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             }))
     }
 
-    console.log({ camera, player })
     return scene
 }

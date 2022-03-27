@@ -6,11 +6,11 @@ export class MouseState
     public readonly Left: ButtonState
     public readonly Middle: ButtonState
     public readonly Right: ButtonState
-    public readonly ScreenPosition: Vector2 = new Vector2()
 
     constructor(
         public readonly Offset: Vector2,
         public readonly RawPosition: Vector2,
+        public readonly ScreenPosition: Vector2,
         public readonly Wheel: WheelState,
         public readonly Buttons: ButtonState[],
     ) {
