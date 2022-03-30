@@ -80,7 +80,7 @@ export class Colour4 extends Float32Array
         return 'TODO'
     }
 
-    static SIZE: number = 4
+    public static readonly SIZE: number = 4
 
     constructor()
     constructor(rgba: number)

@@ -179,6 +179,9 @@ export class Shader extends SharedComponent
   {
     super()
 
+    console.log(args.vertexSrc)
+    console.log(args.fragmentSrc)
+
     this._height = args.height ?? 1080
     this._width = args.width ?? 1920
     this._clear = args.baseColour !== undefined

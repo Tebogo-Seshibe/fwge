@@ -1,12 +1,18 @@
 import { Vector2, Vector3 } from "@fwge/common"
 import { Game } from "@fwge/core"
-import { Colour4, StaticMesh, Mesh, } from "@fwge/render"
+import { Colour4, Mesh, OBJParser, StaticMesh } from "@fwge/render"
+import baseOBJ from '../../assets/objects/base/Base.obj?raw'
+import cubeOBJ from '../../assets/objects/cube/Cube.obj?raw'
 
 
 export function configureMeshes(game: Game): void
 {
     const meshLibrary = game.GetLibrary(Mesh)
-
+    
+    const obj = new OBJParser()
+    meshLibrary.Add('OBJ Cube', obj.read(cubeOBJ))
+    meshLibrary.Add('OBJ Base', obj.read(baseOBJ))
+    
     meshLibrary.Add(
         'Vertex Square',
         new StaticMesh(
@@ -28,15 +34,6 @@ export function configureMeshes(game: Game): void
                 new Colour4(1.0),
                 new Colour4(1.0),
                 new Colour4(1.0),
-            ],
-            uv:
-            [
-                new Vector2(0.0, 1.0),
-                new Vector2(0.0, 0.0),
-                new Vector2(1.0, 0.0),
-                new Vector2(0.0, 1.0),
-                new Vector2(1.0, 0.0),
-                new Vector2(1.0, 1.0),
             ],
             normal:
             [

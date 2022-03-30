@@ -62,7 +62,8 @@ export class Vector3 extends Float32Array
     constructor(x: number, y: number, z: number)
     constructor(vector: Vector3)
     constructor(array: [number, number, number])
-    constructor(x: Vector3 | number[] | number = 0, y?: number, z?: number)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(x: ArrayBuffer | Vector3 | number[] | number = 0, y?: number, z?: number)
     {
         super(typeof x === 'number' ? 
         [
@@ -259,13 +260,22 @@ export class Vector3 extends Float32Array
         return Vector3.Distance(this, other)
     }
 
+    static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): number
     static Distance(left: Vector3, right: Vector3): number
+    static Distance(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): number
     {
-        return Math.sqrt(
-            (right[0] - left[0]) ** 2 +
-            (right[1] - left[1]) ** 2 +
-            (right[2] - left[2]) ** 2
-        )
+        
+        return typeof x1 === 'number'
+            ? Math.sqrt(
+                (x2 - x1) ** 2 +
+                (y2 - (<number>y1)) ** 2 +
+                (z2 - z1) ** 2
+            )
+            : Math.sqrt(
+                ((<Vector3>y1)[0] - x1[0]) ** 2 +
+                ((<Vector3>y1)[1] - x1[1]) ** 2 +
+                ((<Vector3>y1)[2] - x1[2]) ** 2
+            )
     }
 
     static get ZERO(): Vector3
@@ -283,7 +293,7 @@ export class Vector3 extends Float32Array
         return new Vector3(Math.sqrt(1/3))
     }
 
-    static SIZE: number = 3
+    public static readonly SIZE: number = 3
 
     override toString(): string
     {

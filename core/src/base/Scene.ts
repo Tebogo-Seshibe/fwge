@@ -1,5 +1,5 @@
 import { Entity } from "../ecs/Entity"
-import { Class, Constructor, EntityId, Registry, SceneId } from "../ecs/Registry"
+import { Constructor, EntityId, Registry, SceneId } from "../ecs/Registry"
 import { System } from "../ecs/System"
 
 export class Scene
@@ -19,7 +19,7 @@ export class Scene
 
     private _context?: HTMLCanvasElement
     private _entities: Entity[] = []
-    private _systems: Set<System>= new Set()
+    private _systems: System[] = []
 
     readonly Id: SceneId = Scene.sceneId++
     constructor(registry: Registry)
@@ -29,34 +29,45 @@ export class Scene
 
     Init(): void
     {        
-      console.log(this)
-        this._systems.forEach(system => system.Init())
+        for (const system of this._systems)
+        {
+            system.Init()
+        }
     }
     
     Start(): void
     {
-        this._systems.forEach(system => system.Start())
+        for (const system of this._systems)
+        {
+            system.Start()
+        }
     }
 
     Update(delta: number): void
     {
-        this._systems.forEach(system => system.Update(delta))
+        for (const system of this._systems)
+        {
+            system.Update(delta)
+        }
     }
 
     Stop(): void
     {
-        this._systems.forEach(system => system.Stop())
+        for (const system of this._systems)
+        {
+            system.Stop()
+        }
     }
     
     UseSystem<T extends System, K extends any[]>(system: Constructor<T, [Scene, ...K]>, ...args: K): Scene
     {
-      this._systems.add(new system(this, ...args))
-      return this
+        this._systems.push(new system(this, ...args))
+        return this
     }
 
     SetContext(canvas?: HTMLCanvasElement): void
     {
-      this._context = canvas
+        this._context = canvas
     }
     
     CreateEntity(): Entity

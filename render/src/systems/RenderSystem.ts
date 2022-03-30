@@ -1,6 +1,5 @@
-import { GL, Vector2, Vector3 } from '@fwge/common'
+import { GL } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
-import { Colour4 } from '../base'
 import { Camera, DynamicMesh, Material, Mesh, PointLight, Shader, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
@@ -12,6 +11,8 @@ export class RenderSystem extends System
     private _cameras: Set<Camera> = new Set()
     private _groupedObjects: Map<Shader, EntityId[]> = new Map()
 
+    private _batches: Map<Shader, Map<Mesh, Entity[]>> = new Map()
+
     constructor(manager: Scene)
     {
         super(manager, Transform, Mesh, Material, Shader)
@@ -22,6 +23,7 @@ export class RenderSystem extends System
         for (const entity of this.entities)
         {
             const shader = entity.GetComponent(Shader)!
+            const mesh = entity.GetComponent(Mesh)!
 
             this._shaders.add(shader)
             if (!this._groupedObjects.has(shader))
@@ -29,17 +31,34 @@ export class RenderSystem extends System
                 this._groupedObjects.set(shader, [])
             }
             this._groupedObjects.get(shader)!.push(entity.Id)
+
+            if (!this._batches.has(shader))
+            {
+                this._batches.set(shader, new Map())
+            }
+            const meshes = this._batches.get(shader)!
+            if (!meshes.has(mesh))
+            {
+                meshes.set(mesh, [])   
+            }
+            meshes.get(mesh)!.push(entity)
         }
+
+        console.log(this._batches)
     }
 
     Start(): void
     {
-        console.log(this)
-        
+        console.log(this)        
 
         GL.enable(GL.DEPTH_TEST)
         GL.disable(GL.BLEND)
         GL.enable(GL.CULL_FACE)
+        
+        GL.canvas.width = Camera.Main!.ScreenWidth
+        GL.canvas.height = Camera.Main!.ScreenHeight
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0.3, 0.6, 0.9, 1.0)
         
         for (const { Attributes } of this._shaders)
         {
@@ -52,10 +71,6 @@ export class RenderSystem extends System
 
     Update(delta: number): void
     {
-        GL.canvas.width = Camera.Main!.ScreenWidth
-        GL.canvas.height = Camera.Main!.ScreenHeight        
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0.0, 0.0, 0.0, 1.0)
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
         let i = 0;
@@ -99,65 +114,7 @@ export class RenderSystem extends System
         const material = entity.GetComponent(Material)!
         const transform = entity.GetComponent(Transform)!        
         
-        if (mesh instanceof DynamicMesh)
-        {
-            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.PositionBuffer)
-            GL.vertexAttribPointer(shader.Attributes!.Position, 3, GL.FLOAT, false, 0, 0)
-            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.NormalBuffer)
-            GL.vertexAttribPointer(shader.Attributes!.Normal, 3, GL.FLOAT, false, 0, 0)
-            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.UVBuffer)
-            GL.vertexAttribPointer(shader.Attributes!.UV, 2, GL.FLOAT, false, 0, 0)
-            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.ColourBuffer)
-            GL.vertexAttribPointer(shader.Attributes!.Colour, 4, GL.FLOAT, false, 0, 0)  
-        }
-        else if (mesh instanceof StaticMesh)
-        {
-            GL.bindBuffer(GL.ARRAY_BUFFER, mesh.VertexBuffer)
-            GL.vertexAttribPointer(
-                shader.Attributes!.Position,
-                Vector3.SIZE,
-                GL.FLOAT,
-                false,
-                mesh.Offset,
-                mesh.Position,
-            )
-            
-            if (mesh.Normal !== -1 && shader.Attributes!.Normal !== -1)
-            {
-                GL.vertexAttribPointer(
-                    shader.Attributes!.Normal,
-                    Vector3.SIZE,
-                    GL.FLOAT,
-                    false,
-                    mesh.Offset,
-                    mesh.Normal,
-                )
-            }
-            
-            if (mesh.Colour !== -1 && shader.Attributes!.Colour !== -1)
-            {
-                GL.vertexAttribPointer(
-                    shader.Attributes!.Colour,
-                    Colour4.SIZE,
-                    GL.FLOAT,
-                    false,
-                    mesh.Offset,
-                    mesh.Colour,
-                )
-            }
-            
-            if (mesh.UV !== -1 && shader.Attributes!.UV !== -1)
-            {
-                GL.vertexAttribPointer(
-                    shader.Attributes!.UV,
-                    Vector2.SIZE,
-                    GL.FLOAT,
-                    false,
-                    mesh.Offset,
-                    mesh.UV,
-                )
-            }
-        }
+        GL.bindVertexArray(mesh.VertexArrayBuffer)
 
         GL.uniform4f(
             shader.BaseUniforms!.Material.AmbientColour,
@@ -185,6 +142,7 @@ export class RenderSystem extends System
 
         this._bindUniforms(shader.BaseUniforms!, material, transform, delta, entityId)
         this._render(mesh)
+        GL.bindVertexArray(null)
     }
     
 
@@ -245,7 +203,7 @@ export class RenderSystem extends System
         GL.uniform2f(uniforms.Global.Resolution, width, height)
         GL.uniform1f(uniforms.Global.NearClip, camera.NearClipping)
         GL.uniform1f(uniforms.Global.FarClip, camera.FarClipping)
-        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.size)
+        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.length)
 
         let point_count: number = 0
         for (let light of this._lights)

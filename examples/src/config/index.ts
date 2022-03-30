@@ -1,3 +1,4 @@
+export * from './audio'
 export * from './material'
 export * from './mesh'
 export * from './script'

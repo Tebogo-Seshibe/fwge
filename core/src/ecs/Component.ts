@@ -34,7 +34,9 @@ export abstract class SharedComponent extends Component
     {
         if (this._owners.includes(owner))
         {
-            this._owners.splice(this._owners.indexOf(owner, 1))
+            const parentIndex = this._owners.indexOf(owner)
+            this._owners.swap(parentIndex, this._owners.length - 1)
+            this._owners.pop()
         }
     }
 }

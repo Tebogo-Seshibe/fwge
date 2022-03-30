@@ -28,7 +28,9 @@ export abstract class System
         }
         else if (!isValid && this.entities.includes(entity))
         {
-            this.entities.splice(this.entities.indexOf(entity), 1)
+            const entityIndex = this.entities.indexOf(entity)
+            this.entities.swap(entityIndex, this.entities.length - 1)
+            this.entities.pop()
         }
     }
 

@@ -1,3 +1,5 @@
+import { Vector2 } from "@fwge/common"
+import { ButtonState } from "../InputState"
 import { ControllerState } from "./ControllerState"
 
 export class ControllerInputHandler
@@ -18,16 +20,95 @@ export class ControllerInputHandler
     static readonly RightTrigger: number = 18
     static readonly Buttons: number = 19
 
-    private _state: number[][] = []
+    private _state: Array<Gamepad | null> = []
 
     get State()
     {
-        return []
-        // this.#state.map(state => new ControllerState(
-        //     new Vecthis.#state[]
-        // ))
+        const state: ControllerState[] = []
+
+        for (let i = 0; i < this._state.length; ++i)
+        {
+            const gamepad = this._state[i]
+            if (gamepad)
+            {
+                state.push(new ControllerState(
+                    [
+                        new Vector2(gamepad.axes[0], -gamepad.axes[1]),
+                        gamepad.buttons[10].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                    ],
+                    [
+                        new Vector2(gamepad.axes[2], -gamepad.axes[3]),
+                        gamepad.buttons[11].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED
+                    ],
+                    [
+                        gamepad.buttons[12].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[13].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[14].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[15].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED
+                    ],
+                    [
+                        gamepad.buttons[0].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[1].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[2].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[3].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED
+                    ],
+                    [
+                        gamepad.buttons[4].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[5].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[6].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED,
+                        gamepad.buttons[7].pressed 
+                        ? ButtonState.PRESSED
+                        : ButtonState.RAISED
+                    ],
+                    gamepad.buttons.slice(16).map(x =>x.pressed ? ButtonState.PRESSED : ButtonState.RAISED)
+                ))
+            }
+        }
+
+        return state
     }
     
+    constructor(canvas: HTMLCanvasElement)
+    {
+        canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this._addController.bind(this))
+        
+    }
+
+    _addController(e: any)
+    {
+        console.log(e)
+    }
+    _removeController(e: any)
+    {
+        console.log(e)
+    }
+
     Start(): void        
     {
         
@@ -35,7 +116,7 @@ export class ControllerInputHandler
 
     Update(_: number): void
     {
-
+        this._state = navigator.getGamepads()
     }
 
     Stop(): void        

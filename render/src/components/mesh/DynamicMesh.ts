@@ -2,6 +2,10 @@ import { GL, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Colour4 } from '../../base'
 import { Mesh } from './Mesh'
 
+const POSITION_INDEX: number    = 0
+const NORMAL_INDEX: number      = 1
+const UV_INDEX: number          = 2
+const COLOUR_INDEX: number      = 3
 interface IMesh
 {
     position?: Vector3[] | number[]
@@ -21,11 +25,8 @@ export class DynamicMesh extends Mesh
     _uvBuffer: WebGLBuffer | null = null
     _indexBuffer: WebGLBuffer | null = null
     _wireframeBuffer: WebGLBuffer | null = null
-    _vertices: number = 0
-    _indices: number = 0
-    _wireframe: number = 0
-    _dynamic: boolean = false
-    
+    _dynamic: boolean = true
+
     get PositionBuffer(): WebGLBuffer | null
     {
         return this._positionBuffer
@@ -52,7 +53,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ARRAY_BUFFER, this._positionBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
         
-        this._vertices = buffer.length
+        this.vertexCount = buffer.length
     }
 
     set Normal(buffer: Float32Array | Vector3[] | number[] | null)
@@ -164,7 +165,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._indexBuffer)
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this._indices = buffer.length
+        this.indexCount = buffer.length
     }
 
     get IndexBuffer(): WebGLBuffer | null
@@ -193,7 +194,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._wireframeBuffer)
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this._wireframe = buffer.length
+        this.wireframeCount = buffer.length
     }
 
     get WireframeBuffer(): WebGLBuffer | null
@@ -201,26 +202,15 @@ export class DynamicMesh extends Mesh
         return this._wireframeBuffer
     }
 
-    get VertexCount(): number
-    {
-        return this._vertices
-    }
-
-    get IndexCount(): number
-    {
-        return this._indices
-    }
-
-    get WireframeCount(): number
-    {
-        return this._wireframe
-    }
-
     constructor()
     constructor(args: IMesh)
     constructor(args: IMesh = { })
     {
-        super(Mesh)
+        super(
+            args.position?.length ?? 0 * Vector3.SIZE,
+            args.index?.length ?? -1,
+            args.wireframe?.length ?? -1
+        )
         
         this.Position = args.position ?? null
         this.Normal = args.normal ?? null
@@ -228,7 +218,38 @@ export class DynamicMesh extends Mesh
         this.UV = args.uv ?? null
         this.Index = args.index ?? null
         this.Wireframe = args.wireframe ?? null
-        this._dynamic = args.dynamic ?? false
+
+        GL.bindVertexArray(this.VertexArrayBuffer)
+        
+        if (this.PositionBuffer)
+        {
+            GL.enableVertexAttribArray(POSITION_INDEX)
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.PositionBuffer)
+            GL.vertexAttribPointer(POSITION_INDEX, 3, GL.FLOAT, false, 0, 0)
+        }
+        
+        if (this.NormalBuffer)
+        {
+            GL.enableVertexAttribArray(NORMAL_INDEX)
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.NormalBuffer)
+            GL.vertexAttribPointer(NORMAL_INDEX, 3, GL.FLOAT, false, 0, 0)
+        }
+        
+        if (this.UVBuffer)
+        {
+            GL.enableVertexAttribArray(UV_INDEX)
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.UVBuffer)
+            GL.vertexAttribPointer(UV_INDEX, 2, GL.FLOAT, false, 0, 0)
+        }
+        
+        if (this.ColourBuffer)
+        {
+            GL.enableVertexAttribArray(COLOUR_INDEX)
+            GL.bindBuffer(GL.ARRAY_BUFFER, this.ColourBuffer)
+            GL.vertexAttribPointer(COLOUR_INDEX, 4, GL.FLOAT, false, 0, 0)
+        }
+
+        GL.bindVertexArray(null)
     }
 }
 

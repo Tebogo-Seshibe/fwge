@@ -114,10 +114,12 @@ export class Entity
             ? this._scene.GetEntity(arg)!
             : arg
 
-        if (this.Id !== child.Id && this._children.includes(child))
+        const childIndex = this._children.indexOf(child)
+        if (this.Id !== child.Id && childIndex !== -1)
         {
-          this._children = this._children.filter(entity => entity.Id !== child.Id)
-          child.Parent = undefined
+            this._children.swap(childIndex, this._children.length - 1)
+            this._children.pop()
+            child.Parent = undefined
         }
 
         return this

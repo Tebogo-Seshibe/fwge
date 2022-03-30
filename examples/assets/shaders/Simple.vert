@@ -1,14 +1,11 @@
 #version 300 es
-in vec3 A_Position;
 
-struct Matrix
-{
-  mat4 ModelView;
-  mat4 Projection;
-};
-uniform Matrix U_Matrix;
+// common.vert
+// lighting.vert
 
 void main(void)
 {
-  gl_Position = U_Matrix.Projection * U_Matrix.ModelView * vec4(A_Position, 1.0);
+    passVertexData();
+
+    gl_Position = U_Matrix.Projection * U_Matrix.View * V_Position;
 }

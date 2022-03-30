@@ -33,7 +33,7 @@ export class KeyboardInputHandler
 
     }
 
-    Stop(): void        
+    Stop(): void
     {
         this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this._keydown.bind(this))
         this.canvas.ownerDocument.documentElement.removeEventListener('keypress', this._keypress.bind(this))

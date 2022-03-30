@@ -8,7 +8,7 @@ export class InputSystem extends System
 {
     private _keyboard: KeyboardInputHandler = new KeyboardInputHandler(this.scene.Context!)
     private _mouse: MouseInputHandler = new MouseInputHandler(this.scene.Context!)
-    private _controllers: ControllerInputHandler = new ControllerInputHandler()
+    private _controllers: ControllerInputHandler = new ControllerInputHandler(this.scene.Context!)
 
     constructor(scene: Scene)
     {

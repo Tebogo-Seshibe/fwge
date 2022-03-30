@@ -5,6 +5,7 @@ export class Collider extends UniqueComponent
 {
     constructor(
         public Position: Vector3,
+        public IsStatic: boolean,
         public IsTrigger: boolean,
         public Material: any,
         public OnCollisionEnter: (this: Entity, other: Entity) => void = () => void 0,

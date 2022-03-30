@@ -1,8 +1,9 @@
+import { AudioPlayer } from '@fwge/audio'
 import { Game, Scene, Script, ScriptSystem, Tag, Transform } from "@fwge/core"
 import { Input, InputSystem } from '@fwge/input'
 import { Collider, PhysicsSystem, RigidBody } from "@fwge/physics"
 import { Camera, Material, Mesh, PointLight, RenderSystem, Shader } from '@fwge/render'
-import { configureMaterials, configureMeshes, configureScripts, configureShaders } from './config'
+import { configureAudios, configureMaterials, configureMeshes, configureScripts, configureShaders } from './config'
 import { cameraControlScene, physicsInput, sidescrollerScene } from './scenes'
 import { FrameCounter } from './shared/FrameCounter'
 import './style.css'
@@ -33,7 +34,8 @@ const game: Game = new Game(
       Camera,
       Input,
       RigidBody,
-      Collider
+      Collider,
+      AudioPlayer
     ],
     systems: 
     [
@@ -48,10 +50,12 @@ const game: Game = new Game(
       Mesh,
       Material,
       Shader,
-      Script
+      Script,
+      AudioPlayer
     ]
 })
 
+configureAudios(game)
 configureShaders(game)
 configureMeshes(game)
 configureMaterials(game)

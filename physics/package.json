@@ -9,5 +9,8 @@
   "dependencies": {
     "@fwge/common": "file:../common",
     "@fwge/core": "file:../core"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23"
   }
 }

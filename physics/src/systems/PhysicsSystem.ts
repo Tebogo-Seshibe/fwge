@@ -1,5 +1,5 @@
-import { Vector3 } from "@fwge/common"
-import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
+import { Scale, Vector3 } from "@fwge/common"
+import { Entity, Scene, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
 
 enum CollisionState
@@ -12,29 +12,39 @@ enum CollisionState
 
 interface Collision
 {
+    current: Entity
     other: Entity
     state: CollisionState
+    resolve?: (current: Entity, target: Entity) => void
 }
 
 export class PhysicsSystem extends System
 {
-    private collisionStates: Map<Entity, Collision[]> = new Map()
+    private collisions: Collision[][] = []
     private displacements: Map<Entity, Vector3> = new Map()
 
     constructor(scene: Scene)
     {
-        super(scene, Transform, RigidBody, Collider)
-    }
-
-    Init(): void
-    {
-        console.log(this)        
+        super(scene, Transform, Collider)
     }
     
-    Update(_: number): void
+    Update(delta: number): void
     {
-        this.displacements = new Map()
-        
+        for (const entity of this.entities)
+        {
+            const transform = entity.GetComponent(Transform)!
+            const rigidbody = entity.GetComponent(RigidBody)
+
+            if (rigidbody)
+            {
+                transform.Position.Sum(
+                    rigidbody.Velocity
+                        .Clone()
+                        .Scale(delta)
+                )
+            }
+        }
+
         for (let i = 0; i < this.entities.length; ++i)
         {
             for (let j = i + 1; j < this.entities.length; ++j)
@@ -46,27 +56,36 @@ export class PhysicsSystem extends System
             }
         }        
 
-        for (const [ entity, collisions ] of this.collisionStates)
+        for (const collisionList of this.collisions)
         {
-            for (const { other, state } of collisions)
+            if (!collisionList)
             {
-                switch (state)
+                continue
+            }
+
+            for (const collision of collisionList)
+            {
+                const collider = collision.current.GetComponent(Collider)!
+
+                switch (collision.state)
                 {
                     case CollisionState.Enter:
-                        entity.GetComponent(Collider)!.OnCollisionEnter.call(entity, other)
+                        collider.OnCollisionEnter.call(collision.current, collision.other)
                         break
 
                     case CollisionState.Update:
-                        entity.GetComponent(Collider)!.OnCollisionUpdate.call(entity, other)
+                        collider.OnCollisionUpdate.call(collision.current, collision.other)
                         break
 
                     case CollisionState.Exit:
-                        entity.GetComponent(Collider)!.OnCollisionExit.call(entity, other)
+                        collider.OnCollisionExit.call(collision.current, collision.other)
                         break
                 }
 
-                if (state !== CollisionState.None)
-                    this._resolve(entity, other)
+                if (collision.state !== CollisionState.None)
+                {
+                    collision.resolve!(collision.current, collision.other)
+                }
             }
         }
 
@@ -75,42 +94,36 @@ export class PhysicsSystem extends System
 
     _detect(a: Entity, b: Entity): void
     {
-        let isCollision = false
-        const [aPosition, aCollider] = 
-        [
-            a.GetComponent(Transform)!.Position,
-            a.GetComponent(Collider)!
-        ]
-        const [bPosition, bCollider] = 
-        [
-            b.GetComponent(Transform)!.Position,
-            b.GetComponent(Collider)!
-        ]
+        let resolve: ((current: Entity, target: Entity) => void) | undefined
+        const aPosition = a.GetComponent(Transform)!.Position
+        const aCollider = a.GetComponent(Collider)!
+        const bPosition = b.GetComponent(Transform)!.Position
+        const bCollider = b.GetComponent(Collider)!
 
         if (aCollider instanceof CubeCollider && bCollider instanceof CubeCollider)
         {
-            isCollision = this._AABB(aPosition, aCollider, bPosition, bCollider)   
+            resolve = this._AABB(aPosition, aCollider, bPosition, bCollider)   
         }
         else if (aCollider instanceof SphereCollider && bCollider instanceof SphereCollider)
         {
-            isCollision = this._SS(aPosition, aCollider.Radius, bPosition, bCollider.Radius)
+            resolve = this._SS(aPosition, aCollider.Radius, bPosition, bCollider.Radius)
         }
         
-        const leftCollisionState = this.collisionStates.get(a) ?? []
-        const rightCollisionState = this.collisionStates.get(b) ?? []
+        const aCollisionList = this.collisions[a.Id]
+        const bCollisionList = this.collisions[b.Id]
 
-        let leftCollision = leftCollisionState.find(x => x.other === b)
-            ?? { other: b, state: CollisionState.None }
-        let rightCollision = rightCollisionState.find(x => x.other === a)
-            ?? { other: a, state: CollisionState.None }
+        let leftCollision = aCollisionList.find(x => x.other === b)
+            ?? { current: a, other: b, state: CollisionState.None, resolve: resolve }
+        let rightCollision = bCollisionList.find(x => x.other === a)
+            ?? { current: b, other: a, state: CollisionState.None, resolve: resolve }
 
-        if (isCollision)
+        if (resolve !== undefined)
         {
             switch (leftCollision.state)
             {
                 case CollisionState.None:
                     leftCollision.state = CollisionState.Enter
-                    leftCollisionState.push(leftCollision)
+                    aCollisionList.push(leftCollision)
                     break
                 case CollisionState.Enter:
                     leftCollision.state = CollisionState.Update
@@ -121,7 +134,7 @@ export class PhysicsSystem extends System
             {
                 case CollisionState.None:
                     rightCollision.state = CollisionState.Enter
-                    rightCollisionState.push(rightCollision)
+                    bCollisionList.push(rightCollision)
                     break
                 case CollisionState.Enter:
                     rightCollision.state = CollisionState.Update
@@ -135,9 +148,13 @@ export class PhysicsSystem extends System
                 case CollisionState.Update:
                     leftCollision.state = CollisionState.Exit
                     break
+
                 case CollisionState.Exit:
                     leftCollision.state = CollisionState.None
-                    leftCollisionState.splice(leftCollisionState.findIndex(x => x.other === b), 1)
+                    this.displacements.delete(leftCollision.current)
+                    const index = aCollisionList.findIndex(x => x.other === b)
+                    aCollisionList.swap(index, aCollisionList.length - 1)
+                    aCollisionList.pop()
                     break
             }
 
@@ -146,78 +163,123 @@ export class PhysicsSystem extends System
                 case CollisionState.Update:
                     rightCollision.state = CollisionState.Exit
                     break
+
                 case CollisionState.Exit:
                     rightCollision.state = CollisionState.None
-                    rightCollisionState.splice(rightCollisionState.findIndex(x => x.other === a), 1)
+                    this.displacements.delete(rightCollision.current)
+                    const index = bCollisionList.findIndex(x => x.other === a)
+                    bCollisionList.swap(index, bCollisionList.length - 1)
+                    bCollisionList.pop()
                     break
             }
         }
     }
 
-    _resolve(current: Entity, target: Entity): void
-    {
-        const currentPos = current.GetComponent(Transform)!.Position
-        const targetPos = target.GetComponent(Transform)!.Position
-        const currentCollider = current.GetComponent(Collider)! as SphereCollider
-        const targetCollider = target.GetComponent(Collider)! as SphereCollider
-        
-        if (currentCollider.IsTrigger || targetCollider.IsTrigger)
-        {
-            return
-        }
-
-        const overlap = (Vector3.Distance(currentPos, targetPos) - currentCollider.Radius - targetCollider.Radius) * 0.5
-        const direction = currentPos.Clone().Diff(targetPos).Normalize()
-
-        const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
-        this.displacements.set(current, currentDisplacement.Sum(direction.Clone().Scale(-overlap)))
-    }
-
     private _calculateOverlap(leftPos: Vector3, leftCollider: CubeCollider, rightPos: Vector3, rightCollider: CubeCollider): Vector3
-    {
+    {        
+        const a_min_x = leftPos[0] - (leftCollider.Width  / 2)
+        const a_max_x = leftPos[0] + (leftCollider.Width  / 2)
+        const a_min_y = leftPos[1] - (leftCollider.Height / 2)
+        const a_max_y = leftPos[1] + (leftCollider.Height / 2)
+        const a_min_z = leftPos[2] - (leftCollider.Depth  / 2)
+        const a_max_z = leftPos[2] + (leftCollider.Depth  / 2)
+        
+        const b_min_x = rightPos[0] - (rightCollider.Width  / 2)
+        const b_max_x = rightPos[0] + (rightCollider.Width  / 2)
+        const b_min_y = rightPos[1] - (rightCollider.Height / 2)
+        const b_max_y = rightPos[1] + (rightCollider.Height / 2)
+        const b_min_z = rightPos[2] - (rightCollider.Depth  / 2)
+        const b_max_z = rightPos[2] + (rightCollider.Depth  / 2)
+
+        const error = 1
         const overlap = new Vector3()
 
-        if (leftPos[0] < rightPos[0])
+        if (a_min_x < b_max_x && a_max_x > b_max_x)
         {
-            const r = rightPos[0] - rightCollider.Width / 2
-            const l = leftPos[0] + leftCollider.Width / 2
-            overlap[0] = r - l
+            overlap[0] = b_max_x - a_min_x
+            if (Math.abs(overlap[0]) <= error)
+            {
+                overlap[0] = 0
+            }
         }
+        else if (a_max_x > b_min_x && a_min_x < b_min_x)
+        {
+            overlap[0] = b_min_x - a_max_x
+            if (Math.abs(overlap[0]) <= error)
+            {
+                overlap[0] = 0
+            }
+        }
+        if (a_min_y < b_max_y && a_max_y > b_max_y)
+        {
+            overlap[1] = b_max_y - a_min_y
+            if (Math.abs(overlap[1]) <= error)
+            {
+                overlap[1] = 0
+            }
+        }
+        else if (a_max_y > b_min_y && a_min_y < b_min_y)
+        {
+            overlap[1] = b_min_y - a_max_y
+            if (Math.abs(overlap[1]) <= error)
+            {
+                overlap[1] = 0
+            }
+        }
+        if (a_min_z < b_max_z && a_max_z > b_max_z)
+        {
+            overlap[2] = b_max_z - a_min_z
+            if (Math.abs(overlap[2]) <= error)
+            {
+                overlap[2] = 0
+            }
+        }
+        else if (a_max_z > b_min_z && a_min_z < b_min_z)
+        {
+            overlap[2] = b_min_z - a_max_z
+            if (Math.abs(overlap[2]) <= error)
+            {
+                overlap[2] = 0
+            }
+        }
+        
+        // console.log(`
+        //     id ${leftCollider.Id}
+        //     leftPos_y ${leftPos[1]}
+        //     a_min_y ${a_min_y}
+        //     a_max_y ${a_max_y}
+        //     rightPos_y ${rightPos[1]}
+        //     b_min_y ${b_min_y}
+        //     b_max_y ${b_max_y}
+        //     min ${Math.min(b_max_y, a_max_y)}
+        //     max ${Math.max(b_min_y, a_min_y)}
+        //     rect ${
+        //         [Math.max(Math.min(b_max_y, a_max_y) - Math.max(b_min_y, a_min_y), 0),
+        //         Math.abs(Math.min(b_max_y, a_max_y)) - Math.abs(Math.max(b_min_y, a_min_y))]
+        //         // Math.max(Math.min(b_max_y, a_max_y) - Math.max(b_min_y, a_min_y), 0)
+        //         // Math.max(Math.min(b_max_z, a_max_z) - Math.max(b_min_z, a_min_z), 0)
+        //     } 
+        // `)
 
-        if (leftPos[0] > rightPos[0])
-        {
-            const r = rightPos[0] + rightCollider.Width / 2
-            const l = leftPos[0] - leftCollider.Width / 2
-            overlap[0] = r - l
-        }
-
-        if (leftPos[1] < rightPos[1])
-        {
-            const r = rightPos[1] - rightCollider.Height / 2
-            const l = leftPos[1] + leftCollider.Height / 2
-            overlap[1] = r - l
-        }
-
-        if (leftPos[1] > rightPos[1])
-        {
-            const r = rightPos[1] + rightCollider.Height / 2
-            const l = leftPos[1] - leftCollider.Height / 2
-            overlap[1] = r - l
-        }
-
-        if (leftPos[2] < rightPos[2])
-        {
-            const r = rightPos[2] - rightCollider.Depth / 2
-            const l = leftPos[2] + leftCollider.Depth / 2
-            overlap[2] = r - l
-        }
-
-        if (leftPos[2] > rightPos[2])
-        {
-            const r = rightPos[2] + rightCollider.Depth / 2
-            const l = leftPos[2] - leftCollider.Depth / 2
-            overlap[2] = r - l
-        }
+        // if (a_min_x !== b_min_x && a_max_x !== b_max_x)
+        // {
+        //     overlap[0] = Math.max(Math.min(b_max_x, a_max_x) - Math.max(b_min_x, a_min_x), 0) * (
+        //         leftPos[0] < rightPos[0] ? -1 : 1
+        //     )
+        // }
+        // if (a_min_y !== b_min_y && a_max_y !== b_max_y)
+        // {
+        //     overlap[1] = Math.max(Math.min(b_max_y, a_max_y) - Math.max(b_min_y, a_min_y), 0) * (
+        //         leftPos[1] < rightPos[1] ? 1 : -1
+        //     )
+        // }
+        // if (a_min_z !== b_min_z && a_max_z !== b_max_z)
+        // {
+        //     overlap[2] = Math.max(Math.min(b_max_z, a_max_z) - Math.max(b_min_z, a_min_z), 0) * (
+        //         leftPos[2] < rightPos[2] ? 1 : -1
+        //     )
+        // }
+        // console.log(overlap.toString())    
 
         return overlap
     }
@@ -226,41 +288,107 @@ export class PhysicsSystem extends System
     {
         for (const [entity, offset] of this.displacements)
         {
-            entity.GetComponent(Transform)!.Position.Sum(offset)
+            const transform = entity.GetComponent(Transform)!
+            console.log(`${entity.Id}: ${offset}`)
+            transform.Position.Sum(offset)
+            this.displacements.get(entity)!.Set(0)
         }
     }
 
-    //#region Algorithms
-    private _SS(aPosition: Vector3, aRadius: number, bPosition: Vector3, bRadius: number): boolean
+    //#region Detection Algorithms
+    private _SS(aPosition: Vector3, aRadius: number, bPosition: Vector3, bRadius: number): ((current: Entity, target: Entity) => void) | undefined
     {
+        const radiusSquared  = (aRadius + bRadius) ** 2
         const distanceSquared = (aPosition[0] - bPosition[0]) **2 + 
             (aPosition[1] - bPosition[1]) ** 2 + 
             (aPosition[2] - bPosition[2]) ** 2
 
-        return distanceSquared <= (aRadius + bRadius) ** 2
+        if (distanceSquared <= radiusSquared)
+        {
+            return this._resolveSS.bind(this)
+        }
     }
 
-    private _AABB(aPosition: Vector3, aCollider: CubeCollider, bPosition: Vector3, bCollider: CubeCollider): boolean
+    private _AABB(aPosition: Vector3, aCollider: CubeCollider, bPosition: Vector3, bCollider: CubeCollider): ((current: Entity, target: Entity) => void) | undefined
     {
-        const a_min_x = aPosition[0] - (aCollider.Width / 2)
-        const a_max_x = aPosition[0] + (aCollider.Width / 2)
+        const a_min_x = aPosition[0] - (aCollider.Width  / 2)
+        const a_max_x = aPosition[0] + (aCollider.Width  / 2)
         const a_min_y = aPosition[1] - (aCollider.Height / 2)
         const a_max_y = aPosition[1] + (aCollider.Height / 2)
-        const a_min_z = aPosition[2] - (aCollider.Depth / 2)
-        const a_max_z = aPosition[2] + (aCollider.Depth / 2)
+        const a_min_z = aPosition[2] - (aCollider.Depth  / 2)
+        const a_max_z = aPosition[2] + (aCollider.Depth  / 2)
         
-        const b_min_x = bPosition[0] - (bCollider.Width / 2)
-        const b_max_x = bPosition[0] + (bCollider.Width / 2)
+        const b_min_x = bPosition[0] - (bCollider.Width  / 2)
+        const b_max_x = bPosition[0] + (bCollider.Width  / 2)
         const b_min_y = bPosition[1] - (bCollider.Height / 2)
         const b_max_y = bPosition[1] + (bCollider.Height / 2)
-        const b_min_z = bPosition[2] - (bCollider.Depth / 2)
-        const b_max_z = bPosition[2] + (bCollider.Depth / 2)
+        const b_min_z = bPosition[2] - (bCollider.Depth  / 2)
+        const b_max_z = bPosition[2] + (bCollider.Depth  / 2)
 
-        return (
+        if (
             (a_min_x <= b_max_x && a_max_x >= b_min_x) &&
             (a_min_y <= b_max_y && a_max_y >= b_min_y) &&
             (a_min_z <= b_max_z && a_max_z >= b_min_z)
-        )
+        ){
+            return this._resolveAABB.bind(this)
+        }
+    }
+    //#endregion
+
+    //#region Displacement Logic
+    _resolveSS(current: Entity, target: Entity): void
+    {
+        const currentCollider = current.GetComponent(Collider)! as SphereCollider
+        const targetCollider = target.GetComponent(Collider)! as SphereCollider
+        
+        if (currentCollider.IsTrigger || targetCollider.IsTrigger || targetCollider.IsStatic)
+        {
+            return
+        }
+        
+        const currentPos = current.GetComponent(Transform)!.Position
+        const targetPos = target.GetComponent(Transform)!.Position
+
+        const distance = Vector3.Distance(currentPos, targetPos)
+        const overlap = (distance - currentCollider.Radius - targetCollider.Radius) * 0.5
+        const direction = currentPos.Clone().Diff(targetPos).Normalize().Scale(overlap)
+        
+        const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
+        currentDisplacement.Sum(direction)
+        
+        const otherDisplacement = this.displacements.get(current) ?? Vector3.ZERO
+        otherDisplacement.Diff(direction)
+
+        this.displacements.set(current, currentDisplacement)
+        this.displacements.set(current, otherDisplacement)
+    }
+
+    _resolveAABB(current: Entity, target: Entity): void
+    {
+        const currentCollider = current.GetComponent(Collider)! as CubeCollider
+        const targetCollider = target.GetComponent(Collider)! as CubeCollider
+        
+        if (currentCollider.IsTrigger || currentCollider.IsStatic)
+        {
+            return
+        }
+        
+        const currentPos = current.GetComponent(Transform)!.Position
+        const targetPos = target.GetComponent(Transform)!.Position
+
+        const overlap = this._calculateOverlap(currentPos, currentCollider, targetPos, targetCollider)
+        const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO                
+
+        if (!targetCollider.IsStatic)
+        {
+            currentDisplacement.Sum(overlap.Scale(0.5))
+        }
+        else
+        {
+            currentDisplacement.Sum(overlap)
+        }
+
+        this.displacements.set(current, currentDisplacement)
     }
     //#endregion
 
@@ -270,11 +398,11 @@ export class PhysicsSystem extends System
 
         if (this.entities.includes(entity))
         {
-            this.collisionStates.set(entity, [])
+            this.collisions[entity.Id] = []
         }
         else
         {
-            this.collisionStates.delete(entity)
+            delete this.collisions[entity.Id]
         }
     }
 }

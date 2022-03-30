@@ -1,4 +1,4 @@
-import { setContext } from "@fwge/common"
+import { IDelay, CalcuateDelay, setContext } from "@fwge/common"
 import { System } from "../ecs"
 import { Component, SharedComponent } from "../ecs/Component"
 import { Class, Registry, SceneId } from "../ecs/Registry"
@@ -79,8 +79,6 @@ export class Game
             this._activeScene = this._scenes.first()
         }
 
-        this._currTick = this._prevTick = Date.now()
-
         this._activeScene?.Init()
         this._activeScene?.Start()
         this._tickId = window.requestAnimationFrame(() => this.Update(0))
@@ -92,28 +90,22 @@ export class Game
         
         this._prevTick = this._currTick
         this._currTick = Date.now()
-        this._tickId = window.requestAnimationFrame(() => this.Update(this._currTick - this._prevTick))
+        this._tickId = window.requestAnimationFrame(() => this.Update((this._currTick - this._prevTick) / 1000))
     }
     
     Stop(): void
-    Stop(delay: { hours?: number, minutes?: number, seconds?: number, milliseconds?: number }): void
-    Stop(arg: { hours?: number, minutes?: number, seconds?: number, milliseconds?: number } = {}): void
-    {        
-        const delay = (arg.hours ?? 0) * 3_600_000
-            + (arg.minutes ?? 0) * 60_000
-            + (arg.seconds ?? 0) * 1_000
-            + (arg.milliseconds ?? 0)
-
+    Stop(delay: IDelay): void
+    Stop(arg: IDelay = {}): void
+    {
         setTimeout(() =>
         {
             if (this._tickId !== undefined)
             {
-                window.cancelAnimationFrame(this._tickId)
                 this._activeScene?.Stop()
-
+                window.cancelAnimationFrame(this._tickId)
                 this._tickId = undefined
             }
-        }, delay)
+        }, CalcuateDelay(arg))
     }
     //#endregion
 

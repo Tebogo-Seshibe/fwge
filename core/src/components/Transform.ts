@@ -13,13 +13,13 @@ interface ITransform
 export class Transform extends UniqueComponent
 {
     //#region Private fields
-    private _position: Vector3 = Vector3.ZERO
-    private _rotation: Vector3 = Vector3.ZERO
-    private _scale: Vector3 = Vector3.ONE
-    private _shear: Vector3 = Vector3.ZERO
+    private _position: Vector3
+    private _rotation: Vector3
+    private _scale: Vector3
+    private _shear: Vector3
 
-    private _modelViewMatrix: Matrix4 = Matrix4.IDENTITY
-    private _normalMatrix: Matrix3 = Matrix3.IDENTITY
+    private _modelViewMatrix: Matrix4
+    private _normalMatrix: Matrix3
 
     private _recalculateMatrices()
     {
@@ -81,7 +81,6 @@ export class Transform extends UniqueComponent
         return this._normalMatrix
     }
 
-
     get Position(): Vector3
     {
         return this._position
@@ -128,10 +127,22 @@ export class Transform extends UniqueComponent
     {
         super()
         
-        this.Position = args.position ? new Vector3(args.position[0], args.position[1], args.position[2]) : Vector3.ZERO
-        this.Rotation = args.rotation ? new Vector3(args.rotation[0], args.rotation[1], args.rotation[2]) : Vector3.ZERO
-        this.Scale = args.scale ? new Vector3(args.scale[0], args.scale[1], args.scale[2]) : Vector3.ONE
-        this.Shear = args.shear ? new Vector3(args.shear[0], args.shear[1], args.shear[2]) : Vector3.ZERO
+        this._position = new Vector3()
+        this._rotation = new Vector3()
+        this._scale = new Vector3()
+        this._shear = new Vector3()
+        this._normalMatrix = Matrix3.IDENTITY
+        this._modelViewMatrix = Matrix4.IDENTITY
+
+        args.position = args.position ?? [0,0,0]
+        args.rotation = args.rotation ?? [0,0,0]
+        args.scale = args.scale ?? [1,1,1]
+        args.shear = args.shear ?? [0,0,0]
+
+        this._position.Set(args.position[0], args.position[1], args.position[2])
+        this._rotation.Set(args.rotation[0], args.rotation[1], args.rotation[2])
+        this._scale.Set(args.scale[0], args.scale[1], args.scale[2])
+        this._shear.Set(args.shear[0], args.shear[1], args.shear[2])
     }    
 
     static get UP(): Vector3

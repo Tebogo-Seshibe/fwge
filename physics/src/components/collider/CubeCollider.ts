@@ -4,6 +4,7 @@ import { Collider } from "./Collider"
 
 interface ICubeCollider
 {
+    isStatic?: boolean
     isTrigger?: boolean
     position?: Vector3
     material?: any
@@ -14,9 +15,9 @@ interface ICubeCollider
 
 export class CubeCollider extends Collider
 {
-    public Height: number = 0.5
-    public Width: number = 0.5
-    public Depth: number = 0.5
+    public Height: number = 1
+    public Width: number = 1
+    public Depth: number = 1
 
     constructor()
     constructor(collider: ICubeCollider)
@@ -24,6 +25,7 @@ export class CubeCollider extends Collider
     {
         super(
             collider.position ?? Vector3.ZERO,
+            collider.isStatic ?? false,
             collider.isTrigger ?? false,
             collider.material,
             collider.onCollisionEnter,

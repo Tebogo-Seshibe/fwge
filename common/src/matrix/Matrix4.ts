@@ -228,7 +228,8 @@ export class Matrix4 extends Float32Array
     constructor(matrix: Matrix4)
     constructor(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number)
     constructor(array: [number | number | number | number | number | number | number | number | number | number | number | number | number | number | number | number])
-    constructor(m11: Matrix4 | number[] | number = 0, m12: number = 0, m13: number = 0, m14: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m24: number = 0, m31: number = 0, m32: number = 0, m33: number = 0, m34: number = 0, m41: number = 0, m42: number = 0, m43: number = 0, m44: number = 0)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(m11: ArrayBuffer | Matrix4 | number[] | number = 0, m12: number = 0, m13: number = 0, m14: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m24: number = 0, m31: number = 0, m32: number = 0, m33: number = 0, m34: number = 0, m41: number = 0, m42: number = 0, m43: number = 0, m44: number = 0)
     {
         super(typeof m11 === 'number' ?
         [ 
@@ -599,6 +600,8 @@ export class Matrix4 extends Float32Array
     {
         return new Matrix4(this)
     }
+
+    public static readonly SIZE: number = 16
 
     static get ZERO()
     {

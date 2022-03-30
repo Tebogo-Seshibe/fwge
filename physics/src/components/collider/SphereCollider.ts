@@ -5,6 +5,7 @@ import { Collider } from "./Collider"
 interface ISphereCollider
 {
     material?: any
+    isStatic?: boolean
     isTrigger?: boolean
     radius?: number
     position?: Vector3
@@ -22,6 +23,7 @@ export class SphereCollider extends Collider
     {
         super(
             collider.position ?? Vector3.ZERO,
+            collider.isStatic ?? false,
             collider.isTrigger ?? false,
             collider.material,
             collider.onCollisionEnter,

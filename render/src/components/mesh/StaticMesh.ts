@@ -2,6 +2,16 @@ import { GL, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Colour4 } from '../../base'
 import { Mesh } from './Mesh'
 
+const POSITION_INDEX: number    = 0
+const NORMAL_INDEX: number      = 1
+const UV_INDEX: number          = 2
+const COLOUR_INDEX: number      = 3
+
+const POSITION_SIZE: number = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
+const NORMAL_SIZE: number   = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
+const COLOUR_SIZE: number   = Colour4.BYTES_PER_ELEMENT * Colour4.SIZE
+const UV_SIZE: number       = Vector2.BYTES_PER_ELEMENT * Vector2.SIZE
+
 interface IMesh
 {
     position: Vector3[] | [number, number, number][]
@@ -14,89 +24,71 @@ interface IMesh
 
 export class StaticMesh extends Mesh
 {
-    public static readonly POSITION_SIZE = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-    public static readonly NORMAL_SIZE = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-    public static readonly COLOUR_SIZE = Colour4.BYTES_PER_ELEMENT * Colour4.SIZE
-    public static readonly UV_SIZE = Vector2.BYTES_PER_ELEMENT * Vector2.SIZE
-    
     public readonly VertexBuffer: WebGLBuffer | null
     public readonly IndexBuffer: WebGLBuffer | null = null
     public readonly WireframeBuffer: WebGLBuffer | null = null
 
-    public readonly Position: number = 0
-    public readonly Normal: number = -1
-    public readonly Colour: number = -1
-    public readonly UV: number = -1
-    public readonly Offset: number
-    public readonly Size: number
-
-    public readonly VertexCount: number
-    public readonly IndexCount: number
-    public readonly WireframeCount: number
-    
     constructor(args: IMesh)
     {
-        super(Mesh)
-
-        this.VertexCount = args.position.length * Vector3.SIZE
-        this.IndexCount = args.index?.length ?? 0
-        this.WireframeCount = args.wireframe?.length ?? 0
-        this.Size = (
-              StaticMesh.POSITION_SIZE * args.position.length
-            + StaticMesh.NORMAL_SIZE * (args.normal?.length ?? 0)
-            + StaticMesh.COLOUR_SIZE * (args.colour?.length ?? 0)
-            + StaticMesh.UV_SIZE * (args.uv?.length ?? 0)
+        super(
+            args.position.length * Vector3.SIZE,
+            args.index?.length ?? -1,
+            args.wireframe?.length ?? -1
         )
-        this.Offset = 
-            StaticMesh.POSITION_SIZE
-          + StaticMesh.NORMAL_SIZE * (args.normal ? 1 : 0)
-          + StaticMesh.COLOUR_SIZE * (args.colour ? 1 : 0)
-          + StaticMesh.UV_SIZE * (args.uv ? 1 : 0)
-        
+    
+        const vertexSize = (
+              POSITION_SIZE
+            + NORMAL_SIZE    * (args.normal ? 1 : 0)
+            + UV_SIZE        * (args.uv ? 1 : 0)
+            + COLOUR_SIZE    * (args.colour ? 1 : 0)
+        )
+        const bufferSize = vertexSize * args.position.length
+
+        let positionOffset: number = 0
+        let normalOffset: number = -1
+        let uvOffset: number = -1
+        let colourOffset: number = -1
+
         if (args.normal)
         {
-            this.Normal = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-        }
-        
-        if (args.colour)
-        {
-            this.Colour = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-
-            if (args.normal)
-            {
-                this.Colour += Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-            }
+            normalOffset = POSITION_SIZE
         }
 
         if (args.uv)
         { 
-            this.UV = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
+            uvOffset = POSITION_SIZE
             
             if (args.normal)
             {
-                this.UV += Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
+                uvOffset += NORMAL_SIZE
+            }
+        }
+        
+        if (args.colour)
+        {
+            colourOffset = POSITION_SIZE
+
+            if (args.normal)
+            {
+                colourOffset += NORMAL_SIZE
             }
         
-            if (args.colour)
+            if (args.uv)
             {
-                this.UV += Colour4.BYTES_PER_ELEMENT * Colour4.SIZE
+                colourOffset += UV_SIZE
             }
         }
 
-        const vertexBuffer = new ArrayBuffer(this.Size)
-        const positionView = new Float32Array(vertexBuffer)
-        const normalView = new Float32Array(vertexBuffer)
-        const colourView = new Float32Array(vertexBuffer)
-        const uvView = new Float32Array(vertexBuffer)
+        //#region Buffer Setup
+        const vertexBuffer = new Float32Array(new ArrayBuffer(bufferSize))
         
-        let offset = 0
-        for (let i = 0; i < args.position.length; i++)
+        for (let i = 0, offset = 0; i < args.position.length; i++)
         {
             const position = args.position[i] as [number, number, number]
 
-            positionView[offset + 0] = position[0]
-            positionView[offset + 1] = position[1]
-            positionView[offset + 2] = position[2]
+            vertexBuffer[offset + 0] = position[0]
+            vertexBuffer[offset + 1] = position[1]
+            vertexBuffer[offset + 2] = position[2]
 
             offset += Vector3.SIZE
             
@@ -104,33 +96,33 @@ export class StaticMesh extends Mesh
             {
                 const normal = args.normal[i] as [number, number, number]
                 
-                normalView[offset + 0] = normal[0]
-                normalView[offset + 1] = normal[1]
-                normalView[offset + 2] = normal[2]
+                vertexBuffer[offset + 0] = normal[0]
+                vertexBuffer[offset + 1] = normal[1]
+                vertexBuffer[offset + 2] = normal[2]
 
                 offset += Vector3.SIZE
-            }
-            
-            if (args.colour)
-            {
-                const colour = args.colour[i] as [number, number, number, number]
-                
-                colourView[offset + 0] = colour[0]
-                colourView[offset + 1] = colour[1]
-                colourView[offset + 2] = colour[2]
-                colourView[offset + 3] = colour[3]
-
-                offset += Colour4.SIZE
             }
             
             if (args.uv)
             {
                 const uv = args.uv[i] as [number, number]
                 
-                uvView[offset + 0] = uv[0]
-                uvView[offset + 1] = uv[1]
+                vertexBuffer[offset + 0] = uv[0]
+                vertexBuffer[offset + 1] = uv[1]
 
                 offset += Vector2.SIZE
+            }
+            
+            if (args.colour)
+            {
+                const colour = args.colour[i] as [number, number, number, number]
+                
+                vertexBuffer[offset + 0] = colour[0]
+                vertexBuffer[offset + 1] = colour[1]
+                vertexBuffer[offset + 2] = colour[2]
+                vertexBuffer[offset + 3] = colour[3]
+
+                offset += Colour4.SIZE
             }
         }
 
@@ -140,7 +132,7 @@ export class StaticMesh extends Mesh
         
         if (args.index)
         {
-            this.IndexBuffer = GL.createBuffer()            
+            this.IndexBuffer = GL.createBuffer()
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(args.index), GL.STATIC_DRAW)
         }
@@ -151,21 +143,28 @@ export class StaticMesh extends Mesh
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer)
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(args.wireframe), GL.STATIC_DRAW)
         }
-    }
-}
+        //#endregion
 
-function flatten(src: Vector2[] | Vector3[] | Vector4[] | Colour4[] | number[][]): Float32Array
-{
-    const dest: number[] = []
-
-    for (const vec of src)
-    {
-        for (const val of vec)
+        //#region VAO Setup
+        GL.bindVertexArray(this.VertexArrayBuffer)
+        GL.enableVertexAttribArray(POSITION_INDEX)
+        GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, positionOffset)
+        if (normalOffset !== -1)
         {
-            dest.push(val)
+            GL.enableVertexAttribArray(NORMAL_INDEX)
+            GL.vertexAttribPointer(NORMAL_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, normalOffset)
         }
+        if (uvOffset !== -1)
+        {
+            GL.enableVertexAttribArray(UV_INDEX)
+            GL.vertexAttribPointer(UV_INDEX, Vector2.SIZE, GL.FLOAT, false, vertexSize, uvOffset)
+        }
+        if (colourOffset !== -1)
+        {
+            GL.enableVertexAttribArray(COLOUR_INDEX)
+            GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, colourOffset)
+        }
+        GL.bindVertexArray(null)
+        //#endregion
     }
-
-    return new Float32Array(dest)
 }
-

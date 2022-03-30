@@ -73,7 +73,8 @@ export class Vector4 extends Float32Array
     constructor(x: number, y: number, z: number, w: number)
     constructor(vector: Vector4)
     constructor(array: [number, number, number, number])
-    constructor(x: Vector4 | number[] | number = 0, y?: number, z?: number, w?: number)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(x: ArrayBuffer | Vector4 | number[] | number = 0, y?: number, z?: number, w?: number)
     {
         super(typeof x === 'number' ?
         [
@@ -258,5 +259,5 @@ export class Vector4 extends Float32Array
         return new Vector4(0.5)
     }
 
-    static SIZE: number = 4
+    public static readonly SIZE: number = 4
 }

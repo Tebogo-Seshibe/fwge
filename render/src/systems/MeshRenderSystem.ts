@@ -181,7 +181,7 @@ export class MeshRenderSystem extends System
         GL.uniform2f(uniforms.Global.Resolution, width, height)
         GL.uniform1f(uniforms.Global.NearClip, camera.NearClipping)
         GL.uniform1f(uniforms.Global.FarClip, camera.FarClipping)
-        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.size)
+        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.length)
         
         let point_count = 0
         for (let light of this._lights)

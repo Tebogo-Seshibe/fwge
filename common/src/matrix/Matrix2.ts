@@ -62,7 +62,8 @@ export class Matrix2 extends Float32Array
     constructor(matrix: Matrix2)
     constructor(m11: number, m12: number, m21: number, m22: number)
     constructor(array: [number, number, number, number])
-    constructor(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(m11: ArrayBuffer | Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0)
     {
         super(typeof m11 === 'number' ?
         [ 
@@ -173,6 +174,8 @@ export class Matrix2 extends Float32Array
     {
         return new Matrix2(this)
     }
+
+    public static readonly SIZE: number = 4
 
     static get ZERO(): Matrix2
     {

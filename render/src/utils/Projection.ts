@@ -18,7 +18,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
     //     r.Y, u.Y, f.Y, p.Y,
     //     r.Z, u.Z, f.Z, p.Z,
     //       0,   0,   0,   1
-    // )
+    // ).Transpose()
 
     return new Matrix4
     (
@@ -26,7 +26,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
               XAxis[1],          YAxis[1],          ZAxis[1], 0,
               XAxis[2],          YAxis[2],          ZAxis[2], 0,
         XAxis.Dot(Eye),    XAxis.Dot(Eye),    XAxis.Dot(Eye), 1
-    )
+    ).Transpose()
 }
 
 export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number): Matrix4

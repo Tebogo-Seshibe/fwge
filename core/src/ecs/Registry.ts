@@ -80,7 +80,7 @@ export class Registry
         if (systemType._typeIndex !== undefined)
             return        
             
-            systemType._typeIndex = this._systemId
+        systemType._typeIndex = this._systemId
         this._systemId = this._systemId + 1
 
         this.systems[systemType._typeIndex] = []

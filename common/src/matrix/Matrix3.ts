@@ -114,7 +114,8 @@ export class Matrix3 extends Float32Array
     constructor(matrix: Matrix3)
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
     constructor(array: [number | number | number | number | number | number | number | number | number])
-    constructor(m11: Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(m11: ArrayBuffer | Matrix3 | number[] | number = 0, m12: number = 0, m13: number = 0, m21: number = 0, m22: number = 0, m23: number = 0, m31: number = 0, m32: number = 0, m33: number = 0)
     {
         super(typeof m11 === 'number' ?
         [ 
@@ -262,6 +263,8 @@ export class Matrix3 extends Float32Array
     {
         return new Matrix3(this)
     }
+
+    public static readonly SIZE: number = 9
 
     static get ZERO(): Matrix3
     {

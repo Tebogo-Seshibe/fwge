@@ -1,2 +1,2 @@
 export * from './AudioListenerComponent'
-export * from './AudioPlayerComponent'
+export * from './AudioPlayer'

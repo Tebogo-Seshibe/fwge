@@ -51,7 +51,8 @@ export class Vector2 extends Float32Array
     constructor(x: number, y: number)
     constructor(array: Vector2)
     constructor(array: [number, number])
-    constructor(x: Vector2 | [number, number] | number = 0, y?: number)
+    constructor(arrayBuffer: ArrayBuffer)
+    constructor(x: ArrayBuffer | Vector2 | [number, number] | number = 0, y?: number)
     {
         super(typeof x === 'number' ? 
         [
@@ -208,5 +209,5 @@ export class Vector2 extends Float32Array
         return new Vector2(Math.sqrt(1/2))
     }
 
-    static SIZE: number = 2
+    public static readonly SIZE: number = 2
 }
