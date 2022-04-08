@@ -360,9 +360,20 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         }))
 
         
-    const parent = scene.CreateEntity().AddComponent(new Transform())
-    const max = 8
-    for (let i = 0; i < 10_000; ++i)
+        let x = 0
+    const parent = scene.CreateEntity()
+        .AddComponent(new Transform())
+        .AddComponent(new Script({
+            update(delta: number)
+            {
+                this.GetComponent(Transform)!.Position
+                    .Set(Math.cos(x), Math.sin(x), 0)
+                    .Scale(5)
+                x += delta
+            }
+        }))
+    const max = 32
+    for (let i = 0; i < 25_000; ++i)
     {
         const angle = (i % max) / max
         const radius = Math.floor(i / max - angle) * 1.5
@@ -373,7 +384,6 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         const child = scene.CreateEntity()
             .AddComponent(cubeMesh)
             .AddComponent(cubeUVMaterial)
-            .AddComponent(spinnerScript)
             .AddComponent(new SphereCollider({ radius: 1 }))
             .AddComponent(new Transform(
             {
@@ -386,13 +396,18 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
         setTimeout(() =>
         {
-            child.AddComponent(new RigidBody(
+            child.AddComponent(new Script(
             {
-                velocity: new Vector3(
-                    -x,
-                    -y,
-                    0
-                )
+                start()
+                {
+                    // this.GetComponent(Transform)!.Rotation.Set(0, Math.random() * 360, Math.random() * 360)
+                },
+                update(delta: number)
+                {
+                    this.GetComponent(Transform)!.Rotation.Y += delta * 7
+                    this.GetComponent(Transform)!.Rotation.Z += delta * 12
+                    this.GetComponent(Transform)!.Position.Sum(-x * delta, -y * delta, 0)
+                }
             }))
         }, 2000)
         parent.AddChild(child)

@@ -9,12 +9,9 @@ export function CalcuateModelView(matrix: Matrix4, translation: Vector3, rotatio
 
 export function Translate(matrix: Matrix4, translation: Vector3): void
 {
-    matrix.Mult(
-                     1,              0,              0, 0,
-                     0,              1,              0, 0,
-                     0,              0,              1, 0,
-        translation[0], translation[1], translation[2], 1
-    );
+    matrix[12] += matrix[15] * translation[0]
+    matrix[13] += matrix[15] * translation[1]
+    matrix[14] += matrix[15] * translation[2]
 }
 
 export function Rotate(matrix: Matrix4, rotation: Vector3): void
@@ -95,7 +92,13 @@ export function RotateZ(angle: number): Matrix4
 }
 
 export function Scale(matrix: Matrix4, scalers: Vector3): void
-{                    
+{
+    const a = matrix[0]  * scalers[0]
+    const b = matrix[5]  * scalers[1]
+    const c = matrix[10] * scalers[2]
+
+    console.log({a, b, c})
+
     matrix.Mult
     (
         scalers[0],          0,          0, 0,
