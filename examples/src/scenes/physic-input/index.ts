@@ -252,7 +252,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     const scene = game.CreateScene()
     scene.UseSystem(InputSystem)
-        .UseSystem(PhysicsSystem, 60)
+        // .UseSystem(PhysicsSystem, 60)
         .UseSystem(ScriptSystem)
         .UseSystem(ParticleSystem)
         .UseSystem(RenderSystem)
@@ -362,7 +362,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         
     const parent = scene.CreateEntity().AddComponent(new Transform())
     const max = 8
-    for (let i = 0; i < 512; ++i)
+    for (let i = 0; i < 10_000; ++i)
     {
         const angle = (i % max) / max
         const radius = Math.floor(i / max - angle) * 1.5
