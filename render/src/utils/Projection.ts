@@ -1,6 +1,6 @@
 import { cot, radian, Matrix3, Matrix4, Vector3 } from "@fwge/common"
 
-export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
+export function LookAt(position: Vector3, target: Vector3, up: Vector3, out: Matrix4 = Matrix4.IDENTITY): void
 {
     const XAxis: Vector3 = new Vector3(1, 0, 0)
     const YAxis: Vector3 = new Vector3(0, 1, 0)
@@ -20,7 +20,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
     //       0,   0,   0,   1
     // ).Transpose()
 
-    return new Matrix4
+    out.Set
     (
               XAxis[0],          YAxis[0],          ZAxis[0], 0,
               XAxis[1],          YAxis[1],          ZAxis[1], 0,
@@ -29,7 +29,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4
     ).Transpose()
 }
 
-export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number): Matrix4
+export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number, out: Matrix4 = Matrix4.IDENTITY): void
 {
     theta = cot(radian(theta))
     phi = cot(radian(phi))
@@ -40,7 +40,7 @@ export function Orthographic(left: number, right: number, top: number, bottom: n
     bottom -= near * phi
 
 
-    return new Matrix4
+    out.Set
     (
                       2 / (right - left),                                0,                            0, 0,
                                        0,               2 / (top - bottom),                            0, 0,
@@ -49,13 +49,13 @@ export function Orthographic(left: number, right: number, top: number, bottom: n
     )
 }
 
-export function Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number): Matrix4
+export function Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number, out: Matrix4 = Matrix4.IDENTITY): void
 {
     const top       = near * Math.tan(radian(fieldOfView) / 2)
     const right     = top * aspectRatio
     const depth     = far - near
 
-    return new Matrix4
+    out.Set
     (
         near / right,          0,                         0,  0,
                    0, near / top,                         0,  0,

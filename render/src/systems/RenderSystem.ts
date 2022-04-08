@@ -1,56 +1,107 @@
-import { GL } from '@fwge/common'
+import { GL, Vector2 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
-import { Camera, DynamicMesh, Material, Mesh, PointLight, Shader, StaticMesh } from '../components'
+import { ShaderAsset } from '../base'
+import { Camera, DynamicMesh, Material, Mesh, PointLight, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
 export class RenderSystem extends System
 {
-    private _shaders: Set<Shader> = new Set()
+    private _screenVAO: WebGLVertexArrayObject | null = null
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
-    private _groupedObjects: Map<Shader, EntityId[]> = new Map()
+    private _screenShader: ShaderAsset | null = null
 
-    private _batches: Map<Shader, Map<Mesh, Entity[]>> = new Map()
+    private _batches: Map<Material, EntityId[]> = new Map()
 
     constructor(manager: Scene)
     {
-        super(manager, Transform, Mesh, Material, Shader)
+        super(manager,
+        {
+            requiredComponents: [ Transform, Mesh, Material ]
+        })
     }
 
     Init(): void
     {
-        for (const entity of this.entities)
+        this._buildScreenShader()
+
+        for (const entityId of this.entities)
         {
-            const shader = entity.GetComponent(Shader)!
-            const mesh = entity.GetComponent(Mesh)!
+            const entity = this.scene.GetEntity(entityId)!
+            const material = entity.GetComponent(Material)!
 
-            this._shaders.add(shader)
-            if (!this._groupedObjects.has(shader))
+            if (!this._batches.has(material))
             {
-                this._groupedObjects.set(shader, [])
+                this._batches.set(material, [])
             }
-            this._groupedObjects.get(shader)!.push(entity.Id)
-
-            if (!this._batches.has(shader))
-            {
-                this._batches.set(shader, new Map())
-            }
-            const meshes = this._batches.get(shader)!
-            if (!meshes.has(mesh))
-            {
-                meshes.set(mesh, [])   
-            }
-            meshes.get(mesh)!.push(entity)
+            
+            this._batches.get(material)!.push(entity.Id)
         }
+    }
 
-        console.log(this._batches)
+    private _buildScreenShader()
+    {
+        this._screenShader = new ShaderAsset(
+        { 
+            vertexShader:
+            {
+                source: `#version 300 es
+                layout(location = 0) in vec3 A_Position;
+                layout(location = 1) in vec2 A_UV;
+
+                out vec2 V_UV;
+                void main()
+                {
+                    V_UV =  A_UV;
+                    gl_Position = vec4(A_Position,  1.0);
+                }`,
+                input: []
+            },
+            fragmentShader:
+            {
+                source: `#version 300 es
+                precision highp float;
+                
+                out vec4 colour;
+                void main()
+                {
+                    colour = vec4(1.0);
+                }`,
+                input: []
+            }
+        })
+
+        const vertexbuffer = GL.createBuffer()
+        const indexBuffer = GL.createBuffer()
+        GL.bindBuffer(GL.ARRAY_BUFFER, vertexbuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
+        [
+            -0.5,  0.5,    0.0, 1.0,
+            -0.5, -0.5,    0.0, 0.0,
+             0.5, -0.5,    1.0, 0.0,
+             0.5,  0.5,    1.0, 1.0,
+        ]), GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, indexBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
+        [
+            0, 1, 2,
+            0, 2, 3
+        ]), GL.STATIC_DRAW)
+
+        this._screenVAO = GL.createVertexArray()
+        GL.bindVertexArray(this._screenVAO)
+        GL.enableVertexAttribArray(0)
+        GL.vertexAttribPointer(0, Vector2.SIZE, GL.FLOAT, false, 16, 0)
+
+        GL.enableVertexAttribArray(1)
+        GL.vertexAttribPointer(1, Vector2.SIZE, GL.FLOAT, false, 16, 8)
+
+        GL.bindVertexArray(null)
     }
 
     Start(): void
     {
-        console.log(this)        
-
         GL.enable(GL.DEPTH_TEST)
         GL.disable(GL.BLEND)
         GL.enable(GL.CULL_FACE)
@@ -60,36 +111,27 @@ export class RenderSystem extends System
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
         GL.clearColor(0.3, 0.6, 0.9, 1.0)
         
-        for (const { Attributes } of this._shaders)
-        {
-            if (Attributes!.Position !== -1) GL.enableVertexAttribArray(Attributes!.Position)
-            if (Attributes!.Normal !== -1) GL.enableVertexAttribArray(Attributes!.Normal)
-            if (Attributes!.UV !== -1) GL.enableVertexAttribArray(Attributes!.UV)
-            if (Attributes!.Colour !== -1) GL.enableVertexAttribArray(Attributes!.Colour)
-        }
     }
 
     Update(delta: number): void
     {
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-
-        let i = 0;
-        for (const [shader, entityList] of this._groupedObjects)
+        if (!Camera.Main)
         {
-            GL.useProgram(shader.Program)
-            this._bindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
+            return
+        }
+
+        for (const [material, entityList] of this._batches)
+        {
+            this._useShader(material, delta)
             for (const entityId of entityList)
             {
                 const entity = this.scene.GetEntity(entityId)!
-
-                if (Camera.Main)
-                {
-                    this._draw(entity, delta, i++)
-                }
+                this._draw(entity)
             }
-
-            GL.useProgram(null)
         }
+
+        GL.bindVertexArray(null)
+        GL.useProgram(null)
     }
 
     Stop(): void
@@ -97,52 +139,20 @@ export class RenderSystem extends System
         GL.enable(GL.BLEND)
         GL.disable(GL.DEPTH_TEST)
         GL.disable(GL.CULL_FACE)
-        
-        for (const { Attributes } of this._shaders)
-        {
-            GL.disableVertexAttribArray(Attributes!.Position)
-            GL.disableVertexAttribArray(Attributes!.Normal)
-            GL.disableVertexAttribArray(Attributes!.UV)
-            GL.disableVertexAttribArray(Attributes!.Colour)
-        }
     }
 
-    _draw(entity: Entity, delta: number, entityId: EntityId): void
+    _draw(entity: Entity): void
     {
-        const shader = entity.GetComponent(Shader)!
         const mesh = entity.GetComponent(Mesh)!
         const material = entity.GetComponent(Material)!
-        const transform = entity.GetComponent(Transform)!        
+        const transform = entity.GetComponent(Transform)!
         
         GL.bindVertexArray(mesh.VertexArrayBuffer)
+        GL.uniformMatrix4fv(material.Shader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
+        GL.uniformMatrix3fv(material.Shader!.Matrices!.Normal, false, transform.NormalMatrix)
 
-        GL.uniform4f(
-            shader.BaseUniforms!.Material.AmbientColour,
-            material.Ambient[0],
-            material.Ambient[1],
-            material.Ambient[2],
-            material.Ambient[3],
-        )
-        GL.uniform4f(
-            shader.BaseUniforms!.Material.DiffuseColour,
-            material.Diffuse[0],
-            material.Diffuse[1],
-            material.Diffuse[2],
-            material.Diffuse[3],
-        )
-        GL.uniform4f(
-            shader.BaseUniforms!.Material.SpecularColour,
-            material.Specular[0],
-            material.Specular[1],
-            material.Specular[2],
-            material.Specular[3],
-        )
-        GL.uniform1f(shader.BaseUniforms!.Material.Shininess, material.Shininess)
-        GL.uniform1f(shader.BaseUniforms!.Material.Alpha, material.Alpha)
-
-        this._bindUniforms(shader.BaseUniforms!, material, transform, delta, entityId)
+        // GL.uniform1i(uniforms.Global.ObjectID, entityId)
         this._render(mesh)
-        GL.bindVertexArray(null)
     }
     
 
@@ -193,17 +203,21 @@ export class RenderSystem extends System
         GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, transform.NormalMatrix)
     }
 
-    _bindGlobalUniforms(uniforms: ShaderUniforms, width: number, height: number): void
+    _bindMaterialUniforms()
+    {
+        
+    }
+
+    _bindLightUniforms()
+    {
+
+    }
+
+    _bindGlobalUniforms(uniforms: ShaderUniforms): void
     {
         const camera = Camera.Main!
         GL.uniformMatrix4fv(uniforms.Matrix.View, false, camera.View)
-        GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Projection)
-
-        GL.uniform1i(uniforms.Global.Time, performance.now())
-        GL.uniform2f(uniforms.Global.Resolution, width, height)
-        GL.uniform1f(uniforms.Global.NearClip, camera.NearClipping)
-        GL.uniform1f(uniforms.Global.FarClip, camera.FarClipping)
-        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.length)
+        GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Projection)   
 
         let point_count: number = 0
         for (let light of this._lights)
@@ -231,41 +245,112 @@ export class RenderSystem extends System
 
     _render(mesh: Mesh): void
     {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
-
-        if (mesh instanceof DynamicMesh)
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
+        if (mesh.IndexBuffer)
         {
-            if (mesh.IndexBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-                GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else if (mesh.WireframeBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-                GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else
-            {
-                GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
-            }
+            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
         }
-        else if (mesh instanceof StaticMesh)
+        else if (mesh.WireframeBuffer)
         {
-            if (mesh.IndexBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-                GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else if (mesh.WireframeBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-                GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else
-            {
-                GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
-            }
+            GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
+        }
+        else
+        {
+            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
+        }
+    }
+
+    private _useShader(material: Material, delta: number)
+    {
+        const shader: ShaderAsset = material.Shader!
+        GL.useProgram(shader.Program)
+
+        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
+        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
+
+        // let point_count: number = 0
+        // for (let light of this._lights)
+        // {
+        //     if (light instanceof PointLight)
+        //     {
+        //         const modelView = light.Owner!.GetComponent(Transform)!.ModelViewMatrix
+
+        //         GL.uniform4f(
+        //             uniforms.PointLights[point_count].Colour, 
+        //             light.Colour[0],
+        //             light.Colour[1],
+        //             light.Colour[2],
+        //             light.Colour[3],
+        //         )
+        //         GL.uniform1f(uniforms.PointLights[point_count].Intensity, light.Intensity)
+        //         GL.uniform3f(uniforms.PointLights[point_count].Position, modelView[12], modelView[13], modelView[14])
+        //         GL.uniform1f(uniforms.PointLights[point_count].Radius, light.Radius)
+
+        //         ++point_count
+        //     }
+        // }
+        // GL.uniform1i(uniforms.PointLightCount, point_count)
+
+        GL.uniform4f(
+            shader.Material!.AmbientColour,
+            material.Ambient[0],
+            material.Ambient[1],
+            material.Ambient[2],
+            material.Ambient[3],
+        )
+        GL.uniform4f(
+            shader.Material!.DiffuseColour,
+            material.Diffuse[0],
+            material.Diffuse[1],
+            material.Diffuse[2],
+            material.Diffuse[3],
+        )
+        GL.uniform4f(
+            shader.Material!.SpecularColour,
+            material.Specular[0],
+            material.Specular[1],
+            material.Specular[2],
+            material.Specular[3],
+        )
+        GL.uniform1f(shader.Material!.Shininess, material.Shininess)
+        GL.uniform1f(shader.Material!.Alpha, material.Alpha)
+        
+        if (material.ImageTexture)
+        {
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
+            GL.uniform1i(shader.Material!.HasImageMap, 1)
+            GL.uniform1i(shader.Material!.ImageSampler, 0)
+        }
+        else
+        {
+            GL.uniform1i(shader.Material!.HasImageMap, 0)
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.NormalTexture)
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
+            GL.uniform1i(shader.Material!.BumpSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.SpecularTexture)
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
+            GL.uniform1i(shader.Material!.SpecularSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, null)
         }
     }
 

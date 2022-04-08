@@ -5,8 +5,8 @@ import { Camera, ViewMode } from "@fwge/render"
 
 export class FPSController extends Entity
 {
-    private readonly maxMoveSpeed = 0.1
-    private readonly minMoveSpeed = 0.01
+    private readonly maxMoveSpeed = 1
+    private readonly minMoveSpeed = 0.1
     private readonly deltaMoveSpeed = 0.01
     private readonly turnSpeed = 5
 
@@ -28,7 +28,7 @@ export class FPSController extends Entity
         }))
         this.AddComponent(new Transform(
         {
-            position: new Vector3(0, 0, -1)
+            position: new Vector3(0, 0, 5)
         }))
         this.AddComponent(new Script(
         {

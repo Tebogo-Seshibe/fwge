@@ -168,11 +168,6 @@ export class DynamicMesh extends Mesh
         this.indexCount = buffer.length
     }
 
-    get IndexBuffer(): WebGLBuffer | null
-    {
-        return this._indexBuffer
-    }
-
     set Wireframe(buffer: Uint8Array | number[] | null)
     {
         if (!this._dynamic || !buffer)
@@ -195,11 +190,6 @@ export class DynamicMesh extends Mesh
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
         this.wireframeCount = buffer.length
-    }
-
-    get WireframeBuffer(): WebGLBuffer | null
-    {
-        return this._wireframeBuffer
     }
 
     constructor()

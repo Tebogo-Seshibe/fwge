@@ -1,5 +1,5 @@
-import { IDelay, CalcuateDelay } from "@fwge/common"
-import { Scene, SharedComponent } from "@fwge/core"
+import { CalcuateDelay, IDelay } from "@fwge/common"
+import { SharedComponent } from "@fwge/core"
 
 interface IAudioPlayer
 {

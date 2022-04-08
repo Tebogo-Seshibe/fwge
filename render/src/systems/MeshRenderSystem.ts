@@ -10,15 +10,12 @@ export class MeshRenderSystem extends System
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
 
-    constructor(manager: Scene)
-    {
-        super(manager, Mesh, Mesh, Material, Shader)
-    }
 
     Init(): void
     {
-        for (const entity of this.entities)
+        for (const entityId of this.entities)
         {
+            const entity = this.scene.GetEntity(entityId)!
             const shader = entity.GetComponent(Shader)!
             
             this._shaders.add(shader)
@@ -50,8 +47,9 @@ export class MeshRenderSystem extends System
 
         if (Camera.Main)
         {
-            for (const entity of this.entities)
+            for (const entityId of this.entities)
             {
+                const entity = this.scene.GetEntity(entityId)!
                 this._Draw(entity, delta)
             }
         }

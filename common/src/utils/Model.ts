@@ -15,15 +15,15 @@ export function Translate(matrix: Matrix4, translation: Vector3): void
                      1,              0,              0, 0,
                      0,              1,              0, 0,
                      0,              0,              1, 0,
-        translation[0], translation[1], translation[2], 1
+        translation.X, translation.Y, translation.Z, 1
     );
 }
 
 export function Rotate(matrix: Matrix4, rotation: Vector3): void
 {
-    const x = radian(rotation[0])
-    const y = radian(rotation[1])
-    const z = radian(rotation[2])
+    const x = radian(rotation.X)
+    const y = radian(rotation.Y)
+    const z = radian(rotation.Z)
 
     const sin_x = Math.sin(x)
     const sin_y = Math.sin(y)
@@ -100,18 +100,18 @@ export function Scale(matrix: Matrix4, scalers: Vector3): void
 {                    
     matrix.Mult
     (
-        scalers[0],          0,          0, 0,
-                 0, scalers[1],          0, 0,
-                 0,          0, scalers[2], 0,
+        scalers.X,          0,          0, 0,
+                 0, scalers.Y,          0, 0,
+                 0,          0, scalers.Z, 0,
                  0,          0,          0, 1
     )
 }
 
 export function Shear(matrix: Matrix4, angles: Vector3): void
 {
-    var phi   = radian(angles[0])
-    var theta = radian(angles[1])
-    var rho   = radian(angles[2])
+    var phi   = radian(angles.X)
+    var theta = radian(angles.Y)
+    var rho   = radian(angles.Z)
 
     matrix.Mult
     (

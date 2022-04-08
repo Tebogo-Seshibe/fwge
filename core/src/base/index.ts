@@ -1,3 +1,4 @@
+export * from './Asset'
 export * from './Game'
 export * from './Library'
 export * from './Prefab'

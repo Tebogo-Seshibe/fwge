@@ -20,12 +20,12 @@ out vec3 V_Normal;
 out vec4 V_Colour;
 out vec4 V_Shadow;
 
-void main(void)
+void main()
 {
   vec4 Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
 
   V_Position = Position.xyz;
-  V_Colour = A_Colour;
+  V_Colour = vec4(0.5);
   V_UV = A_UV;                
   V_Normal = U_Matrix.Normal * A_Normal;
   // V_Normal = normalize((U_Matrix.ModelView * vec4(A_Normal, 1.0)).xyz);

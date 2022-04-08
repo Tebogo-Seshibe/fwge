@@ -1,16 +1,7 @@
 import { GL, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Colour4 } from '../../base'
+import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
 import { Mesh } from './Mesh'
-
-const POSITION_INDEX: number    = 0
-const NORMAL_INDEX: number      = 1
-const UV_INDEX: number          = 2
-const COLOUR_INDEX: number      = 3
-
-const POSITION_SIZE: number = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-const NORMAL_SIZE: number   = Vector3.BYTES_PER_ELEMENT * Vector3.SIZE
-const COLOUR_SIZE: number   = Colour4.BYTES_PER_ELEMENT * Colour4.SIZE
-const UV_SIZE: number       = Vector2.BYTES_PER_ELEMENT * Vector2.SIZE
 
 interface IMesh
 {
@@ -24,10 +15,6 @@ interface IMesh
 
 export class StaticMesh extends Mesh
 {
-    public readonly VertexBuffer: WebGLBuffer | null
-    public readonly IndexBuffer: WebGLBuffer | null = null
-    public readonly WireframeBuffer: WebGLBuffer | null = null
-
     constructor(args: IMesh)
     {
         super(
@@ -39,7 +26,7 @@ export class StaticMesh extends Mesh
         const vertexSize = (
               POSITION_SIZE
             + NORMAL_SIZE    * (args.normal ? 1 : 0)
-            + UV_SIZE        * (args.uv ? 1 : 0)
+            + UV_SIZE        * (args.uv     ? 1 : 0)
             + COLOUR_SIZE    * (args.colour ? 1 : 0)
         )
         const bufferSize = vertexSize * args.position.length
@@ -163,6 +150,10 @@ export class StaticMesh extends Mesh
         {
             GL.enableVertexAttribArray(COLOUR_INDEX)
             GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, colourOffset)
+        }
+        if (this.IndexBuffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
         }
         GL.bindVertexArray(null)
         //#endregion

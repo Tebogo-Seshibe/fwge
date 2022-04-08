@@ -20,37 +20,47 @@ interface Collision
 
 export class PhysicsSystem extends System
 {
+    Init(): void {
+        
+    }
+    Start(): void {
+        
+    }
+    Stop(): void {
+        
+    }
     private collisions: Collision[][] = []
     private displacements: Map<Entity, Vector3> = new Map()
 
-    constructor(scene: Scene)
+    constructor(scene: Scene, tickRate: number = 60)
     {
-        super(scene, Transform, Collider)
+        super(scene, { async: true, requiredComponents: [ Transform, Collider ], tickRate })
     }
     
     Update(delta: number): void
     {
-        for (const entity of this.entities)
+        for (const entityId of this.entities)
         {
+            const entity = this.scene.GetEntity(entityId)!
             const transform = entity.GetComponent(Transform)!
             const rigidbody = entity.GetComponent(RigidBody)
-
+            
             if (rigidbody)
             {
                 transform.Position.Sum(
                     rigidbody.Velocity
-                        .Clone()
-                        .Scale(delta)
-                )
+                    .Clone()
+                    .Scale(delta)
+                    )
+                }
             }
-        }
-
-        for (let i = 0; i < this.entities.length; ++i)
+            
+            for (let i = 0; i < this.entities.length; ++i)
         {
             for (let j = i + 1; j < this.entities.length; ++j)
             {
-                const left = this.entities[i]
-                const right = this.entities[j]
+                const left = this.scene.GetEntity(this.entities[i])!
+                const right = this.scene.GetEntity(this.entities[j])!
 
                 this._detect(left, right)
             }
@@ -289,7 +299,6 @@ export class PhysicsSystem extends System
         for (const [entity, offset] of this.displacements)
         {
             const transform = entity.GetComponent(Transform)!
-            console.log(`${entity.Id}: ${offset}`)
             transform.Position.Sum(offset)
             this.displacements.get(entity)!.Set(0)
         }
@@ -348,19 +357,24 @@ export class PhysicsSystem extends System
         
         const currentPos = current.GetComponent(Transform)!.Position
         const targetPos = target.GetComponent(Transform)!.Position
-
-        const distance = Vector3.Distance(currentPos, targetPos)
-        const overlap = (distance - currentCollider.Radius - targetCollider.Radius) * 0.5
-        const direction = currentPos.Clone().Diff(targetPos).Normalize().Scale(overlap)
         
-        const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
-        currentDisplacement.Sum(direction)
-        
-        const otherDisplacement = this.displacements.get(current) ?? Vector3.ZERO
-        otherDisplacement.Diff(direction)
+        const centerDistance = Vector3.Distance(currentPos, targetPos)
+        const radiusDistance = currentCollider.Radius + targetCollider.Radius
 
-        this.displacements.set(current, currentDisplacement)
-        this.displacements.set(current, otherDisplacement)
+        if (centerDistance <= radiusDistance)
+        {
+            const overlap = (centerDistance - radiusDistance) * 0.5
+            const direction = currentPos.Clone().Diff(targetPos).Normalize().Scale(overlap)
+            
+            const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
+            currentDisplacement.Sum(direction)
+            
+            const otherDisplacement = this.displacements.get(current) ?? Vector3.ZERO
+            otherDisplacement.Diff(direction)
+    
+            this.displacements.set(current, currentDisplacement)
+            this.displacements.set(current, otherDisplacement)
+        }
     }
 
     _resolveAABB(current: Entity, target: Entity): void
@@ -396,7 +410,7 @@ export class PhysicsSystem extends System
     {
         super.OnUpdateEntity(entity)
 
-        if (this.entities.includes(entity))
+        if (this.entities.includes(entity.Id))
         {
             this.collisions[entity.Id] = []
         }

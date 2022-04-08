@@ -3,57 +3,57 @@ import {  } from '../utils/Math'
 export class Matrix2 extends Float32Array
 {
     private _dirty: boolean = true
-    get Dirty(): boolean
+    public get Dirty(): boolean
     {
         return this._dirty
     }
     
-    set Dirty(dirty: boolean)
+    public set Dirty(dirty: boolean)
     {
         this._dirty = dirty
     }
     
-    get M11(): number
+    public get M11(): number
     {
         return this[0]
     }
     
-    set M11(m11: number)
+    public set M11(m11: number)
     {
         this[0] = m11
     }
     
-    get M12(): number
+    public get M12(): number
     {
         return this[1]
     }
 
-    set M12(m12: number)
+    public set M12(m12: number)
     {
         this[1] = m12
     }
     
-    get M21(): number
+    public get M21(): number
     {
         return this[2]
     }
 
-    set M21(m21: number)
+    public set M21(m21: number)
     {
         this[2] = m21
     }
     
-    get M22(): number
+    public get M22(): number
     {
         return this[3]
     }
 
-    set M22(m22: number)
+    public set M22(m22: number)
     {
         this[3] = m22
     }
     
-    get Determinant(): number
+    public get Determinant(): number
     {
         return (this.M11 * this.M22 - this.M21 * this.M12)
     }
@@ -72,10 +72,10 @@ export class Matrix2 extends Float32Array
         ] : m11)
     }
     
-    Set(matrix: Matrix2): Matrix2
-    Set(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Set(array: [number, number, number, number]): Matrix2
-    Set(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
+    public Set(matrix: Matrix2): Matrix2
+    public Set(m11: number, m12: number, m21: number, m22: number): Matrix2
+    public Set(array: [number, number, number, number]): Matrix2
+    public Set(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
     {
         m11 = typeof m11 === 'number' ?
         [ 
@@ -91,10 +91,10 @@ export class Matrix2 extends Float32Array
         return this
     }
     
-    Sum(matrix: Matrix2): Matrix2
-    Sum(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Sum(array: [number, number, number, number]): Matrix2
-    Sum(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
+    public Sum(matrix: Matrix2): Matrix2
+    public Sum(m11: number, m12: number, m21: number, m22: number): Matrix2
+    public Sum(array: [number, number, number, number]): Matrix2
+    public Sum(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
     {
         m11 = typeof m11 === 'number' ?
         [ 
@@ -110,10 +110,10 @@ export class Matrix2 extends Float32Array
         return this
     }
     
-    Mult(matrix: Matrix2): Matrix2
-    Mult(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Mult(array: [number, number, number, number]): Matrix2
-    Mult(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
+    public Mult(matrix: Matrix2): Matrix2
+    public Mult(m11: number, m12: number, m21: number, m22: number): Matrix2
+    public Mult(array: [number, number, number, number]): Matrix2
+    public Mult(m11: Matrix2 | number[] | number = 0, m12: number = 0, m21: number = 0, m22: number = 0): Matrix2
     {
         m11 = typeof m11 === 'number' ?
         [ 
@@ -129,7 +129,7 @@ export class Matrix2 extends Float32Array
         )
     }
     
-    Scale(scaler: number): Matrix2
+    public Scale(scaler: number): Matrix2
     {
         this[0] *= scaler
         this[1] *= scaler
@@ -139,7 +139,7 @@ export class Matrix2 extends Float32Array
         return this
     }
 
-    Transpose(): Matrix2
+    public Transpose(): Matrix2
     {
         return this.Set(
             this.M11, this.M21, 
@@ -147,7 +147,7 @@ export class Matrix2 extends Float32Array
         )
     }
     
-    Inverse(): Matrix2
+    public Inverse(): Matrix2
     {
         const det = this.Determinant
 
@@ -162,7 +162,7 @@ export class Matrix2 extends Float32Array
         return this
     }
     
-    Identity(): Matrix2
+    public Identity(): Matrix2
     {
         return this.Set(
             1, 0,
@@ -170,14 +170,14 @@ export class Matrix2 extends Float32Array
         )
     }
 
-    Clone(): Matrix2
+    public Clone(): Matrix2
     {
         return new Matrix2(this)
     }
 
     public static readonly SIZE: number = 4
 
-    static get ZERO(): Matrix2
+    public static get ZERO(): Matrix2
     {
         return new Matrix2(
             0, 0,
@@ -185,7 +185,7 @@ export class Matrix2 extends Float32Array
         )
     }
 
-    static get IDENTITY(): Matrix2
+    public static get IDENTITY(): Matrix2
     {
         return new Matrix2(
             1, 0,

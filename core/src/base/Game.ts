@@ -1,9 +1,7 @@
-import { IDelay, CalcuateDelay, setContext } from "@fwge/common"
+import { CalcuateDelay, IDelay, setContext } from "@fwge/common"
 import { System } from "../ecs"
-import { Component, SharedComponent } from "../ecs/Component"
+import { Component } from "../ecs/Component"
 import { Class, Registry, SceneId } from "../ecs/Registry"
-import { Library } from "./Library"
-import { Prefab } from "./Prefab"
 import { Scene } from "./Scene"
 
 interface IGame
@@ -11,14 +9,11 @@ interface IGame
     canvas?: HTMLCanvasElement
     systems: Class<System>[]
     components: Class<Component>[]
-    libraries: Class<SharedComponent>[]
 }
 
 export class Game
 {
     private _scenes: Scene[] = []
-    private _libraries: Map<Class<SharedComponent>, Library<SharedComponent>> = new Map()
-    private _prefabs: Map<string, Prefab> = new Map()
     private _activeScene?: Scene
     private _currTick: number = -1
     private _prevTick: number = -1
@@ -30,16 +25,12 @@ export class Game
     {
         for (const componentType of args.components)
         {
-          this._registry.registerComponentType(componentType)
+            this._registry.registerComponentType(componentType)
         }
 
         for (const systemType of args.systems)
         {
-          this._registry.registerSystemType(systemType)
-        }
-        for (const type of args.libraries)
-        {
-            this.CreateLibrary(type)
+            this._registry.registerSystemType(systemType)
         }
         
         if (args.canvas)
@@ -79,8 +70,12 @@ export class Game
             this._activeScene = this._scenes.first()
         }
 
+        this._prevTick = Date.now()
+        this._currTick = Date.now()
+
         this._activeScene?.Init()
         this._activeScene?.Start()
+
         this._tickId = window.requestAnimationFrame(() => this.Update(0))
     }
     
@@ -90,6 +85,7 @@ export class Game
         
         this._prevTick = this._currTick
         this._currTick = Date.now()
+        
         this._tickId = window.requestAnimationFrame(() => this.Update((this._currTick - this._prevTick) / 1000))
     }
     
@@ -101,8 +97,8 @@ export class Game
         {
             if (this._tickId !== undefined)
             {
-                this._activeScene?.Stop()
                 window.cancelAnimationFrame(this._tickId)
+                this._activeScene?.Stop()
                 this._tickId = undefined
             }
         }, CalcuateDelay(arg))
@@ -155,49 +151,6 @@ export class Game
         {
             this._activeScene = scene
         }
-    }
-    //#endregion
-
-    //#region Library
-    CreateLibrary<T extends SharedComponent>(type: Class<T>): Library<T>
-    {
-        if (!this._libraries.has(type))
-        {
-            this._libraries.set(type, new Library(type, this._registry))
-        }
-
-        return this._libraries.get(type) as Library<T>
-    }
-
-    GetLibrary<T extends SharedComponent>(type: Class<T>): Library<T>
-    {
-        const library = this._libraries.get(type)
-
-        if (!library)
-        {
-            throw new Error(`Library not created`)
-        }
-        
-        return library as Library<T>
-    }
-    //#endregion
-    
-    //#region Prefab
-    CreatePrefab(name: string): Prefab
-    {
-        if (this._prefabs.has(name))
-        {
-            throw new Error(`Name ${ name } already exists`)
-        }
-
-        const prefab = new Prefab()
-        this._prefabs.set(name, prefab)
-        return prefab
-    }
-
-    GetPrefab(name: string): Prefab | undefined
-    {
-        return this._prefabs.get(name)
     }
     //#endregion
 

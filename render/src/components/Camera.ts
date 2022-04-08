@@ -69,13 +69,13 @@ export class Camera extends UniqueComponent
             switch (this._mode)
             {
                 case ViewMode.PERSPECTIVE:
-                    this._matrix = Perspective(this.NearClipping, this.FarClipping, this.FieldOfView, this.AspectRatio)
+                     Perspective(this.NearClipping, this.FarClipping, this.FieldOfView, this.AspectRatio, this._matrix)
                     break
                 case ViewMode.ORTHOGRAPHIC:
-                    this._matrix = Orthographic(this.Left, this.Right, this.Top, this.Bottom, this.NearClipping, this.FarClipping, this.HorizontalTilt, this.VerticalTilt)
+                    Orthographic(this.Left, this.Right, this.Top, this.Bottom, this.NearClipping, this.FarClipping, this.HorizontalTilt, this.VerticalTilt, this._matrix)
                     break
                 case ViewMode.LOOKAT:
-                    this._matrix = LookAt(this.Owner!.GetComponent(Transform)!.Position, this.Target, this.Up)
+                    LookAt(this.Owner!.GetComponent(Transform)!.Position, this.Target, this.Up, this._matrix)
                     break
             }
 

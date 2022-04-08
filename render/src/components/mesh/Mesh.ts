@@ -3,6 +3,9 @@ import { SharedComponent } from "@fwge/core"
 
 export class Mesh extends SharedComponent
 {
+    public VertexBuffer: WebGLBuffer | null = null
+    public IndexBuffer: WebGLBuffer | null = null
+    public WireframeBuffer: WebGLBuffer | null = null
     public readonly VertexArrayBuffer: WebGLVertexArrayObject | null = GL.createVertexArray()
     
     get VertexCount(): number

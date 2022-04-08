@@ -1,7 +1,24 @@
 import { lerp } from '../utils/Math'
 
+const max_vector3 = 100_000
+const vec3_buffer = new Float32Array(max_vector3)
+let index = 0
+
 export class Vector3 extends Float32Array
 {
+    [index: number]: number
+    private readonly _x: number = index++
+    private readonly _y: number = index++
+    private readonly _z: number = index++
+
+    // '0': number = 0
+    // '1': number = 0
+    // '2': number = 0
+
+    public get Buffer(): ArrayBuffer
+    {
+        return this
+    }
     private _dirty: boolean = true
     get Dirty(): boolean
     {

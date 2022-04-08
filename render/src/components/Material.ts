@@ -1,4 +1,4 @@
-import { Colour4 } from "../base"
+import { Colour4, ShaderAsset } from "../base"
 import { GL, isPowerOf2 } from "@fwge/common"
 import { SharedComponent } from "@fwge/core"
 
@@ -24,6 +24,8 @@ export class Material extends SharedComponent
     _imageTexture: WebGLTexture | null = null
     _normalTexture: WebGLTexture | null = null
     _specularTexture: WebGLTexture | null = null
+
+    public Shader: ShaderAsset | null = null
 
     get Ambient(): Colour4
     {

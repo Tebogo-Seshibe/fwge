@@ -3,46 +3,99 @@ import { Component } from "./Component"
 import { Entity } from "./Entity"
 import { Class, EntityId, Registry, TypeId } from "./Registry"
 
+interface ISystem
+{
+    async?: boolean
+    tickRate?: number
+    requiredComponents: Class<Component>[]
+}
 export abstract class System
 {
-    protected entities: Entity[] = []
-    protected componentTypes: Set<Class<Component>> = new Set()
+    private readonly _tickRate: number
+    private readonly _async: boolean
 
-    constructor(protected scene: Scene, ...componentTypes: Class<Component>[])
+    private _prevTick: number = -1
+    private _currTick: number = -1
+    private _tickId: number = -1
+
+    public readonly entities: EntityId[] = []
+    public readonly requiredComponents: Set<Class<Component>> = new Set()
+
+    constructor(protected scene: Scene, config: ISystem)
     {
-        this.componentTypes = new Set(componentTypes)
+        this._async = config.async ?? false
+        this._tickRate = config.tickRate ?? 60
+        this.requiredComponents = new Set(config.requiredComponents)
+
+        console.log(this)
     }
 
-    public Init(): void { }
-    public Start(): void { }
-    public Update(_: number): void { }
-    public Stop(): void { }
+    public abstract Init(): void
+    public abstract Start(): void
+    public abstract Update(_: number): void
+    public abstract Stop(): void
 
+    //#region Control Logic
+    public onStart()
+    {
+        if (this._async)
+        {
+            this._prevTick = Date.now()
+            this._currTick = Date.now()
+            window.setInterval(this.onUpdate.bind(this), this._tickRate)
+        }
+
+        this.Start()
+    }
+
+    protected onUpdate()
+    {
+        this._prevTick = this._currTick
+        this._currTick = Date.now()
+
+        this.Update((this._currTick - this._prevTick) / 1000)
+    }
+
+    public onStop()
+    {
+        if (this._async)
+        {
+            this._prevTick = -1
+            this._currTick = -1
+            window.clearInterval(this._tickId)
+        }
+
+        this.Stop()
+    }
+    //#endregion
+
+    //#region Entity Logic
     public OnUpdateEntity(entity: Entity): void
     {
         const isValid = this.IsValidEntity(entity)
     
-        if (isValid && !this.entities.includes(entity))
+        if (isValid && !this.entities.includes(entity.Id))
         {
-            this.entities.push(entity)
+            this.entities.push(entity.Id)
         }
-        else if (!isValid && this.entities.includes(entity))
+        else if (!isValid && this.entities.includes(entity.Id))
         {
-            const entityIndex = this.entities.indexOf(entity)
+            const entityIndex = this.entities.indexOf(entity.Id)
             this.entities.swap(entityIndex, this.entities.length - 1)
             this.entities.pop()
         }
     }
 
-    private IsValidEntity(entity: Entity): boolean
+    protected IsValidEntity(entity: Entity): boolean
     {
-        let valid = this.componentTypes.size > 0
+        let valid = this.requiredComponents.size > 0
 
-        for (const componentType of this.componentTypes)
+        for (const componentType of this.requiredComponents)
         {
             valid = valid && entity.HasComponent(componentType)
         }
 
         return valid
     }
+    //#endregion
 }

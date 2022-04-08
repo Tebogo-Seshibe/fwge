@@ -18,8 +18,8 @@ export class Scene
     }
 
     private _context?: HTMLCanvasElement
-    private _entities: Entity[] = []
-    private _systems: System[] = []
+    private readonly _entities: Map<EntityId, Entity> = new Map()
+    private readonly _systems: System[] = []
 
     readonly Id: SceneId = Scene.sceneId++
     constructor(registry: Registry)
@@ -39,7 +39,7 @@ export class Scene
     {
         for (const system of this._systems)
         {
-            system.Start()
+            system.onStart()
         }
     }
 
@@ -55,7 +55,7 @@ export class Scene
     {
         for (const system of this._systems)
         {
-            system.Stop()
+            system.onStop()
         }
     }
     
@@ -64,18 +64,19 @@ export class Scene
         this._systems.push(new system(this, ...args))
         return this
     }
-
+    
     SetContext(canvas?: HTMLCanvasElement): void
     {
         this._context = canvas
     }
     
+    //#region Entity Logic
     CreateEntity(): Entity
     CreateEntity<T extends Entity, K extends any[]>(constructor: Constructor<T, [Scene, ...K]>, ...args: K): T
     CreateEntity<T extends Entity, K extends any[]>(constructor?: Constructor<T, [Scene, ...K]>, ...args: K): T
     {
         const entity = constructor ? new constructor(this, ...args) : new Entity(this)
-        this._entities.push(entity)
+        this._entities.set(entity.Id, entity)
         this.OnEntity(entity)
 
         return entity as T
@@ -83,7 +84,7 @@ export class Scene
 
     GetEntity(entityId: EntityId): Entity | undefined
     {
-        return this._entities.find(entity => entity?.Id === entityId)
+        return this._entities.get(entityId)
     }
 
     RemoveEntity(entityId: EntityId): void
@@ -94,9 +95,9 @@ export class Scene
             ? this.GetEntity(arg)
             : arg
 
-        if (entity && this._entities.includes(entity))
+        if (entity && this._entities.has(entity.Id))
         {
-            this._entities = this._entities.filter(x =>  entity.Id === x.Id)
+            this._entities.delete(entity.Id)
             this.OnEntity(entity)
         }
     }
@@ -108,4 +109,5 @@ export class Scene
             system.OnUpdateEntity(entity)
         }
     }
+    //#endregion
 }

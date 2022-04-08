@@ -2,71 +2,293 @@ import { AudioPlayer } from "@fwge/audio"
 import { randBetween, Vector2, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { ButtonState, Input, InputSystem, KeyState } from "@fwge/input"
-import { CubeCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
-import { Camera, Colour4, Material, Mesh, PointLight, RenderSystem, Shader } from "@fwge/render"
+import { Collider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
+import { Camera, Colour4, Material, OBJParser, ParticleSystem, PointLight, RenderSystem, ShaderAsset, StaticMesh } from "@fwge/render"
+import sponzaMTL from '../../../assets/objects/obj_2/sponza.mtl?raw'
+import sponzaOBJ from '../../../assets/objects/obj_2/sponza.obj?raw'
+import basicFrag from '../../../assets/shaders/Basic.frag?raw'
+import basicVert from '../../../assets/shaders/Basic.vert?raw'
+import defaultFrag from '../../../assets/shaders/Default.frag?raw'
+import defaultVert from '../../../assets/shaders/Default.vert?raw'
+import simpleFrag from '../../../assets/shaders/Simple.frag?raw'
+import simpleVert from '../../../assets/shaders/Simple.vert?raw'
+import commonFrag from '../../../assets/shaders/_common.frag?raw'
+import commonVert from '../../../assets/shaders/_common.vert?raw'
+import lightingFrag from '../../../assets/shaders/_lighting.frag?raw'
+import lightingVert from '../../../assets/shaders/_lighting.vert?raw'
+import { Cube } from "../../shared/Cube"
 import { FrameCounter } from "../../shared/FrameCounter"
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
-{
-    const meshLibrary = game.GetLibrary(Mesh)
-    const shaderLibrary = game.GetLibrary(Shader)
-    const materialLibrary = game.GetLibrary(Material)
-    const scriptLibrary = game.GetLibrary(Script)
-    const audioLibrary = game.GetLibrary(AudioPlayer)
+{        
+    const spinnerScript = new Script(
+    {
+        start()
+        {
+            this.GetComponent(Transform)!.Rotation.Set(0, Math.random() * 360, Math.random() * 360)
+        },
+        update(delta: number)
+        {
+            this.GetComponent(Transform)!.Rotation.Y += delta * 7
+            this.GetComponent(Transform)!.Rotation.Z += delta * 12
+        }
+    })
+
+    const cubeMesh = new StaticMesh(
+    {
+        position:
+        [
+            new Vector3(-0.5,  0.5,  0.5),
+            new Vector3(-0.5, -0.5,  0.5),
+            new Vector3( 0.5, -0.5,  0.5),
+            new Vector3( 0.5,  0.5,  0.5),
+            
+            new Vector3( 0.5,  0.5,  0.5),
+            new Vector3( 0.5, -0.5,  0.5),
+            new Vector3( 0.5, -0.5, -0.5),
+            new Vector3( 0.5,  0.5, -0.5),
+            
+            new Vector3( 0.5,  0.5, -0.5),
+            new Vector3( 0.5, -0.5, -0.5),
+            new Vector3(-0.5, -0.5, -0.5),
+            new Vector3(-0.5,  0.5, -0.5),
+            
+            new Vector3(-0.5,  0.5, -0.5),
+            new Vector3(-0.5, -0.5, -0.5),
+            new Vector3(-0.5, -0.5,  0.5),
+            new Vector3(-0.5,  0.5,  0.5),
+            
+            new Vector3(-0.5,  0.5, -0.5),
+            new Vector3(-0.5,  0.5,  0.5),
+            new Vector3( 0.5,  0.5,  0.5),
+            new Vector3( 0.5,  0.5, -0.5),
+            
+            new Vector3(-0.5, -0.5,  0.5),
+            new Vector3(-0.5, -0.5, -0.5),
+            new Vector3( 0.5, -0.5, -0.5),
+            new Vector3( 0.5, -0.5,  0.5),
+        ],
+        normal:
+        [
+            new Vector3( 0.0,  0.0, -1.0),
+            new Vector3( 0.0,  0.0, -1.0),
+            new Vector3( 0.0,  0.0, -1.0),
+            new Vector3( 0.0,  0.0, -1.0),
+            
+            new Vector3( 1.0,  0.0,  0.0),
+            new Vector3( 1.0,  0.0,  0.0),
+            new Vector3( 1.0,  0.0,  0.0),
+            new Vector3( 1.0,  0.0,  0.0),
+            
+            new Vector3( 0.0,  0.0,  1.0),
+            new Vector3( 0.0,  0.0,  1.0),
+            new Vector3( 0.0,  0.0,  1.0),
+            new Vector3( 0.0,  0.0,  1.0),
+            
+            new Vector3(-1.0,  0.0,  0.0),
+            new Vector3(-1.0,  0.0,  0.0),
+            new Vector3(-1.0,  0.0,  0.0),
+            new Vector3(-1.0,  0.0,  0.0),
+            
+            new Vector3( 0.0,  1.0,  0.0),
+            new Vector3( 0.0,  1.0,  0.0),
+            new Vector3( 0.0,  1.0,  0.0),
+            new Vector3( 0.0,  1.0,  0.0),
+            
+            new Vector3( 0.0, -1.0,  0.0),
+            new Vector3( 0.0, -1.0,  0.0),
+            new Vector3( 0.0, -1.0,  0.0),
+            new Vector3( 0.0, -1.0,  0.0),
+        ],
+        colour:
+        [
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+            new Colour4(1.0, 1.0, 1.0, 1.0),
+        ],
+        uv:
+        [                
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+
+            new Vector2(0.0, 1.0),
+            new Vector2(0.0, 0.0),
+            new Vector2(1.0, 0.0),
+            new Vector2(1.0, 1.0),
+        ],
+        index:
+        [
+                0,  1,  2,  0,  2,  3,
+                4,  5,  6,  4,  6,  7,
+                8,  9, 10,  8, 10, 11,
+            12, 13, 14, 12, 14, 15,
+            16, 17, 18, 16, 18, 19,
+            20, 21, 22, 20, 22, 23,
+        ],
+        wireframe:
+        [
+                0,  1,  1,  2,  2,  3,  3,  0,
+                4,  5,  5,  6,  6,  7,  7,  4,
+                8,  9,  9, 10, 10, 11, 11,  8,
+            12, 13, 13, 14, 14, 15, 15, 12,
+            16, 17, 17, 18, 18, 19, 19, 16,
+            20, 21, 21, 22, 22, 23, 23, 20,
+        ]
+    })
+    const simpleShader = new ShaderAsset(
+    {
+        vertexShader:
+        {
+            source: simpleVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
+            input: []
+        },
+        fragmentShader:
+        {
+            source: simpleFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag),
+            input: []
+        },
+    })
+    const basicShader = new ShaderAsset(
+    {
+        vertexShader:
+        {
+            source: basicVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
+            input: []
+        },
+        fragmentShader:
+        {
+            source: basicFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag),
+            input: []
+        },
+    })
+    const defaultShader = new ShaderAsset(
+    {
+        vertexShader:
+        {
+            source: defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
+            input: []
+        },
+        fragmentShader:
+        {
+            source: defaultFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag),
+            input: []
+        },
+    })
+
+    const cubeUVMaterial = new Material(
+    {
+        ambient: new Colour4(0.25, 0.25, 0.25, 1),
+        diffuse: new Colour4(0.75, 0.75, 0.75, 1),
+        specular: new Colour4(1, 1, 1, 1),
+        alpha: 1,
+        shininess: 32,
+        imagemap: 'assets/img/CubeUV.png',
+    })
+    const tebogoMaterial = new Material(
+    {
+        ambient: new Colour4(0.25, 0.25, 0.25, 1),
+        diffuse: new Colour4(0.75, 0.75, 0.75, 1),
+        specular: new Colour4(1, 1, 1, 1),
+        alpha: 1,
+        shininess: 32,
+        imagemap: 'assets/img/Tebogo.png'
+    })
+
+    cubeUVMaterial.Shader = defaultShader
+    tebogoMaterial.Shader = defaultShader
+
+    const oofAudio = new AudioPlayer({ source: '/assets/audio/Minecraft Death Sound Effect.mp3' })
+
+    const hmm = new OBJParser()
+    // const prefabs = hmm.hmm(sponzaOBJ, sponzaMTL)
 
     const scene = game.CreateScene()
     scene.UseSystem(InputSystem)
-        .UseSystem(PhysicsSystem)
-        .UseSystem(RenderSystem)
+        .UseSystem(PhysicsSystem, 60)
         .UseSystem(ScriptSystem)
+        .UseSystem(ParticleSystem)
+        .UseSystem(RenderSystem)
         .UseSystem(FrameCounter, fpsCounter)
     
-    const camera = scene.CreateEntity()
-        .AddComponent(new Transform())
-        .AddComponent(new Camera())
-        Camera.Main = camera.GetComponent(Camera)!
 
+    const light = scene.CreateEntity()
+        .AddComponent(new Transform())
+        .AddComponent(new PointLight(
+        {
+            colour: new Colour4(1,1,1,1),
+            intensity: 1,
+            radius: 2
+        }))
+
+    // Player
     const player = scene.CreateEntity()
-        .AddComponent(new Transform(
-        {
-            position: [ 0, 1.5, -5 ],
-        }))
-        // .AddComponent(new Script(
+        .AddComponent(new Transform({ position: new Vector3(0, 0, 20)}))
+        .AddComponent(new Camera())
+        // .AddComponent(new PointLight(
         // {
-        //     update(delta: number)
-        //     {
-        //         // this.GetComponent(Transform)!.Position.Y -= delta
-        //     }    
+        //     colour: new Colour4(1.0, 1.0, 1.0, 1.0),
+        //     intensity: 1.0,
+        //     radius: 15
         // }))
-        .AddComponent(new CubeCollider(
-        {
-            isTrigger: true,
-            onCollisionEnter(other)
-            {
-                this.GetComponent(AudioPlayer)!.Play({ seconds: 5 })
-                other.GetComponent(Material)!.Ambient = new Colour4(1.0, 0.0, 0.0, 1.0)
-            },
-            onCollisionExit(other)
-            {
-                other.GetComponent(Material)!.Ambient = new Colour4(1.0, 1.0, 1.0, 1.0)
-            }
-        }))
-        .AddComponent(new RigidBody({ }))
-        .AddComponent(new PointLight())
-        .AddComponent(audioLibrary.Get('Oof'))
-        .AddComponent(meshLibrary.Get('OBJ Cube'))
-        .AddComponent(shaderLibrary.Get('Simple'))
-        .AddComponent(materialLibrary.Get('OBJ Cube'))
+        .AddComponent(oofAudio)
         .AddComponent(new Input(
         {
-            onInput({ Keyboard, Controllers, Mouse })
+            onInput({ Keyboard, Controllers }, delta)
             {
+                if (Keyboard.KeyF5 !== KeyState.UP)
+                {
+                    window.location.reload()
+                }
+                
                 const velocity = Vector3.ZERO                
-                const speed = (
-                    Keyboard.KeyShift === KeyState.DOWN
-                    ? 5
-                    : 2.5
-                )
 
                 const controller = Controllers.find(x => !!x)
                 if (controller)
@@ -90,77 +312,94 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 }
                 else
                 {
+                    const moveSpeed = Keyboard.KeyShift === KeyState.DOWN ? 10 : 5
+                    const turnSpeed = delta * 100
                     if (Keyboard.KeyD === KeyState.DOWN)
                     {
-                        velocity.X += speed
+                        velocity.X += moveSpeed
                     }
     
                     if (Keyboard.KeyA === KeyState.DOWN)
                     {
-                        velocity.X -= speed
+                        velocity.X -= moveSpeed
                     }
     
                     if (Keyboard.KeyW === KeyState.DOWN)
                     {
-                        velocity.Y += speed
+                        velocity.Z -= moveSpeed
                     }
     
                     if (Keyboard.KeyS === KeyState.DOWN)
                     {
-                        velocity.Y -= speed
+                        velocity.Z += moveSpeed
+                    }
+
+                    if (Keyboard.KeyQ === KeyState.DOWN)
+                    {
+                        velocity.Y += moveSpeed
+                    }
+    
+                    if (Keyboard.KeyE === KeyState.DOWN)
+                    {
+                        velocity.Y -= moveSpeed
+                    }
+
+                    if (Keyboard.KeyLeft === KeyState.DOWN)
+                    {
+                        this.GetComponent(Transform)!.Rotation.Y -= turnSpeed
+                    }
+
+                    if (Keyboard.KeyRight === KeyState.DOWN)
+                    {
+                        this.GetComponent(Transform)!.Rotation.Y += turnSpeed
                     }
                 }
 
-                this.GetComponent(RigidBody)?.Velocity.Set(velocity)
+                this.GetComponent(Transform)?.Position.Sum(velocity.Scale(delta))
             }
         }))
 
-    scene.CreateEntity()
-        .AddComponent(meshLibrary.Get('OBJ Cube'))
-        .AddComponent(materialLibrary.Get('Default'))
-        .AddComponent(shaderLibrary.Get('Simple'))
-        .AddComponent(new CubeCollider({ isStatic: false }))
-        .AddComponent(new RigidBody())
-        .AddComponent(new Transform(
-        {
-            position: [ 0, 0, -5 ]
-        }))
-        .AddComponent(new Material(
-        {
-            ambient: new Colour4(1.0, 1.0, 1.0, 1.0)
-        }))
+        
+    const parent = scene.CreateEntity().AddComponent(new Transform())
+    const max = 8
+    for (let i = 0; i < 512; ++i)
+    {
+        const angle = (i % max) / max
+        const radius = Math.floor(i / max - angle) * 1.5
+        const x = Math.sin(angle * 2 * Math.PI)
+        const y = Math.cos(angle * 2 * Math.PI)
+        const z = 0
 
-    // for (let i = 0; i < 100; ++i)
-    // {
-    //     const child = scene.CreateEntity()
-    //         .AddComponent(meshLibrary.Get('OBJ Cube'))
-    //         .AddComponent(shaderLibrary.Get('Simple'))
-    //         .AddComponent(new CubeCollider(
-    //         {
-    //             isTrigger: false
-    //         }))
-    //         .AddComponent(new RigidBody(
-    //         {
-    //             // velocity: new Vector3(
-    //             //     randBetween(-2, 2),
-    //             //     randBetween(-2, 2),
-    //             //     0
-    //             // )
-    //         }))
-    //         .AddComponent(new Transform(
-    //         {
-    //             scale: new Vector3(1),
-    //             position: [
-    //                 randBetween(-35, 35),
-    //                 randBetween(-25, 25),
-    //                 -50
-    //             ]
-    //         }))
-    //         .AddComponent(new Material(
-    //         {
-    //             ambient: new Colour4(1.0, 1.0, 1.0, 1.0)
-    //         }))
-    // }
+        const child = scene.CreateEntity()
+            .AddComponent(cubeMesh)
+            .AddComponent(cubeUVMaterial)
+            .AddComponent(spinnerScript)
+            .AddComponent(new SphereCollider({ radius: 1 }))
+            .AddComponent(new Transform(
+            {
+                position: new Vector3(
+                    x * (radius + 3.5),
+                    y * (radius + 3.5),
+                    z * (radius + 3.5),
+                )
+            }))
+
+        setTimeout(() =>
+        {
+            child.AddComponent(new RigidBody(
+            {
+                velocity: new Vector3(
+                    -x,
+                    -y,
+                    0
+                )
+            }))
+        }, 2000)
+        parent.AddChild(child)
+    }
+        
+    console.log(parent)
+    Camera.Main = player.GetComponent(Camera)!
 
     return scene
 }
