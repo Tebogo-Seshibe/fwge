@@ -4,7 +4,6 @@ import { Class, ComponentId, EntityId } from './Registry'
 
 export class Entity
 {
-    private _components: Array<Component | undefined> = []
     private _children: Entity[] = []
     private _parent?: Entity
     
@@ -31,9 +30,9 @@ export class Entity
             .filter(x => x !== undefined) as Entity[]
     }
 
-    public get Components(): Component[]
+    public get Components(): Array<Component | undefined>
     {
-        return this._components.filter(x => x !== undefined) as Component[]
+        return this._scene.Registry.getAllEntityComponents(this.Id)
     }
 
     constructor(
@@ -48,8 +47,7 @@ export class Entity
         {
             this._scene.Registry.createComponent(component)
         }
-
-        this._components[component.Type._typeIndex!] = component!
+        this._scene.Registry.attachComponent(component, this.Id)
         this._scene.OnEntity(this)
 
         return this
@@ -57,12 +55,12 @@ export class Entity
 
     public GetComponent<T extends Component>(componentType: Class<T>): T | undefined
     {
-      return this._components[componentType._typeIndex!] as T
+      return this._scene.Registry.getEntityComponent(this.Id, componentType) as T
     }
 
     public HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        return this._components[componentType._typeIndex!] !== undefined
+        return this._scene.Registry.getEntityComponent(this.Id, componentType) !== undefined
     }
     
     public RemoveComponent<T extends Component>(componentType: Class<T>): Entity
@@ -71,9 +69,9 @@ export class Entity
         if (component)
         {
             component.RemoveOwner(this)
+            this._scene.Registry.detachComponent(component, this.Id)
         }
 
-        this._components[componentType._typeIndex!] = undefined
         this._scene.OnEntity(this)
 
         return this

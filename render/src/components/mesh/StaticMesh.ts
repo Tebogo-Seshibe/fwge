@@ -111,6 +111,10 @@ export class StaticMesh extends Mesh
 
                 offset += Colour4.SIZE
             }
+
+            {
+                
+            }
         }
 
         this.VertexBuffer = GL.createBuffer()

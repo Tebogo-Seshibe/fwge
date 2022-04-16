@@ -1,4 +1,4 @@
-layout(location = 0) in vec3 A_Position;
+layout(location = 0) in vec4 A_Position;
 layout(location = 1) in vec3 A_Normal;
 layout(location = 2) in vec2 A_UV;
 layout(location = 3) in vec4 A_Colour;
@@ -20,7 +20,7 @@ uniform Matrix U_Matrix;
 
 void passVertexData()
 {
-    V_Position = U_Matrix.ModelView * vec4(A_Position, 1.0);;
+    V_Position = U_Matrix.ModelView * A_Position;
     V_Normal = A_Normal;
     V_UV = A_UV;
     V_Colour = A_Colour;

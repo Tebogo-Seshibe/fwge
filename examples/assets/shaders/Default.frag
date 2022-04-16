@@ -1,5 +1,6 @@
 #version 300 es
 precision mediump float;
+
 const int MAX_LIGHTS = 4;
 
 struct Material 
@@ -34,22 +35,17 @@ struct Sampler
 };
 uniform Sampler U_Sampler;
 
-in vec4 V_Colour;
-in vec2 V_UV;
-in vec3 V_Normal;
-in vec3 V_Position;
-in vec4 V_Shadow;
-out vec4 FragColor;
+// common.frag
 
 vec4 CalcPointLight(in PointLight point)
 {                
     float falloff = smoothstep(
         point.Radius,
         0.0,
-        min(length(point.Position - V_Position), point.Radius)
+        min(length(point.Position - V_Position.xyz), point.Radius)
     );
-    vec3 L = normalize(point.Position - V_Position);
-    vec3 E = -V_Position;
+    vec3 L = normalize(point.Position - V_Position.xyz);
+    vec3 E = -V_Position.xyz;
     vec3 N = V_Normal;
 
     vec3 H = normalize(L + E);
@@ -107,5 +103,5 @@ vec4 Colour()
 
 void main()
 { 
-    FragColor = vec4((Colour() /* Light()*/).rgb, U_Material.Alpha);
+    OutColour = vec4((Colour() * Light()).rgb, U_Material.Alpha);
 }

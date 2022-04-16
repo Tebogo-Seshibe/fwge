@@ -90,11 +90,11 @@ vec4 CalcPointLight(in PointLight point)
     1.0);
 }
 
-vec4 PointLightColour()
-{
-    return 
-        CalcPointLight(U_PointLight[0]) +
-        CalcPointLight(U_PointLight[1]) +
-        CalcPointLight(U_PointLight[2]) +
-        CalcPointLight(U_PointLight[3]);
-}
+// vec4 PointLightColour()
+// {
+//     return 
+//         CalcPointLight(U_PointLight[0]) +
+//         CalcPointLight(U_PointLight[1]) +
+//         CalcPointLight(U_PointLight[2]) +
+//         CalcPointLight(U_PointLight[3]);
+// }

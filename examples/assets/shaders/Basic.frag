@@ -1,17 +1,28 @@
 #version 300 es
 precision mediump float;
 
-struct Global
-{
-    int ObjectID;
-    int ObjectCount;
-};
-uniform Global U_Global;
+// common.frag
+// lighting.frag
 
-in vec4 V_Colour;
-out vec4 FragColor;
-void main(void)
+vec4 MyCalcPointLight(in PointLight point)
 {
-    FragColor = V_Colour;
-    // gl_FragColor = vec4(vec3(float(U_Global.ObjectID) / float(U_Global.ObjectCount)), 1.0);
+    float falloff = smoothstep(point.Radius, 0.0, min(length(point.Position - V_Position.xyz), point.Radius));
+    return vec4(vec3(falloff), 1.0);
+}
+
+vec4 Light()
+{
+    vec4 light = vec4(0.0);
+    
+    light += MyCalcPointLight(U_PointLight[0]);
+    light += MyCalcPointLight(U_PointLight[1]);
+    light += MyCalcPointLight(U_PointLight[2]);
+    light += MyCalcPointLight(U_PointLight[3]);
+
+    return light;
+}
+
+void main()
+{ 
+    OutColour = vec4(Light().rgb, U_Material.Alpha);
 }

@@ -2,6 +2,7 @@ import { GL } from "@fwge/common"
 import { Asset, Class, Entity } from "@fwge/core"
 import { MaterialUniform } from "../components/shader/MaterialUniform"
 import { MatrixUniform } from "../components/shader/MatrixUniform"
+import { PointLightUniform } from "../components/shader/PointLightUniform"
 import { ShaderFieldType } from "../components/shader/types/Types"
 
 export class ShaderInput<T extends ShaderFieldType<any>>
@@ -36,6 +37,7 @@ export class ShaderAsset extends Asset
 
     public Matrices: MatrixUniform | null = null
     public Material: MaterialUniform | null = null
+    public Lights: PointLightUniform[] | null = null
     public readonly Inputs: Map<string, WebGLUniformLocation | null> = new Map()
     
     get Program(): WebGLProgram | null
@@ -121,6 +123,16 @@ export class ShaderAsset extends Asset
             GL.getUniformLocation(this._program, 'U_Material.HasImageMap')
         )
         
+        this.Lights = []
+        for (let i = 0; i < 4; ++i)
+        {
+            this.Lights.push(new PointLightUniform(
+                GL.getUniformLocation(this._program, `U_PointLight[${i}].Colour`),
+                GL.getUniformLocation(this._program, `U_PointLight[${i}].Intensity`),
+                GL.getUniformLocation(this._program, `U_PointLight[${i}].Position`),
+                GL.getUniformLocation(this._program, `U_PointLight[${i}].Radius`),
+            ))
+        }
         GL.useProgram(null)
     }
 
@@ -167,6 +179,7 @@ export class ShaderAsset extends Asset
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
         {
             log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
+            log.push(this._vertexSource)
         }
 
 
@@ -175,6 +188,7 @@ export class ShaderAsset extends Asset
         if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
         {
             log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
+            log.push(this._fragmentSource)
         }
 
         GL.attachShader(program, vertexShader)

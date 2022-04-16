@@ -33,6 +33,7 @@ export class Registry
     private _components: Component[][] = []
     private _systemId: TypeId = 0
     private systems: System[][] = []
+    private _entities: Array<Map<EntityId, Component | undefined>> = []
 
     //#region Ids
     createEntity(): EntityId
@@ -55,6 +56,38 @@ export class Registry
         return !Number.isNaN(componentId)
             ? this._components[componentTypeId][componentId!] as T
             : undefined
+    }
+
+    getAllEntityComponents(entityId: EntityId): Array<Component | undefined>
+    {
+        const arr: Array<Component | undefined> = new Array(this._components.length).fill(undefined)
+        
+        for (let i = 0; i < this._components.length; ++i)
+        {
+            arr[i] = this._entities[i].get(entityId) as Component
+        }
+
+        return arr
+    }
+    getEntityComponent<T extends Component>(entityId: EntityId, type: Class<T>): T | undefined
+    {
+        return this._entities[type._typeIndex!]?.get(entityId) as T
+    }
+
+    attachComponent<T extends Component>(component: T, entityId: EntityId):  void
+    {
+        const componentId = component.Type._typeIndex!   
+        if (!this._entities[componentId])
+        {
+            this._entities[componentId] = new Map()
+        }
+
+        this._entities[componentId].set(entityId, component)
+    }
+
+    detachComponent<T extends Component>(component: T, entityId: EntityId):  void
+    {
+        this._entities[component.Type._typeIndex!].delete(entityId)
     }
 
     removeComponent<T extends Component>(component: T): void

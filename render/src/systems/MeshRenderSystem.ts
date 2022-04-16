@@ -1,143 +1,206 @@
-import { GL, Matrix3, Matrix4 } from '@fwge/common'
+import { GL, Vector2 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
-import { Camera, DynamicMesh, Material, Mesh, PointLight, Shader } from '../components'
+import { ShaderAsset } from '../base'
+import { Camera, Material, Mesh, PointLight } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
 export class MeshRenderSystem extends System
 {
-    private _shaders: Set<Shader> = new Set()
+    private _screenVAO: WebGLVertexArrayObject | null = null
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
+    private _screenShader: ShaderAsset | null = null
 
+    private _batches: Map<Material, EntityId[]> = new Map()
+
+    constructor(manager: Scene)
+    {
+        super(manager,
+        {
+            requiredComponents: [ Transform, Mesh, Material ]
+        })
+    }
 
     Init(): void
     {
+        this._buildScreenShader()
+
         for (const entityId of this.entities)
         {
             const entity = this.scene.GetEntity(entityId)!
-            const shader = entity.GetComponent(Shader)!
+            const material = entity.GetComponent(Material)!
+
+            if (!this._batches.has(material))
+            {
+                this._batches.set(material, [])
+            }
             
-            this._shaders.add(shader)
+            this._batches.get(material)!.push(entity.Id)
         }
+    }
+
+    private _buildScreenShader()
+    {
+        this._screenShader = new ShaderAsset(
+        { 
+            vertexShader:
+            {
+                source: `#version 300 es
+                layout(location = 0) in vec3 A_Position;
+                layout(location = 1) in vec2 A_UV;
+
+                out vec2 V_UV;
+                void main()
+                {
+                    V_UV =  A_UV;
+                    gl_Position = vec4(A_Position,  1.0);
+                }`,
+                input: []
+            },
+            fragmentShader:
+            {
+                source: `#version 300 es
+                precision highp float;
+                
+                out vec4 colour;
+                void main()
+                {
+                    colour = vec4(1.0);
+                }`,
+                input: []
+            }
+        })
+
+        const vertexbuffer = GL.createBuffer()
+        const indexBuffer = GL.createBuffer()
+        GL.bindBuffer(GL.ARRAY_BUFFER, vertexbuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
+        [
+            -0.5,  0.5,    0.0, 1.0,
+            -0.5, -0.5,    0.0, 0.0,
+             0.5, -0.5,    1.0, 0.0,
+             0.5,  0.5,    1.0, 1.0,
+        ]), GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, indexBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
+        [
+            0, 1, 2,
+            0, 2, 3
+        ]), GL.STATIC_DRAW)
+
+        this._screenVAO = GL.createVertexArray()
+        GL.bindVertexArray(this._screenVAO)
+        GL.enableVertexAttribArray(0)
+        GL.vertexAttribPointer(0, Vector2.SIZE, GL.FLOAT, false, 16, 0)
+
+        GL.enableVertexAttribArray(1)
+        GL.vertexAttribPointer(1, Vector2.SIZE, GL.FLOAT, false, 16, 8)
+
+        GL.bindVertexArray(null)
     }
 
     Start(): void
     {
-        GL.enable(GL.BLEND)
-        GL.disable(GL.DEPTH_TEST)
+        GL.enable(GL.DEPTH_TEST)
+        GL.disable(GL.BLEND)
         GL.enable(GL.CULL_FACE)
-                
-        for (const shader of this._shaders)
-        {
-            GL.useProgram(shader.Program)
-
-            shader.AttributeList.forEach(attribute =>
-            {
-                GL.enableVertexAttribArray(attribute.Id)
-            })
-        }
         
-        GL.useProgram(null)
+        GL.canvas.width = Camera.Main!.ScreenWidth
+        GL.canvas.height = Camera.Main!.ScreenHeight
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0.0, 0.0, 0.0, 1.0)
+        
     }
 
     Update(delta: number): void
     {
-        this._ClearCanvas()
-
-        if (Camera.Main)
+        if (!Camera.Main)
         {
-            for (const entityId of this.entities)
+            return
+        }
+
+        for (const [material, entityList] of this._batches)
+        {
+            this._useShader(material, delta)
+            for (const entityId of entityList)
             {
-                const entity = this.scene.GetEntity(entityId)!
-                this._Draw(entity, delta)
+                const transform = this.scene.Registry.getEntityComponent(entityId, Transform)!
+                const mesh = this.scene.Registry.getEntityComponent(entityId, Mesh)!
+
+                this._draw(transform, mesh, material)
             }
         }
 
+        GL.bindVertexArray(null)
+        GL.useProgram(null)
     }
 
     Stop(): void
     {
-        GL.enable(GL.DEPTH_TEST)
-        GL.disable(GL.BLEND)
+        GL.enable(GL.BLEND)
+        GL.disable(GL.DEPTH_TEST)
         GL.disable(GL.CULL_FACE)
-        
-        for (const shader of this._shaders)
-        {
-            GL.useProgram(shader.Program)
-            
-            shader.AttributeList.forEach(attribute =>
-            {
-                GL.disableVertexAttribArray(attribute.Id)
-            })
-        }
-        
-        GL.useProgram(null)
+    }
+
+    private _draw(transform: Transform, mesh: Mesh, material: Material): void
+    {
+        GL.bindVertexArray(mesh.VertexArrayBuffer)
+        GL.uniformMatrix4fv(material.Shader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
+        GL.uniformMatrix3fv(material.Shader!.Matrices!.Normal, false, transform.NormalMatrix)
+
+        // GL.uniform1i(uniforms.Global.ObjectID, entityId)
+        this._render(mesh)
     }
     
-    private _ClearCanvas(): void
+    private _useShader(material: Material, delta: number)
     {
-        for (const shader of this._shaders)
-        {
-            GL.viewport(shader.Offset[0], shader.Offset[1], shader.Width, shader.Height)
-            GL.clearColor(shader.Clear[0], shader.Clear[1], shader.Clear[2], shader.Clear[3])
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-        }
-
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0.0, 0.0, 0.0, 1.0)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-        
-        GL.canvas.width = Camera.Main!.ScreenWidth
-        GL.canvas.height = Camera.Main!.ScreenHeight
-    }
-
-    private _Draw(entity: Entity, delta: number): void
-    {
-        const shader = entity.GetComponent(Shader)!
-        const mesh = entity.GetComponent(Mesh)!
-        const material = entity.GetComponent(Material)!
-        const transform = entity.GetComponent(Transform)!
-        
+        const shader: ShaderAsset = material.Shader!
         GL.useProgram(shader.Program)
 
-        shader.AttributeList.forEach(attribute =>
-        {
-            GL.bindBuffer(GL.ARRAY_BUFFER, attribute.Accessor(entity))
-            GL.vertexAttribPointer(attribute.Id, attribute.Size, attribute.Type, attribute.Normalized, 0, 0)
-        })
-        shader.UniformList.forEach(uniform =>
-        {
-            uniform.Bind(uniform.Accessor(entity))
-        })
-        
+        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
+        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
 
-        const mat4 = transform.ModelViewMatrix
-        const mat3 = transform.NormalMatrix
-
-        this._BindUniforms(shader.BaseUniforms!, material, mat4, mat3, delta, entity.Id)
-        this._BindGlobalUniforms(shader.BaseUniforms!, shader.Height, shader.Width)
-        this._Render(shader, mesh)
-
-        GL.useProgram(null)
+        this._bindLightUniforms(material.Shader!)
+        this._bindMaterialUniforms(material, material.Shader!)
     }
 
-
-    private _BindUniforms(uniforms: ShaderUniforms, material: Material, mv: Matrix4, n: Matrix3, delta: number, entityId:  EntityId): void
+    private _bindMaterialUniforms(material: Material, shader: ShaderAsset)
     {
-        GL.uniform1f(uniforms.Global.Time, delta)
-        GL.uniform1i(uniforms.Global.ObjectID, entityId)
-
+        GL.uniform4f(
+            shader.Material!.AmbientColour,
+            material.Ambient[0],
+            material.Ambient[1],
+            material.Ambient[2],
+            material.Ambient[3],
+        )
+        GL.uniform4f(
+            shader.Material!.DiffuseColour,
+            material.Diffuse[0],
+            material.Diffuse[1],
+            material.Diffuse[2],
+            material.Diffuse[3],
+        )
+        GL.uniform4f(
+            shader.Material!.SpecularColour,
+            material.Specular[0],
+            material.Specular[1],
+            material.Specular[2],
+            material.Specular[3],
+        )
+        GL.uniform1f(shader.Material!.Shininess, material.Shininess)
+        GL.uniform1f(shader.Material!.Alpha, material.Alpha)
+        
         if (material.ImageTexture)
         {
             GL.activeTexture(GL.TEXTURE0)
             GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
-            GL.uniform1i(uniforms.Material.HasImageMap, 1)
-            GL.uniform1i(uniforms.Material.ImageSampler, 0)
+            GL.uniform1i(shader.Material!.HasImageMap, 1)
+            GL.uniform1i(shader.Material!.ImageSampler, 0)
         }
         else
         {
-            GL.uniform1i(uniforms.Material.HasImageMap, 0)
+            GL.uniform1i(shader.Material!.HasImageMap, 0)
             GL.activeTexture(GL.TEXTURE0)
             GL.bindTexture(GL.TEXTURE_2D, null)
         }
@@ -146,7 +209,7 @@ export class MeshRenderSystem extends System
         {
             GL.activeTexture(GL.TEXTURE1)
             GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
-            GL.uniform1i(uniforms.Material.BumpSampler, 0)
+            GL.uniform1i(shader.Material!.BumpSampler, 0)
         }
         else
         {
@@ -158,67 +221,61 @@ export class MeshRenderSystem extends System
         {
             GL.activeTexture(GL.TEXTURE2)
             GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
-            GL.uniform1i(uniforms.Material.SpecularSampler, 0)
+            GL.uniform1i(shader.Material!.SpecularSampler, 0)
         }
         else
         {
             GL.activeTexture(GL.TEXTURE2)
             GL.bindTexture(GL.TEXTURE_2D, null)
         }
-
-        GL.uniformMatrix4fv(uniforms.Matrix.ModelView, false, mv)
-        GL.uniformMatrix3fv(uniforms.Matrix.Normal, false, n)
     }
 
-    private _BindGlobalUniforms(uniforms: ShaderUniforms, width: number, height: number): void
+    private _bindLightUniforms(shader: ShaderAsset)
     {
-        const camera = Camera.Main!
-        GL.uniformMatrix4fv(uniforms.Matrix.Projection, false, camera.Projection)
-
-        GL.uniform1i(uniforms.Global.Time, Date.now())
-        GL.uniform2f(uniforms.Global.Resolution, width, height)
-        GL.uniform1f(uniforms.Global.NearClip, camera.NearClipping)
-        GL.uniform1f(uniforms.Global.FarClip, camera.FarClipping)
-        GL.uniform1i(uniforms.Global.ObjectCount, this.entities.length)
-        
-        let point_count = 0
+        let point_count: number = 0
         for (let light of this._lights)
         {
             if (light instanceof PointLight)
-            {                
-                const modelView = light.Owner!.GetComponent(Transform)!.ModelViewMatrix
+            {
+                const position = light.Owner!.GetComponent(Transform)!.Position
 
-                GL.uniform4fv(uniforms.PointLights[point_count].Colour, light.Colour)
-                GL.uniform1f(uniforms.PointLights[point_count].Intensity, light.Intensity)
-                GL.uniform3f(uniforms.PointLights[point_count].Position, modelView.M41, modelView.M42, modelView.M43)
-                GL.uniform1f(uniforms.PointLights[point_count].Radius, light.Radius)
+                GL.uniform4f(
+                    shader.Lights![point_count].Colour, 
+                    light.Colour[0],
+                    light.Colour[1],
+                    light.Colour[2],
+                    light.Colour[3],
+                )
+                
+                GL.uniform3f(
+                    shader.Lights![point_count].Position,
+                    position[0],
+                    position[1],
+                    position[2]
+                )
+                
+                GL.uniform1f(shader.Lights![point_count].Intensity, light.Intensity)
+                GL.uniform1f(shader.Lights![point_count].Radius, light.Radius)
 
                 ++point_count
             }
         }
-        GL.uniform1i(uniforms.PointLightCount, point_count)
     }
 
-    private _Render(_: Shader, mesh: Mesh): void
+    private _render(mesh: Mesh): void
     {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null) //shader.FrameBuffer)
-
-        if (mesh instanceof DynamicMesh)
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
+        if (mesh.IndexBuffer)
         {
-            if (mesh.IndexBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-                GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else if (mesh.WireframeBuffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-                GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-            }
-            else
-            {
-                GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
-            }
+            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
+        }
+        else if (mesh.WireframeBuffer)
+        {
+            GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
+        }
+        else
+        {
+            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
         }
     }
 

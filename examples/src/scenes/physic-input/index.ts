@@ -1,23 +1,21 @@
 import { AudioPlayer } from "@fwge/audio"
-import { randBetween, Vector2, Vector3 } from "@fwge/common"
+import { Vector2, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { ButtonState, Input, InputSystem, KeyState } from "@fwge/input"
-import { Collider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
-import { Camera, Colour4, Material, OBJParser, ParticleSystem, PointLight, RenderSystem, ShaderAsset, StaticMesh } from "@fwge/render"
-import sponzaMTL from '../../../assets/objects/obj_2/sponza.mtl?raw'
-import sponzaOBJ from '../../../assets/objects/obj_2/sponza.obj?raw'
+import { PhysicsSystem, SphereCollider } from "@fwge/physics"
+import { Camera, Colour4, Material, OBJParser, ParticleSystem, PointLight, MeshRenderSystem, ShaderAsset, StaticMesh } from "@fwge/render"
 import basicFrag from '../../../assets/shaders/Basic.frag?raw'
-import basicVert from '../../../assets/shaders/Basic.vert?raw'
 import defaultFrag from '../../../assets/shaders/Default.frag?raw'
 import defaultVert from '../../../assets/shaders/Default.vert?raw'
 import simpleFrag from '../../../assets/shaders/Simple.frag?raw'
-import simpleVert from '../../../assets/shaders/Simple.vert?raw'
 import commonFrag from '../../../assets/shaders/_common.frag?raw'
 import commonVert from '../../../assets/shaders/_common.vert?raw'
 import lightingFrag from '../../../assets/shaders/_lighting.frag?raw'
 import lightingVert from '../../../assets/shaders/_lighting.vert?raw'
-import { Cube } from "../../shared/Cube"
 import { FrameCounter } from "../../shared/FrameCounter"
+
+import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
+import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {        
@@ -29,8 +27,8 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         },
         update(delta: number)
         {
-            this.GetComponent(Transform)!.Rotation.Y += delta * 7
-            this.GetComponent(Transform)!.Rotation.Z += delta * 12
+            this.GetComponent(Transform)!.Rotation.Y += delta * 70
+            this.GetComponent(Transform)!.Rotation.Z += delta * 120
         }
     })
 
@@ -38,146 +36,126 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     {
         position:
         [
-            new Vector3(-0.5,  0.5,  0.5),
-            new Vector3(-0.5, -0.5,  0.5),
-            new Vector3( 0.5, -0.5,  0.5),
-            new Vector3( 0.5,  0.5,  0.5),
-            
-            new Vector3( 0.5,  0.5,  0.5),
-            new Vector3( 0.5, -0.5,  0.5),
-            new Vector3( 0.5, -0.5, -0.5),
-            new Vector3( 0.5,  0.5, -0.5),
-            
-            new Vector3( 0.5,  0.5, -0.5),
-            new Vector3( 0.5, -0.5, -0.5),
-            new Vector3(-0.5, -0.5, -0.5),
-            new Vector3(-0.5,  0.5, -0.5),
-            
-            new Vector3(-0.5,  0.5, -0.5),
-            new Vector3(-0.5, -0.5, -0.5),
-            new Vector3(-0.5, -0.5,  0.5),
-            new Vector3(-0.5,  0.5,  0.5),
-            
-            new Vector3(-0.5,  0.5, -0.5),
-            new Vector3(-0.5,  0.5,  0.5),
-            new Vector3( 0.5,  0.5,  0.5),
-            new Vector3( 0.5,  0.5, -0.5),
-            
-            new Vector3(-0.5, -0.5,  0.5),
-            new Vector3(-0.5, -0.5, -0.5),
-            new Vector3( 0.5, -0.5, -0.5),
-            new Vector3( 0.5, -0.5,  0.5),
+            [-0.5,  0.5,  0.5 ],
+            [-0.5, -0.5,  0.5 ],
+            [ 0.5, -0.5,  0.5 ],
+            [ 0.5,  0.5,  0.5 ],
+            [ 0.5,  0.5,  0.5 ],
+            [ 0.5, -0.5,  0.5 ],
+            [ 0.5, -0.5, -0.5 ],
+            [ 0.5,  0.5, -0.5 ],
+            [ 0.5,  0.5, -0.5 ],
+            [ 0.5, -0.5, -0.5 ],
+            [-0.5, -0.5, -0.5 ],
+            [-0.5,  0.5, -0.5 ],
+            [-0.5,  0.5, -0.5 ],
+            [-0.5, -0.5, -0.5 ],
+            [-0.5, -0.5,  0.5 ],
+            [-0.5,  0.5,  0.5 ],
+            [-0.5,  0.5, -0.5 ],
+            [-0.5,  0.5,  0.5 ],
+            [ 0.5,  0.5,  0.5 ],
+            [ 0.5,  0.5, -0.5 ],
+            [-0.5, -0.5,  0.5 ],
+            [-0.5, -0.5, -0.5 ],
+            [ 0.5, -0.5, -0.5 ],
+            [ 0.5, -0.5,  0.5 ],
         ],
         normal:
         [
-            new Vector3( 0.0,  0.0, -1.0),
-            new Vector3( 0.0,  0.0, -1.0),
-            new Vector3( 0.0,  0.0, -1.0),
-            new Vector3( 0.0,  0.0, -1.0),
-            
-            new Vector3( 1.0,  0.0,  0.0),
-            new Vector3( 1.0,  0.0,  0.0),
-            new Vector3( 1.0,  0.0,  0.0),
-            new Vector3( 1.0,  0.0,  0.0),
-            
-            new Vector3( 0.0,  0.0,  1.0),
-            new Vector3( 0.0,  0.0,  1.0),
-            new Vector3( 0.0,  0.0,  1.0),
-            new Vector3( 0.0,  0.0,  1.0),
-            
-            new Vector3(-1.0,  0.0,  0.0),
-            new Vector3(-1.0,  0.0,  0.0),
-            new Vector3(-1.0,  0.0,  0.0),
-            new Vector3(-1.0,  0.0,  0.0),
-            
-            new Vector3( 0.0,  1.0,  0.0),
-            new Vector3( 0.0,  1.0,  0.0),
-            new Vector3( 0.0,  1.0,  0.0),
-            new Vector3( 0.0,  1.0,  0.0),
-            
-            new Vector3( 0.0, -1.0,  0.0),
-            new Vector3( 0.0, -1.0,  0.0),
-            new Vector3( 0.0, -1.0,  0.0),
-            new Vector3( 0.0, -1.0,  0.0),
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+            [ 1.0,  0.0,  0.0],
+            [ 1.0,  0.0,  0.0],
+            [ 1.0,  0.0,  0.0],
+            [ 1.0,  0.0,  0.0],
+            [ 0.0,  0.0,  1.0],
+            [ 0.0,  0.0,  1.0],
+            [ 0.0,  0.0,  1.0],
+            [ 0.0,  0.0,  1.0],
+            [-1.0,  0.0,  0.0],
+            [-1.0,  0.0,  0.0],
+            [-1.0,  0.0,  0.0],
+            [-1.0,  0.0,  0.0],
+            [ 0.0,  1.0,  0.0],
+            [ 0.0,  1.0,  0.0],
+            [ 0.0,  1.0,  0.0],
+            [ 0.0,  1.0,  0.0],
+            [ 0.0, -1.0,  0.0],
+            [ 0.0, -1.0,  0.0],
+            [ 0.0, -1.0,  0.0],
+            [ 0.0, -1.0,  0.0],
         ],
         colour:
         [
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
-            new Colour4(1.0, 1.0, 1.0, 1.0),
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
         ],
         uv:
         [                
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
-
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
-
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
-
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
-
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
-
-            new Vector2(0.0, 1.0),
-            new Vector2(0.0, 0.0),
-            new Vector2(1.0, 0.0),
-            new Vector2(1.0, 1.0),
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
         ],
         index:
         [
-                0,  1,  2,  0,  2,  3,
-                4,  5,  6,  4,  6,  7,
-                8,  9, 10,  8, 10, 11,
+             0,  1,  2,  0,  2,  3,
+             4,  5,  6,  4,  6,  7,
+             8,  9, 10,  8, 10, 11,
             12, 13, 14, 12, 14, 15,
             16, 17, 18, 16, 18, 19,
             20, 21, 22, 20, 22, 23,
         ],
         wireframe:
         [
-                0,  1,  1,  2,  2,  3,  3,  0,
-                4,  5,  5,  6,  6,  7,  7,  4,
-                8,  9,  9, 10, 10, 11, 11,  8,
+             0,  1,  1,  2,  2,  3,  3,  0,
+             4,  5,  5,  6,  6,  7,  7,  4,
+             8,  9,  9, 10, 10, 11, 11,  8,
             12, 13, 13, 14, 14, 15, 15, 12,
             16, 17, 17, 18, 18, 19, 19, 16,
             20, 21, 21, 22, 22, 23, 23, 20,
@@ -187,7 +165,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     {
         vertexShader:
         {
-            source: simpleVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
+            source: defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
             input: []
         },
         fragmentShader:
@@ -200,7 +178,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     {
         vertexShader:
         {
-            source: basicVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
+            source: defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
             input: []
         },
         fragmentShader:
@@ -242,20 +220,20 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         imagemap: 'assets/img/Tebogo.png'
     })
 
-    cubeUVMaterial.Shader = defaultShader
-    tebogoMaterial.Shader = defaultShader
+    cubeUVMaterial.Shader = basicShader
+    tebogoMaterial.Shader = basicShader
 
     const oofAudio = new AudioPlayer({ source: '/assets/audio/Minecraft Death Sound Effect.mp3' })
 
     const hmm = new OBJParser()
-    // const prefabs = hmm.hmm(sponzaOBJ, sponzaMTL)
+    const prefabs = hmm.hmm(cubeOBJ, cubeMTL)
 
     const scene = game.CreateScene()
     scene.UseSystem(InputSystem)
-        // .UseSystem(PhysicsSystem, 60)
+        .UseSystem(PhysicsSystem, 0)
         .UseSystem(ScriptSystem)
         .UseSystem(ParticleSystem)
-        .UseSystem(RenderSystem)
+        .UseSystem(MeshRenderSystem)
         .UseSystem(FrameCounter, fpsCounter)
     
 
@@ -265,19 +243,13 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         {
             colour: new Colour4(1,1,1,1),
             intensity: 1,
-            radius: 2
+            radius: 10
         }))
 
     // Player
     const player = scene.CreateEntity()
         .AddComponent(new Transform({ position: new Vector3(0, 0, 20)}))
         .AddComponent(new Camera())
-        // .AddComponent(new PointLight(
-        // {
-        //     colour: new Colour4(1.0, 1.0, 1.0, 1.0),
-        //     intensity: 1.0,
-        //     radius: 15
-        // }))
         .AddComponent(oofAudio)
         .AddComponent(new Input(
         {
@@ -355,7 +327,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                     }
                 }
 
-                this.GetComponent(Transform)?.Position.Sum(velocity.Scale(delta))
+                light.GetComponent(Transform)?.Position.Sum(velocity.Scale(delta))
             }
         }))
 
@@ -363,54 +335,51 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         let x = 0
     const parent = scene.CreateEntity()
         .AddComponent(new Transform())
-        .AddComponent(new Script({
-            update(delta: number)
+        .AddComponent(new SphereCollider({ radius: 1 }))
+        .AddComponent(prefabs[0].mesh)
+        .AddComponent(cubeUVMaterial)
+        .AddComponent(spinnerScript)
+        .AddComponent(new Input({
+            onInput({ Mouse }, delta: number)
             {
-                this.GetComponent(Transform)!.Position
-                    .Set(Math.cos(x), Math.sin(x), 0)
-                    .Scale(5)
-                x += delta
+                const canvas = document.querySelector('canvas')!
+                // const height = 
+                // const width = document.querySelector('canvas')!.clientWidth
+                this.GetComponent(Transform)!.Position.Set(
+                    Mouse.ScreenPosition.X / canvas.clientWidth * 50,// * canvas.height,
+                    Mouse.ScreenPosition.Y / canvas.clientHeight * 50,// * canvas.width,
+                    0
+                )
+                //     .Set(Math.cos(x), Math.sin(x), 0)
+                //     .Scale(5)
+                // x += delta
             }
         }))
-    const max = 32
-    for (let i = 0; i < 25_000; ++i)
+
+    const max = 4
+    for (let i = 0; i < 2**2; ++i)
     {
         const angle = (i % max) / max
-        const radius = Math.floor(i / max - angle) * 1.5
+        const radius = Math.floor(i / max - angle)
         const x = Math.sin(angle * 2 * Math.PI)
         const y = Math.cos(angle * 2 * Math.PI)
         const z = 0
 
-        const child = scene.CreateEntity()
-            .AddComponent(cubeMesh)
+        let child = scene.CreateEntity()
+            .AddComponent(prefabs[0].mesh)
             .AddComponent(cubeUVMaterial)
+            .AddComponent(spinnerScript)
             .AddComponent(new SphereCollider({ radius: 1 }))
             .AddComponent(new Transform(
             {
                 position: new Vector3(
-                    x * (radius + 3.5),
-                    y * (radius + 3.5),
-                    z * (radius + 3.5),
+                    x * (radius + 1.5),
+                    y * (radius + 1.5),0
+                    //z * (radius + 1.5),
                 )
             }))
-
-        setTimeout(() =>
-        {
-            child.AddComponent(new Script(
-            {
-                start()
-                {
-                    // this.GetComponent(Transform)!.Rotation.Set(0, Math.random() * 360, Math.random() * 360)
-                },
-                update(delta: number)
-                {
-                    this.GetComponent(Transform)!.Rotation.Y += delta * 7
-                    this.GetComponent(Transform)!.Rotation.Z += delta * 12
-                    this.GetComponent(Transform)!.Position.Sum(-x * delta, -y * delta, 0)
-                }
-            }))
-        }, 2000)
-        parent.AddChild(child)
+        
+        // parent.AddChild(child)
     }
         
     console.log(parent)
