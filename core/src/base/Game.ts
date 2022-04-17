@@ -1,7 +1,7 @@
 import { CalcuateDelay, IDelay, setContext } from "@fwge/common"
 import { System } from "../ecs"
 import { Component } from "../ecs/Component"
-import { Class, Registry, SceneId } from "../ecs/Registry"
+import { Class, SceneId } from "../ecs/Registry"
 import { Scene } from "./Scene"
 
 interface IGame
@@ -19,18 +19,18 @@ export class Game
     private _prevTick: number = -1
     private _tickId?: number
     private _canvas?: HTMLCanvasElement
-    private _registry: Registry = new Registry()
+    // private _registry: Registry = new Registry()
 
     constructor(args: IGame)
     {
-        for (const componentType of args.components)
+        for (let i = 0; i < args.components.length; ++i)
         {
-            this._registry.registerComponentType(componentType)
+            args.components[i]._typeId = i
         }
 
-        for (const systemType of args.systems)
+        for (let i = 0; i < args.systems.length; ++i)
         {
-            this._registry.registerSystemType(systemType)
+            args.systems[i]._typeId = i
         }
         
         if (args.canvas)
@@ -108,7 +108,7 @@ export class Game
     //#region Scene
     CreateScene()
     {
-        const scene = new Scene(this._registry)
+        const scene = new Scene()
         this._scenes.push(scene)
         scene.SetContext(this._canvas)
 

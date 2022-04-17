@@ -1,9 +1,10 @@
 import { AudioPlayer } from "@fwge/audio"
-import { Vector2, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
-import { ButtonState, Input, InputSystem, KeyState } from "@fwge/input"
+import { Input, InputSystem } from "@fwge/input"
 import { PhysicsSystem, SphereCollider } from "@fwge/physics"
-import { Camera, Colour4, Material, OBJParser, ParticleSystem, PointLight, MeshRenderSystem, ShaderAsset, StaticMesh } from "@fwge/render"
+import { Camera, Colour4, Material, MeshRenderSystem, OBJParser, ParticleSystem, PointLight, ShaderAsset, StaticMesh } from "@fwge/render"
+import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
+import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
 import basicFrag from '../../../assets/shaders/Basic.frag?raw'
 import defaultFrag from '../../../assets/shaders/Default.frag?raw'
 import defaultVert from '../../../assets/shaders/Default.vert?raw'
@@ -13,9 +14,6 @@ import commonVert from '../../../assets/shaders/_common.vert?raw'
 import lightingFrag from '../../../assets/shaders/_lighting.frag?raw'
 import lightingVert from '../../../assets/shaders/_lighting.vert?raw'
 import { FrameCounter } from "../../shared/FrameCounter"
-
-import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
-import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {        
@@ -208,7 +206,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         specular: new Colour4(1, 1, 1, 1),
         alpha: 1,
         shininess: 32,
-        imagemap: 'assets/img/CubeUV.png',
+        imagemap: 'assets/objects/cube_2/CubeUV.png',
     })
     const tebogoMaterial = new Material(
     {
@@ -217,7 +215,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         specular: new Colour4(1, 1, 1, 1),
         alpha: 1,
         shininess: 32,
-        imagemap: 'assets/img/Tebogo.png'
+        // imagemap: 'assets/img/Tebogo.png'
     })
 
     cubeUVMaterial.Shader = basicShader
@@ -230,14 +228,25 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     const scene = game.CreateScene()
     scene.UseSystem(InputSystem)
-        .UseSystem(PhysicsSystem, 0)
+        .UseSystem(PhysicsSystem, 60)
         .UseSystem(ScriptSystem)
         .UseSystem(ParticleSystem)
         .UseSystem(MeshRenderSystem)
         .UseSystem(FrameCounter, fpsCounter)
     
 
-    const light = scene.CreateEntity()
+    const camera = scene.CreateEntity()
+        .AddComponent(new Transform({ position: [ 0, 0, 20] }))
+        .AddComponent(new Camera())
+        .AddComponent(new Script(
+        {
+            start()
+            {
+                Camera.Main = camera.GetComponent(Camera)!
+            }
+        }))
+
+    scene.CreateEntity()
         .AddComponent(new Transform())
         .AddComponent(new PointLight(
         {
@@ -247,112 +256,30 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         }))
 
     // Player
-    const player = scene.CreateEntity()
-        .AddComponent(new Transform({ position: new Vector3(0, 0, 20)}))
-        .AddComponent(new Camera())
-        .AddComponent(oofAudio)
-        .AddComponent(new Input(
+    const canvas = document.querySelector('canvas')!
+    scene.CreateEntity()
+        .AddComponent(new Transform())
+        .AddComponent(new SphereCollider(
         {
-            onInput({ Keyboard, Controllers }, delta)
+            radius: 0.5,
+            isTrigger: false,
+            onCollision(other)
             {
-                if (Keyboard.KeyF5 !== KeyState.UP)
-                {
-                    window.location.reload()
-                }
-                
-                const velocity = Vector3.ZERO                
-
-                const controller = Controllers.find(x => !!x)
-                if (controller)
-                {
-                    const deadzone = 0.11
-                    const leftStick = new Vector2(
-                        Math.abs(controller.LeftStick.X) - deadzone > deadzone
-                            ? controller.LeftStick.X
-                            : 0,
-                        Math.abs(controller.LeftStick.Y) - deadzone > deadzone
-                            ? controller.LeftStick.Y
-                            : 0
-                    )
-                    const speed = (
-                        controller.LeftTrigger === ButtonState.PRESSED  ||
-                        controller.RightTrigger === ButtonState.PRESSED
-                    ) ? 25 : 10
-
-                    velocity.X += leftStick.X * speed
-                    velocity.Y += leftStick.Y * speed                
-                }
-                else
-                {
-                    const moveSpeed = Keyboard.KeyShift === KeyState.DOWN ? 10 : 5
-                    const turnSpeed = delta * 100
-                    if (Keyboard.KeyD === KeyState.DOWN)
-                    {
-                        velocity.X += moveSpeed
-                    }
-    
-                    if (Keyboard.KeyA === KeyState.DOWN)
-                    {
-                        velocity.X -= moveSpeed
-                    }
-    
-                    if (Keyboard.KeyW === KeyState.DOWN)
-                    {
-                        velocity.Z -= moveSpeed
-                    }
-    
-                    if (Keyboard.KeyS === KeyState.DOWN)
-                    {
-                        velocity.Z += moveSpeed
-                    }
-
-                    if (Keyboard.KeyQ === KeyState.DOWN)
-                    {
-                        velocity.Y += moveSpeed
-                    }
-    
-                    if (Keyboard.KeyE === KeyState.DOWN)
-                    {
-                        velocity.Y -= moveSpeed
-                    }
-
-                    if (Keyboard.KeyLeft === KeyState.DOWN)
-                    {
-                        this.GetComponent(Transform)!.Rotation.Y -= turnSpeed
-                    }
-
-                    if (Keyboard.KeyRight === KeyState.DOWN)
-                    {
-                        this.GetComponent(Transform)!.Rotation.Y += turnSpeed
-                    }
-                }
-
-                light.GetComponent(Transform)?.Position.Sum(velocity.Scale(delta))
+                // this.GetComponent(Material)!   
             }
         }))
-
-        
-        let x = 0
-    const parent = scene.CreateEntity()
-        .AddComponent(new Transform())
-        .AddComponent(new SphereCollider({ radius: 1 }))
         .AddComponent(prefabs[0].mesh)
         .AddComponent(cubeUVMaterial)
         .AddComponent(spinnerScript)
-        .AddComponent(new Input({
-            onInput({ Mouse }, delta: number)
+        .AddComponent(new Input(
+        {
+            onInput({ Mouse })
             {
-                const canvas = document.querySelector('canvas')!
-                // const height = 
-                // const width = document.querySelector('canvas')!.clientWidth
                 this.GetComponent(Transform)!.Position.Set(
                     Mouse.ScreenPosition.X / canvas.clientWidth * 50,// * canvas.height,
                     Mouse.ScreenPosition.Y / canvas.clientHeight * 50,// * canvas.width,
                     0
                 )
-                //     .Set(Math.cos(x), Math.sin(x), 0)
-                //     .Scale(5)
-                // x += delta
             }
         }))
 
@@ -365,25 +292,16 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         const y = Math.cos(angle * 2 * Math.PI)
         const z = 0
 
-        let child = scene.CreateEntity()
+        scene.CreateEntity()
             .AddComponent(prefabs[0].mesh)
             .AddComponent(cubeUVMaterial)
-            .AddComponent(spinnerScript)
-            .AddComponent(new SphereCollider({ radius: 1 }))
+            // .AddComponent(spinnerScript)
+            .AddComponent(new SphereCollider({ radius: 0.5 }))
             .AddComponent(new Transform(
             {
-                position: new Vector3(
-                    x * (radius + 1.5),
-                    y * (radius + 1.5),0
-                    //z * (radius + 1.5),
-                )
+                position: [ x * (radius + 1.5), y * (radius + 1.5), z]
             }))
-        
-        // parent.AddChild(child)
     }
-        
-    console.log(parent)
-    Camera.Main = player.GetComponent(Camera)!
 
     return scene
 }

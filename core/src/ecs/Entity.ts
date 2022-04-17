@@ -1,11 +1,14 @@
 import { Scene } from '../base/Scene'
 import { Component } from './Component'
-import { Class, ComponentId, EntityId } from './Registry'
+import { Class, EntityId, nextId, TypeId } from './Registry'
 
 export class Entity
 {
+    public readonly Id: EntityId
+
     private _children: Entity[] = []
     private _parent?: Entity
+    private _components: Map<TypeId, Component> = new Map()
     
     public get Parent(): Entity | undefined
     {
@@ -30,24 +33,21 @@ export class Entity
             .filter(x => x !== undefined) as Entity[]
     }
 
-    public get Components(): Array<Component | undefined>
+    public get Components(): { [key: string]: Component }
     {
-        return this._scene.Registry.getAllEntityComponents(this.Id)
+        return [...this._components.values()]
+            .reduce((prev, curr) => ({...prev, [curr!.Type.name]: curr}), {})
     }
 
-    constructor(
-        private _scene: Scene,
-        public readonly Id: EntityId = _scene.Registry.createEntity()
-    ) { }
+    constructor(private _scene: Scene)
+    {
+        this.Id = nextId(new.target)
+    }
 
     public AddComponent<T extends Component>(component: T): Entity
     {
         component.AddOwner(this)
-        if (!component.Id)
-        {
-            this._scene.Registry.createComponent(component)
-        }
-        this._scene.Registry.attachComponent(component, this.Id)
+        this._components.set(component.Type._typeId!, component)
         this._scene.OnEntity(this)
 
         return this
@@ -55,24 +55,23 @@ export class Entity
 
     public GetComponent<T extends Component>(componentType: Class<T>): T | undefined
     {
-      return this._scene.Registry.getEntityComponent(this.Id, componentType) as T
+        return this._components.get(componentType._typeId!) as T
     }
 
     public HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        return this._scene.Registry.getEntityComponent(this.Id, componentType) !== undefined
+        return this._components.has(componentType._typeId!)
     }
     
     public RemoveComponent<T extends Component>(componentType: Class<T>): Entity
     {
-        const component = this.GetComponent(componentType)
+        const component = this._components.get(componentType._typeId!)
         if (component)
         {
             component.RemoveOwner(this)
-            this._scene.Registry.detachComponent(component, this.Id)
+            this._components.delete(component.Type._typeId!)
+            this._scene.OnEntity(this)
         }
-
-        this._scene.OnEntity(this)
 
         return this
     }

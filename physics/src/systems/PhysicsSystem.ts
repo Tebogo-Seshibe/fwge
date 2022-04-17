@@ -39,9 +39,8 @@ export class PhysicsSystem extends System
     
     Update(delta: number): void
     {
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const transform = entity.GetComponent(Transform)!
             const rigidbody = entity.GetComponent(RigidBody)
             
@@ -55,12 +54,12 @@ export class PhysicsSystem extends System
                 }
             }
             
-            for (let i = 0; i < this.entities.length; ++i)
+        for (let i = 0; i < this.entities.length; ++i)
         {
             for (let j = i + 1; j < this.entities.length; ++j)
             {
-                const left = this.scene.GetEntity(this.entities[i])!
-                const right = this.scene.GetEntity(this.entities[j])!
+                const left = this.entities[i]!
+                const right = this.entities[j]!
 
                 this._detect(left, right)
             }
@@ -367,13 +366,9 @@ export class PhysicsSystem extends System
             const direction = currentPos.Clone().Diff(targetPos).Normalize().Scale(overlap)
             
             const currentDisplacement = this.displacements.get(current) ?? Vector3.ZERO
-            currentDisplacement.Sum(direction)
-            
-            const otherDisplacement = this.displacements.get(current) ?? Vector3.ZERO
-            otherDisplacement.Diff(direction)
-    
+            currentDisplacement.Sum(direction.Scale(overlap))
+
             this.displacements.set(current, currentDisplacement)
-            this.displacements.set(current, otherDisplacement)
         }
     }
 
@@ -410,7 +405,7 @@ export class PhysicsSystem extends System
     {
         super.OnUpdateEntity(entity)
 
-        if (this.entities.includes(entity.Id))
+        if (this.entities.includes(entity))
         {
             this.collisions[entity.Id] = []
         }

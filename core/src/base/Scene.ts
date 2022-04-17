@@ -1,17 +1,11 @@
 import { Entity } from "../ecs/Entity"
-import { Constructor, EntityId, Registry, SceneId } from "../ecs/Registry"
+import { Constructor, EntityId, nextId, SceneId } from "../ecs/Registry"
 import { System } from "../ecs/System"
 
 export class Scene
 {
-    private static sceneId: SceneId = 0
-
-    private _registry: Registry
-    public get Registry()
-    {
-        return this._registry
-    }
-
+    public readonly Id: SceneId
+    
     public get Context()
     {
         return this._context
@@ -21,10 +15,9 @@ export class Scene
     private readonly _entities: Map<EntityId, Entity> = new Map()
     private readonly _systems: System[] = []
 
-    readonly Id: SceneId = Scene.sceneId++
-    constructor(registry: Registry)
+    constructor()
     {
-        this._registry = registry
+        this.Id = nextId(new.target)
     }
 
     Init(): void

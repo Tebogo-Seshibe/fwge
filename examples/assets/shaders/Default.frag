@@ -92,7 +92,7 @@ vec4 Colour()
     if (U_Material.HasImageMap)
     {
         colour = texture(U_Sampler.Image, V_UV);
-    }                
+    }
     else
     {
         colour = V_Colour;
@@ -103,5 +103,5 @@ vec4 Colour()
 
 void main()
 { 
-    OutColour = vec4((Colour() * Light()).rgb, U_Material.Alpha);
+    OutColour = vec4((/*Colour() */ Light()).rgb, U_Material.Alpha);
 }

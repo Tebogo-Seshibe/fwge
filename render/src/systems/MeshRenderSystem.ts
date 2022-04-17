@@ -12,7 +12,7 @@ export class MeshRenderSystem extends System
     private _cameras: Set<Camera> = new Set()
     private _screenShader: ShaderAsset | null = null
 
-    private _batches: Map<Material, EntityId[]> = new Map()
+    private _batches: Map<Material, Entity[]> = new Map()
 
     constructor(manager: Scene)
     {
@@ -26,9 +26,8 @@ export class MeshRenderSystem extends System
     {
         this._buildScreenShader()
 
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const material = entity.GetComponent(Material)!
 
             if (!this._batches.has(material))
@@ -36,7 +35,7 @@ export class MeshRenderSystem extends System
                 this._batches.set(material, [])
             }
             
-            this._batches.get(material)!.push(entity.Id)
+            this._batches.get(material)!.push(entity)
         }
     }
 
@@ -123,10 +122,10 @@ export class MeshRenderSystem extends System
         for (const [material, entityList] of this._batches)
         {
             this._useShader(material, delta)
-            for (const entityId of entityList)
+            for (const entity of entityList)
             {
-                const transform = this.scene.Registry.getEntityComponent(entityId, Transform)!
-                const mesh = this.scene.Registry.getEntityComponent(entityId, Mesh)!
+                const transform = entity.GetComponent(Transform)!
+                const mesh = entity.GetComponent(Mesh)!
 
                 this._draw(transform, mesh, material)
             }

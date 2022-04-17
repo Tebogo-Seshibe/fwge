@@ -22,7 +22,23 @@ vec4 Light()
     return light;
 }
 
+vec4 Colour()
+{
+    vec4 colour = vec4(1.0);
+
+    if (U_Material.HasImageMap)
+    {
+        colour = texture(U_Sampler.Image, V_UV);
+    }
+    else
+    {
+        colour = V_Colour;
+    }
+
+    return colour;
+}
+
 void main()
 { 
-    OutColour = vec4(Light().rgb, U_Material.Alpha);
+    OutColour = vec4((Colour() * Light()).rgb, U_Material.Alpha);
 }

@@ -1,13 +1,18 @@
 import { Entity } from "./Entity"
-import { Class, ComponentId } from "./Registry"
+import { Class, ComponentId, nextId } from "./Registry"
 
 export abstract class Component
 {
-    public Id: ComponentId | undefined
+    public readonly Id: ComponentId
+    public readonly Type: Class<Component>
 
-    constructor(
-        readonly Type: Class<Component> = new.target as Class<Component>,
-    ) { }
+    constructor()
+    constructor(componentType: Class<Component>)
+    constructor(type?: Class<Component>)
+    {
+        this.Type = type ?? new.target as Class<Component>
+        this.Id = nextId(this.Type)
+    }
 
     public abstract AddOwner(owner: Entity): void
     public abstract RemoveOwner(owner: Entity): void

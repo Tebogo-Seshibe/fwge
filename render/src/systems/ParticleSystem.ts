@@ -36,9 +36,8 @@ export class ParticleSystem extends System
         GL.uniformMatrix4fv(this.particleShader!.BaseUniforms!.Matrix.View, false, Camera.Main!.View)
         GL.uniformMatrix4fv(this.particleShader!.BaseUniforms!.Matrix.Projection, false, Camera.Main!.Projection)
 
-        for (const entityId of this.entities)
+        for (const entity of this.entities)
         {
-            const entity = this.scene.GetEntity(entityId)!
             const particleSpawner = entity.GetComponent(ParticleSpawner)!
             const modelViewMatrix = entity.GetComponent(Transform)!.ModelViewMatrix
             const normalMatrix = entity.GetComponent(Transform)!.NormalMatrix

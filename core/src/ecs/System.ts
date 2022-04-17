@@ -1,7 +1,7 @@
 import { Scene } from "../base/Scene"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
-import { Class, EntityId, Registry, TypeId } from "./Registry"
+import { Class } from "./Registry"
 
 interface ISystem
 {
@@ -18,7 +18,7 @@ export abstract class System
     private _currTick: number = -1
     private _tickId: number = -1
 
-    public readonly entities: EntityId[] = []
+    public readonly entities: Entity[] = []
     public readonly requiredComponents: Set<Class<Component>> = new Set()
 
     constructor(protected scene: Scene, config: ISystem)
@@ -26,8 +26,6 @@ export abstract class System
         this._async = config.async ?? false
         this._tickRate = config.tickRate ?? 60
         this.requiredComponents = new Set(config.requiredComponents)
-
-        console.log(this)
     }
 
     public abstract Init(): void
@@ -74,13 +72,13 @@ export abstract class System
     {
         const isValid = this.IsValidEntity(entity)
     
-        if (isValid && !this.entities.includes(entity.Id))
+        if (isValid && !this.entities.includes(entity))
         {
-            this.entities.push(entity.Id)
+            this.entities.push(entity)
         }
-        else if (!isValid && this.entities.includes(entity.Id))
+        else if (!isValid && this.entities.includes(entity))
         {
-            const entityIndex = this.entities.indexOf(entity.Id)
+            const entityIndex = this.entities.indexOf(entity)
             this.entities.swap(entityIndex, this.entities.length - 1)
             this.entities.pop()
         }
