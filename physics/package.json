@@ -8,9 +8,10 @@
   "license": "MIT",
   "dependencies": {
     "@fwge/common": "file:../common",
-    "@fwge/core": "file:../core"
+    "@fwge/core": "file:../core",
+    "web-worker": "^1.2.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.23"
+    "@types/node": "^17.0.25"
   }
 }

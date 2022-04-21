@@ -1,6 +1,6 @@
 import { Game } from "@fwge/core"
 
-export function cameraControlScene(game: Game, fpsCounter: HTMLElement)
+export function cameraControlScene(game: Game, _: HTMLElement)
 {
     const scene = game.CreateScene()
     // const meshLibrary = game.GetLibrary(Mesh)

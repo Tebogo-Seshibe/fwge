@@ -1,6 +1,6 @@
 import { Game } from "@fwge/core"
 
-export function sidescrollerScene(game: Game, fpsCounter: HTMLElement)
+export function sidescrollerScene(game: Game, _: HTMLElement)
 {
     const scene = game.CreateScene()
 

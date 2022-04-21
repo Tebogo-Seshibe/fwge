@@ -1,5 +1,5 @@
 import { Entity, Scene, Script, Transform } from "@fwge/core"
-import { Collider, RigidBody } from "@fwge/physics"
+import { Collider } from "@fwge/physics"
 import { Material, Mesh } from "@fwge/render"
 
 interface ICube

@@ -1,7 +1,8 @@
 import { AudioPlayer } from "@fwge/audio"
+import { Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
-import { Input, InputSystem } from "@fwge/input"
-import { PhysicsSystem, SphereCollider } from "@fwge/physics"
+import { Input, InputSystem, KeyState } from "@fwge/input"
+import { PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { Camera, Colour4, Material, MeshRenderSystem, OBJParser, ParticleSystem, PointLight, ShaderAsset, StaticMesh } from "@fwge/render"
 import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
 import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
@@ -16,7 +17,8 @@ import lightingVert from '../../../assets/shaders/_lighting.vert?raw'
 import { FrameCounter } from "../../shared/FrameCounter"
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
-{        
+{
+    const canvas = document.querySelector('canvas')!
     const spinnerScript = new Script(
     {
         start()
@@ -30,7 +32,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         }
     })
 
-    const cubeMesh = new StaticMesh(
+    new StaticMesh(
     {
         position:
         [
@@ -159,7 +161,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             20, 21, 21, 22, 22, 23, 23, 20,
         ]
     })
-    const simpleShader = new ShaderAsset(
+    new ShaderAsset(
     {
         vertexShader:
         {
@@ -185,7 +187,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             input: []
         },
     })
-    const defaultShader = new ShaderAsset(
+    new ShaderAsset(
     {
         vertexShader:
         {
@@ -221,14 +223,14 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     cubeUVMaterial.Shader = basicShader
     tebogoMaterial.Shader = basicShader
 
-    const oofAudio = new AudioPlayer({ source: '/assets/audio/Minecraft Death Sound Effect.mp3' })
+    new AudioPlayer({ source: '/assets/audio/Minecraft Death Sound Effect.mp3' })
 
     const hmm = new OBJParser()
     const prefabs = hmm.hmm(cubeOBJ, cubeMTL)
 
     const scene = game.CreateScene()
     scene.UseSystem(InputSystem)
-        .UseSystem(PhysicsSystem, 60)
+        .UseSystem(PhysicsSystem)
         .UseSystem(ScriptSystem)
         .UseSystem(ParticleSystem)
         .UseSystem(MeshRenderSystem)
@@ -236,15 +238,21 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     
 
     const camera = scene.CreateEntity()
-        .AddComponent(new Transform({ position: [ 0, 0, 20] }))
-        .AddComponent(new Camera())
+        .AddComponent(new Transform({ position: [ 0, 0, 20 ] }))
+        .AddComponent(new Camera({}))
         .AddComponent(new Script(
         {
             start()
             {
                 Camera.Main = camera.GetComponent(Camera)!
+                console.log(Camera.Main)
+            },
+            update()
+            {
+                Camera.Main!.AspectRatio = canvas.clientWidth / canvas.clientHeight
             }
         }))
+    
 
     scene.CreateEntity()
         .AddComponent(new Transform())
@@ -252,39 +260,59 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         {
             colour: new Colour4(1,1,1,1),
             intensity: 1,
-            radius: 10
+            radius: 100
         }))
 
     // Player
-    const canvas = document.querySelector('canvas')!
     scene.CreateEntity()
         .AddComponent(new Transform())
         .AddComponent(new SphereCollider(
         {
             radius: 0.5,
-            isTrigger: false,
-            onCollision(other)
-            {
-                // this.GetComponent(Material)!   
-            }
+            isTrigger: false
         }))
         .AddComponent(prefabs[0].mesh)
         .AddComponent(cubeUVMaterial)
         .AddComponent(spinnerScript)
         .AddComponent(new Input(
         {
-            onInput({ Mouse })
+            onInput({ Keyboard, Mouse } , delta)
             {
-                this.GetComponent(Transform)!.Position.Set(
-                    Mouse.ScreenPosition.X / canvas.clientWidth * 50,// * canvas.height,
-                    Mouse.ScreenPosition.Y / canvas.clientHeight * 50,// * canvas.width,
-                    0
-                )
+                if (Keyboard.KeyF5 == KeyState.DOWN)
+                {
+                    window.location.reload()
+                }
+                const movement = new Vector3()
+
+                if (Keyboard.KeyA === KeyState.DOWN)
+                {
+                    movement.X -= 1
+                }
+                if (Keyboard.KeyD === KeyState.DOWN)
+                {
+                    movement.X += 1
+                }
+                if (Keyboard.KeyW === KeyState.DOWN)
+                {
+                    movement.Y += 1
+                }
+                if (Keyboard.KeyS === KeyState.DOWN)
+                {
+                    movement.Y -= 1
+                }
+                movement.Scale(delta * (Keyboard.KeyShift === KeyState.DOWN ? 5 : 2.5))
+                this.GetComponent(Transform)!.Position.Sum(movement)
+
+                // this.GetComponent(Transform)!.Position.Set(
+                //     Mouse.ScreenPosition.X / canvas.clientWidth * 50,// * canvas.height,
+                //     Mouse.ScreenPosition.Y / canvas.clientHeight * 50,// * canvas.width,
+                //     0
+                // )
             }
         }))
 
-    const max = 4
-    for (let i = 0; i < 2**2; ++i)
+    const max = 32
+    for (let i = 0; i < 2**9; ++i)
     {
         const angle = (i % max) / max
         const radius = Math.floor(i / max - angle)
@@ -296,11 +324,24 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             .AddComponent(prefabs[0].mesh)
             .AddComponent(cubeUVMaterial)
             // .AddComponent(spinnerScript)
-            .AddComponent(new SphereCollider({ radius: 0.5 }))
+            .AddComponent(new RigidBody(
+            {
+                mass: 1,
+                velocity: Vector3.ZERO
+            }))
+            .AddComponent(new SphereCollider({  }))
             .AddComponent(new Transform(
             {
                 position: [ x * (radius + 1.5), y * (radius + 1.5), z]
             }))
+
+            // setTimeout(() =>
+            // {
+            //     child.GetComponent(RigidBody)!
+            //         .Velocity.Set(
+            //             child.GetComponent(Transform)!.Position
+            //         ).Scale(-1)
+            // }, 5000)
     }
 
     return scene

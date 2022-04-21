@@ -9,5 +9,10 @@ export default defineConfig({
         // your custom rules
       ]
     }
-  }
+  },
+  resolve: {
+    alias: {
+      path: "path-browserify",
+    },
+  },
 })
