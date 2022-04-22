@@ -1,6 +1,7 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
-import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
+import { Collider, CubeCollider, MeshCollider, RigidBody, SphereCollider } from "../components"
+import { GJK } from "./GJK"
 import { detect_SS, resolve_SS, SS_Detect, SS_Resolve } from './SS'
 import { Collision, CollisionState, CollisionTest, DetectResolveType, _Collision, _Collision_Id } from "./types"
 import { handleData } from "./Worker"
@@ -275,7 +276,14 @@ export class PhysicsSystem extends System
         else if (aCollider instanceof CubeCollider && bCollider instanceof CubeCollider)
         {
             // resolve = this._AABB(aPosition, aCollider, bPosition, bCollider)   
-        } 
+        }
+        else if (
+            aCollider instanceof MeshCollider && 
+            bCollider instanceof MeshCollider &&
+            GJK(aCollider, bCollider))
+        {
+            displacements = [Vector3.ZERO, Vector3.ZERO]
+        }
         
         const collision = this._collisions.get(`${a.Id}-${b.Id}`) ?? { 
             state: CollisionState.None,

@@ -2,7 +2,7 @@ import { AudioPlayer } from "@fwge/audio"
 import { Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { Input, InputSystem, KeyState } from "@fwge/input"
-import { PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
+import { MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { Camera, Colour4, Material, MeshRenderSystem, OBJParser, ParticleSystem, PointLight, ShaderAsset, StaticMesh } from "@fwge/render"
 import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
 import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
@@ -19,6 +19,26 @@ import { FrameCounter } from "../../shared/FrameCounter"
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {
     const canvas = document.querySelector('canvas')!
+    const cubeMeshVerts = [
+        new Vector3(-0.5,  0.5,  0.5 ),
+        new Vector3(-0.5, -0.5,  0.5 ),
+        new Vector3( 0.5, -0.5,  0.5 ),
+        new Vector3( 0.5,  0.5,  0.5 ),
+
+        new Vector3(-0.5,  0.5,  -0.5 ),
+        new Vector3(-0.5, -0.5,  -0.5 ),
+        new Vector3( 0.5, -0.5,  -0.5 ),
+        new Vector3( 0.5,  0.5,  -0.5 ),
+    ]
+    const triangularPrismMeshVerts = [
+        new Vector3(-0.5, -0.5,  0.5 ),
+        new Vector3( 0.5, -0.5,  0.5 ),
+        new Vector3( 0.5,  0.5,  0.5 ),
+
+        new Vector3(-0.5, -0.5,  -0.5 ),
+        new Vector3( 0.5, -0.5,  -0.5 ),
+        new Vector3( 0.5,  0.5,  -0.5 ),
+    ]
     const spinnerScript = new Script(
     {
         start()
@@ -239,13 +259,12 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     const camera = scene.CreateEntity()
         .AddComponent(new Transform({ position: [ 0, 0, 20 ] }))
-        .AddComponent(new Camera({}))
+        .AddComponent(new Camera())
         .AddComponent(new Script(
         {
             start()
             {
                 Camera.Main = camera.GetComponent(Camera)!
-                console.log(Camera.Main)
             },
             update()
             {
@@ -265,15 +284,30 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     // Player
     scene.CreateEntity()
-        .AddComponent(new Transform())
-        .AddComponent(new SphereCollider(
+        .AddComponent(new Transform(
         {
-            radius: 0.5,
-            isTrigger: false
+            position: [0,0,0],
+            scale: [1,3,1]
+        }))
+        .AddComponent(new MeshCollider(
+        {
+            vertices:  cubeMeshVerts,
+            isTrigger: true,
+            onCollision(other)
+            {
+                console.log(other.Id)
+            }
         }))
         .AddComponent(prefabs[0].mesh)
         .AddComponent(cubeUVMaterial)
-        .AddComponent(spinnerScript)
+        // .AddComponent(spinnerScript)
+        .AddComponent(new Script(
+        {
+            update(delta)
+            {
+                this.GetComponent(Transform)!.Rotation.Z += delta * 50
+            }
+        }))
         .AddComponent(new Input(
         {
             onInput({ Keyboard, Mouse } , delta)
@@ -282,8 +316,8 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 {
                     window.location.reload()
                 }
+                
                 const movement = new Vector3()
-
                 if (Keyboard.KeyA === KeyState.DOWN)
                 {
                     movement.X -= 1
@@ -302,17 +336,11 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 }
                 movement.Scale(delta * (Keyboard.KeyShift === KeyState.DOWN ? 5 : 2.5))
                 this.GetComponent(Transform)!.Position.Sum(movement)
-
-                // this.GetComponent(Transform)!.Position.Set(
-                //     Mouse.ScreenPosition.X / canvas.clientWidth * 50,// * canvas.height,
-                //     Mouse.ScreenPosition.Y / canvas.clientHeight * 50,// * canvas.width,
-                //     0
-                // )
             }
         }))
 
-    const max = 32
-    for (let i = 0; i < 2**9; ++i)
+    const max = 4
+    for (let i = 0; i < 2**2; ++i)
     {
         const angle = (i % max) / max
         const radius = Math.floor(i / max - angle)
@@ -329,19 +357,20 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 mass: 1,
                 velocity: Vector3.ZERO
             }))
-            .AddComponent(new SphereCollider({  }))
+            .AddComponent(new MeshCollider(
+            {
+                vertices:  cubeMeshVerts,
+                isTrigger: true,
+                onCollision(other)
+                {
+                    console.log(other.Id)
+                }
+            }))
             .AddComponent(new Transform(
             {
                 position: [ x * (radius + 1.5), y * (radius + 1.5), z]
+                // position: [0,1,0]
             }))
-
-            // setTimeout(() =>
-            // {
-            //     child.GetComponent(RigidBody)!
-            //         .Velocity.Set(
-            //             child.GetComponent(Transform)!.Position
-            //         ).Scale(-1)
-            // }, 5000)
     }
 
     return scene
