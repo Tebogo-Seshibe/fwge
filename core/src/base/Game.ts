@@ -41,7 +41,7 @@ export class Game
 
     public SetCanvas(canvas: HTMLCanvasElement): void
     {
-        const gl = canvas.getContext('webgl2')
+        const gl = canvas.getContext('webgl2', { alpha: true, antialias: true })
         if (!gl)
         {
             throw new Error('No WebGL context could be generated!')

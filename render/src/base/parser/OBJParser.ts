@@ -10,7 +10,7 @@ type MTLKey = 'newmtl' | 'ka' | 'kd' | 'ks' | 'ns' | 'd' | 'tr' | 'illum' | 'map
 | 'bump'
 | 'map_ks'
 | 'map_d'
-interface OBJ
+export interface OBJ
 {
     mesh: StaticMesh
     material: Material

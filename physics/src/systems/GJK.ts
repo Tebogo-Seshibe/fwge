@@ -1,189 +1,88 @@
-import { Vector3 } from "@fwge/common"
-import { Transform } from "@fwge/core"
-import { MeshCollider } from "../components"
+import { Vector3, Vector4 } from "@fwge/common"
+import { Collider, MeshCollider } from "../components"
 
-let doP
-export function GJK(leftCollider: MeshCollider, rightCollider: MeshCollider): boolean
+export class Simplex3D extends Array<Vector3>
 {
-    const simplex: Simplex3D = new Simplex3D()
-    const leftPosition = leftCollider.Owner!.GetComponent(Transform)!.Position.Clone().Sum(leftCollider.Position)
-    const rightPosition = rightCollider.Owner!.GetComponent(Transform)!.Position.Clone().Sum(rightCollider.Position)
-    
-    const leftPoints = leftCollider.CalculatedVertices
-    const rightPoints = rightCollider.CalculatedVertices
-    
-    let direction = Vector3.Diff(leftPosition, rightPosition).Normalize()
-    let support = calcSupport(leftPoints, rightPoints, direction)
-
-    simplex.add(support)
-    direction.Set(support).Scale(-1).Normalize()
-
-    while (true)
+    public handleSimplex(direction: Vector3): boolean
     {
-        support = calcSupport(leftPoints, rightPoints, direction)
-        // console.group('support.Dot(direction)')
-        // console.log(support)
-        // console.log(direction)
-        console.log(support.Dot(direction))
-        // console.groupEnd()s
-        if (support.Dot(direction) < 0)
+        switch (this.length)
         {
-            return false
-        }
-
-        simplex.add(support)
-        if (simplex.update(direction))
-        {
-            return true
-        }
-    }
-}
-
-export function findFurthest(points: Vector3[], direction: Vector3): Vector3
-{
-    let maxPoint!: Vector3
-    let maxDistance: number = Number.MIN_VALUE
-
-    for (const currPoint of points)
-    {
-        const currDistance = currPoint.Dot(direction)
-        // console.log(currDistance)
-        if (currDistance > maxDistance)
-        {
-            maxDistance = currDistance
-            maxPoint = currPoint
-        }
-    }
-
-    return maxPoint
-}
-
-export function calcSupport(leftPoints: Vector3[], rightPoints: Vector3[], direction: Vector3): Vector3
-{
-    const furthestLeft = findFurthest(leftPoints, direction)
-    const furthestRight = findFurthest(rightPoints, direction.Clone().Scale(-1))
-    const support = Vector3.Diff(furthestLeft, furthestRight)
-    
-    // console.log(furthestLeft, furthestRight, support)
-    return support
-     
-}
-
-export function tripleCrossProduct(a: Vector3, b: Vector3): Vector3
-{
-    return a.Clone().Cross(b).Cross(a)
-}
-
-export class Simplex3D
-{
-    private count: number = 0
-    private points: [Vector3, Vector3, Vector3, Vector3] =
-    [
-        Vector3.ZERO,
-        Vector3.ZERO,
-        Vector3.ZERO,
-        Vector3.ZERO
-    ]
-
-    get first(): Vector3
-    {
-        return this.points[0]
-    }
-
-    get last(): Vector3
-    {
-        return this.points[this.count - 1]
-    }
-
-    add(point: Vector3): void
-    {
-        this.points[this.count++].Set(point)
-    }
-
-    sameDirection(vector: Vector3, direction: Vector3): boolean
-    {
-        return direction.Dot(vector) > 0
-    }
-
-    update(direrction: Vector3): boolean
-    {
-        console.log(this.count)
-        switch (this.count)
-        {
-            case 2:
-                return this.lineCase(direrction)
-            case 3:
-                return this.triangleCase(direrction)
-            case 4:
-                return this.tetrahedronCase(direrction)
+            case 2: return this.lineCase(direction)
+            case 3: return this.triangleCase(direction)
+            case 4: return this.tetrahedronCase(direction)
         }
 
         return false
     }
 
-    lineCase(direction: Vector3): boolean
+    private reset(...values: Vector3[])
     {
-        const A = this.points[0]
-        const B = this.points[1]
+        while (this.length > 0)
+        {
+            this.pop()
+        }
 
-        const AB = Vector3.Diff(A, B)
+        this.push(...values)
+    }
+
+    private lineCase(direction: Vector3): boolean
+    {
+        const [B, A] = this
+
+        const AB = Vector3.Diff(B, A)
         const AO = A.Clone().Scale(-1)
 
-        if (this.sameDirection(AB, AO))
+        if (sameDirection(AB, AO))
         {
             direction.Set(AB).Cross(AO).Cross(AB)
         }
         else
         {
-            this.count--
+            this.reset(A)
             direction.Set(AO)
         }
 
         return false
     }
 
-    triangleCase(direction: Vector3): boolean
+    private triangleCase(direction: Vector3): boolean
     {
-        const A = this.points[0]
-        const B = this.points[1]
-        const C = this.points[2]
+        const [C, B, A] = this
 
-        const AB = Vector3.Diff(A, B)
-        const AC = Vector3.Diff(A, C)
-        const AO = A.Clone().Scale(-1)
+        const AB = Vector3.Diff(B, A).Normalize()
+        const AC = Vector3.Diff(C, A).Normalize()
+        const AO = A.Clone().Scale(-1).Normalize()
 
-        const ABC = AB.Clone().Cross(AC)
-
-        if (this.sameDirection(ABC.Clone().Cross(AC), AO))
+        const ABC = Vector3.Cross(AB, AC)
+        
+        if (sameDirection(Vector3.Cross(ABC, AC), AO))
         {
-            if (this.sameDirection(AC, AO))
+            if (sameDirection(AC, AO))
             {
-                this.points[1].Set(C)
-                this.count--
+                this.reset(C, A)
                 direction.Set(AC).Cross(AO).Cross(AC)
             }
             else
             {
+                this.reset(B, A)
                 return this.lineCase(direction)
             }
         }
         else
         {
-            if (this.sameDirection(AB.Clone().Cross(ABC), AO))
+            if (sameDirection(Vector3.Cross(AB, ABC), AO))
             {
-                this.count--
+                this.reset(B, A)
                 return this.lineCase(direction)
             }
             else
             {
-                if (this.sameDirection(ABC, AO))
+                direction.Set(ABC)
+
+                if (!sameDirection(ABC, AO))
                 {
-                    direction.Set(ABC)
-                }
-                else
-                {
-                    this.points.swap(1, 2)
-                    direction.Set(ABC).Scale(-1)
+                    this.reset(B, C, A)
+                    direction.Scale(-1)
                 }
             }
         }
@@ -191,44 +90,246 @@ export class Simplex3D
         return false
     }
 
-    tetrahedronCase(direction: Vector3): boolean
+    private tetrahedronCase(direction: Vector3): boolean
     {
-        const A = this.points[0]
-        const B = this.points[1]
-        const C = this.points[2]
-        const D = this.points[3]
+        const [D, C, B, A] = this
 
-        const AB = Vector3.Diff(A, B)
-        const AC = Vector3.Diff(A, C)
-        const AD = Vector3.Diff(A, D)
+        const AB = Vector3.Diff(B, A)
+        const AC = Vector3.Diff(C, A)
+        const AD = Vector3.Diff(D, A)
         const AO = A.Clone().Scale(-1)
 
-        const ABC = AB.Clone().Cross(AC)
-        const ACD = AC.Clone().Cross(AD)
-        const ADB = AD.Clone().Cross(AB)
+        const ABC = Vector3.Cross(AB, AC)
+        const ACD = Vector3.Cross(AC, AD)
+        const ADB = Vector3.Cross(AD, AB)
 
-        if (this.sameDirection(ABC, AO))
+        if (sameDirection(ABC, AO))
         {
-            this.count--
+            this.reset(C, B, A)
             return this.triangleCase(direction)
         }
         
-        if (this.sameDirection(ACD, AO))
+        if (sameDirection(ACD, AO))
         {
-            this.points.swap(1, 2)
-            this.points.swap(2, 3)
-            this.count--
+            this.reset(D, C, A)
             return this.triangleCase(direction)
         }
 
-        if (this.sameDirection(ADB, AO))
+        if (sameDirection(ADB, AO))
         {
-            this.points.swap(1, 3)
-            this.points.swap(2, 3)
-            this.count--
+            this.reset(B, D, A)
             return this.triangleCase(direction)
         }
 
         return true
     }
+}
+
+
+export function sameDirection(direction: Vector3, vector: Vector3): boolean
+{
+    return direction.Dot(vector) > 0
+}
+export function calcSupport(left: Collider, right: Collider, direction: Vector3): Vector3
+{
+    return Vector3.Diff(
+        left.findFurthest(direction),
+        right.findFurthest(direction.Clone().Scale(-1))
+    )
+}
+
+export function GJK(simplex: Simplex3D, leftCollider: MeshCollider, rightCollider: MeshCollider): boolean
+{    
+    const direction = Vector3.ONE
+    const support = calcSupport(leftCollider, rightCollider, direction)
+
+    simplex.push(support)
+    direction.Set(support).Scale(-1)
+
+    while (true)
+    {
+        const newSupport = calcSupport(leftCollider, rightCollider, direction)
+        
+        if (newSupport.Dot(direction) <= 0)
+        {
+            return false
+        }
+        
+        simplex.push(newSupport)
+        if (simplex.handleSimplex(direction))
+        {
+            return true
+        }
+    }
+}
+
+export class Polytope extends Array<Vector3>
+{
+    getFaceNormal(faces: number[]): [Vector4[], number]
+    {
+        const normals: Vector4[] = []
+        let minTriangle: number = 0
+        let minDot: number = Number.MAX_VALUE
+
+        for (let i = 0; i < faces.length; i +=3)
+        {
+            const A = this[faces[i + 0]]
+            const B = this[faces[i + 1]]
+            const C = this[faces[i + 2]]
+            
+            const AB = Vector3.Diff(B, A)
+            const AC = Vector3.Diff(C, A)
+
+            const normal = Vector3.Cross(AB, AC).Normalize()
+            let dot = normal.Dot(A)
+
+            if (dot < 0)
+            {
+                normal.Scale(-1)
+                dot *= -1
+            }
+
+            normals.push(new Vector4(normal[0], normal[1], normal[2], dot))
+
+            if (dot < minDot)
+            {
+                minTriangle = i / 3
+                minDot = dot
+            }
+        }
+
+        return [normals, minTriangle]
+    }
+}
+
+export function addIfUniqueEdge(edges: [number, number][], faces: number[], a: number, b: number): void
+{
+    const reverse = edges.findIndex(
+        ([x, y]:[number, number], index: number) => {
+            if (faces[b] === x && faces[a] === y) {
+                return index
+            }
+
+            return undefined
+        }
+    )
+
+    if (reverse !== undefined && reverse !== -1)
+    {
+        edges.splice(reverse, 1)
+    }
+    else
+    {
+        edges.push([faces[a], faces[b]])
+    }
+}
+
+export function EPA(simplex: Simplex3D, leftCollider: MeshCollider, rightCollider: MeshCollider): [Vector3, Vector3]
+{
+    const offset: [Vector3, Vector3] = [Vector3.ZERO, Vector3.ZERO]
+    const polytope: Polytope = new Polytope(...simplex)
+    const faces: number[] = [
+        0, 1, 2,
+        0, 2, 3,
+        0, 3, 1,
+        1, 2, 3,
+    ]
+
+    let [normals, minFace] = polytope.getFaceNormal(faces)
+    const minNormal: Vector3 = new Vector3()
+    let minDistance: number = Number.MAX_VALUE
+
+    while (minDistance === Number.MAX_VALUE)
+    {
+        minNormal.Set(normals[minFace][0], normals[minFace][1], normals[minFace][2])
+        minDistance = normals[minFace][3]
+
+        const support: Vector3 =  calcSupport(leftCollider, rightCollider, minNormal)
+        const distance: number = minNormal.Dot(support)
+
+        if (Math.abs(distance - minDistance) > 0.001)
+        {
+            minDistance = Number.MAX_VALUE
+            
+            const uniqueEdges: [number, number][] = []
+
+            for (let i = 0; i < normals.length; ++i)
+            {
+                if (sameDirection(new Vector3(normals[i]), support))
+                {
+                    const faceIndex: number = i * 3
+
+                    addIfUniqueEdge(uniqueEdges, faces, faceIndex + 0, faceIndex + 1)
+                    addIfUniqueEdge(uniqueEdges, faces, faceIndex + 1, faceIndex + 2)
+                    addIfUniqueEdge(uniqueEdges, faces, faceIndex + 2, faceIndex + 0)
+
+                    faces[faceIndex + 2] = faces.pop()!
+                    faces[faceIndex + 1] = faces.pop()!
+                    faces[faceIndex + 0] = faces.pop()!
+
+                    normals[i].Set(normals.pop()!)
+                    
+                    --i
+                }
+            }
+
+            const newFaces: number[] = []
+            for (const [edgePoint1, edgePoint2] of uniqueEdges)
+            {
+                newFaces.push(edgePoint1, edgePoint2, polytope.length)
+            }
+            polytope.push(support)
+
+            const [newNormals, newMinFace] = polytope.getFaceNormal(newFaces)
+            let oldMinDistance = Number.MAX_VALUE
+
+            for (let i = 0; i < normals.length; ++i)
+            {
+                if (normals[i][3] < oldMinDistance)
+                {
+                    oldMinDistance = normals[i][3]
+                    minFace = i
+                }
+            }
+
+            if (newNormals[newMinFace][3] < oldMinDistance)
+            {
+                minFace = newMinFace + normals.length
+            }
+
+            faces.push(...newFaces)
+            normals.push(...newNormals)
+        }
+    }
+
+    minNormal.Scale(minDistance)
+
+    if (leftCollider.IsStatic)
+    {
+        offset[0].Set(minNormal)
+    }   
+    else if (rightCollider.IsStatic)
+    {
+        offset[1].Set(minNormal.Scale(-1))
+    } 
+    else
+    {
+        minNormal.Scale(0.5)
+        offset[1].Set(minNormal)
+        offset[0].Set(minNormal.Scale(-1))
+    }
+
+    return offset
+}
+
+export function MeshMesh(leftCollider: MeshCollider, rightCollider: MeshCollider): [Vector3, Vector3] | undefined
+{
+    const simplex: Simplex3D = new Simplex3D()
+
+    if (GJK(simplex, leftCollider, rightCollider))
+    {
+        return EPA(simplex, leftCollider, rightCollider)
+    }
+
+    return undefined
 }

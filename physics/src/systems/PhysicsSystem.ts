@@ -1,117 +1,14 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, MeshCollider, RigidBody, SphereCollider } from "../components"
-import { GJK } from "./GJK"
-import { detect_SS, resolve_SS, SS_Detect, SS_Resolve } from './SS'
+import { MeshMesh } from "./GJK"
+import { detect_SS, resolve_SS, SphereSphere } from './SS'
 import { Collision, CollisionState, CollisionTest, DetectResolveType, _Collision, _Collision_Id } from "./types"
 import { handleData } from "./Worker"
 
 export class PhysicsSystem extends System
 {
-    private workerPool: Worker[] = new Array(navigator.hardwareConcurrency)
-    // private displacementValues?: ArrayBuffer
     private maxColliders: number = 500
-    private readonly blob = new Blob(
-    [
-        `self.detect_SS = ${detect_SS.toString()}\n`,
-        `self.resolve_SS = ${resolve_SS.toString()}\n`,
-        `self.onmessage = ${ handleData.toString() }\n`
-    ], { type: 'application/javascript' })
-
-    Init(): void {
-        console.log(this)
-        
-        // const url = window.URL.createObjectURL(this.blob)
-
-        // const pool: Worker[] = []
-        // for (let i = 0; i< window.navigator.hardwareConcurrency; ++i)
-        // {
-        //     const worker = new Worker(url)
-        //     this.workerPool[i] = worker
-        //     {
-        //         worker.id = i
-        //     }
-        //     worker.onmessage = (args: any) =>
-        //     {
-        //         const displacementMap = args.data as Map<EntityId, [number, number, number]>
-        //         for (const [entityId, displacement] of displacementMap)
-        //         {
-        //             if (!this.displacements.has(entityId))
-        //             {
-        //                 this.displacements.set(entityId, new Vector3(displacement))
-        //             }
-        //             else
-        //             {
-        //                 this.displacements.get(entityId)?.Sum(displacement)
-        //             }
-        //         }
-        //     }
-        // }
-    }
-    Start(): void {
-        
-        // const testCases: CollisionTest[][] = new Array(this.workerPool.length)
-        // let index = 0
-        // for (let i = 0; i < this.entities.length; ++i)
-        // {
-        //     const left = this.entities[i]!            
-        //     const leftPosition = left.GetComponent(Transform)!.Position
-        //     const leftCollider = left.GetComponent(Collider)!
-
-        //     for (let j = i + 1; j < this.entities.length; ++j)
-        //     {
-        //         const right = this.entities[j]!
-        //         const rightPosition = right.GetComponent(Transform)!.Position
-        //         const rightCollider = right.GetComponent(Collider)!
-
-        //         let testCase!: CollisionTest
-        //         if (leftCollider instanceof SphereCollider && rightCollider instanceof SphereCollider)
-        //         {
-        //             testCase =
-        //             [
-        //                 DetectResolveType.SphereSphere,
-        //                 left.Id,
-        //                 right.Id,
-        //                 ...leftPosition,
-        //                 leftCollider.Radius,
-        //                 ...rightPosition,
-        //                 rightCollider.Radius,
-        //             ]
-        //         }
-        //         else if (leftCollider instanceof CubeCollider && rightCollider instanceof CubeCollider)
-        //         {
-        //             testCase =
-        //             [
-        //                 DetectResolveType.CubeCube,
-        //                 left.Id,
-        //                 right.Id,
-        //                 ...leftPosition,
-        //                 leftCollider.Width,
-        //                 leftCollider.Height,
-        //                 leftCollider.Depth,
-        //                 ...rightPosition,
-        //                 rightCollider.Width,
-        //                 rightCollider.Height,
-        //                 rightCollider.Depth,
-        //             ]
-        //         }
-
-        //         const id = index % navigator.hardwareConcurrency
-        //         if (!testCases[id]) {
-        //             testCases[id] = []
-        //         }
-        //         testCases[id].push(testCase)
-        //         index++
-
-        //         // this._detect(left, right)
-        //     }
-        // }        
-
-        // testCases.forEach((testCase, i) => this.workerPool[i].postMessage(testCase))
-    }
-    Stop(): void {
-        
-    }
     private readonly _collisions: Map<_Collision_Id, _Collision> = new Map()
 
     private collisions: Collision[][] = []
@@ -122,70 +19,15 @@ export class PhysicsSystem extends System
         super(scene, { requiredComponents: [ Transform, Collider ] })
     }
     
-    alpha()
+    Init(): void { }
+    Start(): void { }
+    Stop(): void { }
+    beta(delta: number)
     {
-        const testCases: CollisionTest[][] = new Array(this.workerPool.length)
-        let index = 0
-        for (let i = 0; i < this.entities.length; ++i)
-        {
-            const left = this.entities[i]!            
-            const leftPosition = left.GetComponent(Transform)!.Position
-            const leftCollider = left.GetComponent(Collider)!
-
-            for (let j = i + 1; j < this.entities.length; ++j)
-            {
-                const right = this.entities[j]!
-                const rightPosition = right.GetComponent(Transform)!.Position
-                const rightCollider = right.GetComponent(Collider)!
-
-                let testCase!: CollisionTest
-                if (leftCollider instanceof SphereCollider && rightCollider instanceof SphereCollider)
-                {
-                    testCase =
-                    [
-                        DetectResolveType.SphereSphere,
-                        left.Id,
-                        right.Id,
-                        ...leftPosition,
-                        leftCollider.Radius,
-                        ...rightPosition,
-                        rightCollider.Radius,
-                    ]
-                }
-                else if (leftCollider instanceof CubeCollider && rightCollider instanceof CubeCollider)
-                {
-                    testCase =
-                    [
-                        DetectResolveType.CubeCube,
-                        left.Id,
-                        right.Id,
-                        ...leftPosition,
-                        leftCollider.Width,
-                        leftCollider.Height,
-                        leftCollider.Depth,
-                        ...rightPosition,
-                        rightCollider.Width,
-                        rightCollider.Height,
-                        rightCollider.Depth,
-                    ]
-                }
-
-                const id = index % navigator.hardwareConcurrency
-                if (!testCases[id]) {
-                    testCases[id] = []
-                }
-                testCases[id].push(testCase)
-                index++
-
-                // this._detect(left, right)
-            }
-        }        
-
-        testCases.forEach((testCase, i) => this.workerPool[i].postMessage(testCase))
-        this._displace()
+        
     }
 
-    beta(delta: number)
+    Update(delta: number): void
     {
         for (const entity of this.entities)
         {
@@ -252,40 +94,28 @@ export class PhysicsSystem extends System
         }
     }
 
-    Update(delta: number): void
-    {
-        this.beta(delta)
-    }
-
-    private _detect(a: Entity, b: Entity): void
+    private _detect(entityA: Entity, entityB: Entity): void
     {
         let resolve: ((current: Entity, target: Entity) => void) | undefined
-        const aPosition = a.GetComponent(Transform)!.Position
-        const aCollider = a.GetComponent(Collider)!
-        const bPosition = b.GetComponent(Transform)!.Position
-        const bCollider = b.GetComponent(Collider)!
         let displacements: [Vector3, Vector3] | undefined = undefined
+        
+        const colliderA = entityA.GetComponent(Collider)!
+        const colliderB = entityB.GetComponent(Collider)!
 
-        if (aCollider instanceof SphereCollider &&
-            bCollider instanceof SphereCollider &&
-            SS_Detect(aPosition, aCollider.Radius, bPosition, bCollider.Radius)
-        )
+        if (colliderA instanceof SphereCollider && colliderB instanceof SphereCollider)
         {
-            displacements = SS_Resolve(aPosition, aCollider, bPosition, bCollider)
+            displacements = SphereSphere(colliderA, colliderB)
         }
-        else if (aCollider instanceof CubeCollider && bCollider instanceof CubeCollider)
+        else if (colliderA instanceof CubeCollider && colliderB instanceof CubeCollider)
         {
             // resolve = this._AABB(aPosition, aCollider, bPosition, bCollider)   
         }
-        else if (
-            aCollider instanceof MeshCollider && 
-            bCollider instanceof MeshCollider &&
-            GJK(aCollider, bCollider))
+        else if (colliderA instanceof MeshCollider && colliderB instanceof MeshCollider)
         {
-            displacements = [Vector3.ZERO, Vector3.ZERO]
+            displacements = MeshMesh(colliderA, colliderB)
         }
         
-        const collision = this._collisions.get(`${a.Id}-${b.Id}`) ?? { 
+        const collision = this._collisions.get(`${entityA.Id}-${entityB.Id}`) ?? { 
             state: CollisionState.None,
             displacements: displacements
         }
@@ -322,11 +152,11 @@ export class PhysicsSystem extends System
 
         if (collision.state === CollisionState.None)
         {
-            this._collisions.delete(`${a.Id}-${b.Id}`)
+            this._collisions.delete(`${entityA.Id}-${entityB.Id}`)
         }
         else
         {
-            this._collisions.set(`${a.Id}-${b.Id}`, collision)
+            this._collisions.set(`${entityA.Id}-${entityB.Id}`, collision)
         }
     }
 

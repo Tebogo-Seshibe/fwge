@@ -1,4 +1,4 @@
-import { GL, Vector2 } from '@fwge/common'
+import { GL, Vector2, Vector3 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
 import { ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight } from '../components'
@@ -11,15 +11,30 @@ export class MeshRenderSystem extends System
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
     private _screenShader: ShaderAsset | null = null
+    private _wireframeShader: ShaderAsset | null = null
+    private _gridShader: ShaderAsset | null = null
+
+    public RenderGrid: boolean = true
+    public Min: number = -10
+    public Max: number = 10
+    public Step: number = 1
 
     private _batches: Map<Material, Entity[]> = new Map()
 
-    constructor(manager: Scene)
+    constructor(manager: Scene, args?: { renderGrid: boolean, min: number, max: number, step: number })
     {
         super(manager,
         {
             requiredComponents: [ Transform, Mesh, Material ]
         })
+
+        if (args)
+        {
+            this.RenderGrid = args.renderGrid
+            this.Min = args.min
+            this.Max = args.max
+            this.Step = args.step
+        }
     }
 
     Init(): void
@@ -37,6 +52,51 @@ export class MeshRenderSystem extends System
             
             this._batches.get(material)!.push(entity)
         }
+        this._gridShader = new ShaderAsset(
+        { 
+            vertexShader:
+            {
+                source: `#version 300 es
+                layout(location = 0) in vec3 A_Position;
+
+                struct Matrix
+                {
+                    mat4 View;
+                    mat4 Projection;
+                };
+                uniform Matrix U_Matrix;
+
+                vec2 V_Position;
+                void main()
+                {
+                    gl_Position = U_Matrix.Projection * U_Matrix.View * vec4(A_Position,  1.0);
+                    V_Position = A_Position.xz;
+                    gl_PointSize = 40.0;
+                }`,
+                input: []
+            },
+            fragmentShader:
+            {
+                source: `#version 300 es
+                precision highp float;
+                
+                out vec4 colour;
+                vec2 V_Position;
+                void main()
+                {
+                    if (V_Position.x == 0.0 || V_Position.y == 0.0)
+                    {
+                        colour = vec4(vec3(1.0), 1.0);
+                    }
+                    else
+                    {
+                        colour = vec4(vec3(0.3), 1.0);
+                    }
+                    colour.rg = V_Position;
+                }`,
+                input: []
+            }
+        })
     }
 
     private _buildScreenShader()
@@ -119,6 +179,11 @@ export class MeshRenderSystem extends System
             return
         }
 
+        if (this.RenderGrid)
+        {
+            this._drawGrid()
+        }
+
         for (const [material, entityList] of this._batches)
         {
             this._useShader(material, delta)
@@ -140,6 +205,31 @@ export class MeshRenderSystem extends System
         GL.enable(GL.BLEND)
         GL.disable(GL.DEPTH_TEST)
         GL.disable(GL.CULL_FACE)
+    }
+
+    private _drawGrid()
+    {
+        // console.log(this.Min)
+        
+        GL.useProgram(this._gridShader!.Program)
+        GL.uniformMatrix4fv(this._gridShader!.Matrices!.View, false, Camera.Main!.View)
+        GL.uniformMatrix4fv(this._gridShader!.Matrices!.Projection, false, Camera.Main!.Projection)
+
+        const vertices: number[] = []
+
+        for (let i = this.Min; i <= this.Max; i += this.Step)
+        {
+            vertices.push(i, 0, this.Min)
+            vertices.push(i, 0, this.Max)
+
+            vertices.push(this.Min, 0, i)
+            vertices.push(this.Max, 0, i)
+        }
+
+        GL.enableVertexAttribArray(0)
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.DYNAMIC_DRAW)
+        GL.vertexAttribPointer(0, Vector3.SIZE, GL.FLOAT, false, Vector3.BYTES_PER_ELEMENT * Vector3.SIZE, 0)
+        GL.drawArrays(GL.LINES, 0, vertices.length / 3)
     }
 
     private _draw(transform: Transform, mesh: Mesh, material: Material): void

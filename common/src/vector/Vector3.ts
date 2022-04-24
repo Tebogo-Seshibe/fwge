@@ -200,7 +200,7 @@ export class Vector3 extends Float32Array
             z !== undefined ? z : x
         ] : x
 
-        return this[0] * x[0] + this[1] * x[1] + this[2] * x[2]
+        return (this[0] * x[0]) + (this[1] * x[1]) + (this[2] * x[2])
     }
 
     Cross(xyz: number): Vector3
@@ -260,25 +260,76 @@ export class Vector3 extends Float32Array
         return Vector3.Distance(this, other)
     }
 
+    static Sum(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
+    static Sum(left: Vector3, right: Vector3): Vector3
+    static Sum(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
+    {
+        if (typeof x1 === 'number' && typeof y1 === 'number')
+        {
+            return new Vector3(
+                x1 + x2,
+                y1 + y2,
+                z1 + z2
+            )
+        }
+        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
+        {
+            return new Vector3(
+                x1[0] + y1[0],
+                x1[1] + y1[1],
+                x1[2] + y1[2]
+            )
+        }
+
+        return Vector3.ZERO
+    }
+
     static Diff(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Diff(left: Vector3, right: Vector3): Vector3
     static Diff(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
     {
-        if (typeof x1 === 'number')
+        if (typeof x1 === 'number' && typeof y1 === 'number')
         {
             return new Vector3(
-                x2 - x1,
-                y2 - (<number>y1),
-                z2 - z1)
-        }
-        else
-        {
-            return new Vector3(
-                ((<Vector3>y1)[0] - x1[0]),
-                ((<Vector3>y1)[1] - x1[1]),
-                ((<Vector3>y1)[2] - x1[2])
+                x1 - x2,
+                y1 - y2,
+                z1 - z2
             )
         }
+        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
+        {
+            return new Vector3(
+                x1[0] - y1[0],
+                x1[1] - y1[1],
+                x1[2] - y1[2]
+            )
+        }
+
+        return Vector3.ZERO
+    }
+    
+    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
+    static Cross(left: Vector3, right: Vector3): Vector3
+    static Cross(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
+    {
+        if (typeof x1 === 'number' && typeof y1 === 'number')
+        {
+            return new Vector3(
+                (y1 * z2) - (z1 * y2),
+                (z1 * x2) - (x1 * z2),
+                (x1 * y2) - (y1 * x2)
+            )
+        }
+        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
+        {
+            return new Vector3(
+                (x1[1] * y1[2]) - (x1[2] * y1[1]),
+                (x1[2] * y1[0]) - (x1[0] * y1[2]),
+                (x1[0] * y1[1]) - (x1[1] * y1[0])
+            )
+        }
+
+        return Vector3.ZERO
     }
 
     static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): number

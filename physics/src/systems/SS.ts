@@ -12,7 +12,26 @@ declare global
     }
 }
 
-export function SS_Detect(aPosition: Vector3, aRadius: number, bPosition: Vector3, bRadius: number): boolean
+export function SphereSphere(leftCollider: SphereCollider, rightCollider: SphereCollider): [Vector3, Vector3] | undefined
+{
+    const leftPosition = Vector3.Sum(
+        leftCollider.Owner!.GetComponent(Transform)!.Position,
+        leftCollider.Position
+    )
+    const rightPosition = Vector3.Sum(
+        rightCollider.Owner!.GetComponent(Transform)!.Position,
+        rightCollider.Position
+    )
+
+    if (detect(leftPosition, leftCollider.Radius, rightPosition, rightCollider.Radius))
+    { 
+        return resolve(leftPosition, leftCollider, rightPosition, rightCollider)
+    }
+
+    return undefined
+}
+
+export function detect(aPosition: Vector3, aRadius: number, bPosition: Vector3, bRadius: number): boolean
 {
     const radiusSquared  = (aRadius + bRadius) ** 2
     const distanceSquared = (aPosition[0] - bPosition[0]) **2 + 
@@ -22,7 +41,7 @@ export function SS_Detect(aPosition: Vector3, aRadius: number, bPosition: Vector
     return distanceSquared <= radiusSquared
 }
 
-export function SS_Resolve(aPosition: Vector3, aCollider: SphereCollider, bPosition: Vector3, bCollider: SphereCollider): [Vector3, Vector3]
+export function resolve(aPosition: Vector3, aCollider: SphereCollider, bPosition: Vector3, bCollider: SphereCollider): [Vector3, Vector3]
 {
     const result: [Vector3, Vector3]  = [Vector3.ZERO, Vector3.ZERO]
 

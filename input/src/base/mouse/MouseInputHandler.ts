@@ -49,13 +49,13 @@ export class MouseInputHandler
 
     Start(): void
     {
-        this._canvas.addEventListener('click', this._click.bind(this))
-        this._canvas.addEventListener('dblclick', this._dblclick.bind(this))
-        this._canvas.addEventListener('mousedown', this._mousedown.bind(this))
-        this._canvas.addEventListener('mouseup', this._mouseup.bind(this))
-        this._canvas.addEventListener('mousemove', this._mousemove.bind(this))
-        this._canvas.addEventListener('contextmenu', this._contextmenu.bind(this))
-        this._canvas.addEventListener('wheel', this._wheel.bind(this))
+        this._canvas.onclick = this._click.bind(this)
+        this._canvas.ondblclick = this._dblclick.bind(this)
+        this._canvas.onmousedown = this._mousedown.bind(this)
+        this._canvas.onmouseup = this._mouseup.bind(this)
+        this._canvas.onmousemove = this._mousemove.bind(this)
+        this._canvas.oncontextmenu = this._contextmenu.bind(this)
+        this._canvas.onwheel = this._wheel.bind(this)
     }
 
     Update(delta: number): void
@@ -65,13 +65,13 @@ export class MouseInputHandler
 
     Stop(): void
     {
-        this._canvas.removeEventListener('click', this._click.bind(this))
-        this._canvas.removeEventListener('dblclick', this._dblclick.bind(this))
-        this._canvas.removeEventListener('mousedown', this._mousedown.bind(this))
-        this._canvas.removeEventListener('mouseup', this._mouseup.bind(this))
-        this._canvas.removeEventListener('mousemove', this._mousemove.bind(this))
-        this._canvas.removeEventListener('contextmenu', this._contextmenu.bind(this))
-        this._canvas.removeEventListener('wheel', this._wheel.bind(this))
+        this._canvas.onclick = null
+        this._canvas.ondblclick = null
+        this._canvas.onmousedown = null
+        this._canvas.onmouseup = null
+        this._canvas.onmousemove = null
+        this._canvas.oncontextmenu = null
+        this._canvas.onwheel = null
 
         this._state[MouseInputHandler.Wheel] = WheelState.CENTERED
     }
