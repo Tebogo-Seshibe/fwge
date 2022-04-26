@@ -5,7 +5,7 @@ import { MeshCollider, PhysicsSystem, RigidBody } from "@fwge/physics"
 import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FrameCounter } from "../../shared/FrameCounter"
-import { basicShader, cubeMesh, cubeUVMaterial, init, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts } from "./components"
+import { base, basicShader, cubeMesh, cubeUVMaterial, init, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts, spinnerScript } from "./components"
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {
@@ -31,13 +31,14 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         .UseSystem(PhysicsSystem)
         .UseSystem(MeshRenderSystem,
         {
-            renderGrid: true,
+            renderGrid: false,
             min: -20,
             max: 20,
-            step: 1
+            step: 1,
+            wireframe: true
         })
         .UseSystem(ParticleSystem)
-        .UseSystem(ColliderOutlineSystem)
+        // .UseSystem(ColliderOutlineSystem)
         .UseSystem(FrameCounter, fpsCounter)
 
 
@@ -68,11 +69,19 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             radius: 100
         }))
 
+    const particles = new ParticleSpawner(
+    {
+        size: 1,
+        mesh: prefabs[0].mesh
+    })
+
     player.AddComponent(new Transform())
-        // .AddComponent(prefabs[0].mesh)
+        // .AddComponent(base[0].mesh)
+        // .AddComponent(particles.ParticleMesh)
         .AddComponent(prefabs[0].material)
-        // .AddComponent(spinnerScript)
-        .AddComponent(new ParticleSpawner({ size: 100 }))
+        .AddComponent(new RigidBody({ velocity: new Vector3(0,-0.2,0) }))
+        .AddComponent(spinnerScript)
+        .AddComponent(particles)
         .AddComponent(new MeshCollider(
         {
             vertices:   simpleCubeMeshVerts,
@@ -129,12 +138,17 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
         const transform = new Transform(
         {
-            position: [x * (radius + 1.5), y * (radius + 1.5), z],
+            position: [0,-2,0
+                // x * (radius + 1.5),
+                // y * (radius + 1.5),
+                // z
+            ],
         })
         transform.Scale.Scale(2)
         const child = scene.CreateEntity()
 
         child.AddComponent(transform)
+            .AddComponent(new RigidBody({ velocity: new Vector3(0,0.2,0)}))
             .AddComponent(prefabs[0].material)
             // .AddComponent(prefabs[0].mesh)
             .AddComponent(new MeshCollider(

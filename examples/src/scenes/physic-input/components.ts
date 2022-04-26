@@ -4,6 +4,8 @@ import { Script, Transform } from "@fwge/core"
 import { Colour4, Material, OBJ, OBJParser, ShaderAsset, StaticMesh } from "@fwge/render"
 import cubeMTL from '../../../assets/objects/Cube/Cube.mtl?raw'
 import cubeOBJ from '../../../assets/objects/Cube/Cube.obj?raw'
+import baseMTL from '../../../assets/objects/Base/Base.mtl?raw'
+import baseOBJ from '../../../assets/objects/Base/Base.obj?raw'
 import basicFrag from '../../../assets/shaders/Basic.frag?raw'
 import defaultFrag from '../../../assets/shaders/Default.frag?raw'
 import defaultVert from '../../../assets/shaders/Default.vert?raw'
@@ -21,6 +23,7 @@ export let spinnerScript!: Script
 export let offAudio!: AudioPlayer
 export let hmm!: OBJParser
 export let prefabs!: OBJ[]
+export let base!: OBJ[]
 export let cubeMesh!: StaticMesh
 export let simpleShader!: ShaderAsset
 export let basicShader!: ShaderAsset
@@ -32,6 +35,7 @@ export function init()
 {
     hmm = new OBJParser()
     prefabs = hmm.hmm(cubeOBJ, cubeMTL)
+    base = hmm.hmm(baseOBJ, baseMTL)
     offAudio = new AudioPlayer({ source: '/assets/audio/Minecraft Death Sound Effect.mp3' })
     
     spinnerScript = new Script(
@@ -218,21 +222,12 @@ export function init()
         ],
         index:
         [
-                0,  1,  2,  0,  2,  3,
-                4,  5,  6,  4,  6,  7,
-                8,  9, 10,  8, 10, 11,
+            0,  1,  2,  0,  2,  3,
+            4,  5,  6,  4,  6,  7,
+            8,  9, 10,  8, 10, 11,
             12, 13, 14, 12, 14, 15,
             16, 17, 18, 16, 18, 19,
             20, 21, 22, 20, 22, 23,
-        ],
-        wireframe:
-        [
-                0,  1,  1,  2,  2,  3,  3,  0,
-                4,  5,  5,  6,  6,  7,  7,  4,
-                8,  9,  9, 10, 10, 11, 11,  8,
-            12, 13, 13, 14, 14, 15, 15, 12,
-            16, 17, 17, 18, 18, 19, 19, 16,
-            20, 21, 21, 22, 22, 23, 23, 20,
         ]
     })
 

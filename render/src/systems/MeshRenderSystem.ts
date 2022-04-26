@@ -18,10 +18,11 @@ export class MeshRenderSystem extends System
     public Min: number = -10
     public Max: number = 10
     public Step: number = 1
+    public Wireframe: boolean = false
 
     private _batches: Map<Material, Entity[]> = new Map()
 
-    constructor(manager: Scene, args?: { renderGrid: boolean, min: number, max: number, step: number })
+    constructor(manager: Scene, args?: { renderGrid: boolean, min: number, max: number, step: number, wireframe: boolean })
     {
         super(manager,
         {
@@ -34,12 +35,14 @@ export class MeshRenderSystem extends System
             this.Min = args.min
             this.Max = args.max
             this.Step = args.step
+            this.Wireframe = args.wireframe
         }
     }
 
     Init(): void
     {
         this._buildScreenShader()
+        this._buildWireframeShader()
 
         for (const entity of this.entities)
         {
@@ -93,6 +96,45 @@ export class MeshRenderSystem extends System
                         colour = vec4(vec3(0.3), 1.0);
                     }
                     colour.rg = V_Position;
+                }`,
+                input: []
+            }
+        })
+    }
+
+    private _buildWireframeShader()
+    {
+        this._wireframeShader = new ShaderAsset(
+        { 
+            vertexShader:
+            {
+                source: `#version 300 es
+                layout(location = 0) in vec3 A_Position;
+
+                struct Matrix
+                {
+                    mat4 ModelView;
+                    mat4 View;
+                    mat4 Projection;
+                };
+                uniform Matrix U_Matrix;
+
+                void main()
+                {
+                    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position,  1.0);
+                    gl_PointSize = 20.0;
+                }`,
+                input: []
+            },
+            fragmentShader:
+            {
+                source: `#version 300 es
+                precision highp float;
+                
+                out vec4 colour;
+                void main()
+                {
+                    colour = vec4(0.0, 1.0, 0.0, 1.0);
                 }`,
                 input: []
             }
@@ -176,18 +218,33 @@ export class MeshRenderSystem extends System
 
         for (const [material, entityList] of this._batches)
         {
-            this._useShader(material, delta)
+            const shader = material.Shader!
+
+            this._useShader(shader)
+            this._bindLightUniforms(shader)
+            this._bindMaterialUniforms(material, shader)
+
             for (const entity of entityList)
             {
                 const transform = entity.GetComponent(Transform)!
                 const mesh = entity.GetComponent(Mesh)!
 
-                this._drawMesh(transform, mesh, material)
+                this._drawMesh(transform, mesh, shader)
+            }
+            
+        }
+        GL.useProgram(null)
+        if (this.Wireframe)
+        {
+            this._useShader(this._wireframeShader!)
+            for (const entity of this.entities)
+            {
+                const transform = entity.GetComponent(Transform)!
+                const mesh = entity.GetComponent(Mesh)!
+
+                this._drawMeshWireframe(transform, mesh)
             }
         }
-
-        GL.bindVertexArray(null)
-        GL.useProgram(null)
     }
 
 
@@ -214,25 +271,44 @@ export class MeshRenderSystem extends System
         GL.drawArrays(GL.LINES, 0, vertices.length / 3)
     }
 
-    private _drawMesh(transform: Transform, mesh: Mesh, material: Material): void
+    private _drawMesh(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(material.Shader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
-        GL.uniformMatrix3fv(material.Shader!.Matrices!.Normal, false, transform.NormalMatrix)
-        this._render(mesh)
+        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
+        GL.uniformMatrix3fv(shader.Matrices!.Normal, false, transform.NormalMatrix)
+        
+        if (mesh.IndexBuffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
+            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
+        }
+        else
+        {
+            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
+        }
+
         GL.bindVertexArray(null)
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
     }
     
-    private _useShader(material: Material, delta: number)
+    private _drawMeshWireframe(transform: Transform, mesh: Mesh): void
     {
-        const shader: ShaderAsset = material.Shader!
+        GL.bindVertexArray(mesh.VertexArrayBuffer)
+        GL.uniformMatrix4fv(this._wireframeShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
+        GL.uniformMatrix3fv(this._wireframeShader!.Matrices!.Normal, false, transform.NormalMatrix)
+        
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
+        GL.drawElements(GL.POINTS, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
+        
+        GL.bindVertexArray(null)
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+    }
+    
+    private _useShader(shader: ShaderAsset)
+    {
         GL.useProgram(shader.Program)
-
         GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
         GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
-
-        this._bindLightUniforms(material.Shader!)
-        this._bindMaterialUniforms(material, material.Shader!)
     }
 
     private _bindMaterialUniforms(material: Material, shader: ShaderAsset)
@@ -329,23 +405,6 @@ export class MeshRenderSystem extends System
 
                 ++point_count
             }
-        }
-    }
-
-    private _render(mesh: Mesh): void
-    {
-        // GL.bindFramebuffer(GL.FRAMEBUFFER, shader.FrameBuffer)
-        if (mesh.IndexBuffer)
-        {
-            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else if (mesh.WireframeBuffer)
-        {
-            GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else
-        {
-            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
         }
     }
 

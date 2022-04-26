@@ -10,7 +10,6 @@ interface IMesh
     colour?: Vector4[] | Colour4[] | [number, number, number, number][]
     uv?: Vector2[] | [number, number][]
     index?: number[]
-    wireframe?: number[]
 }
 
 export class StaticMesh extends Mesh
@@ -20,9 +19,11 @@ export class StaticMesh extends Mesh
         super(
             args.position.length * Vector3.SIZE,
             args.index?.length ?? -1,
-            args.wireframe?.length ?? -1
+            (args.index?.length ?? args.position.length) * 2
         )
     
+        console.log(args)
+        console.log(this)
         const vertexSize = (
               POSITION_SIZE
             + NORMAL_SIZE    * (args.normal ? 1 : 0)
@@ -114,26 +115,49 @@ export class StaticMesh extends Mesh
         }
 
         this.VertexBuffer = GL.createBuffer()
+        this.WireframeBuffer = GL.createBuffer()
+        const wireframeBufferData: number[] = []
         GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, vertexBuffer, GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ARRAY_BUFFER, null)
         
         if (args.index)
         {
             this.IndexBuffer = GL.createBuffer()
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(args.index), GL.STATIC_DRAW)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+
+            for (let i = 0; i < args.index.length; i += 3)
+            {
+                wireframeBufferData.push(
+                    args.index[i + 0], args.index[i + 1],
+                    args.index[i + 1], args.index[i + 2],
+                    args.index[i + 2], args.index[i + 0]
+                )
+            }
         }
-        
-        if (args.wireframe)
+        else
         {
-            this.WireframeBuffer = GL.createBuffer()
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(args.wireframe), GL.STATIC_DRAW)
+            for (let i = 0; i < args.position.length; i += 3)
+            {
+                wireframeBufferData.push(
+                    i + 0, i + 1,
+                    i + 1, i + 2,
+                    i + 2, i + 0
+                )
+            }
         }
+
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(wireframeBufferData), GL.STATIC_DRAW)
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
         //#endregion
 
         //#region VAO Setup
         GL.bindVertexArray(this.VertexArrayBuffer)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
+
         GL.enableVertexAttribArray(POSITION_INDEX)
         GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, positionOffset)
         if (normalOffset !== -1)
@@ -151,11 +175,8 @@ export class StaticMesh extends Mesh
             GL.enableVertexAttribArray(COLOUR_INDEX)
             GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, colourOffset)
         }
-        if (this.IndexBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
-        }
         GL.bindVertexArray(null)
+        GL.bindBuffer(GL.ARRAY_BUFFER, null)
         //#endregion
     }
 }
