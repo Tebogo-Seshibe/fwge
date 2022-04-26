@@ -71,7 +71,7 @@ export class StaticMesh extends Mesh
         
         for (let i = 0, offset = 0; i < args.position.length; i++)
         {
-            const position = args.position[i] as [number, number, number]
+            const position = args.position[i]
 
             vertexBuffer[offset + 0] = position[0]
             vertexBuffer[offset + 1] = position[1]
@@ -81,7 +81,7 @@ export class StaticMesh extends Mesh
             
             if (args.normal)
             {
-                const normal = args.normal[i] as [number, number, number]
+                const normal = args.normal[i]
                 
                 vertexBuffer[offset + 0] = normal[0]
                 vertexBuffer[offset + 1] = normal[1]
@@ -92,7 +92,7 @@ export class StaticMesh extends Mesh
             
             if (args.uv)
             {
-                const uv = args.uv[i] as [number, number]
+                const uv = args.uv[i]
                 
                 vertexBuffer[offset + 0] = uv[0]
                 vertexBuffer[offset + 1] = uv[1]
@@ -102,7 +102,7 @@ export class StaticMesh extends Mesh
             
             if (args.colour)
             {
-                const colour = args.colour[i] as [number, number, number, number]
+                const colour = args.colour[i]
                 
                 vertexBuffer[offset + 0] = colour[0]
                 vertexBuffer[offset + 1] = colour[1]
@@ -110,10 +110,6 @@ export class StaticMesh extends Mesh
                 vertexBuffer[offset + 3] = colour[3]
 
                 offset += Colour4.SIZE
-            }
-
-            {
-                
             }
         }
 

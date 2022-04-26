@@ -238,6 +238,7 @@ export class OBJParser implements IParser
             if (v.length > 0)
             {
                 const material = matMap.get(object.material!)!
+                
                 prefabs.push(
                 {
                     mesh: new StaticMesh(

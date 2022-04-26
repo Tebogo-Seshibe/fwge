@@ -16,9 +16,9 @@ interface IMaterial
 
 export class Material extends SharedComponent
 {
-    _ambient: Colour4
-    _diffuse: Colour4
-    _specular: Colour4
+    _ambient: Colour4 = new Colour4()
+    _diffuse: Colour4 = new Colour4()
+    _specular: Colour4 = new Colour4()
     _alpha: number
     _shininess: number
     _imageTexture: WebGLTexture | null = null
@@ -140,9 +140,13 @@ export class Material extends SharedComponent
     {
         super()
 
-        this._ambient = args.ambient ? new Colour4(args.ambient as number[]): new Colour4(0.50, 0.50, 0.50, 1.0)
-        this._diffuse = args.diffuse ? new Colour4(args.diffuse as number[]): new Colour4(0.65, 0.65, 0.65, 1.0)
-        this._specular = args.specular ? new Colour4(args.specular as number[]): new Colour4(0.75, 0.75, 0.75, 1.0)
+        args.ambient = args.ambient ?? [0.50, 0.50, 0.50, 1.0]
+        args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1.0]
+        args.specular = args.specular ?? [0.75, 0.75, 0.75, 1.0]
+
+        this._ambient.Set(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
+        this._diffuse.Set(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
+        this._specular.Set(args.specular[0], args.specular[1], args.specular[2], args.specular[3])
         this._alpha = args.alpha ?? 1.0
         this._shininess = args.shininess ?? 1.0
 

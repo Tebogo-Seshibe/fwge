@@ -159,18 +159,8 @@ export class MeshRenderSystem extends System
         GL.bindVertexArray(null)
     }
 
-    Start(): void
-    {
-        GL.enable(GL.DEPTH_TEST)
-        GL.disable(GL.BLEND)
-        GL.enable(GL.CULL_FACE)
-        
-        GL.canvas.width = Camera.Main!.ScreenWidth
-        GL.canvas.height = Camera.Main!.ScreenHeight
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0.0, 0.0, 0.0, 1.0)
-        
-    }
+    Start(): void { }
+    Stop(): void { }
 
     Update(delta: number): void
     {
@@ -192,7 +182,7 @@ export class MeshRenderSystem extends System
                 const transform = entity.GetComponent(Transform)!
                 const mesh = entity.GetComponent(Mesh)!
 
-                this._draw(transform, mesh, material)
+                this._drawMesh(transform, mesh, material)
             }
         }
 
@@ -200,17 +190,9 @@ export class MeshRenderSystem extends System
         GL.useProgram(null)
     }
 
-    Stop(): void
-    {
-        GL.enable(GL.BLEND)
-        GL.disable(GL.DEPTH_TEST)
-        GL.disable(GL.CULL_FACE)
-    }
 
     private _drawGrid()
     {
-        // console.log(this.Min)
-        
         GL.useProgram(this._gridShader!.Program)
         GL.uniformMatrix4fv(this._gridShader!.Matrices!.View, false, Camera.Main!.View)
         GL.uniformMatrix4fv(this._gridShader!.Matrices!.Projection, false, Camera.Main!.Projection)
@@ -232,14 +214,13 @@ export class MeshRenderSystem extends System
         GL.drawArrays(GL.LINES, 0, vertices.length / 3)
     }
 
-    private _draw(transform: Transform, mesh: Mesh, material: Material): void
+    private _drawMesh(transform: Transform, mesh: Mesh, material: Material): void
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer)
         GL.uniformMatrix4fv(material.Shader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(material.Shader!.Matrices!.Normal, false, transform.NormalMatrix)
-
-        // GL.uniform1i(uniforms.Global.ObjectID, entityId)
         this._render(mesh)
+        GL.bindVertexArray(null)
     }
     
     private _useShader(material: Material, delta: number)

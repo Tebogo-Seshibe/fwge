@@ -21,7 +21,7 @@ export class ColliderOutlineSystem extends System
     private _simplex: Simplex3D = []
     private _direction: Vector3 = Vector3.ZERO
 
-    private step?: Function = this.GJK
+    private step?: Function = this._GJK
     private _stop: boolean = false
 
 
@@ -38,7 +38,6 @@ export class ColliderOutlineSystem extends System
 
     Init()
     {
-        console.log(this)
         this._wireframeShader = new ShaderAsset(
         { 
             vertexShader:
@@ -141,9 +140,14 @@ export class ColliderOutlineSystem extends System
                 input: []
             }
         })
-        
-        const left = this.entities.first().GetComponent(MeshCollider)!
-        const right = this.entities.last().GetComponent(MeshCollider)!
+
+        const first = this.entities.first()
+        const last = this.entities.last()
+
+        if (first === last) return 
+
+        const left = first.GetComponent(MeshCollider)!
+        const right = last.GetComponent(MeshCollider)!
 
         for (const leftVertex of left.CalculatedVertices)
         {
@@ -159,14 +163,11 @@ export class ColliderOutlineSystem extends System
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this._hull.Points), GL.DYNAMIC_DRAW)      
     }
 
-    Start(): void {
-        console.log(GL.getParameter(GL.ALIASED_LINE_WIDTH_RANGE))
-        console.log(GL.getParameter(GL.ALIASED_POINT_SIZE_RANGE))
-    }
+    Start(): void {}
+    Stop(): void {}
 
-    Update(delta: number): void
+    Update(_: number): void
     {
-        this._tick += delta
         if (!Camera.Main)
         {
             return 
@@ -190,12 +191,16 @@ export class ColliderOutlineSystem extends System
             }
         }
 
-        this.renderHull()
+        this._renderHull()
     }
     
-    renderHull()
+    private _renderHull()
     {
-        this.GJK()
+        const first = this.entities.first()
+        const last = this.entities.last()
+
+        if (first === last) return 
+        this._GJK()
 
         /* ============= HULL ============= */
         this._hull.Vertices = []
@@ -289,24 +294,20 @@ export class ColliderOutlineSystem extends System
         /* ============= SIMPLEX ============= */
     }
 
-    Stop(): void {
-        
-    }
-
-    private GJK(): void
+    private _GJK(): void
     {
         const leftPoints: Vector3[] = this.entities.first().GetComponent(MeshCollider)!.CalculatedVertices
         const rightPoints: Vector3[] = this.entities.last().GetComponent(MeshCollider)!.CalculatedVertices
     
         const direction = Vector3.ONE
-        const support = this.calcSupport(leftPoints, rightPoints, direction)
+        const support = this._calcSupport(leftPoints, rightPoints, direction)
 
         this._simplex = [ support ]
         this._direction.Set(support).Scale(-1)  
 
         while (true)
         {
-            const newSupport = this.calcSupport(leftPoints, rightPoints, this._direction)
+            const newSupport = this._calcSupport(leftPoints, rightPoints, this._direction)
             
             if (newSupport.Dot(this._direction) <= 0)
             {
@@ -315,14 +316,14 @@ export class ColliderOutlineSystem extends System
             }
 
             this._simplex.push(newSupport)
-            if (this.handleSimplex())
+            if (this._handleSimplex())
             {
                 return
             }
         }
     }
 
-    private findFurthest(points: Vector3[], direction: Vector3): Vector3
+    private _findFurthest(points: Vector3[], direction: Vector3): Vector3
     {
         let maxPoint!: Vector3
         let maxDot: number = Number.NEGATIVE_INFINITY
@@ -341,42 +342,42 @@ export class ColliderOutlineSystem extends System
         return maxPoint
     }
 
-    private calcSupport(leftPoints: Vector3[], rightPoints: Vector3[], direction: Vector3): Vector3
+    private _calcSupport(leftPoints: Vector3[], rightPoints: Vector3[], direction: Vector3): Vector3
     {
         return Vector3.Diff(
-            this.findFurthest(leftPoints, direction),
-            this.findFurthest(rightPoints, direction
+            this._findFurthest(leftPoints, direction),
+            this._findFurthest(rightPoints, direction
                 .Clone()
                 .Scale(-1)
             )
         )
     }
 
-    private sameDirection(direction: Vector3, vector: Vector3): boolean
+    private _sameDirection(direction: Vector3, vector: Vector3): boolean
     {
         return direction.Dot(vector) > 0
     }
 
-    private handleSimplex(): boolean
+    private _handleSimplex(): boolean
     {
         switch (this._simplex.length)
         {
-            case 2: return this.lineCase()
-            case 3: return this.triangleCase()
-            case 4: return this.tetrahedronCase()
+            case 2: return this._lineCase()
+            case 3: return this._triangleCase()
+            case 4: return this._tetrahedronCase()
         }
 
         return false
     }
 
-    private lineCase(): boolean
+    private _lineCase(): boolean
     {
         const [B, A] = this._simplex
 
         const AB = Vector3.Diff(B, A)
         const AO = A.Clone().Scale(-1)
 
-        if (this.sameDirection(AB, AO))
+        if (this._sameDirection(AB, AO))
         {
             this._direction.Set(AB).Cross(AO).Cross(AB)
         }
@@ -389,7 +390,7 @@ export class ColliderOutlineSystem extends System
         return false
     }
 
-    private triangleCase(): boolean
+    private _triangleCase(): boolean
     {
         const [C, B, A] = this._simplex
 
@@ -399,9 +400,9 @@ export class ColliderOutlineSystem extends System
 
         const ABC = Vector3.Cross(AB, AC)
         
-        if (this.sameDirection(Vector3.Cross(ABC, AC), AO))
+        if (this._sameDirection(Vector3.Cross(ABC, AC), AO))
         {
-            if (this.sameDirection(AC, AO))
+            if (this._sameDirection(AC, AO))
             {
                 this._simplex = [ A, C ].reverse()
                 this._direction.Set(AC).Cross(AO).Cross(AC)
@@ -409,21 +410,21 @@ export class ColliderOutlineSystem extends System
             else
             {
                 this._simplex = [ A, B ].reverse()
-                return this.lineCase()
+                return this._lineCase()
             }
         }
         else
         {
-            if (this.sameDirection(Vector3.Cross(AB, ABC), AO))
+            if (this._sameDirection(Vector3.Cross(AB, ABC), AO))
             {
                 this._simplex = [ A, B ].reverse()
-                return this.lineCase()
+                return this._lineCase()
             }
             else
             {
                 this._direction.Set(ABC)
 
-                if (!this.sameDirection(ABC, AO))
+                if (!this._sameDirection(ABC, AO))
                 {
                     this._simplex = [ A, C, B ].reverse()
                     this._direction.Scale(-1)
@@ -434,7 +435,7 @@ export class ColliderOutlineSystem extends System
         return false
     }
 
-    private tetrahedronCase(): boolean
+    private _tetrahedronCase(): boolean
     {
         const [D, C, B, A] = this._simplex
 
@@ -447,26 +448,24 @@ export class ColliderOutlineSystem extends System
         const ACD = Vector3.Cross(AC, AD)
         const ADB = Vector3.Cross(AD, AB)
 
-        if (this.sameDirection(ABC, AO))
+        if (this._sameDirection(ABC, AO))
         {
             this._simplex = [A, B, C].reverse()
-            return this.triangleCase()
+            return this._triangleCase()
         }
         
-        if (this.sameDirection(ACD, AO))
+        if (this._sameDirection(ACD, AO))
         {
             this._simplex = [A, C, D].reverse()
-            return this.triangleCase()
+            return this._triangleCase()
         }
 
-        if (this.sameDirection(ADB, AO))
+        if (this._sameDirection(ADB, AO))
         {
             this._simplex = [A, D, B].reverse()
-            return this.triangleCase()
+            return this._triangleCase()
         }
 
         return true
     }
-
 }
-

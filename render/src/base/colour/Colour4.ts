@@ -123,14 +123,18 @@ export class Colour4 extends Float32Array
     Set(colour: Colour4): Colour4
     Set(array: Float32Array): Colour4
     Set(array: number[]): Colour4
-    Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): Colour4
+    Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g: number = 0, b: number = 0, a: number = 0): Colour4
     {
-        [ r, g, b, a ] = Deconstruct(r, g, b, a)
+        r = typeof r === 'number' 
+            ? [ r, g, b, a ] 
+            : typeof r === 'string'
+                ? parseString(r)
+                : [ 0, 0, 0, 0 ]
 
-        this.R = r
-        this.G = g
-        this.B = b
-        this.A = a
+        this[0] = r[0]
+        this[1] = r[1]
+        this[2] = r[2]
+        this[3] = r[3]
 
         return this
     }
@@ -147,37 +151,16 @@ export class Colour4 extends Float32Array
 
 }
 
-function Deconstruct(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number): number[]
+function parseString(s: string): number[]
 {
-    if (typeof r === 'string')
+    if (s.match(/#([0-9A-F]{3})/i))
     {
-        let alpha: number = g !== undefined ? g : 1
-
-        if (r.match(/#([0-9A-F]{3})/i))
-        {
-            [ r, g, b ] = r.substring(1)
-                                .toUpperCase()
-                                .split('')
-                                .map(c => parseInt(c + c, 16) / 255)
-        }
-        else if (r.match(/#[0-9A-F]{6}/i))
-        {
-            [ r, g, b ] = r.substring(1)
-                            .toUpperCase()
-                            .split(/(?=(?:..)*$)/)
-                            .map(c => parseInt(c, 16) / 255)
-        }
-        else
-        {
-            [ r, g, b ] = [ 0, 0, 0 ]
-        }
-        
-        a = alpha
+        return s.substring(1).toUpperCase().split('').map(c => parseInt(c + c, 16) / 255)
     }
-    else if (r instanceof Float32Array || r instanceof Array)
+    else if (s.match(/#[0-9A-F]{6}/i))
     {
-        [ r = 0, g = 0, b = 0, a = 0 ] = r
+        return s.substring(1).toUpperCase().split(/(?=(?:..)*$)/).map(c => parseInt(c, 16) / 255)
     }
 
-    return [ r, g!, b!, a! ]
+    return [0,0,0,0]
 }

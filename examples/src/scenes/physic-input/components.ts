@@ -298,4 +298,5 @@ export function init()
     
     cubeUVMaterial.Shader = basicShader
     tebogoMaterial.Shader = basicShader
+    prefabs[0].material.Shader = basicShader
 }

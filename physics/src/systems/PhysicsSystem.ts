@@ -1,10 +1,7 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
-import { Collider, CubeCollider, MeshCollider, RigidBody, SphereCollider } from "../components"
-import { MeshMesh } from "./GJK"
-import { detect_SS, resolve_SS, SphereSphere } from './SS'
-import { Collision, CollisionState, CollisionTest, DetectResolveType, _Collision, _Collision_Id } from "./types"
-import { handleData } from "./Worker"
+import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
+import { Collision, CollisionState, GetCollisionMethod, _Collision, _Collision_Id } from "./types"
 
 export class PhysicsSystem extends System
 {
@@ -96,25 +93,19 @@ export class PhysicsSystem extends System
 
     private _detect(entityA: Entity, entityB: Entity): void
     {
-        let resolve: ((current: Entity, target: Entity) => void) | undefined
-        let displacements: [Vector3, Vector3] | undefined = undefined
-        
         const colliderA = entityA.GetComponent(Collider)!
         const colliderB = entityB.GetComponent(Collider)!
-
-        if (colliderA instanceof SphereCollider && colliderB instanceof SphereCollider)
-        {
-            displacements = SphereSphere(colliderA, colliderB)
-        }
-        else if (colliderA instanceof CubeCollider && colliderB instanceof CubeCollider)
-        {
-            // resolve = this._AABB(aPosition, aCollider, bPosition, bCollider)   
-        }
-        else if (colliderA instanceof MeshCollider && colliderB instanceof MeshCollider)
-        {
-            displacements = MeshMesh(colliderA, colliderB)
-        }
+        const positionA = Vector3.Sum(
+            colliderA.Owner!.GetComponent(Transform)!.Position,
+            colliderA.Position
+        )
+        const positionB = Vector3.Sum(
+            colliderB.Owner!.GetComponent(Transform)!.Position,
+            colliderB.Position
+        )        
         
+        const collisionTest = GetCollisionMethod(colliderA, colliderB)!
+        const displacements = collisionTest(positionA, colliderA, positionB, colliderB)
         const collision = this._collisions.get(`${entityA.Id}-${entityB.Id}`) ?? { 
             state: CollisionState.None,
             displacements: displacements

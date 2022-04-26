@@ -1,41 +1,49 @@
-import { Vector3 } from "@fwge/common"
+import { GL, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { Input, InputSystem, KeyState } from "@fwge/input"
 import { MeshCollider, PhysicsSystem, RigidBody } from "@fwge/physics"
-import { Camera, Colour4, Material, MeshRenderSystem, ParticleSystem, PointLight } from "@fwge/render"
+import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FrameCounter } from "../../shared/FrameCounter"
-import { cubeUVMaterial, init, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts } from "./components"
+import { basicShader, cubeMesh, cubeUVMaterial, init, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts } from "./components"
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {
     init()
-    
+
+    GL.enable(GL.DEPTH_TEST)
+    GL.disable(GL.BLEND)
+    GL.enable(GL.CULL_FACE)
+
+    GL.canvas.width = 1920
+    GL.canvas.height = 1080
+    GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+    GL.clearColor(0.0, 0.0, 0.0, 1.0)
+
     const canvas = document.querySelector('canvas')!
     const scene = game.CreateScene()
     const camera = scene.CreateEntity()
     const pointLight = scene.CreateEntity()
     const player = scene.CreateEntity()
-    
+
     scene.UseSystem(InputSystem)
-        .UseSystem(PhysicsSystem)
         .UseSystem(ScriptSystem)
-        .UseSystem(ParticleSystem)
+        .UseSystem(PhysicsSystem)
         .UseSystem(MeshRenderSystem,
         {
-            renderGrid: false,
+            renderGrid: true,
             min: -20,
             max: 20,
             step: 1
         })
-        // .UseSystem(ColliderOutlineSystem)
+        .UseSystem(ParticleSystem)
+        .UseSystem(ColliderOutlineSystem)
         .UseSystem(FrameCounter, fpsCounter)
-    
 
-    let p = 0
+
     camera.AddComponent(new Transform(
         {
-            position: [ 0, 0.5, 15 ] ,
+            position: [ 0, 0.5, 5 ],
             rotation: [ 0, 0, 0 ]
         }))
         .AddComponent(new Camera({ fieldOfView: 50 }))
@@ -50,7 +58,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 Camera.Main!.AspectRatio = canvas.clientWidth / canvas.clientHeight
             }
         }))
-    
+
 
     pointLight.AddComponent(new Transform())
         .AddComponent(new PointLight(
@@ -60,26 +68,17 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             radius: 100
         }))
 
-    player.AddComponent(new Transform(
-        {
-            position: [0,0,0],
-            scale: [1,1,1],
-            rotation: [0, 0, 0]
-        }))
-        .AddComponent(prefabs[0].mesh)
+    player.AddComponent(new Transform())
+        // .AddComponent(prefabs[0].mesh)
+        .AddComponent(prefabs[0].material)
+        // .AddComponent(spinnerScript)
+        .AddComponent(new ParticleSpawner({ size: 100 }))
         .AddComponent(new MeshCollider(
         {
-            vertices:  simpleCubeMeshVerts,
-            outline: simpleCubeMeshOutline,
-            isTrigger: true,
-            onCollision(other)
-            {
-                other.GetComponent(Material)!.Ambient.Set(1,0,0,1)
-                other.GetComponent(Material)!.Diffuse.Set(1,0,0,1)
-                other.GetComponent(Material)!.Specular.Set(1,0,0,1)
-            }
+            vertices:   simpleCubeMeshVerts,
+            outline:    simpleCubeMeshOutline,
+            isTrigger:  false,
         }))
-        .AddComponent(cubeUVMaterial)
         .AddComponent(new Input(
         {
             onInput({ Keyboard } , delta)
@@ -88,7 +87,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
                 {
                     window.location.reload()
                 }
-                
+
                 const movement = new Vector3()
                 if (Keyboard.KeyA === KeyState.DOWN)
                 {
@@ -120,7 +119,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         }))
 
     const max = 4
-    for (let i = 0; i < 2**4; ++i)
+    for (let i = 0; i < 1; ++i)
     {
         const angle = (i % max) / max
         const radius = Math.floor(i / max - angle)
@@ -130,29 +129,19 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
         const transform = new Transform(
         {
-            position: [x * (radius + 3.5), y * (radius + 3.5), z]
+            position: [x * (radius + 1.5), y * (radius + 1.5), z],
         })
+        transform.Scale.Scale(2)
         const child = scene.CreateEntity()
 
         child.AddComponent(transform)
-            .AddComponent(cubeUVMaterial)
-            .AddComponent(prefabs[0].mesh)
-            .AddComponent(new RigidBody(
-            {
-                mass: 1,
-                velocity: Vector3.ZERO
-            }))
+            .AddComponent(prefabs[0].material)
+            // .AddComponent(prefabs[0].mesh)
             .AddComponent(new MeshCollider(
             {
-                vertices:  simpleCubeMeshVerts,
-                outline: simpleCubeMeshOutline,
-                isTrigger: true,
-                onCollision(other)
-                {
-                    other.GetComponent(Material)!.Ambient.Set(1,0,0,1)
-                    other.GetComponent(Material)!.Diffuse.Set(1,0,0,1)
-                    other.GetComponent(Material)!.Specular.Set(1,0,0,1)
-                }
+                vertices:   simpleCubeMeshVerts,
+                outline:    simpleCubeMeshOutline,
+                isTrigger:  false
             }))
     }
 

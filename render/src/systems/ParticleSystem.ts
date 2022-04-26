@@ -1,12 +1,11 @@
-import { Matrix4, Matrix3, GL, Vector3 } from "@fwge/common"
+import { GL, Matrix3, Matrix4 } from "@fwge/common"
 import { Scene, System, Transform } from "@fwge/core"
-import { Colour4 } from "../base"
-import { Camera, ParticleSpawner, Shader } from "../components"
-import { COLOUR_INDEX, NORMAL_INDEX, POSITION_INDEX, POSITION_SIZE, UV_INDEX } from "../constants"
+import { Colour4, ShaderAsset } from "../base"
+import { Camera, ParticleSpawner } from "../components"
 
 export class ParticleSystem extends System
 {
-    private particleShader?: Shader
+    private particleShader!: ShaderAsset
     constructor(scene: Scene)
     {
         super(scene, { requiredComponents: [ Transform, ParticleSpawner ] })
@@ -14,27 +13,22 @@ export class ParticleSystem extends System
 
     Init(): void
     {
-        this.particleShader = new Shader(particleShaderArgs)
+        this.particleShader = new ShaderAsset(particleShaderArgs)
     }
 
-    Start(): void
-    {
-        GL.enable(GL.DEPTH_TEST)
-        GL.disable(GL.BLEND)
-        GL.enable(GL.CULL_FACE)
-        
-        GL.canvas.width = Camera.Main!.ScreenWidth
-        GL.canvas.height = Camera.Main!.ScreenHeight
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0.3, 0.6, 0.9, 1.0)
-        
-    }
+    Start(): void { }
+    Stop(): void { }
 
-    Update(delta: number): void
+    Update(_: number): void
     {
+        if (!Camera.Main)
+        {
+            return 
+        }
+
         GL.useProgram(this.particleShader!.Program)
-        GL.uniformMatrix4fv(this.particleShader!.BaseUniforms!.Matrix.View, false, Camera.Main!.View)
-        GL.uniformMatrix4fv(this.particleShader!.BaseUniforms!.Matrix.Projection, false, Camera.Main!.Projection)
+        GL.uniformMatrix4fv(this.particleShader.Matrices!.View, false, Camera.Main!.View)
+        GL.uniformMatrix4fv(this.particleShader.Matrices!.Projection, false, Camera.Main!.Projection)
 
         for (const entity of this.entities)
         {
@@ -42,62 +36,49 @@ export class ParticleSystem extends System
             const modelViewMatrix = entity.GetComponent(Transform)!.ModelViewMatrix
             const normalMatrix = entity.GetComponent(Transform)!.NormalMatrix
 
-            // for (let i = 0; i < particleSpawner.Size; i++)
-            // {
-            //     particleSpawner.Vertices[(i * 7) + 0] = Math.random() - 0.5
-            //     particleSpawner.Vertices[(i * 7) + 1] = Math.random() - 0.5
-            //     particleSpawner.Vertices[(i * 7) + 2] = 0
+            for (let i = 0; i < particleSpawner.Particles.length; ++i)
+            {
+                const offset = i * (Matrix4.SIZE + Colour4.SIZE)
+                const mv = particleSpawner.Particles[i].ModelViewMatrix
     
-            //     particleSpawner.Vertices[(i * 7) + 3] = 1.0
-            //     particleSpawner.Vertices[(i * 7) + 4] = 1.0
-            //     particleSpawner.Vertices[(i * 7) + 5] = 1.0
-            //     particleSpawner.Vertices[(i * 7) + 6] = 1.0
-            // }
+                particleSpawner.BufferData[offset +  4] = mv[ 0]
+                particleSpawner.BufferData[offset +  5] = mv[ 1]
+                particleSpawner.BufferData[offset +  6] = mv[ 2]
+                particleSpawner.BufferData[offset +  7] = mv[ 3]
+                particleSpawner.BufferData[offset +  8] = mv[ 4]
+                particleSpawner.BufferData[offset +  9] = mv[ 5]
+                particleSpawner.BufferData[offset + 10] = mv[ 6]
+                particleSpawner.BufferData[offset + 11] = mv[ 7]
+                particleSpawner.BufferData[offset + 12] = mv[ 8]
+                particleSpawner.BufferData[offset + 13] = mv[ 9]
+                particleSpawner.BufferData[offset + 14] = mv[10]
+                particleSpawner.BufferData[offset + 15] = mv[11]
+                particleSpawner.BufferData[offset + 16] = mv[12]
+                particleSpawner.BufferData[offset + 17] = mv[13]
+                particleSpawner.BufferData[offset + 18] = mv[14]
+                particleSpawner.BufferData[offset + 19] = mv[15]
+            }
             
             this._drawSystem(particleSpawner, modelViewMatrix, normalMatrix)
         }
-        GL.useProgram(null)
-    }
-
-    Stop(): void
-    {
-        GL.enable(GL.BLEND)
-        GL.disable(GL.DEPTH_TEST)
-        GL.disable(GL.CULL_FACE)
     }
 
     private _drawSystem(particleSpawner: ParticleSpawner, modelViewMatrix: Matrix4, normalMatrix: Matrix3)
     {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        
-        GL.enableVertexAttribArray(POSITION_INDEX)
-        GL.disableVertexAttribArray(NORMAL_INDEX)
-        GL.disableVertexAttribArray(UV_INDEX)
-        GL.enableVertexAttribArray(COLOUR_INDEX)
-        
-        GL.vertexAttribDivisor(POSITION_INDEX, 1)
-        GL.vertexAttribDivisor(COLOUR_INDEX, 1)
+        GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
 
-        GL.uniform4f(
-            this.particleShader!.BaseUniforms!.Material.DiffuseColour,
-            particleSpawner.Colour[0],
-            particleSpawner.Colour[1],
-            particleSpawner.Colour[2],
-            particleSpawner.Colour[3],
-        )
-        GL.uniformMatrix4fv(this.particleShader!.BaseUniforms!.Matrix.ModelView, false, modelViewMatrix)
-        GL.uniformMatrix3fv(this.particleShader!.BaseUniforms!.Matrix.Normal, false, normalMatrix)
-        
-        GL.bufferSubData(GL.ARRAY_BUFFER, 0, particleSpawner.Vertices)
-        GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, particleSpawner.VertexSize, 0)
-        GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, particleSpawner.VertexSize, POSITION_SIZE)
+        GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
+        GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, modelViewMatrix)
+        GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, normalMatrix)
 
-        GL.drawArraysInstanced(GL.POINTS, 0, 1, particleSpawner.Size)
+        GL.drawArraysInstanced(GL.TRIANGLES, 0, particleSpawner.MeshIndexCount, particleSpawner.ParticleCount)
+        GL.bindVertexArray(null)
     }
 }
 
 const particleShaderArgs = {
-    vertexSrc: `#version 300 es
+    vertexShader: {
+        source: `#version 300 es
 
 layout(location = 0) in vec3 A_Position;
 layout(location = 1) in vec3 A_Normal;
@@ -106,9 +87,6 @@ layout(location = 3) in vec4 A_Colour;
 layout(location = 4) in mat4 A_ModelViewMatrix;
 layout(location = 8) in mat3 A_NormalMatrix;
 
-out vec4 V_Position;
-out vec3 V_Normal;
-out vec2 V_UV;
 out vec4 V_Colour;
 
 struct Matrix
@@ -119,48 +97,27 @@ struct Matrix
 };
 uniform Matrix U_Matrix;
 
-void passVertexData()
-{
-    V_Position = U_Matrix.ModelView * vec4(A_Position, 1.0);
-    V_Normal = A_Normal;
-    V_UV = A_UV;
-    V_Colour = A_Colour;
-}
-
 void main(void)
 {
-    passVertexData();
-
-    gl_Position = U_Matrix.Projection * U_Matrix.View * V_Position; 
+    V_Colour = A_Colour;
+    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * A_ModelViewMatrix * vec4(A_Position, 1.0); 
     gl_PointSize = 10.0f;
 }
 
 `,
-    fragmentSrc: `#version 300 es
+        input: [],
+    },
+    fragmentShader: {
+        source: `#version 300 es
 precision highp float;
 
 in vec4 V_Colour;
-in vec2 V_UV;
-in vec3 V_Normal;
-in vec4 V_Position;
-in vec4 V_Shadow;
 out vec4 OutColour;
 
-struct Material 
-{
-    vec4 Ambient;
-    vec4 Diffuse;
-    vec4 Specular;
-    float Shininess;
-    float Alpha;
-
-    bool HasImageMap;
-    bool HasBumpMap;
-};
-
-uniform Material U_Material;
 void main(void)
 {
-    OutColour = U_Material.Diffuse * V_Colour;
-}`
+    OutColour = V_Colour;// U_Material.Diffuse * V_Colour;
+}`,
+        input: []
+    }
 }

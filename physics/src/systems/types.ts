@@ -1,21 +1,8 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId } from "@fwge/core"
-
-declare global
-{
-    interface Worker
-    {
-        id: number
-    }
-    
-    interface Window
-    {
-        id: number
-    }
-}
-
-export type CollisionDetectMethod = (leftPosition: [number, number, number], leftCollider: number[], rightPosition: [number, number, number], rightCollider: number[]) => boolean
-export type CollisionResovleMethod = (leftPosition: [number, number, number], leftCollider: number[], rightPosition: [number, number, number], rightCollider: number[]) => CollisionResult
+import { Collider, CubeCollider, MeshCollider, SphereCollider } from "../components"
+import { MeshMesh } from "./MeshMesh"
+import { SphereSphere } from "./SphereSphere"
 
 export type _Collision_Id = `${EntityId}-${EntityId}`
 
@@ -42,33 +29,24 @@ export interface Collision
     resolve?: (current: Entity, target: Entity) => void
 }
 
-export type CollisionDetectionArgs =
-{
-    leftCollider: number[],
-    leftPosition: [number, number, number],
-    rightCollider: number[],
-    rightPosition: [number, number, number],
-    detect: string
-    resolve: string
-}
+export type CollisionResult = [Vector3, Vector3]
 
-export enum DetectResolveType
-{
-    SphereSphere,
-    CubeCube
-}
-export type CollisionTest  = [
-    DetectResolveType,
-    EntityId,
-    EntityId,
-    ...number[]
-]
-export type CollisionResult = [
-    number, number, number, // displacement
-    number, number, number  // displacement
-]
+export type CollisionTest<T extends Collider> = (leftPosition: Vector3, leftCollider: T, rightPosition: Vector3, rightCollider: T) => CollisionResult | undefined
+export type CollisionDetect<T extends Collider> = (leftPosition: Vector3, leftCollider: T, rightPosition: Vector3, rightCollider: T, ...rest: any[]) => boolean
+export type CollisionResovle<T extends Collider> = (leftPosition: Vector3, leftCollider: T, rightPosition: Vector3, rightCollider: T, ...rest: any[]) => CollisionResult
 
-export type WorkerArgs =
+export function GetCollisionMethod(colliderA: Collider, colliderB: Collider): CollisionTest<any> | undefined
 {
-    data: CollisionDetectionArgs
+    if (colliderA instanceof SphereCollider && colliderB instanceof SphereCollider)
+    {
+        return SphereSphere
+    }
+    else if (colliderA instanceof CubeCollider && colliderB instanceof CubeCollider)
+    {
+        // resolve = this._AABB(aPosition, aCollider, bPosition, bCollider)   
+    }
+    else if (colliderA instanceof MeshCollider && colliderB instanceof MeshCollider)
+    {
+        return MeshMesh
+    }
 }

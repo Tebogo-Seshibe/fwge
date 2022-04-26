@@ -1,5 +1,6 @@
 import { Vector3, Vector4 } from "@fwge/common"
 import { Collider, MeshCollider } from "../components"
+import { CollisionDetect, CollisionResovle, CollisionTest } from "./types"
 
 export class Simplex3D extends Array<Vector3>
 {
@@ -17,12 +18,15 @@ export class Simplex3D extends Array<Vector3>
 
     private reset(...values: Vector3[])
     {
-        while (this.length > 0)
+        while (this.length > values.length)
         {
             this.pop()
         }
 
-        this.push(...values)
+        for (let i = 0; i < values.length; ++i)
+        {
+            this[i] = values[i]
+        }
     }
 
     private lineCase(direction: Vector3): boolean
@@ -130,6 +134,7 @@ export function sameDirection(direction: Vector3, vector: Vector3): boolean
 {
     return direction.Dot(vector) > 0
 }
+
 export function calcSupport(left: Collider, right: Collider, direction: Vector3): Vector3
 {
     return Vector3.Diff(
@@ -138,9 +143,9 @@ export function calcSupport(left: Collider, right: Collider, direction: Vector3)
     )
 }
 
-export function GJK(simplex: Simplex3D, leftCollider: MeshCollider, rightCollider: MeshCollider): boolean
+export const GJK: CollisionDetect<MeshCollider> = (leftPosition: Vector3, leftCollider: MeshCollider, rightPosition: Vector3, rightCollider: MeshCollider, simplex: Simplex3D) =>
 {    
-    const direction = Vector3.ONE
+    const direction = Vector3.Diff(leftPosition, rightPosition)
     const support = calcSupport(leftCollider, rightCollider, direction)
 
     simplex.push(support)
@@ -224,7 +229,7 @@ export function addIfUniqueEdge(edges: [number, number][], faces: number[], a: n
     }
 }
 
-export function EPA(simplex: Simplex3D, leftCollider: MeshCollider, rightCollider: MeshCollider): [Vector3, Vector3]
+export const EPA: CollisionResovle<MeshCollider> = (_1: Vector3, leftCollider: MeshCollider, _2: Vector3, rightCollider: MeshCollider, simplex: Simplex3D) =>
 {
     const offset: [Vector3, Vector3] = [Vector3.ZERO, Vector3.ZERO]
     const polytope: Polytope = new Polytope(...simplex)
@@ -322,13 +327,18 @@ export function EPA(simplex: Simplex3D, leftCollider: MeshCollider, rightCollide
     return offset
 }
 
-export function MeshMesh(leftCollider: MeshCollider, rightCollider: MeshCollider): [Vector3, Vector3] | undefined
+export const MeshMesh: CollisionTest<MeshCollider> = (leftPosition: Vector3, leftCollider: MeshCollider, rightPosition: Vector3, rightCollider: MeshCollider) =>
 {
     const simplex: Simplex3D = new Simplex3D()
 
-    if (GJK(simplex, leftCollider, rightCollider))
+    if (GJK(leftPosition, leftCollider, rightPosition, rightCollider, simplex))
     {
-        return EPA(simplex, leftCollider, rightCollider)
+        if (leftCollider.IsTrigger || rightCollider.IsTrigger)
+        {
+            return [Vector3.ZERO, Vector3.ZERO]
+        }
+
+        return EPA(leftPosition, leftCollider, rightPosition, rightCollider, simplex)
     }
 
     return undefined

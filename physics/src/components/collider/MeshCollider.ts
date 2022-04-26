@@ -36,16 +36,20 @@ export class MeshCollider extends Collider
             transform.Position.Diff(this.Position)
         }
 
-        let arr: number[] = []
-        this._calculatedVertices = this.Vertices.map(vert =>
+        let offset = 0
+        this.Vertices.forEach((vert, index) =>
         {
-            const vec = Matrix4.MultVector(mv, new Vector4(vert[0], vert[1], vert[2], 1.0))
-            const vertex = new Vector3(vec[0], vec[1], vec[2]).Sum(this.Position)
+            const vertex = Matrix4.MultVector(mv, new Vector4(vert[0], vert[1], vert[2], 1.0))
 
-            arr.push(vertex[0], vertex[1], vertex[2])
-            return vertex
+            this._calculatedVertices[index][0] = vertex[0] + this.Position[0]
+            this._calculatedVertices[index][1] = vertex[1] + this.Position[1]
+            this._calculatedVertices[index][2] = vertex[2] + this.Position[2]
+            this._calculatedBuffer[offset + 0] = this._calculatedVertices[index][0]
+            this._calculatedBuffer[offset + 1] = this._calculatedVertices[index][1]
+            this._calculatedBuffer[offset + 2] = this._calculatedVertices[index][2]
+
+            offset += 3
         })
-        this._calculatedBuffer = new Float32Array(arr)
     }
 
     public get CalculatedVertices(): Vector3[]
@@ -102,7 +106,16 @@ export class MeshCollider extends Collider
 
         this.Vertices = collider.vertices
         this.IndexCount = collider.outline.length
-        this._recalculateVertices()
+        this._calculatedVertices = new Array(this.Vertices.length)
+        this._calculatedBuffer = new Float32Array(this.Vertices.length * 3)
+
+        this.Vertices.map((x, index) => {
+            const offset = index * 3
+            this._calculatedVertices[index] = x.Clone()
+            this._calculatedBuffer[offset + 0] = x[0]
+            this._calculatedBuffer[offset + 1] = x[1]
+            this._calculatedBuffer[offset + 2] = x[2]
+        })
 
         const buffer: number[] = []
         for (const vec of this.Vertices)

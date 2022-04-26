@@ -5,11 +5,12 @@ export class KeyboardInputHandler
 {
     static readonly TOTAL_KEYS: number = 128
 
-    private _state: KeyState[] = []
+    private _keys: KeyState[] = []
+    private _state: KeyboardState
     
     public get State(): KeyboardState
     {
-        return new KeyboardState(this._state)
+        return this._state
     }
 
 
@@ -17,8 +18,10 @@ export class KeyboardInputHandler
     {
         for (var i = 0; i < KeyboardInputHandler.TOTAL_KEYS; ++i)
         {
-            this._state.push(KeyState.UP)
+            this._keys.push(KeyState.UP)
         }
+
+        this._state = new KeyboardState(this._keys)
     }
     
     Start(): void        
@@ -44,20 +47,20 @@ export class KeyboardInputHandler
     {
         e.preventDefault()
 
-        this._state[e.which] = KeyState.DOWN
+        this._keys[e.which] = KeyState.DOWN
     }
 
     private _keypress(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this._state[e.which] = KeyState.PRESSED
+        this._keys[e.which] = KeyState.PRESSED
     }
 
     private _keyup(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this._state[e.which] = KeyState.UP
+        this._keys[e.which] = KeyState.UP
     }
 }
