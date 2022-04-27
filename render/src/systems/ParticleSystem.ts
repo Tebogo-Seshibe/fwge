@@ -32,9 +32,11 @@ export class ParticleSystem extends System
             const transform = entity.GetComponent(Transform)!
             const particleSpawner = entity.GetComponent(ParticleSpawner)!
 
-            this._updateSystem(particleSpawner, delta)
-            this._drawSystem(particleSpawner, transform)
-            // this._drawMesh(transform, mesh, this.particleShader)
+            if (!particleSpawner.Completed)
+            {
+                this._updateSystem(particleSpawner, delta)
+                this._drawSystem(particleSpawner, transform)
+            }
         }
     }
     private _updateSystem(particleSpawner: ParticleSpawner, delta: number)
@@ -52,6 +54,7 @@ export class ParticleSystem extends System
             {
                 if (!particleSpawner.ParticleConfig.Loop)
                 {
+                    particleSpawner.Offset = i
                     continue
                 }
                 else
@@ -86,14 +89,26 @@ export class ParticleSystem extends System
         
         GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
+        console.log(Particle.ParticleSize * particleSpawner.Offset)
         if (mesh.IndexBuffer)
         {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElementsInstanced(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0, particleSpawner.ParticleCount)
+            GL.drawElementsInstanced(
+                GL.TRIANGLES,
+                mesh.IndexCount,
+                GL.UNSIGNED_BYTE,
+                Particle.ParticleSize * particleSpawner.Offset,
+                particleSpawner.ParticleCount - particleSpawner.Offset
+            )
         }
         else
         {
-            GL.drawArraysInstanced(GL.TRIANGLES, 0, mesh.VertexCount, particleSpawner.ParticleCount)
+            GL.drawArraysInstanced(
+                GL.TRIANGLES,
+                Particle.ParticleSize * particleSpawner.Offset,
+                mesh.VertexCount,
+                particleSpawner.ParticleCount - particleSpawner.Offset
+            )
         }
         GL.bindVertexArray(null)
         

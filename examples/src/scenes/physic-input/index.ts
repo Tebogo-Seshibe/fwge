@@ -71,16 +71,17 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     const particles = new ParticleSpawner(
     {
-        size: 150,
-        mesh: prefabs[0].mesh,
+        size: 10,
+        mesh: cubeMesh,
         particle:
         {
-            lifetime: 10,
+            loop: false,
+            lifetime: 2,
             delay: (index: number, length: number) =>
             {
                 return (index / length) * 10
             },
-            updatePosition: (vec: Vector3, t: number) =>
+            updatePosition: (_: Vector3, t: number) =>
             {
                 return new Vector3(Math.sin(t * 64), lerp(0, 2, t), Math.cos(t * 64))
             }

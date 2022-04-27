@@ -71,6 +71,12 @@ export class ParticleSpawner extends UniqueComponent
     public readonly BaseColour: Colour4 = new Colour4(1.0, 1.0, 1.0, 1.0)
 
     private static _defaultMesh: StaticMesh
+    public Offset: number = 0
+
+    public get Completed(): boolean
+    {
+        return this.Offset === this.ParticleCount
+    }
 
     public readonly ParticleConfig:
     {
@@ -216,7 +222,5 @@ export class ParticleSpawner extends UniqueComponent
 
         GL.bindVertexArray(null)
         //#endregion ============= VERTEX ARRAY OBJECT SETUP =============
-
-        console.log(this)
     }
 }

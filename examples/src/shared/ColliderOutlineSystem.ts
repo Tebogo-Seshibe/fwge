@@ -1,5 +1,5 @@
 import { GL, Vector3 } from "@fwge/common";
-import { Entity, Scene, System, Transform } from "@fwge/core";
+import { Scene, System, Transform } from "@fwge/core";
 import { Collider, MeshCollider } from "@fwge/physics";
 import { Camera, ShaderAsset } from "@fwge/render";
 
@@ -16,14 +16,8 @@ export class ColliderOutlineSystem extends System
     private _wireframeShader!: ShaderAsset
     private _hullShader!: ShaderAsset
     private _simplexShader!: ShaderAsset
-    private _tick: number = 0
-    private _maxTick: number = 1
     private _simplex: Simplex3D = []
     private _direction: Vector3 = Vector3.ZERO
-
-    private step?: Function = this._GJK
-    private _stop: boolean = false
-
 
     private _hull: Hull = {
         VertexBuffer: GL.createBuffer()!,

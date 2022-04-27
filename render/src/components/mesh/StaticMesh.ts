@@ -22,8 +22,6 @@ export class StaticMesh extends Mesh
             (args.index?.length ?? args.position.length) * 2
         )
     
-        console.log(args)
-        console.log(this)
         const vertexSize = (
               POSITION_SIZE
             + NORMAL_SIZE    * (args.normal ? 1 : 0)
