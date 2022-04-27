@@ -1,11 +1,11 @@
-import { GL, lerp, Vector3 } from "@fwge/common"
+import { Equation, GL, lerp, radian, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { Input, InputSystem, KeyState } from "@fwge/input"
 import { MeshCollider, PhysicsSystem, RigidBody } from "@fwge/physics"
-import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight } from "@fwge/render"
+import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FrameCounter } from "../../shared/FrameCounter"
-import { base, basicShader, cubeMesh, cubeUVMaterial, init, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts, spinnerScript } from "./components"
+import { base, basicShader, cubeMesh, cubeUVMaterial, init, planeMaterial, planeMesh, prefabs, simpleCubeMeshOutline, simpleCubeMeshVerts, spinnerScript } from "./components"
 
 export function physicsInput(game: Game, fpsCounter: HTMLElement)
 {
@@ -31,7 +31,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         .UseSystem(PhysicsSystem)
         .UseSystem(MeshRenderSystem,
         {
-            renderGrid: false,
+            renderGrid: true,
             min: -20,
             max: 20,
             step: 1,
@@ -69,27 +69,75 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             radius: 100
         }))
 
+    let line: Equation = (x: number) => x
+    let x2: Equation = (x: number) => x**2
+    let quadraticBezier: Equation = (t: number, a: number, b: number, c: number) =>
+    {
+        const ab = lerp(a, b, t)
+        const bc = lerp(b, c, t)
+        return lerp(ab, bc, t)
+    }    
+    let cubicBezier: Equation = (t: number, a: number, b: number, c: number, d: number) =>
+    {
+        const ab = lerp(a, b, t)
+        const bc = lerp(b, c, t)
+        const cd = lerp(c, d, t)
+
+        return quadraticBezier(ab, bc, cd, t)
+    }
+    
     const particles = new ParticleSpawner(
     {
-        size: 10,
-        mesh: cubeMesh,
+        size: 1,
+        mesh: planeMesh,
+        material: planeMaterial,
         particle:
         {
-            loop: false,
-            lifetime: 2,
+            loop: true,
+            lifetime: 5,
+            
+            
+            scale: new Vector3(1),
+
             delay: (index: number, length: number) =>
             {
-                return (index / length) * 10
+                return (index / length) * 5
             },
             updatePosition: (_: Vector3, t: number) =>
             {
-                return new Vector3(Math.sin(t * 64), lerp(0, 2, t), Math.cos(t * 64))
+                return new Vector3(
+                    cubicBezier(t, -1.0,-0.25, 0.25, 1.0) + 1,
+                    cubicBezier(t, 2.0, 0.0, 0.0, 2.0),
+                    0
+                )
+            },
+            updateRotation: (_: Vector3, t: number) =>
+            {
+                return _
+            },
+            // updateScale: (_: Vector3, t: number) =>
+            // {
+            //     return new Vector3(0.1 * t)
+            //     // return new Vector3(
+            //         // quadraticBezier(t, 0.1, 0.5, 0.2),
+            //         // quadraticBezier(t, 0.1, 0.5, 0.2),
+            //         // quadraticBezier(t, 0.1, 0.5, 0.2),
+            //     // )
+            // },
+            updateColour: (_: Colour4, t: number) =>
+            {
+                return new Colour4(
+                    quadraticBezier(t, 1.0, 1.0, 0.2),
+                    quadraticBezier(t, 0.0, 1.0, 0.2),
+                    quadraticBezier(t, 0.0, 0.0, 0.2),
+                    quadraticBezier(t, 1.0, 1.0, 0.0)
+                )
             }
         }
     })
 
     player.AddComponent(new Transform())
-        // .AddComponent(base[0].mesh)
+        .AddComponent(base[0].mesh)
         // .AddComponent(particles.ParticleMesh)
         .AddComponent(prefabs[0].material)
         // .AddComponent(new RigidBody({ velocity: new Vector3(0,-0.2,0) }))
@@ -151,19 +199,18 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
         const transform = new Transform(
         {
-            position: [0,-2,0
+            position: [0,-1,0
                 // x * (radius + 1.5),
                 // y * (radius + 1.5),
                 // z
             ],
         })
-        transform.Scale.Scale(2)
         const child = scene.CreateEntity()
 
         child.AddComponent(transform)
             // .AddComponent(new RigidBody({ velocity: new Vector3(0,0.2,0)}))
-            .AddComponent(prefabs[0].material)
-            // .AddComponent(prefabs[0].mesh)
+            .AddComponent(planeMaterial)
+            .AddComponent(planeMesh)
             .AddComponent(new MeshCollider(
             {
                 vertices:   simpleCubeMeshVerts,

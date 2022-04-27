@@ -19,6 +19,7 @@ export class MeshRenderSystem extends System
     public Max: number = 10
     public Step: number = 1
     public Wireframe: boolean = false
+    public GridBuffer: WebGLBuffer = GL.createBuffer()!
 
     private _batches: Map<Material, Entity[]> = new Map()
 
@@ -266,6 +267,7 @@ export class MeshRenderSystem extends System
         }
 
         GL.enableVertexAttribArray(0)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.GridBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.DYNAMIC_DRAW)
         GL.vertexAttribPointer(0, Vector3.SIZE, GL.FLOAT, false, Vector3.BYTES_PER_ELEMENT * Vector3.SIZE, 0)
         GL.drawArrays(GL.LINES, 0, vertices.length / 3)

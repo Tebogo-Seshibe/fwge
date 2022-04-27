@@ -285,8 +285,8 @@ export class Vector3 extends Float32Array
         return Vector3.ZERO
     }
 
-    static Sum(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Sum(left: Vector3, right: Vector3): Vector3
+    static Sum(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Sum(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
     {
         if (typeof x1 === 'number' && typeof y1 === 'number')
@@ -309,8 +309,8 @@ export class Vector3 extends Float32Array
         return Vector3.ZERO
     }
 
-    static Diff(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Diff(left: Vector3, right: Vector3): Vector3
+    static Diff(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Diff(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
     {
         if (typeof x1 === 'number' && typeof y1 === 'number')
@@ -333,8 +333,8 @@ export class Vector3 extends Float32Array
         return Vector3.ZERO
     }
     
-    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Cross(left: Vector3, right: Vector3): Vector3
+    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Cross(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
     {
         if (typeof x1 === 'number' && typeof y1 === 'number')
@@ -357,8 +357,8 @@ export class Vector3 extends Float32Array
         return Vector3.ZERO
     }
 
-    static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): number
     static Distance(left: Vector3, right: Vector3): number
+    static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): number
     static Distance(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): number
     {
         

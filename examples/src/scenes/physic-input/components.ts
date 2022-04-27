@@ -25,11 +25,13 @@ export let hmm!: OBJParser
 export let prefabs!: OBJ[]
 export let base!: OBJ[]
 export let cubeMesh!: StaticMesh
+export let planeMesh!: StaticMesh
 export let simpleShader!: ShaderAsset
 export let basicShader!: ShaderAsset
 export let defaultShader!: ShaderAsset
 export let cubeUVMaterial!: Material
 export let tebogoMaterial!: Material
+export let planeMaterial!: Material
 
 export function init()
 {
@@ -231,6 +233,43 @@ export function init()
         ]
     })
 
+    
+    planeMesh = new StaticMesh(
+    {
+        position:
+        [
+            [-0.5,  0.5,  0.5 ],
+            [-0.5, -0.5,  0.5 ],
+            [ 0.5, -0.5,  0.5 ],
+            [ 0.5,  0.5,  0.5 ],
+        ],
+        normal:
+        [
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+            [ 0.0,  0.0, -1.0],
+        ],
+        colour:
+        [
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+        ],
+        uv:
+        [                
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+        ],
+        index:
+        [
+            0,  1,  2,  0,  2,  3,
+        ]
+    })
+    
     simpleShader = new ShaderAsset(
     {
         vertexShader:
@@ -290,8 +329,18 @@ export function init()
         shininess: 32,
         // imagemap: 'assets/img/Tebogo.png'
     })
+
+    planeMaterial = new Material(
+    {
+        ambient: new Colour4(1.0, 1.0, 1.0, 1.0),
+        diffuse: new Colour4(1.0, 1.0, 1.0, 1.0),
+        specular: new Colour4(1.0, 1.0, 1.0, 1.0),
+        imagemap: 'assets/img/circle.png',
+        // imagemap: 'assets/img/cubeUV.png',
+    })
     
     cubeUVMaterial.Shader = basicShader
     tebogoMaterial.Shader = basicShader
+    planeMaterial.Shader = basicShader
     prefabs[0].material.Shader = basicShader
 }

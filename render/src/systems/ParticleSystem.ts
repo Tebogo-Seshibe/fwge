@@ -1,7 +1,7 @@
 import { GL } from "@fwge/common"
 import { Scene, System, Transform } from "@fwge/core"
 import { ShaderAsset } from "../base"
-import { Camera, Particle, ParticleSpawner } from "../components"
+import { Camera, Material, Particle, ParticleSpawner } from "../components"
 
 export class ParticleSystem extends System
 {
@@ -34,11 +34,13 @@ export class ParticleSystem extends System
 
             if (!particleSpawner.Completed)
             {
+                this._bindMaterialUniforms(particleSpawner.ParticleMaterial, this.particleShader)
                 this._updateSystem(particleSpawner, delta)
                 this._drawSystem(particleSpawner, transform)
             }
         }
     }
+    
     private _updateSystem(particleSpawner: ParticleSpawner, delta: number)
     {
         for (let i = 0; i < particleSpawner.Particles.length; ++i)
@@ -50,46 +52,89 @@ export class ParticleSystem extends System
                 continue
             }
 
-            if (particle.Lifetime >= particleSpawner.ParticleConfig.Lifetime)
+            if (particleSpawner.ParticleConfig.Loop)
             {
-                if (!particleSpawner.ParticleConfig.Loop)
-                {
-                    particleSpawner.Offset = i
-                    continue
-                }
-                else
-                {
-                    particle.Lifetime -= particleSpawner.ParticleConfig.Lifetime
-                }
+                particle.Lifetime += particle.Lifetime >= particleSpawner.ParticleConfig.Lifetime
+                    ? -particleSpawner.ParticleConfig.Lifetime
+                    : delta
             }
             else
             {
-                particle.Lifetime += delta
+                if (particle.Lifetime > particleSpawner.ParticleConfig.Lifetime)
+                {
+                    particle.Lifetime = particleSpawner.ParticleConfig.Lifetime
+                }
+                else if (particle.Lifetime < particleSpawner.ParticleConfig.Lifetime)
+                {
+                    particle.Lifetime += delta
+                }
+                else
+                {
+                    continue
+                }
             }
 
+            const config = particleSpawner.ParticleConfig
             const offset = i * Particle.ParticleLength
-            const t = particle.Lifetime / particleSpawner.ParticleConfig.Lifetime
-            const newPosition = particleSpawner.ParticleConfig.UpdatePosition(particle.OriginalPosition, t)
+            const t = particle.Lifetime / config.Lifetime
 
-            particle.Position.Set(newPosition)
-            
-            particleSpawner.BufferData[offset + 0] = particle.Position[0]
-            particleSpawner.BufferData[offset + 1] = particle.Position[1]
-            particleSpawner.BufferData[offset + 2] = particle.Position[2]
+            particle.Position.Set(
+                config.UpdatePosition(
+                    config.Position.Clone(),
+                    t
+                )
+            )
+            particle.Rotation.Set(
+                config.UpdateRotation(
+                    config.Rotation.Clone(),
+                    t
+                )
+            )
+            particle.Scale.Set(
+                config.UpdateScale(
+                    config.Scale.Clone(),
+                    t
+                )
+            )
+            particle.Colour.Set(
+                config.UpdateColour(
+                    config.Colour.Clone(),
+                    t
+                )
+            )
+           
+            particleSpawner.BufferData[offset +  0] = particle.Position[0]
+            particleSpawner.BufferData[offset +  1] = particle.Position[1]
+            particleSpawner.BufferData[offset +  2] = particle.Position[2]
+
+            particleSpawner.BufferData[offset +  3] = particle.Rotation[0]
+            particleSpawner.BufferData[offset +  4] = particle.Rotation[1]
+            particleSpawner.BufferData[offset +  5] = particle.Rotation[2]
+
+            particleSpawner.BufferData[offset +  6] = particle.Scale[0]
+            particleSpawner.BufferData[offset +  7] = particle.Scale[1]
+            particleSpawner.BufferData[offset +  8] = particle.Scale[2]
+
+            particleSpawner.BufferData[offset +  9] = particle.Colour[0]
+            particleSpawner.BufferData[offset + 10] = particle.Colour[1]
+            particleSpawner.BufferData[offset + 11] = particle.Colour[2]
+            particleSpawner.BufferData[offset + 12] = particle.Colour[3]
         }
     }
 
     private _drawSystem(particleSpawner: ParticleSpawner, transform: Transform)
     {
         const mesh = particleSpawner.ParticleMesh
+        const mateial = particleSpawner.ParticleMaterial
 
         GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
         GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, transform.NormalMatrix)
         
+        GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleMesh.VertexBuffer)
         GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
-        console.log(Particle.ParticleSize * particleSpawner.Offset)
+        
         if (mesh.IndexBuffer)
         {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
@@ -97,17 +142,17 @@ export class ParticleSystem extends System
                 GL.TRIANGLES,
                 mesh.IndexCount,
                 GL.UNSIGNED_BYTE,
-                Particle.ParticleSize * particleSpawner.Offset,
-                particleSpawner.ParticleCount - particleSpawner.Offset
+                0,
+                particleSpawner.ParticleCount
             )
         }
         else
         {
             GL.drawArraysInstanced(
                 GL.TRIANGLES,
-                Particle.ParticleSize * particleSpawner.Offset,
+                0,
                 mesh.VertexCount,
-                particleSpawner.ParticleCount - particleSpawner.Offset
+                particleSpawner.ParticleCount
             )
         }
         GL.bindVertexArray(null)
@@ -121,6 +166,71 @@ export class ParticleSystem extends System
         GL.useProgram(shader.Program)
         GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
         GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
+    }
+
+    private _bindMaterialUniforms(material: Material, shader: ShaderAsset)
+    {
+        GL.uniform4f(
+            shader.Material!.AmbientColour,
+            material.Ambient[0],
+            material.Ambient[1],
+            material.Ambient[2],
+            material.Ambient[3],
+        )
+        GL.uniform4f(
+            shader.Material!.DiffuseColour,
+            material.Diffuse[0],
+            material.Diffuse[1],
+            material.Diffuse[2],
+            material.Diffuse[3],
+        )
+        GL.uniform4f(
+            shader.Material!.SpecularColour,
+            material.Specular[0],
+            material.Specular[1],
+            material.Specular[2],
+            material.Specular[3],
+        )
+        GL.uniform1f(shader.Material!.Shininess, material.Shininess)
+        GL.uniform1f(shader.Material!.Alpha, material.Alpha)
+        
+        if (material.ImageTexture)
+        {
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
+            GL.uniform1i(shader.Material!.HasImageMap, 1)
+            GL.uniform1i(shader.Material!.ImageSampler, 0)
+        }
+        else
+        {
+            GL.uniform1i(shader.Material!.HasImageMap, 0)
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.NormalTexture)
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
+            GL.uniform1i(shader.Material!.BumpSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.SpecularTexture)
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
+            GL.uniform1i(shader.Material!.SpecularSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
     }
 }
 
@@ -142,6 +252,10 @@ layout(location = 5) in vec3 A_Particle_Rotation;
 layout(location = 6) in vec3 A_Particle_Scale;
 layout(location = 7) in vec4 A_Particle_Colour;
 // =========== PARTICLE DETAILS ===========
+
+out vec3 V_Normal;
+out vec2 V_UV;
+out vec4 V_Colour;
 
 // =========== MODELVIEW MATRIX CALCULATIONS ===========
 float radian(float x)
@@ -225,10 +339,6 @@ mat4 CalcuateModelView(in vec3 t, in vec3 r, in vec3 s)
 }
 // =========== MODELVIEW MATRIX CALCULATIONS ===========
 
-out vec3 V_Normal;
-out vec2 V_UV;
-out vec4 V_Colour;
-
 struct Matrix
 {
     mat4 ModelView;
@@ -239,20 +349,21 @@ uniform Matrix U_Matrix;
 
 void main(void)
 {
-    mat4 m = CalcuateModelView(
+    mat4 Particle_ModelView = CalcuateModelView(
         A_Particle_Position,
         A_Particle_Rotation,
         A_Particle_Scale
     );
 
-    // vec4 Particle_Position = A_Particle_ModelViewMatrix * vec4(A_Mesh_Position, 1.0);
-    vec4 Particle_Position = m * vec4(A_Mesh_Position, 1.0);
     V_Normal = A_Mesh_Normal;
     V_UV = A_Mesh_UV;
     V_Colour = A_Particle_Colour;
 
-    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * Particle_Position; 
-    gl_PointSize = 10.0f;
+    gl_Position = U_Matrix.Projection * 
+        U_Matrix.View * 
+        U_Matrix.ModelView * 
+        Particle_ModelView *
+        vec4(A_Mesh_Position, 1.0);
 }
 
 `,
@@ -262,12 +373,44 @@ void main(void)
         source: `#version 300 es
 precision highp float;
 
+in vec2 V_UV;
 in vec4 V_Colour;
 out vec4 OutColour;
 
+struct Material 
+{
+    vec4 Ambient;
+    vec4 Diffuse;
+    vec4 Specular;
+    float Shininess;
+    float Alpha;
+
+    bool HasImageMap;
+    bool HasBumpMap;
+};
+uniform Material U_Material; 
+
+struct Sampler
+{
+    sampler2D Image;
+};
+uniform Sampler U_Sampler;
+
+vec4 Colour()
+{
+    if (U_Material.HasImageMap)
+    {
+        return texture(U_Sampler.Image, V_UV);
+    }
+    else
+    {
+        return vec4(1.0);
+    }
+}
+
 void main(void)
 {
-    OutColour = V_Colour;// U_Material.Diffuse * V_Colour;
+    OutColour = Colour() * V_Colour;
 }`,
         input: []
     }

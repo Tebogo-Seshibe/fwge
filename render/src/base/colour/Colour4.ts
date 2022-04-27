@@ -85,51 +85,29 @@ export class Colour4 extends Float32Array
     constructor()
     constructor(rgba: number)
     constructor(r: number, g: number, b: number, a: number)
-    constructor(hex: string, alpha?: number)
-    constructor(colour: Colour3)
-    constructor(colour: Colour3, a: number)
     constructor(colour: Colour4)
-    constructor(array: Float32Array)
-    constructor(array: number[])
-    constructor(r?: Colour3 | Colour4 | Float32Array | number[] | number | string, g?: number, b?: number, a?: number)
+    constructor(r: Colour4 | Float32Array | number = 1.0, g?: number, b?: number, a?: number)
     {
-        super(4)
-
-        if (r !== undefined)
-        {
-            if (typeof r === 'number')
-            {
-                this.Set(r, g!, b!, a!)
-            }
-            else if (typeof r === 'string')
-            {
-                if (g !== undefined)
-                {
-                    g = 1.0
-                }
-
-                this.Set(r, g!)
-            }
-            else
-            {
-                this.Set([ ...r ])
-            }
-        }
+        super(typeof r === 'number' ?
+        [
+            r, g ?? r, b ?? r, a ?? r
+        ] : r)
     }
 
+    Set(rgba: number): Colour4
     Set(r: number, g: number, b: number, a: number): Colour4
-    Set(hex: string, alpha: number): Colour4
-    Set(colour: Colour3): Colour4
     Set(colour: Colour4): Colour4
-    Set(array: Float32Array): Colour4
-    Set(array: number[]): Colour4
-    Set(r: Colour3 | Colour4 | Float32Array | number[] | number | string, g: number = 0, b: number = 0, a: number = 0): Colour4
+    Set(r: Colour3 | Colour4 | Float32Array | number[] | number, g?: number, b?: number, a?: number): Colour4
     {
-        r = typeof r === 'number' 
-            ? [ r, g, b, a ] 
-            : typeof r === 'string'
-                ? parseString(r)
-                : [ 0, 0, 0, 0 ]
+        r = typeof r === 'number' ?
+        [
+            r, g ?? r, b ?? r, a ?? r
+        ] : r
+        // r = typeof r === 'number' 
+        //     ? [ r, g, b, a ] 
+        //     : typeof r === 'string'
+        //         ? parseString(r)
+        //         : [ 0, 0, 0, 0 ]
 
         this[0] = r[0]
         this[1] = r[1]
@@ -149,6 +127,10 @@ export class Colour4 extends Float32Array
     //     return 
     // }
 
+    Clone(): Colour4
+    {
+        return new Colour4(this[0], this[1], this[2], this[3])
+    }
 }
 
 function parseString(s: string): number[]

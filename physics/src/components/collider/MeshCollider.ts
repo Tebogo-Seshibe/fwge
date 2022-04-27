@@ -27,10 +27,10 @@ export class MeshCollider extends Collider
 
     private _recalculateVertices()
     {
-        let mv: Matrix4 = Matrix4.IDENTITY
-        if (this.Owner?.HasComponent(Transform))
+        const mv: Matrix4 = Matrix4.IDENTITY
+        const transform = this.Owner?.GetComponent(Transform)
+        if (transform)
         {
-            const transform = this.Owner!.GetComponent(Transform)!
             transform.Position.Sum(this.Position)
             mv.Set(transform.ModelViewMatrix).Transpose()
             transform.Position.Diff(this.Position)

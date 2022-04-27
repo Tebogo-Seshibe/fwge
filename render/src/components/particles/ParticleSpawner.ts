@@ -2,15 +2,24 @@ import { GL, randBetween, Vector2, Vector3 } from "@fwge/common"
 import { UniqueComponent } from "@fwge/core"
 import { Colour4 } from "../../base"
 import { COLOUR_SIZE, NORMAL_SIZE, POSITION_SIZE, UV_SIZE } from "../../constants"
+import { Material } from "../Material"
 import { Mesh, StaticMesh } from "../mesh"
 
 type UpdateVectorMethod = (vec: Vector3, t: number, ) => Vector3
+type UpdateColourMethod = (vec: Colour4, t: number, ) => Colour4
 interface IParticleConfig
 {
     lifetime?: number
     loop?: boolean
+    position?: Vector3
+    rotation?: Vector3
+    scale?: Vector3
+    colour?: Colour4
     delay?: (index: number, length: number) => number
     updatePosition?: UpdateVectorMethod
+    updateRotation?: UpdateVectorMethod
+    updateScale?: UpdateVectorMethod
+    updateColour?: UpdateColourMethod
 }
 interface ISystemConfig
 {
@@ -20,6 +29,7 @@ interface IParticleSpawner
 {
     size?: number
     mesh?: Mesh
+    material?: Material
     system?: ISystemConfig
     particle?: IParticleConfig
 }
@@ -44,17 +54,15 @@ export class Particle
     public static readonly ParticleLength: number = 
         (Vector3.SIZE * 3) + Colour4.SIZE
 
-    public readonly OriginalPosition: Vector3
     public Lifetime: number = 0
 
     constructor(
-        public readonly Position: Vector3,
-        public readonly Rotation: Vector3,
-        public readonly Scale: Vector3,
-        public readonly Colour: Colour4,
-        delay: number = 0
+        delay: number = 0,
+        public readonly Position: Vector3 = new Vector3(0.0),
+        public readonly Rotation: Vector3 = new Vector3(0.0),
+        public readonly Scale: Vector3 = new Vector3(0.0),
+        public readonly Colour: Colour4 = new Colour4(0.0),
     ) {
-        this.OriginalPosition = this.Position.Clone()
         this.Lifetime = -delay
     }    
 }
@@ -65,12 +73,15 @@ export class ParticleSpawner extends UniqueComponent
     public readonly ParticleVertexBuffer: WebGLBuffer
     public readonly ParticleCount: number
     public readonly Mesh?: Mesh
+    public readonly Material?: Material
     public readonly BufferData: Float32Array
     public readonly Particles: Particle[]
 
     public readonly BaseColour: Colour4 = new Colour4(1.0, 1.0, 1.0, 1.0)
 
     private static _defaultMesh: StaticMesh
+    private static _defaultMaterial: Material
+
     public Offset: number = 0
 
     public get Completed(): boolean
@@ -82,8 +93,18 @@ export class ParticleSpawner extends UniqueComponent
     {
         Lifetime: number,
         Loop: boolean,
+        
+        Position: Vector3
+        Rotation: Vector3
+        Scale: Vector3
+        Colour: Colour4
+
         UpdatePosition: UpdateVectorMethod
+        UpdateRotation: UpdateVectorMethod
+        UpdateScale: UpdateVectorMethod
+        UpdateColour: UpdateColourMethod
     }
+
     public get ParticleMesh(): Mesh
     {
         if (this.Mesh)
@@ -133,6 +154,22 @@ export class ParticleSpawner extends UniqueComponent
 
         return ParticleSpawner._defaultMesh
     }
+
+    public get ParticleMaterial(): Material
+    {
+        if (this.Material)
+        {
+            return this.Material
+        }
+
+        if (!ParticleSpawner._defaultMaterial)
+        {
+            ParticleSpawner._defaultMaterial = new Material()
+        }
+
+        return ParticleSpawner._defaultMaterial
+    }
+
     constructor()
     constructor(config: IParticleSpawner)
     constructor(config: IParticleSpawner = { })
@@ -146,24 +183,35 @@ export class ParticleSpawner extends UniqueComponent
         this.ParticleVertexBuffer = GL.createBuffer()!
         this.ParticleCount = config.size ?? 100
         this.Mesh = config.mesh
+        this.Material = config.material
         this.BufferData = new Float32Array(new ArrayBuffer(Particle.ParticleSize * this.ParticleCount))
+        
+        this.ParticleConfig =
+        {
+            Lifetime: config.particle?.lifetime ?? 1,
+            Loop: config.particle?.loop ?? true,
+
+            Position: config.particle?.position ?? new Vector3(0, 0, 0),
+            Rotation: config.particle?.rotation ?? new Vector3(0, 0, 0),
+            Scale: config.particle?.scale ?? new Vector3(1, 1, 1),
+            Colour: config.particle?.colour ?? new Colour4(1, 1, 1, 1),
+
+            UpdatePosition: config.particle?.updatePosition ?? ((vec: Vector3, _: number) => vec ),
+            UpdateRotation: config.particle?.updateRotation ?? ((vec: Vector3, _: number) => vec ),
+            UpdateScale: config.particle?.updateScale ?? ((vec: Vector3, _: number) => vec ),
+            UpdateColour: config.particle?.updateColour ?? ((col: Colour4, _: number) => col ),
+
+        }
         this.Particles = new Array(this.ParticleCount)
             .fill(undefined)
             .map((_, index, arr) => new Particle(
-                Vector3.ZERO,
-                Vector3.ZERO,
-                new Vector3(0.1, 0.1, 0.1),
-                new Colour4(Math.random(),Math.random(),Math.random(),1),
-                delay(index, arr.length)
+                delay(index, arr.length),
+                this.ParticleConfig.UpdatePosition(this.ParticleConfig.Position, 0),
+                this.ParticleConfig.UpdateRotation(this.ParticleConfig.Rotation, 0),
+                this.ParticleConfig.UpdateScale(this.ParticleConfig.Scale, 0),
+                this.ParticleConfig.UpdateColour(this.ParticleConfig.Colour, 0)
             ))
 
-            this.ParticleConfig =
-            {
-                Lifetime: config.particle?.lifetime ?? 1,
-                Loop: config.particle?.loop ?? true,
-                UpdatePosition: config.particle?.updatePosition ?? ((vec: Vector3, _: number) => vec )
-
-            }
         /* ============= PARTICLE BUFFER DATA SETUP ============= */
         GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleVertexBuffer)
         for (let i = 0; i < this.Particles.length; i++)
@@ -185,7 +233,7 @@ export class ParticleSpawner extends UniqueComponent
             this.BufferData[offset +  9] = this.Particles[i].Colour[0]
             this.BufferData[offset + 10] = this.Particles[i].Colour[1]
             this.BufferData[offset + 11] = this.Particles[i].Colour[2]
-            this.BufferData[offset + 11] = this.Particles[i].Colour[3]
+            this.BufferData[offset + 12] = this.Particles[i].Colour[3]
         }
         GL.bufferData(GL.ARRAY_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
         GL.bindBuffer(GL.ARRAY_BUFFER, null)
@@ -221,6 +269,7 @@ export class ParticleSpawner extends UniqueComponent
         GL.vertexAttribPointer(7, Colour4.SIZE, GL.FLOAT, false, Particle.ParticleSize, Particle.PositionSize + Particle.RotationSize + Particle.ScaleSize)
 
         GL.bindVertexArray(null)
+        console.log(this)
         //#endregion ============= VERTEX ARRAY OBJECT SETUP =============
     }
 }
