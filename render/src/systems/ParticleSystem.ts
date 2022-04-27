@@ -1,8 +1,7 @@
-import { GL, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { GL } from "@fwge/common"
 import { Scene, System, Transform } from "@fwge/core"
-import { Colour4, ShaderAsset } from "../base"
-import { Camera, Mesh, Particle, ParticleSpawner } from "../components"
-import { POSITION_SIZE, UV_SIZE, NORMAL_SIZE, COLOUR_SIZE } from "../constants"
+import { ShaderAsset } from "../base"
+import { Camera, Particle, ParticleSpawner } from "../components"
 
 export class ParticleSystem extends System
 {
@@ -20,7 +19,7 @@ export class ParticleSystem extends System
     Start(): void { }
     Stop(): void { }
 
-    Update(_: number): void
+    Update(delta: number): void
     {
         if (!Camera.Main)
         {
@@ -32,55 +31,49 @@ export class ParticleSystem extends System
         {
             const transform = entity.GetComponent(Transform)!
             const particleSpawner = entity.GetComponent(ParticleSpawner)!
-            const mesh = particleSpawner.ParticleMesh
 
-
-            // for (let i = 0; i < particleSpawner.Particles.length; ++i)
-            // {
-            //     const offset = i * (Matrix4.SIZE + Colour4.SIZE)
-            //     const mv = particleSpawner.Particles[i].ModelViewMatrix
-    
-            //     particleSpawner.BufferData[offset +  4] = mv[ 0]
-            //     particleSpawner.BufferData[offset +  5] = mv[ 1]
-            //     particleSpawner.BufferData[offset +  6] = mv[ 2]
-            //     particleSpawner.BufferData[offset +  7] = mv[ 3]
-            //     particleSpawner.BufferData[offset +  8] = mv[ 4]
-            //     particleSpawner.BufferData[offset +  9] = mv[ 5]
-            //     particleSpawner.BufferData[offset + 10] = mv[ 6]
-            //     particleSpawner.BufferData[offset + 11] = mv[ 7]
-            //     particleSpawner.BufferData[offset + 12] = mv[ 8]
-            //     particleSpawner.BufferData[offset + 13] = mv[ 9]
-            //     particleSpawner.BufferData[offset + 14] = mv[10]
-            //     particleSpawner.BufferData[offset + 15] = mv[11]
-            //     particleSpawner.BufferData[offset + 16] = mv[12]
-            //     particleSpawner.BufferData[offset + 17] = mv[13]
-            //     particleSpawner.BufferData[offset + 18] = mv[14]
-            //     particleSpawner.BufferData[offset + 19] = mv[15]
-            // }
-            
+            this._updateSystem(particleSpawner, delta)
             this._drawSystem(particleSpawner, transform)
             // this._drawMesh(transform, mesh, this.particleShader)
         }
     }
-
-    private _drawMesh(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
+    private _updateSystem(particleSpawner: ParticleSpawner, delta: number)
     {
-        GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
-        GL.uniformMatrix3fv(shader.Matrices!.Normal, false, transform.NormalMatrix)
-        
-        if (mesh.IndexBuffer)
+        for (let i = 0; i < particleSpawner.Particles.length; ++i)
         {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else
-        {
-            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
-        }
+            const particle = particleSpawner.Particles[i]
+            if (particle.Lifetime < 0)
+            {
+                particle.Lifetime += delta
+                continue
+            }
 
-        GL.bindVertexArray(null)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+            if (particle.Lifetime >= particleSpawner.ParticleConfig.Lifetime)
+            {
+                if (!particleSpawner.ParticleConfig.Loop)
+                {
+                    continue
+                }
+                else
+                {
+                    particle.Lifetime -= particleSpawner.ParticleConfig.Lifetime
+                }
+            }
+            else
+            {
+                particle.Lifetime += delta
+            }
+
+            const offset = i * Particle.ParticleLength
+            const t = particle.Lifetime / particleSpawner.ParticleConfig.Lifetime
+            const newPosition = particleSpawner.ParticleConfig.UpdatePosition(particle.OriginalPosition, t)
+
+            particle.Position.Set(newPosition)
+            
+            particleSpawner.BufferData[offset + 0] = particle.Position[0]
+            particleSpawner.BufferData[offset + 1] = particle.Position[1]
+            particleSpawner.BufferData[offset + 2] = particle.Position[2]
+        }
     }
 
     private _drawSystem(particleSpawner: ParticleSpawner, transform: Transform)
@@ -91,6 +84,8 @@ export class ParticleSystem extends System
         GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, transform.NormalMatrix)
         
+        GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
         if (mesh.IndexBuffer)
         {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)

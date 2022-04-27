@@ -1,4 +1,4 @@
-import { GL, Vector3 } from "@fwge/common"
+import { GL, lerp, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { Input, InputSystem, KeyState } from "@fwge/input"
 import { MeshCollider, PhysicsSystem, RigidBody } from "@fwge/physics"
@@ -71,16 +71,28 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
 
     const particles = new ParticleSpawner(
     {
-        size: 1,
-        mesh: prefabs[0].mesh
+        size: 150,
+        mesh: prefabs[0].mesh,
+        particle:
+        {
+            lifetime: 10,
+            delay: (index: number, length: number) =>
+            {
+                return (index / length) * 10
+            },
+            updatePosition: (vec: Vector3, t: number) =>
+            {
+                return new Vector3(Math.sin(t * 64), lerp(0, 2, t), Math.cos(t * 64))
+            }
+        }
     })
 
     player.AddComponent(new Transform())
         // .AddComponent(base[0].mesh)
         // .AddComponent(particles.ParticleMesh)
         .AddComponent(prefabs[0].material)
-        .AddComponent(new RigidBody({ velocity: new Vector3(0,-0.2,0) }))
-        .AddComponent(spinnerScript)
+        // .AddComponent(new RigidBody({ velocity: new Vector3(0,-0.2,0) }))
+        // .AddComponent(spinnerScript)
         .AddComponent(particles)
         .AddComponent(new MeshCollider(
         {
@@ -148,7 +160,7 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
         const child = scene.CreateEntity()
 
         child.AddComponent(transform)
-            .AddComponent(new RigidBody({ velocity: new Vector3(0,0.2,0)}))
+            // .AddComponent(new RigidBody({ velocity: new Vector3(0,0.2,0)}))
             .AddComponent(prefabs[0].material)
             // .AddComponent(prefabs[0].mesh)
             .AddComponent(new MeshCollider(

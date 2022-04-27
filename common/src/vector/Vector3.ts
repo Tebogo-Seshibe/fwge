@@ -259,6 +259,31 @@ export class Vector3 extends Float32Array
     {
         return Vector3.Distance(this, other)
     }
+    
+    static Lerp(time: number, vector1: Vector3, vector2: Vector3): Vector3
+    static Lerp(time: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Lerp(time: number, x1: Vector3 | number, y1: Vector3 | number, z1?: number, x2?: number, y2?: number, z2?: number): Vector3
+    {
+        if (typeof x1 === 'number' && typeof y1 === 'number')
+        {
+            return new Vector3(
+                lerp(x1, x2!, time),
+                lerp(y1, y2!, time),
+                lerp(z1!, z2!, time),
+            )
+
+        }
+        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
+        {
+            return new Vector3(
+                lerp(x1[0], y1[0], time),
+                lerp(x1[1], y1[1], time),
+                lerp(x1[2], y1[2], time),
+            )
+        }
+
+        return Vector3.ZERO
+    }
 
     static Sum(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
     static Sum(left: Vector3, right: Vector3): Vector3
