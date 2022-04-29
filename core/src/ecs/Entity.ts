@@ -17,13 +17,13 @@ export class Entity
 
     public set Parent(parent: EntityId | Entity | undefined)
     {
-        const parentId = typeof parent === 'number'
-            ? parent
-            : parent?.Id
+        const newParent = typeof parent === 'number'
+            ? this._scene.GetEntity(parent)
+            : parent
 
-        if (!Number.isNaN(parentId) && parentId !== this.Id)
+        if (newParent && newParent !== this)
         {
-            this._parent = this._scene.GetEntity(parentId!)
+            this._parent = newParent
         }
     }
     
@@ -84,7 +84,7 @@ export class Entity
             ? this._scene.GetEntity(arg)!
             : arg as Entity
         
-        if (child && this.Id !== child.Id && !this._children.includes(child))
+        if (child && this !== child && !this._children.includes(child))
         {
             this._children.push(child)
             child.Parent = this

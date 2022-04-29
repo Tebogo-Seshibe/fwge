@@ -47,10 +47,11 @@ export class Camera extends UniqueComponent
     }
     get View(): Matrix4
     {
-        const transform = this.Owner?.GetComponent(Transform)!
-        if (transform.Dirty)
+        const transform = this.Owner?.GetComponent(Transform)
+        if (transform)
         {
-            this._view = transform.ModelViewMatrix.Inverse()
+            this._view.Set(transform.ModelViewMatrix)
+            this._view.Inverse()
         }
         
         return this._view
@@ -59,7 +60,7 @@ export class Camera extends UniqueComponent
     private _matrix: Matrix4 = Matrix4.IDENTITY
     public set Projection(projection: Matrix4)
     {
-      this._matrix = projection
+        this._matrix = projection
     }
 
     get Projection(): Matrix4

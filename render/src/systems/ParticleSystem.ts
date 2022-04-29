@@ -6,6 +6,8 @@ import { Camera, Material, Particle, ParticleSpawner } from "../components"
 export class ParticleSystem extends System
 {
     private particleShader!: ShaderAsset
+    private _time: number = 0
+    private _timeLoc!: WebGLUniformLocation
     constructor(scene: Scene)
     {
         super(scene, { requiredComponents: [ Transform, ParticleSpawner ] })
@@ -14,6 +16,7 @@ export class ParticleSystem extends System
     Init(): void
     {
         this.particleShader = new ShaderAsset(particleShaderArgs)
+        this._timeLoc = GL.getUniformLocation(this.particleShader.Program!, 'Time')!
     }
 
     Start(): void { }
@@ -21,12 +24,17 @@ export class ParticleSystem extends System
 
     Update(delta: number): void
     {
+        this._time += delta
+
+        // GL.disable(GL.CULL_FACE)
+        // GL.disable(GL.DEPTH_TEST)
         if (!Camera.Main)
         {
             return 
         }
 
         this._useShader(this.particleShader!)
+        GL.uniform1f(this._timeLoc, this._time)
         for (const entity of this.entities)
         {
             const transform = entity.GetComponent(Transform)!
@@ -39,6 +47,8 @@ export class ParticleSystem extends System
                 this._drawSystem(particleSpawner, transform)
             }
         }
+        // GL.enable(GL.DEPTH_TEST)
+        // GL.enable(GL.CULL_FACE)
     }
     
     private _updateSystem(particleSpawner: ParticleSpawner, delta: number)
@@ -80,26 +90,30 @@ export class ParticleSystem extends System
 
             particle.Position.Set(
                 config.UpdatePosition(
+                    t,
                     config.Position.Clone(),
-                    t
+                    i
                 )
             )
             particle.Rotation.Set(
                 config.UpdateRotation(
+                    t,
                     config.Rotation.Clone(),
-                    t
+                    i
                 )
             )
             particle.Scale.Set(
                 config.UpdateScale(
+                    t,
                     config.Scale.Clone(),
-                    t
+                    i
                 )
             )
             particle.Colour.Set(
                 config.UpdateColour(
+                    t,
                     config.Colour.Clone(),
-                    t
+                    i
                 )
             )
            
@@ -125,19 +139,17 @@ export class ParticleSystem extends System
     private _drawSystem(particleSpawner: ParticleSpawner, transform: Transform)
     {
         const mesh = particleSpawner.ParticleMesh
-        const mateial = particleSpawner.ParticleMaterial
+        const material = particleSpawner.ParticleMaterial
 
         GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
         GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, transform.NormalMatrix)
         
-        GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleMesh.VertexBuffer)
         GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
         
         if (mesh.IndexBuffer)
         {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
             GL.drawElementsInstanced(
                 GL.TRIANGLES,
                 mesh.IndexCount,
@@ -373,6 +385,83 @@ void main(void)
         source: `#version 300 es
 precision highp float;
 
+float interpolate(float a0, float a1, float w)
+{
+    /* // You may want clamping by inserting:
+     * if (0.0 > w) return a0;
+     * if (1.0 < w) return a1;
+     */
+    return (a1 - a0) * w + a0;
+    /* // Use this cubic interpolation [[Smoothstep]] instead, for a smooth appearance:
+     * return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
+     *
+     * // Use [[Smootherstep]] for an even smoother result with a second derivative equal to zero on boundaries:
+     * return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
+     */
+}
+
+/* Create pseudorandom direction vector
+ */
+vec2 randomGradient(int ix, int iy)
+{
+    // No precomputed gradients mean this works for any number of grid coordinates
+    const uint w = 8u;
+    const uint s = w / 2u; // rotation width
+    uint a = uint(ix), b = uint(iy);
+    a *= 3284157443u;
+    b ^= a << s | a >> w-s;
+
+    b *= 1911520717u;
+    a ^= b << s | b >> w-s;
+
+    a *= 2048419325u;
+    float random = float(a) * (3.14159265 / float(~(~0u >> 1))); // in [0, 2*Pi]
+    
+    return vec2(cos(random), sin(random));
+}
+
+// Computes the dot product of the distance and gradient vectors.
+float dotGridGradient(int ix, int iy, float x, float y)
+{
+    // Get gradient from integer coordinates
+    vec2 gradient = randomGradient(ix, iy);
+
+    // Compute the distance vector
+    float dx = x - float(ix);
+    float dy = y - float(iy);
+
+    // Compute the dot-product
+    return (dx*gradient.x + dy*gradient.y);
+}
+
+// Compute Perlin noise at coordinates x, y
+float perlin(float x, float y) {
+    // Determine grid cell coordinates
+    int x0 = int(floor(x));
+    int x1 = x0 + 1;
+    int y0 = int(floor(y));
+    int y1 = y0 + 1;
+
+    // Determine interpolation weights
+    // Could also use higher order polynomial/s-curve here
+    float sx = x - float(x0);
+    float sy = y - float(y0);
+
+    // Interpolate between grid point gradients
+    float n0, n1, ix0, ix1, value;
+
+    n0 = dotGridGradient(x0, y0, x, y);
+    n1 = dotGridGradient(x1, y0, x, y);
+    ix0 = interpolate(n0, n1, sx);
+
+    n0 = dotGridGradient(x0, y1, x, y);
+    n1 = dotGridGradient(x1, y1, x, y);
+    ix1 = interpolate(n0, n1, sx);
+
+    value = interpolate(ix0, ix1, sy);
+    return value;
+}
+
 in vec2 V_UV;
 in vec4 V_Colour;
 out vec4 OutColour;
@@ -390,6 +479,7 @@ struct Material
 };
 uniform Material U_Material; 
 
+uniform float Time; 
 struct Sampler
 {
     sampler2D Image;
@@ -404,13 +494,13 @@ vec4 Colour()
     }
     else
     {
-        return vec4(1.0);
+        return vec4(vec3(1.0 - perlin(V_UV.x + Time, V_UV.y + Time)), 1.0);
     }
 }
 
 void main(void)
 {
-    OutColour = Colour() * V_Colour;
+    OutColour = Colour() * V_Colour * vec4(vec3(1.0), U_Material.Alpha);
 }`,
         input: []
     }

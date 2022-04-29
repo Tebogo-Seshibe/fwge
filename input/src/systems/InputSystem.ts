@@ -15,9 +15,8 @@ export class InputSystem extends System
         super(scene, { requiredComponents: [ Input ] })
     }
 
-    public Init(): void {
-        
-    }
+    public Init(): void { }
+    
     Start(): void        
     {
         this._keyboard.Start()
@@ -26,11 +25,7 @@ export class InputSystem extends System
     }
 
     Update(delta: number): void
-    {
-        this._keyboard.Update(delta)
-        this._mouse.Update(delta)
-        this._controllers.Update(delta)
-    
+    {    
         for (const entity of this.entities)
         {
             const inputComponent = entity.GetComponent(Input)!
@@ -42,6 +37,10 @@ export class InputSystem extends System
                 Controllers: this._controllers.State
             }, delta)
         }
+        
+        this._keyboard.Update(delta)
+        this._mouse.Update(delta)
+        this._controllers.Update(delta)
     }
 
     Stop(): void        

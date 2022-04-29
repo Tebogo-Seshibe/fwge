@@ -1,4 +1,5 @@
 import { clean, lerp } from '../utils/Math'
+import { Vector3 } from './Vector3'
 
 export class Vector4 extends Float32Array
 {
@@ -66,6 +67,11 @@ export class Vector4 extends Float32Array
         }
 
         return this._length
+    }
+
+    public get XYZ(): Vector3
+    {
+        return new Vector3(this[0], this[1], this[2])
     }
 
     constructor()

@@ -5,8 +5,8 @@ import { COLOUR_SIZE, NORMAL_SIZE, POSITION_SIZE, UV_SIZE } from "../../constant
 import { Material } from "../Material"
 import { Mesh, StaticMesh } from "../mesh"
 
-type UpdateVectorMethod = (vec: Vector3, t: number, ) => Vector3
-type UpdateColourMethod = (vec: Colour4, t: number, ) => Colour4
+type UpdateVectorMethod = (t: number, vec: Vector3, index: number) => Vector3
+type UpdateColourMethod = (t: number, vec: Colour4, index: number) => Colour4
 interface IParticleConfig
 {
     lifetime?: number
@@ -196,20 +196,20 @@ export class ParticleSpawner extends UniqueComponent
             Scale: config.particle?.scale ?? new Vector3(1, 1, 1),
             Colour: config.particle?.colour ?? new Colour4(1, 1, 1, 1),
 
-            UpdatePosition: config.particle?.updatePosition ?? ((vec: Vector3, _: number) => vec ),
-            UpdateRotation: config.particle?.updateRotation ?? ((vec: Vector3, _: number) => vec ),
-            UpdateScale: config.particle?.updateScale ?? ((vec: Vector3, _: number) => vec ),
-            UpdateColour: config.particle?.updateColour ?? ((col: Colour4, _: number) => col ),
+            UpdatePosition: config.particle?.updatePosition ?? ((_1: number, vec: Vector3, _2: number) => vec ),
+            UpdateRotation: config.particle?.updateRotation ?? ((_1: number, vec: Vector3, _2: number) => vec ),
+            UpdateScale: config.particle?.updateScale ?? ((_1: number, vec: Vector3, _2: number) => vec ),
+            UpdateColour: config.particle?.updateColour ?? ((_1: number, col: Colour4, _2: number) => col ),
 
         }
         this.Particles = new Array(this.ParticleCount)
             .fill(undefined)
             .map((_, index, arr) => new Particle(
                 delay(index, arr.length),
-                this.ParticleConfig.UpdatePosition(this.ParticleConfig.Position, 0),
-                this.ParticleConfig.UpdateRotation(this.ParticleConfig.Rotation, 0),
-                this.ParticleConfig.UpdateScale(this.ParticleConfig.Scale, 0),
-                this.ParticleConfig.UpdateColour(this.ParticleConfig.Colour, 0)
+                this.ParticleConfig.UpdatePosition(0, this.ParticleConfig.Position, index),
+                this.ParticleConfig.UpdateRotation(0, this.ParticleConfig.Rotation, index),
+                this.ParticleConfig.UpdateScale(0, this.ParticleConfig.Scale, index),
+                this.ParticleConfig.UpdateColour(0, this.ParticleConfig.Colour, index)
             ))
 
         /* ============= PARTICLE BUFFER DATA SETUP ============= */
@@ -250,9 +250,14 @@ export class ParticleSpawner extends UniqueComponent
         GL.enableVertexAttribArray(1)
         GL.vertexAttribPointer(1, Vector3.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE)
         GL.enableVertexAttribArray(2)
-        GL.vertexAttribPointer(2, Vector2.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + UV_SIZE)
+        GL.vertexAttribPointer(2, Vector2.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE)
         GL.enableVertexAttribArray(3)
-        GL.vertexAttribPointer(3, Colour4.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + UV_SIZE + NORMAL_SIZE)
+        GL.vertexAttribPointer(3, Colour4.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE + UV_SIZE)
+
+        if (this.ParticleMesh.IndexBuffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.ParticleMesh.IndexBuffer)
+        }
 
         GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleVertexBuffer)
         GL.enableVertexAttribArray(4)
@@ -269,7 +274,6 @@ export class ParticleSpawner extends UniqueComponent
         GL.vertexAttribPointer(7, Colour4.SIZE, GL.FLOAT, false, Particle.ParticleSize, Particle.PositionSize + Particle.RotationSize + Particle.ScaleSize)
 
         GL.bindVertexArray(null)
-        console.log(this)
         //#endregion ============= VERTEX ARRAY OBJECT SETUP =============
     }
 }

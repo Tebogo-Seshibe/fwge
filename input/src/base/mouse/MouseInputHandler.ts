@@ -12,7 +12,7 @@ export class MouseInputHandler
     static readonly Buttons: number = 5
     
     private _canvas: HTMLCanvasElement
-    private _state: number[] = []
+    private _values: number[] = []
     private _delta: number = 0
     private _isMoving?: any
     
@@ -22,40 +22,40 @@ export class MouseInputHandler
 
         return new MouseState(
             new Vector2(
-                this._state[MouseInputHandler.MouseDeltaX],
-                this._state[MouseInputHandler.MouseDeltaY]
+                this._values[MouseInputHandler.MouseDeltaX],
+                this._values[MouseInputHandler.MouseDeltaY]
             ),
             new Vector2(
-                this._state[MouseInputHandler.MouseRawX],
-                this._state[MouseInputHandler.MouseRawY]
+                this._values[MouseInputHandler.MouseRawX],
+                this._values[MouseInputHandler.MouseRawY]
             ),
             new Vector2(
-                this._state[MouseInputHandler.MouseRawX] - left - (width / 2),
-                -this._state[MouseInputHandler.MouseRawY] + top + (height / 2)
+                this._values[MouseInputHandler.MouseRawX] - left - (width / 2),
+                -this._values[MouseInputHandler.MouseRawY] + top + (height / 2)
             ),
-            this._state[MouseInputHandler.Wheel],
-            this._state.slice(MouseInputHandler.Buttons)
+            this._values[MouseInputHandler.Wheel],
+            this._values.slice(MouseInputHandler.Buttons)
         ) 
     }
 
     constructor(canvas: HTMLCanvasElement)
     {
-        this._state[MouseInputHandler.MouseDeltaX] = 0
-        this._state[MouseInputHandler.MouseDeltaY] = 0
-        this._state[MouseInputHandler.MouseRawX] = 0
-        this._state[MouseInputHandler.MouseRawY] = 0
+        this._values[MouseInputHandler.MouseDeltaX] = 0
+        this._values[MouseInputHandler.MouseDeltaY] = 0
+        this._values[MouseInputHandler.MouseRawX] = 0
+        this._values[MouseInputHandler.MouseRawY] = 0
         this._canvas = canvas
     }
 
     Start(): void
     {
-        this._canvas.onclick = this._click.bind(this)
-        this._canvas.ondblclick = this._dblclick.bind(this)
-        this._canvas.onmousedown = this._mousedown.bind(this)
-        this._canvas.onmouseup = this._mouseup.bind(this)
-        this._canvas.onmousemove = this._mousemove.bind(this)
-        this._canvas.oncontextmenu = this._contextmenu.bind(this)
-        this._canvas.onwheel = this._wheel.bind(this)
+        this._canvas.addEventListener('click', this._click.bind(this))
+        this._canvas.addEventListener('dblclick', this._dblclick.bind(this))
+        this._canvas.addEventListener('mousedown', this._mousedown.bind(this))
+        this._canvas.addEventListener('mouseup', this._mouseup.bind(this))
+        this._canvas.addEventListener('mousemove', this._mousemove.bind(this))
+        this._canvas.addEventListener('contextmenu', this._contextmenu.bind(this))
+        this._canvas.addEventListener('wheel', this._wheel.bind(this))
     }
 
     Update(delta: number): void
@@ -65,15 +65,15 @@ export class MouseInputHandler
 
     Stop(): void
     {
-        this._canvas.onclick = null
-        this._canvas.ondblclick = null
-        this._canvas.onmousedown = null
-        this._canvas.onmouseup = null
-        this._canvas.onmousemove = null
-        this._canvas.oncontextmenu = null
-        this._canvas.onwheel = null
+        this._canvas.removeEventListener('click', this._click.bind(this))
+        this._canvas.removeEventListener('dblclick', this._dblclick.bind(this))
+        this._canvas.removeEventListener('mousedown', this._mousedown.bind(this))
+        this._canvas.removeEventListener('mouseup', this._mouseup.bind(this))
+        this._canvas.removeEventListener('mousemove', this._mousemove.bind(this))
+        this._canvas.removeEventListener('contextmenu', this._contextmenu.bind(this))
+        this._canvas.removeEventListener('wheel', this._wheel.bind(this))
 
-        this._state[MouseInputHandler.Wheel] = WheelState.CENTERED
+        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
     }
 
     private _click(e: MouseEvent): void
@@ -90,14 +90,14 @@ export class MouseInputHandler
     {
         e.preventDefault()
 
-        this._state[e.button + MouseInputHandler.Buttons] = ButtonState.PRESSED
+        this._values[e.button + MouseInputHandler.Buttons] = ButtonState.PRESSED
     }
     
     private _mouseup(e: MouseEvent): void
     {
         e.preventDefault()
 
-        this._state[e.button + MouseInputHandler.Buttons] = ButtonState.RAISED
+        this._values[e.button + MouseInputHandler.Buttons] = ButtonState.RAISED
     }
     
     private _mousemove(e: MouseEvent): void
@@ -110,10 +110,10 @@ export class MouseInputHandler
         }
         this._isMoving = setTimeout(() => this._reset(), this._delta)
         
-        this._state[MouseInputHandler.MouseDeltaX] = e.movementX
-        this._state[MouseInputHandler.MouseDeltaY] = e.movementY
-        this._state[MouseInputHandler.MouseRawX] = e.clientX
-        this._state[MouseInputHandler.MouseRawY] = e.clientY
+        this._values[MouseInputHandler.MouseDeltaX] = e.movementX
+        this._values[MouseInputHandler.MouseDeltaY] = e.movementY
+        this._values[MouseInputHandler.MouseRawX] = e.clientX
+        this._values[MouseInputHandler.MouseRawY] = e.clientY
     }
     
     private _contextmenu(e: MouseEvent): void
@@ -131,7 +131,7 @@ export class MouseInputHandler
         }
         this._isMoving = setTimeout(() => this._reset(), this._delta)
 
-        this._state[MouseInputHandler.Wheel] = e.deltaY > 0
+        this._values[MouseInputHandler.Wheel] = e.deltaY > 0
             ? WheelState.DOWN
             : e.deltaY < 0 
                 ? WheelState.UP
@@ -141,8 +141,8 @@ export class MouseInputHandler
     
     private _reset(): void
     {
-        this._state[MouseInputHandler.Wheel] = WheelState.CENTERED
-        this._state[MouseInputHandler.MouseDeltaX] = 0
-        this._state[MouseInputHandler.MouseDeltaY] = 0
+        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
+        this._values[MouseInputHandler.MouseDeltaX] = 0
+        this._values[MouseInputHandler.MouseDeltaY] = 0
     }
 }

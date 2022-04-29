@@ -26,31 +26,28 @@ export class KeyboardInputHandler
     
     Start(): void        
     {
-        this.canvas.ownerDocument.documentElement.onkeydown = this._keydown.bind(this)
-        this.canvas.ownerDocument.documentElement.onkeypress = this._keypress.bind(this)
-        this.canvas.ownerDocument.documentElement.onkeyup = this._keyup.bind(this)
+        this.canvas.ownerDocument.documentElement.addEventListener('keydown', this._keydown.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('keyup', this._keyup.bind(this))
     }
 
     Update(_: number): void
     {
-
+        for (let i = 0 ; i < this._keys.length; ++i)
+        {
+            if (this._keys[i] === KeyState.PRESSED)
+            {
+                this._keys[i] = KeyState.DOWN
+            }
+        }
     }
 
     Stop(): void
     {
-        this.canvas.ownerDocument.documentElement.onkeydown = null
-        this.canvas.ownerDocument.documentElement.onkeypress = null
-        this.canvas.ownerDocument.documentElement.onkeyup = null
+        this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this._keydown.bind(this))
+        this.canvas.ownerDocument.documentElement.removeEventListener('keyup', this._keyup.bind(this))
     }
 
     private _keydown(e: KeyboardEvent)
-    {
-        e.preventDefault()
-
-        this._keys[e.which] = KeyState.DOWN
-    }
-
-    private _keypress(e: KeyboardEvent)
     {
         e.preventDefault()
 

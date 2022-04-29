@@ -54,5 +54,8 @@ const physics: Scene = physicsInput(game, fpsCounter)
 
 game.SetActiveScene(physics)
 game.Start()
-
+document.onpointerlockchange = console.log
+document.onpointerlockerror = console.log
+document.onfullscreenchange = console.log
+document.onfullscreenerror = console.log
 window.game = game

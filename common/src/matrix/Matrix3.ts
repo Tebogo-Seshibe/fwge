@@ -1,3 +1,5 @@
+import { Vector3 } from "../vector"
+
 export class Matrix3 extends Float32Array
 {
     private _dirty: boolean = true
@@ -264,6 +266,14 @@ export class Matrix3 extends Float32Array
         return new Matrix3(this)
     }
 
+    static MultVector(mat: Matrix3, vec: Vector3): Vector3
+    {
+        return new Vector3(
+            ( mat[0] * vec[0]) + ( mat[1] * vec[1])+ ( mat[2] * vec[2] ),
+            ( mat[3] * vec[0]) + ( mat[4] * vec[1])+ ( mat[5] * vec[2] ),
+            ( mat[6] * vec[0]) + ( mat[7] * vec[1])+ ( mat[8] * vec[2] ),
+        )
+    }
     public static readonly SIZE: number = 9
 
     static get ZERO(): Matrix3

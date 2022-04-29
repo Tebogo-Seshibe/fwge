@@ -24,8 +24,14 @@ export class Material extends SharedComponent
     _imageTexture: WebGLTexture | null = null
     _normalTexture: WebGLTexture | null = null
     _specularTexture: WebGLTexture | null = null
+    _hasTransparency: boolean = false
 
     public Shader: ShaderAsset | null = null
+
+    get HasTransparency(): boolean
+    {
+        return this._hasTransparency
+    }
 
     get Ambient(): Colour4
     {
@@ -88,6 +94,7 @@ export class Material extends SharedComponent
 
         if (src)
         {
+            this._hasTransparency = src.includes('.png')
             this._imageTexture = GL.createTexture()
             this._applyImage(this._imageTexture!, src)
         }

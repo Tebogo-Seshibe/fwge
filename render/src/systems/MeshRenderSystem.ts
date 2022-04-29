@@ -10,6 +10,7 @@ export class MeshRenderSystem extends System
     private _screenVAO: WebGLVertexArrayObject | null = null
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
+    private _materials: Set<Material> = new Set()
     private _screenShader: ShaderAsset | null = null
     private _wireframeShader: ShaderAsset | null = null
     private _gridShader: ShaderAsset | null = null
@@ -22,6 +23,7 @@ export class MeshRenderSystem extends System
     public GridBuffer: WebGLBuffer = GL.createBuffer()!
 
     private _batches: Map<Material, Entity[]> = new Map()
+    private _orderedBatches: Material[] = []
 
     constructor(manager: Scene, args?: { renderGrid: boolean, min: number, max: number, step: number, wireframe: boolean })
     {
@@ -42,9 +44,11 @@ export class MeshRenderSystem extends System
 
     Init(): void
     {
+        console.log(this)
         this._buildScreenShader()
         this._buildWireframeShader()
 
+        const transparent: Material[] = []
         for (const entity of this.entities)
         {
             const material = entity.GetComponent(Material)!
@@ -55,7 +59,17 @@ export class MeshRenderSystem extends System
             }
             
             this._batches.get(material)!.push(entity)
+            if (material.Alpha === 1 && !material.HasTransparency)
+            {
+                this._orderedBatches.push(material)
+            }
+            else
+            {
+                transparent.push(material)
+            }
         }
+        this._orderedBatches.push(...transparent)
+        
         this._gridShader = new ShaderAsset(
         { 
             vertexShader:
@@ -207,6 +221,8 @@ export class MeshRenderSystem extends System
 
     Update(delta: number): void
     {
+        // GL.clearColor(1.0, 0.0, 0.0, 1.0)
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
         if (!Camera.Main)
         {
             return
@@ -217,8 +233,9 @@ export class MeshRenderSystem extends System
             this._drawGrid()
         }
 
-        for (const [material, entityList] of this._batches)
+        for (const material of this._orderedBatches)
         {
+            const entityList = this._batches.get(material)!
             const shader = material.Shader!
 
             this._useShader(shader)
@@ -300,8 +317,8 @@ export class MeshRenderSystem extends System
         GL.uniformMatrix3fv(this._wireframeShader!.Matrices!.Normal, false, transform.NormalMatrix)
         
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
-        GL.drawElements(GL.POINTS, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
-        
+        GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
+
         GL.bindVertexArray(null)
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
     }

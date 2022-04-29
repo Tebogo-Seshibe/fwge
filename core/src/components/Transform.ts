@@ -23,25 +23,18 @@ export class Transform extends UniqueComponent
 
     private _recalculateMatrices()
     {
-        let parent: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
+        let transform: Transform | undefined = this
         this._modelViewMatrix.Identity()
 
-        CalcuateModelView(
-            this._modelViewMatrix,
-            this._position,
-            this._rotation,
-            this._scale
-        )
-
-        while (parent)
+        while (transform)
         {
             CalcuateModelView(
                 this._modelViewMatrix,
-                parent._position,
-                parent._rotation,
-                parent._scale
+                transform._position,
+                transform._rotation,
+                transform._scale
             )
-            parent = parent.Owner?.Parent?.GetComponent(Transform)
+            transform = transform.Owner?.Parent?.GetComponent(Transform)
         }
         
         this._normalMatrix.Set(
@@ -63,7 +56,7 @@ export class Transform extends UniqueComponent
     
     get ModelViewMatrix(): Matrix4
     {
-        if (this.Dirty)
+        // if (this.Dirty)
         {
             this._recalculateMatrices()
         }
@@ -73,7 +66,7 @@ export class Transform extends UniqueComponent
 
     get NormalMatrix(): Matrix3
     {
-        if (this.Dirty)
+        // if (this.Dirty)
         {
             this._recalculateMatrices()
         }

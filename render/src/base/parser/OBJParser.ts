@@ -10,11 +10,12 @@ type MTLKey = 'newmtl' | 'ka' | 'kd' | 'ks' | 'ns' | 'd' | 'tr' | 'illum' | 'map
 | 'bump'
 | 'map_ks'
 | 'map_d'
-export interface OBJ
-{
-    mesh: StaticMesh
-    material: Material
-}
+
+export type ParseContent<T> = { [key: string]: T }
+export type OBJ = ParseContent<StaticMesh>
+export type MTL = ParseContent<Material>
+export type ParseResutlt = { pairs: [string, string][], obj: OBJ, mtl: MTL }
+
 interface OBJObject
 {
     name?: string
@@ -29,9 +30,14 @@ interface OBJFace
 }
 export class OBJParser implements IParser
 {
-    hmm(obj: string, mtl: string): OBJ[]
+    hmm(obj: string, mtl: string): ParseResutlt
     {
-        const prefabs: OBJ[] = []
+        const prefabs: ParseResutlt =
+        {
+            pairs: [],
+            obj: {},
+            mtl: {},
+        }
         
         const mtlLines = mtl.trim().split('\n').map(x => x.trim())
         const matMap: Map<string, any> = new Map()
@@ -108,6 +114,19 @@ export class OBJParser implements IParser
             }
         }
 
+        const matKeys = Array.from(matMap.keys())
+        for (const key of matKeys)
+        {
+            const material = matMap.get(key)
+            if (!material)
+            {
+                continue
+            }
+
+            const mat = new Material(material)
+            prefabs.mtl[key!] = mat
+        }
+
         const objects: Map<string | undefined, OBJObject> = new Map()
         const v: Vector3[] = []
         const vn: Vector3[] = []
@@ -129,7 +148,7 @@ export class OBJParser implements IParser
                 case 'usemtl':
                     objObject = objects.get(o) ?? {}
                     objObject.material = value
-                    objects.set(o, objObject)
+                    objects.set(o, { ...objObject })
                     break
 
                 case 'o':
@@ -137,7 +156,7 @@ export class OBJParser implements IParser
                     
                     objObject = objects.get(o) ?? {}
                     objObject.material = value
-                    objects.set(o, objObject)
+                    objects.set(o, { ...objObject })
                     break
 
                 case 'g':
@@ -178,7 +197,7 @@ export class OBJParser implements IParser
                     vt.push(
                         new Vector2(
                             parseFloat(values[0]),
-                            1.0 - parseFloat(values[1])
+                            parseFloat(values[1])
                         )
                     )
                     break
@@ -208,8 +227,13 @@ export class OBJParser implements IParser
         const keys = Array.from(objects.keys())
         for (const key of keys)
         {
-            const object = objects.get(key)!
-            const f = object.faces!
+            const object = objects.get(key)
+            const f = object?.faces
+            
+            if (!f)
+            {
+                continue
+            }
 
             const position: Vector3[] = []
             const colour: Colour4[] = []
@@ -236,20 +260,16 @@ export class OBJParser implements IParser
             }
 
             if (v.length > 0)
-            {
-                const material = matMap.get(object.material!)!
-                
-                prefabs.push(
+            { 
+                prefabs.obj[key!] = new StaticMesh(
                 {
-                    mesh: new StaticMesh(
-                    {
-                        position: position,
-                        colour: colour,
-                        normal: normal.length !== 0 ? normal : undefined,
-                        uv: uv.length !== 0 ? uv : undefined
-                    }),
-                    material: new Material(material)
+                    position: position,
+                    colour: colour,
+                    normal: normal.length !== 0 ? normal : undefined,
+                    uv: uv.length !== 0 ? uv : undefined
                 })
+
+                prefabs.pairs.push([key!, object.material!])
             }
         }
 
