@@ -5,8 +5,8 @@ import { COLOUR_SIZE, NORMAL_SIZE, POSITION_SIZE, UV_SIZE } from "../../constant
 import { Material } from "../Material"
 import { Mesh, StaticMesh } from "../mesh"
 
-type UpdateVectorMethod = (t: number, vec: Vector3, index: number) => Vector3
-type UpdateColourMethod = (t: number, vec: Colour4, index: number) => Colour4
+type UpdateVectorMethod = (inVec: Vector3, outVec: Vector3, index: number, t: number) => void
+type UpdateColourMethod = (inVec: Colour4, outVec: Colour4, index: number, t: number) => void
 interface IParticleConfig
 {
     lifetime?: number
@@ -196,21 +196,31 @@ export class ParticleSpawner extends UniqueComponent
             Scale: config.particle?.scale ?? new Vector3(1, 1, 1),
             Colour: config.particle?.colour ?? new Colour4(1, 1, 1, 1),
 
-            UpdatePosition: config.particle?.updatePosition ?? ((_1: number, vec: Vector3, _2: number) => vec ),
-            UpdateRotation: config.particle?.updateRotation ?? ((_1: number, vec: Vector3, _2: number) => vec ),
-            UpdateScale: config.particle?.updateScale ?? ((_1: number, vec: Vector3, _2: number) => vec ),
-            UpdateColour: config.particle?.updateColour ?? ((_1: number, col: Colour4, _2: number) => col ),
+            UpdatePosition: config.particle?.updatePosition ?? ((inVec: Vector3, outVec: Vector3, _1: number, _2: number ) => outVec.Set(inVec) ),
+            UpdateRotation: config.particle?.updateRotation ?? ((inVec: Vector3, outVec: Vector3, _1: number, _2: number ) => outVec.Set(inVec) ),
+            UpdateScale: config.particle?.updateScale ?? ((inVec: Vector3, outVec: Vector3, _1: number, _2: number ) => outVec.Set(inVec) ),
+            UpdateColour: config.particle?.updateColour ?? ((inVec: Colour4, outVec: Colour4, _1: number, _2: number ) => outVec.Set(inVec) ),
 
         }
         this.Particles = new Array(this.ParticleCount)
             .fill(undefined)
-            .map((_, index, arr) => new Particle(
-                delay(index, arr.length),
-                this.ParticleConfig.UpdatePosition(0, this.ParticleConfig.Position, index),
-                this.ParticleConfig.UpdateRotation(0, this.ParticleConfig.Rotation, index),
-                this.ParticleConfig.UpdateScale(0, this.ParticleConfig.Scale, index),
-                this.ParticleConfig.UpdateColour(0, this.ParticleConfig.Colour, index)
-            ))
+            .map((_, index, arr) => 
+            {
+                const particle = new Particle(
+                    delay(index, arr.length),
+                    this.ParticleConfig.Position.Clone(),
+                    this.ParticleConfig.Rotation.Clone(),
+                    this.ParticleConfig.Scale.Clone(),
+                    this.ParticleConfig.Colour.Clone()
+                )
+
+                this.ParticleConfig.UpdatePosition(this.ParticleConfig.Position, particle.Position, index, 0),
+                this.ParticleConfig.UpdateRotation(this.ParticleConfig.Rotation, particle.Rotation, index, 0),
+                this.ParticleConfig.UpdateScale(this.ParticleConfig.Scale, particle.Scale, index, 0),
+                this.ParticleConfig.UpdateColour(this.ParticleConfig.Colour, particle.Colour, index, 0)
+
+                return particle
+            })
 
         /* ============= PARTICLE BUFFER DATA SETUP ============= */
         GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleVertexBuffer)

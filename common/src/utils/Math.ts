@@ -31,9 +31,9 @@ export function isPowerOf2(value: number): boolean
     return (value & (value - 1)) === 0
 }
 
-export function lerp(min: number, max: number, time: number): number
+export function lerp(t: number, p0: number, p1: number): number
 {
-    return min + (time * (max - min))
+    return p0 + (t * (p1 - p0))
 }
 
 export function inverseLerp(min: number, max: number, value: number): number
@@ -44,6 +44,33 @@ export function inverseLerp(min: number, max: number, value: number): number
 export function remap(inputMin: number, inputMax: number, outputMin: number, outputMax: number, inputVal: number): number
 {
     return lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, inputVal))
+}
+
+export function quadraticBezier(t: number, p0: number, p1: number, p2: number): number
+{
+    const a = lerp(p0, p1, t)
+    const b = lerp(p1, p2, t)
+    return lerp(a, b, t)
+    // const t2 = t * t
+
+    // p0 *= 
+    // p1 *= 
+    // p2 *= 
+
+    // return p0 + p1 + p2
+}
+
+export function cubicBezier(t: number, p0: number, p1: number, p2: number, p3: number): number
+{
+    const t2 = t * t
+    const t3 = t2 * t
+    
+    p0 *= -t3 + (3 * t2) - (3 * t) + 1
+    p1 *= (3 * t3) - (6 * t2) + (3 * t)
+    p2 *= (-3 * t3) + (3 * t2)
+    p3 *= t3
+
+    return p0 + p1 + p2 + p3
 }
 
 export function factorial(n: number): number

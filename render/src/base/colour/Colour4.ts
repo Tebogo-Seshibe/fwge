@@ -129,7 +129,7 @@ export class Colour4 extends Float32Array
 
     Clone(): Colour4
     {
-        return new Colour4(this[0], this[1], this[2], this[3])
+        return new Colour4(this)
     }
 }
 

@@ -83,40 +83,21 @@ export class ParticleSystem extends System
                     continue
                 }
             }
+            
+            if (particle.Lifetime > particleSpawner.ParticleConfig.Lifetime)
+            {
+                particle.Lifetime = particleSpawner.ParticleConfig.Lifetime
+            }
 
             const config = particleSpawner.ParticleConfig
             const offset = i * Particle.ParticleLength
             const t = particle.Lifetime / config.Lifetime
+            
+            config.UpdatePosition(config.Position, particle.Position, i, t)
+            config.UpdateRotation(config.Rotation, particle.Rotation, i, t)
+            config.UpdateScale(config.Scale, particle.Scale, i, t)
+            config.UpdateColour(config.Colour, particle.Colour, i, t)
 
-            particle.Position.Set(
-                config.UpdatePosition(
-                    t,
-                    config.Position.Clone(),
-                    i
-                )
-            )
-            particle.Rotation.Set(
-                config.UpdateRotation(
-                    t,
-                    config.Rotation.Clone(),
-                    i
-                )
-            )
-            particle.Scale.Set(
-                config.UpdateScale(
-                    t,
-                    config.Scale.Clone(),
-                    i
-                )
-            )
-            particle.Colour.Set(
-                config.UpdateColour(
-                    t,
-                    config.Colour.Clone(),
-                    i
-                )
-            )
-           
             particleSpawner.BufferData[offset +  0] = particle.Position[0]
             particleSpawner.BufferData[offset +  1] = particle.Position[1]
             particleSpawner.BufferData[offset +  2] = particle.Position[2]

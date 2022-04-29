@@ -38,17 +38,17 @@ export function resolveAABB(current: Entity, target: Entity): void
     const currentPos = current.GetComponent(Transform)!.Position
     const targetPos = target.GetComponent(Transform)!.Position
 
-    const overlap = this._calculateOverlap(currentPos, currentCollider, targetPos, targetCollider)
-    const currentDisplacement = this.displacements.get(current.Id) ?? Vector3.ZERO                
+    // const overlap = this._calculateOverlap(currentPos, currentCollider, targetPos, targetCollider)
+    // const currentDisplacement = this.displacements.get(current.Id) ?? Vector3.ZERO                
 
-    if (!targetCollider.IsStatic)
-    {
-        currentDisplacement.Sum(overlap.Scale(0.5))
-    }
-    else
-    {
-        currentDisplacement.Sum(overlap)
-    }
+    // if (!targetCollider.IsStatic)
+    // {
+    //     currentDisplacement.Sum(overlap.Scale(0.5))
+    // }
+    // else
+    // {
+    //     currentDisplacement.Sum(overlap)
+    // }
 
-    this.displacements.set(current.Id, currentDisplacement)
+    // this.displacements.set(current.Id, currentDisplacement)
 }
