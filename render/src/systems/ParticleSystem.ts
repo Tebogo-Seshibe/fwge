@@ -8,9 +8,10 @@ export class ParticleSystem extends System
     private particleShader!: ShaderAsset
     private _time: number = 0
     private _timeLoc!: WebGLUniformLocation
-    constructor(scene: Scene)
+
+    constructor()
     {
-        super(scene, { requiredComponents: [ Transform, ParticleSpawner ] })
+        super({ requiredComponents: [ Transform, ParticleSpawner ] })
     }
 
     Init(): void

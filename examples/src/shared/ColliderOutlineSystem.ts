@@ -25,9 +25,9 @@ export class ColliderOutlineSystem extends System
         Points: []
     }
 
-    constructor(scene: Scene)
+    constructor()
     {
-        super(scene, { requiredComponents: [Transform, Collider]})
+        super({ requiredComponents: [Transform, Collider]})
     }
 
     Init()

@@ -1,17 +1,16 @@
 import { AudioPlayer } from "@fwge/audio"
 import { Vector3 } from "@fwge/common"
-import { Script, Transform } from "@fwge/core"
-import { Colour4, Material, OBJParser, ParseResutlt, ShaderAsset, StaticMesh } from "@fwge/render"
-
+import { Prefab, Script, Transform } from "@fwge/core"
+import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
+import { Colour4, Material, OBJParser, ShaderAsset, StaticMesh } from "@fwge/render"
 import baseMTL from '/public/objects/base/base.mtl?raw'
 import baseOBJ from '/public/objects/base/base.obj?raw'
-import sphereMTL from '/public/objects/uv_sphere/uv_sphere.mtl?raw'
-import sphereOBJ from '/public/objects/uv_sphere/uv_sphere.obj?raw'
 import cubeMTL from '/public/objects/cube/cube.mtl?raw'
 import cubeOBJ from '/public/objects/cube/cube.obj?raw'
 import sponzaMTL from '/public/objects/sponza/sponza.mtl?raw'
 import sponzaOBJ from '/public/objects/sponza/sponza.obj?raw'
-
+import sphereMTL from '/public/objects/uv_sphere/uv_sphere.mtl?raw'
+import sphereOBJ from '/public/objects/uv_sphere/uv_sphere.obj?raw'
 import basicFrag from '/public/shaders/Basic.frag?raw'
 import defaultFrag from '/public/shaders/Default.frag?raw'
 import defaultVert from '/public/shaders/Default.vert?raw'
@@ -28,10 +27,10 @@ export let simpleCubeMeshOutline!: number[]
 export let spinnerScript!: Script
 export let offAudio!: AudioPlayer
 export let hmm!: OBJParser
-export let prefabs!: ParseResutlt
-export let sphere!: ParseResutlt
-export let base!: ParseResutlt
-export let sponza!: ParseResutlt
+export let prefabs!: Prefab
+export let sphere!: Prefab
+export let base!: Prefab
+export let sponza!: Prefab
 export let cubeMesh!: StaticMesh
 export let planeMesh!: StaticMesh
 export let simpleShader!: ShaderAsset
@@ -40,15 +39,10 @@ export let defaultShader!: ShaderAsset
 export let cubeUVMaterial!: Material
 export let tebogoMaterial!: Material
 export let planeMaterial!: Material
+export let spherePrefab: Prefab = new Prefab()
 
 export function init()
-{
-    hmm = new OBJParser()
-    sphere = hmm.hmm(sphereOBJ, sphereMTL)
-    prefabs = hmm.hmm(cubeOBJ, cubeMTL)
-    base = hmm.hmm(baseOBJ, baseMTL)
-    sponza = hmm.hmm(sponzaOBJ, sponzaMTL)
-    
+{    
     offAudio = new AudioPlayer({ source: '/audio/Minecraft Death Sound Effect.mp3' })
     
     spinnerScript = new Script(
@@ -294,7 +288,6 @@ export function init()
             input: []
         },
     })
-    console.log(simpleShader)
     basicShader = new ShaderAsset(
     {
         vertexShader:
@@ -349,21 +342,13 @@ export function init()
         specular: new Colour4(1.0, 1.0, 1.0, 1.0),
     })
     
-    setShader(prefabs, basicShader)
-    setShader(base, basicShader)
-    setShader(sponza, basicShader)
-    setShader(sphere, basicShader)
-    sphere.mtl["None"].Alpha = 0.05
     cubeUVMaterial.Shader = basicShader
     tebogoMaterial.Shader = basicShader
     planeMaterial.Shader = basicShader
-}
-
-function setShader(prefab: ParseResutlt, shader: ShaderAsset): void
-{
-    const names = Object.keys(prefab.mtl)
-    for (const name of names)
-    {
-        prefab.mtl[name].Shader = shader   
-    }
+    
+    spherePrefab = OBJMTLPrefabBuilder(OBJLoader(sphereOBJ), MTLLoader(sphereMTL, basicShader))
+    sponza = OBJMTLPrefabBuilder(OBJLoader(sponzaOBJ), MTLLoader(sponzaMTL, basicShader))
+    sphere = OBJMTLPrefabBuilder(OBJLoader(sphereOBJ), MTLLoader(sphereMTL, defaultShader))
+    prefabs = OBJMTLPrefabBuilder(OBJLoader(cubeOBJ), MTLLoader(cubeMTL, defaultShader))
+    base = OBJMTLPrefabBuilder(OBJLoader(baseOBJ), MTLLoader(baseMTL, defaultShader))
 }

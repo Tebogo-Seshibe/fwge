@@ -12,6 +12,7 @@
     "@fwge/common": "file:../common",
     "@fwge/core": "file:../core",
     "@fwge/input": "file:../input",
+    "@fwge/io": "file:../io",
     "@fwge/physics": "file:../physics",
     "@fwge/render": "file:../render",
     "@fwge/ui": "file:../ui",

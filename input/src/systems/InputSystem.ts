@@ -1,4 +1,4 @@
-import { Scene, System } from "@fwge/core"
+import { System } from "@fwge/core"
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
 import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler"
@@ -6,16 +6,22 @@ import { Input } from "../components"
 
 export class InputSystem extends System
 {
-    private _keyboard: KeyboardInputHandler = new KeyboardInputHandler(this.scene.Context!)
-    private _mouse: MouseInputHandler = new MouseInputHandler(this.scene.Context!)
-    private _controllers: ControllerInputHandler = new ControllerInputHandler(this.scene.Context!)
+    private _keyboard!: KeyboardInputHandler
+    private _mouse!: MouseInputHandler
+    private _controllers!: ControllerInputHandler
 
-    constructor(scene: Scene)
+    constructor()
     {
-        super(scene, { requiredComponents: [ Input ] })
+        super({ requiredComponents: [ Input ] })
     }
 
-    public Init(): void { }
+    public Init(): void
+    {
+        
+        this._keyboard = new KeyboardInputHandler(this.scene.Context!)
+        this._mouse = new MouseInputHandler(this.scene.Context!)
+        this._controllers = new ControllerInputHandler(this.scene.Context!)
+    }
     
     Start(): void        
     {

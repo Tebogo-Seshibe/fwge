@@ -1,14 +1,13 @@
-import { cubicBezier, GL, Vector3 } from "@fwge/common"
+import { cubicBezier, GL, lerp, quadraticBezier, Vector3 } from "@fwge/common"
 import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { InputSystem, KeyState } from "@fwge/input"
 import { PhysicsSystem } from "@fwge/physics"
-import { Camera, Colour4, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight } from "@fwge/render"
+import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FPSController } from "../../shared/FPSController"
-import { FrameCounter } from "../../shared/FrameCounter"
-import { canvas, init, sphere, sponza } from "./components"
+import { canvas, init, spherePrefab, sponza } from "./components"
 
-export function physicsInput(game: Game, fpsCounter: HTMLElement)
+export function physicsInput(game: Game)
 {
     init()
 
@@ -25,20 +24,19 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     let mouseLocked: boolean = false
 
     const scene = game.CreateScene()
-    scene.UseSystem(InputSystem)
-        .UseSystem(ScriptSystem)
-        .UseSystem(PhysicsSystem)
-        .UseSystem(MeshRenderSystem,
+    scene.UseSystem(new InputSystem())
+        .UseSystem(new ScriptSystem())
+        .UseSystem(new PhysicsSystem())
+        .UseSystem(new MeshRenderSystem(
         {
             renderGrid: true,
             min: -100,
             max: 100,
             step: 1,
             wireframe: false
-        })
-        .UseSystem(ParticleSystem)
-        .UseSystem(ColliderOutlineSystem)
-        .UseSystem(FrameCounter, fpsCounter)
+        }))
+        .UseSystem(new ParticleSystem())
+        .UseSystem(new ColliderOutlineSystem())
 
     const player = scene.CreateEntity(FPSController,
     {
@@ -100,15 +98,17 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
     {
         colour: new Colour4(1, 1, 1, 1),
         intensity: 1,
-        radius: 10,
+        radius: 50,
 
     }))
 
+    
+    spherePrefab.GetComponent(Material)!.Alpha = 0.5
     const particles = new ParticleSpawner(
     {
-        size: 5000,
-        mesh: sphere.obj[""],
-        material: sphere.mtl["None"],
+        size: 50,
+        mesh: spherePrefab.GetComponent(Mesh),
+        material: spherePrefab.GetComponent(Material),
         particle:
         {
             loop: true,
@@ -116,11 +116,11 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             
             
             scale: new Vector3(0.1),
-            colour: new Colour4(1),
+            colour: new Colour4(1, 1, 1, 1),
 
-            delay: (index: number, _: number) =>
+            delay: (index: number, length: number) =>
             {
-                return index / 125
+                return index / length
             },
             updatePosition: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
             {                
@@ -134,38 +134,41 @@ export function physicsInput(game: Game, fpsCounter: HTMLElement)
             {
                 
             },
-            updateScale: (_1: Vector3, _2: Vector3, _3: number, _4: number) =>
+            updateScale: (_1: Vector3, outVec: Vector3, _3: number, t: number) =>
             {
                 
-                // outVec.Set(quadraticBezier(t, 0.25, 1.00, 0.00))
-                //     quadraticBezier(t, 0.25, 1.00, 0.00),
-                //     quadraticBezier(t, 0.25, 1.00, 0.00),
-                //     quadraticBezier(t, 0.25, 1.00, 0.00),
-                // )
+                outVec.Set(
+                    quadraticBezier(t, 0.25, 1.00, 0.00),
+                    quadraticBezier(t, 0.25, 1.00, 0.00),
+                    quadraticBezier(t, 0.25, 1.00, 0.00),
+                )
             },
-            updateColour: (_1: Colour4, _2: Colour4, _3: number, _4: number) =>
+            updateColour: (_1: Colour4, outVec: Colour4, _3: number, t: number) =>
             {
-                // outVec.Set(
-                //     quadraticBezier(t, 1.0, 1.0, 0.2),
-                //     quadraticBezier(t, 0.0, 1.0, 0.2),
-                //     quadraticBezier(t, 0.0, 0.0, 0.2),
-                //     quadraticBezier(t, 1.0, 1.0, 0.0)
-                // )
+                outVec.Set(
+                    lerp(t, 1.0, 1.0),
+                    lerp(t, 0.0, 1.0),
+                    lerp(t, 0.0, 0.0),
+                    lerp(t, 1.0, 1.0)
+                )
             }
         }
     })
-    
-    const sponzaEntity = scene.CreateEntity()
-        .AddComponent(new Transform({ scale: [ 3, 3, 3 ]}))
-        .AddComponent(particles)
-    for (const [obj, mtl] of sponza.pairs)
-    {
-        sponzaEntity.AddChild(scene.CreateEntity()
-            .AddComponent(new Transform())
-            .AddComponent(sponza.obj[obj])
-            .AddComponent(sponza.mtl[mtl])
-        )
-    }
+
+    sponza.Instance(scene)
+        .GetComponent(Transform)!.Scale.Scale(3)
+
+    // const sponzaEntity = scene.CreateEntity()
+    //     .AddComponent(new Transform({ scale: [ 3, 3, 3 ]}))
+    //     .AddComponent(particles)
+    // for (const [obj, mtl] of sponza.pairs)
+    // {
+    //     sponzaEntity.AddChild(scene.CreateEntity()
+    //         .AddComponent(new Transform())
+    //         .AddComponent(sponza.obj[obj])
+    //         .AddComponent(sponza.mtl[mtl])
+    //     )
+    // }
 
     return scene
 }

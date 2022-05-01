@@ -1,22 +1,33 @@
 import { Component } from '../ecs/Component'
 import { Entity } from '../ecs/Entity'
-import { Class, Constructor } from '../ecs/Registry'
+import { Class, TypeId } from '../ecs/Registry'
 import { Scene } from './Scene'
-
 export class Prefab
 {
-    private _components: Map<Class<Component>, [ Constructor<Component, any>, any[] ]> = new Map()
+    private _components: Map<TypeId, Component> = new Map()
+    private _children: Prefab[] = []
 
-    AddComponent<T extends Component, U extends any[]>(constructor: Constructor<T, U>, ...args: U): Prefab
+    AddChild(prefab: Prefab): Prefab
     {
-        this._components.set(constructor as Class<T>, [ constructor, args ])
+        this._children.push(prefab)
+        return this
+    }
+
+    AddComponent<T extends Component>(component: T): Prefab
+    {
+        this._components.set(component.Type._typeId!, component)
 
         return this
     }
 
+    GetComponent<T extends Component>(componentType: Class<T>): T | undefined
+    {
+        return this._components.get(componentType._typeId!) as T
+    }
+
     RemoveComponent<T extends Component>(componentType: Class<T>): Prefab
     {
-        this._components.delete(componentType)        
+        this._components.delete(componentType._typeId!)        
 
         return this
     }
@@ -25,10 +36,14 @@ export class Prefab
     {
         const entity = scene.CreateEntity()
 
-        for (let [, [ constructor, args ]] of this._components)
-        {
-            const component = new constructor(...args!)            
+        for (let [, component] of this._components)
+        {         
             entity.AddComponent(component)
+        }
+
+        for (const child of this._children)
+        {
+            entity.AddChild(child.Instance(scene))
         }
 
         return entity

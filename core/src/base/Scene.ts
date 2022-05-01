@@ -14,6 +14,7 @@ export class Scene
     private _context?: HTMLCanvasElement
     private readonly _entities: Map<EntityId, Entity> = new Map()
     private readonly _systems: System[] = []
+    private running: boolean = false
 
     constructor()
     {
@@ -24,12 +25,19 @@ export class Scene
     {        
         for (const system of this._systems)
         {
+            system.scene = this
+            system.Reset()
+            for (const [, entity] of this._entities)
+            {
+                system.OnUpdateEntity(entity)
+            }
             system.Init()
         }
     }
     
     Start(): void
     {
+        this.running = true
         for (const system of this._systems)
         {
             system.onStart()
@@ -50,11 +58,12 @@ export class Scene
         {
             system.onStop()
         }
+        this.running = false
     }
     
-    UseSystem<T extends System, K extends any[]>(system: Constructor<T, [Scene, ...K]>, ...args: K): Scene
+    UseSystem<T extends System>(system: T): Scene
     {
-        this._systems.push(new system(this, ...args))
+        this._systems.push(system)
         return this
     }
     
@@ -97,9 +106,12 @@ export class Scene
 
     OnEntity(entity: Entity): void
     {
-        for (const system of this._systems)
+        if (this.running)
         {
-            system.OnUpdateEntity(entity)
+            for (const system of this._systems)
+            {
+                system.OnUpdateEntity(entity)
+            }
         }
     }
     //#endregion

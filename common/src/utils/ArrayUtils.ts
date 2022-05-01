@@ -5,6 +5,7 @@ declare global
         first: () => T 
         last: () => T
         swap: (firstIndex: number, secondIndex: number) => void
+        empty: () => void
     }
 }
 
@@ -26,4 +27,11 @@ Array.prototype.swap = function(firstIndex: number, secondIndex: number)
     this[secondIndex] = left
 }
 
+Array.prototype.empty = function()
+{
+    while (this.length > 0)
+    {
+        this.pop()
+    }
+}
 export { }

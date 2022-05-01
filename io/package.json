@@ -1,7 +1,7 @@
 {
-  "name": "@fwge/render",
+  "name": "@fwge/io",
   "version": "1.0.0",
-  "description": "Render library for the FWGE package",
+  "description": "IO library for the FWGE package",
   "author": "Tebogo Christopher Seshibe",
   "type": "module",
   "main": "lib/index.js",

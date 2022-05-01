@@ -25,12 +25,9 @@ export class MeshRenderSystem extends System
     private _batches: Map<Material, Entity[]> = new Map()
     private _orderedBatches: Material[] = []
 
-    constructor(manager: Scene, args?: { renderGrid: boolean, min: number, max: number, step: number, wireframe: boolean })
+    constructor(args?: { renderGrid: boolean, min: number, max: number, step: number, wireframe: boolean })
     {
-        super(manager,
-        {
-            requiredComponents: [ Transform, Mesh, Material ]
-        })
+        super({ requiredComponents: [ Transform, Mesh, Material ] })
 
         if (args)
         {
@@ -44,7 +41,6 @@ export class MeshRenderSystem extends System
 
     Init(): void
     {
-        console.log(this)
         this._buildScreenShader()
         this._buildWireframeShader()
 
