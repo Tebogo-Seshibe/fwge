@@ -3,22 +3,22 @@ import { ILoader } from "./ILoader";
 
 interface SceneConfig
 {
-    
+
 }
 
 interface SystemConfig
 {
-    
+
 }
 
 interface EntityConfig
 {
-    
+
 }
 
 interface ComponentConfig
 {
-    
+
 }
 
 interface GameConfig
@@ -28,6 +28,7 @@ interface GameConfig
     systems: SystemConfig[]
     entities: EntityConfig[]
     components: ComponentConfig[]
+    definitions: 
 }
 
 export const SceneLoader: ILoader<Scene> = (src: string, game: Game) =>
