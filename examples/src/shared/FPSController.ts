@@ -7,11 +7,11 @@ type OnInput = (args: IInputArgs, delta: number) => void
 
 interface FPSControllerConfig
 {
-    camera: Camera
-    eyeLevel: Vector3
-    onInput: OnInput
-    movementSpeed: number
-    turnSpeed: number
+    camera?: Camera
+    eyeLevel?: Vector3
+    onInput?: OnInput
+    movementSpeed?: number
+    turnSpeed?: number
 }
 
 export class FPSController extends Entity
@@ -23,24 +23,20 @@ export class FPSController extends Entity
     public readonly movementSpeed: number
     public readonly turnSpeed: number
 
-    constructor(scene: Scene,
-    {
-        camera,
-        eyeLevel,
-        onInput,
-        movementSpeed,
-        turnSpeed
-    }: FPSControllerConfig)
+    public readonly forward: Vector3 = new Vector3(0,0,-1)
+    public readonly right: Vector3 = new Vector3(1,0,0)
+
+    constructor(scene: Scene, args: FPSControllerConfig = {})
     {
         super(scene)
 
         
         this.transform = new Transform({ position: [ 0, 0, 0 ] })
-        this.cameraTransform = new Transform({ position: eyeLevel ?? [ 0, 0, 0 ] })
-        this.camera = camera
-        this.onInput = onInput
-        this.movementSpeed = movementSpeed
-        this.turnSpeed = turnSpeed
+        this.cameraTransform = new Transform({ position: args.eyeLevel ?? [ 0, 0, 0 ] })
+        this.camera = args.camera ?? new Camera()
+        this.onInput = args.onInput ?? function(_1: IInputArgs, _2: number) {}
+        this.movementSpeed = args.movementSpeed !== undefined ? args.movementSpeed : 100
+        this.turnSpeed = args.turnSpeed !== undefined ? args.turnSpeed : 100
 
         this.AddComponent(this.transform)
         this.AddComponent(new Input(
@@ -63,7 +59,7 @@ export class FPSController extends Entity
                 rotation[0] = clamp(rotation[0], -80, 80)
 
                 const modelview = Rotation(new Vector3(0, -rotation[1], 0))
-                const forward = Matrix4.MultVector(modelview, new Vector4(0, 0, -1, 0)).XYZ.Normalize()
+                const forward = Matrix4.MultVector(modelview, new Vector4(0, 0, -1, 1)).XYZ.Normalize()
                 if (
                     (input.Keyboard.KeyW === KeyState.DOWN && input.Keyboard.KeyS === KeyState.DOWN) ||
                     (input.Keyboard.KeyW !== KeyState.DOWN && input.Keyboard.KeyS !== KeyState.DOWN)

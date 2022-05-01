@@ -217,6 +217,10 @@ export class MeshRenderSystem extends System
 
     Update(delta: number): void
     {
+        GL.enable(GL.DEPTH_TEST)
+        GL.disable(GL.BLEND)
+        GL.enable(GL.CULL_FACE)
+
         // GL.clearColor(1.0, 0.0, 0.0, 1.0)
         // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
         if (!Camera.Main)

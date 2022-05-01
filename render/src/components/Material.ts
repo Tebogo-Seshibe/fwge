@@ -12,6 +12,7 @@ interface IMaterial
     imagemap?: string
     normalmap?: string
     specularmap?: string
+    shader?: ShaderAsset
 }
 
 export class Material extends SharedComponent
@@ -160,6 +161,7 @@ export class Material extends SharedComponent
         this.ImageMap = args.imagemap ?? null
         this.NormalMap = args.normalmap ?? null
         this.SpecularMap = args.specularmap ?? null
+        this.Shader = args.shader ?? null
     }
     
     private _applyImage(texture: WebGLTexture, src: string): void

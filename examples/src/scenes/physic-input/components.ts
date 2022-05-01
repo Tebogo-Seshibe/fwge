@@ -1,8 +1,8 @@
 import { AudioPlayer } from "@fwge/audio"
 import { Vector3 } from "@fwge/common"
-import { Prefab, Script, Transform } from "@fwge/core"
+import { Entity, Prefab, Script, Transform } from "@fwge/core"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
-import { Colour4, Material, OBJParser, ShaderAsset, StaticMesh } from "@fwge/render"
+import { Colour4, Material, ShaderAsset, StaticMesh } from "@fwge/render"
 import baseMTL from '/public/objects/base/base.mtl?raw'
 import baseOBJ from '/public/objects/base/base.obj?raw'
 import cubeMTL from '/public/objects/cube/cube.mtl?raw'
@@ -26,11 +26,10 @@ export let simpleCubeMeshVerts!: Vector3[]
 export let simpleCubeMeshOutline!: number[]
 export let spinnerScript!: Script
 export let offAudio!: AudioPlayer
-export let hmm!: OBJParser
-export let prefabs!: Prefab
-export let sphere!: Prefab
-export let base!: Prefab
-export let sponza!: Prefab
+export let prefabs!: Prefab<Entity, any>
+export let sphere!: Prefab<Entity, any>
+export let base!: Prefab<Entity, any>
+export let sponza!: Prefab<Entity, any>
 export let cubeMesh!: StaticMesh
 export let planeMesh!: StaticMesh
 export let simpleShader!: ShaderAsset
@@ -39,7 +38,7 @@ export let defaultShader!: ShaderAsset
 export let cubeUVMaterial!: Material
 export let tebogoMaterial!: Material
 export let planeMaterial!: Material
-export let spherePrefab: Prefab = new Prefab()
+export let spherePrefab: Prefab<Entity, any>
 
 export function init()
 {    

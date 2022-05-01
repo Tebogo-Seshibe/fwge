@@ -1,7 +1,7 @@
 import { GL, randBetween, Vector2, Vector3 } from "@fwge/common"
 import { UniqueComponent } from "@fwge/core"
 import { Colour4 } from "../../base"
-import { COLOUR_SIZE, NORMAL_SIZE, POSITION_SIZE, UV_SIZE } from "../../constants"
+import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
 import { Material } from "../Material"
 import { Mesh, StaticMesh } from "../mesh"
 
@@ -255,14 +255,14 @@ export class ParticleSpawner extends UniqueComponent
         GL.bindVertexArray(this.VertexArrayBuffer)
         
         GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleMesh.VertexBuffer)
-        GL.enableVertexAttribArray(0)
-        GL.vertexAttribPointer(0, Vector3.SIZE, GL.FLOAT, false, vertexSize, 0)
-        GL.enableVertexAttribArray(1)
-        GL.vertexAttribPointer(1, Vector3.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE)
-        GL.enableVertexAttribArray(2)
-        GL.vertexAttribPointer(2, Vector2.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE)
-        GL.enableVertexAttribArray(3)
-        GL.vertexAttribPointer(3, Colour4.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE + UV_SIZE)
+        GL.enableVertexAttribArray(POSITION_INDEX)
+        GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, 0)
+        GL.enableVertexAttribArray(NORMAL_INDEX)
+        GL.vertexAttribPointer(NORMAL_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE)
+        GL.enableVertexAttribArray(UV_INDEX)
+        GL.vertexAttribPointer(UV_INDEX, Vector2.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE)
+        GL.enableVertexAttribArray(COLOUR_INDEX)
+        GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE + UV_SIZE)
 
         if (this.ParticleMesh.IndexBuffer)
         {
@@ -285,5 +285,7 @@ export class ParticleSpawner extends UniqueComponent
 
         GL.bindVertexArray(null)
         //#endregion ============= VERTEX ARRAY OBJECT SETUP =============
+
+        console.log(this)
     }
 }

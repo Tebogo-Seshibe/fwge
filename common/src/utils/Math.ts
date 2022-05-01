@@ -43,7 +43,7 @@ export function inverseLerp(min: number, max: number, value: number): number
 
 export function remap(inputMin: number, inputMax: number, outputMin: number, outputMax: number, inputVal: number): number
 {
-    return lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, inputVal))
+    return lerp(inverseLerp(inputMin, inputMax, inputVal), outputMin, outputMax)
 }
 
 export function quadraticBezier(t: number, p0: number, p1: number, p2: number): number
