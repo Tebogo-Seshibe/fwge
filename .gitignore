@@ -1,8 +1,4 @@
-.vs
 .vscode
-.nyc_output
-dist
-build
-coverage
+lib
 node_modules
-package-lock.json
+img

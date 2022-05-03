@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ES2016",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "noImplicitAny": true,
+        "declaration": true,
+        "strict": true,
+        "rootDir": "./src",
+        "outDir": "./lib",
+        "skipLibCheck": true,
+        "removeComments": false,
+        "allowJs": true
+    },
+    "compileOnSave": true,
+}

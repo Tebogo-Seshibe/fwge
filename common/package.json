@@ -1,0 +1,9 @@
+{
+  "name": "@fwge/common",
+  "version": "1.0.0",
+  "description": "Common library for the FWGE package",
+  "author": "Tebogo Christopher Seshibe",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT"
+}
