@@ -2,6 +2,14 @@ import { Colour4, ShaderAsset } from "../base"
 import { GL, isPowerOf2 } from "@fwge/common"
 import { SharedComponent } from "@fwge/core"
 
+export enum BlendMode
+{
+    NONE,
+    ADDITIVE,
+    SUBTRACTIVE,
+    MULTIPLICATIVE
+}
+
 interface IMaterial
 {
     ambient?: Colour4 | [number, number, number, number]

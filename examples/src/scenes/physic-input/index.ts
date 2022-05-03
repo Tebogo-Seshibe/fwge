@@ -3,7 +3,7 @@ import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { InputSystem, KeyState } from "@fwge/input"
 import { GameLoader, TypeMappers } from "@fwge/io"
 import { PhysicsSystem } from "@fwge/physics"
-import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
+import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, RenderTarget, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FPSController } from "../../shared/FPSController"
 import { basicShader, canvas, init, spherePrefab, sponza } from "./components"
@@ -20,6 +20,18 @@ export function physicsInput(game: Game)
     GL.canvas.height = 1080
     GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
 
+    console.log(new RenderTarget(
+    {
+        attachments: [
+            {
+                colour: {
+                    heigth: 1080, 
+                    width: 1920
+                },
+                depth: undefined
+            }
+        ]
+    }))
     let fullscreen: boolean = false
     let mouseLocked: boolean = false
 
@@ -29,10 +41,10 @@ export function physicsInput(game: Game)
         .UseSystem(new PhysicsSystem())
         .UseSystem(new MeshRenderSystem(
         {
-            renderGrid: true,
             min: -100,
             max: 100,
             step: 1,
+            renderGrid: true,
             wireframe: false
         }))
         .UseSystem(new ParticleSystem())
@@ -211,7 +223,7 @@ export function physicsInput(game: Game)
         .AddComponent(particles)
 
 
-    sponza.Instance(scene)
+    spherePrefab.Instance(scene)
         .GetComponent(Transform)!.Scale.Scale(3)
 
     // const sponzaEntity = scene.CreateEntity()
