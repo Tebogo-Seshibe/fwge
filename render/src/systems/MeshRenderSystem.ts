@@ -296,10 +296,6 @@ export class MeshRenderSystem extends System
 
     Update(delta: number): void
     {
-        GL.enable(GL.DEPTH_TEST)
-        GL.disable(GL.BLEND)
-        GL.enable(GL.CULL_FACE)
-
         if (!Camera.Main)
         {
             return
@@ -309,7 +305,8 @@ export class MeshRenderSystem extends System
         GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
         GL.clearColor(0,0,0,0)
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-        
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+
         if (this.RenderGrid)
         {
             this._drawGrid()
@@ -320,6 +317,19 @@ export class MeshRenderSystem extends System
             const entityList = this._batches.get(material)!
             const shader = material.Shader
             if (!shader) continue
+
+            GL.enable(GL.DEPTH_TEST)
+            GL.enable(GL.CULL_FACE)
+            GL.depthMask(true)
+            if (!material.HasTransparency)
+            {
+                GL.disable(GL.BLEND)
+            }
+            else
+            {
+                GL.enable(GL.BLEND)
+                GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+            }
 
             this._useShader(shader)
             this._bindLightUniforms(shader)
@@ -349,8 +359,8 @@ export class MeshRenderSystem extends System
         //     }
         // }
 
-        this._drawToScreen()
-        this._unbindMaterialTexture()
+        // this._drawToScreen()
+        // this._unbindMaterialTexture()
         GL.useProgram(null)
     }
 
@@ -360,7 +370,7 @@ export class MeshRenderSystem extends System
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 
         GL.clearColor(0,0,0,0)
-        GL.clear(GL.COLOR_BUFFER_BIT)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
         
         for (let i = 0; i < this._example.ColourTextures.length; ++i)
         {

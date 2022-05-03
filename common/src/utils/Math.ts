@@ -36,14 +36,14 @@ export function lerp(t: number, p0: number, p1: number): number
     return p0 + (t * (p1 - p0))
 }
 
-export function inverseLerp(min: number, max: number, value: number): number
+export function inverseLerp(p: number, p0: number, p1: number): number
 {
-    return (value - min) / (max - min)
+    return (p - p0) / (p1 - p0)
 }
 
-export function remap(inputMin: number, inputMax: number, outputMin: number, outputMax: number, inputVal: number): number
+export function remap(p: number, p0: number, p1: number, q0: number, q1: number): number
 {
-    return lerp(inverseLerp(inputMin, inputMax, inputVal), outputMin, outputMax)
+    return lerp(inverseLerp(p, p0, p1), q0, q1)
 }
 
 export function quadraticBezier(t: number, p0: number, p1: number, p2: number): number

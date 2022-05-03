@@ -1,4 +1,4 @@
-import { Scene, System } from "@fwge/core"
+import { System } from "@fwge/core"
 
 export class FrameCounter extends System
 {

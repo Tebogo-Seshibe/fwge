@@ -27,8 +27,9 @@ export class ParticleSystem extends System
     {
         this._time += delta
 
-        GL.disable(GL.DEPTH_TEST)
-        GL.disable(GL.CULL_FACE)
+        GL.enable(GL.DEPTH_TEST)
+        GL.enable(GL.CULL_FACE)
+        GL.depthMask(false)
         GL.enable(GL.BLEND)
         GL.blendFunc(GL.ONE, GL.ONE)
 

@@ -1,5 +1,5 @@
 import { GL, Vector3 } from "@fwge/common";
-import { Scene, System, Transform } from "@fwge/core";
+import { System, Transform } from "@fwge/core";
 import { Collider, MeshCollider } from "@fwge/physics";
 import { Camera, ShaderAsset } from "@fwge/render";
 
