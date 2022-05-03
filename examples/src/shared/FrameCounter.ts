@@ -11,9 +11,9 @@ export class FrameCounter extends System
     Stop(): void {
         
     }
-    constructor(scene: Scene, private _el: HTMLElement)
+    constructor(private _el: HTMLElement)
     {
-        super(scene, { requiredComponents: [] })
+        super({ requiredComponents: [] })
     }
 
     override Update(delta: number): void

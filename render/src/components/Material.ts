@@ -97,11 +97,15 @@ export class Material extends SharedComponent
         return this._imageTexture !== null
     }
 
-    set ImageMap(src: string | null)
+    set ImageMap(src: string | null | WebGLTexture)
     {
         GL.deleteTexture(this._imageTexture)
 
-        if (src)
+        if (src instanceof WebGLTexture)
+        {
+            this._imageTexture = src
+        }
+        else if (src)
         {
             this._hasTransparency = src.includes('.png')
             this._imageTexture = GL.createTexture()
@@ -186,14 +190,15 @@ export class Material extends SharedComponent
             if (isPowerOf2(img.width) && isPowerOf2(img.height))
             {
                 GL.generateMipmap(GL.TEXTURE_2D)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
             }
             else
             {
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
             }
     
             GL.bindTexture(GL.TEXTURE_2D, null);

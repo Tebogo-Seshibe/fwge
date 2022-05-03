@@ -6,12 +6,13 @@ import { PhysicsSystem } from "@fwge/physics"
 import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, RenderTarget, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { FPSController } from "../../shared/FPSController"
+import { FrameCounter } from "../../shared/FrameCounter"
 import { basicShader, canvas, init, spherePrefab, sponza } from "./components"
 
 TypeMappers.set('FPSController', FPSController)
 TypeMappers.set('ColliderOutlineSystem', ColliderOutlineSystem)
 
-export function physicsInput(game: Game)
+export function physicsInput(game: Game, frameCounter: HTMLElement)
 {
     init()
 
@@ -20,18 +21,7 @@ export function physicsInput(game: Game)
     GL.canvas.height = 1080
     GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
 
-    console.log(new RenderTarget(
-    {
-        attachments: [
-            {
-                colour: {
-                    heigth: 1080, 
-                    width: 1920
-                },
-                depth: undefined
-            }
-        ]
-    }))
+    
     let fullscreen: boolean = false
     let mouseLocked: boolean = false
 
@@ -44,11 +34,13 @@ export function physicsInput(game: Game)
             min: -100,
             max: 100,
             step: 1,
-            renderGrid: true,
+            renderGrid: false,
             wireframe: false
         }))
         .UseSystem(new ParticleSystem())
         .UseSystem(new ColliderOutlineSystem())
+        .UseSystem(new FrameCounter(frameCounter))
+
 
     const player = scene.CreateEntity(FPSController,
     {
@@ -211,20 +203,39 @@ export function physicsInput(game: Game)
             }
         }
     })
-
+    
+    let x = 0
     scene.CreateEntity()
-        .AddComponent(new Transform(
-        {
-            position: [-28.75,3,9.75],
-            scale: [3,3,3]
-        }))
-        // .AddComponent(mat)
-        // .AddComponent(mesh)
+        .AddComponent(new Transform())
         .AddComponent(particles)
+        .AddComponent(new PointLight(
+        {
+            colour: new Colour4(1,0,0,1),
+            intensity: 10,
+            radius: 2 
+        }))
+        .AddComponent(new Script({
+            update(delta)
+            {
+                x += delta * 10
+                const radius = Math.sin(x) + 1
+                this.GetComponent(PointLight)!.Radius = radius
+                console.log(radius)
+            }
+        }))
+        .GetComponent(Transform)!
+            .Scale.Scale(3)
 
+    // scene.CreateEntity()
+    //     .AddComponent(new Transform(
+    //     {
+    //         position: [-28.75,3,9.75],
+    //         scale: [3,3,3]
+    //     }))
+    //     .AddComponent(mat)
+    //     .AddComponent(mesh)
+    //     .AddComponent(particles)
 
-    spherePrefab.Instance(scene)
-        .GetComponent(Transform)!.Scale.Scale(3)
 
     // const sponzaEntity = scene.CreateEntity()
     //     .AddComponent(new Transform({ scale: [ 3, 3, 3 ]}))

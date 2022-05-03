@@ -1,6 +1,6 @@
 import { GL } from "@fwge/common"
 
-enum DepthType
+export enum DepthType
 {
     INT16,
     INT24,
@@ -8,8 +8,7 @@ enum DepthType
 }
 interface IRenderAttachment
 {
-    heigth: number
-    width: number
+
 }
 
 interface IDepthAttachment extends IRenderAttachment
@@ -23,6 +22,8 @@ interface IColourAttachment extends IRenderAttachment
 
 interface IAttachment
 {
+    height: number
+    width: number
     colour: IColourAttachment | undefined,
     depth: IDepthAttachment | undefined
 }
@@ -59,51 +60,58 @@ export class RenderTarget
 {
 
     public readonly Framebuffer: WebGLFramebuffer
-    public readonly Textures: Array<WebGLTexture | undefined>
+    public readonly ColourTextures: Array<WebGLTexture | undefined> = new Array(8)
+    public readonly DepthStencilTextures: Array<WebGLTexture | undefined> = new Array(8)
 
     constructor(config: IRenderTarget)
     {
         this.Framebuffer = GL.createFramebuffer()!
-        this.Textures = new Array(config.attachments.length)
 
         for (let i = 0; i < config.attachments.length; ++i)
         {
+            const height = config.attachments[i].height ?? 256
+            const width = config.attachments[i].width ?? 256
             const colourAttachment = config.attachments[i].colour
             const depthAttachment = config.attachments[i].depth
 
-            let texture: WebGLTexture | undefined = undefined
-            
             if (colourAttachment)
             {
-                texture = GL.createTexture()!
-
+                const texture = GL.createTexture()!
                 GL.bindTexture(GL.TEXTURE_2D, texture)
-
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, colourAttachment.width, colourAttachment.heigth, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array(colourAttachment.width * colourAttachment.heigth * 4))
 
                 GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
-                GL.framebufferTexture2D(GL.FRAMEBUFFER, getAttachmentIndex(i), GL.TEXTURE_2D, texture, 0)
+                GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
                 GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-                GL.bindTexture(GL.TEXTURE_2D, null)
+
+                this.ColourTextures[i] = texture
             }
             
             if (depthAttachment)
             {  
+                // const depthStencilTexture = GL.createTexture()!
+                // GL.bindTexture(GL.TEXTURE_2D, depthStencilTexture)
+                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+                // GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array(width * height * 4))
+                // GL.bindTexture(GL.TEXTURE_2D, null)
+                
                 const renderBuffer = GL.createRenderbuffer()!
                 
-                GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
                 GL.bindRenderbuffer(GL.RENDERBUFFER, renderBuffer)
-                GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT, depthAttachment.width, depthAttachment.heigth)
-                GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, renderBuffer)
-                GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+                GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, width, height)
                 GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+
+                // this.DepthStencilTextures[i] = undefined
             }
-            
-            this.Textures[i] = texture
         }
+        
+        console.log(GL.checkFramebufferStatus(GL.FRAMEBUFFER) === GL.FRAMEBUFFER_COMPLETE)
+        console.log(this)
     }
 }

@@ -1,17 +1,25 @@
 import { GL, Vector2, Vector3 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
-import { ShaderAsset } from '../base'
-import { Camera, Material, Mesh, PointLight } from '../components'
+import { DepthType, RenderTarget, ShaderAsset } from '../base'
+import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
 export class MeshRenderSystem extends System
 {
-    private _screenVAO: WebGLVertexArrayObject | null = null
+    private _hasSampler: WebGLUniformLocation[] = new Array(8)
+    private _example!: RenderTarget
+ 
+    private _screenFramebuffer!: WebGLFramebuffer
+    private _screenTexture!: WebGLTexture
+    private _screenShader!: ShaderAsset
+    private _screenTransform: Transform = new Transform()
+    private _screenMesh!: StaticMesh
+    private _screenMaterial!: Material
+
     private _lights: Set<Light> = new Set()
     private _cameras: Set<Camera> = new Set()
     private _materials: Set<Material> = new Set()
-    private _screenShader: ShaderAsset | null = null
     private _wireframeShader: ShaderAsset | null = null
     private _gridShader: ShaderAsset | null = null
 
@@ -41,9 +49,52 @@ export class MeshRenderSystem extends System
 
     Init(): void
     {
-        this._buildScreenShader()
-        this._buildWireframeShader()
+        this._screenFramebuffer = GL.createFramebuffer()!
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this._screenFramebuffer)
 
+        this._screenTexture = GL.createTexture()!
+        GL.bindTexture(GL.TEXTURE_2D, this._screenTexture)
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1920, 1080, 0, GL.RGBA, GL.UNSIGNED_BYTE, null)
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, this._screenTexture, 0)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+
+        this._example = new RenderTarget(
+        {
+            attachments: [
+                ...new Array(7).fill(() => (
+                {
+                    height: 1080,
+                    width: 1920,
+                })),
+                {
+                    height: 1080,
+                    width: 1920,
+                    colour: { },
+                    depth: { type: DepthType.INT16 }
+                }
+            ]
+        })
+            
+        this._buildWireframeShader()
+        this._buildGridShader()
+        this._createRenderBatches()
+        this._buildScreenShader()
+
+        for (let i = 0; i < 8; ++i)
+        {
+            this._hasSampler[i] = GL.getUniformLocation(this._screenShader.Program!, `hasSampler[${i}]`)!
+        }
+        
+        this._screenMaterial.Shader = this._screenShader
+        console.log(this)
+    }
+
+    private _createRenderBatches()
+    {
         const transparent: Material[] = []
         for (const entity of this.entities)
         {
@@ -53,7 +104,7 @@ export class MeshRenderSystem extends System
             {
                 this._batches.set(material, [])
             }
-            
+
             this._batches.get(material)!.push(entity)
             if (material.Alpha === 1 && !material.HasTransparency)
             {
@@ -65,12 +116,14 @@ export class MeshRenderSystem extends System
             }
         }
         this._orderedBatches.push(...transparent)
-        
+    }
+
+    private _buildGridShader()
+    {
         this._gridShader = new ShaderAsset(
-        { 
-            vertexShader:
             {
-                source: `#version 300 es
+                vertexShader: {
+                    source: `#version 300 es
                 layout(location = 0) in vec3 A_Position;
 
                 struct Matrix
@@ -87,13 +140,12 @@ export class MeshRenderSystem extends System
                     V_Position = A_Position.xz;
                     gl_PointSize = 40.0;
                 }`,
-                input: []
-            },
-            fragmentShader:
-            {
-                source: `#version 300 es
+                    input: []
+                },
+                fragmentShader: {
+                    source: `#version 300 es
                 precision highp float;
-                
+
                 out vec4 colour;
                 vec2 V_Position;
                 void main()
@@ -108,15 +160,15 @@ export class MeshRenderSystem extends System
                     }
                     colour.rg = V_Position;
                 }`,
-                input: []
-            }
-        })
+                    input: []
+                }
+            })
     }
 
     private _buildWireframeShader()
     {
         this._wireframeShader = new ShaderAsset(
-        { 
+        {
             vertexShader:
             {
                 source: `#version 300 es
@@ -141,7 +193,7 @@ export class MeshRenderSystem extends System
             {
                 source: `#version 300 es
                 precision highp float;
-                
+
                 out vec4 colour;
                 void main()
                 {
@@ -155,18 +207,21 @@ export class MeshRenderSystem extends System
     private _buildScreenShader()
     {
         this._screenShader = new ShaderAsset(
-        { 
+        {
             vertexShader:
             {
                 source: `#version 300 es
                 layout(location = 0) in vec3 A_Position;
-                layout(location = 1) in vec2 A_UV;
+                layout(location = 1) in vec3 A_Normal;
+                layout(location = 2) in vec2 A_UV;
+                layout(location = 3) in vec3 A_Colour;
 
                 out vec2 V_UV;
                 void main()
                 {
                     V_UV =  A_UV;
-                    gl_Position = vec4(A_Position,  1.0);
+                    gl_PointSize = 50.0;
+                    gl_Position = vec4(A_Position, 1.0);
                 }`,
                 input: []
             },
@@ -174,42 +229,66 @@ export class MeshRenderSystem extends System
             {
                 source: `#version 300 es
                 precision highp float;
-                
+
+                uniform bool hasSampler[8];
+                uniform sampler2D Source[8];
+
+                in vec2 V_UV;
                 out vec4 colour;
                 void main()
                 {
-                    colour = vec4(1.0);
+                    colour = vec4(0.0);
+                    
+                    if (hasSampler[0]) colour += texture(Source[0], V_UV);
+                    if (hasSampler[1]) colour += texture(Source[1], V_UV);
+                    if (hasSampler[2]) colour += texture(Source[2], V_UV);
+                    if (hasSampler[3]) colour += texture(Source[3], V_UV);
+                    if (hasSampler[4]) colour += texture(Source[4], V_UV);
+                    if (hasSampler[5]) colour += texture(Source[5], V_UV);
+                    if (hasSampler[6]) colour += texture(Source[6], V_UV);
+                    if (hasSampler[7]) colour += texture(Source[7], V_UV);
                 }`,
                 input: []
             }
         })
 
-        const vertexbuffer = GL.createBuffer()
-        const indexBuffer = GL.createBuffer()
-        GL.bindBuffer(GL.ARRAY_BUFFER, vertexbuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
-        [
-            -0.5,  0.5,    0.0, 1.0,
-            -0.5, -0.5,    0.0, 0.0,
-             0.5, -0.5,    1.0, 0.0,
-             0.5,  0.5,    1.0, 1.0,
-        ]), GL.STATIC_DRAW)
-        GL.bindBuffer(GL.ARRAY_BUFFER, indexBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(
-        [
-            0, 1, 2,
-            0, 2, 3
-        ]), GL.STATIC_DRAW)
-
-        this._screenVAO = GL.createVertexArray()
-        GL.bindVertexArray(this._screenVAO)
-        GL.enableVertexAttribArray(0)
-        GL.vertexAttribPointer(0, Vector2.SIZE, GL.FLOAT, false, 16, 0)
-
-        GL.enableVertexAttribArray(1)
-        GL.vertexAttribPointer(1, Vector2.SIZE, GL.FLOAT, false, 16, 8)
-
-        GL.bindVertexArray(null)
+        this._screenMesh = new StaticMesh(
+        {
+            position: [
+                [-1.0,  1.0, 0.0 ],
+                [-1.0, -1.0, 0.0 ],
+                [ 1.0, -1.0, 0.0 ],
+                [-1.0,  1.0, 0.0 ],
+                [ 1.0, -1.0, 0.0 ],
+                [ 1.0,  1.0, 0.0 ],
+            ],
+            normal: [
+                [ 0.0, 0.0, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+            ],
+            uv: [
+                [ 0.0, 1.0 ],
+                [ 0.0, 0.0 ],
+                [ 1.0, 0.0 ],
+                [ 0.0, 1.0 ],
+                [ 1.0, 0.0 ],
+                [ 1.0, 1.0 ],
+            ],
+            colour: [
+                [ 1.0, 1.0, 1.0, 1.0 ],
+                [ 1.0, 1.0, 1.0, 1.0 ],
+                [ 1.0, 1.0, 1.0, 1.0 ],
+                [ 1.0, 1.0, 1.0, 1.0 ],
+                [ 1.0, 1.0, 1.0, 1.0 ],
+                [ 1.0, 1.0, 1.0, 1.0 ],
+            ]
+        })
+        
+        this._screenMaterial = new Material()
     }
 
     Start(): void { }
@@ -221,26 +300,31 @@ export class MeshRenderSystem extends System
         GL.disable(GL.BLEND)
         GL.enable(GL.CULL_FACE)
 
-        // GL.clearColor(1.0, 0.0, 0.0, 1.0)
-        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
         if (!Camera.Main)
         {
             return
         }
 
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
+        GL.clearColor(0,0,0,0)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        
         if (this.RenderGrid)
         {
             this._drawGrid()
         }
-
+        
         for (const material of this._orderedBatches)
         {
             const entityList = this._batches.get(material)!
-            const shader = material.Shader!
+            const shader = material.Shader
+            if (!shader) continue
 
             this._useShader(shader)
             this._bindLightUniforms(shader)
             this._bindMaterialUniforms(material, shader)
+            this._bindMaterialTexture(material, shader)
 
             for (const entity of entityList)
             {
@@ -249,22 +333,52 @@ export class MeshRenderSystem extends System
 
                 this._drawMesh(transform, mesh, shader)
             }
-            
-        }
-        GL.useProgram(null)
-        if (this.Wireframe)
-        {
-            this._useShader(this._wireframeShader!)
-            for (const entity of this.entities)
-            {
-                const transform = entity.GetComponent(Transform)!
-                const mesh = entity.GetComponent(Mesh)!
 
-                this._drawMeshWireframe(transform, mesh)
-            }
+            this._unbindMaterialTexture()
         }
+
+        // if (this.Wireframe)
+        // {
+        //     this._useShader(this._wireframeShader!)
+        //     for (const entity of this.entities)
+        //     {
+        //         const transform = entity.GetComponent(Transform)!
+        //         const mesh = entity.GetComponent(Mesh)!
+
+        //         this._drawMeshWireframe(transform, mesh)
+        //     }
+        // }
+
+        this._drawToScreen()
+        this._unbindMaterialTexture()
+        GL.useProgram(null)
     }
 
+    private _drawToScreen(): void
+    {
+        this._useShader(this._screenShader)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+
+        GL.clearColor(0,0,0,0)
+        GL.clear(GL.COLOR_BUFFER_BIT)
+        
+        for (let i = 0; i < this._example.ColourTextures.length; ++i)
+        {
+            const texture = this._example.ColourTextures[i]
+            if (texture)
+            {
+                GL.activeTexture(GL.TEXTURE0)
+                GL.bindTexture(GL.TEXTURE_2D, texture)
+                GL.uniform1i(this._hasSampler[i], 1)
+            }
+            else
+            {
+                GL.uniform1i(this._hasSampler[i], 0)
+            }
+        }
+
+        this._drawMesh(this._screenTransform, this._screenMesh, this._screenShader)
+    }
 
     private _drawGrid()
     {
@@ -295,7 +409,7 @@ export class MeshRenderSystem extends System
         GL.bindVertexArray(mesh.VertexArrayBuffer)
         GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(shader.Matrices!.Normal, false, transform.NormalMatrix)
-        
+
         if (mesh.IndexBuffer)
         {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
@@ -306,23 +420,23 @@ export class MeshRenderSystem extends System
             GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
         }
 
-        GL.bindVertexArray(null)
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+        GL.bindVertexArray(null)
     }
-    
+
     private _drawMeshWireframe(transform: Transform, mesh: Mesh): void
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer)
         GL.uniformMatrix4fv(this._wireframeShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
         GL.uniformMatrix3fv(this._wireframeShader!.Matrices!.Normal, false, transform.NormalMatrix)
-        
+
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
         GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)
 
         GL.bindVertexArray(null)
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
     }
-    
+
     private _useShader(shader: ShaderAsset)
     {
         GL.useProgram(shader.Program)
@@ -355,19 +469,16 @@ export class MeshRenderSystem extends System
         )
         GL.uniform1f(shader.Material!.Shininess, material.Shininess)
         GL.uniform1f(shader.Material!.Alpha, material.Alpha)
-        
+    }
+
+    private _bindMaterialTexture(material: Material, shader: ShaderAsset)
+    {
         if (material.ImageTexture)
         {
             GL.activeTexture(GL.TEXTURE0)
             GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
             GL.uniform1i(shader.Material!.HasImageMap, 1)
             GL.uniform1i(shader.Material!.ImageSampler, 0)
-        }
-        else
-        {
-            GL.uniform1i(shader.Material!.HasImageMap, 0)
-            GL.activeTexture(GL.TEXTURE0)
-            GL.bindTexture(GL.TEXTURE_2D, null)
         }
 
         if (material.NormalTexture)
@@ -376,11 +487,6 @@ export class MeshRenderSystem extends System
             GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
             GL.uniform1i(shader.Material!.BumpSampler, 0)
         }
-        else
-        {
-            GL.activeTexture(GL.TEXTURE1)
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
 
         if (material.SpecularTexture)
         {
@@ -388,11 +494,42 @@ export class MeshRenderSystem extends System
             GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
             GL.uniform1i(shader.Material!.SpecularSampler, 0)
         }
-        else
-        {
-            GL.activeTexture(GL.TEXTURE2)
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
+    }
+
+    private _unbindMaterialTexture()
+    {
+        GL.activeTexture(GL.TEXTURE0)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE1)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE2)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE3)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE4)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE5)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE6)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE7)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE8)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE9)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE10)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE11)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE12)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE13)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE14)
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.activeTexture(GL.TEXTURE15)
+        GL.bindTexture(GL.TEXTURE_2D, null)
     }
 
     private _bindLightUniforms(shader: ShaderAsset)
@@ -405,20 +542,20 @@ export class MeshRenderSystem extends System
                 const position = light.Owner!.GetComponent(Transform)!.Position
 
                 GL.uniform4f(
-                    shader.Lights![point_count].Colour, 
+                    shader.Lights![point_count].Colour,
                     light.Colour[0],
                     light.Colour[1],
                     light.Colour[2],
                     light.Colour[3],
                 )
-                
+
                 GL.uniform3f(
                     shader.Lights![point_count].Position,
                     position[0],
                     position[1],
                     position[2]
                 )
-                
+
                 GL.uniform1f(shader.Lights![point_count].Intensity, light.Intensity)
                 GL.uniform1f(shader.Lights![point_count].Radius, light.Radius)
 
@@ -436,7 +573,7 @@ export class MeshRenderSystem extends System
         {
             this._cameras.add(camera)
         }
-        
+
         const pointLight = entity.GetComponent(PointLight)
         if (pointLight && !this._lights.has(pointLight))
         {
