@@ -142,7 +142,7 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
         particle:
         {
             loop: true,
-            lifetime: 5,
+            lifetime: 1,
 
             position: new Vector3(0, 0, 0),
             rotation: new Vector3(0),
@@ -151,7 +151,7 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
 
             delay: (index: number, length: number) =>
             {
-                return index / length * 5
+                return index / length
             },
             updatePosition: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
             {
