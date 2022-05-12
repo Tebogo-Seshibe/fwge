@@ -1,13 +1,16 @@
-import { GL, lerp, remap, Vector3 } from "@fwge/common"
-import { Game, Script, ScriptSystem, Transform } from "@fwge/core"
+import { GL, lerp, radian, remap, Vector3 } from "@fwge/common"
+import { Class, Component, Constructor, Entity, Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { InputSystem, KeyState } from "@fwge/input"
 import { TypeMappers } from "@fwge/io"
-import { PhysicsSystem } from "@fwge/physics"
+import { PhysicsSystem, RigidBody } from "@fwge/physics"
 import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
+import { IsComponent } from "../../shared/IsComponent"
 import { FPSController } from "../../shared/FPSController"
 import { FrameCounter } from "../../shared/FrameCounter"
-import { basicShader, canvas, init, sponza } from "./components"
+import { GameObject } from "../../shared/GameObject"
+import { basicShader, canvas, init } from "./components"
+
 
 TypeMappers.set('FPSController', FPSController)
 TypeMappers.set('ColliderOutlineSystem', ColliderOutlineSystem)
@@ -134,28 +137,31 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
     const mat = new Material({ imagemap: '/img/fire.png' })
     mat.Shader = basicShader
 
-    const particles = new ParticleSpawner(
+    const shrink = new ParticleSpawner(
     {
-        size: 25,
-        mesh: mesh,
+        size: 100 * 4,
+        mesh: mesh, //sphere.GetComponent(Mesh)!,
         material: mat,
         particle:
         {
-            loop: true,
+            loop: false,
             lifetime: 1,
 
             position: new Vector3(0, 0, 0),
             rotation: new Vector3(0),
-            scale: new Vector3(0.25),
-            colour: new Colour4(1, 0, 1, 1),
+            scale: new Vector3(0.1),
+            colour: new Colour4(0, 0, 0, 0),
 
             delay: (index: number, length: number) =>
             {
-                return index / length
+                return Math.ceil((index + 1) / 100) * 0.25
             },
-            updatePosition: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
+            updatePosition: (_1: Vector3, outVec: Vector3, index: number, t: number) =>
             {
-                outVec.Set(0, lerp(t, 0, 1), 0)
+                const proportion = (index / 100) - Math.floor(index / 100)
+                const x = Math.cos(radian(360 * proportion))
+                const y = Math.sin(radian(360 * proportion))
+                outVec.Set(lerp(t, x, 0), lerp(t, y, 0), 0)
             },
             updateRotation: (_in: Vector3, outVec: Vector3, index: number, _t: number) =>
             {
@@ -164,7 +170,7 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
             },
             updateScale: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
             {
-                outVec.Set(lerp(t, 0.25, 1.00))
+                // outVec.Set(lerp(t, 0.25, 1.00))
             },
             updateColour: (_1: Colour4, outVec: Colour4, _3: number, t: number) =>
             {
@@ -175,7 +181,7 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
 
                 if (t < 0.25)
                 {
-                    outVec.Set(1, lerp(t1, 0, 1), lerp(t1, 0, 0), lerp(t1, 0.25, 0.75))
+                    outVec.Set(1, lerp(t1, 0, 1), lerp(t1, 0, 0), lerp(t1, 0, 0.75))
                 }
                 else if (t < 0.5)
                 {
@@ -183,64 +189,132 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
                 }
                 else if (t < 0.75)
                 {
-                    outVec.Set(lerp(t3, 1, 0), lerp(t3, 1, 0), lerp(t3, 1, 0), lerp(t3, 1, 0.5))
+                    outVec.Set(lerp(t3, 1, 0.5), lerp(t3, 1, 0.5), lerp(t3, 1, 0.5), lerp(t3, 1, 0.5))
                 }
                 else
                 {
-                    outVec.Set(0, 0, 0, lerp(t4, 0.5, 1.0))
+                    outVec.Set(0.5, 0.5, 0.5, lerp(t4, 0.5, 0.0))
                 }
             }
         }
     })
 
-    let x = 0
-    scene.CreateEntity()
-        .AddComponent(new Transform())
-        .AddComponent(particles)
-        .AddComponent(new PointLight(
-        {
-            colour: new Colour4(1,0,0,1),
-            intensity: 1,
-            radius: 2
-        }))
-        .AddComponent(new Script(
-        {
-            update(delta)
-            {
-                x += delta * (Math.random() * 10)
-                const radius = lerp(Math.abs(Math.sin(x)), 10, 10.5)
-                this.GetComponent(PointLight)!.Radius = radius
-            }
-        }))
-        .GetComponent(Transform)!.Scale.Scale(3)
-
-    sponza.Instance(scene).GetComponent(Transform)!.Scale.Scale(3)
-
-    // scene.CreateEntity()
-    //     .AddComponent(new Transform(
-    //     {
-    //         position: [-28.75,3,9.75],
-    //         scale: [3,3,3]
-    //     }))
-    //     .AddComponent(mat)
-    //     .AddComponent(mesh)
-    //     .AddComponent(particles)
-
-
-    // const sponzaEntity = scene.CreateEntity()
-    //     .AddComponent(new Transform({ scale: [ 3, 3, 3 ]}))
-    //     .AddComponent(particles)
-    // for (const [obj, mtl] of sponza.pairs)
+    // const particles = new ParticleSpawner(
     // {
-    //     sponzaEntity.AddChild(scene.CreateEntity()
-    //         .AddComponent(new Transform())
-    //         .AddComponent(sponza.obj[obj])
-    //         .AddComponent(sponza.mtl[mtl])
-    //     )
+    //     size: 25,
+    //     mesh: mesh,
+    //     material: mat,
+    //     particle:
+    //     {
+    //         loop: true,
+    //         lifetime: 1,
+
+    //         position: new Vector3(0, 0, 0),
+    //         rotation: new Vector3(0),
+    //         scale: new Vector3(0.25),
+    //         colour: new Colour4(1, 0, 1, 1),
+
+    //         delay: (index: number, length: number) =>
+    //         {
+    //             return index / length
+    //         },
+    //         updatePosition: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
+    //         {
+    //             outVec.Set(0, lerp(t, 0, 1), 0)
+    //         },
+    //         updateRotation: (_in: Vector3, outVec: Vector3, index: number, _t: number) =>
+    //         {
+    //             const y = Camera.Main?.Owner?.Parent?.GetComponent(Transform)?.Rotation.Y ?? 0
+    //             outVec.Set(0, (index % 3 === 0 ? 180 : 0) + y, index / 10 * 360)
+    //         },
+    //         updateScale: (_1: Vector3, outVec: Vector3, _2: number, t: number) =>
+    //         {
+    //             outVec.Set(lerp(t, 0.25, 1.00))
+    //         },
+    //         updateColour: (_1: Colour4, outVec: Colour4, _3: number, t: number) =>
+    //         {
+    //             const t1 = remap(t, 0.00, 0.25, 0, 1)
+    //             const t2 = remap(t, 0.25, 0.50, 0, 1)
+    //             const t3 = remap(t, 0.50, 0.75, 0, 1)
+    //             const t4 = remap(t, 0.75, 1.00, 0, 1)
+
+    //             if (t < 0.25)
+    //             {
+    //                 outVec.Set(1, lerp(t1, 0, 1), lerp(t1, 0, 0), lerp(t1, 0.25, 0.75))
+    //             }
+    //             else if (t < 0.5)
+    //             {
+    //                 outVec.Set(1, 1, 1, lerp(t2, 0.75, 1.0))
+    //             }
+    //             else if (t < 0.75)
+    //             {
+    //                 outVec.Set(lerp(t3, 1, 0), lerp(t3, 1, 0), lerp(t3, 1, 0), lerp(t3, 1, 0.5))
+    //             }
+    //             else
+    //             {
+    //                 outVec.Set(0, 0, 0, lerp(t4, 0.5, 1.0))
+    //             }
+    //         }
+    //     }
+    // })
+
+    // class Int32 extends Float32Array, Number{
+    //     constructor() { super([0]) }
     // }
 
-    // const scenes = GameLoader('', game)
-    // console.log({ scenes })
+    interface ObjectArgs
+    {
+        requirements?: Array<Class<Component>>
+    }
+    function Objecst(config?: ObjectArgs): ClassDecorator
+    {
+        return <TFunction extends Function>(target: TFunction, ...rest: any[]): void =>
+        {
+            
+        }
+    }
+    
+
+    class ParticleSources extends GameObject
+    {
+        private x: number = 0
+
+        @IsComponent(PointLight, { colour: new Colour4(1,0,0,1), radius: 2 })
+        private pointLight!: PointLight
+
+        @IsComponent(RigidBody)
+        private rigidBody!: RigidBody
+
+        @IsComponent(ParticleSpawner)
+        private shrink!: ParticleSpawner
+
+        override OnCreate()
+        {
+            super.OnCreate()
+            this.pointLight = new PointLight(
+            {
+                colour: new Colour4(1, 0, 0, 1),
+                intensity: 1,
+                radius: 2
+            })
+            this.transform.Position.Set(0, 2, 0)
+            this.transform.Scale.Scale(3)
+            this.shrink = shrink
+        }
+
+        override Start(): void
+        {
+            console.log(this)
+        }
+
+        override Update(delta: number): void
+        {         
+            this.x += delta
+            this.pointLight.Radius = lerp(Math.abs(Math.sin(this.x)), 10, 10.5)
+        }
+    }
+
+    // scene.CreateEntity(ParticleSources)
 
     return scene
 }

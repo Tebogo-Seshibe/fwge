@@ -1,6 +1,7 @@
 import { Entity } from "./Entity"
 import { Class, ComponentId, nextId } from "./Registry"
 
+let _typeId: number = 0
 export abstract class Component
 {
     public readonly Id: ComponentId
@@ -11,6 +12,10 @@ export abstract class Component
     constructor(type?: Class<Component>)
     {
         this.Type = type ?? new.target as Class<Component>
+        if (this.Type._typeId === undefined)
+        {
+            this.Type._typeId = _typeId++
+        }
         this.Id = nextId(this.Type)
     }
 

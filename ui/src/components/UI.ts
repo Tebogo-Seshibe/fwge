@@ -1,9 +1,9 @@
 import { UniqueComponent } from '@fwge/core'
 
-export class UIComponent extends UniqueComponent
+export class UI extends UniqueComponent
 {
     constructor()
     {
-        super()
+        super(UI)
     }
 }

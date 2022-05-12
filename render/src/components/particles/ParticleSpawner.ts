@@ -285,7 +285,5 @@ export class ParticleSpawner extends UniqueComponent
 
         GL.bindVertexArray(null)
         //#endregion ============= VERTEX ARRAY OBJECT SETUP =============
-
-        console.log(this)
     }
 }

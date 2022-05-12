@@ -121,4 +121,7 @@ export class Entity
 
         return this
     }
+
+    public OnCreate(): void { }
+    public OnDestroy(): void { }
 }

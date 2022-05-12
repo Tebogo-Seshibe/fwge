@@ -4,12 +4,6 @@ import { Component } from "../ecs/Component"
 import { Class, SceneId } from "../ecs/Registry"
 import { Scene } from "./Scene"
 
-interface IGame
-{
-    canvas?: HTMLCanvasElement
-    systems: Class<System>[]
-    components: Class<Component>[]
-}
 
 export class Game
 {
@@ -20,24 +14,6 @@ export class Game
     private _tickId?: number
     private _canvas?: HTMLCanvasElement
     // private _registry: Registry = new Registry()
-
-    constructor(args: IGame)
-    {
-        for (let i = 0; i < args.components.length; ++i)
-        {
-            args.components[i]._typeId = i
-        }
-
-        for (let i = 0; i < args.systems.length; ++i)
-        {
-            args.systems[i]._typeId = i
-        }
-        
-        if (args.canvas)
-        {
-            this.SetCanvas(args.canvas)
-        }
-    }
 
     public SetCanvas(canvas: HTMLCanvasElement): void
     {

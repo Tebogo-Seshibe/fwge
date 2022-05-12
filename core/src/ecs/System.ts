@@ -3,6 +3,7 @@ import { Component } from "./Component"
 import { Entity } from "./Entity"
 import { Class } from "./Registry"
 
+let _systemTypeId: number = 0
 interface ISystem
 {
     async?: boolean
@@ -33,7 +34,7 @@ export abstract class System
         return this._scene
     }
 
-    public set scene(newScene: Scene)
+    public setScene(newScene: Scene)
     {
         this._scene = newScene
     }
@@ -41,6 +42,10 @@ export abstract class System
     constructor(config: ISystem)
     {
         this.Type = new.target as Class<System>
+        if (this.Type._typeId === undefined)
+        {
+            this.Type._typeId = _systemTypeId++
+        }
         this._async = config.async ?? false
         this._tickRate = config.tickRate ?? 60
         this.requiredComponents = new Set(config.requiredComponents)

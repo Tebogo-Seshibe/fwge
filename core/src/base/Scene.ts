@@ -25,8 +25,7 @@ export class Scene
     {        
         for (const system of this._systems)
         {
-            system.scene = this
-            system.Reset()
+            system.setScene(this)
             for (const [, entity] of this._entities)
             {
                 system.OnUpdateEntity(entity)
@@ -57,6 +56,7 @@ export class Scene
         for (const system of this._systems)
         {
             system.onStop()
+            system.Reset()
         }
         this.running = false
     }
@@ -80,6 +80,7 @@ export class Scene
         const entity = constructor ? new constructor(this, ...args) : new Entity(this)
         this._entities.set(entity.Id, entity)
         this.OnEntity(entity)
+        entity.OnCreate()
 
         return entity as T
     }
@@ -101,6 +102,7 @@ export class Scene
         {
             this._entities.delete(entity.Id)
             this.OnEntity(entity)
+            entity.OnDestroy()
         }
     }
 

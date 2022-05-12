@@ -69,6 +69,11 @@ export class ParticleSystem extends System
                 continue
             }
 
+            if (!particleSpawner.ParticleConfig.Loop && particle.Lifetime === particleSpawner.ParticleConfig.Lifetime)
+            {
+                continue
+            }
+
             if (particleSpawner.ParticleConfig.Loop)
             {
                 particle.Lifetime += particle.Lifetime >= particleSpawner.ParticleConfig.Lifetime

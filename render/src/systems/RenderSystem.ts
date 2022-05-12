@@ -5,7 +5,7 @@ import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
-export class MeshRenderSystem extends System
+export class RenderSystem extends System
 {
     private _hasSampler: WebGLUniformLocation[] = new Array(8)
     private _example!: RenderTarget
@@ -90,6 +90,7 @@ export class MeshRenderSystem extends System
         }
         
         this._screenMaterial.Shader = this._screenShader
+        console.log(this)
     }
 
     private _createRenderBatches()
@@ -300,9 +301,9 @@ export class MeshRenderSystem extends System
             return
         }
 
-        // GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
-        // GL.clearColor(0,0,0,0)
-        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
+        GL.clearColor(0,0,0,0)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 
         if (this.RenderGrid)
@@ -373,7 +374,6 @@ export class MeshRenderSystem extends System
         for (let i = 0; i < this._example.ColourTextures.length; ++i)
         {
             const texture = this._example.ColourTextures[i]
-            // const texture = this._example.DepthStencilTextures[i]
             if (texture)
             {
                 GL.activeTexture(GL.TEXTURE0)

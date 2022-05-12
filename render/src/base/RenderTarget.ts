@@ -92,26 +92,21 @@ export class RenderTarget
             
             if (depthAttachment)
             {  
-                // const depthStencilTexture = GL.createTexture()!
-                // GL.bindTexture(GL.TEXTURE_2D, depthStencilTexture)
-                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-                // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                // GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array(width * height * 4))
-                // GL.bindTexture(GL.TEXTURE_2D, null)
+                const texture = GL.createTexture()!
+                GL.bindTexture(GL.TEXTURE_2D, texture)
+                GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT16, width, height, 0, GL.DEPTH_COMPONENT, GL.UNSIGNED_SHORT, null)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
                 
-                const renderBuffer = GL.createRenderbuffer()!
                 
-                GL.bindRenderbuffer(GL.RENDERBUFFER, renderBuffer)
-                GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, width, height)
-                GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+                GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
+                GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, texture, 0)
+                GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+                
 
-                // this.DepthStencilTextures[i] = undefined
+                this.DepthStencilTextures[i] = texture
             }
         }
-        
-        console.log(GL.checkFramebufferStatus(GL.FRAMEBUFFER) === GL.FRAMEBUFFER_COMPLETE)
-        console.log(this)
     }
 }

@@ -21,6 +21,8 @@
     "vite": "^2.8.0"
   },
   "dependencies": {
-    "path-browserify": "^1.0.1"
+    "@types/reflect-metadata": "^0.1.0",
+    "path-browserify": "^1.0.1",
+    "reflect-metadata": "^0.1.13"
   }
 }

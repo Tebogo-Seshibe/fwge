@@ -1,10 +1,5 @@
-import { AudioPlayer } from '@fwge/audio'
-import { Game, Scene, Script, ScriptSystem, Tag, Transform } from "@fwge/core"
-import { Input, InputSystem } from '@fwge/input'
-import { Collider, PhysicsSystem, RigidBody } from "@fwge/physics"
-import { Camera, Material, Mesh, ParticleSpawner, ParticleSystem, PointLight, MeshRenderSystem, Shader } from '@fwge/render'
+import { Game, Scene } from "@fwge/core"
 import { physicsInput } from './scenes'
-import { FrameCounter } from './shared/FrameCounter'
 import './style.css'
 
 const fpsCounter = document.querySelector<HTMLDivElement>('#fpsCounter')!
@@ -18,35 +13,8 @@ declare global
     }
 }
 
-const game: Game = new Game(
-{
-    canvas: canvas,
-    components:
-    [
-      Transform,
-      Mesh,
-      Material,
-      Shader,
-      Tag,
-      Script,
-      PointLight,
-      Camera,
-      Input,
-      RigidBody,
-      Collider,
-      AudioPlayer,
-      ParticleSpawner
-    ],
-    systems: 
-    [
-      InputSystem,
-      ScriptSystem,
-      MeshRenderSystem,
-      FrameCounter,
-      PhysicsSystem,
-      ParticleSystem
-    ]
-})
+const game: Game = new Game()
+game.SetCanvas(canvas)
 
 // const cameraControl: Scene = cameraControlScene(game, fpsCounter)
 // const sidescroller: Scene = sidescrollerScene(game, fpsCounter)
