@@ -3,13 +3,13 @@ import { Class, Component, Constructor, Entity, Game, Script, ScriptSystem, Tran
 import { InputSystem, KeyState } from "@fwge/input"
 import { TypeMappers } from "@fwge/io"
 import { PhysicsSystem, RigidBody } from "@fwge/physics"
-import { Camera, Colour4, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
+import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
 import { IsComponent } from "../../shared/IsComponent"
 import { FPSController } from "../../shared/FPSController"
 import { FrameCounter } from "../../shared/FrameCounter"
 import { GameObject } from "../../shared/GameObject"
-import { basicShader, canvas, init } from "./components"
+import { basicShader, canvas, cubeUVMaterial, init, sphere } from "./components"
 
 
 TypeMappers.set('FPSController', FPSController)
@@ -285,8 +285,11 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
         @IsComponent(RigidBody)
         private rigidBody!: RigidBody
 
-        @IsComponent(ParticleSpawner)
-        private shrink!: ParticleSpawner
+        @IsComponent(sphere.GetComponent(Mesh)!)
+        private mesh!: Mesh
+
+        @IsComponent(cubeUVMaterial)
+        private material!: Material
 
         override OnCreate()
         {
@@ -299,7 +302,6 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
             })
             this.transform.Position.Set(0, 2, 0)
             this.transform.Scale.Scale(3)
-            this.shrink = shrink
         }
 
         override Start(): void
@@ -314,7 +316,9 @@ export function physicsInput(game: Game, frameCounter: HTMLElement)
         }
     }
 
-    // scene.CreateEntity(ParticleSources)
+    console.log(
+        scene.CreateEntity(ParticleSources)
+    )
 
     return scene
 }

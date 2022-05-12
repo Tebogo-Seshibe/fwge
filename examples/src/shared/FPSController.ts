@@ -94,9 +94,9 @@ export class FPSController extends Entity
                     right.Scale(-1)
                 }
 
-                const movement = Vector3.Sum(forward, right).Normalize().Scale(movementSpeed * delta)
+                const movement = Vector3.Sum(forward, right).Normalize().Scale(movementSpeed)
 
-                this.transform.Position.Sum(movement)
+                this.transform.Position.Sum(movement.Scale(delta))
                 this.transform.Rotation.Set(rotation)
                 this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + (input.Mouse.Offset.Y * turnSpeed * delta), -80, 80)
                 

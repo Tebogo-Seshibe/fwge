@@ -1,7 +1,7 @@
 import { Prefab, Transform } from "@fwge/core";
 import { MTL, OBJ } from "../loader";
 
-export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab =>
+export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any, any> =>
 {
     const root = new Prefab().AddComponent(new Transform())
 

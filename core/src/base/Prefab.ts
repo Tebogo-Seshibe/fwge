@@ -17,10 +17,21 @@ export class Prefab<K extends Entity, V extends any[] | never>
     private _components: Map<TypeId, Component> = new Map()
     private _children: Prefab<Entity, any[]>[] = []    
     
-    constructor(
-        public readonly Type: Constructor<K, [Scene, ...V]> = Entity as Constructor<K, [Scene, ...any[]]>,
-        public readonly Args: V
-    ) { }
+    public readonly Type: Constructor<K, [Scene, ...V]> = Entity as Constructor<K, [Scene, ...any[]]>
+    public readonly Args: V
+
+    constructor()
+    constructor(entityType: Constructor<K, [Scene, ...V]>, ...entityArgs: V)
+    constructor(entityType?: Constructor<K, [Scene, ...V]>, ...entityArgs: V)
+    {
+        if (entityType)
+        {
+            this.Type = entityType
+        }
+
+        this.Args = entityArgs ?? []
+
+    }
 
     AddChild(prefab: Prefab<K, any[]>): Prefab<K, V>
     {
