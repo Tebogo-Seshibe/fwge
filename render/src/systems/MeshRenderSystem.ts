@@ -137,7 +137,6 @@ export class MeshRenderSystem extends System
                 {
                     gl_Position = U_Matrix.Projection * U_Matrix.View * vec4(A_Position,  1.0);
                     V_Position = A_Position.xz;
-                    gl_PointSize = 40.0;
                 }`,
                     input: []
                 },
@@ -149,15 +148,7 @@ export class MeshRenderSystem extends System
                 vec2 V_Position;
                 void main()
                 {
-                    if (V_Position.x == 0.0 || V_Position.y == 0.0)
-                    {
-                        colour = vec4(vec3(1.0), 1.0);
-                    }
-                    else
-                    {
-                        colour = vec4(vec3(0.3), 1.0);
-                    }
-                    colour.rg = V_Position;
+                    colour = vec4(1.0);
                 }`,
                     input: []
                 }

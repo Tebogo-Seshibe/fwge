@@ -12,8 +12,8 @@ export class Scene
     }
 
     private _context?: HTMLCanvasElement
-    private readonly _entities: Map<EntityId, Entity> = new Map()
-    private readonly _systems: System[] = []
+    private _entities: Map<EntityId, Entity> = new Map()
+    private _systems!: System[]
     private running: boolean = false
 
     constructor()
@@ -21,8 +21,10 @@ export class Scene
         this.Id = nextId(new.target)
     }
 
+    OnInit() { }
+    
     Init(): void
-    {        
+    {
         for (const system of this._systems)
         {
             system.setScene(this)
@@ -63,6 +65,11 @@ export class Scene
     
     UseSystem<T extends System>(system: T): Scene
     {
+        if (!this._systems)
+        {
+            this._systems = []
+        }
+
         this._systems.push(system)
         return this
     }

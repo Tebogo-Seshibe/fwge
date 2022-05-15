@@ -1,19 +1,17 @@
 import { CalcuateDelay, IDelay, setContext } from "@fwge/common"
-import { System } from "../ecs"
-import { Component } from "../ecs/Component"
-import { Class, SceneId } from "../ecs/Registry"
+import { SceneId } from "../ecs/Registry"
 import { Scene } from "./Scene"
 
 
 export class Game
 {
-    private _scenes: Scene[] = []
+    private _scenes!: Scene[]
     private _activeScene?: Scene
     private _currTick: number = -1
     private _prevTick: number = -1
     private _tickId?: number
     private _canvas?: HTMLCanvasElement
-    // private _registry: Registry = new Registry()
+    private _init: boolean = false
 
     public SetCanvas(canvas: HTMLCanvasElement): void
     {
@@ -28,12 +26,30 @@ export class Game
         setContext(gl)
     }
 
+    public OnInit() { }
+
     //#region Controls
     Start(): void
     {
+        if (!this._init)
+        {
+            this.OnInit()
+            this._init = true
+            
+            for (const scene of this._scenes)
+            {
+                scene.SetContext(this._canvas)
+            }
+        }
+
         if (!this._canvas)
         {
             throw new Error('No HTMLCanvasElement provided')
+        }
+
+        if (!this._scenes)
+        {
+            this._scenes = []
         }
 
         if (this._scenes.length === 0)
@@ -85,6 +101,10 @@ export class Game
     CreateScene()
     {
         const scene = new Scene()
+        if (!this._scenes)
+        {
+            this._scenes = []
+        }
         this._scenes.push(scene)
         scene.SetContext(this._canvas)
 
@@ -104,6 +124,10 @@ export class Game
             ? arg
             : arg.Id
 
+        if (!this._scenes)
+        {
+            this._scenes = []
+        }
         this._scenes = this._scenes.filter(scene =>
         {
             const isRemove = scene.Id !== sceneId

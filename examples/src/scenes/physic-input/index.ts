@@ -1,14 +1,14 @@
 import { GL, lerp, radian, remap, Vector3 } from "@fwge/common"
-import { Class, Component, Constructor, Entity, Game, Script, ScriptSystem, Transform } from "@fwge/core"
+import { Class, Component, Game, Script, ScriptSystem, Transform } from "@fwge/core"
 import { InputSystem, KeyState } from "@fwge/input"
 import { TypeMappers } from "@fwge/io"
 import { PhysicsSystem, RigidBody } from "@fwge/physics"
 import { Camera, Colour4, Material, Mesh, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, StaticMesh } from "@fwge/render"
 import { ColliderOutlineSystem } from "../../shared/ColliderOutlineSystem"
-import { IsComponent } from "../../shared/IsComponent"
 import { FPSController } from "../../shared/FPSController"
 import { FrameCounter } from "../../shared/FrameCounter"
 import { GameObject } from "../../shared/GameObject"
+import { IsComponent } from "../../shared/IsComponent"
 import { basicShader, canvas, cubeUVMaterial, init, sphere } from "./components"
 
 

@@ -17,7 +17,7 @@ export class Prefab<K extends Entity, V extends any[] | never>
     private _components: Map<TypeId, Component> = new Map()
     private _children: Prefab<Entity, any[]>[] = []    
     
-    public readonly Type: Constructor<K, [Scene, ...V]> = Entity as Constructor<K, [Scene, ...any[]]>
+    public readonly Type: Constructor<K, [Scene, ...V]> = Entity as Constructor<any, [Scene, ...any[]]>
     public readonly Args: V
 
     constructor()

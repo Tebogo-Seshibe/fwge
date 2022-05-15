@@ -4,6 +4,7 @@ import { Class, EntityId, nextId, TypeId } from './Registry'
 
 export class Entity
 {
+    private static Next: EntityId = 0
     public readonly Id: EntityId
 
     private _children: Entity[] = []
@@ -41,7 +42,7 @@ export class Entity
 
     constructor(private _scene: Scene)
     {
-        this.Id = nextId(new.target)
+        this.Id = Entity.Next++
     }
 
     public AddComponent<T extends Component>(component: T): Entity
