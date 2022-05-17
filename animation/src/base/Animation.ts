@@ -1,6 +1,6 @@
-import { lerp, Vector3 } from "../../../core/node_modules/@fwge/common/lib"
 import { Keyframe } from "./Keyframe"
-import { ValueGetter } from "./Transition"
+import { ValueGetter } from "./transitions"
+import { LinkedList } from "@fwge/common"
 
 export interface IAnimation
 {
@@ -9,23 +9,29 @@ export interface IAnimation
     keyframes: any[]
 }
 
+export interface AnimationFrame<T>
+{
+    KeyFrames: LinkedList<Keyframe<T>>
+    ValueGetter: ValueGetter<T>
+}
+
 export class Animation
 {
     index: number = 0
     lifetime: number = 0
+    totalLifetime: number = 0
     loop: boolean = false
-    keyframes: Map<string, Keyframe<any>[]> = new Map()
-    Keyframes: Map<string, Keyframe<any>[]> = new Map()
-    ValueGetters: Map<string, ValueGetter<any>> = new Map()
 
-    get totalLifetime(): number
+    AnimationFrames: Map<string, AnimationFrame<any>> = new Map()
+    CurrentKeyFrame: Map<string, Keyframe<any>> = new Map()
+
+    AddFrames<T>(field: string, frames: AnimationFrame<T>)
     {
-        const k = this.Keyframes.get('Position')!
-        return k.reduce((p, c) => p + c.Length, 0)
+        this.AnimationFrames.set(field, frames)
     }
 
     get Completed(): boolean
     {
-        return this.lifetime >= this.totalLifetime && !this.loop
+        return this.CurrentKeyFrame.size === 0 && !this.loop
     }
 }

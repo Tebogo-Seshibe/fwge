@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "@fwge/common": "file:../common",
-    "@fwge/core": "file:../core"
+    "@fwge/core": "file:../core",
+    "@fwge/render": "file:../render"
   }
 }

@@ -1,6 +1,5 @@
-import { clamp } from "@fwge/common"
-import { System } from "@fwge/core"
-import { Animation } from "../base"
+import { Entity, System } from "@fwge/core"
+import { Animation, Keyframe } from "../base"
 import { AnimationPlayer } from "../components"
 
 export class AnimationSystem extends System
@@ -21,47 +20,61 @@ export class AnimationSystem extends System
             const animationPlayer = entity.GetComponent(AnimationPlayer)!
             const animation = animationPlayer.CurrentAnimation
 
-            if (animation)
+            if (animation && !animation.Completed)
             {
-                animationPlayer.CurrentAnimation.lifetime += delta
-                if (!animationPlayer.CurrentAnimation.Completed)
-                {
-                    this.updateAnimation(animationPlayer.CurrentAnimation, delta)
-                }
-                
-                if (animation.lifetime >= animation.totalLifetime)
-                {
-                    animation.index = 0
-                    animation.lifetime = 0
-                }
+                this.updateAnimation(entity, animation, delta)
             }
         }
     }
 
-    private updateAnimation(animation: Animation, delta: number)
+    private updateAnimation(owner: Entity, animation: Animation, delta: number)
     {
-        let index = animation.index
-        let check = true
+        const removeList: string[] = []
+        const next: Map<string, Keyframe<any>> = new Map()
 
-        for (const [type, frames] of animation.Keyframes)
+        for (const [type, currFrame] of animation.CurrentKeyFrame)
         {
-            const currFrame = frames[animation.index]
-            const nextFrame = frames[animation.index + 1]
-            const valueGetter = animation.ValueGetters.get(type)!
+            const { KeyFrames, ValueGetter } = animation.AnimationFrames.get(type)!
+            const currIndex = KeyFrames.Find(currFrame)
+            const nextIndex = currIndex + 1 === KeyFrames.Count ? 0 : currIndex + 1
+            const nextFrame = KeyFrames.Get(nextIndex)!
 
-            currFrame.CurrentLifetime = clamp(currFrame.CurrentLifetime + delta, 0, currFrame.Length)
-            currFrame.Transition(currFrame.CurrentLifetime / currFrame.Length, currFrame.Value, nextFrame.Value, valueGetter())
-
-            if (check)
+            if (currIndex + 1 === KeyFrames.Count)
             {
-                if (currFrame.CurrentLifetime + delta > currFrame.Length)
+                if (!animation.loop)
                 {
-                    index = animation.index + 1
+                    removeList.push(type)
                 }
-                check = false
+                else
+                {
+                    nextFrame.CurrentLifetime = delta
+                    next.set(type, nextFrame)
+                }
+
+                continue
+            }            
+            
+            currFrame.CurrentLifetime += delta
+            
+            if (currFrame.CurrentLifetime >= currFrame.Length)
+            {
+                const offset = currFrame.CurrentLifetime - currFrame.Length
+
+                currFrame.CurrentLifetime = 0 
+                currFrame.Transition(1, currFrame.Value, nextFrame.Value, ValueGetter.call(owner))
+                
+                nextFrame.CurrentLifetime = offset                
+                next.set(type, nextFrame)
+            }
+            else
+            {
+                currFrame.Transition(currFrame.CurrentLifetime / currFrame.Length, currFrame.Value, nextFrame.Value, ValueGetter.call(owner))
             }
         }
-        
-        animation.index = index
+
+        removeList.forEach(remove => animation.CurrentKeyFrame.delete(remove))
+        next.forEach((keyframe, name) => animation.CurrentKeyFrame.set(name, keyframe))
     }
 }
+
+let check = false

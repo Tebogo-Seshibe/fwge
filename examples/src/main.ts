@@ -1,3 +1,4 @@
+import { SingleLinkedList } from "@fwge/common"
 import { Game, Scene } from "@fwge/core"
 import { physicsInput } from './scenes'
 import './style.css'
@@ -27,3 +28,12 @@ document.onpointerlockerror = console.log
 document.onfullscreenchange = console.log
 document.onfullscreenerror = console.log
 window.game = game
+
+
+let numberList = new SingleLinkedList<number>()
+numberList.Add(0)
+numberList.Add(1)
+numberList.Add(2)
+numberList.Add(3)
+numberList.Add(4)
+console.log(numberList.toString())
