@@ -61,14 +61,14 @@ export class AnimationSystem extends System
                 const offset = currFrame.CurrentLifetime - currFrame.Length
 
                 currFrame.CurrentLifetime = 0 
-                currFrame.Transition(1, currFrame.Value, nextFrame.Value, ValueGetter.call(owner))
+                currFrame.Transition(1, currFrame.Value, nextFrame.Value, ValueGetter(owner))
                 
                 nextFrame.CurrentLifetime = offset                
                 next.set(type, nextFrame)
             }
             else
             {
-                currFrame.Transition(currFrame.CurrentLifetime / currFrame.Length, currFrame.Value, nextFrame.Value, ValueGetter.call(owner))
+                currFrame.Transition(currFrame.CurrentLifetime / currFrame.Length, currFrame.Value, nextFrame.Value, ValueGetter(owner))
             }
         }
 

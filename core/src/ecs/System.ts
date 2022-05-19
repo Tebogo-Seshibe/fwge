@@ -10,6 +10,7 @@ interface ISystem
     tickRate?: number
     requiredComponents: Class<Component>[]
 }
+
 export abstract class System
 {
     public readonly Type: Class<System>

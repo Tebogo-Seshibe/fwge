@@ -27,6 +27,11 @@ export class Entity
             this._parent = newParent
         }
     }
+
+    public get Scene(): Scene
+    {
+        return this._scene
+    }
     
     public get Children(): Entity[]
     {

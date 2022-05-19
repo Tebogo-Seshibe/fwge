@@ -1,20 +1,18 @@
 import { Scene } from "../base"
 import { Class, Entity, System } from "../ecs"
 
-
 export interface SceneConfig
 {
     systems: Class<System>[]
     entities: Class<Entity>[]
 }
 
-export function FWGEScene(config: SceneConfig): ClassDecorator
+export function FWGEScene(config: SceneConfig)
 {
-    return function <TFunction extends Function>(target: TFunction): void
+    return function (target: Class<Scene>): void
     {        
-        const OnInit = Reflect.get(target.prototype, 'OnInit') as Function
-        delete target.prototype['OnInit']
-        Reflect.set(target.prototype, 'OnInit', function (this: Scene)
+        const Init = target.prototype['Init'] as (this: Scene) => void
+        target.prototype['Init'] = function (this: Scene)
         {           
             if (!this['_systems'])
             {
@@ -34,11 +32,10 @@ export function FWGEScene(config: SceneConfig): ClassDecorator
             for (const entity of config.entities)
             {
                 const newEntity = new entity(this)
-                newEntity.OnCreate()
                 this['_entities'].set(newEntity.Id, newEntity)
             }
 
-            OnInit()
-        })
+            Init.apply(this)
+        }
     }
 }

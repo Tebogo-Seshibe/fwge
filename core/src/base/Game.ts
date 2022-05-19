@@ -1,166 +1,131 @@
-import { CalcuateDelay, IDelay, setContext } from "@fwge/common"
-import { SceneId } from "../ecs/Registry"
+import { IDelay, setContext } from "@fwge/common"
+import { SharedComponent } from "../ecs"
+import { Class, SceneId, TypeId } from "../ecs/Registry"
 import { Scene } from "./Scene"
 
-
-export class Game
+export abstract class Game
 {
-    private _scenes!: Scene[]
-    private _activeScene?: Scene
+    //#region Fields
+    private _library: Map<TypeId, Map<string, SharedComponent>> = new Map()
+    private _scenesIds: Map<Class<Scene>, SceneId> = new Map()
+    private _scenes: Map<SceneId, Scene> = new Map()
+    private _activeScene: Scene | undefined = undefined
+
     private _currTick: number = -1
     private _prevTick: number = -1
-    private _tickId?: number
-    private _canvas?: HTMLCanvasElement
-    private _init: boolean = false
+    private _tickId: number | undefined = undefined
 
-    public SetCanvas(canvas: HTMLCanvasElement): void
+    private _init: boolean = false
+    private _delayId: number | undefined = undefined
+    //#endregion
+    
+    private init(canvas: HTMLCanvasElement)
     {
         const gl = canvas.getContext('webgl2', { alpha: true, antialias: true })
         if (!gl)
         {
             throw new Error('No WebGL context could be generated!')
         }
-
-        this._canvas = canvas
-
         setContext(gl)
     }
 
-    public OnInit() { }
+    public Init(): void
+    {
+        for (const [ , scene ] of this._scenes)
+        {
+            scene.Init()
+        }
+    }
 
-    //#region Controls
-    Start(): void
+    public Start(): void
+    public Start(delay: IDelay): void
+    public Start(delay: IDelay = { }): void
+    {
+        // this._delayId = window.setTimeout(() => this._start(), CalcuateDelay(delay))
+        this._start()
+    }
+    
+    public Stop(): void
+    public Stop(delay: IDelay): void
+    public Stop(delay: IDelay = { }): void
+    {
+        // window.setTimeout(() => this._stop(), CalcuateDelay(delay))
+        this._stop()
+    }
+
+    //#region Private Methods
+    private _start()
     {
         if (!this._init)
         {
-            this.OnInit()
+            this.Init()
             this._init = true
-            
-            for (const scene of this._scenes)
-            {
-                scene.SetContext(this._canvas)
-            }
-        }
-
-        if (!this._canvas)
-        {
-            throw new Error('No HTMLCanvasElement provided')
-        }
-
-        if (!this._scenes)
-        {
-            this._scenes = []
-        }
-
-        if (this._scenes.length === 0)
-        {
-            console.warn('No scenes to run')
         }
 
         if (!this._activeScene)
         {
-            this._activeScene = this._scenes.first()
+            this._tickId = window.requestAnimationFrame(() => this._start())
         }
 
         this._prevTick = Date.now()
         this._currTick = Date.now()
-
-        this._activeScene?.Init()
         this._activeScene?.Start()
 
-        this._tickId = window.requestAnimationFrame(() => this.Update(0))
+        this._tickId = window.requestAnimationFrame(() => this._update(0))
     }
     
-    private Update(delta: number): void
+    private _update(delta: number): void
     {
         this._activeScene?.Update(delta)
         
         this._prevTick = this._currTick
         this._currTick = Date.now()
         
-        this._tickId = window.requestAnimationFrame(() => this.Update((this._currTick - this._prevTick) / 1000))
+        this._tickId = window.requestAnimationFrame(() => this._update((this._currTick - this._prevTick) / 1000))
     }
     
-    Stop(): void
-    Stop(delay: IDelay): void
-    Stop(arg: IDelay = {}): void
-    {
-        setTimeout(() =>
-        {
-            if (this._tickId !== undefined)
-            {
-                window.cancelAnimationFrame(this._tickId)
-                this._activeScene?.Stop()
-                this._tickId = undefined
-            }
-        }, CalcuateDelay(arg))
-    }
-    //#endregion
-
-    //#region Scene
-    CreateScene()
-    {
-        const scene = new Scene()
-        if (!this._scenes)
-        {
-            this._scenes = []
-        }
-        this._scenes.push(scene)
-        scene.SetContext(this._canvas)
-
-        return scene
-    }
-
-    GetScene(sceneId: SceneId): Scene | undefined
-    {
-        return this._scenes.find(scene => scene.Id === sceneId)
-    }
-
-    RemoveScene(index: SceneId): void
-    RemoveScene(scene: Scene): void
-    RemoveScene(arg: Scene | SceneId): void
-    {
-        const sceneId = typeof arg === 'number'
-            ? arg
-            : arg.Id
-
-        if (!this._scenes)
-        {
-            this._scenes = []
-        }
-        this._scenes = this._scenes.filter(scene =>
-        {
-            const isRemove = scene.Id !== sceneId
-            if (isRemove)
-            {
-                scene.SetContext()
-            }
-            return isRemove
-        })
-    }
-
-    SetActiveScene(index: SceneId): void
-    SetActiveScene(scene: Scene): void
-    SetActiveScene(arg: Scene | SceneId): void
+    private _stop()
     {        
-        const scene = typeof arg === 'number'
-            ? this._scenes.find(x => x.Id === arg)
-            : this._scenes.find(x => x.Id === arg.Id)
-
-        if (scene)
+        if (this._delayId !== undefined)
         {
-            this._activeScene = scene
+            window.clearTimeout(this._delayId)
         }
+
+        if (this._tickId !== undefined)
+        {
+            window.cancelAnimationFrame(this._tickId)
+        }
+
+        this._activeScene?.Stop()
+        this._tickId = undefined
     }
     //#endregion
 
-    static Save(game: Game): void
+    public SetScene(sceneType: Class<Scene>): void
+    public SetScene(sceneId: SceneId): void
+    public SetScene(scene: Class<Scene> | SceneId): void
     {
-
+        if (typeof scene !== 'number')
+        {
+            scene = this._scenesIds.get(scene) as SceneId
+        }
+        
+        if (this._scenes.has(scene))
+        {
+            this.Stop()
+            this._activeScene = this._scenes.get(scene)!
+        }
     }
 
-    static Load(): void
+    public AddToLibrary<T extends SharedComponent>(name: string, component: T): void
     {
-        
+        const library = this._library.get(component.Type._typeId!) ?? new Map()
+        library.set(name, component)
+        this._library.set(component.Type._typeId!, library)
+    }
+
+    public GetFromLibrary<T extends SharedComponent>(type: Class<T>, name: string): SharedComponent | undefined
+    {
+        return this._library.get(type._typeId!)?.get(name)
     }
 }

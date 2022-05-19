@@ -15,12 +15,21 @@ export interface TypeAndId
 export type Class<T> = 
 {
     new (...args: any[]): T
+    prototype: Partial<T>
 } & TypeAndId
 
-export type Constructor<T, U extends any[]> = 
+export type Constructor<T, U extends ConstructorParameters<Class<T>>> =
 {
     new (...args: U): T
+    prototype: Partial<T>
 } & TypeAndId
+
+
+export interface ConstructorArgs<T, K extends any[] = [], U = Constructor<T, K>>
+{
+    Constructor: U
+    args?: K
+}
 
 export const nextId = <T>(_class: Class<T>): EntityId => 
 { 

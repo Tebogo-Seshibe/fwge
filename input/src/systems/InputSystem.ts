@@ -1,3 +1,4 @@
+import { GL } from "@fwge/common"
 import { System } from "@fwge/core"
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
 import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
@@ -15,12 +16,11 @@ export class InputSystem extends System
         super({ requiredComponents: [ Input ] })
     }
 
-    public Init(): void
-    {
-        
-        this._keyboard = new KeyboardInputHandler(this.scene.Context!)
-        this._mouse = new MouseInputHandler(this.scene.Context!)
-        this._controllers = new ControllerInputHandler(this.scene.Context!)
+    Init(): void
+    {        
+        this._keyboard = new KeyboardInputHandler(GL.canvas)
+        this._mouse = new MouseInputHandler(GL.canvas)
+        this._controllers = new ControllerInputHandler(GL.canvas)
     }
     
     Start(): void        
@@ -31,12 +31,12 @@ export class InputSystem extends System
     }
 
     Update(delta: number): void
-    {    
+    {   
         for (const entity of this.entities)
         {
-            const inputComponent = entity.GetComponent(Input)!
+            const { OnInput } = entity.GetComponent(Input)!
 
-            inputComponent.OnInput.call(entity,
+            OnInput.call(entity,
             {
                 Keyboard: this._keyboard.State,
                 Mouse: this._mouse.State,

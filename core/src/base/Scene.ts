@@ -1,30 +1,37 @@
 import { Entity } from "../ecs/Entity"
-import { Constructor, EntityId, nextId, SceneId } from "../ecs/Registry"
+import { Constructor, EntityId, SceneId } from "../ecs/Registry"
 import { System } from "../ecs/System"
+import { Game } from "./Game"
 
-export class Scene
+let SceneIds: SceneId = 0
+
+export abstract class Scene
 {
-    public readonly Id: SceneId
+    public readonly Id: SceneId = SceneIds++
     
-    public get Context()
-    {
-        return this._context
-    }
-
-    private _context?: HTMLCanvasElement
+    private _game!: Game
     private _entities: Map<EntityId, Entity> = new Map()
-    private _systems!: System[]
-    private running: boolean = false
+    private _systems: System[] = []
+    private _running: boolean = false
+    // private _init: boolean = false
 
-    constructor()
+    public set Game(game: Game)
     {
-        this.Id = nextId(new.target)
+        this._game = game
     }
 
-    OnInit() { }
-    
-    Init(): void
+    public get Game(): Game
     {
+        return this._game
+    }
+    
+    public Init(): void
+    {
+        for (const [ , entity] of this._entities)
+        {
+            entity.OnCreate()
+        }
+
         for (const system of this._systems)
         {
             system.setScene(this)
@@ -36,16 +43,19 @@ export class Scene
         }
     }
     
-    Start(): void
+    public Start(): void
     {
-        this.running = true
-        for (const system of this._systems)
+        if (!this._running)
         {
-            system.onStart()
+            this._running = true
+            for (const system of this._systems)
+            {
+                system.onStart()
+            }
         }
     }
 
-    Update(delta: number): void
+    public Update(delta: number): void
     {
         for (const system of this._systems)
         {
@@ -53,36 +63,23 @@ export class Scene
         }
     }
 
-    Stop(): void
+    public Stop(): void
     {
-        for (const system of this._systems)
+        if (this._running)
         {
-            system.onStop()
-            system.Reset()
+            for (const system of this._systems)
+            {
+                system.onStop()
+                system.Reset()
+            }
+            this._running = false
         }
-        this.running = false
-    }
-    
-    UseSystem<T extends System>(system: T): Scene
-    {
-        if (!this._systems)
-        {
-            this._systems = []
-        }
-
-        this._systems.push(system)
-        return this
-    }
-    
-    SetContext(canvas?: HTMLCanvasElement): void
-    {
-        this._context = canvas
     }
     
     //#region Entity Logic
-    CreateEntity(): Entity
-    CreateEntity<T extends Entity, K extends any[]>(constructor: Constructor<T, [Scene, ...K]>, ...args: K): T
-    CreateEntity<T extends Entity, K extends any[]>(constructor?: Constructor<T, [Scene, ...K]>, ...args: K): T
+    public CreateEntity(): Entity
+    public CreateEntity<T extends Entity, K extends any[]>(constructor: Constructor<T, [Scene, ...K]>, ...args: K): T
+    public CreateEntity<T extends Entity, K extends any[]>(constructor?: Constructor<T, [Scene, ...K]>, ...args: K): T
     {
         const entity = constructor ? new constructor(this, ...args) : new Entity(this)
         this._entities.set(entity.Id, entity)
@@ -92,14 +89,14 @@ export class Scene
         return entity as T
     }
 
-    GetEntity(entityId: EntityId): Entity | undefined
+    public GetEntity(entityId: EntityId): Entity | undefined
     {
         return this._entities.get(entityId)
     }
 
-    RemoveEntity(entityId: EntityId): void
-    RemoveEntity(entity: Entity): void
-    RemoveEntity(arg: EntityId | Entity): void
+    public RemoveEntity(entityId: EntityId): void
+    public RemoveEntity(entity: Entity): void
+    public RemoveEntity(arg: EntityId | Entity): void
     {
         const entity = typeof arg === 'number'
             ? this.GetEntity(arg)
@@ -113,9 +110,9 @@ export class Scene
         }
     }
 
-    OnEntity(entity: Entity): void
+    public OnEntity(entity: Entity): void
     {
-        if (this.running)
+        if (this._running)
         {
             for (const system of this._systems)
             {
