@@ -14,6 +14,7 @@ export function FWGEComponent<K extends Component, V extends any[]>(arg: K |  Co
         
         entity['OnCreate'] = function ()
         {
+            console.log(this)
             let component: K | undefined = undefined
             
             if (args && typeof args === 'string' && arg instanceof Function)

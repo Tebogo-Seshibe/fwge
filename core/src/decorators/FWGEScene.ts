@@ -35,6 +35,7 @@ export function FWGEScene(config: SceneConfig)
                 this['_entities'].set(newEntity.Id, newEntity)
             }
 
+            console.log(Init)
             Init.apply(this)
         }
     }

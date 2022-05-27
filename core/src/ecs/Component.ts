@@ -27,7 +27,7 @@ export abstract class SharedComponent extends Component
 {
     private _owners: Entity[] = []
 
-    public get Owners(): Entity[] | undefined
+    public get Owners(): Entity[]
     {
         return this._owners
     }

@@ -92,11 +92,11 @@ export class PhysicsSystem extends System
         const colliderA = entityA.GetComponent(Collider)!
         const colliderB = entityB.GetComponent(Collider)!
         const positionA = Vector3.Sum(
-            colliderA.Owner!.GetComponent(Transform)!.Position,
+            entityA!.GetComponent(Transform)!.Position,
             colliderA.Position
         )
         const positionB = Vector3.Sum(
-            colliderB.Owner!.GetComponent(Transform)!.Position,
+            entityB!.GetComponent(Transform)!.Position,
             colliderB.Position
         )        
         

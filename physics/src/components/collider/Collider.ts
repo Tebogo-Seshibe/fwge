@@ -1,9 +1,9 @@
 import { Vector3 } from "@fwge/common"
-import { Entity, UniqueComponent } from "@fwge/core"
+import { Entity, SharedComponent, Transform } from "@fwge/core"
 
-export class Collider extends UniqueComponent
+export class Collider extends SharedComponent
 {
-    public findFurthest(direction: Vector3): Vector3 { return Vector3.ZERO }
+    public findFurthest(transform: Transform, direction: Vector3): Vector3 { return Vector3.ZERO }
     
     constructor(
         public Position: Vector3,

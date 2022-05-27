@@ -17,7 +17,7 @@ export class InputSystem extends System
     }
 
     Init(): void
-    {        
+    {
         this._keyboard = new KeyboardInputHandler(GL.canvas)
         this._mouse = new MouseInputHandler(GL.canvas)
         this._controllers = new ControllerInputHandler(GL.canvas)
@@ -25,6 +25,13 @@ export class InputSystem extends System
     
     Start(): void        
     {
+        if (!this._keyboard)
+            this._keyboard = new KeyboardInputHandler(GL.canvas)
+        if (!this._mouse)
+            this._mouse = new MouseInputHandler(GL.canvas)
+        if (!this._controllers)
+            this._controllers = new ControllerInputHandler(GL.canvas)
+
         this._keyboard.Start()
         this._mouse.Start()
         this._controllers.Start()

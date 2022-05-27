@@ -56,15 +56,15 @@ export abstract class Game
     //#region Private Methods
     private _start()
     {
+        if (!this._activeScene)
+        {
+            this._tickId = window.requestAnimationFrame(() => this._start())
+        }
+
         if (!this._init)
         {
             this.Init()
             this._init = true
-        }
-
-        if (!this._activeScene)
-        {
-            this._tickId = window.requestAnimationFrame(() => this._start())
         }
 
         this._prevTick = Date.now()

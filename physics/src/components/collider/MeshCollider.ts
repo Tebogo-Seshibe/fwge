@@ -25,56 +25,37 @@ export class MeshCollider extends Collider
     private _calculatedVertices: Vector3[] = []
     private _calculatedBuffer: Float32Array = new Float32Array()
 
-    private _recalculateVertices()
+    public CalculatedVertices(transform: Transform): [Float32Array, Vector3[]]
     {
         const mv: Matrix4 = Matrix4.IDENTITY
-        const transform = this.Owner?.GetComponent(Transform)
-        if (transform)
-        {
-            transform.Position.Sum(this.Position)
-            mv.Set(transform.ModelViewMatrix).Transpose()
-            transform.Position.Diff(this.Position)
-        }
+        const buffer = new Float32Array(this._calculatedVertices.length)
+        const vertices = new Array<Vector3>(this._calculatedBuffer.length)
+
+        transform.Position.Sum(this.Position)
+        mv.Set(transform.ModelViewMatrix).Transpose()
+        transform.Position.Diff(this.Position)
 
         let offset = 0
         this.Vertices.forEach((vert, index) =>
         {
             const vertex = Matrix4.MultVector(mv, new Vector4(vert[0], vert[1], vert[2], 1.0))
 
-            this._calculatedVertices[index][0] = vertex[0] + this.Position[0]
-            this._calculatedVertices[index][1] = vertex[1] + this.Position[1]
-            this._calculatedVertices[index][2] = vertex[2] + this.Position[2]
-            this._calculatedBuffer[offset + 0] = this._calculatedVertices[index][0]
-            this._calculatedBuffer[offset + 1] = this._calculatedVertices[index][1]
-            this._calculatedBuffer[offset + 2] = this._calculatedVertices[index][2]
+            vertices[index][0] = vertex[0] + this.Position[0]
+            vertices[index][1] = vertex[1] + this.Position[1]
+            vertices[index][2] = vertex[2] + this.Position[2]
+            buffer[offset + 0] = vertices[index][0]
+            buffer[offset + 1] = vertices[index][1]
+            buffer[offset + 2] = vertices[index][2]
 
             offset += 3
         })
+
+        return [buffer, vertices]
     }
 
-    public get CalculatedVertices(): Vector3[]
+    public override findFurthest(transform: Transform, direction: Vector3): Vector3
     {
-        if (this.Owner?.GetComponent(Transform)?.Dirty || this.Position.Dirty)
-        {
-            this._recalculateVertices()
-        }
-
-        return this._calculatedVertices
-    }
-
-    public get CalculatedBuffer(): Float32Array
-    {
-        if (this.Owner?.GetComponent(Transform)?.Dirty || this.Position.Dirty)
-        {
-            this._recalculateVertices()
-        }
-
-        return this._calculatedBuffer
-    }
-
-    public override findFurthest(direction: Vector3): Vector3
-    {
-        const points = this.CalculatedVertices
+        const [, points] = this.CalculatedVertices(transform)
         let maxPoint!: Vector3
         let maxDot: number = Number.NEGATIVE_INFINITY
 
