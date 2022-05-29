@@ -26,14 +26,7 @@ export function FWGEScene(config: SceneConfig)
 
             for (const SystemConstructor of config.systems)
             {
-                const system = new SystemConstructor()
-                
-                if ('_materials' in system)
-                {
-                    console.log(system)
-                    console.log(system.Init)
-                }
-                
+                const system = new SystemConstructor()                
                 this['_systems'].push(system)
             }
 

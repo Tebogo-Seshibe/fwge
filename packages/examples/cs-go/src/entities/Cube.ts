@@ -1,4 +1,5 @@
 import { FWGEComponent } from "@fwge/core"
+import { SphereCollider } from "@fwge/physics"
 import { Material, StaticMesh } from "@fwge/render"
 import { GameObject } from "./GameObject"
 
@@ -9,4 +10,13 @@ export class Cube extends GameObject
     
     @FWGEComponent(Material, 'BasicMaterial')
     public material!: Material
+
+    @FWGEComponent(new SphereCollider())
+    public sphereCollider!: SphereCollider
+
+    OnCreate(): void {
+        super.OnCreate()
+
+        this.transform.Position.Y = 0.5
+    }
 }

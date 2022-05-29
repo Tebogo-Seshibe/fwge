@@ -1,9 +1,10 @@
 import { clamp, Matrix4, Rotation, Vector3, Vector4 } from "@fwge/common"
 import { Entity, FWGEComponent, Scene, Transform } from "@fwge/core"
 import { IInputArgs, Input, KeyState } from "@fwge/input"
-import { MeshCollider } from "@fwge/physics"
+import { SphereCollider } from "@fwge/physics"
 import { Camera } from "@fwge/render"
-import { cubeCollier } from "../components/Colliders"
+import { createCube } from "../components"
+import { createBasicMaterial } from "../components/Materials"
 
 type OnInput = (args: IInputArgs, delta: number) => void
 
@@ -35,11 +36,8 @@ export class FPSController extends Entity
     public readonly turnSpeed: number    
     
     
-    @FWGEComponent(new Transform())
+    @FWGEComponent(new Transform({ position: [ 0, 0, 5 ]}))
     transform!: Transform
-
-    @FWGEComponent(MeshCollider)
-    collider!: MeshCollider
 
     constructor(private scene: Scene, args: FPSControllerConfig = { })
     {
@@ -61,7 +59,6 @@ export class FPSController extends Entity
         super.OnCreate()
         
         Camera.Main = this.camera
-        this.collider = cubeCollier()
         this.AddComponent(new Input(
         {
             onInput: (input, delta) =>
@@ -115,6 +112,14 @@ export class FPSController extends Entity
             this.scene.CreateEntity()
             .AddComponent(this.cameraTransform)
             .AddComponent(this.camera)
+        )
+
+        this.AddChild(
+            this.scene.CreateEntity()
+                .AddComponent(new Transform({ position: [0,0.5,-1] }))
+                .AddComponent(createCube())
+                .AddComponent(createBasicMaterial())
+                .AddComponent(new SphereCollider({ radius: 1 }))
         )
     }
 }

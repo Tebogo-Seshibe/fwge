@@ -2,6 +2,7 @@
     "name": "fwge",
     "private": true,
     "scripts": {
+        "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",
         "cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
     },

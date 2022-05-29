@@ -5,10 +5,12 @@
         "outDir": "./lib",
     },
     "references": [
+        { "path": "../animation" },
         { "path": "../audio" },
         { "path": "../common" },
         { "path": "../core" },
         { "path": "../input" },
+        { "path": "../io" },
         { "path": "../physics" },
         { "path": "../render" },
         { "path": "../ui" }

@@ -3,5 +3,9 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./lib",
-    }
+    },
+    "exclude": [
+        "./lib",
+        "./tests",
+    ]
 }

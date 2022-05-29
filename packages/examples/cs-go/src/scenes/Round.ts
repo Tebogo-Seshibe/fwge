@@ -28,6 +28,7 @@ export class Round extends Scene
     Init(): void
     {
         super.Init()
+        console.log(this)
         this.fpsCounter = document.querySelector<HTMLDivElement>('#fpsCounter')!
     }
 

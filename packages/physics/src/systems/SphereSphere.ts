@@ -5,7 +5,7 @@ import { CollisionDetect, CollisionResovle, CollisionTest } from "./types"
 export const SphereSphere: CollisionTest<SphereCollider> = (leftPosition: Vector3, leftCollider: SphereCollider, rightPosition: Vector3, rightCollider: SphereCollider) =>
 {
     if (detect(leftPosition, leftCollider, rightPosition, rightCollider))
-    { 
+    {
         return resolve(leftPosition, leftCollider, rightPosition, rightCollider)
     }
 
@@ -24,7 +24,7 @@ export const detect: CollisionDetect<SphereCollider> = (aPosition: Vector3, aCol
 
 export const resolve: CollisionResovle<SphereCollider> = (aPosition: Vector3, aCollider: SphereCollider, bPosition: Vector3, bCollider: SphereCollider) =>
 {
-    const result: [Vector3, Vector3]  = [Vector3.ZERO, Vector3.ZERO]
+    const result: [Vector3, Vector3] = [Vector3.ZERO, Vector3.ZERO]
 
     const currentCollider = aCollider
     const targetCollider = bCollider
@@ -56,8 +56,8 @@ export const resolve: CollisionResovle<SphereCollider> = (aPosition: Vector3, aC
         else
         {
             direction.Scale(overlap / 2)
-            result[0].Set(direction)
-            result[1].Set(direction).Scale(-1)
+            result[0].Set(direction).Scale(-1)
+            result[1].Set(direction)
         }
     }
 

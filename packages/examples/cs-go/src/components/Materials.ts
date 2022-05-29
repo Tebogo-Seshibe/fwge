@@ -56,8 +56,8 @@ export const createBasicMaterial = () => new Material(
             in vec3 V_Normal;
             in vec2 V_UV;
             in vec4 V_Colour;
-            out vec4 OutColour;
             
+            layout(location = 0) out vec4 O_FragColour;            
                                 
             struct Material 
             {
@@ -75,7 +75,7 @@ export const createBasicMaterial = () => new Material(
 
             void main(void)
             {
-                OutColour = vec4(U_Material.Ambient.rgb, U_Material.Alpha);
+                O_FragColour = vec4(U_Material.Ambient.rgb, U_Material.Alpha);
             }
             `,
             input: []
