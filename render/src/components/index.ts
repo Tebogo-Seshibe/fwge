@@ -1,6 +1,0 @@
-export * from './Camera'
-export * from './lights'
-export * from './Material'
-export * from './mesh'
-export * from './particles'
-export * from './shader'

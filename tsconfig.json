@@ -1,0 +1,18 @@
+{
+    "files": [],
+    "buildOptions": {
+        "incremental": true
+    },
+    "references": [
+        { "path": "packages/common" },
+        { "path": "packages/core" },
+        { "path": "packages/render" },
+        { "path": "packages/audio" },
+        { "path": "packages/input" },
+        { "path": "packages/physics" },
+        { "path": "packages/animation" },
+        { "path": "packages/ui" },
+        { "path": "packages/io" },
+        { "path": "packages/cli" },
+    ],
+}
