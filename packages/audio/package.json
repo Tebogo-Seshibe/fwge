@@ -1,0 +1,14 @@
+{
+  "name": "@fwge/audio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Audio library for the FWGE package",
+  "author": "Tebogo Christopher Seshibe",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fwge/common": "file:../common",
+    "@fwge/core": "file:../core"
+  }
+}

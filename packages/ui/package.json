@@ -1,0 +1,14 @@
+{
+  "name": "@fwge/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UI library for the FWGE package",
+  "author": "Tebogo Christopher Seshibe",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fwge/common": "1.0.0",
+    "@fwge/core": "1.0.0"
+  }
+}

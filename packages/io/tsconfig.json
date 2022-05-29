@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./lib",
+    },
+    "references": [
+        { "path": "../audio" },
+        { "path": "../common" },
+        { "path": "../core" },
+        { "path": "../input" },
+        { "path": "../physics" },
+        { "path": "../render" },
+        { "path": "../ui" }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@fwge/io",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IO library for the FWGE package",
+  "author": "Tebogo Christopher Seshibe",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fwge/audio": "1.0.0",
+    "@fwge/common": "1.0.0",
+    "@fwge/core": "1.0.0",
+    "@fwge/input": "1.0.0",
+    "@fwge/physics": "1.0.0",
+    "@fwge/render": "1.0.0",
+    "@fwge/ui": "1.0.0"
+  }
+}
