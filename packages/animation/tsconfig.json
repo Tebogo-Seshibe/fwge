@@ -4,6 +4,9 @@
         "rootDir": "./src",
         "outDir": "./lib",
     },
+    "exclude": [
+        "./tests/**/*"
+    ],
     "references": [
         { "path": "../common" }
     ],
