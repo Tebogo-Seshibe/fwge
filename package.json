@@ -1,11 +1,42 @@
 {
     "name": "fwge",
+    "description": "Web based game engine library, built on top of the WebGL API",
     "private": true,
+    "homepage": "https://github.com/Tebogo-Seshibe/fwge#Readme.md",
+    "bugs": "https://github.com/Tebogo-Seshibe/fwge/issues",
+    "author": {
+        "name": "Tebogo Christopher Seshibe",
+        "email": "tseshibe@gmail.com"
+    },
+    "engines": {
+        "node": ">=14.0.0",
+        "npm": ">=7.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Tebogo-Seshibe/fwge.git"
+    },
     "scripts": {
+        "init": "node ./script/init-packages",
+        "link": "node ./script/link-packages",
+        "publish": "node ./script/publish-packages",
         "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",
         "cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
     },
+    "license": "MIT",
+    "keywords": [
+        "fwge",
+        "gamedev",
+        "webgl",
+        "typescript",
+        "pwa",
+        "html5",
+        "game-engine",
+        "game-development",
+        "webgl2",
+        "3d"
+    ],
     "workspaces": [
         "packages/common",
         "packages/core",
@@ -17,8 +48,5 @@
         "packages/ui",
         "packages/io",
         "packages/cli"
-    ],
-    "devDependencies": {
-        "@types/node": "^17.0.36"
-    }
+    ]
 }

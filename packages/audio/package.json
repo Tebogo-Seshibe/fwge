@@ -1,11 +1,24 @@
 {
   "name": "@fwge/audio",
-  "version": "1.0.0",
-  "private": true,
   "description": "Audio library for the FWGE package",
-  "author": "Tebogo Christopher Seshibe",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "license": "MIT",
+  "author": {
+    "name": "Tebogo Christopher Seshibe",
+    "email": "tseshibe@gmail.com"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tebogo-Seshibe/fwge.git",
+    "directory": "packages/animation"
+  },
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@fwge/common": "file:../common",
     "@fwge/core": "file:../core"

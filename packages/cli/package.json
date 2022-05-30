@@ -1,11 +1,24 @@
 {
     "name": "@fwge/cli",
+    "description": "CLI package for the fwge library",
     "version": "1.0.0",
-    "private": true,
-    "description": "IO library for the FWGE package",
-    "author": "Tebogo Christopher Seshibe",
     "main": "lib/index.js",
     "license": "MIT",
+    "author": {
+      "name": "Tebogo Christopher Seshibe",
+      "email": "tseshibe@gmail.com"
+    },
+    "engines": {
+      "node": ">=14.0.0"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Tebogo-Seshibe/fwge.git",
+      "directory": "packages/cli"
+    },
+    "scripts": {
+      "test": "jest"
+    },
     "dependencies": {
       "@fwge/audio": "1.0.0",
       "@fwge/common": "1.0.0",
