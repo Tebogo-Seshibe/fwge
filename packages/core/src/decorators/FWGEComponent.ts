@@ -16,7 +16,7 @@ export function FWGEComponent<K extends Component, V extends any[]>(arg: K |  Co
             
             if (args && typeof args === 'string' && arg instanceof Function)
             {
-                const componentType = arg as any  as Class<SharedComponent>
+                const componentType = arg as any as Class<SharedComponent>
                 const componentName = args
 
                 component = this.Scene.Game.GetFromLibrary(componentType, componentName) as K | undefined

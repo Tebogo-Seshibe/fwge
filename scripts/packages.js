@@ -1,4 +1,4 @@
-export const packages = [
+module.exports.packages = packages = [
     "common",
     "core",
     "render",

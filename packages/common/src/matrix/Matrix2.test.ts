@@ -1,4 +1,4 @@
-import { Matrix2 } from '../../src'
+import { Matrix2 } from '.'
 
 describe('Matrix2', () =>
 {

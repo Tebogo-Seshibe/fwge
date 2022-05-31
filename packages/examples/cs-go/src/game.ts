@@ -16,7 +16,8 @@ import { Credits, LoadingScreen, MainMenu, Round } from './scenes'
     ],
     library: [
         ['Cube', createCube],
-        ['BasicMaterial', createBasicMaterial],
+        ['CubeMaterial', createBasicMaterial],
+        ['PlaneMaterial', createBasicMaterial],
         ['BasicAnimation', basicAnimation],
     ]
 })

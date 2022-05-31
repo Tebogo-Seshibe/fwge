@@ -78,9 +78,9 @@ export class Vector4 extends Float32Array
     constructor(xyzw: number)
     constructor(x: number, y: number, z: number, w: number)
     constructor(vector: Vector4)
+    constructor(xyz: Vector3, w: number)
     constructor(array: [number, number, number, number])
-    constructor(arrayBuffer: ArrayBuffer)
-    constructor(x: ArrayBuffer | Vector4 | number[] | number = 0, y?: number, z?: number, w?: number)
+    constructor(x: Vector4 | Vector3 | number[] | number = 0, y?: number, z?: number, w?: number)
     {
         super(typeof x === 'number' ?
         [
@@ -88,7 +88,7 @@ export class Vector4 extends Float32Array
             y !== undefined ? y : x,
             z !== undefined ? z : x,
             w !== undefined ? w : x
-        ] : x)
+        ] : [x[0], x[1], x[2], x[0] ?? y ?? 1.0])
     }
 
     Set(xyzw: number): Vector4

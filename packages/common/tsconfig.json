@@ -5,6 +5,7 @@
         "outDir": "./lib",
     },
     "exclude": [
-        "./tests"
-    ]
+        "./lib",
+        "./**/*.test.ts"
+    ],
 }

@@ -3,8 +3,6 @@ import { Entity, FWGEComponent, Scene, Transform } from "@fwge/core"
 import { IInputArgs, Input, KeyState } from "@fwge/input"
 import { SphereCollider } from "@fwge/physics"
 import { Camera } from "@fwge/render"
-import { createCube } from "../components"
-import { createBasicMaterial } from "../components/Materials"
 
 type OnInput = (args: IInputArgs, delta: number) => void
 
@@ -38,6 +36,9 @@ export class FPSController extends Entity
     
     @FWGEComponent(new Transform({ position: [ 0, 0, 5 ]}))
     transform!: Transform
+    
+    @FWGEComponent(new SphereCollider({ isStatic: false, radius: 0.5, isTrigger: false, position: Vector3.ZERO }))
+    public sphereCollider!: SphereCollider
 
     constructor(private scene: Scene, args: FPSControllerConfig = { })
     {
@@ -114,12 +115,12 @@ export class FPSController extends Entity
             .AddComponent(this.camera)
         )
 
-        this.AddChild(
-            this.scene.CreateEntity()
-                .AddComponent(new Transform({ position: [0,0.5,-1] }))
-                .AddComponent(createCube())
-                .AddComponent(createBasicMaterial())
-                .AddComponent(new SphereCollider({ radius: 1 }))
-        )
+        // this.AddChild(
+        //     this.scene.CreateEntity()
+        //         .AddComponent(new Transform({ position: [0,0.5,-1] }))
+        //         .AddComponent(createCube())
+        //         .AddComponent(createBasicMaterial())
+        //         .AddComponent(new SphereCollider({ radius: 1 }))
+        // )
     }
 }

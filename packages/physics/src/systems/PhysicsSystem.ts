@@ -1,7 +1,8 @@
 import { Vector3 } from "@fwge/common"
 import { Entity, EntityId, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
-import { Collision, CollisionState, GetCollisionMethod, _Collision, _Collision_Id } from "./types"
+import { SAT } from "./SAT"
+import { Collision, CollisionResult, CollisionState, GetCollisionMethod, _Collision, _Collision_Id } from "./types"
 
 export class PhysicsSystem extends System
 {
@@ -44,8 +45,9 @@ export class PhysicsSystem extends System
             {
                 const right = this.entities[j]!
                 this._detect(left, right)
+
             }
-        }        
+        }
 
         for (const [collisionId, collision] of this._collisions)
         {
@@ -98,10 +100,23 @@ export class PhysicsSystem extends System
             entityB!.GetComponent(Transform)!.Position,
             colliderB.Position
         )        
-        
+        let displacements: CollisionResult | undefined = undefined
+
         const collisionTest = GetCollisionMethod(colliderA, colliderB)!
-        const displacements = collisionTest(positionA, colliderA, positionB, colliderB)
-        console.log(displacements)
+        if (!collisionTest) 
+        {
+            if (colliderA instanceof CubeCollider && colliderB instanceof CubeCollider)
+            {
+                displacements = SAT(entityA!.GetComponent(Transform)!, colliderA, entityB!.GetComponent(Transform)!, colliderB)
+            }
+
+            else return 
+        }
+        else
+        {
+            displacements = collisionTest(positionA, colliderA, positionB, colliderB)
+        }
+
         const collision = this._collisions.get(`${entityA.Id}-${entityB.Id}`) ?? { 
             state: CollisionState.None,
             displacements: displacements

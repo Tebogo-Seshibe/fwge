@@ -332,6 +332,30 @@ export class Vector3 extends Float32Array
 
         return Vector3.ZERO
     }
+
+    static Mult(left: Vector3, right: Vector3): Vector3
+    static Mult(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
+    static Mult(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
+    {
+        if (typeof x1 === 'number' && typeof y1 === 'number')
+        {
+            return new Vector3(
+                x1 * x2,
+                y1 * y2,
+                z1 * z2
+            )
+        }
+        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
+        {
+            return new Vector3(
+                x1[0] * y1[0],
+                x1[1] * y1[1],
+                x1[2] * y1[2]
+            )
+        }
+
+        return Vector3.ZERO
+    }
     
     static Cross(left: Vector3, right: Vector3): Vector3
     static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3

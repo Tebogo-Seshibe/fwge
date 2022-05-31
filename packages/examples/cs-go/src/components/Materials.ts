@@ -1,9 +1,7 @@
-import { Material, Colour4, ShaderAsset } from "@fwge/render";
+import { Material, ShaderAsset } from "@fwge/render"
 
 export const createBasicMaterial = () => new Material(
 {
-    alpha: 0.1,
-    ambient: new Colour4(Math.random(), Math.random(), Math.random(), 1.0),
     shader: new ShaderAsset(
     {
         vertexShader:

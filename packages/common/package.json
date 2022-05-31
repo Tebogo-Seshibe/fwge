@@ -19,7 +19,6 @@
   "scripts": {
     "test": "jest"
   },
-  "typings": "common.d.ts",
   "devDependencies": {
     "@types/jest": "^27.5.1",
     "jest": "^28.1.0",

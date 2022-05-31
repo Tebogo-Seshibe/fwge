@@ -17,8 +17,8 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "init": "node ./script/init-packages",
-        "link": "node ./script/link-packages",
+        "init": "node ./scripts/init-packages",
+        "link": "node ./scripts/link-packages",
         "publish": "node ./script/publish-packages",
         "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",

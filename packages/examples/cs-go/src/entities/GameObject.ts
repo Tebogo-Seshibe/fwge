@@ -2,11 +2,12 @@ import { Entity, FWGEComponent, Script, Transform } from "@fwge/core"
 
 export class GameObject extends Entity
 {
-    @FWGEComponent(new Transform())
+    @FWGEComponent(Transform)
     public transform!: Transform
 
     OnCreate(): void
     {
+        this.transform = new Transform()
         this.AddComponent(new Script(
         {
             start: () => this.Start(),

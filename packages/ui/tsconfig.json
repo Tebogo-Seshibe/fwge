@@ -4,6 +4,10 @@
         "rootDir": "./src",
         "outDir": "./lib",
     },
+    "exclude": [
+        "./lib",
+        "./**/*.test.ts"
+    ],
     "references": [
         { "path": "../common" },
         { "path": "../core" }
