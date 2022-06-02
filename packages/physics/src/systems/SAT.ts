@@ -10,47 +10,89 @@ export function SAT(aTransform: Transform, aCollider: CubeCollider, bTransform: 
 
     const aVertices = aCollider.GetVertices(aTransform)
     const bVertices = bCollider.GetVertices(bTransform)
-    
 
-    const collision = TestAxis(aVertices, bVertices, aUp)
-        && TestAxis(aVertices, bVertices, aRight)
-        && TestAxis(aVertices, bVertices, aForward)
-        && TestAxis(aVertices, bVertices, bUp)
-        && TestAxis(aVertices, bVertices, bRight)
-        && TestAxis(aVertices, bVertices, bForward)
+    const aCenter = CalculateCenter(aVertices)
+    const bCenter = CalculateCenter(bVertices)
+    const direction = Vector3.Diff(bCenter, aCenter)
 
-    if (collision)
+    const axes = [
+        aUp.Normalize(),
+        aRight.Normalize(),
+        aForward.Normalize(),
+        bUp.Normalize(),
+        bRight.Normalize(),
+        bForward.Normalize(),
+        Vector3.Cross(aUp, bUp).Normalize(),
+        Vector3.Cross(aUp, bRight).Normalize(),
+        Vector3.Cross(aUp, bForward).Normalize(),
+        Vector3.Cross(aRight, bUp).Normalize(),
+        Vector3.Cross(aRight, bRight).Normalize(),
+        Vector3.Cross(aRight, bForward).Normalize(),
+        Vector3.Cross(aForward, bUp).Normalize(),
+        Vector3.Cross(aForward, bRight).Normalize(),
+        Vector3.Cross(aForward, bForward).Normalize(),
+    ].filter(x => x.Length !== 0)
+
+    let offset = Vector3.ZERO
+    let min = Number.POSITIVE_INFINITY
+
+    for (const axis of axes)
     {
-        return [Vector3.ZERO, Vector3.ZERO]
+        const overlap = TestAxis(aVertices, bVertices, axis)
+        if (overlap === undefined)
+        {
+            return undefined
+        }
+
+        if (overlap < min)
+        {
+            min = overlap
+            offset = axis
+        }
     }
+    
+    if (offset.Dot(direction) > 0)
+    {
+        offset.Scale(-1)
+    }
+    
+    offset.Scale(min)
+    return [offset, offset.Clone().Scale(-1)]
 }
 
-function TestAxis(aVertices: Vector3[], bVertices: Vector3[], axis: Vector3): boolean
+function CalculateCenter(vertices: Vector3[]): Vector3
 {
+    const vec = new Vector3()
+    for (const vertex of vertices)
+    {
+        vec.Sum(vertex)
+    }
+    return vec.Scale(1 / vertices.length)
+}
+
+function TestAxis(aVertices: Vector3[], bVertices: Vector3[], axis: Vector3): number | undefined
+{    
     let aMin = Number.POSITIVE_INFINITY
     let bMin = Number.POSITIVE_INFINITY
-
     let aMax = Number.NEGATIVE_INFINITY
     let bMax = Number.NEGATIVE_INFINITY
 
-    for (const vertex of aVertices)
+    for (let i = 0; i < aVertices.length; ++i)
     {
-        const dot = axis.Dot(vertex)
-        if (dot <= aMin) aMin = dot
-        if (dot >= aMax) aMax = dot
+        const aDot = axis.Dot(aVertices[i])
+        if (aDot <= aMin) aMin = aDot
+        if (aDot >= aMax) aMax = aDot
+        
+        const bDot = axis.Dot(bVertices[i])
+        if (bDot <= bMin) bMin = bDot
+        if (bDot >= bMax) bMax = bDot
     }
 
-    for (const vertex of bVertices)
-    {
-        const dot = axis.Dot(vertex)
-        if (dot <= bMin) bMin = dot
-        if (dot >= bMax) bMax = dot
-    }
+    const longSpan = Math.max(aMax, bMax) - Math.min(aMin, bMin)
+    const sumSpan = aMax - aMin + bMax - bMin
 
-    return (
-        (aMin <= bMin && bMin <= aMax) ||
-        (bMin <= aMin && aMin <= bMax) ||
-        (aMin <= bMax && bMax <= aMax) ||
-        (bMin <= aMax && aMax <= bMax)
-    )
+    if (sumSpan >= longSpan)
+    {
+        return sumSpan - longSpan
+    }
 }

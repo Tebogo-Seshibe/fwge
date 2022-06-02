@@ -6,10 +6,13 @@ import { Camera, Mesh, ShaderAsset, StaticMesh } from "@fwge/render"
 export class ColliderRenderSystem extends System
 {
     sphereOutlineMesh!: Mesh
+    sphereOutlineMesh2!: Mesh
     cubeOutlineMesh!: Mesh
+    satMesh!: Mesh
     sphereColliderShader!: ShaderAsset
-    cameraPosition!: WebGLUniformLocation
-    cubeColliderShader!: ShaderAsset
+    outlineShader!: ShaderAsset
+    satShader!: ShaderAsset
+    satBuffer!: WebGLBuffer
 
     constructor()
     {
@@ -19,9 +22,10 @@ export class ColliderRenderSystem extends System
     Init(): void
     {
         this.buildSphereOutlineTools()
+        this.buildSphereOutlineTools2()
         this.buildCubeOutlineTools()
-        
     }
+
     Start(): void
     {
         console.log(this)
@@ -29,6 +33,7 @@ export class ColliderRenderSystem extends System
     
     Update(_: number): void
     {
+        this._useShader()
         GL.enable(GL.BLEND)
         GL.blendFunc(GL.ONE, GL.ONE)
         
@@ -37,16 +42,20 @@ export class ColliderRenderSystem extends System
             const transform = entity.GetComponent(Transform)!
             const collider = entity.GetComponent(Collider)!
             
+            transform.Position.Sum(collider.Position)
             if (collider instanceof SphereCollider)
             {
-                this._useShader(this.sphereColliderShader)
-                this._drawMesh(transform, this.sphereOutlineMesh, this.sphereColliderShader)
+                transform.Scale.Mult(collider.Radius * 2)
+                this._drawOutline(transform, this.sphereOutlineMesh2, this.outlineShader)
+                transform.Scale.Mult(1 / (collider.Radius * 2))
             }
             else if (collider instanceof CubeCollider)
             {
-                this._useShader(this.cubeColliderShader)
-                this._drawMeshOutline(transform, this.cubeOutlineMesh, this.cubeColliderShader)
+                transform.Scale.Mult(collider.Width, collider.Height, collider.Depth)
+                this._drawOutline(transform, this.cubeOutlineMesh, this.outlineShader)
+                transform.Scale.Mult(1 / collider.Width, 1 / collider.Height, 1 / collider.Depth)
             }
+            transform.Position.Diff(collider.Position)
         }
     }
 
@@ -55,26 +64,7 @@ export class ColliderRenderSystem extends System
         console.log('Done!')
     }
 
-    private _drawMesh(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
-    {
-        GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
-
-        if (mesh.IndexBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElements(GL.TRIANGLES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else
-        {
-            GL.drawArrays(GL.TRIANGLES, 0, mesh.VertexCount)
-        }
-
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
-        GL.bindVertexArray(null)
-    }
-
-    private _drawMeshOutline(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
+    private _drawOutline(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer)
         GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
@@ -93,8 +83,9 @@ export class ColliderRenderSystem extends System
         GL.bindVertexArray(null)
     }
 
-    private _useShader(shader: ShaderAsset)
+    private _useShader()
     {
+        const shader = this.outlineShader
         GL.useProgram(shader.Program)
         GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
         GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
@@ -210,6 +201,72 @@ export class ColliderRenderSystem extends System
         })
     }
 
+    private buildSphereOutlineTools2()
+    {
+        this.sphereOutlineMesh2 = new StaticMesh(
+        {
+            position:
+            [
+                [0.5,0,0],
+                [0.46193976625564337,0.1913417161825449,0],
+                [0.35355339059327373,0.35355339059327373,0],
+                [0.1913417161825449,0.46193976625564337,0],
+                [0,0.5,0],
+                [-0.1913417161825449,0.46193976625564337,0],
+                [-0.35355339059327373,0.35355339059327373,0],
+                [-0.46193976625564337,0.1913417161825449,0],
+                [-0.5,0,0],
+                [-0.46193976625564337,-0.1913417161825449,0],
+                [-0.35355339059327373,-0.35355339059327373,0],
+                [-0.1913417161825449,-0.46193976625564337,0],
+                [0,-0.5,0],
+                [0.1913417161825449,-0.46193976625564337,0],
+                [0.35355339059327373,-0.35355339059327373,0],
+                [0.46193976625564337,-0.1913417161825449,0],
+
+                [0.5,0,0],
+                [0.46193976625564337,0,0.1913417161825449],
+                [0.35355339059327373,0,0.35355339059327373],
+                [0.1913417161825449,0,0.46193976625564337],
+                [0,0,0.5],
+                [-0.1913417161825449,0,0.46193976625564337],
+                [-0.35355339059327373,0,0.35355339059327373],
+                [-0.46193976625564337,0,0.1913417161825449],
+                [-0.5,0,0],
+                [-0.46193976625564337,0,-0.1913417161825449],
+                [-0.35355339059327373,0,-0.35355339059327373],
+                [-0.1913417161825449,0,-0.46193976625564337],
+                [0,0,-0.5],
+                [0.1913417161825449,0,-0.46193976625564337],
+                [0.35355339059327373,0,-0.35355339059327373],
+                [0.46193976625564337,0,-0.1913417161825449],
+
+                [0,0.5,0],
+                [0,0.46193976625564337,0.1913417161825449],
+                [0,0.35355339059327373,0.35355339059327373],
+                [0,0.1913417161825449,0.46193976625564337],
+                [0,0,0.5],
+                [0,-0.1913417161825449,0.46193976625564337],
+                [0,-0.35355339059327373,0.35355339059327373],
+                [0,-0.46193976625564337,0.1913417161825449],
+                [0,-0.5,0],
+                [0,-0.46193976625564337,-0.1913417161825449],
+                [0,-0.35355339059327373,-0.35355339059327373],
+                [0,-0.1913417161825449,-0.46193976625564337],
+                [0,0,-0.5],
+                [0,0.1913417161825449,-0.46193976625564337],
+                [0,0.35355339059327373,-0.35355339059327373],
+                [0,0.46193976625564337,-0.1913417161825440]
+            ],
+            index: [
+                0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,0,
+                16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 16,
+                32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 32
+            ]
+        })
+        
+    }
+
     private buildCubeOutlineTools()
     {
         this.cubeOutlineMesh = new StaticMesh(
@@ -235,7 +292,7 @@ export class ColliderRenderSystem extends System
                 3,2, 2,6, 6,7, 7,3, // RIGHT
             ]
         })
-        this.cubeColliderShader = new ShaderAsset(
+        this.outlineShader = new ShaderAsset(
         {
             vertexShader:
             {
@@ -272,6 +329,3 @@ export class ColliderRenderSystem extends System
         })
     }
 }
-
-
-

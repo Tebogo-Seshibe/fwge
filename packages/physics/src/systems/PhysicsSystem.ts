@@ -92,29 +92,19 @@ export class PhysicsSystem extends System
     {
         const colliderA = entityA.GetComponent(Collider)!
         const colliderB = entityB.GetComponent(Collider)!
-        const positionA = Vector3.Sum(
-            entityA!.GetComponent(Transform)!.Position,
-            colliderA.Position
-        )
-        const positionB = Vector3.Sum(
-            entityB!.GetComponent(Transform)!.Position,
-            colliderB.Position
-        )        
+        const transformA = entityA!.GetComponent(Transform)!
+        const transformB = entityB!.GetComponent(Transform)!
+
         let displacements: CollisionResult | undefined = undefined
 
         const collisionTest = GetCollisionMethod(colliderA, colliderB)!
-        if (!collisionTest) 
+        if (collisionTest) 
         {
-            if (colliderA instanceof CubeCollider && colliderB instanceof CubeCollider)
-            {
-                displacements = SAT(entityA!.GetComponent(Transform)!, colliderA, entityB!.GetComponent(Transform)!, colliderB)
-            }
-
-            else return 
+            displacements = collisionTest(transformA, colliderA, transformB, colliderB)
         }
         else
         {
-            displacements = collisionTest(positionA, colliderA, positionB, colliderB)
+            return 
         }
 
         const collision = this._collisions.get(`${entityA.Id}-${entityB.Id}`) ?? { 

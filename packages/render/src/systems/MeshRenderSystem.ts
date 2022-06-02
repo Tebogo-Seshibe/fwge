@@ -291,10 +291,10 @@ export class MeshRenderSystem extends System
         // GL.enable(GL.DEPTH_TEST)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 
-        if (this.RenderGrid)
-        {
-            this._drawGrid()
-        }
+        // if (this.RenderGrid)
+        // {
+        //     this._drawGrid()
+        // }
         
         for (const material of this._orderedBatches)
         {

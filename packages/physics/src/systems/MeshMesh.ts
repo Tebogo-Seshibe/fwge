@@ -1,4 +1,5 @@
 import { Vector3, Vector4 } from "@fwge/common"
+import { Transform } from "@fwge/core"
 import { Collider, MeshCollider } from "../components"
 import { CollisionDetect, CollisionResovle, CollisionTest } from "./types"
 
@@ -328,18 +329,18 @@ export const EPA: CollisionResovle<MeshCollider> = (_1: Vector3, leftCollider: M
     return offset
 }
 
-export const MeshMesh: CollisionTest<MeshCollider> = (leftPosition: Vector3, leftCollider: MeshCollider, rightPosition: Vector3, rightCollider: MeshCollider) =>
+export const MeshMesh: CollisionTest<MeshCollider> = (leftTransform: Transform, leftCollider: MeshCollider, rightTransform: Transform, rightCollider: MeshCollider) =>
 {
     const simplex: Simplex3D = new Simplex3D()
 
-    if (GJK(leftPosition, leftCollider, rightPosition, rightCollider, simplex))
+    if (GJK(leftTransform.Position, leftCollider, rightTransform.Position, rightCollider, simplex))
     {
         if (leftCollider.IsTrigger || rightCollider.IsTrigger)
         {
             return [Vector3.ZERO, Vector3.ZERO]
         }
 
-        return EPA(leftPosition, leftCollider, rightPosition, rightCollider, simplex)
+        return EPA(leftTransform.Position, leftCollider, rightTransform.Position, rightCollider, simplex)
     }
 
     return undefined

@@ -1,12 +1,13 @@
 import { Vector3 } from "@fwge/common"
+import { Transform } from "@fwge/core"
 import { SphereCollider } from "../components"
 import { CollisionDetect, CollisionResovle, CollisionTest } from "./types"
 
-export const SphereSphere: CollisionTest<SphereCollider> = (leftPosition: Vector3, leftCollider: SphereCollider, rightPosition: Vector3, rightCollider: SphereCollider) =>
+export const SphereSphere: CollisionTest<SphereCollider> = (leftTransform: Transform, leftCollider: SphereCollider, rightTransform: Transform, rightCollider: SphereCollider) =>
 {
-    if (detect(leftPosition, leftCollider, rightPosition, rightCollider))
+    if (detect(leftTransform.Position, leftCollider, rightTransform.Position, rightCollider))
     {
-        return resolve(leftPosition, leftCollider, rightPosition, rightCollider)
+        return resolve(leftTransform.Position, leftCollider, rightTransform.Position, rightCollider)
     }
 
     return undefined
