@@ -55,9 +55,26 @@ export function SAT(aTransform: Transform, aCollider: CubeCollider, bTransform: 
     {
         offset.Scale(-1)
     }
-    
+
     offset.Scale(min)
-    return [offset, offset.Clone().Scale(-1)]
+    const [aOffset, bOffset] = [offset.Clone(), offset.Clone().Scale(-1)]
+    if (aCollider.IsTrigger || bCollider.IsTrigger)
+    {
+        aOffset.Set(0)
+        bOffset.Set(0)
+    }
+    else if (aCollider.IsStatic)
+    {
+        aOffset.Set(0)
+        bOffset.Scale(2)
+    }
+    else if (bCollider.IsStatic)
+    {
+        bOffset.Set(0)
+        aOffset.Scale(2)
+    }
+
+    return [aOffset, bOffset]
 }
 
 function CalculateCenter(vertices: Vector3[]): Vector3
