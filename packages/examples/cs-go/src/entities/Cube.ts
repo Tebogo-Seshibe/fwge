@@ -26,7 +26,7 @@ export class Cube extends GameObject
         this.material.Ambient.Set(0.3, 0.6, 0.9, 1.0)
         this.collider = new CubeCollider(
         {
-            isStatic: false,
+            isStatic: true,
             isTrigger: false,
             position: Vector3.ZERO,
         })
