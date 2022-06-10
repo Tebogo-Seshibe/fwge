@@ -2,7 +2,9 @@ export enum KeyState
 {
     UP,
     PRESSED,
-    DOWN
+    DOWN,
+    RELEASED,
+    DOUBLE_PRESSED,
 }
 
 export enum ButtonState

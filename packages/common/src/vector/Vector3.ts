@@ -1,18 +1,10 @@
-import { lerp } from '../utils/Math'
+import { root_3 } from "../constants"
+import { NumberArray } from "../types"
+import { Vector2 } from "./Vector2"
 
 export class Vector3 extends Float32Array
 {
-    private _dirty: boolean = true
-    get Dirty(): boolean
-    {
-        return this._dirty
-    }
-    
-    set Dirty(dirty: boolean)
-    {
-        this._dirty = dirty
-    }
-
+    //#region Local Properties
     get X(): number
     {
         return this[0]
@@ -21,7 +13,6 @@ export class Vector3 extends Float32Array
     set X(x: number)
     {
         this[0] = x
-        this._dirty = true
     }
 
     get Y(): number
@@ -32,7 +23,6 @@ export class Vector3 extends Float32Array
     set Y(y: number)
     {
         this[1] = y
-        this._dirty = true
     }
 
     get Z(): number
@@ -43,117 +33,156 @@ export class Vector3 extends Float32Array
     set Z(z: number)
     {
         this[2] = z
-        this._dirty = true
     }
 
-    private _length: number = 0
+    get XY(): Vector2
+    {
+        return new Vector2(this[0], this[1])
+    }
+    
     get Length(): number
     {
-        if (this._dirty)
-        {
-            this._length = Math.sqrt(this.X ** 2 + this.Y ** 2 + this.Z ** 2)
-        }
-
-        return this._length
+        return Math.sqrt(this[0] * this[0] + this[1] * this[1] + this[2] * this[2])
     }
+
+    get LengthSquared(): number
+    {
+        return this[0] * this[0] + this[1] * this[1] + this[2] * this[2]
+    }
+    //#endregion
 
     constructor()
     constructor(xyz: number)
     constructor(x: number, y: number, z: number)
     constructor(vector: Vector3)
-    constructor(array: [number, number, number])
-    constructor(arrayBuffer: ArrayBuffer)
-    constructor(x: ArrayBuffer | Vector3 | number[] | number = 0, y?: number, z?: number)
+    constructor(array: NumberArray)
+    constructor(_0: Vector3 | NumberArray | number = 0, _1?: number, _2?: number)
     {
-        super(typeof x === 'number' ? 
+        super(typeof _0 === 'number' ? 
         [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x)
+            _0,
+            _1 ?? _0,
+            _2 ?? _0
+        ] : _0)
     }
 
+    //#region Local Methods
     Set(xyz: number): Vector3
     Set(x: number, y: number, z: number): Vector3
     Set(vector: Vector3): Vector3
-    Set(array: [number, number, number]): Vector3
-    Set(x: Vector3 | number[] | number, y?: number, z?: number): Vector3
-    {        
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
-
-        this[0] = x[0]
-        this[1] = x[1]
-        this[2] = x[2]
-        this._dirty = true
+    Set(array: NumberArray): Vector3
+    Set(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] = _0
+            this[1] = _1 ?? _0
+            this[2] = _2 ?? _0
+        }
+        else
+        {            
+            this[0] = _0[0]
+            this[1] = _0[1]
+            this[2] = _0[2]
+        }
         
         return this
     }
 
-    Sum(xyz: number): Vector3
-    Sum(x: number, y: number, z: number): Vector3
-    Sum(vector: Vector3): Vector3
-    Sum(array: [number, number, number]): Vector3
-    Sum(x: Vector3 | number[] | number, y?: number, z?: number): Vector3
+    Negate(): Vector3
     {
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
+        this[0] = -this[0]
+        this[1] = -this[1]
+        this[2] = -this[2]
 
-        this[0] += x[0]
-        this[1] += x[1]
-        this[2] += x[2]
-        this._dirty = true
+        return this
+    }
+
+    Add(xyz: number): Vector3
+    Add(x: number, y: number, z: number): Vector3
+    Add(vector: Vector3): Vector3
+    Add(array: NumberArray): Vector3
+    Add(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] += _0
+            this[1] += _1 ?? _0
+            this[2] += _2 ?? _0
+        }
+        else
+        {
+            this[0] += _0[0]
+            this[1] += _0[1]
+            this[2] += _0[2]
+        }
         
         return this
     }
 
-    Diff(xyz: number): Vector3
-    Diff(x: number, y: number, z: number): Vector3
-    Diff(vector: Vector3): Vector3
-    Diff(array: [number, number, number]): Vector3
-    Diff(x: Vector3 | number[] | number, y?: number, z?: number): Vector3
+    Subtract(xyz: number): Vector3
+    Subtract(x: number, y: number, z: number): Vector3
+    Subtract(vector: Vector3): Vector3
+    Subtract(array: NumberArray): Vector3
+    Subtract(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
     {
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
-
-        this[0] -= x[0]
-        this[1] -= x[1]
-        this[2] -= x[2]
-        this._dirty = true
+        if (typeof _0 === 'number')
+        {
+            this[0] -= _0
+            this[1] -= _1 ?? _0
+            this[2] -= _2 ?? _0
+        }
+        else
+        {
+            this[0] -= _0[0]
+            this[1] -= _0[1]
+            this[2] -= _0[2]
+        }
         
         return this
     }
-
-    Mult(xyz: number): Vector3
-    Mult(x: number, y: number, z: number): Vector3
-    Mult(array: Float32Array): Vector3
-    Mult(array: number[]): Vector3
-    Mult(x: number | Float32Array | number[], y?: number, z?: number): Vector3
+    
+    Multiply(xyz: number): Vector3
+    Multiply(x: number, y: number, z: number): Vector3
+    Multiply(vector: Vector3): Vector3
+    Multiply(array: NumberArray): Vector3
+    Multiply(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
     {
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
-
-        this[0] *= x[0]
-        this[1] *= x[1]
-        this[2] *= x[2]
-        this._dirty = true
-
+        if (typeof _0 === 'number')
+        {
+            this[0] *= _0
+            this[1] *= _1 ?? _0
+            this[2] *= _2 ?? _0
+        }
+        else
+        {
+            this[0] *= _0[0]
+            this[1] *= _0[1]
+            this[2] *= _0[2]
+        }
+        
+        return this
+    }
+    
+    Divide(xyz: number): Vector3
+    Divide(x: number, y: number, z: number): Vector3
+    Divide(vector: Vector3): Vector3
+    Divide(array: NumberArray): Vector3
+    Divide(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] /= _0
+            this[1] /= _1 ?? _0
+            this[2] /= _2 ?? _0
+        }
+        else
+        {
+            this[0] /= _0[0]
+            this[1] /= _0[1]
+            this[2] /= _0[2]
+        }
+        
         return this
     }
 
@@ -162,82 +191,88 @@ export class Vector3 extends Float32Array
         this[0] *= scalar
         this[1] *= scalar
         this[2] *= scalar
-        this._dirty = true
-
-        return this
-    }
-    
-    Lerp(time: number, x: number, y: number, z: number): Vector3
-    Lerp(time: number, array: Float32Array): Vector3
-    Lerp(time: number, array: number[]): Vector3
-    Lerp(time: number, x: number | Float32Array | number[], y?: number, z?: number): Vector3
-    {
-        x = typeof x === 'number' ?
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
-
-        this[0] = lerp(this[0], x[0], time)
-        this[1] = lerp(this[1], x[1], time)
-        this[2] = lerp(this[2], x[2], time)
-        this._dirty = true
 
         return this
     }
 
     Dot(xyz: number): number
     Dot(x: number, y: number, z: number): number
-    Dot(array: Float32Array): number
-    Dot(array: number[]): number
-    Dot(x: number | Float32Array | number[], y?: number, z?: number): number
+    Dot(vector: Vector3): number
+    Dot(array: NumberArray): number
+    Dot(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): number
     {
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
-
-        return (this[0] * x[0]) + (this[1] * x[1]) + (this[2] * x[2])
+        if (typeof _0 === 'number')
+        {
+            return this[0] * _0 + this[1] * (_1 ?? _0) + this[2] * (_2 ?? _0)
+        }
+        else
+        {
+            return this[0] * _0[0] + this[1] * _0[1] + this[2] * _0[2]
+        }
     }
 
     Cross(xyz: number): Vector3
     Cross(x: number, y: number, z: number): Vector3
-    Cross(array: Float32Array): Vector3
-    Cross(array: number[]): Vector3
-    Cross(x: number | Float32Array | number[], y?: number, z?: number): Vector3
+    Cross(vector: Vector3): Vector3
+    Cross(array: NumberArray): Vector3
+    Cross(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
     {
-        x = typeof x === 'number' ? 
-        [
-            x,
-            y !== undefined ? y : x,
-            z !== undefined ? z : x
-        ] : x
+        if (typeof _0 === 'number')
+        {
+            return this.Set(
+                this[1] * (_2 as number) - this[2] * (_1 as number),
+                this[2] * (_0 as number) - this[0] * (_2 as number),
+                this[0] * (_1 as number) - this[1] * (_0 as number)
+            )
+        }
+        else
+        {
+            return this.Set(
+                this[1] * _0[2] - this[2] * _0[1],
+                this[2] * _0[0] - this[0] * _0[2],
+                this[0] * _0[1] - this[1] * _0[0]
+            )
+        }
+    }
+    
+    //TODO: Rotate
+    
+    Distance(xyz: number): number
+    Distance(x: number, y: number, z: number): number
+    Distance(vector: Vector3): number
+    Distance(array: NumberArray): number
+    Distance(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): number
+    {
+        let x: number
+        let y: number
+        let z: number
 
-        const cross0 = this[1] * x[2] - this[2] * x[1]
-        const cross1 = this[2] * x[0] - this[0] * x[2]
-        const cross2 = this[0] * x[1] - this[1] * x[0]
+        if (typeof _0 === 'number')
+        {
+            x = this[0] - _0,
+            y = this[1] - (_1 ?? _0)
+            z = this[2] - (_2 ?? _0)
+        }
+        else
+        {
+            x = this[0] - _0[0]
+            y = this[1] - _0[1]
+            z = this[2] - _0[2]
+        }
 
-        this[0] = cross0
-        this[0] = cross1
-        this[0] = cross2
-        this._dirty = true
-
-        return this
+        return Math.sqrt(x * x + y * y + z * z)
     }
 
     Normalize(): Vector3
     {        
-        const length = this.Length
+        let length = this.LengthSquared
 
-        if (length !== 0)
+        if (length !== 0 && length !== 1)
         {
+            length = Math.sqrt(length)
             this[0] /= length
             this[1] /= length
             this[2] /= length
-            this._dirty = true
         }
 
         return this
@@ -254,170 +289,270 @@ export class Vector3 extends Float32Array
             this[1] === other[1] &&
             this[2] === other[2]
     }
+    //#endregion
 
-    Distance(other: Vector3): number
-    {
-        return Vector3.Distance(this, other)
-    }
-    
-    static Lerp(time: number, vector1: Vector3, vector2: Vector3): Vector3
-    static Lerp(time: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
-    static Lerp(time: number, x1: Vector3 | number, y1: Vector3 | number, z1?: number, x2?: number, y2?: number, z2?: number): Vector3
-    {
-        if (typeof x1 === 'number' && typeof y1 === 'number')
-        {
-            return new Vector3(
-                lerp(x1, x2!, time),
-                lerp(y1, y2!, time),
-                lerp(z1!, z2!, time),
-            )
-
-        }
-        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
-        {
-            return new Vector3(
-                lerp(x1[0], y1[0], time),
-                lerp(x1[1], y1[1], time),
-                lerp(x1[2], y1[2], time),
-            )
-        }
-
-        return Vector3.ZERO
-    }
-
-    static Sum(left: Vector3, right: Vector3): Vector3
-    static Sum(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
-    static Sum(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
-    {
-        if (typeof x1 === 'number' && typeof y1 === 'number')
-        {
-            return new Vector3(
-                x1 + x2,
-                y1 + y2,
-                z1 + z2
-            )
-        }
-        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
-        {
-            return new Vector3(
-                x1[0] + y1[0],
-                x1[1] + y1[1],
-                x1[2] + y1[2]
-            )
-        }
-
-        return Vector3.ZERO
-    }
-
-    static Diff(left: Vector3, right: Vector3): Vector3
-    static Diff(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
-    static Diff(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
-    {
-        if (typeof x1 === 'number' && typeof y1 === 'number')
-        {
-            return new Vector3(
-                x1 - x2,
-                y1 - y2,
-                z1 - z2
-            )
-        }
-        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
-        {
-            return new Vector3(
-                x1[0] - y1[0],
-                x1[1] - y1[1],
-                x1[2] - y1[2]
-            )
-        }
-
-        return Vector3.ZERO
-    }
-
-    static Mult(left: Vector3, right: Vector3): Vector3
-    static Mult(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
-    static Mult(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
-    {
-        if (typeof x1 === 'number' && typeof y1 === 'number')
-        {
-            return new Vector3(
-                x1 * x2,
-                y1 * y2,
-                z1 * z2
-            )
-        }
-        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
-        {
-            return new Vector3(
-                x1[0] * y1[0],
-                x1[1] * y1[1],
-                x1[2] * y1[2]
-            )
-        }
-
-        return Vector3.ZERO
-    }
-    
-    static Cross(left: Vector3, right: Vector3): Vector3
-    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): Vector3
-    static Cross(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): Vector3
-    {
-        if (typeof x1 === 'number' && typeof y1 === 'number')
-        {
-            return new Vector3(
-                (y1 * z2) - (z1 * y2),
-                (z1 * x2) - (x1 * z2),
-                (x1 * y2) - (y1 * x2)
-            )
-        }
-        else if (x1 instanceof Vector3 && y1 instanceof Vector3)
-        {
-            return new Vector3(
-                (x1[1] * y1[2]) - (x1[2] * y1[1]),
-                (x1[2] * y1[0]) - (x1[0] * y1[2]),
-                (x1[0] * y1[1]) - (x1[1] * y1[0])
-            )
-        }
-
-        return Vector3.ZERO
-    }
-
-    static Distance(left: Vector3, right: Vector3): number
-    static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number,): number
-    static Distance(x1: Vector3 | number, y1: Vector3 | number, z1: number = 0, x2: number = 0, y2: number = 0, z2: number = 0): number
-    {
-        
-        return typeof x1 === 'number'
-            ? Math.sqrt(
-                (x2 - x1) ** 2 +
-                (y2 - (<number>y1)) ** 2 +
-                (z2 - z1) ** 2
-            )
-            : Math.sqrt(
-                ((<Vector3>y1)[0] - x1[0]) ** 2 +
-                ((<Vector3>y1)[1] - x1[1]) ** 2 +
-                ((<Vector3>y1)[2] - x1[2]) ** 2
-            )
-    }
-
-    static get ZERO(): Vector3
+    //#region Static Properties
+    static get Zero(): Vector3
     {
         return new Vector3(0)
     }
 
-    static get ONE(): Vector3
+    static get One(): Vector3
     {
         return new Vector3(1)
     }
 
-    static get UNIT(): Vector3
+    static get Unit(): Vector3
     {
-        return new Vector3(Math.sqrt(1/3))
+        return new Vector3(root_3)
+    }
+
+    static get UnitX(): Vector3
+    {
+        return new Vector3(1, 0, 0)
+    }
+
+    static get UnitY(): Vector3
+    {
+        return new Vector3(0, 1, 0)
+    }
+
+    static get UnitZ(): Vector3
+    {
+        return new Vector3(0, 0, 1)
     }
 
     public static readonly SIZE: number = 3
-
-    override toString(): string
+    //#endregion
+    
+    //#region Static Methods
+    static Negate(vector: Vector3): Vector3
+    static Negate(vector: Vector3, outVector: Vector3): Vector3
+    static Negate(_0: Vector3, _1?: Vector3): Vector3
     {
-        return `[ ${(this.X < 0 ? '' : ' ') + this.X.toFixed(3)}  ][ ${(this.Y < 0 ? '' : ' ') + this.Y.toFixed(3)}  ][ ${(this.Z < 0 ? '' : ' ') + this.Z.toFixed(3)}  ]`
+        const out = _1 ?? new Vector3()
+
+        out[0] = -_0[0]
+        out[1] = -_0[1]
+        out[2] = -_0[2]
+
+        return out
     }
+
+    static Add(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Add(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
+    static Add(vector1: Vector3, vector2: Vector3): Vector3
+    static Add(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
+    static Add(array1: NumberArray, array2: NumberArray): Vector3
+    static Add(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
+    static Add(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    {
+        const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) + (_3 as number)
+            out[1] = (_1 as number) + (_4 as number)
+            out[2] = (_2 as number) + (_5 as number)
+        }
+        else
+        {
+            out[0] = _0[0] + _1[0]
+            out[1] = _0[1] + _1[1]
+            out[2] = _0[2] + _1[2]
+        }
+
+        return out
+    }
+
+    static Subtract(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Subtract(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
+    static Subtract(vector1: Vector3, vector2: Vector3): Vector3
+    static Subtract(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
+    static Subtract(array1: NumberArray, array2: NumberArray): Vector3
+    static Subtract(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
+    static Subtract(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    {
+        const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) - (_3 as number)
+            out[1] = (_1 as number) - (_4 as number)
+            out[2] = (_2 as number) - (_5 as number)
+        }
+        else
+        {
+            out[0] = _0[0] - _1[0]
+            out[1] = _0[1] - _1[1]
+            out[2] = _0[2] - _1[2]
+        }
+
+        return out
+    }
+
+    static Multiply(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Multiply(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
+    static Multiply(vector1: Vector3, vector2: Vector3): Vector3
+    static Multiply(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
+    static Multiply(array1: NumberArray, array2: NumberArray): Vector3
+    static Multiply(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
+    static Multiply(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    {
+        const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) * (_3 as number)
+            out[1] = (_1 as number) * (_4 as number)
+            out[2] = (_2 as number) * (_5 as number)
+        }
+        else
+        {
+            out[0] = _0[0] * _1[0]
+            out[1] = _0[1] * _1[1]
+            out[2] = _0[2] * _1[2]
+        }
+
+        return out
+    }
+
+    static Divide(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Divide(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
+    static Divide(vector1: Vector3, vector2: Vector3): Vector3
+    static Divide(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
+    static Divide(array1: NumberArray, array2: NumberArray): Vector3
+    static Divide(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
+    static Divide(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    {
+        const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) / (_3 as number)
+            out[1] = (_1 as number) / (_4 as number)
+            out[2] = (_2 as number) / (_5 as number)
+        }
+        else
+        {
+            out[0] = _0[0] / _1[0]
+            out[1] = _0[1] / _1[1]
+            out[2] = _0[2] / _1[2]
+        }
+
+        return out
+    }
+
+    static Scale(vector: Vector3, scalar: number): Vector3
+    static Scale(vector: Vector3, scalar: number, out: Vector3): Vector3
+    static Scale(_0: Vector3, _1: number, _2?: Vector3): Vector3
+    {
+        const out: Vector3 = _2 ?? new Vector3()
+
+        out[0] = _0[0] * _1
+        out[1] = _0[1] * _1
+        out[2] = _0[2] * _1
+        
+        return out
+    }
+
+    static Dot(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number
+    static Dot(vector1: Vector3, vector2: Vector3): number
+    static Dot(array1: NumberArray, array2: NumberArray): number
+    static Dot(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: number, _3?: number, _4?: number, _5?: number): number
+    {
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            return (
+                (_0 as number) * (_3 as number) +
+                (_1 as number) * (_4 as number) + 
+                (_2 as number) * (_5 as number)
+            ) 
+        }
+        else
+        {
+            return (
+                _0[0] * _1[0] + 
+                _0[1] * _1[1] + 
+                _0[2] * _1[2]
+            )
+        }
+    }
+    
+    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Vector3
+    static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
+    static Cross(vector1: Vector3, vector2: Vector3): Vector3
+    static Cross(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
+    static Cross(array1: NumberArray, array2: NumberArray): Vector3
+    static Cross(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
+    static Cross(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    {
+        const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            return out.Set(
+                (_1 as number) * (_5 as number) - (_2 as number) * (_4 as number),
+                (_2 as number) * (_3 as number) - (_0 as number) * (_5 as number),
+                (_0 as number) * (_4 as number) - (_1 as number) * (_3 as number)
+            )
+        }
+        else
+        {
+            return out.Set(
+                _0[1] * _1[2] - _0[2] * _1[1],
+                _0[2] * _1[0] - _0[0] * _1[2],
+                _0[0] * _1[1] - _0[1] * _1[0]
+            )
+        }
+    }
+
+    //TODO: Rotates       
+
+    static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number
+    static Distance(vector1: Vector3, vector2: Vector3): number
+    static Distance(array1: NumberArray, array2: NumberArray): number
+    static Distance(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: number, _3?: number, _4?: number, _5?: number): number
+    {
+        let x: number
+        let y: number
+        let z: number
+
+        if (typeof _0 === 'number')
+        {
+            x = (_0 as number) - (_3 as number)
+            y = (_1 as number) - (_4 as number)
+            z = (_2 as number) - (_5 as number)
+        }
+        else
+        {
+            _1 = _1 as Vector3
+
+            x = _0[0] - _1[0]
+            y = _0[1] - _1[1]
+            z = _0[2] - _1[2]
+        }
+        
+        return Math.sqrt(x * x + y * y + z * z)
+    }
+
+    static Normalize(vector: Vector3): Vector3
+    static Normalize(vector: Vector3, out: Vector3): Vector3
+    static Normalize(_0: Vector3, _1?: Vector3): Vector3
+    {
+        const out: Vector3 = _1 ?? new Vector3()
+        
+        let length = _0.LengthSquared
+
+        if (length !== 0 && length !== 1)
+        {
+            length = Math.sqrt(length)
+            out[0] /= length
+            out[1] /= length
+            out[2] /= length
+        }
+
+        return out
+    }
+    //#endregion
 }

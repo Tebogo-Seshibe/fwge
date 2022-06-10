@@ -1,9 +1,9 @@
-import { Vector3 } from "@fwge/common"
+import { Polygon3D, Vector3 } from "@fwge/common"
 import { Entity, SharedComponent, Transform } from "@fwge/core"
 
 export class Collider extends SharedComponent
 {
-    public findFurthest(transform: Transform, direction: Vector3): Vector3 { return Vector3.ZERO }
+    public findFurthest(transform: Transform, direction: Vector3): Vector3 { return Vector3.Zero }
     
     constructor(
         public Position: Vector3,
@@ -12,6 +12,7 @@ export class Collider extends SharedComponent
         public Material: any,
         public OnCollisionEnter: (this: Entity, other: Entity) => void = () => void 0,
         public OnCollisionUpdate: (this: Entity, other: Entity) => void = () => void 0,
-        public OnCollisionExit: (this: Entity, other: Entity) => void = () => void 0
+        public OnCollisionExit: (this: Entity, other: Entity) => void = () => void 0,
+        public Polygon: Polygon3D
     ) { super(Collider) }    
 }

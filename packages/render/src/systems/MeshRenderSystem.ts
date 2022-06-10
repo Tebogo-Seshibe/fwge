@@ -1,4 +1,4 @@
-import { GL, Vector2, Vector3 } from '@fwge/common'
+import { GL, Matrix3, Vector2, Vector3 } from '@fwge/common'
 import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
 import { DepthType, RenderTarget, ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
@@ -402,9 +402,16 @@ export class MeshRenderSystem extends System
 
     private _drawMesh(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
     {
+        const mv = transform.ModelViewMatrix
+        const norm = new Matrix3(            
+            mv[0], mv[1], mv[2],
+            mv[4], mv[5], mv[6],
+            mv[8], mv[9], mv[10]
+        ).Inverse()
+
         GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
-        GL.uniformMatrix3fv(shader.Matrices!.Normal, false, transform.NormalMatrix)
+        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, mv)
+        GL.uniformMatrix3fv(shader.Matrices!.Normal, false, norm)
 
         if (mesh.IndexBuffer)
         {
@@ -422,9 +429,16 @@ export class MeshRenderSystem extends System
 
     private _drawMeshWireframe(transform: Transform, mesh: Mesh): void
     {
+        const mv = transform.ModelViewMatrix
+        const norm = new Matrix3(            
+            mv[0], mv[1], mv[2],
+            mv[4], mv[5], mv[6],
+            mv[8], mv[9], mv[10]
+        ).Inverse()
+
         GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(this._wireframeShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
-        GL.uniformMatrix3fv(this._wireframeShader!.Matrices!.Normal, false, transform.NormalMatrix)
+        GL.uniformMatrix4fv(this._wireframeShader!.Matrices!.ModelView, false, mv)
+        GL.uniformMatrix3fv(this._wireframeShader!.Matrices!.Normal, false, norm)
 
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.WireframeBuffer)
         GL.drawElements(GL.LINES, mesh.WireframeCount, GL.UNSIGNED_BYTE, 0)

@@ -1,11 +1,23 @@
 const { execSync } = require('child_process')
 const { packages } = require('./packages')
 
-const installDependencies = (package) => {
+packages.forEach(package => {
     process.chdir('packages/' + package)
-    console.log('Installing dependencies for "' + package + '"')
-    execSync('npm install')
+    try
+    {
+        console.log('Installing dependencies for "' + package + '"')
+        const buffer = execSync('npm install && tsc')
+        if (buffer.length > 0)
+        {
+            console.log(buffer.toString())
+        }
+        
+    }
+    catch (e)
+    {
+        console.log(e.stdout.toString())
+        console.error(e.stderr.toString())
+        process.exit(1)
+    }
     process.chdir('../../')
-}
-
-packages.forEach(package => installDependencies(package))
+})

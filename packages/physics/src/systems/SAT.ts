@@ -13,7 +13,7 @@ export function SAT(aTransform: Transform, aCollider: CubeCollider, bTransform: 
 
     const aCenter = CalculateCenter(aVertices)
     const bCenter = CalculateCenter(bVertices)
-    const direction = Vector3.Diff(bCenter, aCenter)
+    const direction = Vector3.Subtract(bCenter, aCenter)
 
     const axes = [
         aUp.Normalize(),
@@ -33,7 +33,7 @@ export function SAT(aTransform: Transform, aCollider: CubeCollider, bTransform: 
         Vector3.Cross(aForward, bForward).Normalize(),
     ].filter(x => x.Length !== 0)
 
-    let offset = Vector3.ZERO
+    let offset = Vector3.Zero
     let min = Number.POSITIVE_INFINITY
 
     for (const axis of axes)
@@ -82,7 +82,7 @@ function CalculateCenter(vertices: Vector3[]): Vector3
     const vec = new Vector3()
     for (const vertex of vertices)
     {
-        vec.Sum(vertex)
+        vec.Add(vertex)
     }
     return vec.Scale(1 / vertices.length)
 }
@@ -106,10 +106,10 @@ function TestAxis(aVertices: Vector3[], bVertices: Vector3[], axis: Vector3): nu
     }
 
     const longSpan = Math.max(aMax, bMax) - Math.min(aMin, bMin)
-    const sumSpan = aMax - aMin + bMax - bMin
+    const AddSpan = aMax - aMin + bMax - bMin
 
-    if (sumSpan >= longSpan)
+    if (AddSpan >= longSpan)
     {
-        return sumSpan - longSpan
+        return AddSpan - longSpan
     }
 }

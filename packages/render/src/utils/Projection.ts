@@ -1,13 +1,13 @@
 import { cot, radian, Matrix3, Matrix4, Vector3 } from "@fwge/common"
 
-export function LookAt(position: Vector3, target: Vector3, up: Vector3, out: Matrix4 = Matrix4.IDENTITY): void
+export function LookAt(position: Vector3, target: Vector3, up: Vector3, out: Matrix4 = Matrix4.Identity): void
 {
     const XAxis: Vector3 = new Vector3(1, 0, 0)
     const YAxis: Vector3 = new Vector3(0, 1, 0)
     const ZAxis: Vector3 = new Vector3(0, 0, 1)
     const Eye: Vector3 = target.Clone().Scale(-1)
 
-    const f = target.Clone().Diff(position).Normalize()
+    const f = target.Clone().Subtract(position).Normalize()
     const r = up.Clone().Cross(f).Normalize()
     const u = f.Clone().Cross(r).Normalize()
     const p = position.Clone()
@@ -29,7 +29,7 @@ export function LookAt(position: Vector3, target: Vector3, up: Vector3, out: Mat
     ).Transpose()
 }
 
-export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number, out: Matrix4 = Matrix4.IDENTITY): void
+export function Orthographic(left: number, right: number, top: number, bottom: number, near: number, far: number, theta: number, phi: number, out: Matrix4 = Matrix4.Identity): void
 {
     theta = cot(radian(theta))
     phi = cot(radian(phi))
@@ -49,7 +49,7 @@ export function Orthographic(left: number, right: number, top: number, bottom: n
     )
 }
 
-export function Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number, out: Matrix4 = Matrix4.IDENTITY): void
+export function Perspective(near: number, far: number, fieldOfView: number, aspectRatio: number, out: Matrix4 = Matrix4.Identity): void
 {
     const top       = near * Math.tan(radian(fieldOfView) / 2)
     const right     = top * aspectRatio
@@ -74,11 +74,11 @@ export function LocationMatrix(position: Vector3, rotation: Vector3): Matrix4
         Math.cos(z), -Math.sin(z), 0,
         Math.sin(z),  Math.cos(z), 0,
                   0,            0, 1
-    ).Mult(
+    ).Multiply(
          Math.cos(y), 0, Math.sin(y),
                    0, 1,           0,
         -Math.sin(y), 0, Math.cos(y)
-    ).Mult(
+    ).Multiply(
         1,           0,            0,
         0, Math.cos(x), -Math.sin(x),
         0, Math.sin(x),  Math.cos(x)

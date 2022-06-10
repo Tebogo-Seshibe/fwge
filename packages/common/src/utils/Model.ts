@@ -18,7 +18,7 @@ export function Translate(matrix: Matrix4, translation: Vector3): void
 
 export function Rotation(rotation: Vector3): Matrix4
 {
-    const matrix = Matrix4.IDENTITY
+    const matrix = Matrix4.Identity
 
     const x = radian(rotation[0])
     const y = radian(rotation[1])
@@ -196,7 +196,7 @@ export function Shear(matrix: Matrix4, angles: Vector3): void
     var theta = radian(angles[1])
     var rho   = radian(angles[2])
 
-    matrix.Mult
+    matrix.Multiply
     (
                   1.0,             0.0, Math.tan(rho), 0.0,
         Math.tan(phi),             1.0,           0.0, 0.0,

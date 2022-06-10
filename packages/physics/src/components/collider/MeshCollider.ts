@@ -1,4 +1,4 @@
-import { GL, Matrix2, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { GL, Matrix2, Matrix4, Polygon3D, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Entity, Transform } from "@fwge/core"
 import { Collider } from "./Collider"
 
@@ -27,18 +27,18 @@ export class MeshCollider extends Collider
 
     public CalculatedVertices(transform: Transform): [Float32Array, Vector3[]]
     {
-        const mv: Matrix4 = Matrix4.IDENTITY
+        const mv: Matrix4 = Matrix4.Identity
         const buffer = new Float32Array(this._calculatedVertices.length)
         const vertices = new Array<Vector3>(this._calculatedBuffer.length)
 
-        transform.Position.Sum(this.Position)
+        transform.Position.Add(this.Position)
         mv.Set(transform.ModelViewMatrix).Transpose()
-        transform.Position.Diff(this.Position)
+        transform.Position.Subtract(this.Position)
 
         let offset = 0
         this.Vertices.forEach((vert, index) =>
         {
-            const vertex = Matrix4.MultVector(mv, new Vector4(vert[0], vert[1], vert[2], 1.0))
+            const vertex = Matrix4.MultiplyVector(mv, new Vector4(vert[0], vert[1], vert[2], 1.0))
 
             vertices[index][0] = vertex[0] + this.Position[0]
             vertices[index][1] = vertex[1] + this.Position[1]
@@ -76,13 +76,14 @@ export class MeshCollider extends Collider
     constructor(collider: ISphereCollider)
     {
         super(
-            collider.position ?? Vector3.ZERO,
+            collider.position ?? Vector3.Zero,
             collider.isStatic ?? false,
             collider.isTrigger ?? false,
             collider.material,
             collider.onCollisionEnter,
             collider.onCollision,
-            collider.onCollisionExit
+            collider.onCollisionExit,
+            new Polygon3D(collider.vertices)
         )
 
         this.Vertices = collider.vertices

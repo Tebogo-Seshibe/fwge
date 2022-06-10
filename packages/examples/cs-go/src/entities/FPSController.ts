@@ -1,7 +1,7 @@
-import { clamp, Matrix4, Rotation, Vector3, Vector4 } from "@fwge/common"
+import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
 import { Entity, FWGEComponent, Scene, Transform } from "@fwge/core"
 import { IInputArgs, Input, KeyState } from "@fwge/input"
-import { CubeCollider } from "@fwge/physics"
+import { Collider, CubeCollider, RigidBody, SphereCollider } from "@fwge/physics"
 import { Camera } from "@fwge/render"
 
 type OnInput = (args: IInputArgs, delta: number) => void
@@ -12,6 +12,7 @@ interface FPSControllerConfig
 
     movementSpeed?: number
     turnSpeed?: number
+    jumpHeight?: number
 
     camera?: Camera
     onInput?: OnInput
@@ -19,9 +20,9 @@ interface FPSControllerConfig
 
 export class FPSController extends Entity
 {
-    public static readonly FORWARD: Vector4 = new Vector4(0, 0, -1, 0)
-    public static readonly RIGHT: Vector4 = new Vector4(1, 0, 0, 0)
-    public static readonly UP: Vector4 = new Vector4(0, 1, 0, 0)
+    public static readonly FORWARD: Vector3 = new Vector3(0, 0, -1)
+    public static readonly RIGHT: Vector3 = new Vector3(1, 0, 0)
+    public static readonly UP: Vector3 = new Vector3(0, 1, 0)
 
     public readonly camera: Camera
     public readonly cameraTransform: Transform
@@ -31,8 +32,15 @@ export class FPSController extends Entity
     public readonly movementSpeed: number
     public readonly walkSpeed: number
     public readonly runSpeed: number
-    public readonly turnSpeed: number    
+    public readonly turnSpeed: number
+    public readonly jumpHeight: number  
+    canJump: boolean = true
     
+    @FWGEComponent(new RigidBody({ mass: 5 }))
+    rigidbody!: RigidBody
+
+    @FWGEComponent(new SphereCollider({ position: new Vector3(0, 0.25, 0) }))
+    collider!: Collider
     
     @FWGEComponent(new Transform({ position: [ 0, 0, 5 ]}))
     transform!: Transform
@@ -43,12 +51,25 @@ export class FPSController extends Entity
 
         this.camera = args.camera ?? new Camera()
         this.cameraTransform = new Transform({ position: args.eyeLevel ?? [0, 1.8, 0] })
-        this.onInput = args.onInput ?? function (_1: IInputArgs, _2: number) {}
+        
+        this.onInput = ({ Keyboard }) =>
+        {
+            if (this.canJump && Keyboard.KeySpace === KeyState.PRESSED)
+            {
+                this.canJump = false
+                this.rigidbody.Velocity.Add(0, this.jumpHeight, 0)
+            }
+            else if (!this.canJump && Keyboard.KeySpace === KeyState.UP)
+            {
+                this.canJump = true
+            }
+        }
 
         this.movementSpeed = args.movementSpeed ?? 5
         this.walkSpeed = args.movementSpeed ?? 10
         this.runSpeed = args.movementSpeed ?? 15
-        this.turnSpeed = args.turnSpeed ?? 50
+        this.turnSpeed = args.turnSpeed ?? 36
+        this.jumpHeight = args.jumpHeight ?? 15
 
     }
 
@@ -60,47 +81,44 @@ export class FPSController extends Entity
         this.AddComponent(new Input(
         {
             onInput: (input, delta) =>
-            {                
-                const movementSpeed = this.movementSpeed * (input.Keyboard.KeyShift === KeyState.DOWN ? 2 : 1)
-                const turnSpeed = this.turnSpeed
+            {
+                const wPressed = input.Keyboard.KeyW !== KeyState.RELEASED && input.Keyboard.KeyW !== KeyState.UP
+                const aPressed = input.Keyboard.KeyA !== KeyState.RELEASED && input.Keyboard.KeyA !== KeyState.UP
+                const sPressed = input.Keyboard.KeyS !== KeyState.RELEASED && input.Keyboard.KeyS !== KeyState.UP
+                const dPressed = input.Keyboard.KeyD !== KeyState.RELEASED && input.Keyboard.KeyD !== KeyState.UP
+                const shiftPressed = input.Keyboard.KeyShift !== KeyState.RELEASED && input.Keyboard.KeyShift !== KeyState.UP
 
-                const rotation = Vector3.Sum(
-                    this.transform.Rotation[0], this.transform.Rotation[1], this.transform.Rotation[2],
-                    0, input.Mouse.Offset.X * turnSpeed * delta, 0
-                )
+                const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
 
-                const modelview = Rotation(new Vector3(0, -rotation.Y, 0))
-                const forward = Matrix4.MultVector(modelview, FPSController.FORWARD).XYZ.Normalize()
-                const right = Matrix4.MultVector(modelview, FPSController.RIGHT).XYZ.Normalize()
-
-                if (
-                    (input.Keyboard.KeyW === KeyState.DOWN && input.Keyboard.KeyS === KeyState.DOWN) ||
-                    (input.Keyboard.KeyW !== KeyState.DOWN && input.Keyboard.KeyS !== KeyState.DOWN)
-                )
+                const deltaRotation = Vector2.Scale(input.Mouse.Offset, this.turnSpeed * delta)
+                const rotation = this.transform.Rotation.Clone().Add(0, deltaRotation.X, 0)
+                
+                const rotationMatrix = Matrix3.RotationMatrix(0, -rotation.Y, 0)
+                const forward = Matrix3.MultiplyVector(rotationMatrix, FPSController.FORWARD).Normalize()
+                const right = Matrix3.MultiplyVector(rotationMatrix, FPSController.RIGHT).Normalize()
+                
+                if ((wPressed && sPressed) || (!wPressed && !sPressed))
                 {
                     forward.Set(0.0)
                 }
-                else if (input.Keyboard.KeyS === KeyState.DOWN)
+                else if (!wPressed && sPressed)
                 {
-                    forward.Scale(-1.0)
+                    forward.Negate()
                 }
-                if (
-                    (input.Keyboard.KeyD === KeyState.DOWN && input.Keyboard.KeyA === KeyState.DOWN) ||
-                    (input.Keyboard.KeyD !== KeyState.DOWN && input.Keyboard.KeyA !== KeyState.DOWN)
-                )
+                if ((dPressed && aPressed) || (!dPressed && !aPressed))
                 {
                     right.Set(0.0)
                 }
-                else if (input.Keyboard.KeyA === KeyState.DOWN)
+                else if (!dPressed && aPressed)
                 {
-                    right.Scale(-1)
+                    right.Negate()
                 }
 
-                const movement = Vector3.Sum(forward, right).Normalize().Scale(movementSpeed * delta)
+                const movement = Vector3.Add(forward, right).Normalize().Scale(movementSpeed * delta)
 
-                this.transform.Position.Sum(movement)
+                this.transform.Position.Add(movement)
                 this.transform.Rotation.Set(rotation)
-                this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + (input.Mouse.Offset.Y * turnSpeed * delta), -80, 80)
+                this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + deltaRotation.Y, -80, 80)
                 
                 this.onInput(input, delta)
             }

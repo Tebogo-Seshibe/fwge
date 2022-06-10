@@ -9,17 +9,17 @@ declare global
     }
 }
 
-Array.prototype.first = function()
+Array.prototype.first = function ()
 {
     return this[0]
 }
 
-Array.prototype.last = function()
+Array.prototype.last = function ()
 {
     return this[this.length - 1]
 }
 
-Array.prototype.swap = function(firstIndex: number, secondIndex: number)
+Array.prototype.swap = function (firstIndex: number, secondIndex: number)
 {
     const left = this[firstIndex]
     const right = this[secondIndex]
@@ -27,11 +27,12 @@ Array.prototype.swap = function(firstIndex: number, secondIndex: number)
     this[secondIndex] = left
 }
 
-Array.prototype.empty = function()
+Array.prototype.empty = function ()
 {
     while (this.length > 0)
     {
         this.pop()
     }
 }
+
 export { }

@@ -6,13 +6,14 @@ export class KeyboardInputHandler
     static readonly TOTAL_KEYS: number = 128
 
     private _keys: KeyState[] = []
+    private _keyDelays: KeyState[] = []
     private _state: KeyboardState
+    private _keyDelay: number = 0.2
     
     public get State(): KeyboardState
     {
         return this._state
     }
-
 
     constructor(private canvas: HTMLCanvasElement)
     {
@@ -30,13 +31,27 @@ export class KeyboardInputHandler
         this.canvas.ownerDocument.documentElement.addEventListener('keyup', this._keyup.bind(this))
     }
 
-    Update(_: number): void
+    Update(delta: number): void
     {
         for (let i = 0 ; i < this._keys.length; ++i)
         {
-            if (this._keys[i] === KeyState.PRESSED)
+            if (this._keyDelays[i] <= 0)
             {
-                this._keys[i] = KeyState.DOWN
+                switch(this._keys[i])
+                {
+                    case KeyState.PRESSED:
+                    case KeyState.DOUBLE_PRESSED:
+                        this._keys[i] = KeyState.DOWN
+                        break
+
+                    case KeyState.RELEASED:
+                        this._keys[i] = KeyState.UP
+                        break
+                }
+            }
+            else
+            {
+                this._keyDelays[i] -= delta
             }
         }
     }
@@ -51,13 +66,22 @@ export class KeyboardInputHandler
     {
         e.preventDefault()
 
-        this._keys[e.which] = KeyState.PRESSED
+        if (this._keys[e.which] === KeyState.UP)
+        {
+            this._keys[e.which] = KeyState.PRESSED
+            this._keyDelays[e.which] = this._keyDelay
+        }
+        else if (this._keys[e.which] === KeyState.RELEASED)
+        {
+            this._keys[e.which] = KeyState.DOUBLE_PRESSED
+            this._keyDelays[e.which] = this._keyDelay
+        }
     }
 
     private _keyup(e: KeyboardEvent)
     {
         e.preventDefault()
 
-        this._keys[e.which] = KeyState.UP
+        this._keys[e.which] = KeyState.RELEASED
     }
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@fwge/common"
+import { Polygon3D, Vector3 } from "@fwge/common"
 import { Entity } from "@fwge/core"
 import { Collider } from "./Collider"
 
@@ -22,13 +22,14 @@ export class SphereCollider extends Collider
     constructor(collider: ISphereCollider = {})
     {
         super(
-            collider.position ?? Vector3.ZERO,
+            collider.position ?? Vector3.Zero,
             collider.isStatic ?? false,
             collider.isTrigger ?? false,
             collider.material,
             collider.onCollisionEnter,
             collider.onCollision,
-            collider.onCollisionExit            
+            collider.onCollisionExit,
+            new Polygon3D([])
         )
 
         this.Radius = collider.radius ?? 0.5

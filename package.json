@@ -17,12 +17,15 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "init": "node ./scripts/init-packages",
-        "link": "node ./scripts/link-packages",
         "publish": "node ./script/publish-packages",
         "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",
-        "cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
+        
+        "lib:clean": "node ./scripts/clean-packages",
+        "lib:init": "node ./scripts/init-packages",
+        "lib:link": "node ./scripts/link-packages",
+
+        "play:cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",
     "keywords": [

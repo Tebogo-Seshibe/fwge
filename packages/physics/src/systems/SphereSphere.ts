@@ -25,7 +25,7 @@ export const detect: CollisionDetect<SphereCollider> = (aPosition: Vector3, aCol
 
 export const resolve: CollisionResovle<SphereCollider> = (aPosition: Vector3, aCollider: SphereCollider, bPosition: Vector3, bCollider: SphereCollider) =>
 {
-    const result: [Vector3, Vector3] = [Vector3.ZERO, Vector3.ZERO]
+    const result: [Vector3, Vector3] = [Vector3.Zero, Vector3.Zero]
 
     const currentCollider = aCollider
     const targetCollider = bCollider
@@ -44,7 +44,7 @@ export const resolve: CollisionResovle<SphereCollider> = (aPosition: Vector3, aC
     if (centerDistance <= radiusDistance)
     {
         const overlap = (centerDistance - radiusDistance)
-        const direction = Vector3.Diff(currentPos, targetPos)
+        const direction = Vector3.Subtract(currentPos, targetPos)
 
         if (currentCollider.IsStatic)
         {

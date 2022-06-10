@@ -34,7 +34,7 @@ export class Simplex3D extends Array<Vector3>
     {
         const [B, A] = this
 
-        const AB = Vector3.Diff(B, A)
+        const AB = Vector3.Subtract(B, A)
         const AO = A.Clone().Scale(-1)
 
         if (sameDirection(AB, AO))
@@ -54,8 +54,8 @@ export class Simplex3D extends Array<Vector3>
     {
         const [C, B, A] = this
 
-        const AB = Vector3.Diff(B, A).Normalize()
-        const AC = Vector3.Diff(C, A).Normalize()
+        const AB = Vector3.Subtract(B, A).Normalize()
+        const AC = Vector3.Subtract(C, A).Normalize()
         const AO = A.Clone().Scale(-1).Normalize()
 
         const ABC = Vector3.Cross(AB, AC)
@@ -99,9 +99,9 @@ export class Simplex3D extends Array<Vector3>
     {
         const [D, C, B, A] = this
 
-        const AB = Vector3.Diff(B, A)
-        const AC = Vector3.Diff(C, A)
-        const AD = Vector3.Diff(D, A)
+        const AB = Vector3.Subtract(B, A)
+        const AC = Vector3.Subtract(C, A)
+        const AD = Vector3.Subtract(D, A)
         const AO = A.Clone().Scale(-1)
 
         const ABC = Vector3.Cross(AB, AC)
@@ -138,7 +138,7 @@ export function sameDirection(direction: Vector3, vector: Vector3): boolean
 
 export function calcSupport(left: Collider, right: Collider, direction: Vector3): Vector3
 {
-    return Vector3.ZERO
+    return Vector3.Zero
     // return Vector3.Diff(
     //     left.findFurthest(direction),
     //     right.findFurthest(direction.Clone().Scale(-1))
@@ -147,7 +147,7 @@ export function calcSupport(left: Collider, right: Collider, direction: Vector3)
 
 export const GJK: CollisionDetect<MeshCollider> = (leftPosition: Vector3, leftCollider: MeshCollider, rightPosition: Vector3, rightCollider: MeshCollider, simplex: Simplex3D) =>
 {    
-    const direction = Vector3.Diff(leftPosition, rightPosition)
+    const direction = Vector3.Subtract(leftPosition, rightPosition)
     const support = calcSupport(leftCollider, rightCollider, direction)
 
     simplex.push(support)
@@ -184,8 +184,8 @@ export class Polytope extends Array<Vector3>
             const B = this[faces[i + 1]]
             const C = this[faces[i + 2]]
             
-            const AB = Vector3.Diff(B, A)
-            const AC = Vector3.Diff(C, A)
+            const AB = Vector3.Subtract(B, A)
+            const AC = Vector3.Subtract(C, A)
 
             const normal = Vector3.Cross(AB, AC).Normalize()
             let dot = normal.Dot(A)
@@ -233,7 +233,7 @@ export function addIfUniqueEdge(edges: [number, number][], faces: number[], a: n
 
 export const EPA: CollisionResovle<MeshCollider> = (_1: Vector3, leftCollider: MeshCollider, _2: Vector3, rightCollider: MeshCollider, simplex: Simplex3D) =>
 {
-    const offset: [Vector3, Vector3] = [Vector3.ZERO, Vector3.ZERO]
+    const offset: [Vector3, Vector3] = [Vector3.Zero, Vector3.Zero]
     const polytope: Polytope = new Polytope(...simplex)
     const faces: number[] = [
         0, 1, 2,
@@ -337,7 +337,7 @@ export const MeshMesh: CollisionTest<MeshCollider> = (leftTransform: Transform, 
     {
         if (leftCollider.IsTrigger || rightCollider.IsTrigger)
         {
-            return [Vector3.ZERO, Vector3.ZERO]
+            return [Vector3.Zero, Vector3.Zero]
         }
 
         return EPA(leftTransform.Position, leftCollider, rightTransform.Position, rightCollider, simplex)

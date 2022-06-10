@@ -1,4 +1,4 @@
-import { GL } from "@fwge/common"
+import { GL, Matrix3 } from "@fwge/common"
 import { Scene, System, Transform } from "@fwge/core"
 import { ShaderAsset } from "../base"
 import { Camera, Material, Particle, ParticleSpawner } from "../components"
@@ -133,9 +133,15 @@ export class ParticleSystem extends System
     {
         const mesh = particleSpawner.ParticleMesh
         const material = particleSpawner.ParticleMaterial
+        const mv = transform.ModelViewMatrix
+        const norm = new Matrix3(            
+            mv[0], mv[1], mv[2],
+            mv[4], mv[5], mv[6],
+            mv[8], mv[9], mv[10]
+        ).Inverse()
 
-        GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, transform.ModelViewMatrix)
-        GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, transform.NormalMatrix)
+        GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, mv)
+        GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, norm)
         
         GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
         

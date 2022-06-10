@@ -42,20 +42,20 @@ export class ColliderRenderSystem extends System
             const transform = entity.GetComponent(Transform)!
             const collider = entity.GetComponent(Collider)!
             
-            transform.Position.Sum(collider.Position)
+            transform.Position.Add(collider.Position)
             if (collider instanceof SphereCollider)
             {
-                transform.Scale.Mult(collider.Radius * 2)
+                transform.Scale.Multiply(collider.Radius * 2)
                 this._drawOutline(transform, this.sphereOutlineMesh2, this.outlineShader)
-                transform.Scale.Mult(1 / (collider.Radius * 2))
+                transform.Scale.Multiply(1 / (collider.Radius * 2))
             }
             else if (collider instanceof CubeCollider)
             {
-                transform.Scale.Mult(collider.Width, collider.Height, collider.Depth)
+                transform.Scale.Multiply(collider.Width, collider.Height, collider.Depth)
                 this._drawOutline(transform, this.cubeOutlineMesh, this.outlineShader)
-                transform.Scale.Mult(1 / collider.Width, 1 / collider.Height, 1 / collider.Depth)
+                transform.Scale.Multiply(1 / collider.Width, 1 / collider.Height, 1 / collider.Depth)
             }
-            transform.Position.Diff(collider.Position)
+            transform.Position.Subtract(collider.Position)
         }
     }
 

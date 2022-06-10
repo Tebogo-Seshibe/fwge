@@ -28,7 +28,7 @@ export function Rotate(matrix: Matrix4, rotation: Vector3): void
     const cos_y = Math.cos(y)
     const cos_z = Math.cos(z)
     
-    matrix.Mult
+    matrix.Multiply
     (
         cos_y * cos_z,
         sin_x * sin_y * cos_z - cos_x * sin_z,
@@ -99,7 +99,7 @@ export function Scale(matrix: Matrix4, scalers: Vector3): void
 
     console.log({a, b, c})
 
-    matrix.Mult
+    matrix.Multiply
     (
         scalers[0],          0,          0, 0,
                  0, scalers[1],          0, 0,
@@ -114,7 +114,7 @@ export function Shear(matrix: Matrix4, angles: Vector3): void
     var theta = radian(angles[1])
     var rho   = radian(angles[2])
 
-    matrix.Mult
+    matrix.Multiply
     (
                   1.0,             0.0, Math.tan(rho), 0.0,
         Math.tan(phi),             1.0,           0.0, 0.0,

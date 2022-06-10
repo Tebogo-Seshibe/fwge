@@ -9,7 +9,7 @@ interface IRigidBody
 
 export class RigidBody extends UniqueComponent
 {
-    Velocity: Vector3 = Vector3.ZERO
+    Velocity: Vector3 = Vector3.Zero
     Mass: number
 
     constructor()
@@ -19,6 +19,6 @@ export class RigidBody extends UniqueComponent
         super()
 
         this.Mass = rigidbody.mass ?? 1.0
-        this.Velocity = rigidbody.velocity ?? Vector3.ZERO
+        this.Velocity = rigidbody.velocity ?? Vector3.Zero
     }
 }

@@ -29,7 +29,7 @@ export class PhysicsSystem extends System
             
             if (rigidbody)
             {
-                transform.Position.Sum(
+                transform.Position.Add(
                     rigidbody.Velocity
                     .Clone()
                     .Scale(delta)
@@ -82,8 +82,8 @@ export class PhysicsSystem extends System
 
             if (collision.displacements)
             {
-                aTransform.Position.Sum(collision.displacements[0])
-                bTransform.Position.Sum(collision.displacements[1])
+                aTransform.Position.Add(collision.displacements[0])
+                bTransform.Position.Add(collision.displacements[1])
             }
         }
     }
