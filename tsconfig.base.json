@@ -10,6 +10,7 @@
         "skipLibCheck": true,
         "removeComments": false,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "composite": true,
         "incremental": true,
     },

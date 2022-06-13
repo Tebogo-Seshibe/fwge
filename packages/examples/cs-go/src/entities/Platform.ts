@@ -6,13 +6,13 @@ import { GameObject } from "./GameObject"
 
 export class Platform extends GameObject
 {
-    @FWGEComponent(StaticMesh, 'Cube')
+    @FWGEComponent('Cube')
     public mesh!: StaticMesh 
     
-    @FWGEComponent(Input)
+    @FWGEComponent()
     public input!: Input
 
-    @FWGEComponent(Material, 'PlaneMaterial')
+    @FWGEComponent('PlaneMaterial')
     public material!: Material
 
     @FWGEComponent(new CubeCollider())
@@ -20,19 +20,20 @@ export class Platform extends GameObject
 
     Start(): void
     {
-        // this.transform.Position.X = 20
-        this.transform.Scale.Set(20.0, 0.2, 20.0)
+        this.transform.Scale.Set(20, 0.2, 20)
+        this.transform.Position.Y = -0.5
         this.input = new Input(
         {
-            onInput: ({Keyboard}, delta) =>
+            onInput: ({ Keyboard }, delta) =>
             {
                 if (Keyboard.KeyUp !== KeyState.UP)
                 {
-                    this.transform.Rotation.Y += delta *5
+                    this.transform.Rotation.Y += delta * 5
                 }
+
                 if (Keyboard.KeyDown !== KeyState.UP)
                 {
-                    this.transform.Rotation.Y -= delta *5
+                    this.transform.Rotation.Y -= delta * 5
                 }
             }  
         })

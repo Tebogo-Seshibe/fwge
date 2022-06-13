@@ -20,7 +20,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@fwge/common": "1.0.0"
+    "@fwge/common": "1.0.0",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",

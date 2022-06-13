@@ -1,9 +1,8 @@
-import { GL, Matrix3, Vector2, Vector3 } from '@fwge/common'
-import { Entity, EntityId, Scene, System, Transform } from '@fwge/core'
+import { GL, Matrix4, Vector3 } from '@fwge/common'
+import { Entity, System, Transform } from '@fwge/core'
 import { DepthType, RenderTarget, ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
-import { ShaderUniforms } from '../components/shader/ShaderUniforms'
 
 export class MeshRenderSystem extends System
 {
@@ -379,8 +378,8 @@ export class MeshRenderSystem extends System
     private _drawGrid()
     {
         GL.useProgram(this._gridShader!.Program)
-        GL.uniformMatrix4fv(this._gridShader!.Matrices!.View, false, Camera.Main!.View)
-        GL.uniformMatrix4fv(this._gridShader!.Matrices!.Projection, false, Camera.Main!.Projection)
+        GL.uniformMatrix4fv(this._gridShader!.Matrices!.View, false, Camera.Main!.ViewMatrix)
+        GL.uniformMatrix4fv(this._gridShader!.Matrices!.Projection, false, Camera.Main!.ProjectionMatrix)
 
         const vertices: number[] = []
 
@@ -403,15 +402,11 @@ export class MeshRenderSystem extends System
     private _drawMesh(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
     {
         const mv = transform.ModelViewMatrix
-        const norm = new Matrix3(            
-            mv[0], mv[1], mv[2],
-            mv[4], mv[5], mv[6],
-            mv[8], mv[9], mv[10]
-        ).Inverse()
+        const norm = mv.Matrix3.Inverse()
 
         GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, mv)
-        GL.uniformMatrix3fv(shader.Matrices!.Normal, false, norm)
+        GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, mv)
+        GL.uniformMatrix3fv(shader.Matrices!.Normal, true, norm)
 
         if (mesh.IndexBuffer)
         {
@@ -430,11 +425,7 @@ export class MeshRenderSystem extends System
     private _drawMeshWireframe(transform: Transform, mesh: Mesh): void
     {
         const mv = transform.ModelViewMatrix
-        const norm = new Matrix3(            
-            mv[0], mv[1], mv[2],
-            mv[4], mv[5], mv[6],
-            mv[8], mv[9], mv[10]
-        ).Inverse()
+        const norm = mv.Matrix3.Inverse()
 
         GL.bindVertexArray(mesh.VertexArrayBuffer)
         GL.uniformMatrix4fv(this._wireframeShader!.Matrices!.ModelView, false, mv)
@@ -449,9 +440,10 @@ export class MeshRenderSystem extends System
 
     private _useShader(shader: ShaderAsset)
     {
+        // console.log(Camera.Main!.Projection)
         GL.useProgram(shader.Program)
-        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
-        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
+        GL.uniformMatrix4fv(shader.Matrices!.View, true, Camera.Main!.ViewMatrix)
+        GL.uniformMatrix4fv(shader.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
     }
 
     private _bindMaterialUniforms(material: Material, shader: ShaderAsset)

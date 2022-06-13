@@ -10,9 +10,9 @@ export class Collider extends SharedComponent
         public IsStatic: boolean,
         public IsTrigger: boolean,
         public Material: any,
-        public OnCollisionEnter: (this: Entity, other: Entity) => void = () => void 0,
-        public OnCollisionUpdate: (this: Entity, other: Entity) => void = () => void 0,
-        public OnCollisionExit: (this: Entity, other: Entity) => void = () => void 0,
+        public OnCollisionEnter: <T extends Entity>(this: T, other: T) => void = () => void 0,
+        public OnCollisionUpdate: <T extends Entity>(this: T, other: T) => void = () => void 0,
+        public OnCollisionExit: <T extends Entity>(this: T, other: T) => void = () => void 0,
         public Polygon: Polygon3D
     ) { super(Collider) }    
 }

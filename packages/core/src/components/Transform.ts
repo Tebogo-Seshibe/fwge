@@ -22,12 +22,14 @@ export class Transform extends UniqueComponent
 
         while (transform)
         {
-            modelviewMatrix.Multiply(
+            Matrix4.Multiply(
                 Matrix4.TransformationMatrix(
                     transform.Position,
                     transform.Rotation,
                     transform.Scale
-                )
+                ),
+                modelviewMatrix,
+                modelviewMatrix
             )
             transform = transform.Owner?.Parent?.GetComponent(Transform)
         }

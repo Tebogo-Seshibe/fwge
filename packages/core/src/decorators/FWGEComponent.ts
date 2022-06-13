@@ -1,33 +1,37 @@
-import { Class, Component, Constructor, Entity, SharedComponent } from "../ecs"
+import 'reflect-metadata'
+import { Class, Component, Entity, SharedComponent } from "../ecs"
+import { GetMetadata } from './utils'
 
+export function FWGEComponent<K extends Component>(): PropertyDecorator
 export function FWGEComponent<K extends Component>(defaultValue: K): PropertyDecorator
-export function FWGEComponent<K extends Component>(type: Class<K>): PropertyDecorator
-export function FWGEComponent<K extends Component>(type: Class<K>, name: string): PropertyDecorator
-export function FWGEComponent<K extends Component, V extends any[]>(constructor: Constructor<K, V>, args: V): PropertyDecorator
-export function FWGEComponent<K extends Component, V extends any[]>(arg: K |  Constructor<K, V>, args?: string | V): PropertyDecorator
+export function FWGEComponent<K extends Component>(name: string): PropertyDecorator
+export function FWGEComponent<K extends Component>(arg?: K | string): PropertyDecorator
 {
     return function (target: Object, propertyKey: string | symbol): void
     {
+        const metadata = GetMetadata(target, propertyKey)
+        const componentType = metadata['design:type']! as Class<K>
         const entity = (target as Entity)
+        if (!componentType || !(componentType?.prototype instanceof Component))
+        {
+            throw new Error(`Decorator not placed on component type. ${target.constructor.name}['${propertyKey as string}']: ${componentType.name}`)
+        }
+
         const OnCreate = (target as any)['OnCreate'] as (this: Entity) => void        
         entity['OnCreate'] = function ()
         {
             let component: K | undefined = undefined
             
-            if (args && typeof args === 'string' && arg instanceof Function)
+            if (typeof arg === 'string')
             {
-                const componentType = arg as any as Class<SharedComponent>
-                const componentName = args
-
-                component = this.Scene.Game.GetFromLibrary(componentType, componentName) as K | undefined
+                component = this.Scene.Game.GetFromLibrary(
+                    componentType as any as Class<SharedComponent>,
+                    arg
+                ) as K | undefined
             }
             else if (arg instanceof Component)
             {
                 component = arg
-            }
-            else if (args)
-            {
-                component = new (arg as Constructor<K, V>)(...args as V)
             }
 
             delete (this as any)[propertyKey]
@@ -36,7 +40,7 @@ export function FWGEComponent<K extends Component, V extends any[]>(arg: K |  Co
                 get: () => component,
                 set: (v: K) =>
                 {
-                    this.RemoveComponent(arg as Class<K>)
+                    this.RemoveComponent(componentType)
                     if (v)
                     {
                         this.AddComponent(v)

@@ -1,7 +1,9 @@
 import { FWGEScene, Scene, ScriptSystem } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
+import { PhysicsSystem } from "@fwge/physics"
 import { MeshRenderSystem } from "@fwge/render"
-import { FPSController } from "../entities"
+import { Cube } from "../entities/Cube"
+import { Eye } from "../entities/Eye"
 import { FullScreen } from "../entities/FullScreen"
 import { Platform } from "../entities/Platform"
 import { ColliderRenderSystem } from "../systems/ColliderRenderSystem"
@@ -10,20 +12,19 @@ import { ColliderRenderSystem } from "../systems/ColliderRenderSystem"
 {
     entities: [
         FullScreen,
-        FPSController,
-        // ...new Array(10).fill(Cube),
+        Eye,
+        ...new Array(25).fill(Cube),
         Platform
     ],
     systems: [
         InputSystem,
         ScriptSystem,
-        // PhysicsSystem,
+        PhysicsSystem,
         MeshRenderSystem,
-        // AnimationSystem,
         ColliderRenderSystem,
     ]
 })
-export class Round extends Scene
+export class Test extends Scene
 {
     fpsCounter!: HTMLDivElement
     Init(): void

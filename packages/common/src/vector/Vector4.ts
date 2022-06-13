@@ -66,14 +66,14 @@ export class Vector4 extends Float32Array
     constructor(vector: Vector4)
     constructor(xyz: Vector3, w: number)
     constructor(array: NumberArray)
-    constructor(_0: Vector4 | Vector4 | NumberArray | number = 0, _1: number = 0, _2?: number, _3?: number)
+    constructor(_0: Vector4 | Vector4 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
     {
         super(typeof _0 === 'number' ?
         [
             _0,
-            _1 !== undefined ? _1 : _0,
-            _2 !== undefined ? _2 : _0,
-            _3 !== undefined ? _3 : _0
+            _1 ?? _0,
+            _2 ?? _0,
+            _3 ?? _0
         ] : [_0[0], _0[1], _0[2], _0[0] ?? _1])
     }
 
@@ -81,7 +81,7 @@ export class Vector4 extends Float32Array
     Set(xyzw: number): Vector4
     Set(x: number, y: number, z: number, w: number): Vector4
     Set(vector: Vector4): Vector4
-    Set(xyz: Vector4, w: number): Vector4
+    Set(xyz: Vector3, w: number): Vector4
     Set(array: NumberArray): Vector4
     Set(_0: Vector4 | Vector4 | NumberArray | number, _1?: number, _2?: number, _3?: number): Vector4
     {
@@ -90,7 +90,7 @@ export class Vector4 extends Float32Array
             this[0] = _0
             this[1] = _1 ?? _0
             this[2] = _2 ?? _0
-            this[2] = _3 ?? _0
+            this[3] = _3 ?? _0
         }
         else
         {            
@@ -124,7 +124,7 @@ export class Vector4 extends Float32Array
             this[0] += _0
             this[1] += _1 ?? _0
             this[2] += _2 ?? _0
-            this[2] += _3 ?? _0
+            this[3] += _3 ?? _0
         }
         else
         {            
@@ -148,7 +148,7 @@ export class Vector4 extends Float32Array
             this[0] -= _0
             this[1] -= _1 ?? _0
             this[2] -= _2 ?? _0
-            this[2] -= _3 ?? _0
+            this[3] -= _3 ?? _0
         }
         else
         {            
@@ -173,7 +173,7 @@ export class Vector4 extends Float32Array
             this[0] *= _0
             this[1] *= _1 ?? _0
             this[2] *= _2 ?? _0
-            this[2] *= _3 ?? _0
+            this[3] *= _3 ?? _0
         }
         else
         {            
@@ -197,7 +197,7 @@ export class Vector4 extends Float32Array
             this[0] *= _0
             this[1] *= _1 ?? _0
             this[2] *= _2 ?? _0
-            this[2] *= _3 ?? _0
+            this[3] *= _3 ?? _0
         }
         else
         {            
@@ -423,7 +423,7 @@ export class Vector4 extends Float32Array
             out[0] = (_0 as number) / (_4 as number)
             out[1] = (_1 as number) / (_5 as number)
             out[2] = (_2 as number) / (_6 as number)
-            out[2] = (_3 as number) / (_7 as number)
+            out[3] = (_3 as number) / (_7 as number)
         }
         else
         {

@@ -241,6 +241,23 @@ export class Matrix4 extends Float32Array
     {
         return this[0] + this[5] + this[10] + this[15]
     }
+
+    get Matrix2(): Matrix2
+    {
+        return new Matrix2(
+            this[0], this[1],
+            this[4], this[5]
+        )
+    }
+
+    get Matrix3(): Matrix3
+    {
+        return new Matrix3(
+            this[0], this[1], this[2],
+            this[4], this[5], this[6],
+            this[8], this[9], this[10]
+        )
+    }
     //#endregion
 
     constructor()
@@ -1253,12 +1270,11 @@ export class Matrix4 extends Float32Array
             : _0
         
         return out.Set(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            translation[0], translation[1], translation[2], 1
+            1, 0, 0, translation[0],
+            0, 1, 0, translation[1],
+            0, 0, 1, translation[2],
+            0, 0, 0, 1
         )
-
     }
 
     static RotationMatrix(xyz: number): Matrix4
@@ -1290,24 +1306,21 @@ export class Matrix4 extends Float32Array
         
         return out.Set(
             cos_y * cos_z,
-            sin_x * sin_y * cos_z - cos_x * sin_z,
-            cos_x * sin_y * cos_z + sin_x * sin_z,
-            0,
-
             cos_y * sin_z,
-            sin_x * sin_y * sin_z + cos_x * cos_z,
-            cos_x * sin_y * sin_z - sin_x * cos_z,
+            -sin_y,
             0,
 
-            -sin_y,
+            sin_x * sin_y * cos_z - cos_x * sin_z,
+            sin_x * sin_y * sin_z + cos_x * cos_z,
             sin_x * cos_y,
+            0,
+
+            cos_x * sin_y * cos_z + sin_x * sin_z,
+            cos_x * sin_y * sin_z - sin_x * cos_z,
             cos_x * cos_y,
             0,
 
-            0,
-            0,
-            0,
-            1,
+            0,0,0,1
         )
     }
 
@@ -1346,9 +1359,9 @@ export class Matrix4 extends Float32Array
         const RotationMatrix =  Matrix4.RotationMatrix(_1)
         const TranslationMatrix =  Matrix4.TranslationMatrix(_0)
 
-        return out.Set(ScaleMatrix)
+        return out.Set(TranslationMatrix)
             .Multiply(RotationMatrix)
-            .Multiply(TranslationMatrix)
+            .Multiply(ScaleMatrix)
     }
 
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number): Matrix4
@@ -1413,17 +1426,19 @@ export class Matrix4 extends Float32Array
     static PerspectiveProjection(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4
     static PerspectiveProjection(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4
     {
-        const out = _4 ?? new Matrix4()
-        const top   = _0 * Math.tan(radian(_2) / 2)
+        const out   = _4 ?? new Matrix4()
+        const near  = _0
+        const far   = _1
+        const top   = near * Math.tan(radian(_2) / 2)
         const right = top * _3
-        const depth = _1 - _0
+        const depth = far - near
 
         return out.Set
         (
-            _0 / right,        0,                      0,  0,
-                     0, _0 / top,                      0,  0,
-                     0,        0,     -(_1 + _0) / depth, -1,
-                     0,        0, -(2 * _1 * _0) / depth,  0
+            near / right,          0,                         0,                         0,
+                       0, near / top,                         0,                         0,
+                       0,          0,     -(far + near) / depth, -(2 * far * near) / depth,
+                       0,          0,                        -1,                         0
         )
     }
     //#endregion

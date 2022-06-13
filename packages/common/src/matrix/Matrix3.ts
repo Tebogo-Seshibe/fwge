@@ -686,13 +686,15 @@ export class Matrix3 extends Float32Array
         
         return out.Set(
             cos_y * cos_z,
-            sin_x * sin_y * cos_z - cos_x * sin_z,
-            cos_x * sin_y * cos_z + sin_x * sin_z,
             cos_y * sin_z,
-            sin_x * sin_y * sin_z + cos_x * cos_z,
-            cos_x * sin_y * sin_z - sin_x * cos_z,
             -sin_y,
+
+            sin_x * sin_y * cos_z - cos_x * sin_z,
+            sin_x * sin_y * sin_z + cos_x * cos_z,
             sin_x * cos_y,
+
+            cos_x * sin_y * cos_z + sin_x * sin_z,
+            cos_x * sin_y * sin_z - sin_x * cos_z,
             cos_x * cos_y
         )
     }

@@ -182,8 +182,8 @@ export class ParticleSystem extends System
     private _useShader(shader: ShaderAsset)
     {
         GL.useProgram(shader.Program)
-        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
-        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
+        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.ViewMatrix)
+        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.ProjectionMatrix)
     }
 
     private _bindMaterialUniforms(material: Material, shader: ShaderAsset)

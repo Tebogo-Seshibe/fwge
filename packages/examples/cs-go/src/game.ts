@@ -3,6 +3,7 @@ import { createCube } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial } from './components/Materials'
 import { Credits, LoadingScreen, MainMenu, Round } from './scenes'
+import { Test } from './scenes/Test'
 
 @FWGEGame(
 {
@@ -12,7 +13,8 @@ import { Credits, LoadingScreen, MainMenu, Round } from './scenes'
         LoadingScreen,
         Credits,
         Credits,
-        Round
+        Round,
+        Test
     ],
     library: [
         ['Cube', createCube],

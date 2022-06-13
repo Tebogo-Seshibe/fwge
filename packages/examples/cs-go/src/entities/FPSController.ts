@@ -2,7 +2,8 @@ import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
 import { Entity, FWGEComponent, Scene, Transform } from "@fwge/core"
 import { IInputArgs, Input, KeyState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody, SphereCollider } from "@fwge/physics"
-import { Camera } from "@fwge/render"
+import { Camera, PerspectiveCamera } from "@fwge/render"
+import { GameObject } from "./GameObject"
 
 type OnInput = (args: IInputArgs, delta: number) => void
 
@@ -39,7 +40,11 @@ export class FPSController extends Entity
     @FWGEComponent(new RigidBody({ mass: 5 }))
     rigidbody!: RigidBody
 
-    @FWGEComponent(new SphereCollider({ position: new Vector3(0, 0.25, 0) }))
+    @FWGEComponent(new SphereCollider(
+    {
+        isTrigger: true,
+        position: new Vector3(0, 0.25, 0),
+    }))
     collider!: Collider
     
     @FWGEComponent(new Transform({ position: [ 0, 0, 5 ]}))
@@ -49,7 +54,7 @@ export class FPSController extends Entity
     {
         super(scene)
 
-        this.camera = args.camera ?? new Camera()
+        this.camera = args.camera ?? new PerspectiveCamera()
         this.cameraTransform = new Transform({ position: args.eyeLevel ?? [0, 1.8, 0] })
         
         this.onInput = ({ Keyboard }) =>
@@ -93,9 +98,9 @@ export class FPSController extends Entity
                 const deltaRotation = Vector2.Scale(input.Mouse.Offset, this.turnSpeed * delta)
                 const rotation = this.transform.Rotation.Clone().Add(0, deltaRotation.X, 0)
                 
-                const rotationMatrix = Matrix3.RotationMatrix(0, -rotation.Y, 0)
-                const forward = Matrix3.MultiplyVector(rotationMatrix, FPSController.FORWARD).Normalize()
-                const right = Matrix3.MultiplyVector(rotationMatrix, FPSController.RIGHT).Normalize()
+                const rotationMatrix = Matrix3.RotationMatrix(0, rotation.Y, 0)
+                const forward = Matrix3.MultiplyVector(rotationMatrix, 0, 0, -1).Normalize()
+                const right = Matrix3.MultiplyVector(rotationMatrix, 1, 0, 0).Normalize()
                 
                 if ((wPressed && sPressed) || (!wPressed && !sPressed))
                 {

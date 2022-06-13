@@ -53,7 +53,7 @@ export class ColliderRenderSystem extends System
             {
                 transform.Scale.Multiply(collider.Width, collider.Height, collider.Depth)
                 this._drawOutline(transform, this.cubeOutlineMesh, this.outlineShader)
-                transform.Scale.Multiply(1 / collider.Width, 1 / collider.Height, 1 / collider.Depth)
+                transform.Scale.Divide(collider.Width, collider.Height, collider.Depth)
             }
             transform.Position.Subtract(collider.Position)
         }
@@ -67,7 +67,7 @@ export class ColliderRenderSystem extends System
     private _drawOutline(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, false, transform.ModelViewMatrix)
+        GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, transform.ModelViewMatrix)
 
         if (mesh.IndexBuffer)
         {
@@ -87,8 +87,8 @@ export class ColliderRenderSystem extends System
     {
         const shader = this.outlineShader
         GL.useProgram(shader.Program)
-        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.View)
-        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.Projection)
+        GL.uniformMatrix4fv(shader.Matrices!.View, true, Camera.Main!.ViewMatrix)
+        GL.uniformMatrix4fv(shader.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
     }
 
     private buildSphereOutlineTools()
