@@ -1,9 +1,9 @@
 import { Colour4 } from "../../base"
 import { Light } from "./Light"
 
-interface ISpotLight
+export interface ISpotLight
 {
-    colour?: Colour4
+    colour?: [number, number, number, number]
 }
 
 export class SpotLight extends Light
@@ -12,6 +12,8 @@ export class SpotLight extends Light
     constructor(light: ISpotLight)
     constructor(light: ISpotLight = { })
     {
-        super(light.colour)
+        super(new Colour4(
+            light.colour! ?? [255, 255, 255, 255]
+        ))
     }
 }

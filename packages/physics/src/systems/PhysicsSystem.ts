@@ -53,8 +53,8 @@ export class PhysicsSystem extends System
         {
             const [aId, bId] = collisionId.split('-').map(Number)
 
-            const aEntity = this.scene.GetEntity(aId)!
-            const bEntity = this.scene.GetEntity(bId)!
+            const aEntity = this.Scene.GetEntity(aId)!
+            const bEntity = this.Scene.GetEntity(bId)!
 
             const aCollider = aEntity.GetComponent(Collider)!
             const bCollider = bEntity.GetComponent(Collider)!

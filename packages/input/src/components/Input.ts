@@ -9,12 +9,12 @@ export interface IInputArgs
 }
 interface IInput
 {
-    onInput: <T extends Entity>(this: T, input: IInputArgs, delta: number) => void
+    onInput: (input: IInputArgs, delta: number) => void
 }
 
 export class Input extends SharedComponent
 {
-    OnInput: <T extends Entity>(this: T, input: IInputArgs, delta: number) => void
+    OnInput: (input: IInputArgs, delta: number) => void
     
     constructor(args: IInput)
     {

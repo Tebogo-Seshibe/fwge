@@ -81,7 +81,7 @@ export class ShaderAsset extends Asset
 
     constructor(config: IShaderAsset)
     {
-        super('')
+        super()
 
         this._vertexSource = config.vertexShader.source
         this._fragmentSource = config.fragmentShader.source

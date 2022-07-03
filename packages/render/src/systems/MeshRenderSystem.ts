@@ -1,4 +1,4 @@
-import { GL, Matrix4, Vector3 } from '@fwge/common'
+import { GL, Vector3 } from '@fwge/common'
 import { Entity, System, Transform } from '@fwge/core'
 import { DepthType, RenderTarget, ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
@@ -77,7 +77,7 @@ export class MeshRenderSystem extends System
                 }
             ]
         })
-            
+
         this._buildWireframeShader()
         this._buildGridShader()
         this._createRenderBatches()
@@ -278,23 +278,25 @@ export class MeshRenderSystem extends System
     Stop(): void { }
 
     Update(delta: number): void
-    {
+    {        
         if (!Camera.Main)
         {
             return
         }
 
         // GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
-        // GL.clearColor(0,0,0,0)
-        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
         // GL.enable(GL.DEPTH_TEST)
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-
+        
         // if (this.RenderGrid)
         // {
-        //     this._drawGrid()
+            this._drawGrid()
         // }
         
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0,0,0,1)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+
         for (const material of this._orderedBatches)
         {
             const entityList = this._batches.get(material)!
@@ -450,24 +452,24 @@ export class MeshRenderSystem extends System
     {
         GL.uniform4f(
             shader.Material!.AmbientColour,
-            material.Ambient[0],
-            material.Ambient[1],
-            material.Ambient[2],
-            material.Ambient[3],
+            material.Ambient[0] / 255,
+            material.Ambient[1] / 255,
+            material.Ambient[2] / 255,
+            material.Ambient[3] / 255,
         )
         GL.uniform4f(
             shader.Material!.DiffuseColour,
-            material.Diffuse[0],
-            material.Diffuse[1],
-            material.Diffuse[2],
-            material.Diffuse[3],
+            material.Diffuse[0] / 255,
+            material.Diffuse[1] / 255,
+            material.Diffuse[2] / 255,
+            material.Diffuse[3] / 255,
         )
         GL.uniform4f(
             shader.Material!.SpecularColour,
-            material.Specular[0],
-            material.Specular[1],
-            material.Specular[2],
-            material.Specular[3],
+            material.Specular[0] / 255,
+            material.Specular[1] / 255,
+            material.Specular[2] / 255,
+            material.Specular[3] / 255,
         )
         GL.uniform1f(shader.Material!.Shininess, material.Shininess)
         GL.uniform1f(shader.Material!.Alpha, material.Alpha)

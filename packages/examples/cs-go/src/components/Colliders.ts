@@ -23,6 +23,6 @@ export const cubeCollier = () => new MeshCollider(
         3,2, 2,6, 6,7, 7,3, // RIGHT
     ],
     isStatic: false,
-    position: Vector3.ZERO
+    position: Vector3.Zero
 })
 

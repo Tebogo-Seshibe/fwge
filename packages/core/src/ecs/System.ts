@@ -1,9 +1,8 @@
 import { Scene } from "../base/Scene"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
-import { Class } from "./Registry"
+import { Class, RegistryType } from "./Registry"
 
-let _systemTypeId: number = 0
 interface ISystem
 {
     async?: boolean
@@ -11,45 +10,24 @@ interface ISystem
     requiredComponents: Class<Component>[]
 }
 
-export abstract class System
+export abstract class System extends RegistryType
 {
-    public readonly Type: Class<System>
-    private readonly _tickRate: number
-    private readonly _async: boolean
-
-    private _prevTick: number = -1
-    private _currTick: number = -1
-    private _tickId: number = -1
-    private _scene: Scene | undefined
-
     public readonly entities: Entity[] = []
     public readonly requiredComponents: Set<Class<Component>> = new Set()
 
-    public get scene(): Scene
+    public get Scene(): Scene
     {
-        if (!this._scene)
+        if (!this.#scene)
         { 
             throw new Error(`No scene assinged to current system of type "${this.Type.name}"`)
         }
 
-        return this._scene
+        return this.#scene
     }
 
-    public setScene(newScene: Scene)
+    public set Scene(newScene: Scene)
     {
-        this._scene = newScene
-    }
-
-    constructor(config: ISystem)
-    {
-        this.Type = new.target as Class<System>
-        if (this.Type._typeId === undefined)
-        {
-            this.Type._typeId = _systemTypeId++
-        }
-        this._async = config.async ?? false
-        this._tickRate = config.tickRate ?? 60
-        this.requiredComponents = new Set(config.requiredComponents)
+        this.#scene = newScene
     }
 
     public abstract Init(): void
@@ -62,13 +40,14 @@ export abstract class System
     {
         this.entities.empty()
     }
+
     public onStart()
     {
-        if (this._async)
+        if (this.#async)
         {
-            this._prevTick = Date.now()
-            this._currTick = Date.now()
-            window.setInterval(this.onUpdate.bind(this), this._tickRate)
+            this.#prevTick = Date.now()
+            this.#currTick = Date.now()
+            window.setInterval(this.onUpdate.bind(this), this.#tickRate)
         }
 
         this.Start()
@@ -76,19 +55,19 @@ export abstract class System
 
     protected onUpdate()
     {
-        this._prevTick = this._currTick
-        this._currTick = Date.now()
+        this.#prevTick = this.#currTick
+        this.#currTick = Date.now()
 
-        this.Update((this._currTick - this._prevTick) / 1000)
+        this.Update((this.#currTick - this.#prevTick) / 1000)
     }
 
     public onStop()
     {
-        if (this._async)
+        if (this.#async)
         {
-            this._prevTick = -1
-            this._currTick = -1
-            window.clearInterval(this._tickId)
+            this.#prevTick = -1
+            this.#currTick = -1
+            window.clearInterval(this.#tickId)
         }
 
         this.Stop()
@@ -114,14 +93,37 @@ export abstract class System
 
     protected IsValidEntity(entity: Entity): boolean
     {
-        let valid = this.requiredComponents.size > 0
-
+        if (this.requiredComponents.size === 0)
+        {
+            return true
+        }
+        
         for (const componentType of this.requiredComponents)
         {
-            valid = valid && entity.HasComponent(componentType)
+            if (!entity.HasComponent(componentType))
+            {
+                return false
+            }
         }
 
-        return valid
+        return true
     }
     //#endregion
+
+    readonly #tickRate: number
+    readonly #async: boolean
+
+    #prevTick: number = -1
+    #currTick: number = -1
+    #tickId: number = -1
+    #scene: Scene | undefined    
+
+    constructor(config: ISystem)
+    {
+        super(new.target as Class<System>)
+
+        this.#async = config.async ?? false
+        this.#tickRate = config.tickRate ?? 60
+        this.requiredComponents = new Set(config.requiredComponents)
+    }
 }

@@ -1,5 +1,4 @@
 import { Matrix3, Vector2, Vector3 } from "@fwge/common"
-import { FWGEComponent } from "@fwge/core"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, SphereCollider } from "@fwge/physics"
 import { Camera, Material, PerspectiveCamera } from "@fwge/render"
@@ -8,35 +7,7 @@ import { GameObject } from "./GameObject"
 
 export class Eye extends GameObject
 {
-    @FWGEComponent(new PerspectiveCamera())
-    camera!: Camera
-
-    @FWGEComponent(new SphereCollider(
-    {
-        isTrigger: true,
-        onCollisionEnter: other =>
-        {
-            const otherMaterial = other instanceof Cube 
-                ? other.material
-                : other.GetComponent(Material)
-
-            if (otherMaterial)
-            {
-                otherMaterial.Ambient.Set(1,0,0,1)
-            }
-        },
-        onCollisionExit: other =>
-        {
-            const otherMaterial = other instanceof Cube 
-                ? other.material
-                : other.GetComponent(Material)
-
-            if (otherMaterial)
-            {
-                otherMaterial.Ambient.Set(1,1,1,1)
-            }
-        }
-    }))
+    camera!: Camera 
     collider!: Collider
 
     private readonly movementSpeed: number = 5
@@ -45,12 +16,47 @@ export class Eye extends GameObject
     override OnCreate()
     {
         super.OnCreate()
+
+        this.camera = new PerspectiveCamera()
+        this.collider = new SphereCollider(
+        {
+            isTrigger: true,
+            onCollisionEnter: other =>
+            {
+                const otherMaterial = other instanceof Cube 
+                    ? other.material
+                    : other.GetComponent(Material)
     
-        Camera.Main = this.camera
-        this.transform.Position.Z = 5
+                if (otherMaterial)
+                {
+                    otherMaterial.Ambient.Set(1,0,0,1)
+                }
+            },
+            onCollisionExit: other =>
+            {
+                const otherMaterial = other instanceof Cube 
+                    ? other.material
+                    : other.GetComponent(Material)
+    
+                if (otherMaterial)
+                {
+                    otherMaterial.Ambient.Set(1,1,1,1)
+                }
+            }
+        })
+
+        this.AddComponent(this.camera)
+        // this.AddComponent(this.collider)
     }
 
-    override Input({ Keyboard, Mouse }: IInputArgs, delta: number): void
+    OnStart()
+    {
+        Camera.Main = this.camera
+        this.transform.Position.Z = 5
+        this.transform.Position.Y = 1
+    }
+
+    override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
     {
         const wPressed = Keyboard.KeyW !== KeyState.RELEASED && Keyboard.KeyW !== KeyState.UP
         const aPressed = Keyboard.KeyA !== KeyState.RELEASED && Keyboard.KeyA !== KeyState.UP

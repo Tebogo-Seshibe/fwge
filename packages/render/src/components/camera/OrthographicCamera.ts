@@ -2,13 +2,6 @@ import { Matrix4, Vector3 } from '@fwge/common'
 import { Transform, UniqueComponent } from '@fwge/core'
 import { Camera } from './Camera'
 
-export enum ViewMode
-{
-    PERSPECTIVE,
-    ORTHOGRAPHIC,
-    LOOKAT
-}
-
 export interface IOrthographicCamera
 {
     near?: number
@@ -23,12 +16,6 @@ export interface IOrthographicCamera
 
 export abstract class OrthographicCamera extends Camera
 {
-    private _matrix: Matrix4 = Matrix4.Identity
-    public set Projection(projection: Matrix4)
-    {
-        this._matrix = projection
-    }
-
     UpdateProjection(): void
     {
         Matrix4.OrthographicProjection(
@@ -36,11 +23,11 @@ export abstract class OrthographicCamera extends Camera
             this.Top, this.Bottom,
             this.Near, this.Far,
             this.HorizontalTilt, this.VerticalTilt,
-            this._matrix
+            this.ProjectionMatrix
         )
     }
     
-    private  _near: number
+    private _near: number
     
     get Near(): number
     {
@@ -53,7 +40,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _far: number
+    private _far: number
     
     get Far(): number
     {
@@ -66,7 +53,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _left: number
+    private _left: number
     
     get Left(): number
     {
@@ -79,7 +66,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _right: number
+    private _right: number
     
     get Right(): number
     {
@@ -92,7 +79,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _top: number
+    private _top: number
     
     get Top(): number
     {
@@ -105,7 +92,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _bottom: number
+    private _bottom: number
     
     get Bottom(): number
     {
@@ -118,7 +105,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _horizontalTilt: number
+    private _horizontalTilt: number
     
     get HorizontalTilt(): number
     {
@@ -131,7 +118,7 @@ export abstract class OrthographicCamera extends Camera
         this.UpdateProjection()
     }
     
-    private  _verticalTilt: number
+    private _verticalTilt: number
     
     get VerticalTilt(): number
     {
@@ -158,5 +145,6 @@ export abstract class OrthographicCamera extends Camera
         this._bottom = camera.bottom ?? -10
         this._horizontalTilt = camera.horizontalTilt ?? 90
         this._verticalTilt = camera.vericalTilt ?? 90
+        this.UpdateProjection()
     }
 }

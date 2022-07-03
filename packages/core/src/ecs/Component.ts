@@ -1,72 +1,64 @@
 import { Entity } from "./Entity"
-import { Class, ComponentId, nextId } from "./Registry"
+import { Class, RegistryType } from "./Registry"
 
-let _typeId: number = 0
-export abstract class Component
+export class Component extends RegistryType
 {
-    public readonly Id: ComponentId
-    public readonly Type: Class<Component>
+    AddOwner(entitiy: Entity): void { }
+    RemoveOwner(entity: Entity): void { }
 
     constructor()
     constructor(componentType: Class<Component>)
     constructor(type?: Class<Component>)
     {
-        this.Type = type ?? new.target as Class<Component>
-        if (this.Type._typeId === undefined)
-        {
-            this.Type._typeId = _typeId++
-        }
-        this.Id = nextId(this.Type)
+        super(type)
     }
-
-    public abstract AddOwner(owner: Entity): void
-    public abstract RemoveOwner(owner: Entity): void
 }
 
 export abstract class SharedComponent extends Component
 {
-    private _owners: Entity[] = []
-
     public get Owners(): Entity[]
     {
-        return this._owners
+        return this.#owners
     }
 
-    public AddOwner(owner: Entity)
+    public AddOwner(entity: Entity): void
     {
-        if (!this._owners.includes(owner))
+        if (!this.#owners.includes(entity))
         {
-            this._owners.push(owner)
+            this.#owners.push(entity)
         }
     }
 
-    public RemoveOwner(owner: Entity)
+    public RemoveOwner(entity: Entity): void
     {
-        if (this._owners.includes(owner))
+        const parentIndex = this.#owners.indexOf(entity)
+
+        if (parentIndex !== -1)
         {
-            const parentIndex = this._owners.indexOf(owner)
-            this._owners.swap(parentIndex, this._owners.length - 1)
-            this._owners.pop()
+            this.#owners.swap(parentIndex, this.#owners.length - 1)
+            this.#owners.pop()
         }
     }
+
+    #owners: Entity[] = []
 }
 
 export abstract class UniqueComponent extends Component
 {
-    private _owner?: Entity
-
     public get Owner(): Entity | undefined
     {
-        return this._owner
+        return this.#owner
     }
 
-    public AddOwner(owner: Entity)
+    public AddOwner(owner: Entity): void
     {
-        this._owner = owner
+        this.#owner = owner
     }
 
-    public RemoveOwner(_?: Entity)
+    public RemoveOwner(_?: Entity): void
     {
-        this._owner = undefined
+        this.#owner = undefined
     }
+
+    #owner?: Entity
 }

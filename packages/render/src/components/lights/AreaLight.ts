@@ -1,9 +1,9 @@
 import { Colour4 } from "../../base"
 import { Light } from "./Light"
 
-interface IAreaLight
+export interface IAreaLight
 {
-    colour?: Colour4
+    colour?: [number, number, number, number]
 }
 
 export class AreaLight extends Light
@@ -12,6 +12,8 @@ export class AreaLight extends Light
     constructor(light: IAreaLight)
     constructor(light: IAreaLight = { })
     {
-        super(light.colour)
+        super(new Colour4(
+            light.colour! ?? [255, 255, 255, 255]
+        ))
     }
 }

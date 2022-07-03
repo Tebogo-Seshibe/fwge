@@ -1,15 +1,20 @@
 import { AnimationSystem } from "@fwge/animation"
-import { FWGEScene, Scene } from "@fwge/core"
+import { Game, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MeshRenderSystem } from "@fwge/render"
 
-@FWGEScene(
+
+export class Credits extends Scene
 {
-    entities: [],
-    systems: [
-        InputSystem,
-        MeshRenderSystem,
-        AnimationSystem,
-    ]
-})
-export class Credits extends Scene { }
+    constructor(game: Game)
+    {
+        super(game, {
+            entities: [],
+            systems: [
+                InputSystem,
+                MeshRenderSystem,
+                AnimationSystem,
+            ]
+        })
+    }
+}

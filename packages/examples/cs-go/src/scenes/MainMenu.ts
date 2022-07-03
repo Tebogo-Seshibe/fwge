@@ -1,18 +1,21 @@
 import { AnimationSystem } from "@fwge/animation"
-import { FWGEScene, Scene } from "@fwge/core"
+import { Game, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MeshRenderSystem } from "@fwge/render"
-import { FullScreen } from "../entities/FullScreen"
 
-@FWGEScene(
+export class MainMenu extends Scene
 {
-    entities: [
-        FullScreen
-    ],
-    systems: [
-        InputSystem,
-        MeshRenderSystem,
-        AnimationSystem,
-    ]
-})
-export class MainMenu extends Scene { }
+    constructor(game: Game)
+    {
+        super(game, {
+            entities: [
+                // FullScreen
+            ],
+            systems: [
+                InputSystem,
+                MeshRenderSystem,
+                AnimationSystem,
+            ]
+        })
+    }
+}

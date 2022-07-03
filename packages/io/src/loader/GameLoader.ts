@@ -1,9 +1,9 @@
-import { Class, Component, Entity, Game, Prefab, Scene, Script, ScriptSystem, System, Tag, Transform } from "@fwge/core";
-import { ILoader } from "./ILoader";
+import { Class, Component, Entity, Game, Prefab, Scene, Script, ScriptSystem, System, Tag, Transform } from "@fwge/core"
+import { Input, InputSystem } from "@fwge/input"
+import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
+import { AreaLight, Camera, DirectionalLight, DynamicMesh, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, ShaderAsset, SpotLight, StaticMesh } from "@fwge/render"
 import exampleScene from './example.scene'
-import { AreaLight, Camera, DiffuseLight, DynamicMesh, Material, MeshRenderSystem, ParticleSpawner, ParticleSystem, PointLight, ShaderAsset, SpotLight, StaticMesh } from "@fwge/render";
-import { Input, InputSystem } from "@fwge/input";
-import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics";
+import { ILoader } from "./ILoader"
 
 interface SceneConfig
 {
@@ -75,7 +75,7 @@ TypeMappers.set('RigidBody', RigidBody)
 
 TypeMappers.set('AreaLight', AreaLight)
 // TypeMappers.set('AmbientLight', AmbientLight)
-TypeMappers.set('DiffuseLight', DiffuseLight)
+TypeMappers.set('DirectionalLight', DirectionalLight)
 TypeMappers.set('PointLight', PointLight)
 TypeMappers.set('SpotLight', SpotLight)
 TypeMappers.set('DynamicMesh', DynamicMesh)

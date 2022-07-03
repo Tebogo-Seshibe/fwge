@@ -6,14 +6,19 @@ export type Metadata = {
     ['design:returntypes']: Function[] | undefined
 }
 
-export const GetMetadata = function (target: Object, propertyKey: string | symbol)
+export const GetMetadata = function (target: Object, propertyKey?: string | symbol): Metadata
 {
-    return Reflect.getMetadataKeys(target, propertyKey)
-        .reduce((curr: Metadata, key: MetadataKey) => (
-        {
-            ...curr,
-            [key]: Reflect.getMetadata(key, target, propertyKey)
-        }),
-        { }
-    )
+    return propertyKey 
+        ? Reflect.getMetadataKeys(target, propertyKey)
+            .reduce((curr: Metadata, key: MetadataKey) => (
+            {
+                ...curr,
+                [key]: Reflect.getMetadata(key, target, propertyKey)
+            }), { })
+        : Reflect.getMetadataKeys(target)
+            .reduce((curr: Metadata, key: MetadataKey) => (
+            {
+                ...curr,
+                [key]: Reflect.getMetadata(key, target)
+            }), { })
 }

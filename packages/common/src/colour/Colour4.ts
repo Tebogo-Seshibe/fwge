@@ -87,33 +87,43 @@ export class Colour4 extends Uint8Array
     constructor(r: number, g: number, b: number, a: number)
     constructor(colour: Colour3, alpha: number)
     constructor(colour: Colour4)
-    constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number)
+    constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
     {
         super(typeof _0 === 'number' ? 
         [
             _0,
             _1 ?? _0,
-            _2 ?? _0
+            _2 ?? _0,
+            _3 ?? _0
         ] : [_0[0], _0[1], _0[2], _0[3] ?? _1])
     }
     
-    Set(rgb: number): Colour4
-    Set(r: number, g: number, b: number): Colour4
-    Set(colour: Colour3): Colour4
+    Set(rgba: number): Colour4
+    Set(r: number, g: number, b: number, a: number): Colour4
+    Set(rgb: Colour3, a: number): Colour4
     Set(colour: Colour4): Colour4
-    Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number): Colour4
+    Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number, _3?: number): Colour4
     {
+        console.log(
+        [
+            _0,
+            _1,
+            _2,
+            _3
+        ])
         if (typeof _0 === 'number')
         {
             this[0] = _0
             this[1] = _1 ?? _0
             this[2] = _2 ?? _0
+            this[3] = _3 ?? _0
         }
         else
         {            
             this[0] = _0[0]
             this[1] = _0[1]
             this[2] = _0[2]
+            this[3] = _0[3] ?? _1
         }
         
         return this

@@ -1,5 +1,4 @@
-import { lerp, Vector3, Vector4 } from "@fwge/common"
-import { Colour3, Colour4 } from "@fwge/render"
+import { lerp, Vector3, Vector4, Colour3, Colour4 } from "@fwge/common"
 import { Transition } from "./Transition"
 
 export const lerpVector3: Transition<Vector3> = (t: number, curr: Vector3, next: Vector3, out: Vector3): void =>

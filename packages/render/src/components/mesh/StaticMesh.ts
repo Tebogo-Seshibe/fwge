@@ -3,7 +3,7 @@ import { Colour4 } from '../../base'
 import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
 import { Mesh } from './Mesh'
 
-interface IMesh
+export interface IMesh
 {
     position: Vector3[] | [number, number, number][]
     normal?: Vector3[] | [number, number, number][]
@@ -171,7 +171,7 @@ export class StaticMesh extends Mesh
         if (colourOffset !== -1)
         {
             GL.enableVertexAttribArray(COLOUR_INDEX)
-            GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, colourOffset)
+            GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.UNSIGNED_BYTE, false, vertexSize, colourOffset)
         }
         GL.bindVertexArray(null)
         GL.bindBuffer(GL.ARRAY_BUFFER, null)

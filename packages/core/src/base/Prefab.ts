@@ -58,22 +58,22 @@ export class Prefab<K extends Entity, V extends any[] | never>
         return this
     }
 
-    Instance(scene: Scene, ...args: V): K
-    {
-        const entity = args !== undefined 
-            ? scene.CreateEntity(this.Type, ...args)
-            : scene.CreateEntity(this.Type, ...this.Args)
+    // Instance(scene: BaseScene, ...args: V): K
+    // {
+    //     const entity = args !== undefined 
+    //         ? scene.CreateEntity(this.Type, ...args)
+    //         : scene.CreateEntity(this.Type, ...this.Args)
 
-        for (let [, component] of this._components)
-        {         
-            entity.AddComponent(component)
-        }
+    //     for (let [, component] of this._components)
+    //     {         
+    //         entity.AddComponent(component)
+    //     }
 
-        for (const child of this._children)
-        {
-            entity.AddChild(child.Instance(scene))
-        }
+    //     for (const child of this._children)
+    //     {
+    //         entity.AddChild(child.Instance(scene))
+    //     }
 
-        return entity
-    }
+    //     return entity
+    // }
 }

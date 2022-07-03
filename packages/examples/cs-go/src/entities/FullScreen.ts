@@ -1,4 +1,5 @@
-import { ButtonState, Input, KeyState } from "@fwge/input"
+import { GL } from "@fwge/common"
+import { ButtonState, IInputArgs, KeyState } from "@fwge/input"
 import { GameObject } from "./GameObject"
 
 export class FullScreen extends GameObject
@@ -7,51 +8,53 @@ export class FullScreen extends GameObject
     fullscreen: boolean = false
     hideCursor: boolean = false
  
-    OnCreate(): void
+    override OnCreate(): void
     {
-        this.canvas = document.querySelector<HTMLCanvasElement>('#canvas')!
-        this.AddComponent(new Input(
-        {
-            onInput: ({ Keyboard, Mouse }) =>
-            {
-                if (!this.fullscreen && Keyboard.KeyF === KeyState.PRESSED)
-                {
-                    this.fullscreen = true                    
-                    this.canvas.requestFullscreen()
-                }
-
-                if (!this.hideCursor && Mouse.Left === ButtonState.PRESSED)
-                {
-                    this.hideCursor = true                    
-                    this.canvas.requestPointerLock()
-                }
-
-                if (Keyboard.KeyEsc === KeyState.DOWN)
-                {
-                    if (document.fullscreenEnabled)
-                    {
-                        
-                        document.exitFullscreen()
-                        this.fullscreen = false
-                    }
-
-                    if (this.hideCursor)
-                    {
-                        document.exitPointerLock()
-                        this.hideCursor = false
-                    }
-                }
-
-                if (Keyboard.KeyF5 === KeyState.PRESSED)
-                {
-                    window.location.reload()
-                }
-            }
-        }))
+        super.OnCreate()
+        this.canvas = GL.canvas
+        //document.querySelector<HTMLCanvasElement>('#canvas')!
     }
 
-    Update(_: number): void {
+    override OnUpdate(): void
+    {
         this.canvas.height = this.canvas.clientHeight
         this.canvas.width = this.canvas.clientWidth
     }
+
+    override OnInput({ Keyboard, Mouse }: IInputArgs): void
+    {
+        if (!this.fullscreen && Keyboard.KeyF === KeyState.PRESSED)
+        {
+            this.fullscreen = true                    
+            this.canvas.requestFullscreen()
+        }
+
+        if (!this.hideCursor && Mouse.Left === ButtonState.PRESSED)
+        {
+            this.hideCursor = true                    
+            this.canvas.requestPointerLock()
+        }
+
+        if (Keyboard.KeyEsc === KeyState.DOWN)
+        {
+            if (document.fullscreenEnabled)
+            {
+                
+                document.exitFullscreen()
+                this.fullscreen = false
+            }
+
+            if (this.hideCursor)
+            {
+                document.exitPointerLock()
+                this.hideCursor = false
+            }
+        }
+
+        if (Keyboard.KeyF5 === KeyState.PRESSED)
+        {
+            window.location.reload()
+        }
+    }
+    
 }

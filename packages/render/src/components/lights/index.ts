@@ -1,4 +1,4 @@
 export * from './AreaLight'
-export * from './DiffuseLight'
+export * from './DirectionalLight'
 export * from './PointLight'
 export * from './SpotLight'

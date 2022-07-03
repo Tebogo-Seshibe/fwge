@@ -33,6 +33,11 @@ export class ColliderRenderSystem extends System
     
     Update(_: number): void
     {
+        if (!Camera.Main)
+        {
+            return
+        }
+        
         this._useShader()
         GL.enable(GL.BLEND)
         GL.blendFunc(GL.ONE, GL.ONE)

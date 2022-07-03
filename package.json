@@ -20,11 +20,10 @@
         "publish": "node ./script/publish-packages",
         "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",
-        
+        "editor": "cd packages/editor && npm i && npm start",
         "lib:clean": "node ./scripts/clean-packages",
         "lib:init": "node ./scripts/init-packages",
         "lib:link": "node ./scripts/link-packages",
-
         "play:cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",
@@ -51,5 +50,11 @@
         "packages/ui",
         "packages/io",
         "packages/cli"
-    ]
+    ],
+    "dependencies": {
+        "rollup-plugin-swc": "^0.2.1"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^2.3.3"
+    }
 }

@@ -1,4 +1,4 @@
-import { CalcuateModelView, Matrix3, Matrix4, Rotate, Vector3 } from '@fwge/common'
+import { Matrix4, Vector3 } from '@fwge/common'
 import { UniqueComponent } from '../ecs/Component'
 
 interface ITransform
@@ -11,14 +11,23 @@ interface ITransform
 
 export class Transform extends UniqueComponent
 {
-    public Position: Vector3
-    public Rotation: Vector3
-    public Scale: Vector3
+    public readonly Position: Vector3
+    public readonly Rotation: Vector3
+    public readonly Scale: Vector3
+
+    get LocalModelViewMatrix(): Matrix4
+    {
+        return Matrix4.TransformationMatrix(
+            this.Position,
+            this.Rotation,
+            this.Scale
+        )
+    }
 
     get ModelViewMatrix(): Matrix4
     {
-        const modelviewMatrix = Matrix4.Identity
-        let transform: Transform | undefined = this
+        const modelviewMatrix = this.LocalModelViewMatrix
+        let transform: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
 
         while (transform)
         {
@@ -35,6 +44,17 @@ export class Transform extends UniqueComponent
         }
 
         return modelviewMatrix
+    }
+
+    get GlobalPosition(): Vector3
+    {
+        return Matrix4.MultiplyVector(
+            this.ModelViewMatrix,
+            this.Position.X,
+            this.Position.Y,
+            this.Position.Z,
+            1.0
+        ).XYZ
     }
 
     constructor()

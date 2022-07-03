@@ -1,7 +1,6 @@
 import { Script } from "../components/Script"
 import { System } from "../ecs/System"
 
-
 export class ScriptSystem extends System
 {    
     constructor()
@@ -15,8 +14,9 @@ export class ScriptSystem extends System
     {
         for (const entity of this.entities)
         {
-            const script = entity.GetComponent(Script)!
-            script.Start.call(entity)
+            entity.GetComponent(Script)!
+                .Start
+                .call(entity)
         }
     }
 
@@ -24,8 +24,9 @@ export class ScriptSystem extends System
     {
         for (const entity of this.entities)
         {
-            const script = entity.GetComponent(Script)!
-            script.Update.call(entity, delta)
+            entity.GetComponent(Script)!
+                .Update
+                .call(entity, delta)
         }
     }
 
@@ -33,8 +34,9 @@ export class ScriptSystem extends System
     {
         for (const entity of this.entities)
         {
-            const script = entity.GetComponent(Script)!
-            script.End.call(entity)
+            entity.GetComponent(Script)!
+                .End
+                .call(entity)
         }
     }
 }

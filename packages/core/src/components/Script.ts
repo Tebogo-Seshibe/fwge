@@ -3,16 +3,16 @@ import { Entity } from "../ecs/Entity"
 
 interface IScript
 {
-    start?: (this: Entity) => void
-    update?: (this: Entity, delta: number) => void
-    end?: (this: Entity) => void
+    start?: () => void
+    update?: (delta: number) => void
+    end?: () => void
 }
 
 export class Script extends SharedComponent
 {
-    Start: (this: Entity) => void
-    Update: (this: Entity, delta: number) => void
-    End: (this: Entity) => void
+    Start: () => void
+    Update: (delta: number) => void
+    End: () => void
 
     constructor()
     constructor(args: IScript)

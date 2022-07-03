@@ -1,54 +1,76 @@
 import { Entity } from "../ecs/Entity"
-import { Constructor, EntityId, SceneId } from "../ecs/Registry"
+import { Class, Constructor, EntityId, IConstruct, nextId, RegistryType, SceneId } from "../ecs/Registry"
 import { System } from "../ecs/System"
 import { Game } from "./Game"
 
-let SceneIds: SceneId = 0
-
-export abstract class Scene
+interface SceneConstructor<T extends System, U extends any[], Constructor>
 {
-    public readonly Id: SceneId = SceneIds++
-    
-    private _game!: Game
-    private _entities: Map<EntityId, Entity> = new Map()
-    private _systems: System[] = []
-    private _running: boolean = false
-    // private _init: boolean = false
+    type: Constructor
+    args?: U
+}
 
-    public set Game(game: Game)
-    {
-        this._game = game
-    }
+export interface IScene
+{
+    systems: Class<System>[]
+    entities: Class<Entity>[]
+}
 
-    public get Game(): Game
+export class Scene extends RegistryType
+{
+    readonly Game: Game
+    readonly Entities: Map<EntityId, Entity> = new Map()
+    readonly Systems: System[] = []
+
+    #running: boolean = false
+
+    constructor(game: Game)
+    constructor(game: Game, config: IScene)
+    constructor(game: Game, config?: IScene)
     {
-        return this._game
+        super(Scene)
+
+        this.Game = game
+
+        config = {
+            entities: config?.entities ?? [],
+            systems: config?.systems ?? []
+        }
+
+        for (const SystemConstructor of config.systems)
+        {
+            this.AddSystem(new SystemConstructor(this))
+        }
+
+        for (const EntityConstructor of config.entities)
+        {
+            this.CreateEntity(EntityConstructor)
+        }
     }
     
     public Init(): void
     {
-        for (const [ , entity] of this._entities)
+        for (const [ , entity] of this.Entities)
         {
             entity.OnCreate()
-        }
 
-        for (const system of this._systems)
-        {
-            system.setScene(this)
-            for (const [, entity] of this._entities)
+            for (const system of this.Systems)
             {
                 system.OnUpdateEntity(entity)
             }
+        }
+
+        for (const system of this.Systems)
+        {
             system.Init()
         }
     }
     
     public Start(): void
     {
-        if (!this._running)
+        if (!this.#running)
         {
-            this._running = true
-            for (const system of this._systems)
+            this.#running = true
+            for (const system of this.Systems)
             {
                 system.onStart()
             }
@@ -57,7 +79,7 @@ export abstract class Scene
 
     public Update(delta: number): void
     {
-        for (const system of this._systems)
+        for (const system of this.Systems)
         {
             system.Update(delta)
         }
@@ -65,33 +87,38 @@ export abstract class Scene
 
     public Stop(): void
     {
-        if (this._running)
+        if (this.#running)
         {
-            for (const system of this._systems)
+            for (const system of this.Systems)
             {
                 system.onStop()
                 system.Reset()
             }
-            this._running = false
+            this.#running = false
         }
     }
     
+    public AddSystem(system: System)
+    {
+        this.Systems.push(system)
+    }
+
     //#region Entity Logic
     public CreateEntity(): Entity
-    public CreateEntity<T extends Entity, K extends any[]>(constructor: Constructor<T, [Scene, ...K]>, ...args: K): T
-    public CreateEntity<T extends Entity, K extends any[]>(constructor?: Constructor<T, [Scene, ...K]>, ...args: K): T
+    public CreateEntity<T extends Entity>(constructor: Constructor<T, [Scene]>): T
+    public CreateEntity<T extends Entity>(constructor?: Constructor<T, [Scene]>): T
     {
-        const entity = constructor ? new constructor(this, ...args) : new Entity(this)
-        this._entities.set(entity.Id, entity)
-        this.OnEntity(entity)
+        const entity = constructor ? new constructor(this) : new Entity(this)
+        this.Entities.set(entity.Id, entity)
         entity.OnCreate()
+        this.OnEntity(entity)
 
         return entity as T
     }
 
     public GetEntity(entityId: EntityId): Entity | undefined
     {
-        return this._entities.get(entityId)
+        return this.Entities.get(entityId)
     }
 
     public RemoveEntity(entityId: EntityId): void
@@ -102,9 +129,9 @@ export abstract class Scene
             ? this.GetEntity(arg)
             : arg
 
-        if (entity && this._entities.has(entity.Id))
+        if (entity && this.Entities.has(entity.Id))
         {
-            this._entities.delete(entity.Id)
+            this.Entities.delete(entity.Id)
             this.OnEntity(entity)
             entity.OnDestroy()
         }
@@ -112,9 +139,9 @@ export abstract class Scene
 
     public OnEntity(entity: Entity): void
     {
-        if (this._running)
+        if (this.#running)
         {
-            for (const system of this._systems)
+            for (const system of this.Systems)
             {
                 system.OnUpdateEntity(entity)
             }

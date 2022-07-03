@@ -1,29 +1,43 @@
-import { Entity, FWGEComponent, Script, Transform } from "@fwge/core"
+import { Entity, Scene, Script, Transform } from "@fwge/core"
 import { IInputArgs, Input } from "@fwge/input"
 
 export class GameObject extends Entity
 {
-    @FWGEComponent()
-    public transform!: Transform
+    public readonly transform: Transform
 
-    OnCreate(): void
+    constructor(scene: Scene)
     {
-        this.transform = new Transform()
-        this.AddComponent(new Script(
-        {
-            start: () => this.Start(),
-            update: (delta) => this.Update(delta),
-            end: () => this.Stop()
-        }))
+        super(scene)
+        
+        this.AddComponent(new Transform())
         this.AddComponent(new Input(
         {
-            onInput: (input, delta) => this.Input(input, delta) 
+            onInput(this: GameObject, input: IInputArgs, delta: number)
+            {
+                this.OnInput(input, delta)
+            }
         }))
+        this.AddComponent(new Script(
+        {
+            start(this: GameObject)
+            {
+                this.OnStart()
+            },
+            update(this: GameObject, delta: number)
+            {
+                this.OnUpdate(delta)
+            },
+            end(this: GameObject)
+            {
+                this.OnStop()
+            }
+        }))
+
+        this.transform = this.GetComponent(Transform)!
     }
 
-    Start(): void { }
-    Update(_: number): void { }
-    Stop(): void { }
-
-    Input(_0: IInputArgs, _1: number): void { }
+    OnStart(): void { }
+    OnUpdate(delta: number): void { }
+    OnStop(): void { }
+    OnInput(args: IInputArgs, delta: number): void { }
 }

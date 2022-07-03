@@ -2,9 +2,26 @@ export type TypeId = number
 export type SceneId = number
 export type EntityId = number
 export type ComponentId = number
+export type AssetId = number
 export type PrefabId = number
 export type Head<T extends unknown[]> = T[0]
 export type Tail<T extends unknown[]> = T extends [Head<T>, ...infer TailType] ? TailType : never
+
+export class RegistryType
+{
+    readonly Id: number
+    readonly Type: Class<any>
+    readonly TypeId: number
+
+    constructor(type?: Class<any>)
+    {
+        type = type ?? new.target as Class<any>
+
+        this.Id = nextId(type),
+        this.Type = type
+        this.TypeId = getTypeId(type)
+    }
+}
 
 export interface TypeAndId
 {
@@ -12,7 +29,7 @@ export interface TypeAndId
     _elementId?: number
 }
 
-export type Class<T> = 
+export type Class<T = {}> = 
 {
     new (...args: any[]): T
     prototype: Partial<T>
@@ -32,15 +49,30 @@ export interface ConstructorArgs<T, K extends any[] = [], U = Constructor<T, K>>
 }
 
 export const nextId = <T>(_class: Class<T>): EntityId => 
-{ 
-    if (!_class._elementId)
-    {
-        _class._elementId = 0
-    }
+{
+    const id = IDGen.get(_class) ?? 0
+    IDGen.set(_class, id + 1)
 
-    return _class._elementId++
+    return id
 }
 
+export const getTypeId = <T>(_class: Class<T>): TypeId =>
+{
+    let id = TypeIDs.get(_class)
+
+    if (id === undefined)
+    {
+        id = TypeIDs.size
+        TypeIDs.set(_class, id)
+    }
+
+    return id
+}
+
+const IDGen: Map<Class<any>, number> = new Map()
+const TypeIDs: Map<Class<any>, number> = new Map()
+
+// export const nextTypeId = <T>
 export interface IConstruct<T extends new (...args: any) => any>
 {
     type: new (...args: ConstructorParameters<T>) => InstanceType<T>

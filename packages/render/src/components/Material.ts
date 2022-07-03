@@ -1,5 +1,5 @@
-import { Colour4, ShaderAsset } from "../base"
-import { GL, isPowerOf2 } from "@fwge/common"
+import { ShaderAsset } from "../base"
+import { Colour4, GL, isPowerOf2 } from "@fwge/common"
 import { SharedComponent } from "@fwge/core"
 
 export enum BlendMode
@@ -12,9 +12,9 @@ export enum BlendMode
 
 interface IMaterial
 {
-    ambient?: Colour4 | [number, number, number, number]
-    diffuse?: Colour4 | [number, number, number, number]
-    specular?: Colour4 | [number, number, number, number]
+    ambient?: [number, number, number, number]
+    diffuse?: [number, number, number, number]
+    specular?: [number, number, number, number]
     alpha?: number
     shininess?: number
     imagemap?: string
@@ -25,72 +25,18 @@ interface IMaterial
 
 export class Material extends SharedComponent
 {
-    _ambient: Colour4 = new Colour4()
-    _diffuse: Colour4 = new Colour4()
-    _specular: Colour4 = new Colour4()
-    _alpha: number
-    _shininess: number
+    readonly Ambient: Colour4
+    readonly Diffuse: Colour4
+    readonly Specular: Colour4
+    Alpha: number
+    Shininess: number
+    HasTransparency: boolean = false
+
     _imageTexture: WebGLTexture | null = null
     _normalTexture: WebGLTexture | null = null
     _specularTexture: WebGLTexture | null = null
-    _hasTransparency: boolean = false
 
     public Shader: ShaderAsset | null = null
-
-    get HasTransparency(): boolean
-    {
-        return this._hasTransparency
-    }
-
-    get Ambient(): Colour4
-    {
-        return this._ambient
-    }
-
-    set Ambient(ambient: Colour4 | [number, number, number, number])
-    {
-        this._ambient = new Colour4(ambient[0], ambient[1], ambient[2], ambient[3])
-    }
-
-    get Diffuse(): Colour4
-    {
-        return this._diffuse
-    }
-
-    set Diffuse(diffuse: Colour4 | [number, number, number, number])
-    {
-        this._diffuse = new Colour4(diffuse[0], diffuse[1], diffuse[2], diffuse[3])
-    }
-
-    get Specular(): Colour4
-    {
-        return this._specular
-    }
-
-    set Specular(specular: Colour4 | [number, number, number, number])
-    {
-        this._specular = new Colour4(specular[0], specular[1], specular[2], specular[3])
-    }
-
-    get Alpha(): number
-    {
-        return this._alpha
-    }
-
-    set Alpha(alpha: number)
-    {
-        this._alpha = alpha
-    }
-
-    get Shininess(): number
-    {
-        return this._shininess
-    }
-
-    set Shininess(shininess: number)
-    {
-        this._shininess = shininess
-    }
 
     get HasImageMap()
     {
@@ -107,7 +53,7 @@ export class Material extends SharedComponent
         }
         else if (src)
         {
-            this._hasTransparency = src.includes('.png')
+            this.HasTransparency = src.includes('.png')
             this._imageTexture = GL.createTexture()
             this._applyImage(this._imageTexture!, src)
         }
@@ -160,16 +106,16 @@ export class Material extends SharedComponent
     {
         super()
 
-        args.ambient = args.ambient ?? [0.50, 0.50, 0.50, 1.0]
-        args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1.0]
-        args.specular = args.specular ?? [0.75, 0.75, 0.75, 1.0]
+        args.ambient = args.ambient ?? [0.50, 0.50, 0.50, 1.0].map(x => x * 255) as [number, number, number, number]
+        args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1.0].map(x => x * 255) as [number, number, number, number]
+        args.specular = args.specular ?? [0.75, 0.75, 0.75, 1.0].map(x => x * 255) as [number, number, number, number]
 
-        this._ambient.Set(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
-        this._diffuse.Set(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
-        this._specular.Set(args.specular[0], args.specular[1], args.specular[2], args.specular[3])
-        this._alpha = args.alpha ?? 1.0
-        this._shininess = args.shininess ?? 1.0
+        this.Ambient = new Colour4(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
+        this.Diffuse = new Colour4(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
+        this.Specular = new Colour4(args.specular[0], args.specular[1], args.specular[2], args.specular[3])
 
+        this.Alpha = args.alpha ?? 1.0
+        this.Shininess = args.shininess ?? 1.0
         this.ImageMap = args.imagemap ?? null
         this.NormalMap = args.normalmap ?? null
         this.SpecularMap = args.specularmap ?? null

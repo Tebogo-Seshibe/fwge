@@ -15,6 +15,8 @@ export class Camera extends UniqueComponent
             : Matrix4.Identity
     }
 
+    UpdateProjection(): void {}
+    
     constructor()
     {
         super(Camera)
