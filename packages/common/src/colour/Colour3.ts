@@ -113,4 +113,9 @@ export class Colour3 extends Uint8Array
         
         return this
     }
+    
+    Clone()
+    {
+        return new Colour3(this)
+    }
 }

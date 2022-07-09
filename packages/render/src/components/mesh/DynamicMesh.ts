@@ -1,5 +1,4 @@
-import { GL, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { Colour4 } from '../../base'
+import { Colour4, GL, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Mesh } from './Mesh'
 
 const POSITION_INDEX: number    = 0

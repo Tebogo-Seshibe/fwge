@@ -1,6 +1,5 @@
-import { GL, Vector2 } from "@fwge/common"
+import { GL, Vector2, Colour3, Colour4 } from "@fwge/common"
 import { Class, Component, Entity, SharedComponent } from "@fwge/core"
-import { Colour3, Colour4 } from "../../base/colour"
 import { AmbientLightUniform } from "./AmbientLightUniform"
 import { DirectionalLightUniform } from "./DirectionalLightUniform"
 import { GlobalUniform } from "./GlobalUniform"

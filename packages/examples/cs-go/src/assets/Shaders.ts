@@ -71,7 +71,7 @@ export const basisShader = () => new ShaderAsset(
 
         void main(void)
         {
-            O_FragColour = vec4(U_Material.Ambient.rgb, U_Material.Alpha);
+            O_FragColour = V_Colour * vec4(U_Material.Ambient.rgb, U_Material.Alpha);
         }
         `,
         input: []

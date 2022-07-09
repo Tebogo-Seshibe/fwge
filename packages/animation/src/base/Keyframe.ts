@@ -5,8 +5,8 @@ export class Keyframe<T>
     CurrentLifetime: number = 0
     
     constructor(
-        public readonly Length: number,
-        public readonly Value: T,
-        public readonly Transition: Transition<T>
+        readonly Length: number,
+        readonly Value: T,
+        readonly Transition: Transition<T>
     ) { }
 }

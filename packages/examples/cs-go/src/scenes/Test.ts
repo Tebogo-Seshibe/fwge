@@ -1,6 +1,6 @@
 import { Game, Scene, ScriptSystem } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { MeshRenderSystem } from "@fwge/render"
+import { RenderSystem } from "@fwge/render"
 import { Cube } from "../entities/Cube"
 import { Eye } from "../entities/Eye"
 import { FullScreen } from "../entities/FullScreen"
@@ -21,7 +21,7 @@ export class Test extends Scene
             systems: [
                 InputSystem,
                 ScriptSystem,
-                MeshRenderSystem,
+                RenderSystem,
                 ColliderRenderSystem,
             ]
         })

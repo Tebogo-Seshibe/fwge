@@ -4,7 +4,7 @@ import { DepthType, RenderTarget, ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 
-export class MeshRenderSystem extends System
+export class RenderSystem extends System
 {
     private _hasSampler: WebGLUniformLocation[] = new Array(8)
     private _example!: RenderTarget

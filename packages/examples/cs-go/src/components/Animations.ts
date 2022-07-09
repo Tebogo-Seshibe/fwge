@@ -24,11 +24,11 @@ export const basicAnimation = () =>
     {
         ValueGetter: (entity: Entity) => entity.GetComponent(Material)!.Ambient,
         KeyFrames: new LinkedList(
-            new Keyframe(1.0, new Colour4(1.0, 0.0, 0.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 1.0, 0.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 0.0, 1.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 1.0, 1.0, 1.0), lerpColour4),
-            new Keyframe(0.0, new Colour4(1.0, 0.0, 0.0, 1.0), lerpColour4)
+            new Keyframe(1.0, new Colour4(255, 0.0, 0.0, 255), lerpColour4),
+            new Keyframe(1.0, new Colour4(0.0, 255, 0.0, 255), lerpColour4),
+            new Keyframe(1.0, new Colour4(0.0, 0.0, 255, 255), lerpColour4),
+            new Keyframe(1.0, new Colour4(0.0, 255, 255, 255), lerpColour4),
+            new Keyframe(0.0, new Colour4(255, 0.0, 0.0, 255), lerpColour4)
         )
     })
     animationPlayer.animations.set('Move', moveAnimation)

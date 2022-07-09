@@ -1,6 +1,5 @@
-import { GL, randBetween, Vector2, Vector3 } from "@fwge/common"
+import { Colour4, GL, Vector2, Vector3 } from "@fwge/common"
 import { UniqueComponent } from "@fwge/core"
-import { Colour4 } from "../../base"
 import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
 import { Material } from "../Material"
 import { Mesh, StaticMesh } from "../mesh"

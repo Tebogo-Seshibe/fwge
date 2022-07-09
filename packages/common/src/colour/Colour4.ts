@@ -80,13 +80,14 @@ export class Colour4 extends Uint8Array
     //     return 'TODO'
     // }
 
-    static SIZE: number = 3
+    static readonly SIZE: number = 4
     
     constructor()
     constructor(rgba: number)
     constructor(r: number, g: number, b: number, a: number)
     constructor(colour: Colour3, alpha: number)
     constructor(colour: Colour4)
+    constructor(colour: [number, number, number, number])
     constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
     {
         super(typeof _0 === 'number' ? 
@@ -127,5 +128,10 @@ export class Colour4 extends Uint8Array
         }
         
         return this
+    }
+    
+    Clone()
+    {
+        return new Colour4(this)
     }
 }

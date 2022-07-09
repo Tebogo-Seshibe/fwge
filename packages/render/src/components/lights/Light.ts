@@ -1,4 +1,4 @@
-import { Colour4 } from "../../base"
+import { Colour4 } from "@fwge/common"
 import { UniqueComponent } from "@fwge/core"
 
 export class Light extends UniqueComponent

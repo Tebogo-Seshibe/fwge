@@ -32,7 +32,7 @@ export class Cube extends GameObject
             ],
             shader: this.Scene.Game.Assets.get(ShaderAsset.name)!.get('Basic Shader')! as ShaderAsset
         })
-        this.transform.Position.Set((Math.random() * 20) - 10, 2.25, (Math.random() * 20) - 10)
+        this.transform.Position.Set((Math.random() * 100) - 50, 2.25, (Math.random() * 100) - 50)
 
         this.AddComponent(this.mesh)
         this.AddComponent(this.material)

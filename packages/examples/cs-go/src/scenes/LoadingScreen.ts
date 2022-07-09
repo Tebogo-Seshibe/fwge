@@ -1,7 +1,7 @@
 import { AnimationSystem } from "@fwge/animation"
 import { Game, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { MeshRenderSystem } from "@fwge/render"
+import { RenderSystem } from "@fwge/render"
 
 export class LoadingScreen extends Scene
 {
@@ -13,7 +13,7 @@ export class LoadingScreen extends Scene
             ],    
             systems: [
                 InputSystem,
-                MeshRenderSystem,
+                RenderSystem,
                 AnimationSystem,
             ]
         })

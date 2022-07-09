@@ -1,5 +1,4 @@
-import { Vector3 } from "@fwge/common"
-import { Colour4 } from "../../base"
+import { Colour4, Vector3 } from "@fwge/common"
 import { Light } from "./Light"
 
 export interface IDirectionalLight

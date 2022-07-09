@@ -1,5 +1,5 @@
-import { Vector2, Vector3 } from "@fwge/common"
-import { Colour4, StaticMesh } from "@fwge/render"
+import { Colour4, Vector2, Vector3 } from "@fwge/common"
+import { StaticMesh } from "@fwge/render"
 import { ILoader, OBJKey, OBJObject } from "./ILoader"
 
 export type OBJ = { [name: string]:  {  mesh: StaticMesh, material: string } }
@@ -124,7 +124,7 @@ export const OBJLoader: ILoader<OBJ> =  (src: string) =>
             for (const indices of face)
             {
                 position.push(v[indices.v])
-                colour.push(new Colour4(1.0))
+                colour.push(new Colour4(255))
                 
                 if (indices.vn !== undefined && !Number.isNaN(indices.vn))
                 {

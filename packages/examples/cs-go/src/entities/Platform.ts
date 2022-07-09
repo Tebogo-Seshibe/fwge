@@ -24,7 +24,7 @@ export class Platform extends GameObject
     
     override OnStart(): void
     {
-        this.transform.Scale.Set(20, 0.2, 20)
+        this.transform.Scale.Set(100, 0.2, 100)
         this.transform.Position.Y = -0.5
     }
     

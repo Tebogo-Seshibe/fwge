@@ -1,2 +1,1 @@
-export * from './ParticleSystem'
-export * from './MeshRenderSystem'
+export * from './RenderSystem'

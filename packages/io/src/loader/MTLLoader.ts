@@ -1,4 +1,5 @@
-import { Colour4, Material, Shader, ShaderAsset } from "@fwge/render"
+import { Colour4 } from "@fwge/common"
+import { Material, ShaderAsset } from "@fwge/render"
 import { ILoader } from "./ILoader"
 
 export type MTLKey = 'newmtl' 
@@ -29,10 +30,10 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: ShaderAsset
 
             case 'ka':
                 matMap.get(newmtl)!.ambient = new Colour4(
-                    parseFloat(values[0]),
-                    parseFloat(values[1]),
-                    parseFloat(values[2]),
-                    1.0
+                    parseFloat(values[0]) * 255,
+                    parseFloat(values[1]) * 255,
+                    parseFloat(values[2]) * 255,
+                    255
                 )
                 break
 

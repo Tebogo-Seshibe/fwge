@@ -1,6 +1,6 @@
 import { Game, Scene, ScriptSystem } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { MeshRenderSystem } from "@fwge/render"
+import { RenderSystem } from "@fwge/render"
 import { FPSController } from "../entities"
 import { Cube } from "../entities/Cube"
 import { FullScreen } from "../entities/FullScreen"
@@ -15,16 +15,16 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                ...new Array(25).fill(Cube),
+                ...new Array(500).fill(Cube),
                 Platform
-            ],        
+            ],
             systems: [
                 InputSystem,
                 ScriptSystem,
                 // PhysicsSystem,
-                MeshRenderSystem,
+                RenderSystem,
                 // AnimationSystem,
-                ColliderRenderSystem,
+                ColliderRenderSystem
             ]
         })
     }
