@@ -1,9 +1,4 @@
-import { SharedComponent } from "@fwge/core"
+import { Mesh } from "../mesh";
+import { Renderer } from "./Renderer"
 
-export class MeshRenderer extends SharedComponent
-{
-    constructor()
-    {
-        super()
-    }
-}
+export class MeshRenderer extends Renderer<Mesh> { }

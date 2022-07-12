@@ -1,3 +1,5 @@
+import { Component } from "./Component"
+
 export type TypeId = number
 export type SceneId = number
 export type EntityId = number
@@ -21,6 +23,22 @@ export class RegistryType
         this.Type = type
         this.TypeId = getTypeId(type)
     }
+}
+
+export function createComponent(typeId: number, entityId: number, component: Component): void
+{
+    if (!Components.has(typeId))
+    {
+        Components.set(typeId, new Map())
+    }
+
+    Components.get(typeId)!.set(entityId, component)
+}
+
+export function getComponent<T extends Component>(type: Class<T>, entityId: number): T
+{
+    const typeId = getTypeId(type)
+    return Components.get(typeId)!.get(entityId)! as T
 }
 
 export interface TypeAndId
@@ -71,6 +89,7 @@ export const getTypeId = <T>(_class: Class<T>): TypeId =>
 
 const IDGen: Map<Class<any>, number> = new Map()
 const TypeIDs: Map<Class<any>, number> = new Map()
+export const Components: Map<number, Map<number, Component>> = new Map()
 
 // export const nextTypeId = <T>
 export interface IConstruct<T extends new (...args: any) => any>

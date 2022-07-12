@@ -28,4 +28,20 @@ export class Mesh extends SharedComponent
         protected indexCount: number,
         protected wireframeCount: number
     ) { super(Mesh) }
+
+    Bind(): void
+    {
+        GL.bindVertexArray(this.VertexArrayBuffer)
+
+        if (this.IndexBuffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
+        }
+    }
+
+    UnBind(): void
+    {
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+        GL.bindVertexArray(null)        
+    }
 }

@@ -32,6 +32,8 @@ export class Material extends SharedComponent
     Shininess: number
     HasTransparency: boolean = false
 
+    Textures: WebGLTexture[] = new Array(16).fill(null)
+
     _imageTexture: WebGLTexture | null = null
     _normalTexture: WebGLTexture | null = null
     _specularTexture: WebGLTexture | null = null
@@ -104,11 +106,11 @@ export class Material extends SharedComponent
     constructor(material: IMaterial)
     constructor(args: IMaterial = { })
     {
-        super()
+        super(Material)
 
-        args.ambient = args.ambient ?? [0.50, 0.50, 0.50, 1.0].map(x => x * 255) as [number, number, number, number]
-        args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1.0].map(x => x * 255) as [number, number, number, number]
-        args.specular = args.specular ?? [0.75, 0.75, 0.75, 1.0].map(x => x * 255) as [number, number, number, number]
+        args.ambient = args.ambient ?? [128, 128, 128, 255]
+        args.diffuse = args.diffuse ?? [165, 165, 165, 255]
+        args.specular = args.specular ?? [192, 192, 192, 255]
 
         this.Ambient = new Colour4(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
         this.Diffuse = new Colour4(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
@@ -151,5 +153,55 @@ export class Material extends SharedComponent
         }
     
         img.src = src
+    }
+
+    Bind(): void
+    {
+        GL.uniform4f(
+            this.Shader!.Material!.AmbientColour,
+            this.Ambient[0] / 255,
+            this.Ambient[1] / 255,
+            this.Ambient[2] / 255,
+            this.Ambient[3] / 255,
+        )
+        GL.uniform4f(
+            this.Shader!.Material!.DiffuseColour,
+            this.Diffuse[0] / 255,
+            this.Diffuse[1] / 255,
+            this.Diffuse[2] / 255,
+            this.Diffuse[3] / 255,
+        )
+        GL.uniform4f(
+            this.Shader!.Material!.SpecularColour,
+            this.Specular[0] / 255,
+            this.Specular[1] / 255,
+            this.Specular[2] / 255,
+            this.Specular[3] / 255,
+        )
+        GL.uniform1f(this.Shader!.Material!.Shininess, this.Shininess)
+        GL.uniform1f(this.Shader!.Material!.Alpha, this.Alpha)   
+
+        for (let i = 0; i < this.Textures.length; ++i)
+        {
+            const texture = this.Textures[i]
+            if (texture)
+            {
+                GL.activeTexture(GL.TEXTURE0 + i)
+                GL.bindTexture(GL.TEXTURE_2D, texture)
+            }
+        }
+    }
+
+    UnBind(): void
+    {
+        for (let i = 0; i < this.Textures.length; ++i)
+        {
+            const texture = this.Textures[i]
+            if (texture)
+            {
+                GL.activeTexture(GL.TEXTURE0 + i)
+                GL.bindTexture(GL.TEXTURE_2D, null)
+            }
+        }
     }
 }

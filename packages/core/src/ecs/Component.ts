@@ -1,5 +1,5 @@
 import { Entity } from "./Entity"
-import { Class, RegistryType } from "./Registry"
+import { Class, createComponent, RegistryType } from "./Registry"
 
 export class Component extends RegistryType
 {
@@ -11,6 +11,8 @@ export class Component extends RegistryType
     constructor(type?: Class<Component>)
     {
         super(type)
+
+        createComponent(this.TypeId, this.Id, this)
     }
 }
 

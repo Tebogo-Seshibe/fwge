@@ -1,4 +1,9 @@
-import { AssetId, Class, nextId, RegistryType, TypeId } from "../ecs"
+import { Class, RegistryType } from "../ecs"
+
+export interface IAssetLoader
+{
+
+}
 
 export class Asset extends RegistryType
 {
@@ -8,4 +13,7 @@ export class Asset extends RegistryType
     {
         super(new.target as Class<Asset>)
     }
+
+    Load(source: IAssetLoader): void { }
+    Save(): void { }
 }

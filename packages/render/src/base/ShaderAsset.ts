@@ -1,5 +1,6 @@
 import { GL } from "@fwge/common"
 import { Asset, Class, Entity } from "@fwge/core"
+import { Camera } from "../components"
 import { MaterialUniform } from "../components/shader/MaterialUniform"
 import { MatrixUniform } from "../components/shader/MatrixUniform"
 import { PointLightUniform } from "../components/shader/PointLightUniform"
@@ -214,5 +215,17 @@ export class ShaderAsset extends Asset
         this._program = program
         this._vertexShader = vertexShader
         this._fragmentShader = fragmentShader
+    }
+
+    Bind(): void
+    {   
+        GL.useProgram(this.Program)
+        GL.uniformMatrix4fv(this.Matrices!.View, true, Camera.Main!.ViewMatrix)
+        GL.uniformMatrix4fv(this.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
+    }
+
+    UnBind(): void
+    {
+        GL.useProgram(null)
     }
 }

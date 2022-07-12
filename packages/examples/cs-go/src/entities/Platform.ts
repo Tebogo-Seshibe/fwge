@@ -1,12 +1,13 @@
 import { IInputArgs, KeyState } from "@fwge/input"
 import { CubeCollider } from "@fwge/physics"
-import { Material, StaticMesh } from "@fwge/render"
+import { Material, Mesh, MeshRenderer, Renderer, StaticMesh } from "@fwge/render"
 import { GameObject } from "./GameObject"
 
 export class Platform extends GameObject
 {
     public mesh!: StaticMesh
     public material!: Material
+    renderer!: Renderer<Mesh>
     public cubeCollider!: CubeCollider
 
     override OnCreate(): void
@@ -20,6 +21,10 @@ export class Platform extends GameObject
         this.AddComponent(this.mesh)
         this.AddComponent(this.material)
         this.AddComponent(this.cubeCollider)
+        
+        this.renderer = new MeshRenderer()
+        this.renderer.Asset = this.mesh
+        this.AddComponent(this.renderer)
     }
     
     override OnStart(): void

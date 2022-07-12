@@ -1,7 +1,7 @@
 import { GL, Vector3 } from '@fwge/common'
-import { Entity, System, Transform } from '@fwge/core'
+import { Components, Entity, getComponent, System, Transform } from '@fwge/core'
 import { DepthType, RenderTarget, ShaderAsset } from '../base'
-import { Camera, Material, Mesh, PointLight, StaticMesh } from '../components'
+import { Camera, Material, Mesh, PointLight, Renderer, RenderMode, StaticMesh } from '../components'
 import { Light } from '../components/lights/Light'
 
 export class RenderSystem extends System
@@ -31,10 +31,11 @@ export class RenderSystem extends System
 
     private _batches: Map<Material, Entity[]> = new Map()
     private _orderedBatches: Material[] = []
+    private _newBatch: Map<number, Map<number, Set<number>>> = new Map()
 
     constructor(args?: { renderGrid: boolean, min: number, max: number, step: number, wireframe: boolean })
     {
-        super({ requiredComponents: [ Transform, Mesh, Material ] })
+        super({ requiredComponents: [ Transform, Mesh, Material, Renderer ] })
 
         if (args)
         {
@@ -90,6 +91,7 @@ export class RenderSystem extends System
         
         this._screenMaterial.Shader = this._screenShader
     }
+    
 
     private _createRenderBatches()
     {
@@ -274,15 +276,91 @@ export class RenderSystem extends System
         this._screenMaterial = new Material()
     }
 
-    Start(): void { }
+    Start(): void
+    {
+        console.log(Components)
+    }
     Stop(): void { }
 
-    Update(delta: number): void
-    {        
+    NewDraw(_: number): void
+    {
         if (!Camera.Main)
         {
             return
         }
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0, 0, 0, 1)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        GL.enable(GL.DEPTH_TEST)
+        GL.enable(GL.CULL_FACE)
+        GL.depthMask(true)
+
+        for (const [materialId, renderers] of this._newBatch)
+        {
+            const material = getComponent(Material, materialId)
+            const shader = material.Shader
+            if (!shader)
+            {
+                continue
+            }
+
+            shader.Bind()
+            material.Bind()  
+            for (const [rendererId, transforms] of renderers)
+            {
+                const renderer = getComponent(Renderer, rendererId)
+                const mesh = renderer.Asset! as Mesh
+                let renderMode = -1
+                switch (renderer.RenderMode)
+                {
+                    case RenderMode.FACE: 
+                        renderMode = GL.TRIANGLES
+                        break
+
+                    case RenderMode.EDGE: 
+                        renderMode = GL.LINES
+                        break
+
+                    case RenderMode.VERTEX: 
+                        renderMode = GL.POINTS
+                        break
+                }
+                
+                mesh.Bind()
+                for (const transformId of transforms)
+                {
+                    const transform = getComponent(Transform, transformId)
+                    const modelView = transform.ModelViewMatrix
+
+                    GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, modelView)
+                    GL.uniformMatrix3fv(shader.Matrices!.Normal, true, modelView.Matrix3.Inverse())
+                    
+                    if (mesh.IndexBuffer)
+                    {
+                        GL.drawElements(renderMode, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
+                    }
+                    else
+                    {
+                        GL.drawArrays(renderMode, 0, mesh.VertexCount)
+                    }
+                }
+
+                mesh.UnBind()
+            }
+            material.UnBind()
+            shader.UnBind()
+        }
+    }
+
+    Update(delta: number): void
+    {        
+        this.NewDraw(delta)
+        // if (!Camera.Main)
+        // {
+        //     return
+        // }
 
         // GL.bindFramebuffer(GL.FRAMEBUFFER, this._example.Framebuffer)
         // GL.enable(GL.DEPTH_TEST)
@@ -292,45 +370,43 @@ export class RenderSystem extends System
             this._drawGrid()
         // }
         
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0,0,0,1)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        // GL.clearColor(0,0,0,1)
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
-        for (const material of this._orderedBatches)
-        {
-            const entityList = this._batches.get(material)!
-            const shader = material.Shader
-            if (!shader) continue
+        // for (const material of this._orderedBatches)
+        // {
+        //     const entityList = this._batches.get(material)!
+        //     const shader = material.Shader
+        //     if (!shader) continue
 
-            GL.enable(GL.DEPTH_TEST)
-            GL.enable(GL.CULL_FACE)
-            GL.depthMask(true)
-            if (!material.HasTransparency)
-            {
-                GL.disable(GL.BLEND)
-            }
-            else
-            {
-                GL.enable(GL.BLEND)
-                GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-            }
+        //     GL.enable(GL.DEPTH_TEST)
+        //     GL.enable(GL.CULL_FACE)
+        //     GL.depthMask(true)
+        //     if (!material.HasTransparency)
+        //     {
+        //         GL.disable(GL.BLEND)
+        //     }
+        //     else
+        //     {
+        //         GL.enable(GL.BLEND)
+        //         GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        //     }
 
-            this._useShader(shader)
-            this._bindLightUniforms(shader)
-            this._bindMaterialUniforms(material, shader)
-            this._bindMaterialTexture(material, shader)
+        //     this._useShader(shader)
+        //     this._bindLightUniforms(shader)
+        //     this._bindMaterialUniforms(material, shader)
+        //     this._bindMaterialTexture(material, shader)
 
-            for (const entity of entityList)
-            {
-                const transform = entity.GetComponent(Transform)!
-                const mesh = entity.GetComponent(Mesh)!
+        //     for (const entity of entityList)
+        //     {
+        //         const transform = entity.GetComponent(Transform)!
+        //         const mesh = entity.GetComponent(Mesh)!
 
-                this._drawMesh(transform, mesh, shader)
-            }
-
-            this._unbindMaterialTexture()
-        }
+        //         this._drawMesh(transform, mesh, shader)
+        //     }
+        // }
 
         // if (this.Wireframe)
         // {
@@ -346,7 +422,7 @@ export class RenderSystem extends System
 
         // this._drawToScreen()
         // this._unbindMaterialTexture()
-        GL.useProgram(null)
+        // GL.useProgram(null)
     }
 
     private _drawToScreen(): void
@@ -500,42 +576,6 @@ export class RenderSystem extends System
         }
     }
 
-    private _unbindMaterialTexture()
-    {
-        GL.activeTexture(GL.TEXTURE0)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE1)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE2)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE3)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE4)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE5)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE6)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE7)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE8)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE9)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE10)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE11)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE12)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE13)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE14)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-        GL.activeTexture(GL.TEXTURE15)
-        GL.bindTexture(GL.TEXTURE_2D, null)
-    }
-
     private _bindLightUniforms(shader: ShaderAsset)
     {
         let point_count: number = 0
@@ -582,6 +622,21 @@ export class RenderSystem extends System
         if (pointLight && !this._lights.has(pointLight))
         {
             this._lights.add(pointLight)
+        }
+
+        if (this.IsValidEntity(entity))
+        {
+            const material = entity.GetComponent(Material)!
+            const renderer = entity.GetComponent(Renderer<any>)!
+            const transform = entity.GetComponent(Transform)!
+
+            const materialMap = this._newBatch ?? new Map<number, Map<number, Set<number>>>()
+            const meshMap = materialMap.get(material.Id) ?? new Map<number, Set<number>>()
+            const transformSet = meshMap.get(renderer.Id) ?? new Set<number>()
+
+            meshMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
+            materialMap.set(material.Id, meshMap)
+            this._newBatch = materialMap
         }
     }
 }

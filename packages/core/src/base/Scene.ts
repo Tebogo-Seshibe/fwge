@@ -51,8 +51,6 @@ export class Scene extends RegistryType
     {
         for (const [ , entity] of this.Entities)
         {
-            entity.OnCreate()
-
             for (const system of this.Systems)
             {
                 system.OnUpdateEntity(entity)

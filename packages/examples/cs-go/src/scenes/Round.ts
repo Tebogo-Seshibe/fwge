@@ -9,6 +9,8 @@ import { ColliderRenderSystem } from "../systems/ColliderRenderSystem"
 
 export class Round extends Scene
 {
+    fpsCounterDiv!: HTMLDivElement
+
     constructor(game: Game)
     {
         super(game, {
@@ -29,11 +31,10 @@ export class Round extends Scene
         })
     }
 
-    fpsCounter!: HTMLDivElement
     Init(): void
     {
         super.Init()
-        this.fpsCounter = document.querySelector<HTMLDivElement>('#fpsCounter')!
+        this.fpsCounterDiv = document.querySelector<HTMLDivElement>('#fpsCounter')!
     }
 
     Update(delta: number): void
@@ -41,6 +42,6 @@ export class Round extends Scene
         super.Update(delta)
         
         const fps = Math.round(delta === 0 ? 0 : 1 / delta)
-        this.fpsCounter.innerHTML = (fps < 10 ? '  ' + fps : fps < 100 ? ' ' + fps : fps ) + 'fps'
+        this.fpsCounterDiv.innerText = (fps < 10 ? '  ' + fps : fps < 100 ? ' ' + fps : fps ) + 'fps'
     }
 }
