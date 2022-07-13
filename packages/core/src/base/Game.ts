@@ -51,7 +51,7 @@ export class Game
 
         config.canvas = config.canvas instanceof HTMLCanvasElement
             ? config.canvas!
-            : config.canvas!();
+            : config.canvas!()
 
         if (!config.canvas)
         {

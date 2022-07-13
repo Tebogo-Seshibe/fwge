@@ -190,6 +190,16 @@ export class Material extends SharedComponent
                 GL.bindTexture(GL.TEXTURE_2D, texture)
             }
         }
+
+        if (!this.HasTransparency)
+        {
+            GL.disable(GL.BLEND)
+        }
+        else
+        {
+            GL.enable(GL.BLEND)
+            GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        }
     }
 
     UnBind(): void

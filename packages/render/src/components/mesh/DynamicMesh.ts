@@ -52,7 +52,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ARRAY_BUFFER, this._positionBuffer)
         GL.bufferData(GL.ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
         
-        this.vertexCount = buffer.length
+        // this.vertexCount = buffer.length
     }
 
     set Normal(buffer: Float32Array | Vector3[] | number[] | null)
@@ -164,7 +164,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._indexBuffer)
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this.indexCount = buffer.length
+        // this.indexCount = buffer.length
     }
 
     set Wireframe(buffer: Uint8Array | number[] | null)
@@ -188,7 +188,7 @@ export class DynamicMesh extends Mesh
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this._wireframeBuffer)
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, buffer, this._dynamic ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW)
 
-        this.wireframeCount = buffer.length
+        // this.wireframeCount = buffer.length
     }
 
     constructor()
@@ -197,8 +197,8 @@ export class DynamicMesh extends Mesh
     {
         super(
             args.position?.length ?? 0 * Vector3.SIZE,
-            args.index?.length ?? -1,
-            args.wireframe?.length ?? -1
+            args.index,
+            // args.wireframe?.length ?? -1
         )
         
         this.Position = args.position ?? null

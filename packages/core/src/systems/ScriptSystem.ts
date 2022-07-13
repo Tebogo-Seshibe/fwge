@@ -2,7 +2,7 @@ import { Script } from "../components/Script"
 import { System } from "../ecs/System"
 
 export class ScriptSystem extends System
-{    
+{
     constructor()
     {
         super({ requiredComponents: [ Script ] })

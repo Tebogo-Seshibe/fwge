@@ -1,7 +1,7 @@
 import { randBetween } from "@fwge/common"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, CubeCollider } from "@fwge/physics"
-import { Material, Mesh, MeshRenderer, Renderer, ShaderAsset, StaticMesh } from "@fwge/render"
+import { Material, Mesh, MeshRenderer, Renderer, RenderMode, ShaderAsset, StaticMesh } from "@fwge/render"
 import { GameObject } from "./GameObject"
 
 export class Cube extends GameObject
@@ -15,8 +15,6 @@ export class Cube extends GameObject
     OnCreate(): void
     {
         super.OnCreate()
-
-        console.log(this.Id, 'Created')
 
         this.mesh = this
             .Scene
@@ -45,6 +43,7 @@ export class Cube extends GameObject
         this.turnSpeed = randBetween(15, 45)
 
         this.renderer = new MeshRenderer()
+        this.renderer.RenderMode = RenderMode.POINT
         this.renderer.Asset = this.mesh
         this.AddComponent(this.renderer)
     }

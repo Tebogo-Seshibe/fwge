@@ -6,7 +6,6 @@ interface ITransform
     position?: Vector3 | [number, number, number]
     rotation?: Vector3 | [number, number, number]
     scale?: Vector3 | [number, number, number]
-    shear?: Vector3 | [number, number, number]
 }
 
 export class Transform extends UniqueComponent

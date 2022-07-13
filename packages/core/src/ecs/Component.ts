@@ -12,7 +12,7 @@ export class Component extends RegistryType
     {
         super(type)
 
-        createComponent(this.TypeId, this.Id, this)
+        createComponent(this)
     }
 }
 

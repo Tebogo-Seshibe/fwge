@@ -25,20 +25,20 @@ export class RegistryType
     }
 }
 
-export function createComponent(typeId: number, entityId: number, component: Component): void
+export function createComponent(component: Component): void
 {
-    if (!Components.has(typeId))
+    if (!Components.has(component.TypeId))
     {
-        Components.set(typeId, new Map())
+        Components.set(component.TypeId, new Map())
     }
 
-    Components.get(typeId)!.set(entityId, component)
+    Components.get(component.TypeId)!.set(component.Id, component)
 }
 
-export function getComponent<T extends Component>(type: Class<T>, entityId: number): T
+export function getComponent<T extends Component>(type: Class<T>, componentId: number): T
 {
     const typeId = getTypeId(type)
-    return Components.get(typeId)!.get(entityId)! as T
+    return Components.get(typeId)!.get(componentId)! as T
 }
 
 export interface TypeAndId

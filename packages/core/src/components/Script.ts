@@ -1,5 +1,4 @@
 import { SharedComponent } from "../ecs/Component"
-import { Entity } from "../ecs/Entity"
 
 interface IScript
 {

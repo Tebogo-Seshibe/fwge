@@ -205,7 +205,7 @@ export class ParticleSpawner extends UniqueComponent
             .fill(undefined)
             .map((_, index, arr) => 
             {
-                const particle = new Particle(
+                const particle: Particle = new Particle(
                     delay(index, arr.length),
                     this.ParticleConfig.Position.Clone(),
                     this.ParticleConfig.Rotation.Clone(),
@@ -253,7 +253,7 @@ export class ParticleSpawner extends UniqueComponent
         //#region ============= VERTEX ARRAY OBJECT SETUP =============        
         GL.bindVertexArray(this.VertexArrayBuffer)
         
-        GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleMesh.VertexBuffer)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleMesh.PointBuffer)
         GL.enableVertexAttribArray(POSITION_INDEX)
         GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSize, 0)
         GL.enableVertexAttribArray(NORMAL_INDEX)
@@ -263,9 +263,9 @@ export class ParticleSpawner extends UniqueComponent
         GL.enableVertexAttribArray(COLOUR_INDEX)
         GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, vertexSize, POSITION_SIZE + NORMAL_SIZE + UV_SIZE)
 
-        if (this.ParticleMesh.IndexBuffer)
+        if (this.ParticleMesh.VertexBuffer)
         {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.ParticleMesh.IndexBuffer)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.ParticleMesh.VertexBuffer)
         }
 
         GL.bindBuffer(GL.ARRAY_BUFFER, this.ParticleVertexBuffer)

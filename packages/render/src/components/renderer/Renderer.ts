@@ -4,7 +4,7 @@ export enum RenderMode
 {
     FACE,
     EDGE,
-    VERTEX
+    POINT
 }
 
 export class Renderer<T = {}> extends SharedComponent

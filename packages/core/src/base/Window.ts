@@ -18,7 +18,6 @@ export class Window
     constructor(window: IWindow)
     constructor(window: IWindow = { })
     {
-
         this.Height = window.height ?? 1080
         this.Width = window.width ?? 1920
         this.FullScreen = window.fullscreen ?? false

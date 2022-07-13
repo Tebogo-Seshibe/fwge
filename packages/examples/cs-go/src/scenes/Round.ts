@@ -26,7 +26,7 @@ export class Round extends Scene
                 // PhysicsSystem,
                 RenderSystem,
                 // AnimationSystem,
-                ColliderRenderSystem
+                // ColliderRenderSystem
             ]
         })
     }

@@ -1,32 +1,18 @@
-import { Colour4, GL, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { Colour4, GL, Vector2, Vector3 } from "@fwge/common"
 import { COLOUR_INDEX, COLOUR_SIZE, isLittleEndian, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
-import { Mesh } from './Mesh'
-
-export interface IMesh
-{
-    position: Vector3[] | [number, number, number][]
-    normal?: Vector3[] | [number, number, number][]
-    colour?: Vector4[] | Colour4[] | [number, number, number, number][]
-    uv?: Vector2[] | [number, number][]
-    index?: number[]
-}
+import { IMesh, Mesh } from './Mesh'
 
 export class StaticMesh extends Mesh
 {
     constructor(args: IMesh)
     {
-        super(
-            args.position.length * Vector3.SIZE,
-            args.index?.length ?? -1,
-            (args.index?.length ?? args.position.length) * 2
-        )
+        super(args.position.length, args.index)
     
-        const vertexSizeInBytes = (
+        const vertexSizeInBytes =
               POSITION_SIZE
-            + NORMAL_SIZE    * (args.normal ? 1 : 0)
-            + UV_SIZE        * (args.uv     ? 1 : 0)
-            + COLOUR_SIZE    * (args.colour ? 1 : 0)
-        )
+            + (args.normal ? NORMAL_SIZE : 0)
+            + (args.uv     ? UV_SIZE     : 0)
+            + (args.colour ? COLOUR_SIZE : 0)
         const bufferSize = vertexSizeInBytes * args.position.length
 
         let positionOffset: number = 0
@@ -65,8 +51,7 @@ export class StaticMesh extends Mesh
         }
 
         //#region Buffer Setup
-        const view = new DataView(new ArrayBuffer(bufferSize))
-        
+        const view = new DataView(new ArrayBuffer(bufferSize))        
         for (let i = 0, offset = 0; i < args.position.length; i++)
         {
             const position = args.position[i]
@@ -110,51 +95,13 @@ export class StaticMesh extends Mesh
                 offset += COLOUR_SIZE
             }
         }
-
-        this.VertexBuffer = GL.createBuffer()
-        this.WireframeBuffer = GL.createBuffer()
-        const wireframeBufferData: number[] = []
-        GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, view.buffer, GL.STATIC_DRAW)
-        GL.bindBuffer(GL.ARRAY_BUFFER, null)
-        
-        if (args.index)
-        {
-            this.IndexBuffer = GL.createBuffer()
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.IndexBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(args.index), GL.STATIC_DRAW)
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
-
-            for (let i = 0; i < args.index.length; i += 3)
-            {
-                wireframeBufferData.push(
-                    args.index[i + 0], args.index[i + 1],
-                    args.index[i + 1], args.index[i + 2],
-                    args.index[i + 2], args.index[i + 0]
-                )
-            }
-        }
-        else
-        {
-            for (let i = 0; i < args.position.length; i += 3)
-            {
-                wireframeBufferData.push(
-                    i + 0, i + 1,
-                    i + 1, i + 2,
-                    i + 2, i + 0
-                )
-            }
-        }
-
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.WireframeBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(wireframeBufferData), GL.STATIC_DRAW)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
         //#endregion
 
         //#region VAO Setup
         GL.bindVertexArray(this.VertexArrayBuffer)
         GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
-
+        GL.bufferData(GL.ARRAY_BUFFER, view.buffer, GL.STATIC_DRAW)
+        
         GL.enableVertexAttribArray(POSITION_INDEX)
         GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, vertexSizeInBytes, positionOffset)
         if (normalOffset !== -1)

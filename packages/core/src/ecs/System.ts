@@ -1,7 +1,7 @@
 import { Scene } from "../base/Scene"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
-import { Class, RegistryType } from "./Registry"
+import { Class, EntityId, RegistryType } from "./Registry"
 
 interface ISystem
 {
@@ -12,6 +12,7 @@ interface ISystem
 
 export abstract class System extends RegistryType
 {
+    public readonly entityIds: EntityId[] = []
     public readonly entities: Entity[] = []
     public readonly requiredComponents: Set<Class<Component>> = new Set()
 
@@ -82,12 +83,17 @@ export abstract class System extends RegistryType
         if (isValid && !this.entities.includes(entity))
         {
             this.entities.push(entity)
+            this.entityIds.push(entity.Id)
         }
         else if (!isValid && this.entities.includes(entity))
         {
             const entityIndex = this.entities.indexOf(entity)
             this.entities.swap(entityIndex, this.entities.length - 1)
             this.entities.pop()
+
+            const entityIdIndex = this.entityIds.indexOf(entity.Id)
+            this.entityIds.swap(entityIdIndex, this.entityIds.length - 1)
+            this.entityIds.pop()
         }
     }
 
@@ -95,7 +101,7 @@ export abstract class System extends RegistryType
     {
         if (this.requiredComponents.size === 0)
         {
-            return true
+            return false
         }
         
         for (const componentType of this.requiredComponents)

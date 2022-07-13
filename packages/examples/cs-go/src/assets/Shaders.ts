@@ -39,6 +39,7 @@ export const basisShader = () => new ShaderAsset(
             passVertexData();
         
             gl_Position = U_Matrix.Projection * U_Matrix.View * V_Position;
+            gl_PointSize = 50.0;
         }
         `,
         input: []

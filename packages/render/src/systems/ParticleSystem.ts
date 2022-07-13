@@ -131,52 +131,52 @@ export class ParticleSystem extends System
 
     private _drawSystem(particleSpawner: ParticleSpawner, transform: Transform)
     {
-        const mesh = particleSpawner.ParticleMesh
-        const material = particleSpawner.ParticleMaterial
-        const mv = transform.ModelViewMatrix
-        const norm = new Matrix3(            
-            mv[0], mv[1], mv[2],
-            mv[4], mv[5], mv[6],
-            mv[8], mv[9], mv[10]
-        ).Inverse()
+        // const mesh = particleSpawner.ParticleMesh
+        // const material = particleSpawner.ParticleMaterial
+        // const mv = transform.ModelViewMatrix
+        // const norm = new Matrix3(            
+        //     mv[0], mv[1], mv[2],
+        //     mv[4], mv[5], mv[6],
+        //     mv[8], mv[9], mv[10]
+        // ).Inverse()
 
-        GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, mv)
-        GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, norm)
+        // GL.uniformMatrix4fv(this.particleShader!.Matrices!.ModelView, false, mv)
+        // GL.uniformMatrix3fv(this.particleShader!.Matrices!.Normal, false, norm)
         
-        GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
+        // GL.bindVertexArray(particleSpawner.VertexArrayBuffer)
         
-        if (mesh.IndexBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-        }
+        // if (mesh.IndexBuffer)
+        // {
+        //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
+        // }
 
-        GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
-        GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
+        // GL.bindBuffer(GL.ARRAY_BUFFER, particleSpawner.ParticleVertexBuffer)
+        // GL.bufferData(GL.ARRAY_BUFFER, particleSpawner.BufferData, GL.DYNAMIC_DRAW)
         
-        if (mesh.IndexBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElementsInstanced(
-                GL.TRIANGLES,
-                mesh.IndexCount,
-                GL.UNSIGNED_BYTE,
-                0,
-                particleSpawner.ParticleCount
-            )
-        }
-        else
-        {
-            GL.drawArraysInstanced(
-                GL.TRIANGLES,
-                0,
-                mesh.VertexCount,
-                particleSpawner.ParticleCount
-            )
-        }
-        GL.bindVertexArray(null)
+        // if (mesh.IndexBuffer)
+        // {
+        //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
+        //     GL.drawElementsInstanced(
+        //         GL.TRIANGLES,
+        //         mesh.IndexCount,
+        //         GL.UNSIGNED_BYTE,
+        //         0,
+        //         particleSpawner.ParticleCount
+        //     )
+        // }
+        // else
+        // {
+        //     GL.drawArraysInstanced(
+        //         GL.TRIANGLES,
+        //         0,
+        //         mesh.PointCount,
+        //         particleSpawner.ParticleCount
+        //     )
+        // }
+        // GL.bindVertexArray(null)
         
-        GL.bindBuffer(GL.ARRAY_BUFFER, null)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+        // GL.bindBuffer(GL.ARRAY_BUFFER, null)
+        // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
     }
     
     private _useShader(shader: ShaderAsset)
