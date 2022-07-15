@@ -116,18 +116,18 @@ export abstract class System extends RegistryType
     }
     //#endregion
 
-    readonly #tickRate: number
-    readonly #async: boolean
+    readonly #tickRate: number = 60
+    readonly #async: boolean = false
 
     #prevTick: number = -1
     #currTick: number = -1
     #tickId: number = -1
     #scene: Scene | undefined    
 
-    constructor(config: ISystem)
+    constructor(scene: Scene, config: ISystem)
     {
         super(new.target as Class<System>)
-
+        this.#scene = scene
         this.#async = config.async ?? false
         this.#tickRate = config.tickRate ?? 60
         this.requiredComponents = new Set(config.requiredComponents)

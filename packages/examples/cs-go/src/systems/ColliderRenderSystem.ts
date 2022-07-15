@@ -1,5 +1,5 @@
 import { GL } from "@fwge/common"
-import { System, Transform } from "@fwge/core"
+import { Scene, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, SphereCollider } from "@fwge/physics"
 import { Camera, Mesh, ShaderAsset, StaticMesh } from "@fwge/render"
 
@@ -14,9 +14,9 @@ export class ColliderRenderSystem extends System
     satShader!: ShaderAsset
     satBuffer!: WebGLBuffer
 
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ Transform, Collider ] })
+        super(scene, { requiredComponents: [ Transform, Collider ] })
     }
 
     Init(): void

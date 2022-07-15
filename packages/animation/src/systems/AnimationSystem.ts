@@ -1,12 +1,12 @@
-import { Entity, System } from "@fwge/core"
+import { Entity, Scene, System } from "@fwge/core"
 import { Animation, Keyframe } from "../base"
 import { AnimationPlayer } from "../components"
 
 export class AnimationSystem extends System
 {
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ AnimationPlayer ] })
+        super(scene, { requiredComponents: [ AnimationPlayer ] })
     }
 
     Init(): void { }

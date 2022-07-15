@@ -32,7 +32,7 @@ export class MeshCollider extends Collider
         const vertices = new Array<Vector3>(this._calculatedBuffer.length)
 
         transform.Position.Add(this.Position)
-        mv.Set(transform.ModelViewMatrix).Transpose()
+        mv.Set(transform.ModelViewMatrix()).Transpose()
         transform.Position.Subtract(this.Position)
 
         let offset = 0

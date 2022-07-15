@@ -1,5 +1,5 @@
 import { GL } from "@fwge/common"
-import { System } from "@fwge/core"
+import { Scene, System } from "@fwge/core"
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
 import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler"
@@ -11,9 +11,9 @@ export class InputSystem extends System
     private _mouse!: MouseInputHandler
     private _controllers!: ControllerInputHandler
 
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ Input ] })
+        super(scene, { requiredComponents: [ Input ] })
     }
 
     Init(): void

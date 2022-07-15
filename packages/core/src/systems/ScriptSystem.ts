@@ -1,11 +1,12 @@
+import { Scene } from "../base"
 import { Script } from "../components/Script"
 import { System } from "../ecs/System"
 
 export class ScriptSystem extends System
 {
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ Script ] })
+        super(scene, { requiredComponents: [ Script ] })
     }
 
     Init(): void { }

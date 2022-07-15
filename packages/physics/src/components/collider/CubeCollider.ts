@@ -41,7 +41,7 @@ export class CubeCollider extends Collider
 
     GetDimentions(transform: Transform)
     {
-        const mv = transform.ModelViewMatrix
+        const mv = transform.ModelViewMatrix()
         mv.Transpose()
 
         return [
@@ -55,7 +55,7 @@ export class CubeCollider extends Collider
     {
         transform.Position.Add(this.Position)
         transform.Scale.Multiply(this.Width, this.Height, this.Depth)
-        const mv = transform.ModelViewMatrix
+        const mv = transform.ModelViewMatrix()
         mv.Transpose()
         transform.Scale.Multiply(1 / this.Width, 1 / this.Height, 1 / this.Depth)
         transform.Position.Subtract(this.Position)

@@ -5,7 +5,6 @@ import { FPSController } from "../entities"
 import { Cube } from "../entities/Cube"
 import { FullScreen } from "../entities/FullScreen"
 import { Platform } from "../entities/Platform"
-import { ColliderRenderSystem } from "../systems/ColliderRenderSystem"
 
 export class Round extends Scene
 {
@@ -17,7 +16,7 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                ...new Array(500).fill(Cube),
+                ...new Array(1000).fill(Cube),
                 Platform
             ],
             systems: [

@@ -1,5 +1,5 @@
-import { GL } from '@fwge/common'
-import { Entity, getComponent, System, Transform } from '@fwge/core'
+import { GL, Matrix4 } from '@fwge/common'
+import { Entity, getComponent, Scene, System, Transform } from '@fwge/core'
 import { ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, Renderer, RenderMode } from '../components'
 import { Light } from '../components/lights/Light'
@@ -7,14 +7,18 @@ import { Light } from '../components/lights/Light'
 export class RenderSystem extends System
 {
     #lights: Set<Light> = new Set()
-    #newBatch: Map<number, Map<number, Set<number>>> = new Map()
+    #batch: Map<number, Map<number, Set<number>>> = new Map()
+    #modelViewMatrices: Map<number, Matrix4> = new Map()
 
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ Transform, Mesh, Material, Renderer ] })
+        super(scene, { requiredComponents: [ Transform, Mesh, Material, Renderer ] })
     }
 
-    Init(): void { }
+    Init(): void
+    {
+        console.log(this.#batch)
+    }
     Start(): void { }
     Stop(): void { }
 
@@ -34,7 +38,7 @@ export class RenderSystem extends System
         GL.enable(GL.CULL_FACE)
         GL.depthMask(true)
 
-        for (const [materialId, renderers] of this.#newBatch)
+        for (const [materialId, renderers] of this.#batch)
         {
             const material = getComponent(Material, materialId)
             const shader = material.Shader
@@ -82,14 +86,15 @@ export class RenderSystem extends System
                         }
                         break
                 }
-                
+
                 GL.bindVertexArray(mesh.VertexArrayBuffer)
                 // count = 3
                 // buffer = null
                 for (const transformId of transforms)
                 {
                     const transform = getComponent(Transform, transformId)
-                    const modelView = transform.ModelViewMatrix
+                    const modelView = this.#modelViewMatrices.get(transformId)!
+                    transform.ModelViewMatrix(modelView)
 
                     GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, modelView)
                     GL.uniformMatrix3fv(shader.Matrices!.Normal, true, modelView.Matrix3.Inverse())
@@ -159,13 +164,14 @@ export class RenderSystem extends System
             const renderer = entity.GetComponent(Renderer<any>)!
             const transform = entity.GetComponent(Transform)!
 
-            const materialMap = this.#newBatch ?? new Map<number, Map<number, Set<number>>>()
+            const materialMap = this.#batch ?? new Map<number, Map<number, Set<number>>>()
             const meshMap = materialMap.get(material.Id) ?? new Map<number, Set<number>>()
             const transformSet = meshMap.get(renderer.Id) ?? new Set<number>()
 
             meshMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
             materialMap.set(material.Id, meshMap)
-            this.#newBatch = materialMap
+            this.#batch = materialMap
+            this.#modelViewMatrices.set(transform.Id, Matrix4.Identity)
         }
     }
 }

@@ -23,7 +23,14 @@ export class Cube extends GameObject
             .get(Mesh.name)!
             .get('Cube')! as StaticMesh
 
-        this.material = new Material(
+        this.material = //this
+            // .Scene
+            // .Game
+            // .Components
+            // .get(Material.name)!
+            // .get('CubeMaterial')! as Material
+
+        new Material(
         {
             ambient: [
                 Math.random() * 255,
@@ -43,7 +50,7 @@ export class Cube extends GameObject
         this.turnSpeed = randBetween(15, 45)
 
         this.renderer = new MeshRenderer()
-        this.renderer.RenderMode = RenderMode.POINT
+        this.renderer.RenderMode = RenderMode.FACE
         this.renderer.Asset = this.mesh
         this.AddComponent(this.renderer)
     }

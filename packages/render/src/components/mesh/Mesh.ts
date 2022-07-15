@@ -33,11 +33,11 @@ export class Mesh extends SharedComponent
 
         const faces: number[] = []
         const edges: number[] = []
-        const vertices: number[] = []
+        const points: number[] = []
 
         if (indices)
         {
-            faces.concat(indices)            
+            faces.push(...indices)            
             for (let i = 0; i < indices.length; i += 3)
             {
                 edges.push(
@@ -46,19 +46,19 @@ export class Mesh extends SharedComponent
                     indices[i + 2], indices[i + 0]
                 )
             }
-            vertices.concat(...new Set(indices))
+            points.push(...new Set(indices))
 
             this.FaceBuffer = GL.createBuffer()!
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(faces), GL.STATIC_DRAW)
             
             this.EdgeBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(edges), GL.STATIC_DRAW)
             
             this.PointBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(vertices), GL.STATIC_DRAW)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(points), GL.STATIC_DRAW)
             
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
         }

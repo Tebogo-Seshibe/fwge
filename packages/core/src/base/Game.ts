@@ -12,12 +12,14 @@ export interface LibraryEntry<T>
 
 export interface IGame
 {
-    height?: number
-    width?: number
-    canvas?: HTMLCanvasElement | (() => HTMLCanvasElement)
+    height: number
+    width: number
+    canvas: HTMLCanvasElement | (() => HTMLCanvasElement)
+    scenes: Class<Scene>[]
+    startupScene: Class<Scene>
+
     assets?: Array<LibraryEntry<Asset>>
     components?: Array<LibraryEntry<SharedComponent>>
-    scenes?: Class<Scene>[]
 }
 
 export class Game
@@ -41,12 +43,9 @@ export class Game
     constructor(config?: IGame)
     {
         config = {
-            height: config?.height ?? 1080,
-            width: config?.width ?? 1920,
-            canvas: config?.canvas ?? function() { return document.querySelector<HTMLCanvasElement>('canvas')! },
-            scenes: config?.scenes ?? [],
+            ...config!,
             components: config?.components ?? [],
-            assets: config?.assets ?? [],
+            assets: config?.assets ?? []
         }
 
         config.canvas = config.canvas instanceof HTMLCanvasElement
@@ -87,6 +86,8 @@ export class Game
             
             newScene.Init()
         }
+
+        this.SetScene(config.startupScene)
     }
     
     ResetContext(canvas: HTMLCanvasElement)
@@ -135,7 +136,6 @@ export class Game
             this.#tickId = window.requestAnimationFrame(() => this.#start())
         }
 
-        this.#activeScene!.Init()
         this.#prevTick = Date.now()
         this.#currTick = Date.now()
         this.#activeScene!.Start()

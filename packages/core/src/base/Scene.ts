@@ -49,6 +49,7 @@ export class Scene extends RegistryType
     
     public Init(): void
     {
+        console.log('Scene Init')
         for (const [ , entity] of this.Entities)
         {
             for (const system of this.Systems)

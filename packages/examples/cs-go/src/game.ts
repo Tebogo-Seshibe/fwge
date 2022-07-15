@@ -16,11 +16,11 @@ export class CSGO extends Game
             height: 1080,
             width: 1920,
             scenes: [
-                // MainMenu,
-                // LoadingScreen,
-                // Credits,
+                MainMenu,
+                LoadingScreen,
+                Credits,
                 Round,
-                // Test
+                Test
             ],
             components: [
                 { name: 'Cube', create: createCube },
@@ -30,7 +30,8 @@ export class CSGO extends Game
             ],
             assets: [
                 { name: 'Basic Shader', create: basisShader }
-            ]
+            ],
+            startupScene: Round
         })
     }
 }

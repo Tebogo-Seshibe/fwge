@@ -1,5 +1,5 @@
 import { Vector3 } from "@fwge/common"
-import { Entity, EntityId, System, Transform } from "@fwge/core"
+import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
 import { SAT } from "./SAT"
 import { Collision, CollisionResult, CollisionState, GetCollisionMethod, _Collision, _Collision_Id } from "./types"
@@ -11,9 +11,9 @@ export class PhysicsSystem extends System
 
     private displacements: Map<EntityId, Vector3> = new Map()
 
-    constructor()
+    constructor(scene: Scene)
     {
-        super({ requiredComponents: [ Transform, Collider ] })
+        super(scene, { requiredComponents: [ Transform, Collider ] })
     }
     
     Init(): void { }

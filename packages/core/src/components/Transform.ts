@@ -14,18 +14,23 @@ export class Transform extends UniqueComponent
     public readonly Rotation: Vector3
     public readonly Scale: Vector3
 
-    get LocalModelViewMatrix(): Matrix4
+    LocalModelViewMatrix(): Matrix4
+    LocalModelViewMatrix(out: Matrix4): Matrix4
+    LocalModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
     {
         return Matrix4.TransformationMatrix(
             this.Position,
             this.Rotation,
-            this.Scale
+            this.Scale,
+            _0
         )
     }
 
-    get ModelViewMatrix(): Matrix4
+    ModelViewMatrix(): Matrix4
+    ModelViewMatrix(out: Matrix4): Matrix4
+    ModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
     {
-        const modelviewMatrix = this.LocalModelViewMatrix
+        this.LocalModelViewMatrix(_0)
         let transform: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
 
         while (transform)
@@ -36,19 +41,19 @@ export class Transform extends UniqueComponent
                     transform.Rotation,
                     transform.Scale
                 ),
-                modelviewMatrix,
-                modelviewMatrix
+                _0,
+                _0
             )
             transform = transform.Owner?.Parent?.GetComponent(Transform)
         }
 
-        return modelviewMatrix
+        return _0
     }
 
     get GlobalPosition(): Vector3
     {
         return Matrix4.MultiplyVector(
-            this.ModelViewMatrix,
+            this.ModelViewMatrix(),
             this.Position.X,
             this.Position.Y,
             this.Position.Z,

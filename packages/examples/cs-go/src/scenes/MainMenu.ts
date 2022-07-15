@@ -2,6 +2,7 @@ import { AnimationSystem } from "@fwge/animation"
 import { Game, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { RenderSystem } from "@fwge/render"
+import { FullScreen } from "../entities/FullScreen"
 
 export class MainMenu extends Scene
 {
@@ -9,7 +10,7 @@ export class MainMenu extends Scene
     {
         super(game, {
             entities: [
-                // FullScreen
+                FullScreen
             ],
             systems: [
                 InputSystem,

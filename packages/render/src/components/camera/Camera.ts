@@ -11,7 +11,7 @@ export class Camera extends UniqueComponent
         const transform = this.Owner?.GetComponent(Transform)
         
         return transform 
-            ? Matrix4.Inverse(transform.ModelViewMatrix)
+            ? Matrix4.Inverse(transform.ModelViewMatrix())
             : Matrix4.Identity
     }
 
