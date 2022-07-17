@@ -108,9 +108,9 @@ export class Material extends SharedComponent
     {
         super(Material)
 
-        args.ambient = args.ambient ?? [128, 128, 128, 255]
-        args.diffuse = args.diffuse ?? [165, 165, 165, 255]
-        args.specular = args.specular ?? [192, 192, 192, 255]
+        args.ambient = args.ambient ?? [0.5, 0.5, 0.5, 1]
+        args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1]
+        args.specular = args.specular ?? [0.75, 0.75, 0.75, 1]
 
         this.Ambient = new Colour4(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
         this.Diffuse = new Colour4(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
@@ -157,26 +157,27 @@ export class Material extends SharedComponent
 
     Bind(): void
     {
+        this.Shader!.Bind()
         GL.uniform4f(
             this.Shader!.Material!.AmbientColour,
-            this.Ambient[0] / 255,
-            this.Ambient[1] / 255,
-            this.Ambient[2] / 255,
-            this.Ambient[3] / 255,
+            this.Ambient[0],
+            this.Ambient[1],
+            this.Ambient[2],
+            this.Ambient[3],
         )
         GL.uniform4f(
             this.Shader!.Material!.DiffuseColour,
-            this.Diffuse[0] / 255,
-            this.Diffuse[1] / 255,
-            this.Diffuse[2] / 255,
-            this.Diffuse[3] / 255,
+            this.Diffuse[0],
+            this.Diffuse[1],
+            this.Diffuse[2],
+            this.Diffuse[3],
         )
         GL.uniform4f(
             this.Shader!.Material!.SpecularColour,
-            this.Specular[0] / 255,
-            this.Specular[1] / 255,
-            this.Specular[2] / 255,
-            this.Specular[3] / 255,
+            this.Specular[0],
+            this.Specular[1],
+            this.Specular[2],
+            this.Specular[3],
         )
         GL.uniform1f(this.Shader!.Material!.Shininess, this.Shininess)
         GL.uniform1f(this.Shader!.Material!.Alpha, this.Alpha)   
@@ -213,5 +214,6 @@ export class Material extends SharedComponent
                 GL.bindTexture(GL.TEXTURE_2D, null)
             }
         }
+        this.Shader!.UnBind()
     }
 }

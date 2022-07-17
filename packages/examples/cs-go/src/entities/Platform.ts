@@ -5,34 +5,29 @@ import { GameObject } from "./GameObject"
 
 export class Platform extends GameObject
 {
-    public mesh!: StaticMesh
-    public material!: Material
+    material!: Material
     renderer!: Renderer<Mesh>
-    public cubeCollider!: CubeCollider
+    cubeCollider!: CubeCollider
 
     override OnCreate(): void
     {
         super.OnCreate()
 
-        this.mesh = this.Scene.Game.Components.get('Mesh')!.get('Cube') as StaticMesh
         this.material = this.Scene.Game.Components.get('Material')!.get('PlaneMaterial') as Material
         this.cubeCollider = new CubeCollider()
+        this.renderer = new MeshRenderer(
+        {
+            asset: this.Scene.Game.Components.get('Mesh')!.get('Cube') as StaticMesh
+        })
 
-        this.AddComponent(this.mesh)
         this.AddComponent(this.material)
-        this.AddComponent(this.cubeCollider)
-        
-        this.renderer = new MeshRenderer()
-        this.renderer.Asset = this.mesh
+        this.AddComponent(this.cubeCollider)        
         this.AddComponent(this.renderer)
-    }
-    
-    override OnStart(): void
-    {
+
         this.transform.Scale.Set(100, 0.2, 100)
-        this.transform.Position.Y = -0.5
+        this.transform.Position.Y = -0.1
     }
-    
+
     override OnInput({ Keyboard }: IInputArgs, delta: number): void
     {
         if (Keyboard.KeyUp !== KeyState.UP)

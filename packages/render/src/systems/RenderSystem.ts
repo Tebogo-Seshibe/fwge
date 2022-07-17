@@ -1,4 +1,4 @@
-import { GL, Matrix4 } from '@fwge/common'
+import { GL, Matrix3, Matrix4 } from '@fwge/common'
 import { Entity, getComponent, Scene, System, Transform } from '@fwge/core'
 import { ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, Renderer, RenderMode } from '../components'
@@ -6,27 +6,31 @@ import { Light } from '../components/lights/Light'
 
 export class RenderSystem extends System
 {
-    #lights: Set<Light> = new Set()
-    #batch: Map<number, Map<number, Set<number>>> = new Map()
-    #modelViewMatrices: Map<number, Matrix4> = new Map()
+    private _cameraModelViewMatrix: Matrix4 = Matrix4.Identity
+    private _lights: Set<Light> = new Set()
+    private _batch: Map<number, Map<number, Set<number>>> = new Map()
+    private _modelViewMatrices: Map<number, Matrix4> = new Map()
+    private _normalMatrices: Map<number, Matrix3> = new Map()
 
     constructor(scene: Scene)
     {
-        super(scene, { requiredComponents: [ Transform, Mesh, Material, Renderer ] })
+        super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
     }
 
-    Init(): void
-    {
-        console.log(this.#batch)
-    }
+    Init(): void { }
     Start(): void { }
     Stop(): void { }
 
     Update(_: number): void
     {
-        if (!Camera.Main)
+        if (!Camera.Main || !Camera.Main?.Owner?.HasComponent(Transform))
         {
             return
+        }
+        else
+        {
+            const transform = Camera.Main.Owner.GetComponent(Transform)!
+            transform.ModelViewMatrix(this._cameraModelViewMatrix)
         }
 
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
@@ -38,17 +42,18 @@ export class RenderSystem extends System
         GL.enable(GL.CULL_FACE)
         GL.depthMask(true)
 
-        for (const [materialId, renderers] of this.#batch)
+        for (const [materialId, renderers] of this._batch)
         {
             const material = getComponent(Material, materialId)
-            const shader = material.Shader
-            if (!shader)
+            if (!material.Shader)
             {
                 continue
             }
 
-            shader.Bind()
-            material.Bind()
+            material.Bind()            
+            GL.uniformMatrix4fv(material.Shader.Matrices!.View, true, Matrix4.Inverse(this._cameraModelViewMatrix))
+            GL.uniformMatrix4fv(material.Shader.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
+
             for (const [rendererId, transforms] of renderers)
             {
                 const renderer = getComponent(Renderer, rendererId)
@@ -59,45 +64,52 @@ export class RenderSystem extends System
                 
                 switch (renderer.RenderMode)
                 {
-                    case RenderMode.FACE: 
+                    case RenderMode.FACE:
+                    {
                         mode = GL.TRIANGLES
-                        if (mesh.FaceBuffer)
+                        if (mesh.FaceCount !== -1)
                         {
                             buffer = mesh.FaceBuffer
                             count = mesh.FaceCount
                         }
-                        break
+                    }
+                    break
 
-                    case RenderMode.EDGE: 
+                    case RenderMode.EDGE:
+                    {
                         mode = GL.LINES
-                        if (mesh.EdgeBuffer)
+                        if (mesh.EdgeCount !== -1)
                         {
                             buffer = mesh.EdgeBuffer
                             count = mesh.EdgeCount
                         }
-                        break
+                    }
+                    break
 
-                    case RenderMode.POINT: 
+                    case RenderMode.POINT:
+                    {
                         mode = GL.POINTS
-                        if (mesh.PointBuffer)
+                        if (mesh.PointCount !== -1)
                         {
                             buffer = mesh.PointBuffer
                             count = mesh.PointCount
                         }
-                        break
+                    }
+                    break
                 }
 
                 GL.bindVertexArray(mesh.VertexArrayBuffer)
-                // count = 3
-                // buffer = null
                 for (const transformId of transforms)
                 {
                     const transform = getComponent(Transform, transformId)
-                    const modelView = this.#modelViewMatrices.get(transformId)!
-                    transform.ModelViewMatrix(modelView)
+                    const modelView = this._modelViewMatrices.get(transformId)!
+                    const normal = this._normalMatrices.get(transformId)!
 
-                    GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, modelView)
-                    GL.uniformMatrix3fv(shader.Matrices!.Normal, true, modelView.Matrix3.Inverse())
+                    transform.ModelViewMatrix(modelView)
+                    Matrix3.Inverse(modelView.Matrix3, normal)
+                    
+                    GL.uniformMatrix4fv(material.Shader.Matrices!.ModelView, true, modelView)
+                    GL.uniformMatrix3fv(material.Shader.Matrices!.Normal, true, normal)
                     
                     if (buffer)
                     {
@@ -112,14 +124,13 @@ export class RenderSystem extends System
                 GL.bindVertexArray(null)
             }
             material.UnBind()
-            shader.UnBind()
         }
     }
 
     private _bindLightUniforms(shader: ShaderAsset)
     {
         let point_count: number = 0
-        for (let light of this.#lights)
+        for (let light of this._lights)
         {
             if (light instanceof PointLight)
             {
@@ -153,9 +164,9 @@ export class RenderSystem extends System
         super.OnUpdateEntity(entity)
 
         const pointLight = entity.GetComponent(PointLight)
-        if (pointLight && !this.#lights.has(pointLight))
+        if (pointLight && !this._lights.has(pointLight))
         {
-            this.#lights.add(pointLight)
+            this._lights.add(pointLight)
         }
 
         if (this.IsValidEntity(entity))
@@ -164,14 +175,15 @@ export class RenderSystem extends System
             const renderer = entity.GetComponent(Renderer<any>)!
             const transform = entity.GetComponent(Transform)!
 
-            const materialMap = this.#batch ?? new Map<number, Map<number, Set<number>>>()
+            const materialMap = this._batch ?? new Map<number, Map<number, Set<number>>>()
             const meshMap = materialMap.get(material.Id) ?? new Map<number, Set<number>>()
             const transformSet = meshMap.get(renderer.Id) ?? new Set<number>()
 
             meshMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
             materialMap.set(material.Id, meshMap)
-            this.#batch = materialMap
-            this.#modelViewMatrices.set(transform.Id, Matrix4.Identity)
+            this._batch = materialMap
+            this._modelViewMatrices.set(transform.Id, Matrix4.Identity)
+            this._normalMatrices.set(transform.Id, Matrix3.Identity)
         }
     }
 }

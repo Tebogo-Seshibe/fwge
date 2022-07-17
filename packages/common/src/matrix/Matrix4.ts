@@ -1355,13 +1355,11 @@ export class Matrix4 extends Float32Array
     {
         const out = _3 ?? _1 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
 
-        const ScaleMatrix =  Matrix4.ScaleMatrix(_2)
-        const RotationMatrix =  Matrix4.RotationMatrix(_1)
-        const TranslationMatrix =  Matrix4.TranslationMatrix(_0)
+        Matrix4.ScaleMatrix(_2, out)
+        Matrix4.Multiply(Matrix4.RotationMatrix(_1), out, out)
+        Matrix4.Multiply(Matrix4.TranslationMatrix(_0), out, out)
 
-        return out.Set(TranslationMatrix)
-            .Multiply(RotationMatrix)
-            .Multiply(ScaleMatrix)
+        return out
     }
 
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number): Matrix4

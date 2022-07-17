@@ -7,7 +7,6 @@ import { GameObject } from "./GameObject"
 export class Cube extends GameObject
 {
     turnSpeed!: number
-    mesh!: StaticMesh
     material!: Material
     renderer!: Renderer<Mesh>
     collider: Collider = new CubeCollider()
@@ -15,13 +14,6 @@ export class Cube extends GameObject
     OnCreate(): void
     {
         super.OnCreate()
-
-        this.mesh = this
-            .Scene
-            .Game
-            .Components
-            .get(Mesh.name)!
-            .get('Cube')! as StaticMesh
 
         this.material = //this
             // .Scene
@@ -32,26 +24,34 @@ export class Cube extends GameObject
 
         new Material(
         {
-            ambient: [
-                Math.random() * 255,
-                Math.random() * 255,
-                Math.random() * 255,
-                255
-            ],
+            // ambient: [
+            //     Math.random(),
+            //     Math.random(),
+            //     Math.random(),
+            //     1
+            // ],
             shader: this.Scene.Game.Assets.get(ShaderAsset.name)!.get('Basic Shader')! as ShaderAsset
         })
-        this.transform.Position.Set((Math.random() * 100) - 50, 2.25, (Math.random() * 100) - 50)
+        const rand = randBetween(1,5)
 
-        this.AddComponent(this.mesh)
+        this.transform.Position.Set((Math.random() * 100) - 50, rand / 2, (Math.random() * 100) - 50)
+
         this.AddComponent(this.material)
         this.AddComponent(this.collider)
 
-        this.transform.Scale.Set(1,5,1)
+        this.transform.Scale.Set(1,rand,1)
         this.turnSpeed = randBetween(15, 45)
 
-        this.renderer = new MeshRenderer()
-        this.renderer.RenderMode = RenderMode.FACE
-        this.renderer.Asset = this.mesh
+        this.renderer = new MeshRenderer(
+        {
+            asset: this
+                .Scene
+                .Game
+                .Components
+                .get(Mesh.name)!
+                .get('Cube')! as StaticMesh,
+            renderMode: RenderMode.FACE
+        })
         this.AddComponent(this.renderer)
     }
     

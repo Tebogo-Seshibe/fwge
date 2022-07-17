@@ -1,7 +1,7 @@
 import { NumberArray } from '../types'
 import { Colour3 } from './Colour3'
 
-export class Colour4 extends Uint8Array
+export class Colour4 extends Float32Array
 {    
     get R(): number
     {
@@ -43,42 +43,42 @@ export class Colour4 extends Uint8Array
         return new Colour3(this[0], this[1], this[2])
     }
 
-    // get BIN(): string
-    // {
-    //     let str = 'b'
-    //     this.forEach(i => str += Math.round(i * 255).toString(2))
+    get BIN(): string
+    {
+        let str = 'b'
+        this.forEach(i => str += Math.round(i * 255).toString(2))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get OCT(): string
-    // {
-    //     let str = 'o'
-    //     this.forEach(i => str += Math.round(i * 255).toString(8))
+    get OCT(): string
+    {
+        let str = 'o'
+        this.forEach(i => str += Math.round(i * 255).toString(8))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get DEC(): string
-    // {
-    //     let str = ''
-    //     this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
+    get DEC(): string
+    {
+        let str = ''
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
 
-    //     return str.substring(0, str.length - 1)
-    // }
+        return str.substring(0, str.length - 1)
+    }
 
-    // get HEX(): string
-    // {
-    //     let str = '#' 
-    //     this.forEach(i => str += Math.round(i * 255).toString(16))
+    get HEX(): string
+    {
+        let str = '#' 
+        this.forEach(i => str += Math.round(i * 255).toString(16))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get HSV(): string
-    // {
-    //     return 'TODO'
-    // }
+    get HSV(): string
+    {
+        return 'TODO'
+    }
 
     static readonly SIZE: number = 4
     
@@ -105,13 +105,6 @@ export class Colour4 extends Uint8Array
     Set(colour: Colour4): Colour4
     Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number, _3?: number): Colour4
     {
-        console.log(
-        [
-            _0,
-            _1,
-            _2,
-            _3
-        ])
         if (typeof _0 === 'number')
         {
             this[0] = _0

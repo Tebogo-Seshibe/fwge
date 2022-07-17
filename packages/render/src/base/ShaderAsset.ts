@@ -220,8 +220,6 @@ export class ShaderAsset extends Asset
     Bind(): void
     {   
         GL.useProgram(this.Program)
-        GL.uniformMatrix4fv(this.Matrices!.View, true, Camera.Main!.ViewMatrix)
-        GL.uniformMatrix4fv(this.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
     }
 
     UnBind(): void

@@ -1,7 +1,7 @@
 import { NumberArray } from '../types'
 import { Colour4 } from './Colour4'
 
-export class Colour3 extends Uint8Array
+export class Colour3 extends Float32Array
 {    
     get R(): number
     {
@@ -38,42 +38,42 @@ export class Colour3 extends Uint8Array
         return new Colour4(this, 1)
     }
 
-    // get BIN(): string
-    // {
-    //     let str = 'b'
-    //     this.forEach(i => str += Math.round(i * 255).toString(2))
+    get BIN(): string
+    {
+        let str = 'b'
+        this.forEach(i => str += Math.round(i * 255).toString(2))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get OCT(): string
-    // {
-    //     let str = 'o'
-    //     this.forEach(i => str += Math.round(i * 255).toString(8))
+    get OCT(): string
+    {
+        let str = 'o'
+        this.forEach(i => str += Math.round(i * 255).toString(8))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get DEC(): string
-    // {
-    //     let str = ''
-    //     this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
+    get DEC(): string
+    {
+        let str = ''
+        this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
 
-    //     return str.substring(0, str.length - 1)
-    // }
+        return str.substring(0, str.length - 1)
+    }
 
-    // get HEX(): string
-    // {
-    //     let str = '#' 
-    //     this.forEach(i => str += Math.round(i * 255).toString(16))
+    get HEX(): string
+    {
+        let str = '#' 
+        this.forEach(i => str += Math.round(i * 255).toString(16))
 
-    //     return str
-    // }
+        return str
+    }
 
-    // get HSV(): string
-    // {
-    //     return 'TODO'
-    // }
+    get HSV(): string
+    {
+        return 'TODO'
+    }
 
     static SIZE: number = 3
     

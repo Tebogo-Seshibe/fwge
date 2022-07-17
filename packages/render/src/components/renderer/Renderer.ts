@@ -1,5 +1,10 @@
 import { SharedComponent } from "@fwge/core"
 
+export interface IRenderer<T>
+{
+    asset: T
+    renderMode?: RenderMode
+}
 export enum RenderMode
 {
     FACE,
@@ -7,12 +12,9 @@ export enum RenderMode
     POINT
 }
 
-export class Renderer<T = {}> extends SharedComponent
+export class Renderer<T> extends SharedComponent
 {
-    public Asset: T | undefined
-    public RenderMode: RenderMode = RenderMode.FACE
-
-    constructor()
+    constructor(public Asset: T, public RenderMode: RenderMode)
     {
         super(Renderer)
     }

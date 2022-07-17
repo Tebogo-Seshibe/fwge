@@ -87,10 +87,10 @@ export class StaticMesh extends Mesh
             {
                 const colour = args.colour[i]
                 
-                view.setUint8(offset + (0 * Colour4.BYTES_PER_ELEMENT), colour[0])
-                view.setUint8(offset + (1 * Colour4.BYTES_PER_ELEMENT), colour[1])
-                view.setUint8(offset + (2 * Colour4.BYTES_PER_ELEMENT), colour[2])
-                view.setUint8(offset + (3 * Colour4.BYTES_PER_ELEMENT), colour[3])
+                view.setFloat32(offset + (0 * Colour4.BYTES_PER_ELEMENT), colour[0])
+                view.setFloat32(offset + (1 * Colour4.BYTES_PER_ELEMENT), colour[1])
+                view.setFloat32(offset + (2 * Colour4.BYTES_PER_ELEMENT), colour[2])
+                view.setFloat32(offset + (3 * Colour4.BYTES_PER_ELEMENT), colour[3])
 
                 offset += COLOUR_SIZE
             }
