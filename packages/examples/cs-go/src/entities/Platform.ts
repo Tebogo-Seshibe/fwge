@@ -17,7 +17,7 @@ export class Platform extends GameObject
         this.cubeCollider = new CubeCollider()
         this.renderer = new MeshRenderer(
         {
-            asset: this.Scene.Game.Components.get('Mesh')!.get('Cube') as StaticMesh
+            asset: this.Scene.Game.Assets.get(StaticMesh.name)!.get('Cube') as StaticMesh
         })
 
         this.AddComponent(this.material)

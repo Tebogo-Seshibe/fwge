@@ -24,12 +24,12 @@ export class Cube extends GameObject
 
         new Material(
         {
-            // ambient: [
-            //     Math.random(),
-            //     Math.random(),
-            //     Math.random(),
-            //     1
-            // ],
+            ambient: [
+                Math.random(),
+                Math.random(),
+                Math.random(),
+                1
+            ],
             shader: this.Scene.Game.Assets.get(ShaderAsset.name)!.get('Basic Shader')! as ShaderAsset
         })
         const rand = randBetween(1,5)
@@ -47,8 +47,8 @@ export class Cube extends GameObject
             asset: this
                 .Scene
                 .Game
-                .Components
-                .get(Mesh.name)!
+                .Assets
+                .get(StaticMesh.name)!
                 .get('Cube')! as StaticMesh,
             renderMode: RenderMode.FACE
         })

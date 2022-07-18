@@ -23,12 +23,12 @@ export class CSGO extends Game
                 Test
             ],
             components: [
-                { name: 'Cube', create: createCube },
                 { name: 'CubeMaterial', create: createBasicMaterial },
                 { name: 'PlaneMaterial', create: createBasicMaterial },
                 { name: 'BasicAnimation', create: basicAnimation },
             ],
             assets: [
+                { name: 'Cube', create: createCube },
                 { name: 'Basic Shader', create: basisShader }
             ],
             startupScene: Round

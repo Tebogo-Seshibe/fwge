@@ -1,16 +1,16 @@
 import { Colour4, GL, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { SharedComponent } from "@fwge/core"
+import { Asset } from "@fwge/core"
 
 export interface IMesh
 {
     position: Vector3[] | [number, number, number][]
     normal?: Vector3[] | [number, number, number][]
-    colour?: Vector4[] | Colour4[] | [number, number, number, number][]
     uv?: Vector2[] | [number, number][]
+    colour?: Vector4[] | Colour4[] | [number, number, number, number][]
     index?: number[]
 }
 
-export class Mesh extends SharedComponent
+export class Mesh extends Asset
 {
     readonly VertexArrayBuffer: WebGLVertexArrayObject = GL.createVertexArray()!
     readonly VertexBuffer: WebGLBuffer = GL.createBuffer()!

@@ -1,4 +1,5 @@
 import { SharedComponent } from "@fwge/core"
+import { Mesh } from "../mesh"
 
 export interface IRenderer<T>
 {
@@ -12,7 +13,7 @@ export enum RenderMode
     POINT
 }
 
-export class Renderer<T> extends SharedComponent
+export class Renderer<T extends Mesh> extends SharedComponent
 {
     constructor(public Asset: T, public RenderMode: RenderMode)
     {

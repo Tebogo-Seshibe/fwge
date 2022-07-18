@@ -10,6 +10,26 @@ export enum BlendMode
     MULTIPLICATIVE
 }
 
+type Range<
+    Digits extends number,
+    Result extends Array<unknown> = []
+> = (Result['length'] extends Digits
+    ? Result
+    : Range<Digits, [...Result, Result['length']]>)
+
+type ColourUnitType = `0.${Range<999>[number]}` | '1.0'
+type ColourUnit<Value extends number> = `${Value}` extends ColourUnitType ? Value : never
+type NumberRange = Range<999>[number]
+
+
+type Between<
+    Min extends number, 
+    Max extends number
+> = Min > Max ? never : number;
+
+let a: ColourUnit<0.0>
+
+
 interface IMaterial
 {
     ambient?: [number, number, number, number]
@@ -28,6 +48,12 @@ export class Material extends SharedComponent
     readonly Ambient: Colour4
     readonly Diffuse: Colour4
     readonly Specular: Colour4
+    example!: number
+
+    get Example(){
+        return this.example
+    }
+    set Example(example: ColourUnitType)
     Alpha: number
     Shininess: number
     HasTransparency: boolean = false
@@ -158,27 +184,10 @@ export class Material extends SharedComponent
     Bind(): void
     {
         this.Shader!.Bind()
-        GL.uniform4f(
-            this.Shader!.Material!.AmbientColour,
-            this.Ambient[0],
-            this.Ambient[1],
-            this.Ambient[2],
-            this.Ambient[3],
-        )
-        GL.uniform4f(
-            this.Shader!.Material!.DiffuseColour,
-            this.Diffuse[0],
-            this.Diffuse[1],
-            this.Diffuse[2],
-            this.Diffuse[3],
-        )
-        GL.uniform4f(
-            this.Shader!.Material!.SpecularColour,
-            this.Specular[0],
-            this.Specular[1],
-            this.Specular[2],
-            this.Specular[3],
-        )
+        
+        GL.uniform4fv(this.Shader!.Material!.AmbientColour, this.Ambient)
+        GL.uniform4fv(this.Shader!.Material!.DiffuseColour, this.Diffuse)
+        GL.uniform4fv(this.Shader!.Material!.SpecularColour, this.Specular)
         GL.uniform1f(this.Shader!.Material!.Shininess, this.Shininess)
         GL.uniform1f(this.Shader!.Material!.Alpha, this.Alpha)   
 
