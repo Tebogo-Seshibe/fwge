@@ -1,3 +1,4 @@
+import { cp } from "fs"
 import { Component } from "./Component"
 
 export type TypeId = number
@@ -30,15 +31,20 @@ export function createComponent(component: Component): void
     if (!Components.has(component.TypeId))
     {
         Components.set(component.TypeId, new Map())
+        ComponentMap.set(component.Type.name, [])
+        MultiDimension[component.TypeId] = new Array(1000)
     }
 
+    ComponentMap.get(component.Type.name)![component.Id] = component
     Components.get(component.TypeId)!.set(component.Id, component)
+    MultiDimension[component.TypeId][component.Id] = component
 }
 
 export function getComponent<T extends Component>(type: Class<T>, componentId: number): T
 {
-    const typeId = getTypeId(type)
-    return Components.get(typeId)!.get(componentId)! as T
+    return MultiDimension[getTypeId(type)][componentId] as T
+    // return ComponentMap.get(type.name)![componentId] as T
+    // return Components.get(typeId)!.get(componentId)! as T
 }
 
 export interface TypeAndId
@@ -89,6 +95,8 @@ export const getTypeId = <T>(_class: Class<T>): TypeId =>
 
 const IDGen: Map<Class<any>, number> = new Map()
 const TypeIDs: Map<Class<any>, number> = new Map()
+const ComponentMap: Map<string, Component[]> = new Map()
+const MultiDimension: Component[][] = []
 export const Components: Map<number, Map<number, Component>> = new Map()
 
 // export const nextTypeId = <T>

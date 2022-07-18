@@ -11,7 +11,7 @@ export class Asset extends RegistryType
     constructor(assetType: Class<Asset>)
     constructor(type?: Class<Asset>)
     {
-        super(new.target as Class<Asset>)
+        super(type)
     }
 
     Load(source: IAssetLoader): void { }

@@ -10,24 +10,24 @@ export enum BlendMode
     MULTIPLICATIVE
 }
 
-type Range<
-    Digits extends number,
-    Result extends Array<unknown> = []
-> = (Result['length'] extends Digits
-    ? Result
-    : Range<Digits, [...Result, Result['length']]>)
+// type Range<
+//     Digits extends number,
+//     Result extends Array<unknown> = []
+// > = (Result['length'] extends Digits
+//     ? Result
+//     : Range<Digits, [...Result, Result['length']]>)
 
-type ColourUnitType = `0.${Range<999>[number]}` | '1.0'
-type ColourUnit<Value extends number> = `${Value}` extends ColourUnitType ? Value : never
-type NumberRange = Range<999>[number]
+// type ColourUnitType = `0.${Range<999>[number]}` | '1.0'
+// type ColourUnit<Value extends number> = `${Value}` extends ColourUnitType ? Value : never
+// type NumberRange = Range<999>[number]
 
 
-type Between<
-    Min extends number, 
-    Max extends number
-> = Min > Max ? never : number;
+// type Between<
+//     Min extends number, 
+//     Max extends number
+// > = Min > Max ? never : number;
 
-let a: ColourUnit<0.0>
+// let a: ColourUnit<0.0>
 
 
 interface IMaterial
@@ -48,17 +48,11 @@ export class Material extends SharedComponent
     readonly Ambient: Colour4
     readonly Diffuse: Colour4
     readonly Specular: Colour4
-    example!: number
-
-    get Example(){
-        return this.example
-    }
-    set Example(example: ColourUnitType)
     Alpha: number
     Shininess: number
     HasTransparency: boolean = false
 
-    Textures: WebGLTexture[] = new Array(16).fill(null)
+    readonly Textures: WebGLTexture[] = new Array(16).fill(null)
 
     _imageTexture: WebGLTexture | null = null
     _normalTexture: WebGLTexture | null = null

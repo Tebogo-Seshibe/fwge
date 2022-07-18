@@ -10,6 +10,13 @@ export class Eye extends GameObject
     camera!: Camera 
     collider!: Collider
 
+    private rotation: Vector3 = Vector3.Zero
+    private rotationMatrix: Matrix3 = Matrix3.Identity
+    private forward: Vector3 = Vector3.Zero
+    private right: Vector3 = Vector3.Zero
+    private up: Vector3 = Vector3.UnitY
+    private movement: Vector3 = Vector3.Zero
+
     private readonly movementSpeed: number = 5
     private readonly turnSpeed: number = 25
 
@@ -65,34 +72,40 @@ export class Eye extends GameObject
         const shiftPressed = Keyboard.KeyShift !== KeyState.RELEASED && Keyboard.KeyShift !== KeyState.UP
 
         const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
+        const currentRotation = this.transform.Rotation
 
         const deltaRotation = Vector2.Scale(Mouse.Offset, this.turnSpeed * delta)
-        const rotation = this.transform.Rotation.Clone().Add(0, deltaRotation.X, 0)
+        Vector3.Add(
+            currentRotation[0], currentRotation[1], currentRotation[2],
+            0, deltaRotation.X, 0,
+            this.rotation
+        )
         
-        const rotationMatrix = Matrix3.RotationMatrix(0, rotation.Y, 0)
-        const forward = Matrix3.MultiplyVector(rotationMatrix, 0, 0, -1).Normalize()
-        const right = Matrix3.MultiplyVector(rotationMatrix, 1, 0, 0).Normalize()
+        Matrix3.RotationMatrix(0, this.rotation.Y, 0, this.rotationMatrix)
+        Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward)
+        Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right)
         
         if ((wPressed && sPressed) || (!wPressed && !sPressed))
         {
-            forward.Set(0)
+            this.forward.Set(0)
         }
         else if (!wPressed && sPressed)
         {
-            forward.Negate()
+            this.forward.Negate()
         }
         if ((dPressed && aPressed) || (!dPressed && !aPressed))
         {
-            right.Set(0)
+            this.right.Set(0)
         }
         else if (!dPressed && aPressed)
         {
-            right.Negate()
+            this.right.Negate()
         }
 
-        const movement = Vector3.Add(forward, right).Normalize().Scale(movementSpeed * delta)
+        Vector3.Add(this.forward, this.right, this.movement)
+        this.movement.Scale(this.movement.Length / movementSpeed * delta)
 
-        this.transform.Position.Add(movement)
-        this.transform.Rotation.Set(rotation)
+        this.transform.Position.Add(this.movement)
+        this.transform.Rotation.Set(this.rotation)
     }
 }

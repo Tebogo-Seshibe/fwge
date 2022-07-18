@@ -6,52 +6,34 @@ import { GameObject } from "./GameObject"
 
 export class Cube extends GameObject
 {
-    turnSpeed!: number
+    turnSpeed: number = randBetween(15, 275)
     material!: Material
-    renderer!: Renderer<Mesh>
+    renderer!: Renderer<StaticMesh>
     collider: Collider = new CubeCollider()
 
     OnCreate(): void
     {
         super.OnCreate()
-
-        this.material = //this
-            // .Scene
-            // .Game
-            // .Components
-            // .get(Material.name)!
-            // .get('CubeMaterial')! as Material
-
-        new Material(
-        {
-            ambient: [
-                Math.random(),
-                Math.random(),
-                Math.random(),
-                1
-            ],
-            shader: this.Scene.Game.Assets.get(ShaderAsset.name)!.get('Basic Shader')! as ShaderAsset
-        })
+        
         const rand = randBetween(1,5)
-
         this.transform.Position.Set((Math.random() * 100) - 50, rand / 2, (Math.random() * 100) - 50)
+        this.transform.Scale.Set(1, rand, 1)
 
-        this.AddComponent(this.material)
-        this.AddComponent(this.collider)
-
-        this.transform.Scale.Set(1,rand,1)
-        this.turnSpeed = randBetween(15, 45)
+        this.material = new Material(
+        {
+            ambient: [ Math.random(), Math.random(), Math.random(), 1 ],
+            shader: this.Scene.Game.GetAsset('Basic Shader', ShaderAsset)!
+        })
+        //this.Scene.Game.GetComponent('CubeMaterial', Material)!
 
         this.renderer = new MeshRenderer(
         {
-            asset: this
-                .Scene
-                .Game
-                .Assets
-                .get(StaticMesh.name)!
-                .get('Cube')! as StaticMesh,
+            asset: this.Scene.Game.GetAsset('Cube', Mesh)!,
             renderMode: RenderMode.FACE
         })
+        
+        this.AddComponent(this.material)
+        this.AddComponent(this.collider)
         this.AddComponent(this.renderer)
     }
     
