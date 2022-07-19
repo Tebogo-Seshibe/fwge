@@ -1,4 +1,4 @@
-import { GL, Matrix3, Matrix4 } from '@fwge/common'
+import { GL, Matrix3, Matrix4, Vector3, Vector4 } from '@fwge/common'
 import { Entity, getComponent, Scene, System, Transform } from '@fwge/core'
 import { ShaderAsset } from '../base'
 import { Camera, Material, Mesh, PointLight, Renderer, RenderMode } from '../components'
@@ -17,7 +17,7 @@ export class RenderSystem extends System
         super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
     }
 
-    Init(): void { }
+    Init(): void { console.log(this) }
     Start(): void { }
     Stop(): void { }
 
@@ -50,7 +50,8 @@ export class RenderSystem extends System
                 continue
             }
 
-            material.Bind()            
+            material.Bind() 
+            this._bindLightUniforms(material.Shader)          
             GL.uniformMatrix4fv(material.Shader.Matrices!.View, true, Matrix4.Inverse(this._cameraModelViewMatrix))
             GL.uniformMatrix4fv(material.Shader.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
 
@@ -134,7 +135,7 @@ export class RenderSystem extends System
         {
             if (light instanceof PointLight)
             {
-                const position = light.Owner!.GetComponent(Transform)!.Position
+                const position = light.Owner!.GetComponent(Transform)!.GlobalPosition()
 
                 GL.uniform4f(
                     shader.Lights![point_count].Colour,
@@ -163,10 +164,10 @@ export class RenderSystem extends System
     {
         super.OnUpdateEntity(entity)
 
-        const pointLight = entity.GetComponent(PointLight)
-        if (pointLight && !this._lights.has(pointLight))
+        const light = entity.GetComponent(Light)
+        if (light && !this._lights.has(light))
         {
-            this._lights.add(pointLight)
+            this._lights.add(light)
         }
 
         if (this.IsValidEntity(entity))

@@ -14,6 +14,21 @@ export class Transform extends UniqueComponent
     public readonly Rotation: Vector3
     public readonly Scale: Vector3
 
+    GlobalPosition(): Vector3
+    GlobalPosition(position: Vector3): Vector3
+    GlobalPosition(position: Vector3 = Vector3.Zero): Vector3
+    {
+        let transform: Transform | undefined = this
+
+        while (transform)
+        {
+            position.Add(transform.Position)
+            transform = transform.Owner?.Parent?.GetComponent(Transform)
+        }
+
+        return position
+    }
+    
     LocalModelViewMatrix(): Matrix4
     LocalModelViewMatrix(out: Matrix4): Matrix4
     LocalModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
@@ -48,17 +63,6 @@ export class Transform extends UniqueComponent
         }
 
         return _0
-    }
-
-    get GlobalPosition(): Vector3
-    {
-        return Matrix4.MultiplyVector(
-            this.ModelViewMatrix(),
-            this.Position.X,
-            this.Position.Y,
-            this.Position.Z,
-            1.0
-        ).XYZ
     }
 
     constructor()

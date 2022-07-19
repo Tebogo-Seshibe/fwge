@@ -1,5 +1,5 @@
 import { Game } from '@fwge/core'
-import { basisShader } from './assets/Shaders'
+import { basicShader } from './assets/Shaders'
 import { createCube } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial } from './components/Materials'
@@ -29,7 +29,7 @@ export class CSGO extends Game
             ],
             assets: [
                 { name: 'Cube', create: createCube },
-                { name: 'Basic Shader', create: basisShader }
+                { name: 'Basic Shader', create: basicShader }
             ],
             startupScene: Round
         })

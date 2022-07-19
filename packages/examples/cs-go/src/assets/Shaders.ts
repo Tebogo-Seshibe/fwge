@@ -1,6 +1,6 @@
 import { ShaderAsset } from "@fwge/render"
 
-export const basisShader = () => new ShaderAsset(
+export const basicShader = () => new ShaderAsset(
 {
     vertexShader:
     {
@@ -67,12 +67,63 @@ export const basisShader = () => new ShaderAsset(
             bool HasImageMap;
             bool HasBumpMap;
         };
+        
+        struct PointLight
+        { 
+            vec4 Colour;
+            float Intensity;
 
+            vec3 Position;
+            float Radius;
+            float Angle;
+        };
+
+        uniform PointLight U_PointLight[4];
         uniform Material U_Material;
+
+        vec4 CalcPointLight(in PointLight point)
+        {                
+            float falloff = smoothstep(point.Radius, 0.0, min(length(point.Position - V_Position.xyz), point.Radius));
+            vec3 L = normalize(point.Position - V_Position.xyz);
+            vec3 E = -V_Position.xyz;
+            vec3 N = V_Normal;
+        
+            vec3 H = normalize(L + E);
+            vec4 ambient = U_Material.Ambient;
+        
+            float Kd = max(dot(L, H), 0.0);
+            vec4 diffuse = Kd * U_Material.Diffuse;
+        
+            float Ks = pow(max(dot(N, H), 0.0), U_Material.Shininess);
+            vec4 specular = Ks * U_Material.Specular;
+        
+            if (dot(L, H) < 0.0)
+            {
+                specular = vec4(vec3(0.0), 1.0);
+            }
+
+            return vec4(
+            (
+                (ambient + diffuse + specular)
+                * point.Colour
+                * point.Intensity
+                * falloff
+                ).rgb,
+            1.0);
+        }
+        
+        vec4 PointLightColour()
+        {
+            return 
+                CalcPointLight(U_PointLight[0]) +
+                CalcPointLight(U_PointLight[1]) +
+                CalcPointLight(U_PointLight[2]) +
+                CalcPointLight(U_PointLight[3]);
+        }
 
         void main(void)
         {
-            O_FragColour = V_Colour * vec4(U_Material.Ambient.rgb, U_Material.Alpha);
+            O_FragColour = PointLightColour() * V_Colour * vec4(U_Material.Ambient.rgb, U_Material.Alpha);
         }
         `,
         input: []

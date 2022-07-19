@@ -1,6 +1,6 @@
 import { IInputArgs, KeyState } from "@fwge/input"
 import { CubeCollider } from "@fwge/physics"
-import { Material, Mesh, MeshRenderer, Renderer, RenderMode } from "@fwge/render"
+import { Material, Mesh, MeshRenderer, Renderer, RenderMode, ShaderAsset } from "@fwge/render"
 import { GameObject } from "./GameObject"
 
 export class Platform extends GameObject
@@ -14,6 +14,7 @@ export class Platform extends GameObject
         super.OnCreate()
 
         this.material = this.Scene.Game.GetComponent('PlaneMaterial', Material)!
+        this.material.Shader = this.Scene.Game.GetAsset('Basic Shader', ShaderAsset)!
         this.cubeCollider = new CubeCollider()
         this.renderer = new MeshRenderer(
         {

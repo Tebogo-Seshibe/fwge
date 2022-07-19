@@ -16,7 +16,7 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                ...new Array(1000).fill(Cube),
+                ...new Array(100).fill(Cube),
                 Platform
             ],
             systems: [
@@ -40,7 +40,7 @@ export class Round extends Scene
     {
         super.Update(delta)
         
-        const fps = Math.round(delta === 0 ? 0 : 1 / delta)
-        this.fpsCounterDiv.innerText = (fps < 10 ? '  ' + fps : fps < 100 ? ' ' + fps : fps ) + 'fps'
+        // const fps = Math.round(delta === 0 ? 0 : 1 / delta)
+        // this.fpsCounterDiv.innerText = (fps < 10 ? '  ' + fps : fps < 100 ? ' ' + fps : fps ) + 'fps'
     }
 }

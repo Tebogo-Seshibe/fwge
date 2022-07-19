@@ -645,7 +645,7 @@ export class Matrix3 extends Float32Array
     static MultiplyVector(matrix: Matrix3, array: NumberArray, out: Vector3): Vector3
     static MultiplyVector(_0: Matrix3, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: Vector3): Vector3
     {
-        const out = _4 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+        const out = _4 !== undefined ? _4 : _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
         const vec = typeof _1 === 'number'
             ? [_1, _2 as number ?? _1, _3 as number ?? _1]
             : _1
@@ -667,7 +667,7 @@ export class Matrix3 extends Float32Array
     static RotationMatrix(xyz: NumberArray, out: Matrix3): Matrix3
     static RotationMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
     {
-        const out = _3 ?? _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3()
+        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3()
         const rotation = typeof _0 === 'number'
             ? [_0, _1 as number ?? _0, _2 as number ?? _0]
             : _0
@@ -710,7 +710,7 @@ export class Matrix3 extends Float32Array
     static ScaleMatrix(xyz: NumberArray, out: Matrix3): Matrix3
     static ScaleMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
     {
-        const out = _3 ?? _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3()
+        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3()
         const scale = typeof _0 === 'number'
             ? [_0, _1 as number ?? _0, _2 as number ?? _0]
             : _0

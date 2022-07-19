@@ -2,22 +2,9 @@ import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
 import { Transform } from "@fwge/core"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, RigidBody, SphereCollider } from "@fwge/physics"
-import { Camera, PerspectiveCamera } from "@fwge/render"
+import { Camera, PerspectiveCamera, PointLight } from "@fwge/render"
+import { Light } from "@fwge/render/lib/components/lights/Light"
 import { GameObject } from "./GameObject"
-
-type OnInput = (args: IInputArgs, delta: number) => void
-
-interface FPSControllerConfig
-{
-    eyeLevel?: Vector3 | [number, number, number]
-
-    movementSpeed?: number
-    turnSpeed?: number
-    jumpHeight?: number
-
-    camera?: Camera
-    onInput?: OnInput
-}
 
 export class FPSController extends GameObject
 {
@@ -27,36 +14,50 @@ export class FPSController extends GameObject
     
     readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 75 })
     readonly cameraTransform: Transform = new Transform({ position: [0,1.8,0] })
-
-    movementSpeed: number = 5
-    walkSpeed: number = 10
-    runSpeed: number = 15
-    turnSpeed: number = 36
-    jumpHeight: number = 15
-    canJump: boolean = true
     
-    rigidbody: RigidBody = new RigidBody({ mass: 5 })
-    collider: Collider = new SphereCollider(
-    {
-        isTrigger: true,
-        position: new Vector3(0, 0.25, 0),
-    })
+    readonly rotationMatrix: Matrix3 = Matrix3.Identity
+    readonly forward: Vector3 = Vector3.Zero
+    readonly right: Vector3 = Vector3.Zero
+    readonly movement: Vector3 = Vector3.Zero
+    readonly rotationDelta: Vector2 = Vector2.Zero
+
+    readonly movementSpeed: number = 5
+    readonly turnSpeed: number = 50
+    readonly jumpHeight: number = 15
+    
+    canJump: boolean = true
+
+    rigidbody!: RigidBody
+    collider!: Collider
+    light!: Light
 
     override OnCreate(): void
     {
         this.transform.Position.Z = 5
+
+        this.rigidbody = new RigidBody({ mass: 5 })
+        this.collider = new SphereCollider(
+        {
+            isTrigger: true,
+            position: new Vector3(0, 0.25, 0),
+        })
+        this.light = new PointLight({
+            colour: [1,1,1,1],
+            intensity: 0.5,
+            radius: 100
+        })
+
+        this.AddComponent(this.rigidbody)
+        this.AddComponent(this.collider)
         
         this.AddChild(
             this.Scene.CreateEntity()
             .AddComponent(this.cameraTransform)
             .AddComponent(this.camera)
+            .AddComponent(this.light)
         )
-        
+        console.log(this)
         Camera.Main = this.camera
-    }
-
-    override OnStart()
-    {
     }
 
     override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
@@ -66,39 +67,41 @@ export class FPSController extends GameObject
         const sPressed = Keyboard.KeyS !== KeyState.RELEASED && Keyboard.KeyS !== KeyState.UP
         const dPressed = Keyboard.KeyD !== KeyState.RELEASED && Keyboard.KeyD !== KeyState.UP
         const shiftPressed = Keyboard.KeyShift !== KeyState.RELEASED && Keyboard.KeyShift !== KeyState.UP
-
         const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
+        
+        Vector2.Scale(Mouse.Offset, this.turnSpeed * delta, this.rotationDelta)
+        this.transform.Rotation.Y += this.rotationDelta.X
+        this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + this.rotationDelta.Y, -80, 80)
 
-        const deltaRotation = Vector2.Scale(Mouse.Offset, this.turnSpeed * delta)
-        const rotation = this.transform.Rotation.Clone().Add(0, deltaRotation.X, 0)
-        
-        const rotationMatrix = Matrix3.RotationMatrix(0, rotation.Y, 0)
-        const forward = Matrix3.MultiplyVector(rotationMatrix, 0, 0, -1).Normalize()
-        const right = Matrix3.MultiplyVector(rotationMatrix, 1, 0, 0).Normalize()
-        
+        Matrix3.RotationMatrix(this.transform.Rotation, this.rotationMatrix)
+        Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward)
+        Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right)
+
         if ((wPressed && sPressed) || (!wPressed && !sPressed))
         {
-            forward.Set(0.0)
+            this.forward.Set(0)
         }
         else if (!wPressed && sPressed)
         {
-            forward.Negate()
+            this.forward.Negate()
         }
+
         if ((dPressed && aPressed) || (!dPressed && !aPressed))
         {
-            right.Set(0.0)
+            this.right.Set(0)
         }
         else if (!dPressed && aPressed)
         {
-            right.Negate()
+            this.right.Negate()
         }
 
-        const movement = Vector3.Add(forward, right).Normalize().Scale(movementSpeed * delta)
+        Vector3.Add(this.forward, this.right, this.movement)
+        if (this.movement.Length !== 0)
+        {
+            this.movement.Scale(movementSpeed * delta / this.movement.Length)
+        }
 
-        this.transform.Position.Add(movement)
-        this.transform.Rotation.Set(rotation)
-        this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + deltaRotation.Y, -80, 80)
-        
+        this.transform.Position.Add(this.movement)
         
         if (this.canJump && Keyboard.KeySpace === KeyState.PRESSED)
         {
@@ -110,5 +113,4 @@ export class FPSController extends GameObject
             this.canJump = true
         }
     }
-    
 }

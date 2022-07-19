@@ -1,4 +1,4 @@
-import { Matrix3, Vector2, Vector3 } from "@fwge/common"
+import { Matrix3, Vector3 } from "@fwge/common"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, SphereCollider } from "@fwge/physics"
 import { Camera, Material, PerspectiveCamera } from "@fwge/render"
@@ -10,21 +10,22 @@ export class Eye extends GameObject
     camera!: Camera 
     collider!: Collider
 
-    private rotation: Vector3 = Vector3.Zero
     private rotationMatrix: Matrix3 = Matrix3.Identity
     private forward: Vector3 = Vector3.Zero
     private right: Vector3 = Vector3.Zero
-    private up: Vector3 = Vector3.UnitY
     private movement: Vector3 = Vector3.Zero
 
     private readonly movementSpeed: number = 5
-    private readonly turnSpeed: number = 25
+    private readonly turnSpeed: number = 5
 
     override OnCreate()
     {
         super.OnCreate()
 
-        this.camera = new PerspectiveCamera()
+        this.camera = new PerspectiveCamera(
+        {
+            fieldOfView: 50  
+        })
         this.collider = new SphereCollider(
         {
             isTrigger: true,
@@ -70,18 +71,10 @@ export class Eye extends GameObject
         const sPressed = Keyboard.KeyS !== KeyState.RELEASED && Keyboard.KeyS !== KeyState.UP
         const dPressed = Keyboard.KeyD !== KeyState.RELEASED && Keyboard.KeyD !== KeyState.UP
         const shiftPressed = Keyboard.KeyShift !== KeyState.RELEASED && Keyboard.KeyShift !== KeyState.UP
-
         const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
-        const currentRotation = this.transform.Rotation
-
-        const deltaRotation = Vector2.Scale(Mouse.Offset, this.turnSpeed * delta)
-        Vector3.Add(
-            currentRotation[0], currentRotation[1], currentRotation[2],
-            0, deltaRotation.X, 0,
-            this.rotation
-        )
+        const turnDelta = Mouse.Offset.X * this.turnSpeed * delta
         
-        Matrix3.RotationMatrix(0, this.rotation.Y, 0, this.rotationMatrix)
+        Matrix3.RotationMatrix(0, turnDelta, 0, this.rotationMatrix)
         Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward)
         Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right)
         
@@ -93,6 +86,7 @@ export class Eye extends GameObject
         {
             this.forward.Negate()
         }
+
         if ((dPressed && aPressed) || (!dPressed && !aPressed))
         {
             this.right.Set(0)
@@ -103,9 +97,10 @@ export class Eye extends GameObject
         }
 
         Vector3.Add(this.forward, this.right, this.movement)
-        this.movement.Scale(this.movement.Length / movementSpeed * delta)
+        if (this.movement.Length !== 0)
+            this.movement.Scale(movementSpeed * delta / this.movement.Length)
 
         this.transform.Position.Add(this.movement)
-        this.transform.Rotation.Set(this.rotation)
+        this.transform.Rotation.Add(0, turnDelta, 0)
     }
 }

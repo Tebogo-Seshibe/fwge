@@ -53,7 +53,6 @@ export class StaticMesh extends Mesh
         //#region Buffer Setup
         const buffer = new Float32Array(new ArrayBuffer(bufferSize))
         
-        console.groupCollapsed('Vertex')
         for (let i = 0, offset = 0; i < args.position.length; i++)
         {
             const position = args.position[i]
@@ -61,7 +60,6 @@ export class StaticMesh extends Mesh
             buffer[offset + 0] = position[0]
             buffer[offset + 1] = position[1]
             buffer[offset + 2] = position[2]
-            console.log(offset, position)
 
             offset += Vector3.SIZE
             
@@ -74,7 +72,6 @@ export class StaticMesh extends Mesh
                 buffer[offset + 2] = normal[2]
 
                 offset += Vector3.SIZE
-                console.log(offset, normal)
             }
             
             if (args.uv)
@@ -85,7 +82,6 @@ export class StaticMesh extends Mesh
                 buffer[offset + 1] = uv[1]
 
                 offset += Vector2.SIZE
-                console.log(offset, uv)
             }
             
             if (args.colour)
@@ -98,14 +94,10 @@ export class StaticMesh extends Mesh
                 buffer[offset + 3] = colour[3]
 
                 offset += Colour4.SIZE
-                console.log(offset, colour)
             }
         }
         //#endregion
-        console.log(buffer)
-        console.groupEnd()
 
-        console.log({ vertexSizeInBytes, buffer, positionOffset, normalOffset, uvOffset, colourOffset })
         //#region VAO Setup
         GL.bindVertexArray(this.VertexArrayBuffer)
         GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
