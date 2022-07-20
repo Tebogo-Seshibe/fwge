@@ -119,6 +119,7 @@ export class RenderSystem extends System
                     }
                     else
                     {
+                        console.log(count)
                         GL.drawArrays(mode, 0, count)
                     }
                 }

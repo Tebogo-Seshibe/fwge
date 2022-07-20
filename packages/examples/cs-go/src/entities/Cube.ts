@@ -28,7 +28,7 @@ export class Cube extends GameObject
 
         this.renderer = new MeshRenderer(
         {
-            asset: this.Scene.Game.GetAsset('Cube', Mesh)!,
+            asset: this.Scene.Game.GetAsset('OBJ Cube', Mesh)!,
             renderMode: RenderMode.FACE
         })
         

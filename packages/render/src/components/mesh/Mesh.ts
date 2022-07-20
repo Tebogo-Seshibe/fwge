@@ -27,8 +27,8 @@ export class Mesh extends Asset
     {
         super(Mesh)
 
-        this.FaceCount = indices?.length ?? -1
-        this.EdgeCount = indices ? (indices.length * 2) : -1
+        this.FaceCount = indices?.length ?? vertexCount
+        this.EdgeCount = indices ? (indices.length * 2) : vertexCount
         this.PointCount = vertexCount
 
         const faces: number[] = []
