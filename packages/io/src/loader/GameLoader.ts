@@ -92,7 +92,7 @@ export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
 {    
     const newGame: GameConfig = JSON.parse(exampleScene)
     const components: Component[] = []
-    const entities: Prefab<any, any>[] = []
+    const entities: Prefab<any>[] = []
     const systems: System[] = []
     const scenes: Scene[] = []
 
@@ -125,7 +125,7 @@ export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
         const constructor = TypeMappers.get(entityConfig.type)
         if (constructor)
         {
-            const newEntity = new Prefab(constructor, entityConfig.config)
+            const newEntity = new Prefab(constructor)
             entities.push(newEntity)
             
             if (entityConfig.components)

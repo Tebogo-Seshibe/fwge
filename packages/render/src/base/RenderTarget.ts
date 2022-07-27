@@ -1,47 +1,29 @@
-import { GL } from "@fwge/common"
+import { Colour4, GL } from "@fwge/common"
 
 export enum ColourType
 {
-    RGB,
-    RGBA,
+    NONE = 0,
+    RGB = 1,
+    RGBA = 2,
 }
+
 export enum DepthType
 {
-    INT16,
-    INT24,
-    FLOAT32
-}
-export enum StencilType
-{
-    INT16,
-    INT24,
-    FLOAT32
+    NONE = 4,
+    INT16 = 5,
+    INT24 = 6,
+    INT24_8 = 7,
+    FLOAT32 = 8,
+    FLOAT32_8 = 9,
 }
 
-interface IRenderAttachment
-{
-
-}
-
-interface IDepthAttachment extends IRenderAttachment
-{
-    type: DepthType
-}
-interface IColourAttachment extends IRenderAttachment
-{
-    
-}
-
-interface IAttachment
+interface IRenderTarget
 {
     height: number
     width: number
-    colour: IColourAttachment | undefined,
-    depth: IDepthAttachment | undefined
-}
-interface IRenderTarget
-{
-    attachments:IAttachment[]
+    colour: ColourType[]
+    depth: DepthType
+    clear?: [number, number, number, number]
 }
 
 function getAttachmentIndex(index: number) {
@@ -68,57 +50,173 @@ function getAttachmentIndex(index: number) {
     }
 }
 
+function getFormatType(colour: ColourType): number
+function getFormatType(depth: DepthType): number
+function getFormatType(type: ColourType | DepthType): number
+{
+    if (type <= 4)
+    {
+        switch (type as ColourType)
+        {
+            case ColourType.RGB:
+                return GL.RGB
+
+            case ColourType.RGBA:
+                return GL.RGBA
+        }
+    }
+    else
+    {
+        switch (type as DepthType)
+        {
+            case DepthType.INT16:
+                return GL.DEPTH_COMPONENT16
+
+            case DepthType.INT24:
+                return GL.DEPTH_COMPONENT24
+
+            case DepthType.FLOAT32:
+                return GL.DEPTH_COMPONENT32F
+                
+            case DepthType.INT24_8:
+                return GL.DEPTH24_STENCIL8
+
+            case DepthType.FLOAT32_8:
+                return GL.DEPTH32F_STENCIL8
+        }
+    }
+
+    return -1
+}
+
+
+function getAttachmentType(colour: ColourType): number
+function getAttachmentType(depth: DepthType): number
+function getAttachmentType(type: ColourType | DepthType): number
+{
+    if (type <= 4)
+    {
+        switch (type as ColourType)
+        {
+            case ColourType.RGB:
+                return GL.RGB
+
+            case ColourType.RGBA:
+                return GL.RGBA
+        }
+    }
+    else
+    {
+        switch (type as DepthType)
+        {
+            case DepthType.INT16:
+            case DepthType.INT24:
+            case DepthType.FLOAT32:
+                return GL.DEPTH_ATTACHMENT
+                
+            case DepthType.INT24_8:
+            case DepthType.FLOAT32_8:
+                return GL.DEPTH_STENCIL_ATTACHMENT
+        }
+    }
+
+    return -1
+}
+
+function getAttachmentFormat(type: DepthType): number
+{
+    switch (type)
+    {
+        case DepthType.INT16:
+        case DepthType.INT24:
+        case DepthType.FLOAT32:
+            return GL.DEPTH_ATTACHMENT
+            
+        case DepthType.INT24_8:
+        case DepthType.FLOAT32_8:
+            return GL.DEPTH_STENCIL_ATTACHMENT
+    }
+    
+    return -1
+}
+
 export class RenderTarget
 {
-
     public readonly Framebuffer: WebGLFramebuffer
-    public readonly ColourTextures: Array<WebGLTexture | undefined> = new Array(8)
-    public readonly DepthStencilTextures: Array<WebGLTexture | undefined> = new Array(8)
-
+    public readonly Height: number
+    public readonly Width: number
+    public readonly ClearColour: Colour4
+    public readonly ColourAttachments: WebGLTexture[] = []
+    public readonly DepthAttachment: WebGLTexture | null = null
+    
     constructor(config: IRenderTarget)
     {
         this.Framebuffer = GL.createFramebuffer()!
-
-        for (let i = 0; i < config.attachments.length; ++i)
+        this.Height = config.height
+        this.Width = config.width
+        this.ClearColour = config.clear ? new Colour4(config.clear) : new Colour4(0.0)
+        
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
+        this.ColourAttachments = config.colour.map((colourType, index) =>
         {
-            const height = config.attachments[i].height ?? 256
-            const width = config.attachments[i].width ?? 256
-            const colourAttachment = config.attachments[i].colour
-            const depthAttachment = config.attachments[i].depth
-
-            if (colourAttachment)
+            if (colourType !== ColourType.NONE)
             {
+                const attachmentType = getAttachmentType(colourType)
+                const format = getFormatType(colourType)
+                const attachmentIndex = getAttachmentIndex(index)
+
                 const texture = GL.createTexture()!
                 GL.bindTexture(GL.TEXTURE_2D, texture)
-                GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null)
+                GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.UNSIGNED_BYTE, null)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-
-                GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
-                GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
-                GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-
-                this.ColourTextures[i] = texture
+                GL.framebufferTexture2D(GL.FRAMEBUFFER, attachmentIndex, GL.TEXTURE_2D, texture, 0)
+                return texture
             }
-            
-            if (depthAttachment)
-            {  
-                const texture = GL.createTexture()!
-                GL.bindTexture(GL.TEXTURE_2D, texture)
-                GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT16, width, height, 0, GL.DEPTH_COMPONENT, GL.UNSIGNED_SHORT, null)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                
-                
-                GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
-                GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, texture, 0)
-                GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-                
+            return null
+        }).filter(x => x !== null) as WebGLTexture[]
+        
+        
+        if (config.depth !== DepthType.NONE)
+        { 
+            const attachmentType = getAttachmentType(config.depth)
+            const format = getFormatType(config.depth)
 
-                this.DepthStencilTextures[i] = texture
+            const texture = GL.createTexture()!
+            GL.bindTexture(GL.TEXTURE_2D, texture)
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT32F, this.Width, this.Height, 0, GL.DEPTH_COMPONENT, GL.FLOAT, null)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+            GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, texture, 0)
+
+            if (this.ColourAttachments.length === 0)
+            {
+                GL.drawBuffers([GL.NONE])
+                GL.readBuffer(GL.NONE)
             }
+
+            this.DepthAttachment = texture
         }
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+    }
+
+    Bind()
+    {
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
+        GL.viewport(0, 0, this.Width, this.Height)
+        GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+    }
+    
+    UnBind()
+    {
+        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
     }
 }

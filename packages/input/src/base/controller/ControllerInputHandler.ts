@@ -102,11 +102,12 @@ export class ControllerInputHandler
 
     _addController(e: any)
     {
-        console.log(e)
+        
     }
+
     _removeController(e: any)
     {
-        console.log(e)
+        
     }
 
     Start(): void        

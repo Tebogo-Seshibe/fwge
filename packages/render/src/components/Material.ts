@@ -75,7 +75,7 @@ export class Material extends SharedComponent
         }
         else if (src)
         {
-            this.HasTransparency = src.includes('.png')
+            this.HasTransparency = src.includes('.png') || src.includes('.tga')
             this._imageTexture = GL.createTexture()
             this._applyImage(this._imageTexture!, src)
         }
@@ -178,6 +178,8 @@ export class Material extends SharedComponent
     Bind(): void
     {
         this.Shader!.Bind()
+        const shader = this.Shader!
+        const material = this!
         
         GL.uniform4fv(this.Shader!.Material!.AmbientColour, this.Ambient)
         GL.uniform4fv(this.Shader!.Material!.DiffuseColour, this.Diffuse)
@@ -185,15 +187,64 @@ export class Material extends SharedComponent
         GL.uniform1f(this.Shader!.Material!.Shininess, this.Shininess)
         GL.uniform1f(this.Shader!.Material!.Alpha, this.Alpha)   
 
-        for (let i = 0; i < this.Textures.length; ++i)
+        // for (let i = 0; i < this.Textures.length; ++i)
+        // {
+        //     const texture = this.Textures[i]
+        //     if (texture)
+        //     {
+        //         GL.activeTexture(GL.TEXTURE0 + i)
+        //         GL.bindTexture(GL.TEXTURE_2D, texture)
+        //     }
+        // }
+        
+        if (material.ImageTexture)
         {
-            const texture = this.Textures[i]
-            if (texture)
-            {
-                GL.activeTexture(GL.TEXTURE0 + i)
-                GL.bindTexture(GL.TEXTURE_2D, texture)
-            }
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
+            GL.uniform1i(shader.Material!.HasImageMap, 1)
+            GL.uniform1i(shader.Material!.ImageSampler, 0)
         }
+        else
+        {
+            GL.uniform1i(shader.Material!.HasImageMap, 0)
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.NormalTexture)
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
+            GL.uniform1i(shader.Material!.BumpSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE1)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        if (material.SpecularTexture)
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
+            GL.uniform1i(shader.Material!.SpecularSampler, 0)
+        }
+        else
+        {
+            GL.activeTexture(GL.TEXTURE2)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
+
+        // if (this.NormalTexture)
+        // {
+        //     GL.uniform1i(this.Shader!.Material!., 1)
+        //     GL.activeTexture(GL.TEXTURE0)
+        //     GL.bindTexture(GL.TEXTURE_2D, this.ImageTexture)
+        // }
+        // else
+        // {
+        //     GL.uniform1i(this.Shader!.Material!.HasImageMap, 0)
+        // }
 
         if (!this.HasTransparency)
         {
@@ -208,15 +259,23 @@ export class Material extends SharedComponent
 
     UnBind(): void
     {
-        for (let i = 0; i < this.Textures.length; ++i)
+        // for (let i = 0; i < this.Textures.length; ++i)
+        // {
+        //     const texture = this.Textures[i]
+        //     if (texture)
+        //     {
+        //         GL.activeTexture(GL.TEXTURE0 + i)
+        //         GL.bindTexture(GL.TEXTURE_2D, null)
+        //     }
+        // }
+
+        
+        if (this.ImageTexture)
         {
-            const texture = this.Textures[i]
-            if (texture)
-            {
-                GL.activeTexture(GL.TEXTURE0 + i)
-                GL.bindTexture(GL.TEXTURE_2D, null)
-            }
+            GL.activeTexture(GL.TEXTURE0)
+            GL.bindTexture(GL.TEXTURE_2D, null)
         }
+
         this.Shader!.UnBind()
     }
 }

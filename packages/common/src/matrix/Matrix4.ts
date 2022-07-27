@@ -1370,7 +1370,7 @@ export class Matrix4 extends Float32Array
     static OrthographicProjection(min: NumberArray, max: NumberArray, tilt: NumberArray, out: Matrix4): Matrix4
     static OrthographicProjection(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2: Vector2 | NumberArray | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix4): Matrix4
     {
-        const out = _8 ?? _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
+        const out = _8 ? _8 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
         let theta: number
         let phi: number
         let left: number
@@ -1382,8 +1382,8 @@ export class Matrix4 extends Float32Array
 
         if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
         {
-            theta = cot(radian(_6 as number))
-            phi = cot(radian(_7 as number))
+            theta = cot(radian(_6 ?? 0))
+            phi = cot(radian(_7 ?? 0))
 
             left = _0 as number
             bottom = _1 as number
@@ -1394,8 +1394,8 @@ export class Matrix4 extends Float32Array
         }
         else
         {
-            theta = cot(radian(_2[0]))
-            phi = cot(radian(_2[1]))
+            theta = cot(radian(_2[0] ?? 0))
+            phi = cot(radian(_2[1] ?? 0))
 
             left = _0[0]
             bottom = _0[1]
@@ -1412,12 +1412,25 @@ export class Matrix4 extends Float32Array
 
 
         return out.Set
+        // (
+        //                 2 / (right - left),                                0,                            0, 0,
+        //                                 0,               2 / (top - bottom),                            0, 0,
+        //                             theta,                              phi,            -2 / (far - near), 0,
+        //     -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
+        // ).Transpose()
+
         (
-                        2 / (right - left),                                0,                            0, 0,
-                                        0,               2 / (top - bottom),                            0, 0,
-                                    theta,                              phi,            -2 / (far - near), 0,
-            -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
+                            2 / (right - left),                                0,                            0, 0,
+                                            0,               2 / (top - bottom),                            0, 0,
+                                        0,                              0,            -2 / (far - near), 0,
+            0,0,0,1
         )
+        // return out.Set(
+        //     1,0,0,0,
+        //     0,1,0,0,
+        //     phi,theta,1,0,
+        //     0,0,0,1,
+        // )
     }
 
     static PerspectiveProjection(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number): Matrix4
@@ -1438,6 +1451,50 @@ export class Matrix4 extends Float32Array
                        0,          0,     -(far + near) / depth, -(2 * far * near) / depth,
                        0,          0,                        -1,                         0
         )
+    }
+
+    static LookAt(forward: Vector3, right: Vector3, up: Vector3): Matrix4
+    static LookAt(forward: Vector3, right: Vector3, up: Vector3, out: Matrix4): Matrix4
+    static LookAt(forward: [number, number, number], right: [number, number, number], up: [number, number, number]): Matrix4
+    static LookAt(forward: [number, number, number], right: [number, number, number], up: [number, number, number], out: Matrix4): Matrix4
+    static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number): Matrix4
+    static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4
+    static LookAt(_0: Vector3 | [number, number, number] | number, _1: Vector3 | [number, number, number] | number, _2: Vector3 | [number, number, number] | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
+    {
+        const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
+        {
+            out[0]  = _3 as number
+            out[1]  = _4 as number
+            out[2]  = _5 as number
+
+            out[4]  = _6 as number
+            out[5]  = _7 as number
+            out[6]  = _8 as number
+            
+            out[8]  = _0 as number
+            out[9]  = _1 as number
+            out[10] = _2 as number
+
+        }
+        else
+        {
+            out[0]  = _1[0]
+            out[1]  = _1[1]
+            out[2]  = _1[2]
+
+            out[4]  = _2[0]
+            out[5]  = _2[1]
+            out[6]  = _2[2]
+            
+            out[8]  = _0[0]
+            out[9]  = _0[1]
+            out[10] = _0[2]
+
+        }
+        
+        return out
     }
     //#endregion
 }

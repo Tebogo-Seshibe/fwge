@@ -97,8 +97,6 @@ export function Scale(matrix: Matrix4, scalers: Vector3): void
     const b = matrix[5]  * scalers[1]
     const c = matrix[10] * scalers[2]
 
-    console.log({a, b, c})
-
     matrix.Multiply
     (
         scalers[0],          0,          0, 0,

@@ -22,70 +22,70 @@ export class PhysicsSystem extends System
 
     Update(delta: number): void
     {
-        for (const entity of this.entities)
-        {
-            const transform = entity.GetComponent(Transform)!
-            const rigidbody = entity.GetComponent(RigidBody)
+        // for (const entity of this.entities)
+        // {
+        //     const transform = entity.GetComponent(Transform)!
+        //     const rigidbody = entity.GetComponent(RigidBody)
             
-            if (rigidbody)
-            {
-                transform.Position.Add(
-                    rigidbody.Velocity
-                    .Clone()
-                    .Scale(delta)
-                )
-            }
-        }
+        //     if (rigidbody)
+        //     {
+        //         transform.Position.Add(
+        //             rigidbody.Velocity
+        //             .Clone()
+        //             .Scale(delta)
+        //         )
+        //     }
+        // }
         
-        for (let i = 0; i < this.entities.length; ++i)
-        {
-            const left = this.entities[i]!
+        // for (let i = 0; i < this.entities.length; ++i)
+        // {
+        //     const left = this.entities[i]!
 
-            for (let j = i + 1; j < this.entities.length; ++j)
-            {
-                const right = this.entities[j]!
-                this._detect(left, right)
+        //     for (let j = i + 1; j < this.entities.length; ++j)
+        //     {
+        //         const right = this.entities[j]!
+        //         this._detect(left, right)
 
-            }
-        }
+        //     }
+        // }
 
-        for (const [collisionId, collision] of this._collisions)
-        {
-            const [aId, bId] = collisionId.split('-').map(Number)
+        // for (const [collisionId, collision] of this._collisions)
+        // {
+        //     const [aId, bId] = collisionId.split('-').map(Number)
 
-            const aEntity = this.Scene.GetEntity(aId)!
-            const bEntity = this.Scene.GetEntity(bId)!
+        //     const aEntity = this.Scene.GetEntity(aId)!
+        //     const bEntity = this.Scene.GetEntity(bId)!
 
-            const aCollider = aEntity.GetComponent(Collider)!
-            const bCollider = bEntity.GetComponent(Collider)!
+        //     const aCollider = aEntity.GetComponent(Collider)!
+        //     const bCollider = bEntity.GetComponent(Collider)!
             
-            const aTransform = aEntity.GetComponent(Transform)!
-            const bTransform = bEntity.GetComponent(Transform)!
+        //     const aTransform = aEntity.GetComponent(Transform)!
+        //     const bTransform = bEntity.GetComponent(Transform)!
 
-            switch (collision.state)
-            {
-                case CollisionState.Enter:
-                    aCollider.OnCollisionEnter.call(aEntity, bEntity)
-                    bCollider.OnCollisionEnter.call(bEntity, aEntity)
-                    break
+        //     switch (collision.state)
+        //     {
+        //         case CollisionState.Enter:
+        //             aCollider.OnCollisionEnter.call(aEntity, bEntity)
+        //             bCollider.OnCollisionEnter.call(bEntity, aEntity)
+        //             break
 
-                case CollisionState.Update:
-                    aCollider.OnCollisionUpdate.call(aEntity, bEntity)
-                    bCollider.OnCollisionUpdate.call(bEntity, aEntity)
-                    break
+        //         case CollisionState.Update:
+        //             aCollider.OnCollisionUpdate.call(aEntity, bEntity)
+        //             bCollider.OnCollisionUpdate.call(bEntity, aEntity)
+        //             break
 
-                case CollisionState.Exit:
-                    aCollider.OnCollisionExit.call(aEntity, bEntity)
-                    bCollider.OnCollisionExit.call(bEntity, aEntity)
-                    break
-            }
+        //         case CollisionState.Exit:
+        //             aCollider.OnCollisionExit.call(aEntity, bEntity)
+        //             bCollider.OnCollisionExit.call(bEntity, aEntity)
+        //             break
+        //     }
 
-            if (collision.displacements)
-            {
-                aTransform.Position.Add(collision.displacements[0])
-                bTransform.Position.Add(collision.displacements[1])
-            }
-        }
+        //     if (collision.displacements)
+        //     {
+        //         aTransform.Position.Add(collision.displacements[0])
+        //         bTransform.Position.Add(collision.displacements[1])
+        //     }
+        // }
     }
 
     private _detect(entityA: Entity, entityB: Entity): void

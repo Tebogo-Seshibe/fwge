@@ -12,36 +12,33 @@ import { Scene } from './Scene'
 // }
 
 
-export class Prefab<K extends Entity, V extends any[] | never>
+export class Prefab<K extends Entity>
 {
     private _components: Map<TypeId, Component> = new Map()
-    private _children: Prefab<Entity, any[]>[] = []    
+    private _children: Prefab<Entity>[] = []    
     
-    public readonly Type: Constructor<K, [Scene, ...V]> = Entity as Constructor<any, [Scene, ...any[]]>
-    public readonly Args: V
+    public readonly Type: Constructor<K, [Scene]> = Entity as Constructor<any, [Scene, ...any[]]>
 
     constructor()
-    constructor(entityType: Constructor<K, [Scene, ...V]>, ...entityArgs: V)
-    constructor(entityType?: Constructor<K, [Scene, ...V]>, ...entityArgs: V)
+    constructor(entityType: Constructor<K, [Scene]>)
+    constructor(entityType?: Constructor<K, [Scene]>)
     {
         if (entityType)
         {
             this.Type = entityType
         }
 
-        this.Args = entityArgs ?? []
-
     }
 
-    AddChild(prefab: Prefab<K, any[]>): Prefab<K, V>
+    AddChild(prefab: Prefab<K>): Prefab<K>
     {
         this._children.push(prefab)
         return this
     }
 
-    AddComponent<U extends Component>(component: U): Prefab<K, V>
+    AddComponent<U extends Component>(component: U): Prefab<K>
     {
-        this._components.set(component.Type._typeId!, component)
+        this._components.set(component.TypeId!, component)
 
         return this
     }
@@ -51,29 +48,27 @@ export class Prefab<K extends Entity, V extends any[] | never>
         return this._components.get(componentType._typeId!) as U
     }
 
-    RemoveComponent<U extends Component>(componentType: Class<U>): Prefab<K, V>
+    RemoveComponent<U extends Component>(componentType: Class<U>): Prefab<K>
     {
         this._components.delete(componentType._typeId!)        
 
         return this
     }
 
-    // Instance(scene: BaseScene, ...args: V): K
-    // {
-    //     const entity = args !== undefined 
-    //         ? scene.CreateEntity(this.Type, ...args)
-    //         : scene.CreateEntity(this.Type, ...this.Args)
+    Instance(scene: Scene): K
+    {
+        const entity = scene.CreateEntity(this.Type)
 
-    //     for (let [, component] of this._components)
-    //     {         
-    //         entity.AddComponent(component)
-    //     }
+        for (let [, component] of this._components)
+        {         
+            entity.AddComponent(component)
+        }
 
-    //     for (const child of this._children)
-    //     {
-    //         entity.AddChild(child.Instance(scene))
-    //     }
+        for (const child of this._children)
+        {
+            entity.AddChild(child.Instance(scene))
+        }
 
-    //     return entity
-    // }
+        return entity
+    }
 }

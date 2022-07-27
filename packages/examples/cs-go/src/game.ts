@@ -1,6 +1,6 @@
 import { Game } from '@fwge/core'
-import { basicShader } from './assets/Shaders'
-import { createCube, mtlCube, objCube } from './components'
+import { basicShader, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders'
+import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial } from './components/Materials'
 import { Credits, LoadingScreen, MainMenu, Round } from './scenes'
@@ -32,6 +32,11 @@ export class CSGO extends Game
                 { name: 'Cube', create: createCube },
                 { name: 'Basic Shader', create: basicShader },
                 { name: 'OBJ Cube', create: objCube },
+                { name: 'OBJ Base', create: objBase },
+                { name: 'OBJ Sphere', create: objSphere },
+                { name: 'Simple Shader', create: createSimpleShader },
+                { name: 'Basic Shader 2', create: createBasicShader },
+                { name: 'Default Shader', create: createDefaultShader },
             ],
             startupScene: Round
         })

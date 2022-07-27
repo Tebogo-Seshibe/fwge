@@ -22,6 +22,7 @@ export class Mesh extends Asset
     readonly PointCount: number
     readonly EdgeCount: number
     readonly FaceCount: number
+    readonly IsIndexed: boolean = false
 
     constructor(vertexCount: number, indices: number[] | undefined)
     {
@@ -61,6 +62,7 @@ export class Mesh extends Asset
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(points), GL.STATIC_DRAW)
             
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+            this.IsIndexed = true
         }
     }
 }

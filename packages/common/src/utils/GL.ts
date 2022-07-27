@@ -8,6 +8,5 @@ export function setContext(gl: WebGL2RenderingContext)
 
 export function glUseProgram(progamId: WebGLProgram | null)
 {
-    console.log(progamId)
     GL.useProgram(progamId)
 }

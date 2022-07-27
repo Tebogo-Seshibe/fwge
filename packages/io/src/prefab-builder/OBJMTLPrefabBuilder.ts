@@ -1,14 +1,15 @@
-import { Prefab, Transform } from "@fwge/core";
-import { MTL, OBJ } from "../loader";
+import { Prefab, Tag, Transform } from "@fwge/core"
+import { MeshRenderer } from "@fwge/render"
+import { MTL, OBJ } from "../loader"
 
-export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any, any> =>
+export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any> =>
 {
     const root = new Prefab().AddComponent(new Transform())
 
     const objects = Object.keys(obj)
     if (objects.length === 1)
     {
-        root.AddComponent(obj[objects[0]].mesh)
+        root.AddComponent(new MeshRenderer({ asset: obj[objects[0]].mesh }))
         root.AddComponent(mtl[obj[objects[0]].material])
     }
     else
@@ -17,9 +18,11 @@ export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any, any> =>
         {
             root.AddChild(new Prefab()
                 .AddComponent(new Transform())
-                .AddComponent(obj[objects[i]].mesh)
+                .AddComponent(new MeshRenderer({ asset: obj[objects[i]].mesh }))
                 .AddComponent(mtl[obj[objects[i]].material])
+                .AddComponent(new Tag(objects[i]))
             )
+
         }
     }
 

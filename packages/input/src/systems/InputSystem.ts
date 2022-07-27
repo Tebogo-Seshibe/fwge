@@ -11,6 +11,8 @@ export class InputSystem extends System
     private _mouse!: MouseInputHandler
     private _controllers!: ControllerInputHandler
 
+    private _inputListeners: Map<number, number[]> = new Map()
+
     constructor(scene: Scene)
     {
         super(scene, { requiredComponents: [ Input ] })
@@ -39,8 +41,9 @@ export class InputSystem extends System
 
     Update(delta: number): void
     {   
-        for (const entity of this.entities)
+        for (const entityId of this.entityIds)
         {
+            const entity = this.Scene.GetEntity(entityId)!
             const { OnInput } = entity.GetComponent(Input)!
 
             OnInput.call(entity,
@@ -62,4 +65,5 @@ export class InputSystem extends System
         this._mouse.Stop()
         this._controllers.Stop()
     }
+
 }

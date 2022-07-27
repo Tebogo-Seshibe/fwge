@@ -10,10 +10,10 @@ interface ISystem
     requiredComponents: Class<Component>[]
 }
 
-export abstract class System extends RegistryType
+export class System extends RegistryType
 {
+    
     public readonly entityIds: EntityId[] = []
-    public readonly entities: Entity[] = []
     public readonly requiredComponents: Set<Class<Component>> = new Set()
 
     public get Scene(): Scene
@@ -31,15 +31,15 @@ export abstract class System extends RegistryType
         this.#scene = newScene
     }
 
-    public abstract Init(): void
-    public abstract Start(): void
-    public abstract Update(_: number): void
-    public abstract Stop(): void
+    public Init(): void {}
+    public Start(): void {}
+    public Update(_: number): void {}
+    public Stop(): void {}
     
     //#region Control Logic
     public Reset()
     {
-        this.entities.empty()
+        this.entityIds.empty()
     }
 
     public onStart()
@@ -80,16 +80,15 @@ export abstract class System extends RegistryType
     {
         const isValid = this.IsValidEntity(entity)
     
-        if (isValid && !this.entities.includes(entity))
+        if (isValid && !this.entityIds.includes(entity.Id))
         {
-            this.entities.push(entity)
             this.entityIds.push(entity.Id)
         }
-        else if (!isValid && this.entities.includes(entity))
+        else if (!isValid && this.entityIds.includes(entity.Id))
         {
-            const entityIndex = this.entities.indexOf(entity)
-            this.entities.swap(entityIndex, this.entities.length - 1)
-            this.entities.pop()
+            const entityIndex = this.entityIds.indexOf(entity.Id)
+            this.entityIds.swap(entityIndex, this.entityIds.length - 1)
+            this.entityIds.pop()
 
             const entityIdIndex = this.entityIds.indexOf(entity.Id)
             this.entityIds.swap(entityIdIndex, this.entityIds.length - 1)

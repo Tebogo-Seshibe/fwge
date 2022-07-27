@@ -1,18 +1,14 @@
-import { GL } from "@fwge/common"
-import { Scene, System, Transform } from "@fwge/core"
+import { GL, radian } from "@fwge/common"
+import { Entity, getComponent, Scene, System, Transform } from "@fwge/core"
 import { Collider, CubeCollider, SphereCollider } from "@fwge/physics"
 import { Camera, Mesh, ShaderAsset, StaticMesh } from "@fwge/render"
 
 export class ColliderRenderSystem extends System
 {
-    sphereOutlineMesh!: Mesh
-    sphereOutlineMesh2!: Mesh
-    cubeOutlineMesh!: Mesh
-    satMesh!: Mesh
-    sphereColliderShader!: ShaderAsset
-    outlineShader!: ShaderAsset
-    satShader!: ShaderAsset
-    satBuffer!: WebGLBuffer
+    _sphereOutlineMesh!: Mesh
+    _cubeOutlineMesh!: Mesh
+    _outlineShader!: ShaderAsset
+    _colliderTypes: Map<string, number[]> = new Map()
 
     constructor(scene: Scene)
     {
@@ -21,15 +17,10 @@ export class ColliderRenderSystem extends System
 
     Init(): void
     {
-        this.buildSphereOutlineTools()
-        this.buildSphereOutlineTools2()
-        this.buildCubeOutlineTools()
+        this.buildResources()
     }
 
-    Start(): void
-    {
-        console.log(this)
-    }
+    Start(): void { console.log(this) }
     
     Update(_: number): void
     {
@@ -38,243 +29,110 @@ export class ColliderRenderSystem extends System
             return
         }
         
-        this._useShader()
-        GL.enable(GL.BLEND)
-        GL.blendFunc(GL.ONE, GL.ONE)
-        
-        for (const entity of this.entities)
+        for (const [ colliderType, transforms ] of this._colliderTypes)
         {
-            const transform = entity.GetComponent(Transform)!
-            const collider = entity.GetComponent(Collider)!
+            this._useShader()
             
-            transform.Position.Add(collider.Position)
-            if (collider instanceof SphereCollider)
+            let mesh!: StaticMesh
+            switch (colliderType)
             {
-                transform.Scale.Multiply(collider.Radius * 2)
-                this._drawOutline(transform, this.sphereOutlineMesh2, this.outlineShader)
-                transform.Scale.Multiply(1 / (collider.Radius * 2))
+                case SphereCollider.name:                    
+                    mesh = this._sphereOutlineMesh
+                    break
+
+                case CubeCollider.name:
+                    mesh = this._cubeOutlineMesh
+                    break
             }
-            else if (collider instanceof CubeCollider)
+            
+
+            GL.bindVertexArray(mesh.VertexArrayBuffer)
+            for (const transformId of transforms)
             {
-                transform.Scale.Multiply(collider.Width, collider.Height, collider.Depth)
-                this._drawOutline(transform, this.cubeOutlineMesh, this.outlineShader)
-                transform.Scale.Divide(collider.Width, collider.Height, collider.Depth)
+                const transform = getComponent(Transform, transformId)
+                const collider = transform.Owner!.GetComponent(Collider)
+                if (collider instanceof SphereCollider)
+                {
+                    transform.Scale.Multiply(collider.Radius)
+                    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.FaceBuffer)
+                }
+                else if (collider instanceof CubeCollider)
+                {
+                    transform.Scale.Multiply(collider.Width, collider.Height, collider.Depth)
+                    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.FaceBuffer)
+                }
+                
+                GL.uniformMatrix4fv(this._outlineShader.Matrices!.ModelView, true, transform.ModelViewMatrix())
+                GL.drawElements(GL.LINES, mesh.FaceCount, GL.UNSIGNED_BYTE, 0)
+                
+                if (collider instanceof SphereCollider)
+                {
+                    transform.Scale.Divide(collider.Radius)
+                }
+                else if (collider instanceof CubeCollider)
+                {
+                    transform.Scale.Divide(collider.Width, collider.Height, collider.Depth)
+                }
             }
-            transform.Position.Subtract(collider.Position)
+            GL.bindVertexArray(null)
         }
     }
 
-    Stop(): void
-    {
-        console.log('Done!')
-    }
-
-    private _drawOutline(transform: Transform, mesh: Mesh, shader: ShaderAsset): void
-    {
-        GL.bindVertexArray(mesh.VertexArrayBuffer)
-        GL.uniformMatrix4fv(shader.Matrices!.ModelView, true, transform.ModelViewMatrix)
-
-        if (mesh.IndexBuffer)
-        {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer)
-            GL.drawElements(GL.LINES, mesh.IndexCount, GL.UNSIGNED_BYTE, 0)
-        }
-        else
-        {
-            GL.drawArrays(GL.LINES, 0, mesh.VertexCount)
-        }
-
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
-        GL.bindVertexArray(null)
-    }
+    Stop(): void { }
 
     private _useShader()
     {
-        const shader = this.outlineShader
+        const shader = this._outlineShader
         GL.useProgram(shader.Program)
         GL.uniformMatrix4fv(shader.Matrices!.View, true, Camera.Main!.ViewMatrix)
         GL.uniformMatrix4fv(shader.Matrices!.Projection, true, Camera.Main!.ProjectionMatrix)
     }
 
-    private buildSphereOutlineTools()
+    private buildResources()
     {
-        this.sphereOutlineMesh = new StaticMesh(
-        {
-            position:
-            [
-                [-0.5, 0.5, 0.0],
-                [-0.5,-0.5, 0.0],
-                [ 0.5,-0.5, 0.0],
-                [ 0.5, 0.5, 0.0],
-                
-                [-0.5, 0.0, 0.5],
-                [-0.5, 0.0,-0.5],
-                [ 0.5, 0.0,-0.5],
-                [ 0.5, 0.0, 0.5],
-
-                [ 0.0,-0.5, 0.5],
-                [ 0.0,-0.5,-0.5],
-                [ 0.0, 0.5,-0.5],
-                [ 0.0, 0.5, 0.5],
-            ],
-            uv:
-            [                
-                [0.0, 1.0],
-                [0.0, 0.0],
-                [1.0, 0.0],
-                [1.0, 1.0],
-                
-                [0.0, 1.0],
-                [0.0, 0.0],
-                [1.0, 0.0],
-                [1.0, 1.0],
-
-                [0.0, 1.0],
-                [0.0, 0.0],
-                [1.0, 0.0],
-                [1.0, 1.0],
-            ],
-            index:
-            [
-                 0, 1, 2, 0, 2, 3,
-                 3, 2, 1, 2, 1, 0,
-                 4, 5, 6, 4, 6, 7,
-                 7, 6, 4, 6, 5, 4,
-                 8, 9,10, 8,10,11,
-                11,10, 8,10, 9, 8,
-            ]
-        })
+        const segments = 16
+        const jump = 90 / segments
         
-        this.sphereColliderShader = new ShaderAsset(
+        const values = []
+        for (let i = 0; i < segments; ++i)
         {
-            vertexShader:
-            {
-                source: `#version 300 es
-                layout(location = 0) in vec4 A_Position;
-                layout(location = 2) in vec2 A_UV;
-                layout(location = 4) in mat4 A_ModelViewMatrix;
+            values.push(Math.cos(radian(jump * i)))
+        }
 
-                out vec4 V_Position;
-                out vec2 V_UV;
+        const left = [
+            ...values.map(x => x), 
+            0,
+            ...values.map(x => -x).slice(1).reverse(),
+            ...values.map(x => -x),
+            0,
+            ...values.map(x => x).slice(1).reverse(),
+        ]
+        const right = [
+            0,
+            ...values.map(x => x).reverse(),
+            ...values.map(x => x).slice(1),
+            0,
+            ...values.map(x => -x).reverse(),
+            ...values.map(x => -x).slice(1),
+        ]
 
-                struct Matrix
-                {
-                    mat4 ModelView;
-                    mat4 View;
-                    mat4 Projection;
-                };
-                uniform Matrix U_Matrix;
+        const x = left.map((_, i) => [0, left[i], right[i]])
+        x.push([0, left[0], right[0]])
+        const y = left.map((_, i) => [left[i], 0, right[i]])
+        y.push([left[0], 0, right[0]])
+        const z = left.map((_, i) => [left[i], right[i], 0])
+        z.push([left[0], right[0], 0])
 
-                void passVertexData()
-                {
-                    V_Position = U_Matrix.ModelView * A_Position;
-                    V_UV = A_UV;
-                }
-
-                void main(void)
-                {
-                    passVertexData();
-
-                    gl_Position = U_Matrix.Projection * U_Matrix.View * V_Position;
-                }`,
-                input: []
-            },
-            fragmentShader:
-            {
-                source: `#version 300 es
-                precision mediump float;
-                in vec4 V_Position;
-                in vec2 V_UV;
-                out vec4 OutColour;
-
-                void main(void)
-                {
-                    float thickness = 0.01;
-                    float fade = 0.005;
-
-                    vec2 screen = (V_UV - 0.5) * 2.0;
-                    float distance = 1.0 - length(screen);
-
-                    float inner = smoothstep(0.0, fade, distance);
-                    float outer = smoothstep(thickness, thickness - fade, distance);
-                    float value = outer * inner;
-                    
-                    OutColour = vec4(0.0, value, 0.0, 1.0);
-                }`,
-                input: []
-            }
-        })
-    }
-
-    private buildSphereOutlineTools2()
-    {
-        this.sphereOutlineMesh2 = new StaticMesh(
+        const position = [...x, ...y, ...z] as [number, number, number][]
+        const index = []
+        for (let i = 0; i < x.length - 1; ++i)
         {
-            position:
-            [
-                [0.5,0,0],
-                [0.46193976625564337,0.1913417161825449,0],
-                [0.35355339059327373,0.35355339059327373,0],
-                [0.1913417161825449,0.46193976625564337,0],
-                [0,0.5,0],
-                [-0.1913417161825449,0.46193976625564337,0],
-                [-0.35355339059327373,0.35355339059327373,0],
-                [-0.46193976625564337,0.1913417161825449,0],
-                [-0.5,0,0],
-                [-0.46193976625564337,-0.1913417161825449,0],
-                [-0.35355339059327373,-0.35355339059327373,0],
-                [-0.1913417161825449,-0.46193976625564337,0],
-                [0,-0.5,0],
-                [0.1913417161825449,-0.46193976625564337,0],
-                [0.35355339059327373,-0.35355339059327373,0],
-                [0.46193976625564337,-0.1913417161825449,0],
+            index.push(i, i + 1)
+        }
+        index.push(...index.map(i => i + x.length))
+        index.push(...index.map(i => i + y.length + z.length))
 
-                [0.5,0,0],
-                [0.46193976625564337,0,0.1913417161825449],
-                [0.35355339059327373,0,0.35355339059327373],
-                [0.1913417161825449,0,0.46193976625564337],
-                [0,0,0.5],
-                [-0.1913417161825449,0,0.46193976625564337],
-                [-0.35355339059327373,0,0.35355339059327373],
-                [-0.46193976625564337,0,0.1913417161825449],
-                [-0.5,0,0],
-                [-0.46193976625564337,0,-0.1913417161825449],
-                [-0.35355339059327373,0,-0.35355339059327373],
-                [-0.1913417161825449,0,-0.46193976625564337],
-                [0,0,-0.5],
-                [0.1913417161825449,0,-0.46193976625564337],
-                [0.35355339059327373,0,-0.35355339059327373],
-                [0.46193976625564337,0,-0.1913417161825449],
-
-                [0,0.5,0],
-                [0,0.46193976625564337,0.1913417161825449],
-                [0,0.35355339059327373,0.35355339059327373],
-                [0,0.1913417161825449,0.46193976625564337],
-                [0,0,0.5],
-                [0,-0.1913417161825449,0.46193976625564337],
-                [0,-0.35355339059327373,0.35355339059327373],
-                [0,-0.46193976625564337,0.1913417161825449],
-                [0,-0.5,0],
-                [0,-0.46193976625564337,-0.1913417161825449],
-                [0,-0.35355339059327373,-0.35355339059327373],
-                [0,-0.1913417161825449,-0.46193976625564337],
-                [0,0,-0.5],
-                [0,0.1913417161825449,-0.46193976625564337],
-                [0,0.35355339059327373,-0.35355339059327373],
-                [0,0.46193976625564337,-0.1913417161825440]
-            ],
-            index: [
-                0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,0,
-                16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 16,
-                32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 32
-            ]
-        })
-        
-    }
-
-    private buildCubeOutlineTools()
-    {
-        this.cubeOutlineMesh = new StaticMesh(
+        this._cubeOutlineMesh = new StaticMesh(
         {
             position:
             [
@@ -297,11 +155,15 @@ export class ColliderRenderSystem extends System
                 3,2, 2,6, 6,7, 7,3, // RIGHT
             ]
         })
-        this.outlineShader = new ShaderAsset(
+        
+        this._sphereOutlineMesh = new StaticMesh({ position, index })
+        
+        this._outlineShader = new ShaderAsset(
         {
             vertexShader:
             {
                 source: `#version 300 es
+
                 layout(location = 0) in vec4 A_Position;
                 layout(location = 4) in mat4 A_ModelViewMatrix;
 
@@ -322,6 +184,7 @@ export class ColliderRenderSystem extends System
             fragmentShader:
             {
                 source: `#version 300 es
+                
                 precision mediump float;
                 out vec4 OutColour;
 
@@ -332,5 +195,28 @@ export class ColliderRenderSystem extends System
                 input: []
             }
         })
+    }
+
+    override OnUpdateEntity(entity: Entity): void
+    {
+        super.OnUpdateEntity(entity)
+
+        const collider = entity.GetComponent(Collider)
+        const transform = entity.GetComponent(Transform)!
+        if (collider)
+        {
+            let name = ''
+            if (collider instanceof CubeCollider)
+            {
+                name = CubeCollider.name
+            }
+            else if (collider instanceof SphereCollider)
+            {
+                name = SphereCollider.name
+            }
+
+            const colliderList = this._colliderTypes.get(name) ?? []
+            this._colliderTypes.set(name, [transform.Id, ...colliderList])
+        }
     }
 }

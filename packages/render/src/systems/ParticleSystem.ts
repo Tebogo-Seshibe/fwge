@@ -42,18 +42,18 @@ export class ParticleSystem extends System
 
         this._useShader(this.particleShader!)
         GL.uniform1f(this._timeLoc, this._time)
-        for (const entity of this.entities)
-        {
-            const transform = entity.GetComponent(Transform)!
-            const particleSpawner = entity.GetComponent(ParticleSpawner)!
+        // for (const entity of this.entities)
+        // {
+        //     const transform = entity.GetComponent(Transform)!
+        //     const particleSpawner = entity.GetComponent(ParticleSpawner)!
 
-            if (!particleSpawner.Completed)
-            {
-                this._bindMaterialUniforms(particleSpawner.ParticleMaterial, this.particleShader)
-                this._updateSystem(particleSpawner, delta)
-                this._drawSystem(particleSpawner, transform)
-            }
-        }
+        //     if (!particleSpawner.Completed)
+        //     {
+        //         this._bindMaterialUniforms(particleSpawner.ParticleMaterial, this.particleShader)
+        //         this._updateSystem(particleSpawner, delta)
+        //         this._drawSystem(particleSpawner, transform)
+        //     }
+        // }
         // GL.enable(GL.DEPTH_TEST)
         // GL.enable(GL.CULL_FACE)
     }

@@ -2,6 +2,7 @@ import { Entity } from "../ecs/Entity"
 import { Class, Constructor, EntityId, IConstruct, nextId, RegistryType, SceneId } from "../ecs/Registry"
 import { System } from "../ecs/System"
 import { Game } from "./Game"
+import { Prefab } from "./Prefab"
 
 interface SceneConstructor<T extends System, U extends any[], Constructor>
 {
@@ -12,7 +13,7 @@ interface SceneConstructor<T extends System, U extends any[], Constructor>
 export interface IScene
 {
     systems: Class<System>[]
-    entities: Class<Entity>[]
+    entities: (Class<Entity> | Prefab<any>)[]
 }
 
 export class Scene extends RegistryType
@@ -43,7 +44,14 @@ export class Scene extends RegistryType
 
         for (const EntityConstructor of config.entities)
         {
-            this.CreateEntity(EntityConstructor)
+            if (typeof EntityConstructor === 'function')
+            {
+                this.CreateEntity(EntityConstructor)
+            }
+            else
+            {
+                EntityConstructor.Instance(this)
+            }
         }
     }
     

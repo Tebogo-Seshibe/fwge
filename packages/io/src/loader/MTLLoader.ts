@@ -30,10 +30,10 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: ShaderAsset
 
             case 'ka':
                 matMap.get(newmtl)!.ambient = new Colour4(
-                    parseFloat(values[0]) * 255,
-                    parseFloat(values[1]) * 255,
-                    parseFloat(values[2]) * 255,
-                    255
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2]),
+                    1.0
                 )
                 break
 

@@ -124,7 +124,7 @@ export const OBJLoader: ILoader<OBJ> = (src: string) =>
             for (const indices of face)
             {
                 position.push(v[indices.v])
-                colour.push(new Colour4(255))
+                colour.push(new Colour4(1))
                 
                 if (indices.vn !== undefined && !Number.isNaN(indices.vn))
                 {

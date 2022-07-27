@@ -24,7 +24,6 @@ export function AsComponent<K extends Component | string>(arg?: string): Propert
                 get: () => component,
                 set: (_component) =>
                 {
-                    console.log(_component)
                     component = (typeof component === 'string')
                         ? entity
                             ?.Scene

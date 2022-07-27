@@ -1,5 +1,7 @@
 import { GL } from "@fwge/common"
 import { ButtonState, IInputArgs, KeyState } from "@fwge/input"
+import { DirectionalLight } from "@fwge/render"
+import { Light } from "@fwge/render/lib/components/lights/Light"
 import { GameObject } from "./GameObject"
 
 export class FullScreen extends GameObject
@@ -7,12 +9,19 @@ export class FullScreen extends GameObject
     canvas!: HTMLCanvasElement
     fullscreen: boolean = false
     hideCursor: boolean = false
+    light!: Light
  
     override OnCreate(): void
     {
         super.OnCreate()
+        this.light = new DirectionalLight({
+            colour: [1,1,1,1],
+            direction: [1,0.75,1],
+            intensity: 0.5
+        })
+
         this.canvas = GL.canvas
-        //document.querySelector<HTMLCanvasElement>('#canvas')!
+        this.AddComponent(this.light)
     }
 
     override OnUpdate(): void

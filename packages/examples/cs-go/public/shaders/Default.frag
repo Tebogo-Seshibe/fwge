@@ -81,7 +81,7 @@ vec4 Light()
     light += CalcPointLight(U_Point[2]);
     light += CalcPointLight(U_Point[3]);
 
-    // return vec4(1.0);
+    return vec4(1.0);
     return light;
 }
 
@@ -103,5 +103,5 @@ vec4 Colour()
 
 void main()
 { 
-    OutColour = vec4((/*Colour() */ Light()).rgb, U_Material.Alpha);
+    OutColour = vec4(1.0); //vec4((/*Colour() */ Light()).rgb, U_Material.Alpha);
 }

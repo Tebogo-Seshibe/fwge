@@ -1,6 +1,6 @@
-import { GL } from "@fwge/common"
+import { GL, Matrix2, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Asset, Class, Entity } from "@fwge/core"
-import { Camera } from "../components"
+import { DirectionalLightUniform } from "../components/shader/DirectionalLightUniform"
 import { MaterialUniform } from "../components/shader/MaterialUniform"
 import { MatrixUniform } from "../components/shader/MatrixUniform"
 import { PointLightUniform } from "../components/shader/PointLightUniform"
@@ -18,13 +18,14 @@ export class ShaderInput<T extends ShaderFieldType<any>>
 interface IShaderSource
 {
     source: string
-    input: ShaderInput<any>[]
+    input?: ShaderInput<any>[]
 }
 
 interface IShaderAsset
 {
     vertexShader: IShaderSource
     fragmentShader: IShaderSource
+    inputs?: ShaderInput<any>[]
 }
 
 export class ShaderAsset extends Asset
@@ -35,9 +36,11 @@ export class ShaderAsset extends Asset
     private _vertexSource: string | null = null
     private _fragmentSource: string | null = null
     private _inputs: ShaderInput<any>[] = []
+    private _inputList: ShaderInput<any>[] = []
 
     public Matrices: MatrixUniform | null = null
     public Material: MaterialUniform | null = null
+    public DirectionalLight: DirectionalLightUniform | null = null
     public Lights: PointLightUniform[] | null = null
     public readonly Inputs: Map<string, WebGLUniformLocation | null> = new Map()
     
@@ -86,10 +89,17 @@ export class ShaderAsset extends Asset
 
         this._vertexSource = config.vertexShader.source
         this._fragmentSource = config.fragmentShader.source
-        this._inputs = [ ...config.vertexShader.input, ...config.fragmentShader.input ]
-
+        this._inputs = [ ...(config.vertexShader.input ?? []), ...(config.fragmentShader.input ?? []) ]
+        this._inputList = config.inputs ?? []
         this._compileShaders()
         this._getInputs()
+        this._findInputs(config.vertexShader.source)
+        this._findInputs(config.fragmentShader.source)
+        this._inputList.forEach(input => this.Inputs.set(input.sourceName, GL.getUniformLocation(this._program!, input.sourceName)))
+    }
+
+    private _findInputs(source: string) {
+        [...source.matchAll(/(?:uniform\s+(bool|u?int|float|double|[buid]?vec[234]|mat[234](x[234])?|[iu]?sampler([123]D)|\w+)\s+)(\w+)(?:;)/g)]
     }
 
     _getInputs()
@@ -123,7 +133,14 @@ export class ShaderAsset extends Asset
             GL.getUniformLocation(this._program, 'U_Material.SpecularMap'),
             GL.getUniformLocation(this._program, 'U_Material.HasImageMap')
         )
-        
+            
+        this.DirectionalLight = new DirectionalLightUniform(
+            GL.getUniformLocation(this._program, 'U_DirectionalLight.Colour'),
+            GL.getUniformLocation(this._program, 'U_DirectionalLight.Intensity'),
+            GL.getUniformLocation(this._program, 'U_DirectionalLight.Direction')
+            
+        )
+
         this.Lights = []
         for (let i = 0; i < 4; ++i)
         {
@@ -180,7 +197,7 @@ export class ShaderAsset extends Asset
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
         {
             log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
-            log.push(this._vertexSource)
+            log.push(this._vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
 
@@ -189,7 +206,7 @@ export class ShaderAsset extends Asset
         if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
         {
             log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
-            log.push(this._fragmentSource)
+            log.push(this._fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
         GL.attachShader(program, vertexShader)
@@ -225,5 +242,90 @@ export class ShaderAsset extends Asset
     UnBind(): void
     {
         GL.useProgram(null)
+    }
+
+    SetBool(name: string, bool: boolean): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+        
+        GL.uniform1i(location, bool ? 1 : 0)
+    }
+    
+    SetInt(name: string, int: number, unsigned: boolean = false): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+        
+        if (unsigned)
+        {
+            GL.uniform1ui(location, int)
+        }
+        else
+        {
+            GL.uniform1i(location, int)
+        }
+    }
+
+    SetFloat(name: string, float: number): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+        
+        GL.uniform1f(location, float)
+
+    }
+    
+    SetVector(name: string, vector: Vector2): void
+    SetVector(name: string, vector: [number, number]): void
+    SetVector(name: string, vector: Vector3): void
+    SetVector(name: string, vector: [number, number, number]): void
+    SetVector(name: string, vector: Vector4): void
+    SetVector(name: string, vector: [number, number, number, number]): void
+    SetVector(name: string, vector: Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number]): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+
+        switch (vector.length)
+        {
+            case 2: GL.uniform2fv(location, vector)
+            case 3: GL.uniform3fv(location, vector)
+            case 4: GL.uniform4fv(location, vector)            
+        }
+    }
+    
+    SetMatrix(name: string, matrix: Matrix2): void
+    SetMatrix(name: string, matrix: [number, number, number, number]): void
+    SetMatrix(name: string, matrix: Matrix3): void
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number]): void
+    SetMatrix(name: string, matrix: Matrix4): void
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void
+    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+
+        switch (matrix.length)
+        {
+            case 4: GL.uniformMatrix2fv(location, false, matrix)
+            case 9: GL.uniformMatrix3fv(location, false, matrix)
+            case 16: GL.uniformMatrix4fv(location, false, matrix)            
+        }
     }
 }

@@ -27,7 +27,7 @@ export class Platform extends GameObject
         this.AddComponent(this.renderer)
 
         this.transform.Scale.Set(100, 0.2, 100)
-        this.transform.Position.Y = -0.1
+        this.transform.Position.Y = -0.65
     }
 
     override OnInput({ Keyboard }: IInputArgs, delta: number): void

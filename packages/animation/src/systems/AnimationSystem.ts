@@ -15,8 +15,9 @@ export class AnimationSystem extends System
 
     Update(delta: number): void
     {
-        for (const entity of this.entities)
+        for (const entityId of this.entityIds)
         {
+            const entity = this.Scene.GetEntity(entityId)!
             const animationPlayer = entity.GetComponent(AnimationPlayer)!
             const animation = animationPlayer.CurrentAnimation
 

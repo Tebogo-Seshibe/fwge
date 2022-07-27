@@ -1,34 +1,34 @@
 import { randBetween } from "@fwge/common"
 import { IInputArgs, KeyState } from "@fwge/input"
-import { Collider, CubeCollider } from "@fwge/physics"
+import { Collider, SphereCollider } from "@fwge/physics"
 import { Material, Mesh, MeshRenderer, Renderer, RenderMode, ShaderAsset, StaticMesh } from "@fwge/render"
 import { GameObject } from "./GameObject"
 
 export class Cube extends GameObject
 {
-    turnSpeed: number = randBetween(15, 275)
+    turnSpeed: number = 0 //randBetween(15, 275)
     material!: Material
     renderer!: Renderer<StaticMesh>
-    collider: Collider = new CubeCollider()
+    collider: Collider = new SphereCollider({ radius: 0.5 })
 
     OnCreate(): void
     {
         super.OnCreate()
         
-        const rand = randBetween(1,5)
-        this.transform.Position.Set((Math.random() * 100) - 50, rand / 2, (Math.random() * 100) - 50)
-        this.transform.Scale.Set(1, rand, 1)
+        const rand = randBetween(0,2)
+        this.transform.Position.Set((Math.random() * 100) - 50, randBetween(1, 10), (Math.random() * 100) - 50)
+        this.transform.Scale.Set(rand)
 
         this.material = new Material(
         {
+            shininess: 32,
             ambient: [ Math.random(), Math.random(), Math.random(), 1 ],
             shader: this.Scene.Game.GetAsset('Basic Shader', ShaderAsset)!
         })
-        //this.Scene.Game.GetComponent('CubeMaterial', Material)!
 
         this.renderer = new MeshRenderer(
         {
-            asset: this.Scene.Game.GetAsset('OBJ Cube', Mesh)!,
+            asset: this.Scene.Game.GetAsset('OBJ Sphere', Mesh)!,
             renderMode: RenderMode.FACE
         })
         
@@ -37,9 +37,16 @@ export class Cube extends GameObject
         this.AddComponent(this.renderer)
     }
     
+    override OnStart()
+    {
+        this.material.Shader!.SetFloat('outer.inner.age', 0)
+    }
+
     override OnUpdate(delta: number)
     {
+        this.transform.Rotation.X += delta * this.turnSpeed * 2
         this.transform.Rotation.Y += delta * this.turnSpeed
+        this.transform.Rotation.Z += delta * this.turnSpeed / 2
     }
     
     override OnInput({ Keyboard }: IInputArgs, delta: number): void
