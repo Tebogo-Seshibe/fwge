@@ -3,6 +3,7 @@ import { RenderTarget } from "./RenderTarget"
 
 export class Window
 {
+    RenderPipeline: RenderTarget | undefined
     constructor(
         public readonly Height: number,
         public readonly Width: number,

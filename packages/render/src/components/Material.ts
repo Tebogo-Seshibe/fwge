@@ -1,5 +1,5 @@
 import { ShaderAsset } from "../base"
-import { Colour4, GL, isPowerOf2 } from "@fwge/common"
+import { Colour3, Colour4, GL, isPowerOf2, Vector3 } from "@fwge/common"
 import { SharedComponent } from "@fwge/core"
 
 export enum BlendMode
@@ -35,6 +35,7 @@ interface IMaterial
     ambient?: [number, number, number, number]
     diffuse?: [number, number, number, number]
     specular?: [number, number, number, number]
+    colour?: [number, number, number] | Colour3 | Vector3
     alpha?: number
     shininess?: number
     imagemap?: string
@@ -48,6 +49,7 @@ export class Material extends SharedComponent
     readonly Ambient: Colour4
     readonly Diffuse: Colour4
     readonly Specular: Colour4
+    readonly Colour: Colour3
     Alpha: number
     Shininess: number
     HasTransparency: boolean = false
@@ -131,10 +133,12 @@ export class Material extends SharedComponent
         args.ambient = args.ambient ?? [0.5, 0.5, 0.5, 1]
         args.diffuse = args.diffuse ?? [0.65, 0.65, 0.65, 1]
         args.specular = args.specular ?? [0.75, 0.75, 0.75, 1]
+        args.colour = args.colour ?? [0.75, 0.75, 0.75]
 
         this.Ambient = new Colour4(args.ambient[0], args.ambient[1], args.ambient[2], args.ambient[3])
         this.Diffuse = new Colour4(args.diffuse[0], args.diffuse[1], args.diffuse[2], args.diffuse[3])
         this.Specular = new Colour4(args.specular[0], args.specular[1], args.specular[2], args.specular[3])
+        this.Colour = new Colour3(args.specular[0], args.specular[1], args.specular[2])
 
         this.Alpha = args.alpha ?? 1.0
         this.Shininess = args.shininess ?? 1.0
@@ -186,6 +190,7 @@ export class Material extends SharedComponent
         GL.uniform4fv(this.Shader!.Material!.SpecularColour, this.Specular)
         GL.uniform1f(this.Shader!.Material!.Shininess, this.Shininess)
         GL.uniform1f(this.Shader!.Material!.Alpha, this.Alpha)   
+        shader.SetFloatVector('U_Material.Colour', this.Colour)
 
         // for (let i = 0; i < this.Textures.length; ++i)
         // {

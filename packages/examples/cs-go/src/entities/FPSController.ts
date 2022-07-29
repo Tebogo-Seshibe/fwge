@@ -1,26 +1,15 @@
 import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
 import { Transform } from "@fwge/core"
 import { IInputArgs, KeyState } from "@fwge/input"
-import { Collider, RigidBody } from "@fwge/physics"
-import { Camera, OrthographicCamera, PerspectiveCamera, PointLight } from "@fwge/render"
+import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
+import { Camera, PerspectiveCamera, PointLight } from "@fwge/render"
 import { Light } from "@fwge/render/lib/components/lights/Light"
 import { GameObject } from "./GameObject"
 
 export class FPSController extends GameObject
 {    
     readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45 })
-    // readonly camera: Camera = new OrthographicCamera(
-    // {
-    //     top: 10,
-    //     bottom: -10,
-    //     left: -10,
-    //     right: 10,
-    //     far: 10,
-    //     near: -10,
-    //     horizontalTilt: 90,
-    //     vericalTilt: 90
-    // })
-    readonly cameraTransform: Transform = new Transform({ position: [0, 0, 0] })
+    readonly cameraTransform: Transform = new Transform({ position: [3, 2, 0] })
     
     readonly up: Vector3 = Vector3.Zero
     readonly right: Vector3 = Vector3.Zero
@@ -44,26 +33,22 @@ export class FPSController extends GameObject
         this.transform.Position.Z = 5
 
         this.rigidbody = new RigidBody({ mass: 5 })
-        // this.collider = new SphereCollider(
-        // {
-        //     isTrigger: true,
-        //     position: new Vector3(0, 0.25, 0),
-        // })
+        this.collider = new CubeCollider(
+        {
+            isTrigger: true,
+            position: new Vector3(0, 0.25, 0),
+        })
         this.light = new PointLight(
         {
-            colour: [1,1,1,1],
             intensity: 1,
             radius: 1
         })
 
-        this.AddComponent(this.rigidbody)
-        // this.AddComponent(this.collider)
-        
+        this.AddComponent(this.rigidbody)        
         this.AddChild(
             this.Scene.CreateEntity()
             .AddComponent(this.cameraTransform)
             .AddComponent(this.camera)
-            // .AddComponent(this.light)
         )
 
         Camera.Main = this.camera

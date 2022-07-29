@@ -6,10 +6,10 @@ import { GameObject } from "./GameObject"
 
 export class Cube extends GameObject
 {
-    turnSpeed: number = 0 //randBetween(15, 275)
+    turnSpeed: number = randBetween(15, 275)
     material!: Material
     renderer!: Renderer<StaticMesh>
-    collider: Collider = new SphereCollider({ radius: 0.5 })
+    collider!: Collider
 
     OnCreate(): void
     {
@@ -31,6 +31,8 @@ export class Cube extends GameObject
             asset: this.Scene.Game.GetAsset('OBJ Sphere', Mesh)!,
             renderMode: RenderMode.FACE
         })
+
+        this.collider = new SphereCollider({ radius: 0.5 })
         
         this.AddComponent(this.material)
         this.AddComponent(this.collider)

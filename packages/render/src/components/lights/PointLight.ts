@@ -1,10 +1,8 @@
-import { Colour4 } from "@fwge/common"
-import { Light } from "./Light"
+import { Colour3 } from "@fwge/common"
+import { ILight, Light } from "./Light"
 
-export interface IPointLight
+export interface IPointLight extends ILight
 {
-    colour?: [number, number, number, number]
-    intensity?: number
     radius?: number
 }
 
@@ -17,10 +15,12 @@ export class PointLight extends Light
     constructor(light: IPointLight = { })
     {
         super(
-            new Colour4(light.colour! ?? [255, 255, 255, 255]),
-            !Number.isNaN(light.intensity) ? light.intensity! : 1
+            light.ambient && new Colour3(light.ambient as [number, number, number]),
+            light.diffuse && new Colour3(light.diffuse as [number, number, number]),
+            light.specular && new Colour3(light.specular as [number, number, number]),
+            light.intensity
         )
 
-        this.Radius = !Number.isNaN(light.radius) ? light.radius! : 5
+        this.Radius = light.radius ?? 5
     }
 }

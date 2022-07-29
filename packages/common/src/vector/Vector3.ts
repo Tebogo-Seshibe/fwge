@@ -538,12 +538,23 @@ export class Vector3 extends Float32Array
 
     static Normalize(vector: Vector3): Vector3
     static Normalize(vector: Vector3, out: Vector3): Vector3
-    static Normalize(_0: Vector3, _1?: Vector3): Vector3
+    static Normalize(vector: [number, number, number]): Vector3
+    static Normalize(vector: [number, number, number], out: Vector3): Vector3
+    static Normalize(x: number, y: number, z: number): Vector3
+    static Normalize(x: number, y: number, z: number, out: Vector3): Vector3
+    static Normalize(_0: Vector3 | [number, number, number] | number, _1?: Vector3 | number, _2?: number, _3?: Vector3): Vector3
     {
-        const out: Vector3 = _1 ?? new Vector3()
-        
-        let length = _0.LengthSquared
+        let out: Vector3
+        if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
+        {
+            out = _3 ?? new Vector3(_0 as number, _1 as number, _2 as number)
+        }
+        else
+        {
+            out = _1 ?? new Vector3(_0[0], _0[1], _0[2])
+        }
 
+        let length = out.LengthSquared
         if (length !== 0 && length !== 1)
         {
             length = Math.sqrt(length)

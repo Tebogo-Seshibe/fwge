@@ -81,6 +81,7 @@ export class Colour3 extends Float32Array
     constructor(rgb: number)
     constructor(r: number, g: number, b: number)
     constructor(colour: Colour3)
+    constructor(colour: [number, number, number])
     constructor(colour: Colour4)
     constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number)
     {

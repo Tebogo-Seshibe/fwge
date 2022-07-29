@@ -1,22 +1,19 @@
 #version 300 es
 
 precision highp float;
+precision highp sampler2D;
 
-in vec4 V_Position;
+in vec3 V_Position;
 in vec3 V_Normal;
 in vec2 V_UV;
-in vec4 V_Colour;
-in vec4 V_LightPosition;
-in vec3[4] V_LightPositions;
+in vec3 V_Colour;
+in vec3 V_LightPosition;
 
-layout(location = 0) out vec4 O_FragColour;            
-layout(location = 1) out vec4 O_Other;            
-                    
-struct Material 
+layout(location = 0) out vec4 O_FragColour;
+
+struct Material
 {
-    vec4 Ambient;
-    vec4 Diffuse;
-    vec4 Specular;
+    vec3 Colour;
     float Shininess;
     float Alpha;
 
@@ -26,20 +23,24 @@ struct Material
 uniform Material U_Material;
 
 struct PointLight
-{ 
-    vec4 Colour;
-    float Intensity;
+{
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+    float Intensity;  
 
     vec3 Position;
     float Radius;
-    float Angle;
 };
 uniform PointLight U_PointLight[4];
 
 struct DirectionalLight
-{ 
-    vec4 Colour;
-    float Intensity;
+{
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+    float Intensity;  
+
     vec3 Direction;
 };
 uniform DirectionalLight U_DirectionalLight;
@@ -54,82 +55,73 @@ uniform Sampler U_Sampler;
 uniform sampler2D U_ShadowMap;
 
 
-vec4 CalcPointLight(in PointLight point)
-{
-    vec3 D = point.Position - V_Position.xyz;
-    vec3 L = normalize(D);
-    vec3 E = -V_Position.xyz;
-    vec3 N = V_Normal;
-    vec3 H = normalize(L + E);
-    
-    float halfway = dot(L, H);
-    float Kd = max(halfway, 0.0);
-    float Ks = pow(max(dot(N, H), 0.0), U_Material.Shininess);
-    float falloff = 1.0; //smoothstep(point.Radius, 0.0, min(length(D), point.Radius));
-    
-    vec4 ambient = U_Material.Ambient;
-    vec4 diffuse = Kd * U_Material.Diffuse;
-    vec4 specular = halfway < 0.0
-        ? vec4(0.0, 0.0, 0.0, 1.0)
-        : Ks * U_Material.Specular;
 
-    // return vec4(specular.rgb, 1.0);
-    return (
-        (ambient + diffuse + specular)
-        * point.Colour
-        * point.Intensity
-        * falloff
-    );
-}
-
-vec4 PointLightColour()
+float ShadowWeight(float diffuseDot)
 {
-    return 
-        CalcPointLight(U_PointLight[0]) +
-        CalcPointLight(U_PointLight[1]) +
-        CalcPointLight(U_PointLight[2]) +
-        CalcPointLight(U_PointLight[3]);
-}
-
-float calculateShadow()
-{
-    vec3 position = V_LightPosition.xyz * 0.5 + 0.5;
-    if (position.z > 1.0)
+    // return 1.0;
+    float bias = max(0.01 * (1.0 - diffuseDot), 0.001);
+    vec3 lightPosition = V_LightPosition.xyz * 0.5 + 0.5;
+    if (lightPosition.z > 1.0)
     {
-        position.z = 1.0;
+        lightPosition.z = 1.0;
     }
-    float depth = texture(U_ShadowMap, position.xy).r;
-    float bias = 0.05;
-    return (depth + bias) < position.z ? 0.0 : 1.0;
+
+    float shadow = 0.0;
+    vec2 texelSize = vec2(1 / textureSize(U_ShadowMap, 0));
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float shadowDepth = texture(U_ShadowMap, lightPosition.xy + vec2(x, y) * texelSize).r;
+            shadow += (shadowDepth + bias) < lightPosition.z ? 0.0 : 1.0;
+        }
+    }
+    shadow = max(shadow, 0.0);
+    return shadow / 9.0;
 }
 
-vec4 DirectionalLightColour() 
-{ 
-    
-    float weight = max(dot(V_Normal, normalize(U_DirectionalLight.Direction)), 0.0);
-    vec4 diffuse = U_DirectionalLight.Colour * weight;
-    
-    return U_Material.Diffuse * diffuse * (calculateShadow() * U_DirectionalLight.Intensity);
-} 
-
-
-vec4 Colour()
+vec3 acesToneMapping(vec3 colour)
 {
-    if (U_Material.HasImageMap)
-    {
-        return texture(U_Sampler.Image, V_UV);
-    }
-    else
-    {
-        return vec4(0.0);
-    }
+    // return colour;
+    const float slope = 12.0;
+    const float a = 2.51;
+    const float b = 0.03;
+    const float c = 2.43;
+    const float d = 0.59;
+    const float e = 0.14;
+
+    vec4 x = vec4(colour, (colour.r * 0.299) + (colour * 0.587) + (colour * 0.0114));
+    vec4 tonemap = clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+    float t = x.a;
+    t = t * t / (slope + t);
+
+    return mix(tonemap.rgb, tonemap.aaa, t);
 }
+
+float DiffuseWeight(vec3 lightDirection)
+{
+    float diffuseDot = dot(V_Normal, lightDirection);
+    float diffuseWeight = max(diffuseDot, 0.0);
+    float shadowWeight = ShadowWeight(diffuseDot);
+
+    return diffuseWeight * shadowWeight;
+}
+
 
 void main(void)
 {
-    // vec3 position = V_LightPosition.xyz * 0.5 + 0.5;
-    // O_FragColour = texture(U_ShadowMap, position.xy);
-    O_FragColour = /* PointLightColour() */ DirectionalLightColour() * (Colour() + U_Material.Ambient);
-    // O_FragColour = V_LightPosition.wwww;
-    O_Other = vec4(1.0,0.0,0.0,1.0);
+    vec3 objectColour = texture(U_Sampler.Image, V_UV).rgb + U_Material.Colour;
+    
+    vec3 directionalDiffuse = U_DirectionalLight.Diffuse * DiffuseWeight(U_DirectionalLight.Direction) * objectColour * U_DirectionalLight.Intensity;
+
+    vec3 ambient = U_DirectionalLight.Ambient * objectColour;
+    vec3 diffuse = directionalDiffuse;
+    // vec3 specular = vec3(0.0);
+
+    
+
+    // vec3 pointDiffuse = Diffuse(U_PointLight.Position) * U_DirectionalLight.Diffuse;
+
+
+    O_FragColour = vec4(acesToneMapping(ambient + diffuse), 1.0); //vec4(acesToneMapping2(ambient + shadowBias * (diffuse + specular)), 1.0);
 }

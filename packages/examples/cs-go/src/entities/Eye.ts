@@ -22,10 +22,7 @@ export class Eye extends GameObject
     {
         super.OnCreate()
 
-        this.camera = new PerspectiveCamera(
-        {
-            fieldOfView: 50  
-        })
+        this.camera = new PerspectiveCamera({ fieldOfView: 50 })
         this.collider = new SphereCollider(
         {
             isTrigger: true,
@@ -54,7 +51,6 @@ export class Eye extends GameObject
         })
 
         this.AddComponent(this.camera)
-        // this.AddComponent(this.collider)
     }
 
     OnStart()

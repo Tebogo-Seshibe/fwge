@@ -1,4 +1,4 @@
-import { GL, Matrix2, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Asset, Class, Entity } from "@fwge/core"
 import { DirectionalLightUniform } from "../components/shader/DirectionalLightUniform"
 import { MaterialUniform } from "../components/shader/MaterialUniform"
@@ -84,17 +84,21 @@ export class ShaderAsset extends Asset
     }
 
     constructor(config: IShaderAsset)
+    constructor(vert: string, frag: string)
+    constructor(_0: IShaderAsset | string, _1?: string)
     {
         super()
 
-        this._vertexSource = config.vertexShader.source
-        this._fragmentSource = config.fragmentShader.source
-        this._inputs = [ ...(config.vertexShader.input ?? []), ...(config.fragmentShader.input ?? []) ]
-        this._inputList = config.inputs ?? []
+        const vert = typeof _0 === 'string' ? _0 : _0.vertexShader.source 
+        const frag = typeof _0 === 'string' ? _1! : _0.fragmentShader.source 
+
+        this._vertexSource = vert
+        this._fragmentSource = frag
+        
         this._compileShaders()
         this._getInputs()
-        this._findInputs(config.vertexShader.source)
-        this._findInputs(config.fragmentShader.source)
+        this._findInputs(vert)
+        this._findInputs(frag)
         this._inputList.forEach(input => this.Inputs.set(input.sourceName, GL.getUniformLocation(this._program!, input.sourceName)))
     }
 
@@ -244,6 +248,19 @@ export class ShaderAsset extends Asset
         GL.useProgram(null)
     }
 
+    SetTexture(index: number, name: string, texture: WebGLTexture): void
+    {
+        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        if (!location)
+        {
+            return
+        }
+
+        GL.uniform1i(location, index)
+        GL.activeTexture(GL.TEXTURE0 + index)
+        GL.bindTexture(GL.TEXTURE_2D, texture)
+    }
+
     SetBool(name: string, bool: boolean): void
     {
         const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
@@ -282,38 +299,196 @@ export class ShaderAsset extends Asset
         }
         
         GL.uniform1f(location, float)
-
     }
     
-    SetVector(name: string, vector: Vector2): void
-    SetVector(name: string, vector: [number, number]): void
-    SetVector(name: string, vector: Vector3): void
-    SetVector(name: string, vector: [number, number, number]): void
-    SetVector(name: string, vector: Vector4): void
-    SetVector(name: string, vector: [number, number, number, number]): void
-    SetVector(name: string, vector: Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number]): void
+    SetIntVector(name: string, vector: Vector2): void
+    SetIntVector(name: string, vector: Vector2, unsigned: boolean): void
+    SetIntVector(name: string, vector: [number, number]): void
+    SetIntVector(name: string, vector: [number, number], unsigned: boolean): void
+    SetIntVector(name: string, x: number, y: number): void
+    SetIntVector(name: string, x: number, y: number, unsigned: boolean): void
+    SetIntVector(name: string, vector: Vector3): void
+    SetIntVector(name: string, vector: Vector3, unsigned: boolean): void
+    SetIntVector(name: string, vector: [number, number, number]): void
+    SetIntVector(name: string, vector: [number, number, number], unsigned: boolean): void
+    SetIntVector(name: string, x: number, y: number, z: number): void
+    SetIntVector(name: string, x: number, y: number, z: number, unsigned: boolean): void
+    SetIntVector(name: string, vector: Vector4): void
+    SetIntVector(name: string, vector: Vector4, unsigned: boolean): void
+    SetIntVector(name: string, vector: [number, number, number, number]): void
+    SetIntVector(name: string, vector: [number, number, number, number], unsigned: boolean): void
+    SetIntVector(name: string, x: number, y: number, z: number, w: number): void
+    SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void
+    SetIntVector(_0: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        const location = this.Inputs.get(_0) ?? GL.getUniformLocation(this.Program!, _0)
         if (!location)
         {
             return
         }
 
-        switch (vector.length)
+        switch (arguments.length)
         {
-            case 2: GL.uniform2fv(location, vector)
-            case 3: GL.uniform3fv(location, vector)
-            case 4: GL.uniform4fv(location, vector)            
+            case 6:
+            {
+                if (_5 as boolean)
+                {
+                    GL.uniform4ui(location, _1 as number, _2 as number, _3 as number, _4 as number)
+                }
+                else
+                {
+                    GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number)
+                }
+            }
+            break
+            case 5:
+            {
+                if (typeof _4 === 'number')
+                {
+                    GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number)
+                }
+                else if (_4 as boolean)
+                {
+                    GL.uniform3ui(location, _1 as number, _2 as number, _3 as number)
+                }
+                else
+                {
+                    GL.uniform3i(location, _1 as number, _2 as number, _3 as number)
+                }
+            }
+            break
+            case 4:
+            {
+                if (typeof _3 === 'number')
+                {
+                    GL.uniform3i(location, _1 as number, _2 as number, _3 as number)
+                }
+                else if (_3 as boolean)
+                {
+                    GL.uniform2ui(location, _1 as number, _2 as number)
+                }
+                else
+                {
+                    GL.uniform2i(location, _1 as number, _2 as number)
+                }
+            }
+            break
+            case 3:
+            {
+                if (typeof _2 === 'number')
+                {
+                    GL.uniform2i(location, _1 as number, _2 as number)
+                }
+                else if (_2 as boolean)
+                {
+                    switch ((_1 as number[]).length)
+                    {
+                        case 2: GL.uniform2uiv(location, _1 as number[])
+                        case 3: GL.uniform3uiv(location, _1 as number[])
+                        case 4: GL.uniform4uiv(location, _1 as number[])            
+                    }
+                }
+                else
+                {
+                    switch ((_1 as number[]).length)
+                    {
+                        case 2: GL.uniform2iv(location, _1 as number[])
+                        case 3: GL.uniform3iv(location, _1 as number[])
+                        case 4: GL.uniform4iv(location, _1 as number[])            
+                    }
+                }
+            }
+            break
+            case 2:
+            {
+                switch ((_1 as number[]).length)
+                {
+                    case 2: GL.uniform2iv(location, _1 as number[])
+                    case 3: GL.uniform3iv(location, _1 as number[])
+                    case 4: GL.uniform4iv(location, _1 as number[])            
+                }
+            }
+            break
+        }
+    }
+    
+    SetFloatVector(name: string, vector: Vector2): void
+    SetFloatVector(name: string, vector: [number, number]): void
+    SetFloatVector(name: string, x: number, y: number): void
+    SetFloatVector(name: string, vector: Vector3 | Colour3): void
+    SetFloatVector(name: string, vector: [number, number, number]): void
+    SetFloatVector(name: string, x: number, y: number, z: number): void
+    SetFloatVector(name: string, vector: Vector4 | Colour4): void
+    SetFloatVector(name: string, vector: [number, number, number, number]): void
+    SetFloatVector(name: string, x: number, y: number, z: number, w: number): void
+    SetFloatVector(_0: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
+    {
+        const location = this.Inputs.get(_0) ?? GL.getUniformLocation(this.Program!, _0)
+        if (!location)
+        {
+            return
+        }
+
+        switch (arguments.length)
+        {
+            case 5: 
+                GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number)
+            break
+            case 4: 
+                GL.uniform3f(location, _1 as number, _2 as number, _3 as number)
+            break
+            case 3: 
+                GL.uniform2f(location, _1 as number, _2 as number)
+            break
+            case 2: 
+                switch ((_1 as number[]).length)
+                {
+                    case 2:
+                        GL.uniform2fv(location, _1 as number[])
+                    break
+                    case 3:
+                        GL.uniform3fv(location, _1 as number[])
+                    break
+                    case 4:
+                        GL.uniform4fv(location, _1 as number[])
+                    break
+                }
+            break
+        }
+        if (typeof _1 === 'number')
+        {
+
+        }
+        else
+        {
+            switch (_1.length)
+            {
+                case 2:
+                    GL.uniform2fv(location, _1)
+                break
+                case 3:
+                    GL.uniform3fv(location, _1)
+                break
+                case 4:
+                    GL.uniform4fv(location, _1)
+                break        
+            }
         }
     }
     
     SetMatrix(name: string, matrix: Matrix2): void
+    SetMatrix(name: string, matrix: Matrix2, transpose: boolean): void
     SetMatrix(name: string, matrix: [number, number, number, number]): void
+    SetMatrix(name: string, matrix: [number, number, number, number], transpose: boolean): void
     SetMatrix(name: string, matrix: Matrix3): void
+    SetMatrix(name: string, matrix: Matrix3, transpose: boolean): void
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number]): void
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number], transpose: boolean): void
     SetMatrix(name: string, matrix: Matrix4): void
+    SetMatrix(name: string, matrix: Matrix4, transpose: boolean): void
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void
-    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void
+    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
     {
         const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
         if (!location)
@@ -323,9 +498,15 @@ export class ShaderAsset extends Asset
 
         switch (matrix.length)
         {
-            case 4: GL.uniformMatrix2fv(location, false, matrix)
-            case 9: GL.uniformMatrix3fv(location, false, matrix)
-            case 16: GL.uniformMatrix4fv(location, false, matrix)            
+            case 4:
+                GL.uniformMatrix2fv(location, tranpose, matrix)
+            break
+            case 9:
+                GL.uniformMatrix3fv(location, tranpose, matrix)
+            break
+            case 16:
+                GL.uniformMatrix4fv(location, tranpose, matrix)            
+            break
         }
     }
 }

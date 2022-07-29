@@ -142,20 +142,26 @@ function getAttachmentFormat(type: DepthType): number
 
 export class RenderTarget
 {
-    public readonly Framebuffer: WebGLFramebuffer
     public readonly Height: number
     public readonly Width: number
     public readonly ClearColour: Colour4
+
+    public readonly Framebuffer: WebGLFramebuffer | null = null
     public readonly ColourAttachments: WebGLTexture[] = []
     public readonly DepthAttachment: WebGLTexture | null = null
     
     constructor(config: IRenderTarget)
     {
-        this.Framebuffer = GL.createFramebuffer()!
         this.Height = config.height
         this.Width = config.width
         this.ClearColour = config.clear ? new Colour4(config.clear) : new Colour4(0.0)
         
+        if (config.colour.length === 0 && config.depth === DepthType.NONE)
+        {
+            return
+        }
+
+        this.Framebuffer = GL.createFramebuffer()!
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
         this.ColourAttachments = config.colour.map((colourType, index) =>
         {
@@ -207,11 +213,25 @@ export class RenderTarget
 
     Bind()
     {
-        GL.bindTexture(GL.TEXTURE_2D, null)
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
-        GL.viewport(0, 0, this.Width, this.Height)
+        if (!this.Framebuffer)
+        {
+            GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        }
+        else
+        {
+            GL.viewport(0, 0, this.Width, this.Height)
+        }
         GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
+        // GL.bindTexture(GL.TEXTURE_2D, null)
+
+        
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        // GL.clearColor(0,0,0,0)
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+
     }
     
     UnBind()

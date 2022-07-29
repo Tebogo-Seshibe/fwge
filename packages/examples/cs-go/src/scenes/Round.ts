@@ -1,7 +1,7 @@
 import { Entity, Game, Prefab, Scene, Script, ScriptSystem, Tag, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
-import { RenderSystem, ShaderAsset } from "@fwge/render"
+import { Material, MeshRenderer, Renderer, RenderMode, RenderSystem, ShaderAsset } from "@fwge/render"
 import { FPSController } from "../entities"
 import { Cube } from "../entities/Cube"
 import { FullScreen } from "../entities/FullScreen"
@@ -13,6 +13,9 @@ import garageMTL from '/public/objects/garage/garage.mtl?raw'
 import garageOBJ from '/public/objects/garage/garage.obj?raw'
 import shapesMTL from '/public/objects/shapes/shapes.mtl?raw'
 import shapesOBJ from '/public/objects/shapes/shapes.obj?raw'
+import helipadMTL from '/public/objects/helipad/helipad.mtl?raw'
+import helipadOBJ from '/public/objects/helipad/helipad.obj?raw'
+import { randBetween } from "@fwge/common"
 
 export class Round extends Scene
 {
@@ -24,26 +27,58 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                // ...new Array(1000).fill(Cube),
                 Platform,
+                // ...new Array(1).fill(Cube),
                 // OBJMTLPrefabBuilder(
                 //     OBJLoader(shapesOBJ),
                 //     MTLLoader(shapesMTL, game.GetAsset('Basic Shader', ShaderAsset))
                 // ).AddComponent(new Tag('Shapes'))
-                // .AddComponent(new Transform({ position: [0, 0.5, 0]}))
+                // .AddComponent(new Transform(
+                // {
+                //     position: [0, 4.5, 0]
+                // }))
                 // .AddComponent(new Script(
                 // {
+                //     start()
+                //     {
+                //         (this as Entity).Children.forEach(child =>
+                //         {
+                //             const r = Math.random()
+                //             const g = Math.random()
+                //             const b = Math.random()
+                            
+                //             child.GetComponent(Material)!.Colour.Set(r,g,b)
+                //         })
+                //     },
                 //     update(delta)
                 //     {
                 //         const transform = (this as Entity).GetComponent(Transform)!
                 //         transform.Rotation.Y += delta * 15
+                //         transform.Rotation.Z += delta * 25
                 //     }
                 // })),
+                // OBJMTLPrefabBuilder(
+                //     OBJLoader(garageOBJ),
+                //     MTLLoader(garageMTL, game.GetAsset('Basic Shader', ShaderAsset))
+                // ).AddComponent(new Tag('Garage'))
+                // .AddComponent(new Transform({ position: [0, -15, 0]})),
                 OBJMTLPrefabBuilder(
-                    OBJLoader(garageOBJ),
-                    MTLLoader(garageMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                ).AddComponent(new Tag('Garage'))
-                .AddComponent(new Transform({ position: [0, -15, 0]})),
+                    OBJLoader(helipadOBJ),
+                    MTLLoader(helipadMTL, game.GetAsset('Basic Shader', ShaderAsset))
+                ).AddComponent(new Tag('Helipad'))
+                .AddComponent(new Transform({ position: [0, 0, 0]}))
+                .AddComponent(new Script(
+                {
+                    start()
+                    {
+                        console.log(this);
+                        (this as Entity).Children.forEach(child => {
+                            const renderer = child.GetComponent(Renderer)
+                            if (renderer)
+                                renderer.RenderMode = RenderMode.FACE
+                        })
+                    }
+                })),
                 // OBJMTLPrefabBuilder(
                 //     OBJLoader(sponzaOBJ),
                 //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))

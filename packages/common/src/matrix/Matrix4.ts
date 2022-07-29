@@ -1,5 +1,5 @@
 import { NumberArray } from "../types"
-import { cot, radian } from "../utils"
+import { clean, cot, radian } from "../utils"
 import { Vector2, Vector3, Vector4 } from "../vector"
 import { Matrix2 } from "./Matrix2"
 import { Matrix3 } from "./Matrix3"
@@ -1405,37 +1405,61 @@ export class Matrix4 extends Float32Array
             far = _1[2]
         }
 
+        theta = clean(theta)
+        phi = clean(phi)
+
+        // console.log({ theta, phi })
+
         left -= near * theta
         right -= near * theta
         top -= near * phi
         bottom -= near * phi
-
+        const width = right - left
+        const height = top - bottom
+        const depth = far - near
 
         return out.Set
-        // (
-        //                 2 / (right - left),                                0,                            0, 0,
-        //                                 0,               2 / (top - bottom),                            0, 0,
-        //                             theta,                              phi,            -2 / (far - near), 0,
-        //     -(left + right) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1
-        // ).Transpose()
-
         (
-                            2 / (right - left),                                0,                            0, 0,
-                                            0,               2 / (top - bottom),                            0, 0,
-                                        0,                              0,            -2 / (far - near), 0,
-            0,0,0,1
+            2 / width,
+            0,
+            0,
+            0,
+
+            0,
+            2 / (top - bottom),
+            0,
+            0,
+                        
+            theta,
+            phi,
+            -2 / (far - near),
+            0,
+
+
+            -(left + right) / width,
+            -(top + bottom) / height,
+            -(far + near) / depth,
+            1
         )
-        // return out.Set(
-        //     1,0,0,0,
-        //     0,1,0,0,
-        //     phi,theta,1,0,
-        //     0,0,0,1,
-        // )
+    }
+    
+    static OrthographicProjectionMatrix(width: number, height: number, depth: number): Matrix4
+    static OrthographicProjectionMatrix(width: number, height: number, depth: number, out: Matrix4): Matrix4
+    static OrthographicProjectionMatrix(_0: number, _1: number, _2: number, _3?: Matrix4): Matrix4
+    {
+        const out = _3 ?? new Matrix4()
+
+        return out.Set(
+            2 / _0,      0,      0, 0,
+                 0, 2 / _1,      0, 0,
+                 0,      0, 2 / _2, 0,
+                 0,      0,      0, 1
+        )
     }
 
-    static PerspectiveProjection(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number): Matrix4
-    static PerspectiveProjection(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4
-    static PerspectiveProjection(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4
+    static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number): Matrix4
+    static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4
+    static PerspectiveProjectionMatrix(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4
     {
         const out   = _4 ?? new Matrix4()
         const near  = _0
@@ -1495,6 +1519,50 @@ export class Matrix4 extends Float32Array
         }
         
         return out
+    }
+
+    static LookAtMatrix(eye: Vector3, target: Vector3, up: Vector3): Matrix4
+    static LookAtMatrix(eye: Vector3, target: Vector3, up: Vector3, out: Matrix4): Matrix4
+    static LookAtMatrix(eye: [number, number, number], target: [number, number, number], up: [number, number, number]): Matrix4
+    static LookAtMatrix(eye: [number, number, number], target: [number, number, number], up: [number, number, number], out: Matrix4): Matrix4
+    static LookAtMatrix(eyeX: number, eyeY: number, eyeZ: number, targetX: number, targetY: number, targetZ: number, upX: number, upY: number, upZ: number): Matrix4
+    static LookAtMatrix(eyeX: number, eyeY: number, eyeZ: number, targetX: number, targetY: number, targetZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4
+    static LookAtMatrix(_0: Vector3 | [number, number, number] | number, _1: Vector3 | [number, number, number] | number, _2: Vector3 | [number, number, number] | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
+    {
+        const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
+        const eye = new Vector3()
+        const target = new Vector3()
+        const up = new Vector3()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
+        {
+            eye.Set(_0 as number, _1 as number, _2 as number)
+            target.Set(_3 as number, _4 as number, _5 as number)
+            up.Set(_6 as number, _7 as number, _8 as number)
+        }
+        else
+        {
+            eye.Set(_0)
+            target.Set(_1)
+            up.Set(_2).Normalize()
+        }
+
+        const zAxis = Vector3.Subtract(target, eye).Normalize()
+        const xAxis = Vector3.Cross(up, zAxis)
+        const yAxis = Vector3.Cross(zAxis, xAxis)
+
+        console.log(
+        {
+            eye, target, up, 
+            xAxis, yAxis, zAxis
+        })
+
+        return out.Set(
+            xAxis[0], xAxis[1], xAxis[2], -xAxis.Dot(eye),
+            yAxis[0], yAxis[1], yAxis[2], -yAxis.Dot(eye),
+            zAxis[0], zAxis[1], zAxis[2], -zAxis.Dot(eye),
+                   0,        0,        0,               1
+        )
     }
     //#endregion
 }

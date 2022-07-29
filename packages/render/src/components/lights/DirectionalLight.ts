@@ -1,28 +1,34 @@
-import { Colour4, Vector3 } from "@fwge/common"
-import { Light } from "./Light"
+import { Colour3, Vector3 } from "@fwge/common"
+import { DepthType, RenderTarget } from "../../base"
+import { ILight, Light } from "./Light"
 
-export interface IDirectionalLight
+export interface IDirectionalLight extends ILight
 {
-    colour?: [number, number, number, number]
-    direction?: [number, number, number]
-    intensity?: number
+    direction?: [number, number, number] | Vector3
 }
 
 export class DirectionalLight extends Light
 {
-    public readonly Direction: Vector3
+    readonly renderTarget: RenderTarget = new RenderTarget(
+    {
+        colour: [],
+        depth: DepthType.FLOAT32,
+        height: 2048,
+        width: 2048
+    })
+    readonly Direction: Vector3
 
     constructor()
     constructor(light: IDirectionalLight)
     constructor(light: IDirectionalLight = { })
     {
         super(
-            new Colour4(light.colour! ?? [1, 1, 1, 1]),
+            light.ambient && new Colour3(light.ambient as [number, number, number]),
+            light.diffuse && new Colour3(light.diffuse as [number, number, number]),
+            light.specular && new Colour3(light.specular as [number, number, number]),
             light.intensity
         )
 
-        this.Direction = new Vector3(
-            light.direction ?? [0,-1,-1]
-        ).Normalize()
+        this.Direction = Vector3.Normalize(light.direction as [number, number, number] ?? [0,-1,-1])
     }
 }

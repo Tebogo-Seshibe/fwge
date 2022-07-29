@@ -14,10 +14,10 @@ export class FullScreen extends GameObject
     override OnCreate(): void
     {
         super.OnCreate()
-        this.light = new DirectionalLight({
-            colour: [1,1,1,1],
-            direction: [1,0.75,1],
-            intensity: 0.5
+        this.light = new DirectionalLight(
+        {
+            direction: [0, -1, -1],
+            intensity: 1
         })
 
         this.canvas = GL.canvas

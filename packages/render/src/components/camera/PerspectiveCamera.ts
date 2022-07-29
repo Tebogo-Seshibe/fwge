@@ -32,7 +32,7 @@ export class PerspectiveCamera extends Camera
     
     override UpdateProjection(): void
     {
-        Matrix4.PerspectiveProjection(
+        Matrix4.PerspectiveProjectionMatrix(
             this.NearClipping,
             this.FarClipping,
             this.FieldOfView,
