@@ -1,6 +1,6 @@
 import { Scene } from '../base/Scene'
 import { Component } from './Component'
-import { Class, EntityId, RegistryType } from './Registry'
+import { Class, EntityId, getComponent, RegistryType } from './Registry'
 
 export class Entity extends RegistryType
 {
@@ -35,8 +35,8 @@ export class Entity extends RegistryType
 
     public get Components(): { [key: string]: Component }
     {
-        return [...this.#components.values()]
-            .reduce((prev, curr) => ({ ...prev, [curr!.Type.name]: curr }), { })
+        return [...this.#components.entries()]
+            .reduce((prev, [type, id]) => ({ ...prev, [type.name]: getComponent(type, id) }), { })
     }
     //#endregion
 
@@ -44,7 +44,7 @@ export class Entity extends RegistryType
     public AddComponent<T extends Component>(component: T): Entity
     {
         component.AddOwner(this)
-        this.#components.set(component.Type, component)
+        this.#components.set(component.Type, component.Id)
         this.Scene.OnEntity(this)
 
         return this
@@ -52,31 +52,24 @@ export class Entity extends RegistryType
 
     public GetComponent<T extends Component>(componentType: Class<T>): T | undefined
     {
-        if (!this.#components)
+        const compnentId = this.#components.get(componentType)
+        if (compnentId !== undefined)
         {
-            this.#components = new Map()
+            return getComponent(componentType, compnentId)
         }
-        return this.#components.get(componentType) as T
     }
 
     public HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        if (!this.#components)
-        {
-            this.#components = new Map()
-        }
         return this.#components.has(componentType)
     }
     
     public RemoveComponent<T extends Component>(componentType: Class<T>): Entity
     {
-        if (!this.#components)
+        const compnentId = this.#components.get(componentType)
+        if (compnentId !== undefined)
         {
-            this.#components = new Map()
-        }
-        const component = this.#components.get(componentType!)
-        if (component)
-        {
+            const component = getComponent(componentType, compnentId)
             component.RemoveOwner(this)
             this.#components.delete(component.Type)
             this.Scene.OnEntity(this)
@@ -136,7 +129,7 @@ export class Entity extends RegistryType
     
     #children: Entity[] = []
     #parent?: Entity
-    #components: Map<Class<Component>, Component> = new Map()
+    #components: Map<Class<Component>, number> = new Map()
 
     constructor(scene: Scene)
     {

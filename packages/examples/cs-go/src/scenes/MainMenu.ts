@@ -1,7 +1,6 @@
 import { AnimationSystem } from "@fwge/animation"
-import { Game, Scene } from "@fwge/core"
+import { Game, RenderSystem, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { RenderSystem } from "@fwge/render"
 import { FullScreen } from "../entities/FullScreen"
 
 export class MainMenu extends Scene

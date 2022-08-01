@@ -1,4 +1,4 @@
-import { StaticMesh } from "@fwge/render";
+import { StaticMesh } from "@fwge/core";
 import { MTLLoader, OBJLoader } from "@fwge/io";
 
 export const createCube = () => new StaticMesh(

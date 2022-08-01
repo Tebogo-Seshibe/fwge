@@ -1,6 +1,5 @@
-import { Game, Scene, ScriptSystem } from "@fwge/core"
+import { Game, RenderSystem, Scene, ScriptSystem } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { RenderSystem } from "@fwge/render"
 import { Cube } from "../entities/Cube"
 import { Eye } from "../entities/Eye"
 import { FullScreen } from "../entities/FullScreen"

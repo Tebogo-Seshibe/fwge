@@ -1,5 +1,4 @@
-import { Prefab, Tag, Transform } from "@fwge/core"
-import { MeshRenderer } from "@fwge/render"
+import { MeshRenderer, Prefab, Tag, Transform } from "@fwge/core"
 import { MTL, OBJ } from "../loader"
 
 export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any> =>
@@ -25,6 +24,6 @@ export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any> =>
 
         }
     }
-
+    
     return root
 }

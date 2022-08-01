@@ -96,7 +96,7 @@ export const getTypeId = <T>(_class: Class<T>): TypeId =>
 const IDGen: Map<Class<any>, number> = new Map()
 const TypeIDs: Map<Class<any>, number> = new Map()
 const ComponentMap: Map<string, Component[]> = new Map()
-const MultiDimension: Component[][] = []
+export const MultiDimension: Component[][] = []
 export const Components: Map<number, Map<number, Component>> = new Map()
 
 // export const nextTypeId = <T>

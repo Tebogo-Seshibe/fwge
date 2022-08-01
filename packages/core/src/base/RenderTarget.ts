@@ -237,6 +237,11 @@ export class RenderTarget
     
     UnBind()
     {
+        for (let i = 0; i < 8; ++i)
+        {
+            GL.activeTexture(GL.TEXTURE0 + i)
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
         GL.bindTexture(GL.TEXTURE_2D, null)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
     }

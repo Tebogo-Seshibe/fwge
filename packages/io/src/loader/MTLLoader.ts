@@ -1,5 +1,5 @@
 import { Colour4 } from "@fwge/common"
-import { Material, ShaderAsset } from "@fwge/render"
+import { BasicLitMaterial, Material, RenderMode, RenderType, Shader } from "@fwge/core"
 import { ILoader } from "./ILoader"
 
 export type MTLKey = 'newmtl' 
@@ -9,7 +9,7 @@ export type MTLKey = 'newmtl'
     | 'map_ks'
 
 export type MTL = { [name: string]: Material }
-export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: ShaderAsset | null) =>
+export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
 {
     const materials: MTL = { }
     const mtlLines = src.trim().split('\n').map(x => x.trim())
@@ -92,9 +92,10 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: ShaderAsset
         {
             continue
         }
-
-        materials[key!] = new Material(material)
-        materials[key!].Shader = defaultShader
+        const src = (material.imagemap ?? '')
+        material.shader = defaultShader
+        material.renderType = src.includes('.png') || src.includes('.tga') ? RenderType.TRANSPARENT : RenderType.OPAQUE
+        materials[key!] = new BasicLitMaterial(material)
     }
 
     return materials

@@ -1,8 +1,6 @@
-import { AnimationPlayer, Animation, Keyframe, lerpVector3, lerpColour4 } from "@fwge/animation"
-import { Colour4, LinkedList, Vector3 } from "@fwge/common"
-import { Entity, Transform } from "@fwge/core"
-import { Material } from "@fwge/render"
-
+import { Animation, AnimationPlayer, Keyframe, lerpColour3, lerpVector3 } from "@fwge/animation"
+import { Colour3, LinkedList, Vector3 } from "@fwge/common"
+import { Entity, Material, Transform } from "@fwge/core"
 export const basicAnimation = () =>
 { 
     const animationPlayer = new AnimationPlayer()
@@ -22,13 +20,13 @@ export const basicAnimation = () =>
     })
     moveAnimation.AddFrames('Colour',
     {
-        ValueGetter: (entity: Entity) => entity.GetComponent(Material)!.Ambient,
+        ValueGetter: (entity: Entity) => entity.GetComponent(Material)!.Colour,
         KeyFrames: new LinkedList(
-            new Keyframe(1.0, new Colour4(1.0, 0.0, 0.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 1.0, 0.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 0.0, 1.0, 1.0), lerpColour4),
-            new Keyframe(1.0, new Colour4(0.0, 1.0, 1.0, 1.0), lerpColour4),
-            new Keyframe(0.0, new Colour4(1.0, 0.0, 0.0, 1.0), lerpColour4)
+            new Keyframe(1.0, new Colour3(1.0, 0.0, 0.0), lerpColour3),
+            new Keyframe(1.0, new Colour3(0.0, 1.0, 0.0), lerpColour3),
+            new Keyframe(1.0, new Colour3(0.0, 0.0, 1.0), lerpColour3),
+            new Keyframe(1.0, new Colour3(0.0, 1.0, 1.0), lerpColour3),
+            new Keyframe(0.0, new Colour3(1.0, 0.0, 0.0), lerpColour3)
         )
     })
     animationPlayer.animations.set('Move', moveAnimation)

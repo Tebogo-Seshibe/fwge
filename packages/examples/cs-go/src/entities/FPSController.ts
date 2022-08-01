@@ -2,14 +2,13 @@ import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
 import { Transform } from "@fwge/core"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
-import { Camera, PerspectiveCamera, PointLight } from "@fwge/render"
-import { Light } from "@fwge/render/lib/components/lights/Light"
+import { Camera, Light, PerspectiveCamera, PointLight } from "@fwge/core"
 import { GameObject } from "./GameObject"
 
 export class FPSController extends GameObject
 {    
     readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45 })
-    readonly cameraTransform: Transform = new Transform({ position: [3, 2, 0] })
+    readonly cameraTransform: Transform = new Transform({ position: [0, 2, 0] })
     
     readonly up: Vector3 = Vector3.Zero
     readonly right: Vector3 = Vector3.Zero

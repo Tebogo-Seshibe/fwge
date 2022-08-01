@@ -1,0 +1,158 @@
+import { Colour3, GL, Vector3 } from "@fwge/common"
+import { IMaterial, Material } from "./Material"
+
+export interface IBasicLitMaterial extends IMaterial
+{
+    textures?: string[]
+    colour?: [number, number, number] | Colour3 | Vector3
+    alpha?: number
+    shininess?: number
+    
+    ambient?: [number, number, number] | Colour3 | Vector3
+    diffuse?: [number, number, number] | Colour3 | Vector3
+    specular?: [number, number, number] | Colour3 | Vector3
+
+    imagemap?: string
+    specularmap?: string
+    normalmap?: string
+}
+
+export class BasicLitMaterial extends Material
+{
+    Alpha: number = 1
+    Shininess: number = 32
+    HasTransparency: boolean = false    
+    readonly Ambient: Colour3 = new Colour3(0.30)
+    readonly Diffuse: Colour3 = new Colour3(0.75)
+    readonly Specular: Colour3 = new Colour3(1.00)
+
+    get HasImageMap()
+    {
+        return this.Textures[0] !== null
+    }
+
+    set ImageMap(src: string | null | WebGLTexture)
+    {
+        GL.deleteTexture(this.Textures[0])
+
+        if (src instanceof WebGLTexture)
+        {
+            this.Textures[0] = src
+        }
+        else if (src)
+        {
+            this.Textures[0] = GL.createTexture()!
+            this.applyImage(this.Textures[0], src)
+        }
+        else 
+        {
+            this.Textures[0] = null
+        }
+    }
+
+    set NormalMap(src: string | null | WebGLTexture)
+    {
+        GL.deleteTexture(this.Textures[1])
+
+        
+        if (src instanceof WebGLTexture)
+        {
+            this.Textures[1] = src
+        }
+        else if (src)
+        {
+            this.Textures[1] = GL.createTexture()!
+            this.applyImage(this.Textures[1], src)
+        }
+        else 
+        {
+            this.Textures[1] = null
+        }
+    }
+
+    set SpecularMap(src: string | null | WebGLTexture)
+    {
+        GL.deleteTexture(this.Textures[2])
+        
+        if (src instanceof WebGLTexture)
+        {
+            this.Textures[2] = src
+        }
+        else if (src)
+        {
+            this.Textures[2] = GL.createTexture()!
+            this.applyImage(this.Textures[2], src)
+        }
+        else 
+        {
+            this.Textures[2] = null
+        }
+    }
+
+    get ImageTexture(): WebGLTexture | null
+    {
+        return this.Textures[0]
+    }
+
+    get NormalTexture(): WebGLTexture | null
+    {
+        return this.Textures[1]
+    }
+
+    get SpecularTexture(): WebGLTexture | null
+    {
+        return this.Textures[2]
+    }
+
+    constructor(args: IBasicLitMaterial)
+    {
+        super(args.shader, args.renderType)
+
+        if (args.ambient)
+        {
+            this.Ambient.Set(args.ambient[0], args.ambient[1], args.ambient[2])
+        }
+
+        if (args.diffuse)
+        {
+            this.Diffuse.Set(args.diffuse[0], args.diffuse[1], args.diffuse[2])
+        }
+        
+        if (args.specular)
+        {
+            this.Specular.Set(args.specular[0], args.specular[1], args.specular[2])
+        }
+
+        this.ImageMap = args.imagemap ?? null
+        this.NormalMap = args.normalmap ?? null
+        this.SpecularMap = args.specularmap ?? null
+    }
+
+    Bind(): void
+    {
+        super.Bind()
+
+        const shader = this.Shader
+
+        shader.SetFloat(`U_Material.Shininess`, this.Shininess)
+        shader.SetFloat(`U_Material.Alpha`, this.Alpha)   
+        shader.SetFloatVector('U_Material.Ambient', this.Ambient)
+        shader.SetFloatVector('U_Material.Diffuse', this.Diffuse)
+        shader.SetFloatVector('U_Material.Specular', this.Specular)
+
+        if (this.Textures[0])
+        {
+            shader.SetTexture(0, 'U_Sampler.Image', this.Textures[0])
+        }
+
+        if (this.Textures[1])
+        {
+            shader.SetTexture(1, 'U_Sampler.Bump', this.Textures[1])
+        }
+
+        if (this.Textures[2])
+        {
+            shader.SetTexture(2, 'U_Sampler.Shadow', this.Textures[2])
+        }        
+    }
+}

@@ -1,0 +1,5 @@
+export * from './AreaLight'
+export * from './DirectionalLight'
+export * from './Light'
+export * from './PointLight'
+export * from './SpotLight'

@@ -1,7 +1,6 @@
-import { Entity, Game, Prefab, Scene, Script, ScriptSystem, Tag, Transform } from "@fwge/core"
+import { Game, Scene, RenderSystem, ScriptSystem, Shader, Tag, Transform, Script, Entity, Material, Renderer, RenderMode } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
-import { Material, MeshRenderer, Renderer, RenderMode, RenderSystem, ShaderAsset } from "@fwge/render"
 import { FPSController } from "../entities"
 import { Cube } from "../entities/Cube"
 import { FullScreen } from "../entities/FullScreen"
@@ -16,7 +15,6 @@ import shapesOBJ from '/public/objects/shapes/shapes.obj?raw'
 import helipadMTL from '/public/objects/helipad/helipad.mtl?raw'
 import helipadOBJ from '/public/objects/helipad/helipad.obj?raw'
 import { randBetween } from "@fwge/common"
-
 export class Round extends Scene
 {
     fpsCounterDiv!: HTMLDivElement
@@ -27,11 +25,11 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                Platform,
-                // ...new Array(1).fill(Cube),
+                // Platform,
+                // ...new Array(500).fill(Cube),
                 // OBJMTLPrefabBuilder(
                 //     OBJLoader(shapesOBJ),
-                //     MTLLoader(shapesMTL, game.GetAsset('Basic Shader', ShaderAsset))
+                //     MTLLoader(shapesMTL, game.GetAsset('Basic Shader', Shader))
                 // ).AddComponent(new Tag('Shapes'))
                 // .AddComponent(new Transform(
                 // {
@@ -41,6 +39,7 @@ export class Round extends Scene
                 // {
                 //     start()
                 //     {
+                //         console.log(this);
                 //         (this as Entity).Children.forEach(child =>
                 //         {
                 //             const r = Math.random()
@@ -59,58 +58,39 @@ export class Round extends Scene
                 // })),
                 // OBJMTLPrefabBuilder(
                 //     OBJLoader(garageOBJ),
-                //     MTLLoader(garageMTL, game.GetAsset('Basic Shader', ShaderAsset))
+                //     MTLLoader(garageMTL, game.GetAsset('Basic Shader', Shader))
                 // ).AddComponent(new Tag('Garage'))
-                // .AddComponent(new Transform({ position: [0, -15, 0]})),
-                OBJMTLPrefabBuilder(
-                    OBJLoader(helipadOBJ),
-                    MTLLoader(helipadMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                ).AddComponent(new Tag('Helipad'))
-                .AddComponent(new Transform({ position: [0, 0, 0]}))
-                .AddComponent(new Script(
-                {
-                    start()
-                    {
-                        console.log(this);
-                        (this as Entity).Children.forEach(child => {
-                            const renderer = child.GetComponent(Renderer)
-                            if (renderer)
-                                renderer.RenderMode = RenderMode.FACE
-                        })
-                    }
-                })),
+                // .AddComponent(new Transform({ position: [0, -10, 0], scale: [0.5,0.5,0.5]})),
                 // OBJMTLPrefabBuilder(
-                //     OBJLoader(sponzaOBJ),
-                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                // ).AddComponent(new Tag('Sponza'))
-                // .AddComponent(new Transform({scale: [2,2,2]}))
+                //     OBJLoader(helipadOBJ),
+                //     MTLLoader(helipadMTL, game.GetAsset('Basic Shader', Shader))
+                // ).AddComponent(new Tag('Helipad'))
+                // .AddComponent(new Transform({ position: [0, 0, 0]}))
                 // .AddComponent(new Script(
                 // {
                 //     start()
                 //     {
-                //         console.log(this as Entity)
+                //         console.log(this);
+                //         (this as Entity).Children.forEach(child => {
+                //             const renderer = child.GetComponent(Renderer)
+                //             if (renderer)
+                //                 renderer.RenderMode = RenderMode.FACE
+                //         })
                 //     }
                 // })),
-                // OBJMTLPrefabBuilder(
-                //     OBJLoader(sponzaOBJ),
-                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                // ).AddComponent(new Tag('Sponza'))
-                // .AddComponent(new Transform({position: [-50,0,0], scale: [2,2,2]})),
-                // OBJMTLPrefabBuilder(
-                //     OBJLoader(sponzaOBJ),
-                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                // ).AddComponent(new Tag('Sponza'))
-                // .AddComponent(new Transform({position: [50,0,0], scale: [2,2,2]})),
-                // OBJMTLPrefabBuilder(
-                //     OBJLoader(sponzaOBJ),
-                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                // ).AddComponent(new Tag('Sponza'))
-                // .AddComponent(new Transform({position: [0,0,50], scale: [2,2,2]})),
-                // OBJMTLPrefabBuilder(
-                //     OBJLoader(sponzaOBJ),
-                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', ShaderAsset))
-                // ).AddComponent(new Tag('Sponza'))
-                // .AddComponent(new Transform({position: [0,0,-50], scale: [2,2,2]})),
+                OBJMTLPrefabBuilder(
+                    OBJLoader(sponzaOBJ),
+                    MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', Shader))
+                ).AddComponent(new Tag('Sponza'))
+                .AddComponent(new Transform({scale: [2,2,2]}))
+                .AddComponent(new Script(
+                {
+                    start()
+                    {
+                        // (this as Entity).GetComponent(Transform)!.Position.Z = -;
+                        (this as Entity).GetComponent(Transform)!.Rotation.Y = -90;
+                    }
+                })),
             ],
             systems: [
                 InputSystem,

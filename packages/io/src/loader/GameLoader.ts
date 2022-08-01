@@ -1,7 +1,7 @@
-import { Class, Component, Entity, Game, Prefab, Scene, Script, ScriptSystem, System, Tag, Transform } from "@fwge/core"
+import { Class, Component, Entity, Game, Prefab, RenderSystem, Scene, Script, ScriptSystem, System, Tag, Transform } from "@fwge/core"
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
-import { AreaLight, Camera, DirectionalLight, DynamicMesh, Material, ParticleSpawner, PointLight, RenderSystem, ShaderAsset, SpotLight, StaticMesh } from "@fwge/render"
+import { AreaLight, Camera, DirectionalLight, DynamicMesh, Material, ParticleSpawner, PointLight, ShaderAsset, SpotLight, StaticMesh } from "@fwge/render"
 import exampleScene from './example.scene'
 import { ILoader } from "./ILoader"
 
@@ -51,7 +51,7 @@ export const TypeMappers: Map<string, Class<any>> = new Map()
 TypeMappers.set('InputSystem', InputSystem)
 TypeMappers.set('ScriptSystem', ScriptSystem)
 TypeMappers.set('PhysicsSystem', PhysicsSystem)
-TypeMappers.set('MeshRenderSystem', RenderSystem)
+TypeMappers.set('RenderSystem', RenderSystem)
 // TypeMappers.set('ParticleSystem', ParticleSystem)
 //#endregion
 

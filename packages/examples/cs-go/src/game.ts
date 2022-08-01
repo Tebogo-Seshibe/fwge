@@ -3,8 +3,7 @@ import { basicShader, createBasicShader, createDefaultShader, createSimpleShader
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial } from './components/Materials'
-import { Credits, LoadingScreen, MainMenu, Round } from './scenes'
-import { Test } from './scenes/Test'
+import { Round } from './scenes'
 
 export class CSGO extends Game
 {
@@ -16,11 +15,11 @@ export class CSGO extends Game
             height: 1080,
             width: 1920,
             scenes: [
-                MainMenu,
-                LoadingScreen,
-                Credits,
+                // MainMenu,
+                // LoadingScreen,
+                // Credits,
                 Round,
-                Test
+                // Test
             ],
             components: [
                 { name: 'CubeMaterial', create: createBasicMaterial },

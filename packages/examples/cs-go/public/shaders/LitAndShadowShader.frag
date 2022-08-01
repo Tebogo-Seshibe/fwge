@@ -17,6 +17,10 @@ struct Material
     float Shininess;
     float Alpha;
 
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+
     bool HasImageMap;
     bool HasBumpMap;
 };
@@ -24,9 +28,7 @@ uniform Material U_Material;
 
 struct PointLight
 {
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
+    vec3 Colour;
     float Intensity;  
 
     vec3 Position;
@@ -36,9 +38,7 @@ uniform PointLight U_PointLight[4];
 
 struct DirectionalLight
 {
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
+    vec3 Colour;
     float Intensity;  
 
     vec3 Direction;
@@ -58,8 +58,8 @@ uniform sampler2D U_ShadowMap;
 
 float ShadowWeight(float diffuseDot)
 {
-    // return 1.0;
-    float bias = max(0.01 * (1.0 - diffuseDot), 0.001);
+    float offset = 1.0/1024.0;
+    float bias = max(offset * (1.0 - diffuseDot), offset);
     vec3 lightPosition = V_LightPosition.xyz * 0.5 + 0.5;
     if (lightPosition.z > 1.0)
     {
@@ -76,13 +76,13 @@ float ShadowWeight(float diffuseDot)
             shadow += (shadowDepth + bias) < lightPosition.z ? 0.0 : 1.0;
         }
     }
-    shadow = max(shadow, 0.0);
+    // shadow = max(shadow, 0.0);
     return shadow / 9.0;
 }
 
 vec3 acesToneMapping(vec3 colour)
 {
-    // return colour;
+    return colour;
     const float slope = 12.0;
     const float a = 2.51;
     const float b = 0.03;
@@ -110,18 +110,17 @@ float DiffuseWeight(vec3 lightDirection)
 
 void main(void)
 {
-    vec3 objectColour = texture(U_Sampler.Image, V_UV).rgb + U_Material.Colour;
+    vec3 directionalDiffuse = DiffuseWeight(U_DirectionalLight.Direction) * (U_DirectionalLight.Colour * U_Material.Diffuse * U_DirectionalLight.Intensity);
     
-    vec3 directionalDiffuse = U_DirectionalLight.Diffuse * DiffuseWeight(U_DirectionalLight.Direction) * objectColour * U_DirectionalLight.Intensity;
-
-    vec3 ambient = U_DirectionalLight.Ambient * objectColour;
+    vec4 tex = texture(U_Sampler.Image, V_UV);
+    vec3 ambient = tex.rgb * U_Material.Ambient;
     vec3 diffuse = directionalDiffuse;
     // vec3 specular = vec3(0.0);
-
     
 
     // vec3 pointDiffuse = Diffuse(U_PointLight.Position) * U_DirectionalLight.Diffuse;
 
 
-    O_FragColour = vec4(acesToneMapping(ambient + diffuse), 1.0); //vec4(acesToneMapping2(ambient + shadowBias * (diffuse + specular)), 1.0);
+    O_FragColour = vec4(acesToneMapping(ambient + diffuse), tex.a);
+    // O_FragColour = vec4(objectColour, 1.0);
 }

@@ -1,7 +1,7 @@
 import { randBetween } from "@fwge/common"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, SphereCollider } from "@fwge/physics"
-import { Material, Mesh, MeshRenderer, Renderer, RenderMode, ShaderAsset, StaticMesh } from "@fwge/render"
+import { BasicLitMaterial, Material, Mesh, MeshRenderer, Renderer, RenderMode, RenderType, Shader, StaticMesh } from "@fwge/core"
 import { GameObject } from "./GameObject"
 
 export class Cube extends GameObject
@@ -19,13 +19,16 @@ export class Cube extends GameObject
         this.transform.Position.Set((Math.random() * 100) - 50, randBetween(1, 10), (Math.random() * 100) - 50)
         this.transform.Scale.Set(rand)
 
-        this.material = new Material(
+        this.material = new BasicLitMaterial(
         {
             shininess: 32,
-            ambient: [ Math.random(), Math.random(), Math.random(), 1 ],
-            shader: this.Scene.Game.GetAsset('Basic Shader', ShaderAsset)!
+            colour: [ Math.random(), Math.random(), Math.random() ],
+            shader: this.Scene.Game.GetAsset('Basic Shader', Shader)!,
+            renderType: RenderType.OPAQUE,
+            alpha: 1.0
         })
 
+        console.log(this)
         this.renderer = new MeshRenderer(
         {
             asset: this.Scene.Game.GetAsset('OBJ Sphere', Mesh)!,

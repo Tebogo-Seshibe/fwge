@@ -1,10 +1,5 @@
 import { Class, RegistryType } from "../ecs"
 
-export interface IAssetLoader
-{
-
-}
-
 export class Asset extends RegistryType
 {
     constructor()
@@ -14,6 +9,6 @@ export class Asset extends RegistryType
         super(type)
     }
 
-    Load(source: IAssetLoader): void { }
+    Load(...sources: string[]): void { }
     Save(): void { }
 }

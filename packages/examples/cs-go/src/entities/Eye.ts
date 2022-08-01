@@ -1,7 +1,7 @@
 import { Matrix3, Vector3 } from "@fwge/common"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { Collider, SphereCollider } from "@fwge/physics"
-import { Camera, Material, PerspectiveCamera } from "@fwge/render"
+import { Camera, Material, PerspectiveCamera } from "@fwge/core"
 import { Cube } from "./Cube"
 import { GameObject } from "./GameObject"
 
@@ -34,7 +34,7 @@ export class Eye extends GameObject
     
                 if (otherMaterial)
                 {
-                    otherMaterial.Ambient.Set(1,0,0,1)
+                    otherMaterial.Colour.Set(1,0,0)
                 }
             },
             onCollisionExit: other =>
@@ -45,7 +45,7 @@ export class Eye extends GameObject
     
                 if (otherMaterial)
                 {
-                    otherMaterial.Ambient.Set(1,1,1,1)
+                    otherMaterial.Colour.Set(1,1,1)
                 }
             }
         })

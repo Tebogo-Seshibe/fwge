@@ -1,7 +1,6 @@
 import { GL } from "@fwge/common"
 import { ButtonState, IInputArgs, KeyState } from "@fwge/input"
-import { DirectionalLight } from "@fwge/render"
-import { Light } from "@fwge/render/lib/components/lights/Light"
+import { DirectionalLight, Light } from "@fwge/core"
 import { GameObject } from "./GameObject"
 
 export class FullScreen extends GameObject
@@ -16,8 +15,8 @@ export class FullScreen extends GameObject
         super.OnCreate()
         this.light = new DirectionalLight(
         {
-            direction: [0, -1, -1],
-            intensity: 1
+            direction: [0, -1, 0],
+            intensity: 5
         })
 
         this.canvas = GL.canvas
