@@ -1,11 +1,10 @@
 import { GL, Matrix3 } from "@fwge/common"
-import { Scene, System, Transform } from "@fwge/core"
-import { ShaderAsset } from "../base"
-import { Camera, Material, Particle, ParticleSpawner } from "../components"
+import { Camera, Material, Scene, Shader, System, Transform } from "@fwge/core"
+import { Particle, ParticleSpawner } from "../components"
 
 export class ParticleSystem extends System
 {
-    private particleShader!: ShaderAsset
+    private particleShader!: Shader
     private _time: number = 0
     private _timeLoc!: WebGLUniformLocation
 
@@ -16,7 +15,7 @@ export class ParticleSystem extends System
 
     Init(): void
     {
-        this.particleShader = new ShaderAsset(particleShaderArgs)
+        this.particleShader = new Shader(particleShaderArgs.vertexShader.source, particleShaderArgs.fragmentShader.source)
         this._timeLoc = GL.getUniformLocation(this.particleShader.Program!, 'Time')!
     }
 
@@ -179,76 +178,76 @@ export class ParticleSystem extends System
         // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
     }
     
-    private _useShader(shader: ShaderAsset)
+    private _useShader(shader: Shader)
     {
         GL.useProgram(shader.Program)
-        GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.ViewMatrix)
-        GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.ProjectionMatrix)
+        // GL.uniformMatrix4fv(shader.Matrices!.View, false, Camera.Main!.ViewMatrix)
+        // GL.uniformMatrix4fv(shader.Matrices!.Projection, false, Camera.Main!.ProjectionMatrix)
     }
 
-    private _bindMaterialUniforms(material: Material, shader: ShaderAsset)
+    private _bindMaterialUniforms(material: Material, shader: Shader)
     {
-        GL.uniform4f(
-            shader.Material!.AmbientColour,
-            material.Ambient[0],
-            material.Ambient[1],
-            material.Ambient[2],
-            material.Ambient[3],
-        )
-        GL.uniform4f(
-            shader.Material!.DiffuseColour,
-            material.Diffuse[0],
-            material.Diffuse[1],
-            material.Diffuse[2],
-            material.Diffuse[3],
-        )
-        GL.uniform4f(
-            shader.Material!.SpecularColour,
-            material.Specular[0],
-            material.Specular[1],
-            material.Specular[2],
-            material.Specular[3],
-        )
-        GL.uniform1f(shader.Material!.Shininess, material.Shininess)
-        GL.uniform1f(shader.Material!.Alpha, material.Alpha)
+        // GL.uniform4f(
+        //     shader.Material!.AmbientColour,
+        //     material.Ambient[0],
+        //     material.Ambient[1],
+        //     material.Ambient[2],
+        //     material.Ambient[3],
+        // )
+        // GL.uniform4f(
+        //     shader.Material!.DiffuseColour,
+        //     material.Diffuse[0],
+        //     material.Diffuse[1],
+        //     material.Diffuse[2],
+        //     material.Diffuse[3],
+        // )
+        // GL.uniform4f(
+        //     shader.Material!.SpecularColour,
+        //     material.Specular[0],
+        //     material.Specular[1],
+        //     material.Specular[2],
+        //     material.Specular[3],
+        // )
+        // GL.uniform1f(shader.Material!.Shininess, material.Shininess)
+        // GL.uniform1f(shader.Material!.Alpha, material.Alpha)
         
-        if (material.ImageTexture)
-        {
-            GL.activeTexture(GL.TEXTURE0)
-            GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
-            GL.uniform1i(shader.Material!.HasImageMap, 1)
-            GL.uniform1i(shader.Material!.ImageSampler, 0)
-        }
-        else
-        {
-            GL.uniform1i(shader.Material!.HasImageMap, 0)
-            GL.activeTexture(GL.TEXTURE0)
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
+        // if (material.ImageTexture)
+        // {
+        //     GL.activeTexture(GL.TEXTURE0)
+        //     GL.bindTexture(GL.TEXTURE_2D, material.ImageTexture)
+        //     GL.uniform1i(shader.Material!.HasImageMap, 1)
+        //     GL.uniform1i(shader.Material!.ImageSampler, 0)
+        // }
+        // else
+        // {
+        //     GL.uniform1i(shader.Material!.HasImageMap, 0)
+        //     GL.activeTexture(GL.TEXTURE0)
+        //     GL.bindTexture(GL.TEXTURE_2D, null)
+        // }
 
-        if (material.NormalTexture)
-        {
-            GL.activeTexture(GL.TEXTURE1)
-            GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
-            GL.uniform1i(shader.Material!.BumpSampler, 0)
-        }
-        else
-        {
-            GL.activeTexture(GL.TEXTURE1)
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
+        // if (material.NormalTexture)
+        // {
+        //     GL.activeTexture(GL.TEXTURE1)
+        //     GL.bindTexture(GL.TEXTURE_2D, material.NormalTexture)
+        //     GL.uniform1i(shader.Material!.BumpSampler, 0)
+        // }
+        // else
+        // {
+        //     GL.activeTexture(GL.TEXTURE1)
+        //     GL.bindTexture(GL.TEXTURE_2D, null)
+        // }
 
-        if (material.SpecularTexture)
-        {
-            GL.activeTexture(GL.TEXTURE2)
-            GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
-            GL.uniform1i(shader.Material!.SpecularSampler, 0)
-        }
-        else
-        {
-            GL.activeTexture(GL.TEXTURE2)
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
+        // if (material.SpecularTexture)
+        // {
+        //     GL.activeTexture(GL.TEXTURE2)
+        //     GL.bindTexture(GL.TEXTURE_2D, material.SpecularTexture)
+        //     GL.uniform1i(shader.Material!.SpecularSampler, 0)
+        // }
+        // else
+        // {
+        //     GL.activeTexture(GL.TEXTURE2)
+        //     GL.bindTexture(GL.TEXTURE_2D, null)
+        // }
     }
 }
 

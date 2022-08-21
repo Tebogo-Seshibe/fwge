@@ -1,5 +1,5 @@
 import { Colour4 } from "@fwge/common"
-import { BasicLitMaterial, Material, RenderMode, RenderType, Shader } from "@fwge/core"
+import { BasicLitMaterial, Material, RenderType, Shader } from "@fwge/core"
 import { ILoader } from "./ILoader"
 
 export type MTLKey = 'newmtl' 

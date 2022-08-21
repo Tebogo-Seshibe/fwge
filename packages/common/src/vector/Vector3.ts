@@ -1,6 +1,8 @@
 import { root_3 } from "../constants"
-import { NumberArray } from "../types"
+import { FixedLengthArray, NumberArray } from "../types"
 import { Vector2 } from "./Vector2"
+
+export type Vector3Array = FixedLengthArray<number, 3>
 
 export class Vector3 extends Float32Array
 {

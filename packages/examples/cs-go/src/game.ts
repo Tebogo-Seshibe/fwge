@@ -1,9 +1,10 @@
-import { Game } from '@fwge/core'
+import { BasicLitMaterial, Game, RenderType } from '@fwge/core'
 import { basicShader, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders'
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
-import { createBasicMaterial } from './components/Materials'
+import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
 import { Round } from './scenes'
+import { SolarSystem } from './scenes/SolarSystem'
 
 export class CSGO extends Game
 {
@@ -18,7 +19,8 @@ export class CSGO extends Game
                 // MainMenu,
                 // LoadingScreen,
                 // Credits,
-                Round,
+                // Round,
+                SolarSystem,
                 // Test
             ],
             components: [
@@ -26,6 +28,20 @@ export class CSGO extends Game
                 { name: 'PlaneMaterial', create: createBasicMaterial },
                 { name: 'BasicAnimation', create: basicAnimation },
                 { name: 'MTL Cube', create: mtlCube },
+                { name: 'Basis Lit Material', create()
+                {
+                    return new BasicLitMaterial(
+                    {
+                        shininess: 32,
+                        imagemap: '/img/8k_earth_daymap.jpg',
+                        normalmap: '/img/8k_earth_normal_map.png',
+                        colour: [ Math.random(), Math.random(), Math.random() ],
+                        shader: basicShader(),
+                        renderType: RenderType.OPAQUE,
+                        alpha: 1.0
+                    })
+                } },
+                { name: 'Default BSDF', create: createPrincipledBSDFMaterial },
             ],
             assets: [
                 { name: 'Cube', create: createCube },
@@ -37,7 +53,7 @@ export class CSGO extends Game
                 { name: 'Basic Shader 2', create: createBasicShader },
                 { name: 'Default Shader', create: createDefaultShader },
             ],
-            startupScene: Round
+            startupScene: SolarSystem
         })
     }
 }

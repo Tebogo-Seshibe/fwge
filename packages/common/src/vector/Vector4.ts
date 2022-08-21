@@ -1,5 +1,7 @@
-import { NumberArray } from "../types"
+import { FixedLengthArray, NumberArray } from "../types"
 import { Vector3 } from "./Vector3"
+
+export type Vector4Array = FixedLengthArray<number, 4>
 
 export class Vector4 extends Float32Array
 {

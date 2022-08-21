@@ -111,10 +111,10 @@ export class Scene extends RegistryType
 
     //#region Entity Logic
     public CreateEntity(): Entity
-    public CreateEntity<T extends Entity>(constructor: Constructor<T, [Scene]>): T
-    public CreateEntity<T extends Entity>(constructor?: Constructor<T, [Scene]>): T
+    public CreateEntity<T extends Entity, U extends any[]>(constructor: Constructor<T, [Scene, ...U]>, ...args: U): T
+    public CreateEntity<T extends Entity, U extends any[]>(constructor?: Constructor<T, [Scene, ...U]>, ...args: U): T
     {
-        const entity = constructor ? new constructor(this) : new Entity(this)
+        const entity = constructor ? new constructor(this, ...args) : new Entity(this)
         this.Entities.set(entity.Id, entity)
         entity.OnCreate()
         this.OnEntity(entity)

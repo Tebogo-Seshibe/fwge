@@ -104,9 +104,10 @@ export class MouseInputHandler
     {
         e.preventDefault()
 
-        if (this._isMoving)
+        if (this._isMoving !== undefined)
         {
             clearTimeout(this._isMoving)
+            this._isMoving = undefined
         }
         this._isMoving = setTimeout(() => this._reset(), this._delta)
         
@@ -125,9 +126,10 @@ export class MouseInputHandler
     {
         e.preventDefault()
 
-        if (this._isMoving)
+        if (this._isMoving !== undefined)
         {
             clearTimeout(this._isMoving)
+            this._isMoving = undefined
         }
         this._isMoving = setTimeout(() => this._reset(), this._delta)
 

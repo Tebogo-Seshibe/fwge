@@ -7,7 +7,7 @@ import { GameObject } from "./GameObject"
 
 export class FPSController extends GameObject
 {    
-    readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45 })
+    readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45, farClipping: 1000 })
     readonly cameraTransform: Transform = new Transform({ position: [0, 2, 0] })
     
     readonly up: Vector3 = Vector3.Zero
@@ -29,7 +29,7 @@ export class FPSController extends GameObject
 
     override OnCreate(): void
     {
-        this.transform.Position.Z = 5
+        this.transform.Position.Z = 50
 
         this.rigidbody = new RigidBody({ mass: 5 })
         this.collider = new CubeCollider(
@@ -63,7 +63,7 @@ export class FPSController extends GameObject
         const ePressed = Keyboard.KeyE !== KeyState.RELEASED && Keyboard.KeyE !== KeyState.UP
         const shiftPressed = Keyboard.KeyShift !== KeyState.RELEASED && Keyboard.KeyShift !== KeyState.UP
         const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
-        
+
         Vector2.Scale(Mouse.Offset, this.turnSpeed * delta, this.rotationDelta)
         this.transform.Rotation.Y += this.rotationDelta.X
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + this.rotationDelta.Y, -80, 80)

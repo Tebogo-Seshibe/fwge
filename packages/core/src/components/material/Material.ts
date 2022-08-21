@@ -13,31 +13,42 @@ export enum BlendMode
 export enum RenderType
 {
     OPAQUE,
-    TRANSPARENT
-}
-
-export enum BlendMode
-{
-
+    TRANSPARENT,
+    EMISSIVE
 }
 
 export interface IMaterial
 {
     shader: Shader
-    renderType: RenderType
+    renderType?: RenderType
 }
 
 export class Material extends SharedComponent
 {
+    static Empty: WebGLTexture
+
     Shader: Shader
     RenderType: RenderType
-    readonly Textures: Array<WebGLTexture | null> = new Array(16).fill(null)
+    readonly Colour: Colour3 = new Colour3(0.8)
+    readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
 
     constructor(shader: Shader, renderType?: RenderType)
     {
         super(Material)
+
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
+
+        if (!Material.Empty)
+        {
+            Material.Empty = GL.createTexture()!
+            GL.bindTexture(GL.TEXTURE_2D, Material.Empty)
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+            GL.generateMipmap(GL.TEXTURE_2D)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+            GL.bindTexture(GL.TEXTURE_2D, null)            
+        }
     }
     
     protected applyImage(texture: WebGLTexture, src: string): void
@@ -48,6 +59,7 @@ export class Material extends SharedComponent
         const img: HTMLImageElement = new Image()
         img.onload = () =>
         {
+            setTimeout(() => {
             GL.bindTexture(GL.TEXTURE_2D, texture)
             GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
     
@@ -65,7 +77,8 @@ export class Material extends SharedComponent
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
             }
     
-            GL.bindTexture(GL.TEXTURE_2D, null);
+            GL.bindTexture(GL.TEXTURE_2D, null)
+            })
         }
     
         img.src = src

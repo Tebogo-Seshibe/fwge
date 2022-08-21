@@ -1,7 +1,7 @@
-import { Class, Component, Entity, Game, Prefab, RenderSystem, Scene, Script, ScriptSystem, System, Tag, Transform } from "@fwge/core"
+import { AreaLight, Camera, Class, Component, DirectionalLight, Entity, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, System, Tag, Transform } from "@fwge/core"
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
-import { AreaLight, Camera, DirectionalLight, DynamicMesh, Material, ParticleSpawner, PointLight, ShaderAsset, SpotLight, StaticMesh } from "@fwge/render"
+import { ParticleSpawner } from "@fwge/render"
 import exampleScene from './example.scene'
 import { ILoader } from "./ILoader"
 
@@ -78,10 +78,10 @@ TypeMappers.set('AreaLight', AreaLight)
 TypeMappers.set('DirectionalLight', DirectionalLight)
 TypeMappers.set('PointLight', PointLight)
 TypeMappers.set('SpotLight', SpotLight)
-TypeMappers.set('DynamicMesh', DynamicMesh)
+// TypeMappers.set('DynamicMesh', DynamicMesh)
 TypeMappers.set('StaticMesh', StaticMesh)
 TypeMappers.set('ParticleSpawner', ParticleSpawner)
-TypeMappers.set('ShaderAsset', ShaderAsset)
+TypeMappers.set('ShaderAsset', Shader)
 TypeMappers.set('Camera', Camera)
 TypeMappers.set('Material', Material)
 
@@ -152,13 +152,6 @@ export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
         scenes.push(newScene)
     }
 
-
-    console.log(newGame)
-    console.log(components)
-    console.log(entities)
-    console.log(systems)
-    console.log(scenes)
-    
     return scenes
     // const config = JSON.parse(src) as GameConfig
     // return scene

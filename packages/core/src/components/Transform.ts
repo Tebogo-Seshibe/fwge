@@ -1,4 +1,4 @@
-import { Matrix4, Vector3 } from '@fwge/common'
+import { Matrix3, Matrix4, Vector3 } from '@fwge/common'
 import { UniqueComponent } from '../ecs/Component'
 
 export interface ITransform
@@ -13,6 +13,88 @@ export class Transform extends UniqueComponent
     public readonly Position: Vector3
     public readonly Rotation: Vector3
     public readonly Scale: Vector3
+
+    SetPosition(xyz: number): void
+    SetPosition(x: number, y: number, z: number): void
+    SetPosition(array: [number, number, number]): void
+    SetPosition(vector: Vector3): void
+    SetPosition(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    {
+        if (_1 === undefined || _2 === undefined)
+        {
+            this.Position.Add(_0 as [number, number, number])
+        }
+        else
+        {
+            
+            this.Position.Add(_0 as number, _1, _2)
+        }
+    }
+
+    SetRotation(xyz: number): void
+    SetRotation(x: number, y: number, z: number): void
+    SetRotation(array: [number, number, number]): void
+    SetRotation(vector: Vector3): void
+    SetRotation(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    {
+        if (_1 === undefined || _2 === undefined)
+        {
+            this.Position.Add(_0 as [number, number, number])
+        }
+        else
+        {
+            
+            this.Position.Add(_0 as number, _1, _2)
+        }
+    }
+
+    SetScale(axis: number): void
+    SetScale(axisX: number, axisY: number, axisZ: number): void
+    SetScale(axis: [number, number, number]): void
+    SetScale(axis: Vector3): void
+    SetScale(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    {
+        if (_1 === undefined || _2 === undefined)
+        {
+            this.Scale.Add(_0 as [number, number, number])
+        }
+        else
+        {
+            
+            this.Scale.Add(_0 as number, _1, _2)
+        }
+    }
+
+    RotateAroundAxis(xyz: number, angle: number): void
+    RotateAroundAxis(x: number, y: number, z: number, angle: number): void
+    RotateAroundAxis(array: [number, number, number], angle: number): void
+    RotateAroundAxis(vector: Vector3, angle: number): void
+    RotateAroundAxis(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number, _3?: number): void
+    {
+        let mat: Matrix3
+        if (typeof _0 === 'number')
+        {
+            if (_2 === undefined || _3 === undefined)
+            {
+                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number)
+            }
+            else
+            {
+                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
+            }
+        }
+        else
+        {
+            mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
+        }
+        Matrix3.MultiplyVector(mat, this.Position, this.Position)
+        
+        // Matrix3.MultiplyVector(
+        //     Matrix3.RotationMatrixAroundAxis(0,1,0, this.orbit),
+        //     this.transform.Position,
+        //     this.transform.Position
+        // )
+    }
 
     GlobalPosition(): Vector3
     GlobalPosition(position: Vector3): Vector3

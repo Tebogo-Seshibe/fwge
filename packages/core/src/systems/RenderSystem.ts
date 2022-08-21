@@ -24,8 +24,8 @@ export class RenderSystem extends System
     
     // projection = Matrix4.OrthographicProjectionMatrix(-50, 50, 50)
     projection = Matrix4.OrthographicProjection(
-        [-25, -25, -25],
-        [ 25,  25,  25],
+        [-65, -65, -65],
+        [ 65,  65,  65],
         [ 90, 90]
     ).Transpose()
     modelview = Matrix4.TransformationMatrix(
@@ -145,10 +145,39 @@ export class RenderSystem extends System
             uniform sampler2D U_RenderImage;
             uniform sampler2D U_DepthImage;
 
+            vec3 acesToneMapping(vec3 colour)
+            {
+                // return colour;
+                const float slope = 12.0;
+                const float a = 2.51;
+                const float b = 0.03;
+                const float c = 2.43;
+                const float d = 0.59;
+                const float e = 0.14;
+            
+                vec4 x = vec4(colour, (colour.r * 0.299) + (colour * 0.587) + (colour * 0.0114));
+                vec4 tonemap = clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+                float t = x.a;
+                t = t * t / (slope + t);
+            
+                return mix(tonemap.rgb, tonemap.aaa, t);
+            }
+
+            vec3 Gamma(vec3 colour)
+            {
+                // float gamma = 1.0/2.2;
+                // colour.x = pow(colour.x, gamma);
+                // colour.y = pow(colour.y, gamma);
+                // colour.z = pow(colour.z, gamma);
+                return colour;
+            }
+
             void main(void)
             {
-                O_FragColour = texture(U_DepthImage, V_UV).rrrr;
+                // O_FragColour = texture(U_DepthImage, V_UV).rrrr;
                 O_FragColour = texture(U_RenderImage, V_UV);
+                // O_FragColour.rgb = Gamma(O_FragColour.rgb);
+                // O_FragColour.rgb = acesToneMapping(O_FragColour.rgb);
                 // O_FragColour = vec4(1.0);
             }`
         )
@@ -185,13 +214,14 @@ export class RenderSystem extends System
 
         this.defaultRenderTarget.Bind()
         this.shader.Bind()
-        this.shader.SetTexture(0, 'U_RenderImage' , this.renderTarget.ColourAttachments[0])
-        this.shader.SetTexture(1, 'U_DepthImage', this.shadowRenderTarget.DepthAttachment!)
+        this.shader.SetTexture('U_RenderImage', this.renderTarget.ColourAttachments[0])
+        this.shader.SetTexture('U_DepthImage', this.shadowRenderTarget.DepthAttachment!)
 
         GL.bindVertexArray(this.plane.VertexArrayBuffer)
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.plane.FaceBuffer)
         GL.drawElements(GL.TRIANGLES, this.plane.FaceCount, GL.UNSIGNED_BYTE, 0)
         GL.bindVertexArray(null)
+        this.shader.UnBind()
         this.defaultRenderTarget.UnBind()
         
     }
@@ -210,13 +240,8 @@ export class RenderSystem extends System
             this._bindShader(material, projection, modelview) 
             if (!this.projection.Equals(projection))         
             {
-                material.Shader.SetMatrix(
-                    'U_LightSpaceMatrix',
-                    Matrix4.Multiply(this.projection, this.modelview)
-                )
-                GL.activeTexture(GL.TEXTURE7)
-                GL.bindTexture(GL.TEXTURE_2D, this.shadowRenderTarget.DepthAttachment)
-                material.Shader.SetInt('U_ShadowMap', 7)
+                material.Shader.SetMatrix('U_LightSpaceMatrix', Matrix4.Multiply(this.projection, this.modelview))
+                material.Shader.SetTexture('U_Sampler.ShadowMap', this.shadowRenderTarget.DepthAttachment!)
             }
 
             for (const [rendererId, transforms] of renderers)
@@ -303,28 +328,21 @@ export class RenderSystem extends System
         shader.SetMatrix('U_Matrix.Projection', projection, true)
 
         let point_count: number = 0
+        let directional_count: number = 0
         for (let light of this._lights)
         {
             if (light instanceof PointLight)
             {
-                light.Bind(shader, point_count)
-                // shader.SetFloatVector(`U_PointLight[${point_count}].Ambient`, light.Ambient)
-                // shader.SetFloatVector(`U_PointLight[${point_count}].Diffuse`, light.Diffuse)
-                // shader.SetFloatVector(`U_PointLight[${point_count}].Specular`, light.Specular)
-                // shader.SetFloat(`U_PointLight[${point_count}].Radius`, light.Radius)
-                // shader.SetFloat(`U_PointLight[${point_count}].Intensity`, light.Intensity)
-                // shader.SetFloatVector(`U_PointLight[${point_count}].Position`, light.Owner!.GetComponent(Transform)!.GlobalPosition())
+                light.Bind(shader, point_count++)
             }
             else if (light instanceof DirectionalLight)
             {
-                light.Bind(shader, 0)
-                // shader.SetFloatVector(`U_DirectionalLight.Ambient`, light.Ambient)
-                // shader.SetFloatVector(`U_DirectionalLight.Diffuse`, light.Diffuse)
-                // shader.SetFloatVector(`U_DirectionalLight.Specular`, light.Specular)
-                // shader.SetFloat(`U_DirectionalLight.Intensity`, light.Intensity)
-                // shader.SetFloatVector(`U_DirectionalLight.Direction`, Vector3.Negate(light.Direction).Normalize())
+                light.Bind(shader, directional_count++)
             }
-            point_count++
+            else
+            {
+                light.Bind(shader)
+            }
         }
     }
 

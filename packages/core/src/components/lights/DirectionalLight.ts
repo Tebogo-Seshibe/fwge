@@ -30,7 +30,7 @@ export class DirectionalLight extends Light
         this.Direction = Vector3.Normalize(light.direction as [number, number, number] ?? [0,-1,-1])
     }
 
-    override Bind(shader: Shader, _: number): void
+    override Bind(shader: Shader, index?: number): void
     {
         shader.SetFloatVector(`U_DirectionalLight.Colour`, this.Colour)
         shader.SetFloat(`U_DirectionalLight.Intensity`, this.Intensity)

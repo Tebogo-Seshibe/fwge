@@ -1,5 +1,5 @@
 import { Colour4, Vector2, Vector3 } from "@fwge/common"
-import { StaticMesh } from "@fwge/render"
+import { StaticMesh } from "@fwge/core"
 import { ILoader, OBJKey, OBJObject } from "./ILoader"
 
 export type OBJ = { [name: string]:  {  mesh: StaticMesh, material: string } }

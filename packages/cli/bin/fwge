@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+
+const { program, Argument, createArgument } = require('commander')
+const { 
+    newGame,
+    addAsset,
+    addComponent,
+    addEntity,
+    addScene,
+    addSystem
+} = require('../lib')
+
+program.version('0.0.1')
+
+program.command('new')
+        .description('Creates a new project')
+        .argument('<project-name>')
+        .action(newGame)
+
+program.command('run')
+        .description('Runs the game locally')
+
+program.command('build')
+        .description('Builds the game')
+        
+program.command('add')
+    .description('Used to add a unit to the game')
+    .addArgument(
+        new Argument('type')
+        .choices([
+            'asset',
+            'component',
+            'entity',
+            'scene',
+            'system'
+        ])
+    )
+    .argument('<name>')    
+    .action((type, name) => {
+        switch (type) {
+            case 'asset':
+                addAsset(name)
+                break
+
+            case 'component':
+                addComponent(name)
+                break
+
+            case 'entity':
+                addEntity(name)
+                break
+
+            case 'scene':
+                addScene(name)
+                break
+
+            case 'system':
+                addSystem(name)
+                break
+        }
+    })
+
+program.parse()

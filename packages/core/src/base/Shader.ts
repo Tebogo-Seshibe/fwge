@@ -9,6 +9,9 @@ export class Shader extends Asset
     private _vertexSource: string | null = null
     private _fragmentSource: string | null = null
 
+    private _samplerIndex: number = 0
+    private _maxSamplerIndex: number = 15
+
     public readonly Inputs: Map<string, WebGLUniformLocation | null> = new Map()
     
     get Program(): WebGLProgram | null
@@ -194,10 +197,11 @@ export class Shader extends Asset
 
     UnBind(): void
     {
+        this._samplerIndex = 0
         GL.useProgram(null)
     }
 
-    SetTexture(index: number, name: string, texture: WebGLTexture): void
+    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false): void
     {
         const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
         if (!location)
@@ -205,9 +209,20 @@ export class Shader extends Asset
             return
         }
 
-        GL.uniform1i(location, index)
-        GL.activeTexture(GL.TEXTURE0 + index)
-        GL.bindTexture(GL.TEXTURE_2D, texture)
+        const samplerIndex = this._samplerIndex++
+        if (samplerIndex > this._maxSamplerIndex)
+        {
+            throw new Error('Too many textures attached')
+        }
+
+        GL.uniform1i(location, samplerIndex)
+        GL.activeTexture(GL.TEXTURE0 + samplerIndex)
+        GL.bindTexture(is3D ? GL.TEXTURE_3D : GL.TEXTURE_2D, texture)
+
+        if (!this.Inputs.has(name))
+        {
+            this.Inputs.set(name, location)
+        }
     }
 
     SetBool(name: string, bool: boolean): void
@@ -219,6 +234,11 @@ export class Shader extends Asset
         }
         
         GL.uniform1i(location, bool ? 1 : 0)
+
+        if (!this.Inputs.has(name))
+        {
+            this.Inputs.set(name, location)
+        }
     }
     
     SetInt(name: string, int: number, unsigned: boolean = false): void
@@ -237,6 +257,11 @@ export class Shader extends Asset
         {
             GL.uniform1i(location, int)
         }
+
+        if (!this.Inputs.has(name))
+        {
+            this.Inputs.set(name, location)
+        }
     }
 
     SetFloat(name: string, float: number): void
@@ -248,6 +273,11 @@ export class Shader extends Asset
         }
         
         GL.uniform1f(location, float)
+
+        if (!this.Inputs.has(name))
+        {
+            this.Inputs.set(name, location)
+        }
     }
     
     SetIntVector(name: string, vector: Vector2): void
@@ -359,6 +389,11 @@ export class Shader extends Asset
             }
             break
         }
+
+        if (!this.Inputs.has(_0))
+        {
+            this.Inputs.set(_0, location)
+        }
     }
     
     SetFloatVector(name: string, vector: Vector2): void
@@ -423,6 +458,11 @@ export class Shader extends Asset
                 break        
             }
         }
+
+        if (!this.Inputs.has(_0))
+        {
+            this.Inputs.set(_0, location)
+        }
     }
     
     SetMatrix(name: string, matrix: Matrix2): void
@@ -456,6 +496,11 @@ export class Shader extends Asset
             case 16:
                 GL.uniformMatrix4fv(location, tranpose, matrix)            
             break
+        }
+
+        if (!this.Inputs.has(name))
+        {
+            this.Inputs.set(name, location)
         }
     }
 }

@@ -1,22 +1,22 @@
 {
-    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "rootDir": "./src",
+        "target": "ES5",
+        "declaration": true,
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "noImplicitAny": true,
+        "experimentalDecorators": true,
+        "strict": true,
         "outDir": "./lib",
+        "allowJs": false,
+        "watch": true
     },
-    "exclude": [
-        "./lib",
-        "./**/*.test.ts"
+    "compileOnSave": true,
+    "include": [
+        "./src",
     ],
-    "references": [
-        { "path": "../animation" },
-        { "path": "../audio" },
-        { "path": "../common" },
-        { "path": "../core" },
-        { "path": "../input" },
-        { "path": "../io" },
-        { "path": "../physics" },
-        { "path": "../render" },
-        { "path": "../ui" }
+    "exclude": [
+        "./node_modules",
+        "./dist"
     ]
 }

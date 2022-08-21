@@ -1,7 +1,9 @@
-import { NumberArray } from "../types"
+import { FixedLengthArray, NumberArray } from "../types"
 import { radian } from "../utils"
 import { Vector3 } from "../vector"
 import { Matrix4 } from "./Matrix4"
+
+export type Matrix3Array = FixedLengthArray<number, 9>
 
 export class Matrix3 extends Float32Array
 {
@@ -655,7 +657,45 @@ export class Matrix3 extends Float32Array
             (_0[3] * vec[0]) + (_0[4] * vec[1]) + (_0[5] * vec[2]),
             (_0[6] * vec[0]) + (_0[7] * vec[1]) + (_0[8] * vec[2])
         )
-    }    
+    }
+    
+    static RotationMatrixAroundAxis(xyz: number, angle: number): Matrix3
+    static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix3): Matrix3
+    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix3
+    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix3): Matrix3
+    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number): Matrix3
+    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number, out: Matrix3): Matrix3
+    static RotationMatrixAroundAxis(axis: Vector3, angle: number): Matrix3
+    static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix3): Matrix3
+    static RotationMatrixAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: Matrix3 | number, _3?: number, _4?: Matrix3): Matrix3
+    {
+        const out = _4 ?? _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3()
+        const axis = typeof _0 === 'number'
+            ? (_3 ? [_0, _1 as number, _2 as number] : [_0, _0, _0])
+            : _0
+        const rotation = typeof _0 === 'number'
+            ? _3 ?? _1
+            : _1
+
+        const angle = radian(rotation)
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+        const inv_cos = 1 - cos
+
+        return out.Set(
+            (cos) + (axis[0] * axis[0] * inv_cos),
+            (axis[0] * axis[1] * inv_cos) - (axis[2] * sin),
+            (axis[0] * axis[2] * inv_cos) + (axis[1] * sin),
+
+            (axis[1] * axis[0] * inv_cos) + (axis[2] * sin),
+            (cos) + (axis[1] * axis[1] * inv_cos),
+            (axis[1] * axis[2] * inv_cos) - (axis[0] * sin),
+
+            (axis[2] * axis[0] * inv_cos) - (axis[1] * sin),
+            (axis[2] * axis[1] * inv_cos) + (axis[0] * sin),
+            (cos) + (axis[2] * axis[2] * cos),
+        )
+    }
 
     static RotationMatrix(xyz: number): Matrix3
     static RotationMatrix(xyz: number, out: Matrix3): Matrix3

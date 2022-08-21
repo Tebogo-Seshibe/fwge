@@ -1,4 +1,5 @@
 export * from './FBXLoader'
 export * from './MTLLoader'
+export * from './GLTFLoader'
 export * from './OBJLoader'
 export * from './GameLoader'

@@ -1,6 +1,8 @@
 import { root_2 } from "../constants"
-import { NumberArray } from "../types"
+import { FixedLengthArray, NumberArray } from "../types"
 import { radian } from "../utils"
+
+export type Vector2Array = FixedLengthArray<number, 2>
 
 export class Vector2 extends Float32Array
 {
@@ -432,9 +434,9 @@ export class Vector2 extends Float32Array
     }    
 
     static Distance(vector1: Vector2, vector2: Vector2): number
-    static Distance(array1: NumberArray, array2: NumberArray): number
+    static Distance(array1: Vector2Array, array2: Vector2Array): number
     static Distance(x1: number, y1: number, x2: number, y2: number): number
-    static Distance(_0: Vector2 | NumberArray | number, _1: Vector2 | NumberArray | number, _2?: number, _3?: number): number
+    static Distance(_0: Vector2 | Vector2Array | number, _1: Vector2 | Vector2Array | number, _2?: number, _3?: number): number
     {
         let x: number
         let y: number

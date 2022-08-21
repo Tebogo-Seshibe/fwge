@@ -1,4 +1,5 @@
 import { Colour3, GL, Vector3 } from "@fwge/common"
+import { Image2D } from "../../base/image"
 import { IMaterial, Material } from "./Material"
 
 export interface IBasicLitMaterial extends IMaterial
@@ -26,6 +27,8 @@ export class BasicLitMaterial extends Material
     readonly Diffuse: Colour3 = new Colour3(0.75)
     readonly Specular: Colour3 = new Colour3(1.00)
 
+    AmbientTexture: Image2D = new Image2D()
+
     get HasImageMap()
     {
         return this.Textures[0] !== null
@@ -43,6 +46,7 @@ export class BasicLitMaterial extends Material
         {
             this.Textures[0] = GL.createTexture()!
             this.applyImage(this.Textures[0], src)
+            this.AmbientTexture.Load(src)
         }
         else 
         {
@@ -139,20 +143,33 @@ export class BasicLitMaterial extends Material
         shader.SetFloatVector('U_Material.Ambient', this.Ambient)
         shader.SetFloatVector('U_Material.Diffuse', this.Diffuse)
         shader.SetFloatVector('U_Material.Specular', this.Specular)
+        shader.SetFloatVector('U_Material.Colour', this.Colour)
 
         if (this.Textures[0])
         {
-            shader.SetTexture(0, 'U_Sampler.Image', this.Textures[0])
+            shader.SetTexture('U_Sampler.Image', this.Textures[0])
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Image', Material.Empty)
         }
 
         if (this.Textures[1])
         {
-            shader.SetTexture(1, 'U_Sampler.Bump', this.Textures[1])
+            shader.SetTexture('U_Sampler.Bump', this.Textures[1])
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Bump', Material.Empty)
         }
 
         if (this.Textures[2])
         {
-            shader.SetTexture(2, 'U_Sampler.Shadow', this.Textures[2])
-        }        
+            shader.SetTexture('U_Sampler.Shadow', this.Textures[2])
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Shadow', Material.Empty)
+        }       
     }
 }

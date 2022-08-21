@@ -49,16 +49,14 @@ struct Sampler
 {
     sampler2D Image;
     sampler2D Bump;
-    sampler2D Shadow;
+    sampler2D ShadowMap;
 };
 uniform Sampler U_Sampler;
-uniform sampler2D U_ShadowMap;
-
 
 
 float ShadowWeight(float diffuseDot)
 {
-    float offset = 1.0/1024.0;
+    float offset = 0.01;
     float bias = max(offset * (1.0 - diffuseDot), offset);
     vec3 lightPosition = V_LightPosition.xyz * 0.5 + 0.5;
     if (lightPosition.z > 1.0)
@@ -67,40 +65,23 @@ float ShadowWeight(float diffuseDot)
     }
 
     float shadow = 0.0;
-    vec2 texelSize = vec2(1 / textureSize(U_ShadowMap, 0));
+    vec2 texelSize = vec2(1 / textureSize(U_Sampler.ShadowMap, 0));
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float shadowDepth = texture(U_ShadowMap, lightPosition.xy + vec2(x, y) * texelSize).r;
+            vec2 offset = vec2(x, y) * texelSize;
+            float shadowDepth = texture(U_Sampler.ShadowMap, lightPosition.xy + offset).r;
             shadow += (shadowDepth + bias) < lightPosition.z ? 0.0 : 1.0;
         }
     }
-    // shadow = max(shadow, 0.0);
     return shadow / 9.0;
 }
 
-vec3 acesToneMapping(vec3 colour)
+
+float DiffuseWeight(vec3 normal, vec3 lightDirection)
 {
-    return colour;
-    const float slope = 12.0;
-    const float a = 2.51;
-    const float b = 0.03;
-    const float c = 2.43;
-    const float d = 0.59;
-    const float e = 0.14;
-
-    vec4 x = vec4(colour, (colour.r * 0.299) + (colour * 0.587) + (colour * 0.0114));
-    vec4 tonemap = clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
-    float t = x.a;
-    t = t * t / (slope + t);
-
-    return mix(tonemap.rgb, tonemap.aaa, t);
-}
-
-float DiffuseWeight(vec3 lightDirection)
-{
-    float diffuseDot = dot(V_Normal, lightDirection);
+    float diffuseDot = dot(normal, lightDirection);
     float diffuseWeight = max(diffuseDot, 0.0);
     float shadowWeight = ShadowWeight(diffuseDot);
 
@@ -110,17 +91,21 @@ float DiffuseWeight(vec3 lightDirection)
 
 void main(void)
 {
-    vec3 directionalDiffuse = DiffuseWeight(U_DirectionalLight.Direction) * (U_DirectionalLight.Colour * U_Material.Diffuse * U_DirectionalLight.Intensity);
+    vec3 normal = normalize(V_Normal * texture(U_Sampler.Bump, V_UV).xyz);
+
+    float directionalShadow = DiffuseWeight(normal, U_DirectionalLight.Direction);
+    vec3 directionalDiffuse =(U_DirectionalLight.Colour * U_DirectionalLight.Intensity);
     
     vec4 tex = texture(U_Sampler.Image, V_UV);
-    vec3 ambient = tex.rgb * U_Material.Ambient;
-    vec3 diffuse = directionalDiffuse;
-    // vec3 specular = vec3(0.0);
+    vec3 ambient = tex.rgb * U_Material.Colour;
+    vec3 diffuse = directionalShadow * directionalDiffuse;
+    vec3 specular = vec3(0.0);
+    float alpha = U_Material.Alpha * tex.a;
     
 
     // vec3 pointDiffuse = Diffuse(U_PointLight.Position) * U_DirectionalLight.Diffuse;
 
 
-    O_FragColour = vec4(acesToneMapping(ambient + diffuse), tex.a);
-    // O_FragColour = vec4(objectColour, 1.0);
+    O_FragColour = vec4(ambient + diffuse + specular, alpha);
+    // O_FragColour = vec4(normal, 1.0);
 }

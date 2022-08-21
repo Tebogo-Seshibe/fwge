@@ -17,5 +17,7 @@ export class Light extends UniqueComponent
         super(Light)
     }
 
-    Bind(shader: Shader, index: number) {}
+    Bind(shader: Shader): void
+    Bind(shader: Shader, index: number): void
+    Bind(shader: Shader, index?: number): void {}
 }

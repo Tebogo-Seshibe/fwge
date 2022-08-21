@@ -16,7 +16,7 @@ export class FullScreen extends GameObject
         this.light = new DirectionalLight(
         {
             direction: [0, -1, 0],
-            intensity: 5
+            intensity: 2
         })
 
         this.canvas = GL.canvas

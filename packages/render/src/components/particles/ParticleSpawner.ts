@@ -1,8 +1,8 @@
 import { Colour4, GL, Vector2, Vector3 } from "@fwge/common"
-import { UniqueComponent } from "@fwge/core"
-import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "../../constants"
-import { Material } from "../Material"
-import { Mesh, StaticMesh } from "../mesh"
+import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE
+ ,Material 
+ ,Mesh, StaticMesh
+ ,UniqueComponent } from "@fwge/core"
 
 type UpdateVectorMethod = (inVec: Vector3, outVec: Vector3, index: number, t: number) => void
 type UpdateColourMethod = (inVec: Colour4, outVec: Colour4, index: number, t: number) => void
@@ -163,7 +163,7 @@ export class ParticleSpawner extends UniqueComponent
 
         if (!ParticleSpawner._defaultMaterial)
         {
-            ParticleSpawner._defaultMaterial = new Material()
+            ParticleSpawner._defaultMaterial = new Material(null!)
         }
 
         return ParticleSpawner._defaultMaterial

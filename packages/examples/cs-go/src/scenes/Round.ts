@@ -1,20 +1,26 @@
-import { Game, Scene, RenderSystem, ScriptSystem, Shader, Tag, Transform, Script, Entity, Material, Renderer, RenderMode } from "@fwge/core"
+import { AreaLight, Entity, Game, Material, RenderSystem, Scene, Script, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
-import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
+// import { GLTFLoader, MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
 import { FPSController } from "../entities"
-import { Cube } from "../entities/Cube"
 import { FullScreen } from "../entities/FullScreen"
+// import sponzaMTL from '/public/objects/sponza/sponza.mtl?raw'
+// import sponzaOBJ from '/public/objects/sponza/sponza.obj?raw'
+// import sponza_pbrMTL from '/public/objects/sponza_pbr/sponza_pbr.mtl?raw'
+// import sponza_pbrOBJ from '/public/objects/sponza_pbr/sponza_pbr.obj?raw'
+// import garageMTL from '/public/objects/garage/garage.mtl?raw'
+// import garageOBJ from '/public/objects/garage/garage.obj?raw'
+// import shapesMTL from '/public/objects/shapes/shapes.mtl?raw'
+// import shapesOBJ from '/public/objects/shapes/shapes.obj?raw'
+// import helipadMTL from '/public/objects/helipad/helipad.mtl?raw'
+// import helipadOBJ from '/public/objects/helipad/helipad.obj?raw'
+// import sponza_glb from '/public/objects/sponza-gltf-pbr/sponza.glb?raw'
+// import ps2_gltf from '/public/objects/ps2/ps2.gltf?raw'
+// import ps2_bin from '/public/objects/ps2/ps2.bin?raw'
+// import cube_2_bin from '/public/objects/cube_2/cube_2.bin?raw'
+// import cube_2_gltf from '/public/objects/cube_2/cube_2.gltf?raw'
+// import triangle_gltf from '/public/objects/triangle/triangle.gltf?raw'
 import { Platform } from "../entities/Platform"
-import { ColliderRenderSystem } from "../systems/ColliderRenderSystem"
-import sponzaMTL from '/public/objects/sponza/sponza.mtl?raw'
-import sponzaOBJ from '/public/objects/sponza/sponza.obj?raw'
-import garageMTL from '/public/objects/garage/garage.mtl?raw'
-import garageOBJ from '/public/objects/garage/garage.obj?raw'
-import shapesMTL from '/public/objects/shapes/shapes.mtl?raw'
-import shapesOBJ from '/public/objects/shapes/shapes.obj?raw'
-import helipadMTL from '/public/objects/helipad/helipad.mtl?raw'
-import helipadOBJ from '/public/objects/helipad/helipad.obj?raw'
-import { randBetween } from "@fwge/common"
+import { Cube } from "../entities/Cube"
 export class Round extends Scene
 {
     fpsCounterDiv!: HTMLDivElement
@@ -25,8 +31,8 @@ export class Round extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                // Platform,
-                // ...new Array(500).fill(Cube),
+                Platform,                
+                ...new Array(1).fill(Cube),
                 // OBJMTLPrefabBuilder(
                 //     OBJLoader(shapesOBJ),
                 //     MTLLoader(shapesMTL, game.GetAsset('Basic Shader', Shader))
@@ -39,7 +45,6 @@ export class Round extends Scene
                 // {
                 //     start()
                 //     {
-                //         console.log(this);
                 //         (this as Entity).Children.forEach(child =>
                 //         {
                 //             const r = Math.random()
@@ -70,7 +75,6 @@ export class Round extends Scene
                 // {
                 //     start()
                 //     {
-                //         console.log(this);
                 //         (this as Entity).Children.forEach(child => {
                 //             const renderer = child.GetComponent(Renderer)
                 //             if (renderer)
@@ -78,19 +82,21 @@ export class Round extends Scene
                 //         })
                 //     }
                 // })),
-                OBJMTLPrefabBuilder(
-                    OBJLoader(sponzaOBJ),
-                    MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', Shader))
-                ).AddComponent(new Tag('Sponza'))
-                .AddComponent(new Transform({scale: [2,2,2]}))
-                .AddComponent(new Script(
-                {
-                    start()
-                    {
-                        // (this as Entity).GetComponent(Transform)!.Position.Z = -;
-                        (this as Entity).GetComponent(Transform)!.Rotation.Y = -90;
-                    }
-                })),
+                // OBJMTLPrefabBuilder(
+                //     OBJLoader(sponzaOBJ),
+                //     MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', Shader))
+                // ).AddComponent(new Tag('Sponza'))
+                // .AddComponent(new Transform({scale: [2,2,2]}))
+                // .AddComponent(new Script(
+                // {
+                //     start()
+                //     {
+                //         // (this as Entity).GetComponent(Transform)!.Position.Z = -;
+                //         (this as Entity).GetComponent(Transform)!.Rotation.Y = -90;
+                //     }
+                // })),
+                // GLTFLoader(cube_2_gltf, cube_2_bin, '/public/objects/ps2').AddComponent(new Tag('Cube')),
+                // GLTFLoader(triangle_gltf, game.GetAsset('Basic Shader', Shader)).AddComponent(new Tag('Triangle'))
             ],
             systems: [
                 InputSystem,
@@ -109,6 +115,12 @@ export class Round extends Scene
         // const sponzaPrefab: Prefab<any> = OBJMTLPrefabBuilder(OBJLoader(sponzaOBJ), MTLLoader(sponzaMTL, defaultShader))
         // const sponza: Entity = sponzaPrefab.Instance(this)
         // sponza.GetComponent(Transform)!.Scale.Multiply(2)
+        // GLTFLoader('/public/objects/helipad/helipad.mtl?raw')
+        this.CreateEntity().AddComponent(new AreaLight(
+        {
+            colour: [1, 1, 1],
+            intensity: 1.0
+        }))
         super.Init()
     }
 

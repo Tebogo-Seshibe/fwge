@@ -1,8 +1,10 @@
-import { NumberArray } from '../types'
+import { FixedLengthArray, NumberArray } from '../types'
 import { radian } from '../utils'
 import { Vector2 } from '../vector'
 import { Matrix3 } from './Matrix3'
 import { Matrix4 } from './Matrix4'
+
+export type Matrix2Array = FixedLengthArray<number, 4>
 
 export class Matrix2 extends Float32Array
 {

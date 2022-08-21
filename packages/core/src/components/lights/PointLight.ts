@@ -24,11 +24,11 @@ export class PointLight extends Light
         this.Radius = light.radius ?? 5
     }
 
-    override Bind(shader: Shader, index: number): void
+    override Bind(shader: Shader, index?: number): void
     {
-        shader.SetFloatVector(`U_PointLight[${index}].Colour`, this.Colour)
-        shader.SetFloat(`U_PointLight[${index}].Intensity`, this.Intensity)
-        shader.SetFloat(`U_PointLight[${index}].Radius`, this.Radius)
-        shader.SetFloatVector(`U_PointLight[${index}].Position`, this.Owner!.GetComponent(Transform)!.GlobalPosition())
+        shader.SetFloatVector(`U_PointLight[${index!}].Colour`, this.Colour)
+        shader.SetFloat(`U_PointLight[${index!}].Intensity`, this.Intensity)
+        shader.SetFloat(`U_PointLight[${index!}].Radius`, this.Radius)
+        shader.SetFloatVector(`U_PointLight[${index!}].Position`, this.Owner!.GetComponent(Transform)!.GlobalPosition())
     }
 }

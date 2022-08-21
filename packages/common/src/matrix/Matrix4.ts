@@ -1,8 +1,10 @@
-import { NumberArray } from "../types"
+import { FixedLengthArray, NumberArray } from "../types"
 import { clean, cot, radian } from "../utils"
 import { Vector2, Vector3, Vector4 } from "../vector"
 import { Matrix2 } from "./Matrix2"
 import { Matrix3 } from "./Matrix3"
+
+export type Matrix4Array = FixedLengthArray<number, 16>
 
 export class Matrix4 extends Float32Array
 {
@@ -1253,6 +1255,49 @@ export class Matrix4 extends Float32Array
             (_0[12] * vec[0]) + (_0[13] * vec[1]) + (_0[14] * vec[2]) + (_0[15] * vec[3])
         )
     }
+
+    static RotationMatrixAroundAxis(xyz: number, angle: number): Matrix4
+    static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix4
+    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number): Matrix4
+    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number, out: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(axis: Vector3, angle: number): Matrix4
+    static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: Matrix4 | number, _3?: number, _4?: Matrix4): Matrix4
+    {
+        const out = _4 ?? _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4()
+        const axis = typeof _0 === 'number'
+            ? (_3 ? [_0, _1 as number, _2 as number] : [_0, _0, _0])
+            : _0
+        const rotation = typeof _0 === 'number'
+            ? _3 ?? _1
+            : _1
+
+        const angle = radian(rotation)
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+        const inv_cos = 1 - cos
+
+        return out.Set(
+            (cos) + (axis[0] * axis[0] * inv_cos),
+            (axis[0] * axis[1] * inv_cos) - (axis[2] * sin),
+            (axis[0] * axis[2] * inv_cos) + (axis[1] * sin),
+            0,
+
+            (axis[1] * axis[0] * inv_cos) + (axis[2] * sin),
+            (cos) + (axis[1] * axis[1] * inv_cos),
+            (axis[1] * axis[2] * inv_cos) - (axis[0] * sin),
+            0,
+
+            (axis[2] * axis[0] * inv_cos) - (axis[1] * sin),
+            (axis[2] * axis[1] * inv_cos) + (axis[0] * sin),
+            (cos) + (axis[2] * axis[2] * cos),
+            0,
+
+            0,0,0,1
+        )
+    }
     
     static TranslationMatrix(xyz: number): Matrix4
     static TranslationMatrix(xyz: number, out: Matrix4): Matrix4
@@ -1407,8 +1452,6 @@ export class Matrix4 extends Float32Array
 
         theta = clean(theta)
         phi = clean(phi)
-
-        // console.log({ theta, phi })
 
         left -= near * theta
         right -= near * theta
