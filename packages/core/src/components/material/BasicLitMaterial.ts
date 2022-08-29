@@ -147,7 +147,8 @@ export class BasicLitMaterial extends Material
 
         if (this.Textures[0])
         {
-            shader.SetTexture('U_Sampler.Image', this.Textures[0])
+            // shader.SetTexture('U_Sampler.Image', this.Textures[0])
+            shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
         }
         else
         {

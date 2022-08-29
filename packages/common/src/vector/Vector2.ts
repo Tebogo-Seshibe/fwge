@@ -1,10 +1,11 @@
 import { root_2 } from "../constants"
 import { FixedLengthArray, NumberArray } from "../types"
 import { radian } from "../utils"
+import { IEquatable } from "../utils/interfaces/IEquatable"
 
 export type Vector2Array = FixedLengthArray<number, 2>
 
-export class Vector2 extends Float32Array
+export class Vector2 extends Float32Array implements IEquatable<Vector2>
 {
     //#region Local Properties
     get X(): number
@@ -239,7 +240,7 @@ export class Vector2 extends Float32Array
         return new Vector2(this)
     }
 
-    Equals(other: Vector2)
+    Equals(other: Vector2): boolean
     {
         return this[0] === other[0] && 
             this[1] === other[1]

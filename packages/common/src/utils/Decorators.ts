@@ -1,3 +1,5 @@
+import { Vector2 } from "../vector"
+
 export type Only<
     T,
     K extends (keyof T)[],

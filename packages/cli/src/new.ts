@@ -5,55 +5,70 @@ import inquirer from "inquirer"
 export async function newGame(projectName: string)
 {
     const className = projectName[0].toUpperCase() + projectName.substring(1)
+    const root = process.cwd() + '/' +className + '/'
 
-    if (!fs.existsSync('./public/audio'))
+    if (!fs.existsSync(`${root}`))
     {
-        fs.mkdirSync('./public/audio')
-    }
-    
-    if (!fs.existsSync('./public/image'))
-    {
-        fs.mkdirSync('./public/image')
+        fs.mkdirSync(`${root}`)
     }
 
-    if (!fs.existsSync('./public/object'))
+    if (!fs.existsSync(`${root}public`))
     {
-        fs.mkdirSync('./public/object')
-    }
+        fs.mkdirSync(`${root}public`)
 
-    if (!fs.existsSync('./public/shader'))
-    {
-        fs.mkdirSync('./public/shader')
-    }
-    
-    if (!fs.existsSync('./src/assets'))
-    {
-        fs.mkdirSync('./src/assets')
-    }
-    fs.writeFileSync('./src/assets/index.ts', `export {}`)
+        if (!fs.existsSync(`${root}public/audio`))
+        {
+            fs.mkdirSync(`${root}public/audio`)
+        }
+        
+        if (!fs.existsSync(`${root}public/image`))
+        {
+            fs.mkdirSync(`${root}public/image`)
+        }
 
-    if (!fs.existsSync('./src/components'))
-    {
-        fs.mkdirSync('./src/components')
+        if (!fs.existsSync(`${root}public/object`))
+        {
+            fs.mkdirSync(`${root}public/object`)
+        }
+
+        if (!fs.existsSync(`${root}public/shader`))
+        {
+            fs.mkdirSync(`${root}public/shader`)
+        }
     }
-    fs.writeFileSync('./src/components/index.ts', `export {}`)
     
-    if (!fs.existsSync('./src/entites'))
+    if (!fs.existsSync(`${root}src`))
     {
-        fs.mkdirSync('./src/entites')
-    }
-    fs.writeFileSync('./src/entities/index.ts', `export * from './Cube'`)
-    
-    if (!fs.existsSync('./src/scenes'))
-    {
-        fs.mkdirSync('./src/scenes')
-    }
-    fs.writeFileSync('./src/scenes/index.ts', `export * from './DefaultScene'`)
-    
-    if (!fs.existsSync('./src/systems'))
-    {
-        fs.mkdirSync('./src/systems')
-    }
-    fs.writeFileSync('./src/systems/index.ts', `export {}`)
-    
+        fs.mkdirSync(`${root}src`)
+
+        if (!fs.existsSync(`${root}src/assets`))
+        {
+            fs.mkdirSync(`${root}src/assets`)
+        }
+        fs.writeFileSync(`${root}src/assets/index.ts`, `export {}`)
+
+        if (!fs.existsSync(`${root}src/components`))
+        {
+            fs.mkdirSync(`${root}src/components`)
+        }
+        fs.writeFileSync(`${root}src/components/index.ts`, `export {}`)
+        
+        if (!fs.existsSync(`${root}src/entites`))
+        {
+            fs.mkdirSync(`${root}src/entites`)
+        }
+        fs.writeFileSync(`${root}src/entities/index.ts`, `export * from 'Cube'`)
+        
+        if (!fs.existsSync(`${root}src/scenes`))
+        {
+            fs.mkdirSync(`${root}src/scenes`)
+        }
+        fs.writeFileSync(`${root}src/scenes/index.ts`, `export * from 'DefaultScene'`)
+        
+        if (!fs.existsSync(`${root}src/systems`))
+        {
+            fs.mkdirSync(`${root}src/systems`)
+        }
+        fs.writeFileSync(`${root}src/systems/index.ts`, `export {}`)
+    }    
 }

@@ -1,10 +1,11 @@
 import { root_3 } from "../constants"
 import { FixedLengthArray, NumberArray } from "../types"
+import { IEquatable } from "../utils/interfaces/IEquatable"
 import { Vector2 } from "./Vector2"
 
 export type Vector3Array = FixedLengthArray<number, 3>
 
-export class Vector3 extends Float32Array
+export class Vector3 extends Float32Array implements IEquatable<Vector3>
 {
     //#region Local Properties
     get X(): number

@@ -1,6 +1,7 @@
 import { Shader } from "../../base/Shader"
 import { Colour3, GL, isPowerOf2 } from "@fwge/common"
 import { SharedComponent } from "../../ecs"
+import { ImageTexture } from "../../base"
 
 export enum BlendMode
 {
@@ -31,6 +32,7 @@ export class Material extends SharedComponent
     RenderType: RenderType
     readonly Colour: Colour3 = new Colour3(0.8)
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
+    readonly ImageTextures: Array<ImageTexture | null> = new Array(8).fill(null)
 
     constructor(shader: Shader, renderType?: RenderType)
     {

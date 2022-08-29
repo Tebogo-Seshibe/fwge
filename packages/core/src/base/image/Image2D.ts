@@ -8,11 +8,11 @@ export class Image2D extends ImageTexture
         super()
     }
 
-    Load(...sources: string[]): void
+    Load(source: string): void
     {
         const img = new Image()
         img.onload = () => this.applyImage(img)
-        img.src = sources[0] 
+        img.src = source 
     }
 
     protected applyImage(image: HTMLImageElement, filtering: TextureFilter = TextureFilter.NEAREST, wrapMode: WrapMode = WrapMode.EDGE_CLAMP): void

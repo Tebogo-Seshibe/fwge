@@ -1,11 +1,12 @@
 import { FixedLengthArray, NumberArray } from "../types"
 import { radian } from "../utils"
+import { IEquatable } from "../utils/interfaces/IEquatable"
 import { Vector3 } from "../vector"
 import { Matrix4 } from "./Matrix4"
 
 export type Matrix3Array = FixedLengthArray<number, 9>
 
-export class Matrix3 extends Float32Array
+export class Matrix3 extends Float32Array implements IEquatable<Matrix3>
 {
     //#region Local Properties
     get M11(): number

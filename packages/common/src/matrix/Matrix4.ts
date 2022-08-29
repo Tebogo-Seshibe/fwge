@@ -1,12 +1,13 @@
-import { FixedLengthArray, NumberArray } from "../types"
+import { FixedLengthArray } from "../types"
 import { clean, cot, radian } from "../utils"
-import { Vector2, Vector3, Vector4 } from "../vector"
+import { IEquatable } from "../utils/interfaces/IEquatable"
+import { Vector2, Vector2Array, Vector3, Vector3Array, Vector4 } from "../vector"
 import { Matrix2 } from "./Matrix2"
 import { Matrix3 } from "./Matrix3"
 
 export type Matrix4Array = FixedLengthArray<number, 16>
 
-export class Matrix4 extends Float32Array
+export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
 {
     //#region Local Properties
     get M11(): number
@@ -296,8 +297,8 @@ export class Matrix4 extends Float32Array
     //#region Local Methods
     Set(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
     Set(matrix: Matrix4): Matrix4
-    Set(array: NumberArray): Matrix4
-    Set(_0: Matrix4 | NumberArray | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
+    Set(array: Matrix4Array): Matrix4
+    Set(_0: Matrix4 | Matrix4Array | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
     {
         if (typeof _0 === 'number')
         {
@@ -343,8 +344,8 @@ export class Matrix4 extends Float32Array
 
     Add(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
     Add(matrix: Matrix4): Matrix4
-    Add(array: NumberArray): Matrix4
-    Add(_0: Matrix4 | NumberArray | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
+    Add(array: Matrix4Array): Matrix4
+    Add(_0: Matrix4 | Matrix4Array | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
     {
         if (typeof _0 === 'number')
         {
@@ -390,8 +391,8 @@ export class Matrix4 extends Float32Array
     
     Subtract(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
     Subtract(matrix: Matrix4): Matrix4
-    Subtract(array: NumberArray): Matrix4
-    Subtract(_0: Matrix4 | NumberArray | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
+    Subtract(array: Matrix4Array): Matrix4
+    Subtract(_0: Matrix4 | Matrix4Array | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
     {
         if (typeof _0 === 'number')
         {
@@ -437,8 +438,8 @@ export class Matrix4 extends Float32Array
 
     Multiply(m11: number, m12: number, m13: number, m14: number, m21: number, m22: number, m23: number, m24: number, m31: number, m32: number, m33: number, m34: number, m41: number, m42: number, m43: number, m44: number): Matrix4
     Multiply(matrix: Matrix4): Matrix4
-    Multiply(array: NumberArray): Matrix4
-    Multiply(_0: Matrix4 | NumberArray | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
+    Multiply(array: Matrix4Array): Matrix4
+    Multiply(_0: Matrix4 | Matrix4Array | number, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number): Matrix4
     {
         if (typeof _0 === 'number')
         {
@@ -796,10 +797,10 @@ export class Matrix4 extends Float32Array
     ): Matrix4
     static Add(matrix1: Matrix4, matrix2: Matrix4): Matrix4
     static Add(matrix1: Matrix4, matrix2: Matrix4, out: Matrix4): Matrix4
-    static Add(array1: NumberArray, array2: NumberArray): Matrix4
-    static Add(array1: NumberArray, array2: NumberArray, out: Matrix4): Matrix4
+    static Add(array1: Matrix4Array, array2: Matrix4Array): Matrix4
+    static Add(array1: Matrix4Array, array2: Matrix4Array, out: Matrix4): Matrix4
     static Add(
-         _0: Matrix4 | NumberArray | number,  _1: Matrix4 | NumberArray | number,  _2?: Matrix4 | number,  _3?: number,
+         _0: Matrix4 | Matrix4Array | number,  _1: Matrix4 | Matrix4Array | number,  _2?: Matrix4 | number,  _3?: number,
          _4?: number,  _5?: number,  _6?: number,  _7?: number,
          _8?: number,  _9?: number, _10?: number, _11?: number,
         _12?: number, _13?: number, _14?: number, _15?: number,
@@ -882,10 +883,10 @@ export class Matrix4 extends Float32Array
     ): Matrix4
     static Subtract(matrix1: Matrix4, matrix2: Matrix4): Matrix4
     static Subtract(matrix1: Matrix4, matrix2: Matrix4, out: Matrix4): Matrix4
-    static Subtract(array1: NumberArray, array2: NumberArray): Matrix4
-    static Subtract(array1: NumberArray, array2: NumberArray, out: Matrix4): Matrix4
+    static Subtract(array1: Matrix4Array, array2: Matrix4Array): Matrix4
+    static Subtract(array1: Matrix4Array, array2: Matrix4Array, out: Matrix4): Matrix4
     static Subtract(
-         _0: Matrix4 | NumberArray | number,  _1: Matrix4 | NumberArray | number,  _2?: Matrix4 | number,  _3?: number,
+         _0: Matrix4 | Matrix4Array | number,  _1: Matrix4 | Matrix4Array | number,  _2?: Matrix4 | number,  _3?: number,
          _4?: number,  _5?: number,  _6?: number,  _7?: number,
          _8?: number,  _9?: number, _10?: number, _11?: number,
         _12?: number, _13?: number, _14?: number, _15?: number,
@@ -968,10 +969,10 @@ export class Matrix4 extends Float32Array
     ): Matrix4
     static Multiply(matrix1: Matrix4, matrix2: Matrix4): Matrix4
     static Multiply(matrix1: Matrix4, matrix2: Matrix4, out: Matrix4): Matrix4
-    static Multiply(array1: NumberArray, array2: NumberArray): Matrix4
-    static Multiply(array1: NumberArray, array2: NumberArray, out: Matrix4): Matrix4
+    static Multiply(array1: Matrix4Array, array2: Matrix4Array): Matrix4
+    static Multiply(array1: Matrix4Array, array2: Matrix4Array, out: Matrix4): Matrix4
     static Multiply(
-         _0: Matrix4 | NumberArray | number,  _1: Matrix4 | NumberArray | number,  _2?: Matrix4 | number,  _3?: number,
+         _0: Matrix4 | Matrix4Array | number,  _1: Matrix4 | Matrix4Array | number,  _2?: Matrix4 | number,  _3?: number,
          _4?: number,  _5?: number,  _6?: number,  _7?: number,
          _8?: number,  _9?: number, _10?: number, _11?: number,
         _12?: number, _13?: number, _14?: number, _15?: number,
@@ -1239,9 +1240,9 @@ export class Matrix4 extends Float32Array
     static MultiplyVector(matrix: Matrix4, x: number, y: number, z: number, w: number, out: Vector4): Vector4
     static MultiplyVector(matrix: Matrix4, vector: Vector4): Vector4
     static MultiplyVector(matrix: Matrix4, vector: Vector4, out: Vector4): Vector4
-    static MultiplyVector(matrix: Matrix4, array: NumberArray): Vector4
-    static MultiplyVector(matrix: Matrix4, array: NumberArray, out: Vector4): Vector4
-    static MultiplyVector(_0: Matrix4, _1: Vector4 | NumberArray | number, _2?: Vector4 | number, _3?: number, _4?: number, _5?: Vector4): Vector4
+    static MultiplyVector(matrix: Matrix4, array: Matrix4Array): Vector4
+    static MultiplyVector(matrix: Matrix4, array: Matrix4Array, out: Vector4): Vector4
+    static MultiplyVector(_0: Matrix4, _1: Vector4 | Matrix4Array | number, _2?: Vector4 | number, _3?: number, _4?: number, _5?: Vector4): Vector4
     {
         const out = _5 ?? _2 instanceof Vector4 ? _2 as Vector4 : new Vector4()
         const vec = typeof _1 === 'number'
@@ -1260,11 +1261,11 @@ export class Matrix4 extends Float32Array
     static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix4): Matrix4
     static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix4
     static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix4): Matrix4
-    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number): Matrix4
-    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number, out: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(axis: Vector3Array, angle: number): Matrix4
+    static RotationMatrixAroundAxis(axis: Vector3Array, angle: number, out: Matrix4): Matrix4
     static RotationMatrixAroundAxis(axis: Vector3, angle: number): Matrix4
     static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix4): Matrix4
-    static RotationMatrixAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: Matrix4 | number, _3?: number, _4?: Matrix4): Matrix4
+    static RotationMatrixAroundAxis(_0: Vector3 | Vector3Array | number, _1: number, _2?: Matrix4 | number, _3?: number, _4?: Matrix4): Matrix4
     {
         const out = _4 ?? _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4()
         const axis = typeof _0 === 'number'
@@ -1305,9 +1306,9 @@ export class Matrix4 extends Float32Array
     static TranslationMatrix(x: number, y: number, z: number, out: Matrix4): Matrix4
     static TranslationMatrix(xyz: Vector3): Matrix4
     static TranslationMatrix(xyz: Vector3, out: Matrix4): Matrix4
-    static TranslationMatrix(xyz: NumberArray): Matrix4
-    static TranslationMatrix(xyz: NumberArray, out: Matrix4): Matrix4
-    static TranslationMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
+    static TranslationMatrix(xyz: Vector3Array): Matrix4
+    static TranslationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4
+    static TranslationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
         const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4()
         const translation = typeof _0 === 'number'
@@ -1328,9 +1329,9 @@ export class Matrix4 extends Float32Array
     static RotationMatrix(x: number, y: number, z: number, out: Matrix4): Matrix4
     static RotationMatrix(xyz: Vector3): Matrix4
     static RotationMatrix(xyz: Vector3, out: Matrix4): Matrix4
-    static RotationMatrix(xyz: NumberArray): Matrix4
-    static RotationMatrix(xyz: NumberArray, out: Matrix4): Matrix4
-    static RotationMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
+    static RotationMatrix(xyz: Vector3Array): Matrix4
+    static RotationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4
+    static RotationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
         const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4()
         const rotation = typeof _0 === 'number'
@@ -1375,9 +1376,9 @@ export class Matrix4 extends Float32Array
     static ScaleMatrix(x: number, y: number, z: number, out: Matrix4): Matrix4
     static ScaleMatrix(xyz: Vector3): Matrix4
     static ScaleMatrix(xyz: Vector3, out: Matrix4): Matrix4
-    static ScaleMatrix(xyz: NumberArray): Matrix4
-    static ScaleMatrix(xyz: NumberArray, out: Matrix4): Matrix4
-    static ScaleMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
+    static ScaleMatrix(xyz: Vector3Array): Matrix4
+    static ScaleMatrix(xyz: Vector3Array, out: Matrix4): Matrix4
+    static ScaleMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
         const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4()
         const scale = typeof _0 === 'number'
@@ -1394,15 +1395,15 @@ export class Matrix4 extends Float32Array
 
     static TransformationMatrix(translation: Vector3, rotation: Vector3, scale: Vector3): Matrix4
     static TransformationMatrix(translation: Vector3, rotation: Vector3, scale: Vector3, out: Matrix4): Matrix4
-    static TransformationMatrix(translation: NumberArray, rotation: NumberArray, scale: NumberArray): Matrix4
-    static TransformationMatrix(translation: NumberArray, rotation: NumberArray, scale: NumberArray, out: Matrix4): Matrix4
-    static TransformationMatrix(_0: Vector3, _1: Vector3, _2: Vector3, _3?: Matrix4): Matrix4
+    static TransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array): Matrix4
+    static TransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array, out: Matrix4): Matrix4
+    static TransformationMatrix(_0: Vector3 | Vector3Array, _1: Vector3 | Vector3Array, _2: Vector3 | Vector3Array, _3?: Matrix4): Matrix4
     {
         const out = _3 ?? _1 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
 
-        Matrix4.ScaleMatrix(_2, out)
-        Matrix4.Multiply(Matrix4.RotationMatrix(_1), out, out)
-        Matrix4.Multiply(Matrix4.TranslationMatrix(_0), out, out)
+        Matrix4.ScaleMatrix(_2 as Vector3Array, out)
+        Matrix4.Multiply(Matrix4.RotationMatrix(_1 as Vector3Array), out, out)
+        Matrix4.Multiply(Matrix4.TranslationMatrix(_0 as Vector3Array), out, out)
 
         return out
     }
@@ -1411,9 +1412,9 @@ export class Matrix4 extends Float32Array
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number, out: Matrix4): Matrix4
     static OrthographicProjection(min: Vector3, max: Vector3, tilt: Vector2): Matrix4
     static OrthographicProjection(min: Vector3, max: Vector3, tilt: Vector2, out: Matrix4): Matrix4
-    static OrthographicProjection(min: NumberArray, max: NumberArray, tilt: NumberArray): Matrix4
-    static OrthographicProjection(min: NumberArray, max: NumberArray, tilt: NumberArray, out: Matrix4): Matrix4
-    static OrthographicProjection(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2: Vector2 | NumberArray | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix4): Matrix4
+    static OrthographicProjection(min: Vector3Array, max: Vector3Array, tilt: Vector2Array): Matrix4
+    static OrthographicProjection(min: Vector3Array, max: Vector3Array, tilt: Vector2Array, out: Matrix4): Matrix4
+    static OrthographicProjection(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector2 | Vector2Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix4): Matrix4
     {
         const out = _8 ? _8 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
         let theta: number
@@ -1522,11 +1523,11 @@ export class Matrix4 extends Float32Array
 
     static LookAt(forward: Vector3, right: Vector3, up: Vector3): Matrix4
     static LookAt(forward: Vector3, right: Vector3, up: Vector3, out: Matrix4): Matrix4
-    static LookAt(forward: [number, number, number], right: [number, number, number], up: [number, number, number]): Matrix4
-    static LookAt(forward: [number, number, number], right: [number, number, number], up: [number, number, number], out: Matrix4): Matrix4
+    static LookAt(forward: Vector3Array, right: Vector3Array, up: Vector3Array): Matrix4
+    static LookAt(forward: Vector3Array, right: Vector3Array, up: Vector3Array, out: Matrix4): Matrix4
     static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number): Matrix4
     static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4
-    static LookAt(_0: Vector3 | [number, number, number] | number, _1: Vector3 | [number, number, number] | number, _2: Vector3 | [number, number, number] | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
+    static LookAt(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector3 | Vector3Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
     {
         const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
 
@@ -1543,7 +1544,6 @@ export class Matrix4 extends Float32Array
             out[8]  = _0 as number
             out[9]  = _1 as number
             out[10] = _2 as number
-
         }
         else
         {
@@ -1558,7 +1558,6 @@ export class Matrix4 extends Float32Array
             out[8]  = _0[0]
             out[9]  = _0[1]
             out[10] = _0[2]
-
         }
         
         return out
@@ -1566,11 +1565,11 @@ export class Matrix4 extends Float32Array
 
     static LookAtMatrix(eye: Vector3, target: Vector3, up: Vector3): Matrix4
     static LookAtMatrix(eye: Vector3, target: Vector3, up: Vector3, out: Matrix4): Matrix4
-    static LookAtMatrix(eye: [number, number, number], target: [number, number, number], up: [number, number, number]): Matrix4
-    static LookAtMatrix(eye: [number, number, number], target: [number, number, number], up: [number, number, number], out: Matrix4): Matrix4
+    static LookAtMatrix(eye: Vector3Array, target: Vector3Array, up: Vector3Array): Matrix4
+    static LookAtMatrix(eye: Vector3Array, target: Vector3Array, up: Vector3Array, out: Matrix4): Matrix4
     static LookAtMatrix(eyeX: number, eyeY: number, eyeZ: number, targetX: number, targetY: number, targetZ: number, upX: number, upY: number, upZ: number): Matrix4
     static LookAtMatrix(eyeX: number, eyeY: number, eyeZ: number, targetX: number, targetY: number, targetZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4
-    static LookAtMatrix(_0: Vector3 | [number, number, number] | number, _1: Vector3 | [number, number, number] | number, _2: Vector3 | [number, number, number] | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
+    static LookAtMatrix(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector3 | Vector3Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
     {
         const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4()
         const eye = new Vector3()
@@ -1593,12 +1592,6 @@ export class Matrix4 extends Float32Array
         const zAxis = Vector3.Subtract(target, eye).Normalize()
         const xAxis = Vector3.Cross(up, zAxis)
         const yAxis = Vector3.Cross(zAxis, xAxis)
-
-        console.log(
-        {
-            eye, target, up, 
-            xAxis, yAxis, zAxis
-        })
 
         return out.Set(
             xAxis[0], xAxis[1], xAxis[2], -xAxis.Dot(eye),
