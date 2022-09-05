@@ -1,10 +1,10 @@
-import { Colour3 } from "@fwge/common"
+import { Colour3, Vector3, Vector3Array } from "@fwge/common"
 import { Shader } from "../../base"
 import { UniqueComponent } from "../../ecs"
 
 export interface ILight
 {
-    colour?: [number, number, number] | Colour3
+    colour?: Vector3Array | Colour3 | Vector3
     intensity?: number
 }
 

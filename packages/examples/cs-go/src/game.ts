@@ -1,9 +1,8 @@
-import { BasicLitMaterial, Game, RenderType } from '@fwge/core'
+import { BasicLitMaterial, DepthType, Game, Image2D, RenderTarget, RenderType } from '@fwge/core'
 import { basicShader, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders'
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
-import { Round } from './scenes'
 import { SolarSystem } from './scenes/SolarSystem'
 
 export class CSGO extends Game
@@ -15,6 +14,7 @@ export class CSGO extends Game
             canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
             height: 1080,
             width: 1920,
+            startupScene: SolarSystem,
             scenes: [
                 // MainMenu,
                 // LoadingScreen,
@@ -52,8 +52,10 @@ export class CSGO extends Game
                 { name: 'Simple Shader', create: createSimpleShader },
                 { name: 'Basic Shader 2', create: createBasicShader },
                 { name: 'Default Shader', create: createDefaultShader },
+                { name: '8k_earth_daymap', create: () => new Image2D({ source: '/img/8k_earth_daymap.jpg'}) },
+                { name: '8k_earth_normal_map', create: () => new Image2D({ source: '/img/8k_earth_normal_map.png'}) },
             ],
-            startupScene: SolarSystem
+            prefabs: []
         })
     }
 }

@@ -1,8 +1,8 @@
-import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common"
+import { GL, Matrix3, Matrix4, remap } from "@fwge/common"
 import { ColourType, DepthType, RenderTarget, Scene, Shader } from "../base"
-import { Camera, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, StaticMesh, Transform } from "../components"
+import { DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, StaticMesh, Transform } from "../components"
 import { Light } from "../components/lights/Light"
-import { Entity, getComponent, MultiDimension, System } from "../ecs"
+import { Entity, getComponent, System } from "../ecs"
 
 export class RenderSystem extends System
 {
@@ -19,7 +19,7 @@ export class RenderSystem extends System
     renderTarget!: RenderTarget
     shadowRenderTarget!: RenderTarget
     plane!: StaticMesh
-    material!: Material
+    shadowRenderer!: Material
     shader!: Shader
     
     // projection = Matrix4.OrthographicProjectionMatrix(-50, 50, 50)
@@ -86,13 +86,14 @@ export class RenderSystem extends System
             ]
         })
 
-        this.material = new Material(
+        this.shadowRenderer = new Material(
             new Shader(
                 `#version 300 es
                 #pragma vscode_glsllint_stage: vert
 
                 layout(location = 0) in vec4 A_Position;
                 layout(location = 2) in vec2 A_UV;
+
                 out vec2 V_UV;
 
                 struct Matrix
@@ -124,14 +125,17 @@ export class RenderSystem extends System
             `#version 300 es
             #pragma vscode_glsllint_stage: vert
 
-            layout(location = 0) in vec4 A_Position;
-            layout(location = 2) in vec2 A_UV;    
+            layout(location = 0) in vec2 A_Position;
+
+            uniform vec2 U_PanelOffset;
+            uniform vec2 U_PanelScale;
+            
             out vec2 V_UV;
 
             void main(void)
             {
-                V_UV = A_UV;
-                gl_Position = A_Position;
+                V_UV = A_Position * 0.5 + 0.5;
+                gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
             }`,
 
             `#version 300 es
@@ -143,42 +147,10 @@ export class RenderSystem extends System
             layout(location = 0) out vec4 O_FragColour;
 
             uniform sampler2D U_RenderImage;
-            uniform sampler2D U_DepthImage;
-
-            vec3 acesToneMapping(vec3 colour)
-            {
-                // return colour;
-                const float slope = 12.0;
-                const float a = 2.51;
-                const float b = 0.03;
-                const float c = 2.43;
-                const float d = 0.59;
-                const float e = 0.14;
-            
-                vec4 x = vec4(colour, (colour.r * 0.299) + (colour * 0.587) + (colour * 0.0114));
-                vec4 tonemap = clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
-                float t = x.a;
-                t = t * t / (slope + t);
-            
-                return mix(tonemap.rgb, tonemap.aaa, t);
-            }
-
-            vec3 Gamma(vec3 colour)
-            {
-                // float gamma = 1.0/2.2;
-                // colour.x = pow(colour.x, gamma);
-                // colour.y = pow(colour.y, gamma);
-                // colour.z = pow(colour.z, gamma);
-                return colour;
-            }
 
             void main(void)
             {
-                // O_FragColour = texture(U_DepthImage, V_UV).rrrr;
                 O_FragColour = texture(U_RenderImage, V_UV);
-                // O_FragColour.rgb = Gamma(O_FragColour.rgb);
-                // O_FragColour.rgb = acesToneMapping(O_FragColour.rgb);
-                // O_FragColour = vec4(1.0);
             }`
         )
     }
@@ -188,42 +160,63 @@ export class RenderSystem extends System
 
     Update(_: number): void
     {
-        if (!Camera.Main || !Camera.Main?.Owner?.HasComponent(Transform))
+        for (const window of this.Scene.Windows)
         {
-            return
-        }
-        else
-        {
-            const transform = Camera.Main.Owner.GetComponent(Transform)!
-            transform.ModelViewMatrix(this._cameraModelViewMatrix).Inverse()
+            const projection = window.Camera.ProjectionMatrix
+            const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+            
+            for (const step of window.RenderPipeline)
+            {
+                step.Output.Bind()
+                if (!step.Shader)
+                {
+                    this.renderBatch(this._batch, projection, modelview)
+                    this.renderBatch(this._transparentBatch, projection, modelview)
+                }
+                else
+                {
+                    step.Shader.Bind()
+                    for (const inputName of step.Input)
+                    {
+                        const inputIndex = window.RenderPipelineMap.get(inputName)!
+                        const input = window.RenderPipeline[inputIndex]
+                        
+                        step.Shader.SetTexture(`U_${inputName}_Colour[0]`, input.Output.ColourAttachments[0]!)
+                    }
+                    step.Shader.SetFloat('U_Width', step.Output.Width)
+                    step.Shader.SetFloat('U_Height', step.Output.Height)
+
+                    GL.bindVertexArray(window.Panel.VertexArrayBuffer)
+                    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
+                    GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
+                    GL.bindVertexArray(null)
+                    step.Shader.UnBind()
+                }
+                step.Output.UnBind()
+            }
         }
             
         GL.enable(GL.DEPTH_TEST)
         GL.enable(GL.CULL_FACE)
         GL.depthMask(true)
         
-        this.shadowRenderTarget.Bind()
-        this.renderBatch(this._batch, this.projection, this.modelview, this.material)
-        this.renderBatch(this._transparentBatch, this.projection, this.modelview, this.material)
-        this.shadowRenderTarget.UnBind()        
-        
-        this.renderTarget.Bind()
-        this.renderBatch(this._batch, Camera.Main!.ProjectionMatrix, this._cameraModelViewMatrix)
-        this.renderBatch(this._transparentBatch, Camera.Main!.ProjectionMatrix, this._cameraModelViewMatrix)
-        this.renderTarget.UnBind()
-
         this.defaultRenderTarget.Bind()
         this.shader.Bind()
-        this.shader.SetTexture('U_RenderImage', this.renderTarget.ColourAttachments[0])
-        this.shader.SetTexture('U_DepthImage', this.shadowRenderTarget.DepthAttachment!)
+        for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
+        {
+            const window = this.Scene.Windows[i]
 
-        GL.bindVertexArray(this.plane.VertexArrayBuffer)
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.plane.FaceBuffer)
-        GL.drawElements(GL.TRIANGLES, this.plane.FaceCount, GL.UNSIGNED_BYTE, 0)
-        GL.bindVertexArray(null)
+            this.shader.SetTexture(`U_RenderImage`, this.Scene.Windows[i].FinalComposite.ColourAttachments[0])
+            this.shader.SetFloatVector('U_PanelOffset', window.Position)
+            this.shader.SetFloatVector('U_PanelScale', window.Scale)
+            
+            GL.bindVertexArray(window.Panel.VertexArrayBuffer)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
+            GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
+            GL.bindVertexArray(null)
+        }
         this.shader.UnBind()
-        this.defaultRenderTarget.UnBind()
-        
+        this.defaultRenderTarget.UnBind()        
     }
 
     renderBatch(batch: Map<number, Map<number, Set<number>>>, projection: Matrix4, modelview: Matrix4, mat?: Material)

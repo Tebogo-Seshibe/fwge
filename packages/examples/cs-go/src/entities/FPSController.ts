@@ -50,7 +50,8 @@ export class FPSController extends GameObject
             .AddComponent(this.camera)
         )
 
-        Camera.Main = this.camera
+        this.Scene.Windows[0].Camera = this.camera
+        this.Scene.Windows[1].Camera = this.camera
     }
 
     override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void

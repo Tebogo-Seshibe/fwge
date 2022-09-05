@@ -30,7 +30,7 @@ export class CelestialBody extends GameObject
     
     override OnUpdate(delta: number)
     {
-        this.transform.RotateAroundAxis(0,1,0, this.orbit * delta)
-        this.transform.Rotation.Y += delta * this.turnSpeed
+        this.transform.RotateAroundAxis(0,1,0, this.orbit * delta * 10)
+        this.transform.Rotation.Y += delta * this.turnSpeed * 10
     }
 }

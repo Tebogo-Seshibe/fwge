@@ -4,6 +4,10 @@ import { InputSystem } from "@fwge/input"
 import { FPSController } from "../entities"
 import { CelestialBody } from "../entities/CelestialBody"
 import { FullScreen } from "../entities/FullScreen"
+import { DefaultRenderStep } from "../post-process/DefaultRenderStep"
+import { HorizontalBlur } from "../post-process/HorizontalBlur"
+import { Invert } from "../post-process/Invert"
+import { VerticalBlur } from "../post-process/VerticalBlur"
 
 export class SolarSystem extends Scene
 {
@@ -11,6 +15,28 @@ export class SolarSystem extends Scene
     constructor(game: Game)
     {
         super(game, {
+            windows: [
+                {
+                    pipeline: [
+                        new DefaultRenderStep(1920, 1080, 'Default'),
+                        // new HorizontalBlur(1920 / 2, 1080 / 2, 'Default', 'HorizontalBlur'),
+                        // new VerticalBlur(1920 / 4, 1080 / 4, 'HorizontalBlur', 'VerticalBlur'),
+                        // new Invert(1920, 1080, 'Default', 'Invert')
+                    ],
+                    offset: [0.0, 0.0],
+                    scale: [1.0, 1.0],
+                },
+                {
+                    pipeline: [
+                        new DefaultRenderStep(1920, 1080, 'Default'),
+                        // new HorizontalBlur(1920 / 2, 1080 / 2, 'Default', 'HorizontalBlur'),
+                        // new VerticalBlur(1920 / 4, 1080 / 4, 'HorizontalBlur', 'VerticalBlur'),
+                        new Invert(1920, 1080, 'Default', 'Invert')
+                    ],
+                    offset: [0.0, 0.90],
+                    scale: [0.2, 0.1],
+                },
+            ],
             entities: [
                 FullScreen,
                 FPSController

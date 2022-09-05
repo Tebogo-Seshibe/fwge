@@ -1,2 +1,2 @@
-export * from './Transition'
 export * from './Lerp'
+export * from './Transition'

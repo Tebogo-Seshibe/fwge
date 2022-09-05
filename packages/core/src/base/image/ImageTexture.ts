@@ -16,16 +16,21 @@ export enum WrapMode
 
 export class ImageTexture extends Asset
 {
+    readonly Filtering: TextureFilter
+    readonly WrapMode: WrapMode
     readonly Texture: WebGLTexture = GL.createTexture()!
 
-    constructor()
+    constructor(filtering: TextureFilter = TextureFilter.NEAREST, wrapMode: WrapMode = WrapMode.EDGE_CLAMP)
     {
         super(ImageTexture)
+
+        this.Filtering = filtering
+        this.WrapMode = wrapMode
 
         GL.bindTexture(GL.TEXTURE_2D, this.Texture)
         GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
         GL.bindTexture(GL.TEXTURE_2D, null)
     }
 
-    protected applyImage(image: HTMLImageElement, filtering: TextureFilter, wrapMode: WrapMode): void {}
+    protected applyImage(image: HTMLImageElement): void {}
 }

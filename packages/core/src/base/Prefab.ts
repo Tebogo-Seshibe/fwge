@@ -12,7 +12,7 @@ import { Scene } from './Scene'
 // }
 
 
-export class Prefab<K extends Entity>
+export class Prefab<K extends Entity = any>
 {
     private _components: Map<TypeId, Component> = new Map()
     private _children: Prefab<Entity>[] = []    

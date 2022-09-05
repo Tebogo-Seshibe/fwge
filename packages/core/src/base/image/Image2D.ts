@@ -1,11 +1,24 @@
 import { GL, isPowerOf2 } from "@fwge/common"
 import { ImageTexture, TextureFilter, WrapMode } from "./ImageTexture"
 
+export interface IImage2D
+{
+    source?: string
+    filtering?: TextureFilter
+    wrapMode?: WrapMode
+}
 export class Image2D extends ImageTexture
 {
     constructor()
+    constructor(config: IImage2D)
+    constructor(config: IImage2D = {})
     {
-        super()
+        super(config.filtering, config.wrapMode)
+        
+        if (config.source)
+        {
+            this.Load(config.source)
+        }
     }
 
     Load(source: string): void
@@ -15,7 +28,7 @@ export class Image2D extends ImageTexture
         img.src = source 
     }
 
-    protected applyImage(image: HTMLImageElement, filtering: TextureFilter = TextureFilter.NEAREST, wrapMode: WrapMode = WrapMode.EDGE_CLAMP): void
+    protected applyImage(image: HTMLImageElement): void
     {
         GL.bindTexture(GL.TEXTURE_2D, this.Texture)
         GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image)
@@ -24,7 +37,7 @@ export class Image2D extends ImageTexture
         {
             GL.generateMipmap(GL.TEXTURE_2D)
 
-            switch (filtering)
+            switch (this.Filtering)
             {
                 case TextureFilter.LINEAR:
                     // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR)
@@ -41,7 +54,7 @@ export class Image2D extends ImageTexture
         }
         else
         {
-            switch (filtering)
+            switch (this.Filtering)
             {
                 case TextureFilter.LINEAR:
                     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
@@ -55,7 +68,7 @@ export class Image2D extends ImageTexture
             }
         }
         
-        switch (wrapMode)
+        switch (this.WrapMode)
         {
             case WrapMode.REPEAT:
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT)

@@ -225,13 +225,6 @@ export class RenderTarget
         }
         GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
-        // GL.bindTexture(GL.TEXTURE_2D, null)
-
-        
-        // GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        // GL.clearColor(0,0,0,0)
-        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
     }
     

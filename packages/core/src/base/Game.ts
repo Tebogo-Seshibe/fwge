@@ -2,6 +2,7 @@ import { GL, IDelay, setContext } from "@fwge/common"
 import { SharedComponent } from "../ecs"
 import { Class, SceneId } from "../ecs/Registry"
 import { Asset } from "./Asset"
+import { Prefab } from "./Prefab"
 import { Scene } from "./Scene"
 
 export interface LibraryEntry<T>
@@ -20,13 +21,15 @@ export interface IGame
 
     assets?: Array<LibraryEntry<Asset>>
     components?: Array<LibraryEntry<SharedComponent>>
+    prefabs?: Array<LibraryEntry<Prefab>>
 }
 
 export class Game
 {
+    readonly Scenes: Map<SceneId, Scene> = new Map()    
     readonly Assets: Map<string, Map<string, Asset>> = new Map()
     readonly Components: Map<string, Map<string, SharedComponent>> = new Map()
-    readonly Scenes: Map<SceneId, Scene> = new Map()
+    readonly Prefabs: Map<string, Map<string, Prefab>> = new Map()
     
     //#region Private Fields
     #scenesIds: Map<Class<Scene>, SceneId> = new Map()
@@ -61,6 +64,14 @@ export class Game
 
         GL.canvas.width = config.width!
         GL.canvas.height = config.height!
+        
+        for (const { name, create } of config.prefabs!)
+        {
+            const asset = create()
+            const library = this.Prefabs.get(asset.Type.name) ?? new Map()
+            library.set(name, asset)
+            this.Prefabs.set(asset.Type.name, library)
+        }
         
         for (const { name, create } of config.assets!)
         {
@@ -217,5 +228,10 @@ export class Game
     GetAsset<T extends Asset>(name: string, type: Class<T>): T | undefined
     {
         return this.Assets.get(type.name)?.get(name) as T
+    }
+
+    GetPrefab<T extends Prefab>(name: string, type: Class<T>): T | undefined
+    {
+        return this.Prefabs.get(type.name)?.get(name) as T
     }
 }
