@@ -89,10 +89,6 @@ export class System extends RegistryType
             const entityIndex = this.entityIds.indexOf(entity.Id)
             this.entityIds.swap(entityIndex, this.entityIds.length - 1)
             this.entityIds.pop()
-
-            const entityIdIndex = this.entityIds.indexOf(entity.Id)
-            this.entityIds.swap(entityIdIndex, this.entityIds.length - 1)
-            this.entityIds.pop()
         }
     }
 

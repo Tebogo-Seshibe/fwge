@@ -1,13 +1,13 @@
 import { Vector3 } from "@fwge/common"
-import { BasicLitMaterial, Game, RenderSystem, Scene, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
+import { BasicLitMaterial, Game, RenderSystem, RenderWindow, Scene, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { FPSController } from "../entities"
 import { CelestialBody } from "../entities/CelestialBody"
 import { FullScreen } from "../entities/FullScreen"
-import { DefaultRenderStep } from "../post-process/DefaultRenderStep"
 import { HorizontalBlur } from "../post-process/HorizontalBlur"
 import { Invert } from "../post-process/Invert"
 import { VerticalBlur } from "../post-process/VerticalBlur"
+import { FPSCounterSystem } from "../systems/FPSCounterSystem"
 
 export class SolarSystem extends Scene
 {
@@ -16,26 +16,21 @@ export class SolarSystem extends Scene
     {
         super(game, {
             windows: [
-                {
-                    pipeline: [
-                        new DefaultRenderStep(1920, 1080, 'Default'),
-                        // new HorizontalBlur(1920 / 2, 1080 / 2, 'Default', 'HorizontalBlur'),
-                        // new VerticalBlur(1920 / 4, 1080 / 4, 'HorizontalBlur', 'VerticalBlur'),
-                        // new Invert(1920, 1080, 'Default', 'Invert')
-                    ],
-                    offset: [0.0, 0.0],
+                new RenderWindow({
+                    offset: [0,0],
                     scale: [1.0, 1.0],
-                },
-                {
+                    resolution: [2560, 1440],
+                }),
+                new RenderWindow({
                     pipeline: [
-                        new DefaultRenderStep(1920, 1080, 'Default'),
-                        // new HorizontalBlur(1920 / 2, 1080 / 2, 'Default', 'HorizontalBlur'),
-                        // new VerticalBlur(1920 / 4, 1080 / 4, 'HorizontalBlur', 'VerticalBlur'),
-                        new Invert(1920, 1080, 'Default', 'Invert')
-                    ],
+                            new HorizontalBlur(2560 / 2, 1440 / 2, RenderWindow.MainPassName, 'HorizontalBlur'),
+                            new VerticalBlur(2560 / 4, 1440 / 4, 'HorizontalBlur', 'VerticalBlur'),
+                            new Invert(2560, 1440, RenderWindow.MainPassName, 'Invert')
+                        ],
                     offset: [0.0, 0.90],
                     scale: [0.2, 0.1],
-                },
+                    resolution: [2560, 1440],
+                }),
             ],
             entities: [
                 FullScreen,
@@ -44,7 +39,8 @@ export class SolarSystem extends Scene
             systems: [
                 InputSystem,
                 ScriptSystem,
-                RenderSystem
+                RenderSystem,
+                FPSCounterSystem
             ]
         })
     }
@@ -52,7 +48,7 @@ export class SolarSystem extends Scene
     override Init(): void
     {
         this.fpsCounterDiv = document.querySelector<HTMLDivElement>('#fpsCounter')!
-        const sun = this.CreateEntity(CelestialBody, new Vector3(0, 0, 0), 20, 1, 0)
+        this.CreateEntity(CelestialBody, new Vector3(0, 0, 0), 20, 1, 0)
             .AddComponent(new BasicLitMaterial(
             {
                 shader: this.Game.GetAsset('Basic Shader', Shader)!,

@@ -3,18 +3,20 @@ import { Colour4, GL } from "@fwge/common"
 export enum ColourType
 {
     NONE = 0,
-    RGB = 1,
-    RGBA = 2,
+    UINT_RGB = 1,
+    UINT_RGBA = 2,
+    FLOAT_RGB = 3,
+    FLOAT_RGBA = 4,
 }
 
 export enum DepthType
 {
-    NONE = 4,
-    INT16 = 5,
-    INT24 = 6,
-    INT24_8 = 7,
-    FLOAT32 = 8,
-    FLOAT32_8 = 9,
+    NONE = 5,
+    INT16 = 6,
+    INT24 = 7,
+    INT24_8 = 8,
+    FLOAT32 = 9,
+    FLOAT32_8 = 10,
 }
 
 interface IRenderTarget
@@ -58,10 +60,10 @@ function getFormatType(type: ColourType | DepthType): number
     {
         switch (type as ColourType)
         {
-            case ColourType.RGB:
+            case ColourType.UINT_RGB:
                 return GL.RGB
 
-            case ColourType.RGBA:
+            case ColourType.UINT_RGBA:
                 return GL.RGBA
         }
     }
@@ -94,15 +96,18 @@ function getAttachmentType(colour: ColourType): number
 function getAttachmentType(depth: DepthType): number
 function getAttachmentType(type: ColourType | DepthType): number
 {
-    if (type <= 4)
+    if (type <= DepthType.NONE)
     {
         switch (type as ColourType)
         {
-            case ColourType.RGB:
+            case ColourType.UINT_RGB:
                 return GL.RGB
 
-            case ColourType.RGBA:
+            case ColourType.UINT_RGBA:
                 return GL.RGBA
+        
+            default:
+                return GL.RGB16F
         }
     }
     else
@@ -174,9 +179,20 @@ export class RenderTarget
 
                 const texture = GL.createTexture()!
                 GL.bindTexture(GL.TEXTURE_2D, texture)
-                GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.UNSIGNED_BYTE, null)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                
+                if (colourType === ColourType.UINT_RGB || colourType === ColourType.UINT_RGBA)
+                {
+
+                    GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.UNSIGNED_BYTE, null)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                }
+                else
+                {
+                    GL.getExtension('EXT_color_buffer_float')
+                    GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.FLOAT, null)
+                }
+
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
                 GL.framebufferTexture2D(GL.FRAMEBUFFER, attachmentIndex, GL.TEXTURE_2D, texture, 0)

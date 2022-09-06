@@ -43,25 +43,31 @@ export class FullScreen extends GameObject
             this.canvas.requestPointerLock()
         }
 
-        if (Keyboard.KeyEsc === KeyState.DOWN)
+        if (this.fullscreen && Keyboard.KeyT === KeyState.PRESSED)
         {
-            if (document.fullscreenEnabled)
-            {
-                
-                document.exitFullscreen()
-                this.fullscreen = false
-            }
+            this.fullscreen = false
+            document.exitFullscreen()
+        }
 
-            if (this.hideCursor)
-            {
-                document.exitPointerLock()
-                this.hideCursor = false
-            }
+        if (this.hideCursor && Mouse.Right === ButtonState.PRESSED)
+        {
+            this.hideCursor = false
+            document.exitPointerLock()
         }
 
         if (Keyboard.KeyF5 === KeyState.PRESSED)
         {
             window.location.reload()
+        }
+
+        for (let sceneId = 0; sceneId <= 9; ++sceneId)
+        {
+            const keyName = `Key${sceneId}`
+            if ((Keyboard as any)[keyName] === KeyState.PRESSED)
+            {
+                console.log(`Changing to scene ${sceneId}`)
+                // this.Scene.Game.SetScene(sceneId)
+            }
         }
     }
     

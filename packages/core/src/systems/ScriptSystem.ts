@@ -35,7 +35,7 @@ export class ScriptSystem extends System
             
             for (const entityId of entityIds)
             {
-                script.Update.call(this.Scene.GetEntity(entityId)!, delta   )
+                script.Update.call(this.Scene.GetEntity(entityId)!, delta)
             }
         }
     }

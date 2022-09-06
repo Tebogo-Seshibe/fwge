@@ -1,4 +1,4 @@
-import { GL, IDelay, setContext } from "@fwge/common"
+import { CalcuateDelay, GL, IDelay, setContext } from "@fwge/common"
 import { SharedComponent } from "../ecs"
 import { Class, SceneId } from "../ecs/Registry"
 import { Asset } from "./Asset"
@@ -121,16 +121,14 @@ export class Game
     Start(delay: IDelay): void
     Start(delay: IDelay = { }): void
     {
-        // this._delayId = window.setTimeout(() => this._start.apply(this), CalcuateDelay(delay))
-        this.#start()
+        window.setTimeout(() => this.#start(), CalcuateDelay(delay))
     }
     
     Stop(): void
     Stop(delay: IDelay): void
     Stop(delay: IDelay = { }): void
     {
-        // window.setTimeout(() => this._stop.apply(this), CalcuateDelay(delay))
-        this.#stop()
+        window.setTimeout(() => this.#stop(), CalcuateDelay(delay))
     }
 
     //#region Private Methods
@@ -143,7 +141,6 @@ export class Game
 
         if (!this.#activeScene)
         {
-            // throw new Error('No scene set')
             this.#tickId = window.requestAnimationFrame(() => this.#start())
         }
 
@@ -165,7 +162,7 @@ export class Game
     }
     
     #stop()
-    {        
+    {
         this.#running = false
 
         if (this.#delayId !== undefined)
@@ -202,22 +199,22 @@ export class Game
 
     SetScene(sceneType: Class<Scene>): void
     SetScene(sceneId: SceneId): void
-    SetScene(scene: Class<Scene> | SceneId): void
+    SetScene(sceneId: Class<Scene> | SceneId): void
     {
-        if (typeof scene !== 'number')
+        if (typeof sceneId !== 'number')
         {
-            scene = this.#scenesIds.get(scene) as SceneId
+            sceneId = this.#scenesIds.get(sceneId) as SceneId
         }
-        
-        if (this.Scenes.has(scene))
-        {
-            if (this.#activeScene)
-            {
-                this.Stop()
-            }
+        const newScene = this.Scenes.get(sceneId)
 
-            this.#activeScene = this.Scenes.get(scene)!
+        if (!newScene || (this.#activeScene && this.#activeScene.Id === newScene.Id))
+        {
+            return
         }
+
+        this.Stop()
+        this.#activeScene = newScene
+        this.Start()
     }
 
     GetComponent<T extends SharedComponent>(name: string, type: Class<T>): T | undefined

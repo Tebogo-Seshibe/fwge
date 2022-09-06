@@ -41,11 +41,6 @@ export class Cube extends GameObject
         this.AddComponent(this.renderer)
     }
     
-    override OnStart()
-    {
-        this.material.Shader!.SetFloat('outer.inner.age', 0)
-    }
-
     override OnUpdate(delta: number)
     {
         this.transform.Rotation.X += delta * this.turnSpeed * 2

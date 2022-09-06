@@ -1,4 +1,4 @@
-import { Matrix3, Matrix4, Vector3 } from '@fwge/common'
+import { Matrix3, Matrix4, Vector3, Vector3Array } from '@fwge/common'
 import { UniqueComponent } from '../ecs/Component'
 
 export interface ITransform
@@ -22,12 +22,11 @@ export class Transform extends UniqueComponent
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Position.Add(_0 as [number, number, number])
+            this.Position.Set(_0 as [number, number, number])
         }
         else
         {
-            
-            this.Position.Add(_0 as number, _1, _2)
+            this.Position.Set(_0 as number, _1, _2)
         }
     }
 
@@ -39,12 +38,11 @@ export class Transform extends UniqueComponent
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Position.Add(_0 as [number, number, number])
+            this.Position.Set(_0 as [number, number, number])
         }
         else
-        {
-            
-            this.Position.Add(_0 as number, _1, _2)
+        {            
+            this.Position.Set(_0 as number, _1, _2)
         }
     }
 
@@ -56,20 +54,30 @@ export class Transform extends UniqueComponent
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Scale.Add(_0 as [number, number, number])
+            this.Scale.Set(_0 as [number, number, number])
         }
         else
-        {
-            
-            this.Scale.Add(_0 as number, _1, _2)
+        {            
+            this.Scale.Set(_0 as number, _1, _2)
         }
+    }
+
+    RotateAround(target: Transform, axis: Vector3 | Vector3Array, angle: number): void
+    {
+        Matrix3.MultiplyVector(
+            Matrix3.RotationMatrixAroundAxis(
+                Vector3.Add(target.Position, Vector3.Normalize(axis as Vector3Array)),
+                angle
+            ),
+            this.Position,
+        this.Position)
     }
 
     RotateAroundAxis(xyz: number, angle: number): void
     RotateAroundAxis(x: number, y: number, z: number, angle: number): void
     RotateAroundAxis(array: [number, number, number], angle: number): void
     RotateAroundAxis(vector: Vector3, angle: number): void
-    RotateAroundAxis(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number, _3?: number): void
+    RotateAroundAxis(_0: Transform | Vector3 | [number, number, number] | number, _1?: number, _2?: number, _3?: number): void
     {
         let mat: Matrix3
         if (typeof _0 === 'number')
@@ -83,17 +91,11 @@ export class Transform extends UniqueComponent
                 mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
             }
         }
-        else
+        else 
         {
             mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
         }
         Matrix3.MultiplyVector(mat, this.Position, this.Position)
-        
-        // Matrix3.MultiplyVector(
-        //     Matrix3.RotationMatrixAroundAxis(0,1,0, this.orbit),
-        //     this.transform.Position,
-        //     this.transform.Position
-        // )
     }
 
     GlobalPosition(): Vector3

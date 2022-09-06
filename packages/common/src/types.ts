@@ -5,3 +5,5 @@ export type FixedLengthArray<Type extends any, Length extends number, Arr extend
     Arr['length'] extends Length
     ? Arr
     : FixedLengthArray<Type, Length, [Type, ...Arr]>
+
+export type AtLeastOne<Type> = [Type, ...Type[]]

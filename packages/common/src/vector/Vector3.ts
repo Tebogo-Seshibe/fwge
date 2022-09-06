@@ -541,11 +541,11 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
 
     static Normalize(vector: Vector3): Vector3
     static Normalize(vector: Vector3, out: Vector3): Vector3
-    static Normalize(vector: [number, number, number]): Vector3
-    static Normalize(vector: [number, number, number], out: Vector3): Vector3
+    static Normalize(vector: Vector3Array): Vector3
+    static Normalize(vector: Vector3Array, out: Vector3): Vector3
     static Normalize(x: number, y: number, z: number): Vector3
     static Normalize(x: number, y: number, z: number, out: Vector3): Vector3
-    static Normalize(_0: Vector3 | [number, number, number] | number, _1?: Vector3 | number, _2?: number, _3?: Vector3): Vector3
+    static Normalize(_0: Vector3 | Vector3Array | number, _1?: Vector3 | number, _2?: number, _3?: Vector3): Vector3
     {
         let out: Vector3
         if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')

@@ -1,9 +1,11 @@
-import { BasicLitMaterial, DepthType, Game, Image2D, RenderTarget, RenderType } from '@fwge/core'
+import { BasicLitMaterial, Game, Image2D, RenderType } from '@fwge/core'
 import { basicShader, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders'
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
+import { Round } from './scenes'
 import { SolarSystem } from './scenes/SolarSystem'
+import { Sponza } from './scenes/Sponza'
 
 export class CSGO extends Game
 {
@@ -12,23 +14,20 @@ export class CSGO extends Game
         super(
         {
             canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
-            height: 1080,
-            width: 1920,
+            height: 2560,
+            width: 1440,
             startupScene: SolarSystem,
             scenes: [
-                // MainMenu,
-                // LoadingScreen,
-                // Credits,
-                // Round,
+                Round,
+                Sponza,
                 SolarSystem,
-                // Test
             ],
             components: [
                 { name: 'CubeMaterial', create: createBasicMaterial },
                 { name: 'PlaneMaterial', create: createBasicMaterial },
                 { name: 'BasicAnimation', create: basicAnimation },
                 { name: 'MTL Cube', create: mtlCube },
-                { name: 'Basis Lit Material', create()
+                { name: 'Basic Lit Material', create()
                 {
                     return new BasicLitMaterial(
                     {

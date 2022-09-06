@@ -1,6 +1,5 @@
-import { GL, radian } from "@fwge/common"
-import { Camera, Entity, getComponent, Mesh, Scene, Shader, StaticMesh, System, Transform } from "@fwge/core"
-import { Collider, CubeCollider, SphereCollider } from "@fwge/physics"
+import { Mesh, Scene, Shader, System, Transform } from "@fwge/core"
+import { Collider } from "@fwge/physics"
 
 export class ColliderRenderSystem extends System
 {

@@ -59,7 +59,7 @@ export class HorizontalBlur extends RenderPipelineStep
             ),
             output: new RenderTarget(
             { 
-                colour: [ ColourType.RGBA ],
+                colour: [ ColourType.UINT_RGBA ],
                 depth: DepthType.NONE,
                 height,
                 width,

@@ -1,5 +1,5 @@
-import { GL, Matrix3, Matrix4, remap } from "@fwge/common"
-import { ColourType, DepthType, RenderTarget, Scene, Shader } from "../base"
+import { GL, Matrix3, Matrix4 } from "@fwge/common"
+import { ColourType, DepthType, RenderTarget, RenderWindow, Scene, Shader } from "../base"
 import { DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, StaticMesh, Transform } from "../components"
 import { Light } from "../components/lights/Light"
 import { Entity, getComponent, System } from "../ecs"
@@ -51,7 +51,7 @@ export class RenderSystem extends System
         
         this.renderTarget = new RenderTarget(
         {
-            colour: [ ColourType.RGBA, ColourType.RGBA ],
+            colour: [ ColourType.UINT_RGBA, ColourType.UINT_RGBA ],
             depth: DepthType.INT24,
             height: 1080,
             width: 1920,
@@ -91,10 +91,7 @@ export class RenderSystem extends System
                 `#version 300 es
                 #pragma vscode_glsllint_stage: vert
 
-                layout(location = 0) in vec4 A_Position;
-                layout(location = 2) in vec2 A_UV;
-
-                out vec2 V_UV;
+                layout(location = 0) in vec3 A_Position;
 
                 struct Matrix
                 {
@@ -105,9 +102,8 @@ export class RenderSystem extends System
                 uniform Matrix U_Matrix;
                 
                 void main(void)
-                {                    
-                    V_UV = A_UV;
-                    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * A_Position;
+                {
+                    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
                 }`,
 
                 `#version 300 es
@@ -165,33 +161,44 @@ export class RenderSystem extends System
             const projection = window.Camera.ProjectionMatrix
             const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
             
+            window.MainPass.Output.Bind()
+            this.renderBatch(this._batch, projection, modelview)
+            this.renderBatch(this._transparentBatch, projection, modelview)
+            window.MainPass.Output.UnBind()
+
             for (const step of window.RenderPipeline)
             {
                 step.Output.Bind()
-                if (!step.Shader)
-                {
-                    this.renderBatch(this._batch, projection, modelview)
-                    this.renderBatch(this._transparentBatch, projection, modelview)
-                }
-                else
-                {
-                    step.Shader.Bind()
-                    for (const inputName of step.Input)
-                    {
-                        const inputIndex = window.RenderPipelineMap.get(inputName)!
-                        const input = window.RenderPipeline[inputIndex]
-                        
-                        step.Shader.SetTexture(`U_${inputName}_Colour[0]`, input.Output.ColourAttachments[0]!)
-                    }
-                    step.Shader.SetFloat('U_Width', step.Output.Width)
-                    step.Shader.SetFloat('U_Height', step.Output.Height)
+                step.Shader!.Bind()
 
-                    GL.bindVertexArray(window.Panel.VertexArrayBuffer)
-                    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
-                    GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
-                    GL.bindVertexArray(null)
-                    step.Shader.UnBind()
+                for (const inputName of step.Input)
+                {
+                    if (!window.RenderPipelineMap.has(inputName))
+                    {
+                        continue
+                    }
+                    
+                    const inputIndex = window.RenderPipelineMap.get(inputName)!
+                    const input = inputIndex === -1
+                        ? window.MainPass 
+                        : window.RenderPipeline[inputIndex]
+                    
+                    for (let outputIndex = 0; outputIndex < input.Output.ColourAttachments.length; ++outputIndex)
+                    {
+                        step.Shader!.SetTexture(`U_${inputName}_Colour[${outputIndex}]`, input.Output.ColourAttachments[outputIndex]!)
+                    }
+                    step.Shader!.SetTexture(`U_${inputName}_Depth`, input.Output.DepthAttachment!)
                 }
+
+                step.Shader!.SetFloat('U_Width', step.Output.Width)
+                step.Shader!.SetFloat('U_Height', step.Output.Height)
+
+                GL.bindVertexArray(window.Panel.VertexArrayBuffer)
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
+                GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
+                GL.bindVertexArray(null)
+                
+                step.Shader!.UnBind()
                 step.Output.UnBind()
             }
         }
@@ -206,8 +213,8 @@ export class RenderSystem extends System
         {
             const window = this.Scene.Windows[i]
 
-            this.shader.SetTexture(`U_RenderImage`, this.Scene.Windows[i].FinalComposite.ColourAttachments[0])
-            this.shader.SetFloatVector('U_PanelOffset', window.Position)
+            this.shader.SetTexture(`U_RenderImage`, window.FinalComposite.ColourAttachments.first())
+            this.shader.SetFloatVector('U_PanelOffset', window.Offset)
             this.shader.SetFloatVector('U_PanelScale', window.Scale)
             
             GL.bindVertexArray(window.Panel.VertexArrayBuffer)
@@ -312,6 +319,16 @@ export class RenderSystem extends System
             }
             material.UnBind()
         }
+    }
+
+    private forwardRenderPipeline(window: RenderWindow)
+    {
+        
+    }
+
+    private deferredRenderPipeline(window: RenderWindow)
+    {
+
     }
 
     private _bindShader(material: Material, projection: Matrix4, modelview: Matrix4): void

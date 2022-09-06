@@ -13,8 +13,8 @@ export class Platform extends GameObject
     {
         super.OnCreate()
 
-        this.material = this.Scene.Game.GetComponent('Default BSDF', Material)!
-        // this.material = this.Scene.Game.GetComponent('PlaneMaterial', Material)!
+        // this.material = this.Scene.Game.GetComponent('Default BSDF', Material)!
+        this.material = this.Scene.Game.GetComponent('Basic Lit Material', Material)!
         // this.material.Shader = this.Scene.Game.GetAsset('Basic Shader', Shader)!
         this.cubeCollider = new CubeCollider()
         this.renderer = new MeshRenderer(

@@ -9,7 +9,7 @@ export class DefaultRenderStep extends RenderPipelineStep
             name: output,
             output: new RenderTarget(
             { 
-                colour: [ ColourType.RGBA ],
+                colour: [ ColourType.UINT_RGBA ],
                 depth: DepthType.INT24,
                 height,
                 width,

@@ -16,7 +16,6 @@ export class Invert extends RenderPipelineStep
 
                 out vec2 V_UV;
     
-                uniform float U_Height;
                 void main(void)
                 {
                     gl_Position = vec4(A_Position, 0.0, 1.0);
@@ -40,7 +39,7 @@ export class Invert extends RenderPipelineStep
             ),
             output: new RenderTarget(
             { 
-                colour: [ ColourType.RGBA ],
+                colour: [ ColourType.UINT_RGBA ],
                 depth: DepthType.NONE,
                 height,
                 width,
