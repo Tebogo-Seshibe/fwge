@@ -35,6 +35,7 @@ export class Image2D extends ImageTexture
     
         if (isPowerOf2(image.width) && isPowerOf2(image.height))
         {
+            [].last()
             GL.generateMipmap(GL.TEXTURE_2D)
 
             switch (this.Filtering)

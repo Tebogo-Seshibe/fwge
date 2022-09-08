@@ -12,7 +12,7 @@ export interface IRenderWindow
     renderPipelineMode?: RenderPipelineMode
     camera?: Camera
     mainPass?: RenderPipelineStep
-    pipeline?: AtLeastOne<RenderPipelineStep>
+    pipeline?: RenderPipelineStep[]
 }
 
 export class RenderWindow
@@ -92,14 +92,13 @@ export class RenderWindow
                         output: new RenderTarget(
                         { 
                             colour: [
-                                ColourType.UINT_RGBA, // Colour
+                                ColourType.UINT_RGBA, // Colour [Albedo.R, Albedo.G, Albedo.B, Specular]
                                 ColourType.FLOAT_RGB, // Position
                                 ColourType.FLOAT_RGB, // Normal
-                                ColourType.UINT_RGBA, // Colour [Albedo.R, Albedo.G, Albedo.B, Specular] 
                             ],
                             depth: DepthType.INT24,
-                            height: this.Resolution.Y,
-                            width: this.Resolution.X,
+                            height: this.Resolution.Y * this.Scale.Y,
+                            width: this.Resolution.X * this.Scale.X,
                         }),
                         shader: null!
                     })

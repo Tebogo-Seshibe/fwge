@@ -88,32 +88,6 @@ float DiffuseWeight(vec3 normal, vec3 lightDirection)
     return diffuseWeight * shadowWeight;
 }
 
-vec3 acesToneMapping(vec3 colour)
-{
-    const float slope = 12.0;
-    const float a = 2.51;
-    const float b = 0.03;
-    const float c = 2.43;
-    const float d = 0.59;
-    const float e = 0.14;
-
-    vec4 x = vec4(colour, (colour.r * 0.299) + (colour * 0.587) + (colour * 0.0114));
-    vec4 tonemap = clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
-    float t = x.a;
-    t = t * t / (slope + t);
-
-    return mix(tonemap.rgb, tonemap.aaa, t);
-}
-
-vec3 Gamma(vec3 colour)
-{
-    float gamma = 1.0/2.2;
-    colour.x = pow(colour.x, gamma);
-    colour.y = pow(colour.y, gamma);
-    colour.z = pow(colour.z, gamma);
-    return colour;
-}
-
 void main(void)
 {
     vec3 normal = normalize(V_Normal * texture(U_Sampler.Bump, V_UV).xyz);
@@ -122,7 +96,7 @@ void main(void)
     vec3 directionalDiffuse =(U_DirectionalLight.Colour * U_DirectionalLight.Intensity);
     
     vec4 tex = texture(U_Sampler.Image, V_UV);
-    vec3 ambient = tex.rgb * U_Material.Colour;
+    vec3 ambient = tex.rgb; // * U_Material.Colour;
     vec3 diffuse = directionalShadow * directionalDiffuse;
     vec3 specular = vec3(0.0);
     float alpha = U_Material.Alpha * tex.a;

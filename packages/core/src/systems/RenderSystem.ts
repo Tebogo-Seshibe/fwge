@@ -20,7 +20,38 @@ export class RenderSystem extends System
     shadowRenderTarget!: RenderTarget
     plane!: StaticMesh
     shadowRenderer!: Material
-    shader!: Shader
+    shader: Shader = new Shader(
+        `#version 300 es
+        #pragma vscode_glsllint_stage: vert
+
+        layout(location = 0) in vec2 A_Position;
+
+        uniform vec2 U_PanelOffset;
+        uniform vec2 U_PanelScale;
+        
+        out vec2 V_UV;
+
+        void main(void)
+        {
+            V_UV = A_Position * 0.5 + 0.5;
+            gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
+        }`,
+
+        `#version 300 es
+        #pragma vscode_glsllint_stage: frag
+
+        precision highp float;
+
+        in vec2 V_UV;
+        layout(location = 0) out vec4 O_FragColour;
+
+        uniform sampler2D U_RenderImage;
+
+        void main(void)
+        {
+            O_FragColour = texture(U_RenderImage, V_UV);
+        }`
+    )
     
     // projection = Matrix4.OrthographicProjectionMatrix(-50, 50, 50)
     projection = Matrix4.OrthographicProjection(
@@ -117,38 +148,6 @@ export class RenderSystem extends System
             RenderType.OPAQUE
         )
 
-        this.shader = new Shader(
-            `#version 300 es
-            #pragma vscode_glsllint_stage: vert
-
-            layout(location = 0) in vec2 A_Position;
-
-            uniform vec2 U_PanelOffset;
-            uniform vec2 U_PanelScale;
-            
-            out vec2 V_UV;
-
-            void main(void)
-            {
-                V_UV = A_Position * 0.5 + 0.5;
-                gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
-            }`,
-
-            `#version 300 es
-            #pragma vscode_glsllint_stage: frag
-
-            precision highp float;
-
-            in vec2 V_UV;
-            layout(location = 0) out vec4 O_FragColour;
-
-            uniform sampler2D U_RenderImage;
-
-            void main(void)
-            {
-                O_FragColour = texture(U_RenderImage, V_UV);
-            }`
-        )
     }
 
     Start(): void { }
@@ -206,8 +205,12 @@ export class RenderSystem extends System
         GL.enable(GL.DEPTH_TEST)
         GL.enable(GL.CULL_FACE)
         GL.depthMask(true)
-        
-        this.defaultRenderTarget.Bind()
+
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
+        GL.clearColor(0,0,0,0)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
+
         this.shader.Bind()
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
@@ -223,7 +226,6 @@ export class RenderSystem extends System
             GL.bindVertexArray(null)
         }
         this.shader.UnBind()
-        this.defaultRenderTarget.UnBind()        
     }
 
     renderBatch(batch: Map<number, Map<number, Set<number>>>, projection: Matrix4, modelview: Matrix4, mat?: Material)

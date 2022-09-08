@@ -65,6 +65,12 @@ function getFormatType(type: ColourType | DepthType): number
 
             case ColourType.UINT_RGBA:
                 return GL.RGBA
+
+            case ColourType.FLOAT_RGB:
+                return GL.RGB32F
+
+            case ColourType.FLOAT_RGBA:
+                return GL.RGBA32F
         }
     }
     else
@@ -189,7 +195,8 @@ export class RenderTarget
                 }
                 else
                 {
-                    GL.getExtension('EXT_color_buffer_float')
+                    // GL.getExtension('EXT_color_buffer_float')
+                    GL.getExtension('OES_texture_float')
                     GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.FLOAT, null)
                 }
 

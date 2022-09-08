@@ -12,7 +12,8 @@ export class Shader extends Asset
     private _samplerIndex: number = 0
     private _maxSamplerIndex: number = 15
 
-    public readonly Inputs: Map<string, WebGLUniformLocation | null> = new Map()
+    public readonly Inputs: {[key: string]: WebGLUniformLocation | undefined} = {}
+    public readonly Ignore: Set<string> = new Set()
     
     get Program(): WebGLProgram | null
     {
@@ -201,12 +202,38 @@ export class Shader extends Asset
         GL.useProgram(null)
     }
 
-    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false): void
+    private getLocation(name: string): WebGLUniformLocation | undefined
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
-        if (!location)
+        if (this.Ignore.has(name))
         {
             return
+        }
+        
+        let location = this.Inputs[name]
+        if (!location)
+        {
+            const loc = GL.getUniformLocation(this.Program!, name)
+            if (loc)
+            {
+                this.Inputs[name] = loc
+                location = loc
+            }
+            else
+            {
+                this.Ignore.add(name)
+                return
+            }
+        }
+        
+        return location!
+    }
+    
+    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false): void
+    {
+        const location = this.getLocation(name)
+        if (!location)
+        {
+            return 
         }
 
         const samplerIndex = this._samplerIndex++
@@ -218,35 +245,25 @@ export class Shader extends Asset
         GL.uniform1i(location, samplerIndex)
         GL.activeTexture(GL.TEXTURE0 + samplerIndex)
         GL.bindTexture(is3D ? GL.TEXTURE_3D : GL.TEXTURE_2D, texture)
-
-        if (!this.Inputs.has(name))
-        {
-            this.Inputs.set(name, location)
-        }
     }
 
     SetBool(name: string, bool: boolean): void
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
         
         GL.uniform1i(location, bool ? 1 : 0)
-
-        if (!this.Inputs.has(name))
-        {
-            this.Inputs.set(name, location)
-        }
     }
     
     SetInt(name: string, int: number, unsigned: boolean = false): void
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
         
         if (unsigned)
@@ -257,27 +274,17 @@ export class Shader extends Asset
         {
             GL.uniform1i(location, int)
         }
-
-        if (!this.Inputs.has(name))
-        {
-            this.Inputs.set(name, location)
-        }
     }
 
     SetFloat(name: string, float: number): void
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
         
         GL.uniform1f(location, float)
-
-        if (!this.Inputs.has(name))
-        {
-            this.Inputs.set(name, location)
-        }
     }
     
     SetIntVector(name: string, vector: Vector2): void
@@ -298,12 +305,12 @@ export class Shader extends Asset
     SetIntVector(name: string, vector: [number, number, number, number], unsigned: boolean): void
     SetIntVector(name: string, x: number, y: number, z: number, w: number): void
     SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void
-    SetIntVector(_0: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
+    SetIntVector(name: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this.Inputs.get(_0) ?? GL.getUniformLocation(this.Program!, _0)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
 
         switch (arguments.length)
@@ -389,11 +396,6 @@ export class Shader extends Asset
             }
             break
         }
-
-        if (!this.Inputs.has(_0))
-        {
-            this.Inputs.set(_0, location)
-        }
     }
     
     SetFloatVector(name: string, vector: Vector2): void
@@ -405,12 +407,12 @@ export class Shader extends Asset
     SetFloatVector(name: string, vector: Vector4 | Colour4): void
     SetFloatVector(name: string, vector: [number, number, number, number]): void
     SetFloatVector(name: string, x: number, y: number, z: number, w: number): void
-    SetFloatVector(_0: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
+    SetFloatVector(name: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
     {
-        const location = this.Inputs.get(_0) ?? GL.getUniformLocation(this.Program!, _0)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
 
         switch (arguments.length)
@@ -458,11 +460,6 @@ export class Shader extends Asset
                 break        
             }
         }
-
-        if (!this.Inputs.has(_0))
-        {
-            this.Inputs.set(_0, location)
-        }
     }
     
     SetMatrix(name: string, matrix: Matrix2): void
@@ -479,10 +476,10 @@ export class Shader extends Asset
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void
     SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
     {
-        const location = this.Inputs.get(name) ?? GL.getUniformLocation(this.Program!, name)
+        const location = this.getLocation(name)
         if (!location)
         {
-            return
+            return 
         }
 
         switch (matrix.length)
@@ -496,11 +493,6 @@ export class Shader extends Asset
             case 16:
                 GL.uniformMatrix4fv(location, tranpose, matrix)            
             break
-        }
-
-        if (!this.Inputs.has(name))
-        {
-            this.Inputs.set(name, location)
         }
     }
 }

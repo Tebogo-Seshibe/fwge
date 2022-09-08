@@ -21,6 +21,18 @@ export class FullScreen extends GameObject
 
         this.canvas = GL.canvas
         this.AddComponent(this.light)
+
+        document.onfullscreenchange = e => {
+            e.preventDefault()
+            this.fullscreen = !this.fullscreen
+            console.log(e)
+        }
+
+        document.onpointerlockchange = e => {
+            e.preventDefault()
+            this.hideCursor = !this.hideCursor
+            console.log(e)
+        }
     }
 
     override OnUpdate(): void
@@ -31,27 +43,23 @@ export class FullScreen extends GameObject
 
     override OnInput({ Keyboard, Mouse }: IInputArgs): void
     {
-        if (!this.fullscreen && Keyboard.KeyF === KeyState.PRESSED)
+        if (!this.fullscreen && Keyboard.KeyF11 === KeyState.PRESSED)
         {
-            this.fullscreen = true                    
             this.canvas.requestFullscreen()
         }
 
         if (!this.hideCursor && Mouse.Left === ButtonState.PRESSED)
         {
-            this.hideCursor = true                    
             this.canvas.requestPointerLock()
         }
 
         if (this.fullscreen && Keyboard.KeyT === KeyState.PRESSED)
         {
-            this.fullscreen = false
             document.exitFullscreen()
         }
 
         if (this.hideCursor && Mouse.Right === ButtonState.PRESSED)
         {
-            this.hideCursor = false
             document.exitPointerLock()
         }
 

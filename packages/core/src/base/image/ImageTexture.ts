@@ -32,5 +32,5 @@ export class ImageTexture extends Asset
         GL.bindTexture(GL.TEXTURE_2D, null)
     }
 
-    protected applyImage(image: HTMLImageElement): void {}
+    protected applyImage(...images: HTMLImageElement[]): void {}
 }

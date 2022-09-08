@@ -80,8 +80,7 @@ export const createBasicMaterial = () => new BasicLitMaterial(
 })
 
 interface IPrincipledBSDFMaterial extends IMaterial
-{
-    
+{    
     BaseColour?: string | Colour3 | Vector3 | [number, number, number]
     Subsurface?: string | number
     SubsurfaceColour?: string | Colour3 | Vector3 | [number, number, number]
@@ -230,7 +229,6 @@ export const createPrincipledBSDFMaterial = () => new (class PrincipledBSDFMater
                 this.Normal.Set(args.Normal[0], args.Normal[1], args.Normal[2])
             }
         }
-        console.log(this)
     }
 })(
 {

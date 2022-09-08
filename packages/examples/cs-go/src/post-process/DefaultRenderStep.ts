@@ -7,6 +7,7 @@ export class DefaultRenderStep extends RenderPipelineStep
         super(
         {
             name: output,
+            shader: null!,
             output: new RenderTarget(
             { 
                 colour: [ ColourType.UINT_RGBA ],
