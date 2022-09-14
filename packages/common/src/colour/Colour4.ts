@@ -88,15 +88,22 @@ export class Colour4 extends Float32Array
     constructor(colour: Colour3, alpha: number)
     constructor(colour: Colour4)
     constructor(colour: [number, number, number, number])
-    constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
     {
-        super(typeof _0 === 'number' ? 
-        [
-            _0,
-            _1 ?? _0,
-            _2 ?? _0,
-            _3 ?? _0
-        ] : [_0[0], _0[1], _0[2], _0[3] ?? _1])
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, Colour4.SIZE)
+        }
+        else if (typeof _0 === 'number')
+        {
+            super([_0, _1 ?? _0, _2 ?? _0, _3 ?? _0])
+        }
+        else
+        {
+            super(_0)
+        }
     }
     
     Set(rgba: number): Colour4

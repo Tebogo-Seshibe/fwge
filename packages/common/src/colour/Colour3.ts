@@ -1,6 +1,7 @@
-import { NumberArray } from '../types'
+import { FixedLengthArray, NumberArray } from '../types'
 import { Colour4 } from './Colour4'
 
+export type Colour3Array = FixedLengthArray<number, 3>
 export class Colour3 extends Float32Array
 {    
     get R(): number
@@ -83,19 +84,28 @@ export class Colour3 extends Float32Array
     constructor(colour: Colour3)
     constructor(colour: [number, number, number])
     constructor(colour: Colour4)
-    constructor(_0: Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number)
     {
-        super(typeof _0 === 'number' ? 
-        [
-            _0,
-            _1 ?? _0,
-            _2 ?? _0
-        ] : _0)
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, Colour3.SIZE)
+        }
+        else if (typeof _0 === 'number')
+        {
+            super([_0, _1 ?? _0, _2 ?? _0])
+        }
+        else
+        {
+            super(_0)
+        }
     }
     
     Set(rgb: number): Colour3
     Set(r: number, g: number, b: number): Colour3
     Set(colour: Colour3): Colour3
+    Set(colour: Colour3Array): Colour3
     Set(colour: Colour4): Colour3
     Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number): Colour3
     {

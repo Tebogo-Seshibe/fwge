@@ -26,6 +26,8 @@ export interface IGame
 
 export class Game
 {
+    readonly Height: number
+    readonly Width: number
     readonly Scenes: Map<SceneId, Scene> = new Map()    
     readonly Assets: Map<string, Map<string, Asset>> = new Map()
     readonly Components: Map<string, Map<string, SharedComponent>> = new Map()
@@ -62,8 +64,11 @@ export class Game
 
         this.ResetContext(config.canvas)
 
-        GL.canvas.width = config.width!
-        GL.canvas.height = config.height!
+        GL.canvas.width = config.width
+        GL.canvas.height = config.height
+
+        this.Width = config.width
+        this.Height = config.height
         
         for (const { name, create } of config.prefabs!)
         {

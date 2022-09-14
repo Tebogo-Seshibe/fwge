@@ -9,7 +9,7 @@ out vec3 V_Position;
 out vec3 V_Normal;
 out vec2 V_UV;
 out vec3 V_Colour;
-out vec3 V_LightPosition;
+out vec4 V_LightPosition;
 
 struct Matrix
 {
@@ -17,10 +17,10 @@ struct Matrix
     mat3 Normal;
     mat4 View;
     mat4 Projection;
+    mat4 DirectionalShadow;
 };
 uniform Matrix U_Matrix;
 
-uniform mat4 U_LightSpaceMatrix;
 
 void main(void)
 {
@@ -28,8 +28,7 @@ void main(void)
     V_Normal = normalize(U_Matrix.Normal * A_Normal);
     V_UV = A_UV;
     V_Colour = A_Colour;
-    V_LightPosition = (U_LightSpaceMatrix * vec4(V_Position, 1.0)).xyz;
+    V_LightPosition = U_Matrix.DirectionalShadow * vec4(V_Position, 1.0);
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * vec4(V_Position, 1.0);
-    gl_PointSize = 5.0;
 }

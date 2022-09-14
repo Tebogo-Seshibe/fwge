@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@fwge/animation": "file:../../@fwge/animation",
     "@fwge/common": "file:../../@fwge/common",
     "@fwge/core": "file:../../@fwge/core",

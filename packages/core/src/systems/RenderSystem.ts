@@ -1,25 +1,18 @@
 import { GL, Matrix3, Matrix4 } from "@fwge/common"
-import { ColourType, DepthType, RenderTarget, RenderWindow, Scene, Shader } from "../base"
-import { DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, StaticMesh, Transform } from "../components"
+import { RenderWindow, Scene, Shader } from "../base"
+import { AreaLight, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components"
 import { Light } from "../components/lights/Light"
 import { Entity, getComponent, System } from "../ecs"
 
 export class RenderSystem extends System
 {
-    private _cameraModelViewMatrix: Matrix4 = Matrix4.Identity
     private _lights: Set<Light> = new Set()
     private _transparentBatch: Map<number, Map<number, Set<number>>> = new Map()
     private _batch: Map<number, Map<number, Set<number>>> = new Map()
     private _modelViewMatrices: Map<number, Matrix4> = new Map()
     private _normalMatrices: Map<number, Matrix3> = new Map()
-    private _lightMatrices: Map<number, Matrix4> = new Map()
 
     windows: Window[] = []
-    defaultRenderTarget!: RenderTarget
-    renderTarget!: RenderTarget
-    shadowRenderTarget!: RenderTarget
-    plane!: StaticMesh
-    shadowRenderer!: Material
     shader: Shader = new Shader(
         `#version 300 es
         #pragma vscode_glsllint_stage: vert
@@ -53,103 +46,12 @@ export class RenderSystem extends System
         }`
     )
     
-    // projection = Matrix4.OrthographicProjectionMatrix(-50, 50, 50)
-    projection = Matrix4.OrthographicProjection(
-        [-65, -65, -65],
-        [ 65,  65,  65],
-        [ 90, 90]
-    ).Transpose()
-    modelview = Matrix4.TransformationMatrix(
-        [   0,   0,   0],
-        [  90,   0,   0],
-        [   1,   1,   1]
-    ).Inverse()
-    
     constructor(scene: Scene)
     {
         super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
     }
 
-    Init(): void
-    {
-        this.defaultRenderTarget = new RenderTarget({
-            colour: [],
-            depth: DepthType.NONE,
-            height: 1080,
-            width: 1920,
-            clear: [0,0,0,0]
-        })
-        
-        this.renderTarget = new RenderTarget(
-        {
-            colour: [ ColourType.UINT_RGBA, ColourType.UINT_RGBA ],
-            depth: DepthType.INT24,
-            height: 1080,
-            width: 1920,
-            clear: [0,0,0,0]
-        })
-
-        this.shadowRenderTarget = new RenderTarget(
-        {
-            colour: [],
-            depth: DepthType.FLOAT32,
-            height: 2**14,
-            width: 2**14,
-            clear: [1,1,1,1]
-        })
-
-        this.plane = new StaticMesh(
-        {
-            position: [
-                [-1, 1, 0],
-                [-1,-1, 0],
-                [ 1,-1, 0],
-                [ 1, 1, 0],
-            ],
-            uv: [
-                [0,1],
-                [0,0],
-                [1,0],
-                [1,1],
-            ],
-            index: [
-                0,1,2,0,2,3
-            ]
-        })
-
-        this.shadowRenderer = new Material(
-            new Shader(
-                `#version 300 es
-                #pragma vscode_glsllint_stage: vert
-
-                layout(location = 0) in vec3 A_Position;
-
-                struct Matrix
-                {
-                    mat4 ModelView;
-                    mat4 View;
-                    mat4 Projection;
-                };
-                uniform Matrix U_Matrix;
-                
-                void main(void)
-                {
-                    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
-                }`,
-
-                `#version 300 es
-                #pragma vscode_glsllint_stage: frag
-
-                void main(void)
-                {
-                    
-                }`
-            ),
-            RenderType.OPAQUE
-        )
-
-    }
-
+    Init(): void { }
     Start(): void { }
     Stop(): void { }    
 
@@ -160,9 +62,12 @@ export class RenderSystem extends System
             const projection = window.Camera.ProjectionMatrix
             const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
             
+            this.createShadowMaps()
+
             window.MainPass.Output.Bind()
             this.renderBatch(this._batch, projection, modelview)
             this.renderBatch(this._transparentBatch, projection, modelview)
+            this.renderSkybox(projection, modelview)
             window.MainPass.Output.UnBind()
 
             for (const step of window.RenderPipeline)
@@ -206,9 +111,11 @@ export class RenderSystem extends System
         GL.enable(GL.CULL_FACE)
         GL.depthMask(true)
 
+        const dir = [...this._lights].filter(x => x instanceof DirectionalLight).first() as DirectionalLight
+        // console.log(dir)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0,0,0,0)
+        GL.clearColor(0, 0, 0, 0)
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
         this.shader.Bind()
@@ -219,7 +126,11 @@ export class RenderSystem extends System
             this.shader.SetTexture(`U_RenderImage`, window.FinalComposite.ColourAttachments.first())
             this.shader.SetFloatVector('U_PanelOffset', window.Offset)
             this.shader.SetFloatVector('U_PanelScale', window.Scale)
-            
+
+            // this.shader.SetTexture(`U_RenderImage`, dir.RenderTarget.DepthAttachment!)
+            // this.shader.SetFloatVector('U_PanelOffset', [0, 0])
+            // this.shader.SetFloatVector('U_PanelScale', [1, 1])
+                
             GL.bindVertexArray(window.Panel.VertexArrayBuffer)
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
             GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
@@ -227,24 +138,81 @@ export class RenderSystem extends System
         }
         this.shader.UnBind()
     }
+    
+    createShadowMaps()
+    {
+        for (let light of this._lights)
+        {
+            if (light instanceof PointLight)
+            {
+                if (!light.CastShadows)
+                {
+                    continue
+                }
+            }
+            else if (light instanceof DirectionalLight)
+            {
+                if (!light.CastShadows)
+                {
+                    continue
+                }
+                
+                light.BindForShadows()
+                this.renderBatchShadows(this._batch, DirectionalLight.ShadowShader)
+                this.renderBatchShadows(this._transparentBatch, DirectionalLight.ShadowShader)
+                light.UnbindForShadows()
+            }
+        }
+    }
 
-    renderBatch(batch: Map<number, Map<number, Set<number>>>, projection: Matrix4, modelview: Matrix4, mat?: Material)
+    renderSkybox(projectionMatrix: Matrix4, viewMatrix: Matrix4)
+    {
+        GL.enable(GL.DEPTH_TEST)
+        GL.enable(GL.CULL_FACE)
+        GL.cullFace(GL.FRONT)
+        GL.depthFunc(GL.LEQUAL)
+
+        for (const light of this._lights)
+        {
+            if (!(light instanceof AreaLight) || !light.SkyboxTexture)
+            {
+                continue
+            }            
+            
+            const view = Matrix4.Multiply(viewMatrix, Matrix4.RotationMatrix(0, 0, 180))
+            view[3] = 0
+            view[7] = 0
+            view[11] = 0
+
+            light.SkyboxShader.Bind()
+            light.SkyboxShader.SetMatrix('U_Matrix.View', view, true)
+            light.SkyboxShader.SetMatrix('U_Matrix.Projection', projectionMatrix, true)
+            light.SkyboxShader.SetTexture('U_Skybox', light.SkyboxTexture.Texture, false, true)
+
+            GL.bindVertexArray(light.Skybox.VertexArrayBuffer)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, light.Skybox.FaceBuffer)
+            GL.drawElements(GL.TRIANGLES, light.Skybox.FaceCount, GL.UNSIGNED_BYTE, 0)
+            GL.bindVertexArray(null)
+
+            light.SkyboxShader.UnBind()
+        }
+
+        GL.depthFunc(GL.LESS)
+        GL.cullFace(GL.BACK)
+    }
+
+    renderBatch(batch: Map<number, Map<number, Set<number>>>, projection: Matrix4, modelview: Matrix4)
     {
         for (const [materialId, renderers] of batch)
         {
-            const material = mat ?? getComponent(Material, materialId)
+            const material = getComponent(Material, materialId)
             if (!material.Shader)
             {
                 continue
             }
 
             material.Bind()
-            this._bindShader(material, projection, modelview) 
-            if (!this.projection.Equals(projection))         
-            {
-                material.Shader.SetMatrix('U_LightSpaceMatrix', Matrix4.Multiply(this.projection, this.modelview))
-                material.Shader.SetTexture('U_Sampler.ShadowMap', this.shadowRenderTarget.DepthAttachment!)
-            }
+            this._bindShader(material.Shader, projection, modelview) 
 
             for (const [rendererId, transforms] of renderers)
             {
@@ -323,33 +291,102 @@ export class RenderSystem extends System
         }
     }
 
-    private forwardRenderPipeline(window: RenderWindow)
+    renderBatchShadows(batch: Map<number, Map<number, Set<number>>>, shader: Shader)
     {
-        
+        for (const [, renderers] of batch)
+        {
+            for (const [rendererId, transforms] of renderers)
+            {
+                const renderer = getComponent(Renderer, rendererId)
+                const mesh = renderer.Asset!
+                let mode = -1
+                let count = 0
+                let buffer = null
+                
+                switch (renderer.RenderMode)
+                {
+                    case RenderMode.FACE:
+                    {
+                        mode = GL.TRIANGLES
+                        count = mesh.FaceCount
+
+                        if (mesh.IsIndexed)
+                        {
+                            buffer = mesh.FaceBuffer
+                        }
+                    }
+                    break
+
+                    case RenderMode.EDGE:
+                    {
+                        mode = GL.LINES
+                        count = mesh.EdgeCount
+
+                        if (mesh.IsIndexed)
+                        {
+                            buffer = mesh.EdgeBuffer
+                            mode = GL.LINES
+                        }
+                    }
+                    break
+
+                    case RenderMode.POINT:
+                    {
+                        mode = GL.POINTS
+                        count = mesh.PointCount
+
+                        if (mesh.IsIndexed)
+                        {
+                            buffer = mesh.PointBuffer
+                        }
+                    }
+                    break
+                }
+
+                GL.bindVertexArray(mesh.VertexArrayBuffer)
+                for (const transformId of transforms)
+                {
+                    const transform = getComponent(Transform, transformId)
+                    const modelView = this._modelViewMatrices.get(transformId)!
+                    const normal = this._normalMatrices.get(transformId)!
+
+                    transform.ModelViewMatrix(modelView)
+                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+                    
+                    shader.SetMatrix('U_Matrix.ModelView', modelView, true)
+                    shader.SetMatrix('U_Matrix.Normal', normal, true)
+                    
+                    if (buffer)
+                    {
+                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+                    }
+                    else
+                    {
+                        GL.drawArrays(mode, 0, count)
+                    }
+                }
+                GL.bindVertexArray(null)
+            }
+        }
     }
 
-    private deferredRenderPipeline(window: RenderWindow)
+    private _bindShader(shader: Shader, projection: Matrix4, modelview: Matrix4, useLighting: boolean = true): void
     {
-
-    }
-
-    private _bindShader(material: Material, projection: Matrix4, modelview: Matrix4): void
-    {
-        const shader = material.Shader!
         shader.SetMatrix('U_Matrix.View', modelview, true)
         shader.SetMatrix('U_Matrix.Projection', projection, true)
 
+        if (!useLighting)
+        {
+            return
+        }
+
         let point_count: number = 0
-        let directional_count: number = 0
         for (let light of this._lights)
         {
             if (light instanceof PointLight)
             {
                 light.Bind(shader, point_count++)
-            }
-            else if (light instanceof DirectionalLight)
-            {
-                light.Bind(shader, directional_count++)
             }
             else
             {

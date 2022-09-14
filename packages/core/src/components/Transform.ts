@@ -10,9 +10,10 @@ export interface ITransform
 
 export class Transform extends UniqueComponent
 {
-    public readonly Position: Vector3
-    public readonly Rotation: Vector3
-    public readonly Scale: Vector3
+    private readonly _buffer: Float32Array = new Float32Array(9)
+    public readonly Position: Vector3 = new Vector3(this._buffer, 0 * Float32Array.BYTES_PER_ELEMENT)
+    public readonly Rotation: Vector3 = new Vector3(this._buffer, 3 * Float32Array.BYTES_PER_ELEMENT)
+    public readonly Scale: Vector3 = new Vector3(this._buffer, 6 * Float32Array.BYTES_PER_ELEMENT)
 
     SetPosition(xyz: number): void
     SetPosition(x: number, y: number, z: number): void
@@ -154,44 +155,32 @@ export class Transform extends UniqueComponent
     constructor(args: ITransform = { })
     {
         super()
-
-        if (args.position instanceof Array)
+        
+        if (args.position)
         {
-            this.Position = new Vector3(args.position[0], args.position[1], args.position[2])
-        }
-        else if (!args.position)
-        {
-            this.Position = new Vector3(0, 0, 0)
+            this.Position.Set(args.position)
         }
         else
         {
-            this.Position = args.position
+            this.Position.Set(0, 0, 0)
         }
 
-        if (args.rotation instanceof Array)
+        if (args.rotation)
         {
-            this.Rotation = new Vector3(args.rotation[0], args.rotation[1], args.rotation[2])
-        }
-        else if (!args.rotation)
-        {
-            this.Rotation = new Vector3(0, 0, 0)
+            this.Rotation.Set(args.rotation)
         }
         else
         {
-            this.Rotation = args.rotation
+            this.Rotation.Set(0, 0, 0)
         }
 
-        if (args.scale instanceof Array)
+        if (args.scale)
         {
-            this.Scale = new Vector3(args.scale[0], args.scale[1], args.scale[2])
-        }
-        else if (!args.scale)
-        {
-            this.Scale = new Vector3(1, 1, 1)
+            this.Scale.Set(args.scale)
         }
         else
         {
-            this.Scale = args.scale
+            this.Scale.Set(1, 1, 1)
         }
     }
 }

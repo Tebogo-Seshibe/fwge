@@ -1,4 +1,4 @@
-import { Material, Mesh, MeshRenderer, Renderer, RenderMode } from "@fwge/core"
+import { BasicLitMaterial, Material, Mesh, MeshRenderer, Renderer, RenderMode, RenderType, Shader } from "@fwge/core"
 import { IInputArgs, KeyState } from "@fwge/input"
 import { CubeCollider } from "@fwge/physics"
 import { GameObject } from "./GameObject"
@@ -13,9 +13,13 @@ export class Platform extends GameObject
     {
         super.OnCreate()
 
-        // this.material = this.Scene.Game.GetComponent('Default BSDF', Material)!
-        this.material = this.Scene.Game.GetComponent('Basic Lit Material', Material)!
-        // this.material.Shader = this.Scene.Game.GetAsset('Basic Shader', Shader)!
+        this.material = new BasicLitMaterial(
+        {
+            shader: this.Scene.Game.GetAsset('Basic Shader', Shader)!,
+            colour: [0.5,1,0.5],
+            alpha: 1.0,
+            renderType: RenderType.OPAQUE
+        })
         this.cubeCollider = new CubeCollider()
         this.renderer = new MeshRenderer(
         {

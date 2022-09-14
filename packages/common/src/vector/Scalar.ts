@@ -1,0 +1,267 @@
+import { FixedLengthArray, NumberArray } from "../types"
+import { IEquatable } from "../utils"
+
+export type ScalarArray = FixedLengthArray<number, 1>
+
+export class Scalar extends Float32Array implements IEquatable<Scalar>
+{
+    //#region Local Properties
+    get Value(): number
+    {
+        return this[0]
+    }
+
+    set Value(v: number)
+    {
+        this[0] = v
+    }
+    //#endregion
+
+    constructor()
+    constructor(value: number)
+    constructor(array: NumberArray)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | NumberArray | number = 0, _1?: number)
+    {
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, 1)
+        }
+        else if (typeof _0 === 'number')
+        {
+            super([_0])
+        }
+        else
+        {
+            super(_0)
+        }
+    }
+
+    //#region Local Methods
+    Set(value: number): Scalar
+    Set(vector: Scalar): Scalar
+    Set(array: NumberArray): Scalar
+    Set(_0: Scalar | NumberArray | number, _1?: number): Scalar
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] = _0
+        }
+        else
+        {            
+            this[0] = _0[0]
+        }
+        
+        return this
+    }
+
+    Negate(): Scalar
+    {
+        this[0] = -this[0]
+
+        return this
+    }
+    
+    Add(value: number): Scalar
+    Add(vector: Scalar): Scalar
+    Add(array: NumberArray): Scalar
+    Add(_0: Scalar | NumberArray | number, _1?: number): Scalar
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] += _0
+        }
+        else
+        {
+            this[0] += _0[0]
+        }
+        
+        return this
+    }
+
+    Subtract(value: number): Scalar
+    Subtract(vector: Scalar): Scalar
+    Subtract(array: NumberArray): Scalar
+    Subtract(_0: Scalar | NumberArray | number, _1?: number): Scalar
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] -= _0
+        }
+        else
+        {
+            this[0] -= _0[0]
+        }
+        
+        return this
+    }
+
+    Multiply(value: number): Scalar
+    Multiply(vector: Scalar): Scalar
+    Multiply(array: NumberArray): Scalar
+    Multiply(_0: Scalar | NumberArray | number, _1?: number): Scalar
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] *= _0
+        }
+        else
+        {
+            this[0] *= _0[0]
+        }
+        
+        return this
+    }
+
+    Divide(value: number): Scalar
+    Divide(vector: Scalar): Scalar
+    Divide(array: NumberArray): Scalar
+    Divide(_0: Scalar | NumberArray | number, _1?: number): Scalar
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] /= _0
+        }
+        else
+        {
+            this[0] /= _0[0]
+        }
+        
+        return this
+    }
+
+    Scale(scalar: number): Scalar
+    {
+        this[0] *= scalar
+        
+        return this
+    }
+    
+    Clone(): Scalar
+    {
+        return new Scalar(this)
+    }
+
+    Equals(other: Scalar): boolean
+    {
+        return this[0] === other[0]
+    }
+    //#endregion
+
+    public static readonly SIZE: number = 1
+    //#endregion
+    
+    //#region Static Methods
+    static Negate(vector: Scalar): Scalar
+    static Negate(vector: Scalar, outVector: Scalar): Scalar
+    static Negate(_0: Scalar, _1?: Scalar): Scalar
+    {
+        const out = _1 ?? new Scalar()
+
+        out[0] = -_0[0]
+        out[1] = -_0[1]
+
+        return out
+    }
+
+    static Add(value1: number, value2: number): Scalar
+    static Add(value1: number, value2: number, out: Scalar): Scalar
+    static Add(scalar1: Scalar, scalar2: Scalar): Scalar
+    static Add(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar
+    static Add(array1: NumberArray, array2: NumberArray): Scalar
+    static Add(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar
+    static Add(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    {
+        const out: Scalar = _4 ?? _2 instanceof Scalar ? _2 as Scalar : new Scalar()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) + (_2 as number)
+        }
+        else
+        {
+            out[0] = _0[0] + _1[0]
+        }
+
+        return out
+    }
+
+    static Subtract(value1: number, value2: number): Scalar
+    static Subtract(value1: number, value2: number, out: Scalar): Scalar
+    static Subtract(scalar1: Scalar, scalar2: Scalar): Scalar
+    static Subtract(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar
+    static Subtract(array1: NumberArray, array2: NumberArray): Scalar
+    static Subtract(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar
+    static Subtract(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    {
+        const out: Scalar = _4 ?? _2 instanceof Scalar ? _2 as Scalar : new Scalar()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) - (_2 as number)
+        }
+        else
+        {
+            out[0] = _0[0] - _1[0]
+        }
+
+        return out
+    }
+
+    static Multiply(value1: number, value2: number): Scalar
+    static Multiply(value1: number, value2: number, out: Scalar): Scalar
+    static Multiply(scalar1: Scalar, scalar2: Scalar): Scalar
+    static Multiply(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar
+    static Multiply(array1: NumberArray, array2: NumberArray): Scalar
+    static Multiply(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar
+    static Multiply(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    {
+        const out: Scalar = _4 ?? _2 instanceof Scalar ? _2 as Scalar : new Scalar()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) * (_2 as number)
+        }
+        else
+        {
+            out[0] = _0[0] * _1[0]
+        }
+
+        return out
+    }
+
+    static Divide(value1: number, value2: number): Scalar
+    static Divide(value1: number, value2: number, out: Scalar): Scalar
+    static Divide(scalar1: Scalar, scalar2: Scalar): Scalar
+    static Divide(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar
+    static Divide(array1: NumberArray, array2: NumberArray): Scalar
+    static Divide(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar
+    static Divide(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    {
+        const out: Scalar = _4 ?? _2 instanceof Scalar ? _2 as Scalar : new Scalar()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) / (_2 as number)
+        }
+        else
+        {
+            out[0] = _0[0] / _1[0]
+        }
+
+        return out
+    }
+
+    static Scale(value: Scalar, scalar: number): Scalar
+    static Scale(vector: Scalar, scalar: number, out: Scalar): Scalar
+    static Scale(_0: Scalar, _1: number, _2?: Scalar): Scalar
+    {
+        const out: Scalar = _2 ?? new Scalar()
+
+        out[0] = _0[0] * _1
+        
+        return out
+    }
+    //#endregion
+}

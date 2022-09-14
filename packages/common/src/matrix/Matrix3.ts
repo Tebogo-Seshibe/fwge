@@ -2,6 +2,7 @@ import { FixedLengthArray, NumberArray } from "../types"
 import { radian } from "../utils"
 import { IEquatable } from "../utils/interfaces/IEquatable"
 import { Vector3 } from "../vector"
+import { Matrix2 } from "./Matrix2"
 import { Matrix4 } from "./Matrix4"
 
 export type Matrix3Array = FixedLengthArray<number, 9>
@@ -156,24 +157,45 @@ export class Matrix3 extends Float32Array implements IEquatable<Matrix3>
     constructor(matrix: Matrix3)
     constructor(matrix: Matrix4)
     constructor(array: NumberArray)
-    constructor(_0: Matrix4 | Matrix3 | Matrix3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
     {
-        super(typeof _0 === 'number' ?
-        [ 
-                 _0, _1 ??  0, _2 ??  0,
-            _3 ?? 0, _4 ?? _0, _5 ??  0,
-            _6 ?? 0, _7 ??  0, _8 ?? _0
-        ] : _0 instanceof Matrix4 || _0 instanceof Matrix3 ? 
-        [
-            _0.M11, _0.M12, _0.M13,
-            _0.M21, _0.M22, _0.M23,
-            _0.M31, _0.M32, _0.M33,
-        ] : _0 instanceof Matrix3 ?
-        [
-            _0.M11, _0.M12, 0,
-            _0.M21, _0.M22, 0,
-                 0,      0, 0,
-        ] : _0)
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, Matrix3.SIZE)
+        }
+        else if (_0 instanceof Matrix3 || _0 instanceof Matrix4)
+        {
+            super(
+            [
+                _0.M11, _0.M12, _0.M13,
+                _0.M21, _0.M22, _0.M23,
+                _0.M31, _0.M32, _0.M33,
+            ])
+        }
+        else if (_0 instanceof Matrix2)
+        {
+            super(
+            [
+                _0.M11, _0.M12, 0,
+                _0.M21, _0.M22, 0,
+                     0,      0, 0,
+            ])
+        }
+        else if (typeof _0 === 'number')
+        {
+            super(
+            [
+                     _0, _1 ??  0, _2 ??  0,
+                _3 ?? 0, _4 ?? _0, _5 ??  0,
+                _6 ?? 0, _7 ??  0, _8 ?? _0
+            ])
+        }
+        else
+        {
+            super(_0)
+        }
     }
 
     //#region Local Methods

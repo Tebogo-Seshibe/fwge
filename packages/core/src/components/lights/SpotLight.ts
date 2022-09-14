@@ -6,6 +6,7 @@ import { ILight, Light } from "./Light"
 export interface ISpotLight extends ILight
 {
     angle?: number
+    radius?: number
     direction?: Vector3 | Vector3Array
     castShadows?: boolean
 }
@@ -13,6 +14,7 @@ export interface ISpotLight extends ILight
 export class SpotLight extends Light
 {
     Angle: number
+    Radius: number
     readonly Direction: Vector3
     CastShadows: boolean
 
@@ -22,9 +24,11 @@ export class SpotLight extends Light
     {
         super(
             light.colour && new Colour3(light.colour as Vector3Array),
-            light.intensity
+            light.intensity,
+            new Float32Array(12)
         )
 
+        this.Radius = light.radius ?? 5
         this.Angle = light.angle ?? 15
         this.Direction = light.direction ? new Vector3(light.direction) : new Vector3(0, -1, 0)
         this.CastShadows = light.castShadows ?? false
@@ -32,10 +36,19 @@ export class SpotLight extends Light
 
     override Bind(shader: Shader, index?: number): void
     {
-        shader.SetFloatVector(`U_SpotLight[${index!}].Colour`, this.Colour)
-        shader.SetFloat(`U_SpotLight[${index!}].Intensity`, this.Intensity)
-        shader.SetFloat(`U_SpotLight[${index!}].Angle`, this.Angle)
-        shader.SetFloatVector(`U_SpotLight[${index!}].Position`, this.Owner!.GetComponent(Transform)!.GlobalPosition())
-        shader.SetFloatVector(`U_SpotLight[${index!}].Direction`, this.Direction)
+        this.BufferData.set(this.Colour, 0)
+        this.BufferData[3] = this.Intensity
+        this.BufferData.set(this.Owner!.GetComponent(Transform)!.GlobalPosition(), 4)
+        this.BufferData[7] = this.Radius
+        this.BufferData.set(this.Direction, 8)
+        this.BufferData[11] = this.Angle
+        {
+            `
+                [R] [G] [B] [intensity]
+                [X] [Y] [Z] [radius]
+                [X] [Y] [Z] [angle]
+            `
+        }
+        super.Bind(shader)
     }
 }

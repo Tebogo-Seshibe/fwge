@@ -3,13 +3,14 @@ import { Class, Constructor, EntityId, RegistryType } from "../ecs/Registry"
 import { System } from "../ecs/System"
 import { Game } from "./Game"
 import { Prefab } from "./Prefab"
+import { DefaultWindow } from "./render/DefaultWindow"
 import { IRenderWindow, RenderWindow } from "./render/RenderWindow"
 
 export type SceneType = Class<Scene>
 
 export interface IScene
 {
-    windows?: Array<RenderWindow | IRenderWindow>
+    windows: Class<RenderWindow>[]
     systems: Class<System>[]
     entities: (Class<Entity> | Prefab)[]
 }
@@ -19,7 +20,7 @@ export class Scene extends RegistryType
     readonly Game: Game
     readonly Entities: Map<EntityId, Entity> = new Map()
     readonly Systems: System[] = []
-    readonly Windows: RenderWindow[] = [ new RenderWindow() ]
+    readonly Windows: RenderWindow[] = []
 
     #running: boolean = false
 
@@ -32,19 +33,15 @@ export class Scene extends RegistryType
         this.Game = game
 
         config = {
-            ...config,
+            windows: config?.windows ?? [ DefaultWindow ],
             entities: config?.entities ?? [],
-            systems: config?.systems ?? []
+            systems: config?.systems ?? [],
+            ...config,
         }
 
-        if (config.windows && config.windows.length > 0)
+        for (const WindowConstructor of config.windows!)
         {
-            this.Windows = config.windows.map(window => {
-                if (window instanceof RenderWindow)
-                    return window
-
-                return new RenderWindow(window)
-            })
+            this.Windows.push(new WindowConstructor(this))
         }
 
         for (const SystemConstructor of config.systems)

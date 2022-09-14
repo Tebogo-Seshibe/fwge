@@ -22,7 +22,8 @@ export class BasicLitMaterial extends Material
 {
     Alpha: number = 1
     Shininess: number = 32
-    HasTransparency: boolean = false    
+    HasTransparency: boolean = false
+    ReceiveShadows: boolean = true
     readonly Ambient: Colour3 = new Colour3(0.30)
     readonly Diffuse: Colour3 = new Colour3(0.75)
     readonly Specular: Colour3 = new Colour3(1.00)
@@ -139,7 +140,8 @@ export class BasicLitMaterial extends Material
         const shader = this.Shader
 
         shader.SetFloat(`U_Material.Shininess`, this.Shininess)
-        shader.SetFloat(`U_Material.Alpha`, this.Alpha)   
+        shader.SetFloat(`U_Material.Alpha`, this.Alpha)
+        shader.SetBool(`U_Material.ReceiveShadows`, this.ReceiveShadows)
         shader.SetFloatVector('U_Material.Ambient', this.Ambient)
         shader.SetFloatVector('U_Material.Diffuse', this.Diffuse)
         shader.SetFloatVector('U_Material.Specular', this.Specular)
@@ -147,8 +149,8 @@ export class BasicLitMaterial extends Material
 
         if (this.Textures[0])
         {
-            shader.SetTexture('U_Sampler.Image', this.Textures[0])
-            // shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
+            // shader.SetTexture('U_Sampler.Image', this.Textures[0])
+            shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
         }
         else
         {

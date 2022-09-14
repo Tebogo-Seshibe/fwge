@@ -1,8 +1,7 @@
 import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
-import { Transform } from "@fwge/core"
-import { IInputArgs, KeyState } from "@fwge/input"
+import { Camera, PerspectiveCamera, PointLight, Transform } from "@fwge/core"
+import { IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
-import { Camera, Light, PerspectiveCamera, PointLight } from "@fwge/core"
 import { GameObject } from "./GameObject"
 
 export class FPSController extends GameObject
@@ -17,37 +16,36 @@ export class FPSController extends GameObject
     readonly rotationDelta: Vector2 = Vector2.Zero
     readonly rotationMatrix: Matrix3 = Matrix3.Identity
 
-    readonly movementSpeed: number = 15
-    readonly turnSpeed: number = 50
+    readonly movementSpeed: number = 15 // * 0.2
+    readonly turnSpeed: number = 50 // * 0.2
     readonly jumpHeight: number = 15
-    
     canJump: boolean = true
-
+    
     rigidbody!: RigidBody
     collider!: Collider
-    light!: Light
 
     override OnCreate(): void
     {
-        this.transform.Position.Z = 50
-
         this.rigidbody = new RigidBody({ mass: 5 })
         this.collider = new CubeCollider(
         {
             isTrigger: true,
             position: new Vector3(0, 0.25, 0),
         })
-        this.light = new PointLight(
+
+        this.AddComponent(new PointLight(
         {
-            intensity: 1,
-            radius: 1
-        })
+            colour: [1, 1, 1],
+            intensity: 1.0,
+            radius: 25
+        }))
 
         this.AddComponent(this.rigidbody)        
         this.AddChild(
-            this.Scene.CreateEntity()
-            .AddComponent(this.cameraTransform)
-            .AddComponent(this.camera)
+            this.Scene
+                .CreateEntity()
+                .AddComponent(this.cameraTransform)
+                .AddComponent(this.camera)
         )
 
         this.Scene.Windows.first().Camera = this.camera
@@ -55,6 +53,11 @@ export class FPSController extends GameObject
 
     override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
     {
+        this.handleMovement(Keyboard, Mouse, delta)
+    }
+    
+    private handleMovement(Keyboard: KeyboardState, Mouse: MouseState, delta: number)
+    {    
         const wPressed = Keyboard.KeyW !== KeyState.RELEASED && Keyboard.KeyW !== KeyState.UP
         const aPressed = Keyboard.KeyA !== KeyState.RELEASED && Keyboard.KeyA !== KeyState.UP
         const sPressed = Keyboard.KeyS !== KeyState.RELEASED && Keyboard.KeyS !== KeyState.UP

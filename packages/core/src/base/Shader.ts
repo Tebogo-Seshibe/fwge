@@ -149,6 +149,9 @@ export class Shader extends Asset
 
         const log = []
 
+        GL.shaderSource(vertexShader, `
+        precision highp float;
+        const float age = 28.0;`)
         GL.shaderSource(vertexShader, this._vertexSource)
         GL.compileShader(vertexShader)
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
@@ -228,7 +231,7 @@ export class Shader extends Asset
         return location!
     }
     
-    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false): void
+    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
     {
         const location = this.getLocation(name)
         if (!location)
@@ -244,7 +247,19 @@ export class Shader extends Asset
 
         GL.uniform1i(location, samplerIndex)
         GL.activeTexture(GL.TEXTURE0 + samplerIndex)
-        GL.bindTexture(is3D ? GL.TEXTURE_3D : GL.TEXTURE_2D, texture)
+        if (is3D)
+        {
+            GL.bindTexture(GL.TEXTURE_3D, texture)
+        }
+        else if (isCube)
+        {
+            GL.bindTexture(GL.TEXTURE_CUBE_MAP, texture)
+        }
+        else
+        {
+            GL.bindTexture(GL.TEXTURE_2D, texture)
+        }
+
     }
 
     SetBool(name: string, bool: boolean): void

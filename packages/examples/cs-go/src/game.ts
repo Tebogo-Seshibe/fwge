@@ -3,11 +3,10 @@ import { basicShader, basicShader2, createBasicShader, createDefaultShader, crea
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
-import { Round } from './scenes'
 import { De_Dust2 } from './scenes/De_Dust2'
-import { ModernWarfare } from './scenes/ModernWarfare'
 import { SolarSystem } from './scenes/SolarSystem'
 import { Sponza } from './scenes/Sponza'
+import { Test } from './scenes/Test'
 
 export class CSGO extends Game
 {
@@ -18,11 +17,12 @@ export class CSGO extends Game
             canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
             height: 2560,
             width: 1440,
-            startupScene: SolarSystem,
+            startupScene: Test,
             scenes: [
                 // Round,
+                Test,
                 // Sponza,
-                SolarSystem,
+                // SolarSystem,
                 // ModernWarfare,
                 // De_Dust2
             ],

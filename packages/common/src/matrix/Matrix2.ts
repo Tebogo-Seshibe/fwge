@@ -93,17 +93,34 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     constructor(matrix: Matrix3)
     constructor(matrix: Matrix4)
     constructor(array: NumberArray)
-    constructor(_0: Matrix4 | Matrix3 | Matrix2 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
     {
-        super(typeof _0 === 'number' ?
-        [ 
-                 _0, _1 ??  0,
-            _2 ?? 0, _3 ?? _0
-        ] : _0 instanceof Matrix4 || _0 instanceof Matrix3 || _0 instanceof Matrix2 ?
-        [
-            _0.M11, _0.M12,
-            _0.M21, _0.M22
-        ]: _0)
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, Matrix2.SIZE)
+        }
+        else if (_0 instanceof Matrix4 || _0 instanceof Matrix3 || _0 instanceof Matrix2)
+        {
+            super(
+            [
+                _0.M11, _0.M12,
+                _0.M21, _0.M22
+            ])
+        }
+        else if (typeof _0 === 'number')
+        {
+            super(
+            [
+                     _0, _1 ?? 0,
+                _2 ?? 0, _3 ?? _0
+            ])
+        }
+        else
+        {
+            super(_0)
+        }
     }
 
     //#region Local Methods

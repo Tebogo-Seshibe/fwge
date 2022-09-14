@@ -19,6 +19,12 @@ export class Image2D extends ImageTexture
         {
             this.Load(config.source)
         }
+        else
+        {
+            GL.bindTexture(GL.TEXTURE_2D, this.Texture)
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+            GL.bindTexture(GL.TEXTURE_2D, null)
+        }
     }
 
     Load(source: string): void
@@ -31,11 +37,11 @@ export class Image2D extends ImageTexture
     protected applyImage(image: HTMLImageElement): void
     {
         GL.bindTexture(GL.TEXTURE_2D, this.Texture)
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image)
+        // GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image.buffer())
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, image.width, image.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, image.buffer())
     
         if (isPowerOf2(image.width) && isPowerOf2(image.height))
         {
-            [].last()
             GL.generateMipmap(GL.TEXTURE_2D)
 
             switch (this.Filtering)

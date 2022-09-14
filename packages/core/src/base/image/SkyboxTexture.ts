@@ -1,14 +1,14 @@
 import { GL } from "@fwge/common"
-import { ImageTexture } from "./ImageTexture"
+import { Image3D } from "./Image3D"
 
-export interface ICubemap
+export interface ISkyboxTexture
 {
     source: string
 }
 
-export class Cubemap extends ImageTexture
+export class SkyboxTexture extends Image3D
 {
-    constructor(config: ICubemap)
+    constructor(config: ISkyboxTexture)
     {
         super()
 

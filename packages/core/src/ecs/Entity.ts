@@ -51,11 +51,13 @@ export class Entity extends RegistryType
     }
 
     public GetComponent<T extends Component>(componentType: Class<T>): T | undefined
+    public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, childComponentType: Class<U>): U | undefined
+    public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, _?: Class<U>): U | undefined
     {
         const compnentId = this.#components.get(componentType)
         if (compnentId !== undefined)
         {
-            return getComponent(componentType, compnentId)
+            return getComponent(componentType, compnentId) as U
         }
     }
 

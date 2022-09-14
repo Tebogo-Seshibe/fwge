@@ -44,13 +44,22 @@ export class Vector2 extends Float32Array implements IEquatable<Vector2>
     constructor(x: number, y: number)
     constructor(vector: Vector2)
     constructor(array: NumberArray)
-    constructor(_0: Vector2 | NumberArray | number = 0, _1?: number)
+    constructor(buffer: ArrayBuffer)
+    constructor(buffer: ArrayBuffer, byteOffset: number)
+    constructor(_0: ArrayBuffer | Vector2 | NumberArray | number = 0, _1?: number)
     {
-        super(typeof _0 === 'number' ? 
-        [
-            _0,
-            _1 ?? _0
-        ] : _0)
+        if (_0 instanceof ArrayBuffer)
+        {
+            super(_0, _1 ?? 0, Vector2.SIZE)
+        }
+        else if (typeof _0 === 'number')
+        {
+            super([_0, _1 ?? _0])
+        }
+        else
+        {
+            super(_0)
+        }
     }
 
     //#region Local Methods
@@ -477,3 +486,5 @@ export class Vector2 extends Float32Array implements IEquatable<Vector2>
     }
     //#endregion
 }
+
+(window as any).Vector2 = Vector2

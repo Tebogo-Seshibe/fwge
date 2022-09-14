@@ -61,25 +61,26 @@ export class Material extends SharedComponent
         const img: HTMLImageElement = new Image()
         img.onload = () =>
         {
-            setTimeout(() => {
-            GL.bindTexture(GL.TEXTURE_2D, texture)
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
-    
-            if (isPowerOf2(img.width) && isPowerOf2(img.height))
+            setTimeout(() =>
             {
-                GL.generateMipmap(GL.TEXTURE_2D)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-            }
-            else
-            {
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-            }
-    
-            GL.bindTexture(GL.TEXTURE_2D, null)
+                GL.bindTexture(GL.TEXTURE_2D, texture)
+                GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
+        
+                if (isPowerOf2(img.width) && isPowerOf2(img.height))
+                {
+                    GL.generateMipmap(GL.TEXTURE_2D)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                }
+                else
+                {
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                }
+        
+                GL.bindTexture(GL.TEXTURE_2D, null)
             })
         }
     
