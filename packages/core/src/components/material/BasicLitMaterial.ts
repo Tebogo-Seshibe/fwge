@@ -1,4 +1,4 @@
-import { Colour3, GL, Vector3 } from "@fwge/common"
+import { Colour3, GL, Vector3, Vector3Array } from "@fwge/common"
 import { Image2D } from "../../base/image"
 import { IMaterial, Material } from "./Material"
 
@@ -16,14 +16,15 @@ export interface IBasicLitMaterial extends IMaterial
     imagemap?: string
     specularmap?: string
     normalmap?: string
+
+    projectShadows?: boolean
+    receiveShadows?: boolean
 }
 
 export class BasicLitMaterial extends Material
 {
-    Alpha: number = 1
     Shininess: number = 32
     HasTransparency: boolean = false
-    ReceiveShadows: boolean = true
     readonly Ambient: Colour3 = new Colour3(0.30)
     readonly Diffuse: Colour3 = new Colour3(0.75)
     readonly Specular: Colour3 = new Colour3(1.00)
@@ -128,9 +129,18 @@ export class BasicLitMaterial extends Material
             this.Specular.Set(args.specular[0], args.specular[1], args.specular[2])
         }
 
+        if (args.colour)
+        {
+            this.Colour.Set(args.colour as Vector3Array)
+        }
+
+        this.Alpha = args.alpha ?? 1.0
+        this.Shininess = args.shininess ?? 32
         this.ImageMap = args.imagemap ?? null
         this.NormalMap = args.normalmap ?? null
         this.SpecularMap = args.specularmap ?? null
+        this.ReceiveShadows = args.receiveShadows ?? true
+        this.ProjectsShadows = args.projectShadows ?? true
     }
 
     Bind(): void

@@ -276,7 +276,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     {
         if (_0 instanceof ArrayBuffer)
         {
-            super(_0, _1 ?? 0, Matrix3.SIZE)
+            super(_0, _1 ?? 0, Matrix4.SIZE)
         }
         else if (_0 instanceof Matrix3)
         {
@@ -1604,21 +1604,27 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         }
         else
         {
-            eye.Set(_0)
-            target.Set(_1)
-            up.Set(_2).Normalize()
+            eye.Set(_0 as Vector3Array)
+            target.Set(_1 as Vector3Array)
+            up.Set(_2 as Vector3Array)
         }
 
         const zAxis = Vector3.Subtract(target, eye).Normalize()
-        const xAxis = Vector3.Cross(up, zAxis)
-        const yAxis = Vector3.Cross(zAxis, xAxis)
+        const xAxis = Vector3.Cross(up, zAxis).Normalize()
+        const yAxis = Vector3.Cross(zAxis, xAxis).Normalize()
 
         return out.Set(
-            xAxis[0], xAxis[1], xAxis[2], -xAxis.Dot(eye),
-            yAxis[0], yAxis[1], yAxis[2], -yAxis.Dot(eye),
-            zAxis[0], zAxis[1], zAxis[2], -zAxis.Dot(eye),
-                   0,        0,        0,               1
-        )
+            xAxis[0], xAxis[1], xAxis[2], 0,
+            yAxis[0], yAxis[1], yAxis[2], 0,
+            zAxis[0], zAxis[1], zAxis[2], 0,
+            eye[0], eye[1], eye[2], 1
+        ).Transpose()
+        // return out.Set(
+        //     xAxis[0], xAxis[1], xAxis[2], -xAxis.Dot(eye),
+        //     yAxis[0], yAxis[1], yAxis[2], -yAxis.Dot(eye),
+        //     zAxis[0], zAxis[1], zAxis[2], -zAxis.Dot(eye),
+        //            0,        0,        0,               1
+        // )
     }
     //#endregion
 }

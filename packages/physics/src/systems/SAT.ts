@@ -1,80 +1,84 @@
-import { Vector3 } from "@fwge/common"
+import { Matrix3, Vector3 } from "@fwge/common"
 import { Transform } from "@fwge/core"
-import { CubeCollider } from "../components"
+import { Collider } from "../components"
 import { CollisionResult } from "./types"
 
-export function SAT(aTransform: Transform, aCollider: CubeCollider, bTransform: Transform, bCollider: CubeCollider): CollisionResult | undefined
+export function SAT(aTransform: Transform, aCollider: Collider, bTransform: Transform, bCollider: Collider): CollisionResult | undefined
 {
-    const [aUp, aRight, aForward] = aCollider.GetDimentions(aTransform)
-    const [bUp, bRight, bForward] = bCollider.GetDimentions(bTransform)
+    const aRotation = Matrix3.RotationMatrix(aTransform.Rotation)
+    const bRotation = Matrix3.RotationMatrix(bTransform.Rotation)
 
-    const aVertices = aCollider.GetVertices(aTransform)
-    const bVertices = bCollider.GetVertices(bTransform)
+    const aUp = aRotation.Row1.Normalize()
+    const aRight = aRotation.Row2.Normalize()
+    const aForward = aRotation.Row3.Normalize()
+    aForward.Z = -aForward.Z    
+    const bUp = bRotation.Row1.Normalize()
+    const bRight = bRotation.Row2.Normalize()
+    const bForward = bRotation.Row3.Normalize()
+    bForward.Z = -bForward.Z    
+
+    const aVertices = aCollider.CalculatedVertices(aTransform)
+    const bVertices = bCollider.CalculatedVertices(bTransform)
 
     const aCenter = CalculateCenter(aVertices)
     const bCenter = CalculateCenter(bVertices)
     const direction = Vector3.Subtract(bCenter, aCenter)
 
     const axes = [
+        direction.Normalize(),
         aUp.Normalize(),
         aRight.Normalize(),
         aForward.Normalize(),
         bUp.Normalize(),
         bRight.Normalize(),
         bForward.Normalize(),
-        Vector3.Cross(aUp, bUp).Normalize(),
-        Vector3.Cross(aUp, bRight).Normalize(),
-        Vector3.Cross(aUp, bForward).Normalize(),
-        Vector3.Cross(aRight, bUp).Normalize(),
-        Vector3.Cross(aRight, bRight).Normalize(),
-        Vector3.Cross(aRight, bForward).Normalize(),
-        Vector3.Cross(aForward, bUp).Normalize(),
-        Vector3.Cross(aForward, bRight).Normalize(),
-        Vector3.Cross(aForward, bForward).Normalize(),
+        Vector3.Cross(aUp, bUp),
+        Vector3.Cross(aUp, bRight),
+        Vector3.Cross(aUp, bForward),
+        Vector3.Cross(aRight, bUp),
+        Vector3.Cross(aRight, bRight),
+        Vector3.Cross(aRight, bForward),
+        Vector3.Cross(aForward, bUp),
+        Vector3.Cross(aForward, bRight),
+        Vector3.Cross(aForward, bForward),
     ].filter(x => x.Length !== 0)
 
     let offset = Vector3.Zero
-    let min = Number.POSITIVE_INFINITY
+    let offsetScale = Number.POSITIVE_INFINITY
 
     for (const axis of axes)
     {
         const overlap = TestAxis(aVertices, bVertices, axis)
         if (overlap === undefined)
         {
-            return undefined
+            return
         }
 
-        if (overlap < min)
+        if (overlap < offsetScale)
         {
-            min = overlap
+            offsetScale = overlap
             offset = axis
         }
     }
-    
-    if (offset.Dot(direction) > 0)
-    {
-        offset.Scale(-1)
-    }
 
-    offset.Scale(min)
-    const [aOffset, bOffset] = [offset.Clone(), offset.Clone().Scale(-1)]
+    offset.Scale(offsetScale)
     if (aCollider.IsTrigger || bCollider.IsTrigger)
     {
-        aOffset.Set(0)
-        bOffset.Set(0)
+        return [Vector3.Zero, Vector3.Zero]
     }
     else if (aCollider.IsStatic)
     {
-        aOffset.Set(0)
-        bOffset.Scale(2)
+        return [Vector3.Zero, offset.Negate()]
     }
     else if (bCollider.IsStatic)
     {
-        bOffset.Set(0)
-        aOffset.Scale(2)
+        return [offset.Negate(), Vector3.Zero]
     }
-
-    return [aOffset, bOffset]
+    else
+    {
+        offset.Scale(0.5)
+        return [offset, Vector3.Negate(offset)]
+    }
 }
 
 function CalculateCenter(vertices: Vector3[]): Vector3

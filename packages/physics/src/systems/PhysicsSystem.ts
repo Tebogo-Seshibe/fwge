@@ -1,15 +1,18 @@
-import { Vector3 } from "@fwge/common"
-import { Entity, EntityId, Scene, System, Transform } from "@fwge/core"
-import { Collider, CubeCollider, RigidBody, SphereCollider } from "../components"
+import { Vector3, Vector3Array } from "@fwge/common"
+import { Entity, EntityId, getComponent, Scene, System, Transform } from "@fwge/core"
+import { Collider } from "../components"
+import { Test } from "./MeshMesh"
 import { SAT } from "./SAT"
-import { Collision, CollisionResult, CollisionState, GetCollisionMethod, _Collision, _Collision_Id } from "./types"
+import { CollisionState, _Collision, _Collision_Id } from "./types"
 
 export class PhysicsSystem extends System
 {
-    private maxColliders: number = 500
     private readonly _collisions: Map<_Collision_Id, _Collision> = new Map()
-
-    private displacements: Map<EntityId, Vector3> = new Map()
+    
+    private collisionStates: Map<string, CollisionState> = new Map()
+    private offsets: Map<EntityId, Vector3> = new Map()
+    private offsetBuffer: Float32Array = new Float32Array()
+    private offsetBufferIndex: Map<EntityId, number> = new Map()
 
     constructor(scene: Scene)
     {
@@ -17,138 +20,138 @@ export class PhysicsSystem extends System
     }
     
     Init(): void { }
-    Start(): void { }
+    Start(): void { console.log(this) }
     Stop(): void { }
 
-    Update(delta: number): void
+    Update(_: number): void
     {
-        // for (const entity of this.entities)
-        // {
-        //     const transform = entity.GetComponent(Transform)!
-        //     const rigidbody = entity.GetComponent(RigidBody)
-            
-        //     if (rigidbody)
-        //     {
-        //         transform.Position.Add(
-        //             rigidbody.Velocity
-        //             .Clone()
-        //             .Scale(delta)
-        //         )
-        //     }
-        // }
-        
-        // for (let i = 0; i < this.entities.length; ++i)
-        // {
-        //     const left = this.entities[i]!
+        for (let i = 0; i < this.entityIds.length - 1; ++i)
+        {
+            const aEntity = this.Scene.GetEntity(this.entityIds[i])!
 
-        //     for (let j = i + 1; j < this.entities.length; ++j)
-        //     {
-        //         const right = this.entities[j]!
-        //         this._detect(left, right)
+            for (let j = i + 1; j < this.entityIds.length; ++j)
+            {
+                const bEntity = this.Scene.GetEntity(this.entityIds[j])!
 
-        //     }
-        // }
+                this.#detect(aEntity, bEntity)
+            }
+        }
 
-        // for (const [collisionId, collision] of this._collisions)
-        // {
-        //     const [aId, bId] = collisionId.split('-').map(Number)
-
-        //     const aEntity = this.Scene.GetEntity(aId)!
-        //     const bEntity = this.Scene.GetEntity(bId)!
-
-        //     const aCollider = aEntity.GetComponent(Collider)!
-        //     const bCollider = bEntity.GetComponent(Collider)!
-            
-        //     const aTransform = aEntity.GetComponent(Transform)!
-        //     const bTransform = bEntity.GetComponent(Transform)!
-
-        //     switch (collision.state)
-        //     {
-        //         case CollisionState.Enter:
-        //             aCollider.OnCollisionEnter.call(aEntity, bEntity)
-        //             bCollider.OnCollisionEnter.call(bEntity, aEntity)
-        //             break
-
-        //         case CollisionState.Update:
-        //             aCollider.OnCollisionUpdate.call(aEntity, bEntity)
-        //             bCollider.OnCollisionUpdate.call(bEntity, aEntity)
-        //             break
-
-        //         case CollisionState.Exit:
-        //             aCollider.OnCollisionExit.call(aEntity, bEntity)
-        //             bCollider.OnCollisionExit.call(bEntity, aEntity)
-        //             break
-        //     }
-
-        //     if (collision.displacements)
-        //     {
-        //         aTransform.Position.Add(collision.displacements[0])
-        //         bTransform.Position.Add(collision.displacements[1])
-        //     }
-        // }
+        for (const [entityId, offset] of this.offsets)
+        {
+            const entity = this.Scene.GetEntity(entityId)!
+            const transform = entity.GetComponent(Transform)!
+            transform.Position.Add(offset)
+            offset.Set(0)
+        }
     }
 
-    private _detect(entityA: Entity, entityB: Entity): void
+    #potentialUpdate()
     {
-        const colliderA = entityA.GetComponent(Collider)!
-        const colliderB = entityB.GetComponent(Collider)!
-        const transformA = entityA!.GetComponent(Transform)!
-        const transformB = entityB!.GetComponent(Transform)!
-
-        let displacements: CollisionResult | undefined = undefined
-
-        const collisionTest = GetCollisionMethod(colliderA, colliderB)!
-        if (collisionTest) 
+        for (const [entityId, offsetIndex] of this.offsetBufferIndex)
         {
-            displacements = collisionTest(transformA, colliderA, transformB, colliderB)
+            const offset = this.offsetBuffer.slice(offsetIndex, 3) as any as Vector3Array
+            if (Vector3.Length(offset) === 0)
+            {
+                continue
+            }
+            
+            const entity = this.Scene.GetEntity(entityId)!
+            const transform = entity.GetComponent(Transform)!
+            transform.Position.Add(offset)
+            
+            this.offsetBuffer[offsetIndex + 0] = 0
+            this.offsetBuffer[offsetIndex + 1] = 0
+            this.offsetBuffer[offsetIndex + 2] = 0
         }
-        else
-        {
-            return 
-        }
+    }
 
-        const collision = this._collisions.get(`${entityA.Id}-${entityB.Id}`) ?? { 
-            state: CollisionState.None,
-            displacements: displacements
-        }
+    #detect(aEntity: Entity, bEntity: Entity)
+    {
+        const id = `${aEntity.Id}_${bEntity.Id}`
+        let state = this.collisionStates.get(id) ?? CollisionState.None
 
-        if (displacements)
+        const aCollider = aEntity.GetComponent(Collider)!
+        const aTransform = aEntity!.GetComponent(Transform)!
+        const bCollider = bEntity.GetComponent(Collider)!
+        const bTransform = bEntity!.GetComponent(Transform)!
+        
+        let offset = Test(aTransform, aCollider, bTransform, bCollider)
+
+        if (offset)
         {
-            switch (collision.state)
+            switch (state)
             {
                 case CollisionState.None:
                 case CollisionState.Exit:
-                    collision.state = CollisionState.Enter
+                    state = CollisionState.Enter
                     break
                     
                 case CollisionState.Enter:
-                    collision.state = CollisionState.Update
+                    state = CollisionState.Update
                 break
-            }            
+            }
         }
         else
         {
-            switch (collision.state)
+            switch (state)
             {
                 case CollisionState.Enter:
                 case CollisionState.Update:
-                    collision.state = CollisionState.Exit
+                    state = CollisionState.Exit
                     break
                 case CollisionState.Exit:
-                    collision.state = CollisionState.None
+                    state = CollisionState.None
                     break
             }
         }
 
-        collision.displacements = displacements
+        if (offset)
+        {
+            if (!this.offsets.has(aEntity.Id))
+            {
+                this.offsets.set(aEntity.Id, Vector3.Zero)
+            }
+    
+            if (!this.offsets.has(bEntity.Id))
+            {
+                this.offsets.set(bEntity.Id, Vector3.Zero)
+            }
 
-        if (collision.state === CollisionState.None)
-        {
-            this._collisions.delete(`${entityA.Id}-${entityB.Id}`)
+            this.offsets.get(aEntity.Id)!.Add(offset[0])
+            this.offsets.get(bEntity.Id)!.Add(offset[1])
         }
-        else
+        
+        switch (state)
         {
-            this._collisions.set(`${entityA.Id}-${entityB.Id}`, collision)
+            case CollisionState.Enter:
+                aCollider.OnCollisionEnter.call(aEntity, bEntity)
+                bCollider.OnCollisionEnter.call(bEntity, aEntity)
+                break
+
+            case CollisionState.Update:
+                aCollider.OnCollisionUpdate.call(aEntity, bEntity)
+                bCollider.OnCollisionUpdate.call(bEntity, aEntity)
+                break
+
+            case CollisionState.Exit:
+                aCollider.OnCollisionExit.call(aEntity, bEntity)
+                bCollider.OnCollisionExit.call(bEntity, aEntity)
+                break
+        }
+
+        this.collisionStates.set(id, state)
+    }
+
+    override OnUpdateEntity(entity: Entity)
+    {
+        super.OnUpdateEntity(entity)
+
+        if (this.IsValidEntity(entity))
+        {
+            const offsetIndex = this.offsetBuffer.length
+            this.offsetBufferIndex.set(entity.Id, offsetIndex)
+            this.offsetBuffer = new Float32Array([...this.offsetBuffer, 0,0,0])
         }
     }
 }

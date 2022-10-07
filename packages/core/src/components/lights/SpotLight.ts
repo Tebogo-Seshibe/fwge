@@ -30,7 +30,7 @@ export class SpotLight extends Light
 
         this.Radius = light.radius ?? 5
         this.Angle = light.angle ?? 15
-        this.Direction = light.direction ? new Vector3(light.direction) : new Vector3(0, -1, 0)
+        this.Direction = light.direction ? new Vector3(light.direction as Vector3Array) : new Vector3(0, -1, 0)
         this.CastShadows = light.castShadows ?? false
     }
 

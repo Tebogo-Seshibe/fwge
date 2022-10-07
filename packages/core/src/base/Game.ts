@@ -1,4 +1,4 @@
-import { CalcuateDelay, GL, IDelay, setContext } from "@fwge/common"
+import { CalcuateDelay, createContext, GL, IDelay } from "@fwge/common"
 import { SharedComponent } from "../ecs"
 import { Class, SceneId } from "../ecs/Registry"
 import { Asset } from "./Asset"
@@ -13,6 +13,7 @@ export interface LibraryEntry<T>
 
 export interface IGame
 {
+    debug?: boolean
     height: number
     width: number
     canvas: HTMLCanvasElement | (() => HTMLCanvasElement)
@@ -49,6 +50,7 @@ export class Game
     {
         config = {
             ...config!,
+            debug: config?.debug === undefined ? false : config.debug,
             components: config?.components ?? [],
             assets: config?.assets ?? []
         }
@@ -62,7 +64,7 @@ export class Game
             throw new Error('No canvas element found')
         }
 
-        this.ResetContext(config.canvas)
+        this.ResetContext(config.canvas, config.debug!)
 
         GL.canvas.width = config.width
         GL.canvas.height = config.height
@@ -106,14 +108,9 @@ export class Game
         this.SetScene(config.startupScene)
     }
     
-    ResetContext(canvas: HTMLCanvasElement)
+    ResetContext(canvas: HTMLCanvasElement, debug: boolean)
     {
-        const gl = canvas.getContext('webgl2', { alpha: true, antialias: true });
-        if (!gl)
-        {
-            throw new Error('No WebGL context could be generated!');
-        }
-        setContext(gl);
+        createContext(canvas, debug)
 
         canvas.addEventListener('resize', () => {
             const rect = canvas.getBoundingClientRect()
@@ -216,10 +213,7 @@ export class Game
         {
             return
         }
-
-        this.Stop()
         this.#activeScene = newScene
-        this.Start()
     }
 
     GetComponent<T extends SharedComponent>(name: string, type: Class<T>): T | undefined

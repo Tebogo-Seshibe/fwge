@@ -1,129 +1,104 @@
-import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Asset } from "./Asset"
 
 export class Shader extends Asset
 {
-    private _program: WebGLProgram | null = null
-    private _vertexShader: WebGLShader | null = null
-    private _fragmentShader: WebGLShader | null = null
-    private _vertexSource: string | null = null
-    private _fragmentSource: string | null = null
+    static readonly Includes: Map<string, string> = new Map()
+    
+    #program: WebGLProgram | null = null
+    #vertexShader: WebGLShader | null = null
+    #fragmentShader: WebGLShader | null = null
+    #rawVertexSource: string | null = null
+    #rawFragmentSource: string | null = null
+    #vertexSource: string | null = null
+    #fragmentSource: string | null = null
 
-    private _samplerIndex: number = 0
-    private _maxSamplerIndex: number = 15
+    #samplerIndex: number = 0
+    #maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS)
 
     public readonly Inputs: {[key: string]: WebGLUniformLocation | undefined} = {}
     public readonly Ignore: Set<string> = new Set()
-    
+
     get Program(): WebGLProgram | null
     {
-        return this._program
+        return this.#program
     }
-    
+
     get VertexShader(): WebGLShader | null
     {
-        return this._vertexShader
+        return this.#vertexShader
     }
-    
+
     get FragmentShader(): WebGLShader | null
     {
-        return this._fragmentShader
+        return this.#fragmentShader
     }
-    
+
+    get RawVertexSource(): string | null
+    {
+        return this.#rawVertexSource
+    }
+
     get VertexSource(): string | null
     {
-        return this._vertexSource
+        return this.#vertexSource
     }
-    
+
     set VertexSource(vertexSource: string | null)
     {
-        this._vertexSource = vertexSource
-        this._compileShaders()
-        this._getInputs()
+        if (vertexSource)
+        {
+            this.#rawVertexSource = vertexSource
+            this.#vertexSource = this.#addIncludes(vertexSource)
+        }
+        else
+        {
+            this.#rawVertexSource = null
+            this.#vertexSource = null
+        }
+        this.#compileShaders()
     }
-    
+
     get FragmentSource(): string | null
     {
-        return this._fragmentSource
+        return this.#rawFragmentSource
     }
     
+    get FullFragmentSource(): string | null
+    {
+        return this.#rawFragmentSource ? this.#addIncludes(this.#rawFragmentSource) : null
+    }
+
     set FragmentSource(fragmentSource: string | null)
     {
-        this._fragmentSource = fragmentSource
-        this._compileShaders()
-        this._getInputs()
+        if (fragmentSource)
+        {
+            this.#rawFragmentSource = fragmentSource
+            this.#fragmentSource = this.#addIncludes(fragmentSource)
+        }
+        else
+        {
+            this.#rawFragmentSource = null
+            this.#fragmentSource = null
+        }
+        this.#compileShaders()
     }
 
     constructor(vertexShader: string, fragmentShader: string)
     {
         super(Shader)
 
-        this._vertexSource = vertexShader
-        this._fragmentSource = fragmentShader
-        this._compileShaders()
-        
-        this._getInputs()
+        this.#rawVertexSource = vertexShader
+        this.#rawFragmentSource = fragmentShader
+        this.#vertexSource = this.#addIncludes(vertexShader)
+        this.#fragmentSource = this.#addIncludes(fragmentShader)
+        this.#compileShaders()
+
     }
 
-    private _findInputs(source: string) {
-        [...source.matchAll(/(?:uniform\s+(bool|u?int|float|double|[buid]?vec[234]|mat[234](x[234])?|[iu]?sampler([123]D)|\w+)\s+)(\w+)(?:;)/g)]
-    }
-
-    _getInputs()
+    #compileShaders(): void
     {
-        // if (!this._program)
-        // {
-        //     return
-        // }
-
-        // GL.useProgram(this._program)
-
-        // for (const input of this._inputs)
-        // {
-        //     this.Inputs.set(input.sourceName, GL.getUniformLocation(this._program, input.sourceName))
-        // }
-        
-        // this.Matrices = new MatrixUniform(
-        //     GL.getUniformLocation(this._program, 'U_Matrix.ModelView'),
-        //     GL.getUniformLocation(this._program, 'U_Matrix.Projection'),
-        //     GL.getUniformLocation(this._program, 'U_Matrix.Normal'),
-        //     GL.getUniformLocation(this._program, 'U_Matrix.View')
-        // )
-        // this.Material = new MaterialUniform(
-        //     GL.getUniformLocation(this._program, 'U_Material.Ambient'),
-        //     GL.getUniformLocation(this._program, 'U_Material.Diffuse'),
-        //     GL.getUniformLocation(this._program, 'U_Material.Specular'),
-        //     GL.getUniformLocation(this._program, 'U_Material.Shininess'),
-        //     GL.getUniformLocation(this._program, 'U_Material.Alpha'),
-        //     GL.getUniformLocation(this._program, 'U_Material.ImageMap'),
-        //     GL.getUniformLocation(this._program, 'U_Material.BumpMap'),
-        //     GL.getUniformLocation(this._program, 'U_Material.SpecularMap'),
-        //     GL.getUniformLocation(this._program, 'U_Material.HasImageMap')
-        // )
-            
-        // this.DirectionalLight = new DirectionalLightUniform(
-        //     GL.getUniformLocation(this._program, 'U_DirectionalLight.Colour'),
-        //     GL.getUniformLocation(this._program, 'U_DirectionalLight.Intensity'),
-        //     GL.getUniformLocation(this._program, 'U_DirectionalLight.Direction')
-            
-        // )
-
-        // this.Lights = []
-        // for (let i = 0; i < 4; ++i)
-        // {
-        //     this.Lights.push(new PointLightUniform(
-        //         GL.getUniformLocation(this._program, `U_PointLight[${i}].Colour`),
-        //         GL.getUniformLocation(this._program, `U_PointLight[${i}].Intensity`),
-        //         GL.getUniformLocation(this._program, `U_PointLight[${i}].Position`),
-        //         GL.getUniformLocation(this._program, `U_PointLight[${i}].Radius`),
-        //     ))
-        // }
-        // GL.useProgram(null)
-    }
-    
-    private _compileShaders(): void
-    {
-        if (this._vertexSource ===  null || this._fragmentSource === null)
+        if (this.#vertexSource ===  null || this.#fragmentSource === null)
         {
             return
         }
@@ -149,24 +124,21 @@ export class Shader extends Asset
 
         const log = []
 
-        GL.shaderSource(vertexShader, `
-        precision highp float;
-        const float age = 28.0;`)
-        GL.shaderSource(vertexShader, this._vertexSource)
+        GL.shaderSource(vertexShader, this.#vertexSource)
         GL.compileShader(vertexShader)
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
         {
             log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
-            log.push(this._vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push(this.#vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
 
-        GL.shaderSource(fragmentShader, this._fragmentSource)
+        GL.shaderSource(fragmentShader, this.#fragmentSource!)
         GL.compileShader(fragmentShader)
         if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
         {
             log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
-            log.push(this._fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push(this.#fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
         GL.attachShader(program, vertexShader)
@@ -182,36 +154,50 @@ export class Shader extends Asset
             throw new Error(log.join('\n'))
         }
 
-        if (this._program)
+        if (this.#program)
         {
-            GL.deleteProgram(this._program)
-            GL.deleteShader(this._vertexShader)
-            GL.deleteShader(this._fragmentShader)
+            GL.deleteProgram(this.#program)
+            GL.deleteShader(this.#vertexShader)
+            GL.deleteShader(this.#fragmentShader)
         }
 
-        this._program = program
-        this._vertexShader = vertexShader
-        this._fragmentShader = fragmentShader
+        this.#program = program
+        this.#vertexShader = vertexShader
+        this.#fragmentShader = fragmentShader
     }
 
-    Bind(): void
-    {   
-        GL.useProgram(this.Program)
-    }
-
-    UnBind(): void
+    #addIncludes(shaderSource: string): string
     {
-        this._samplerIndex = 0
-        GL.useProgram(null)
+        let source = shaderSource.toString()
+
+        while (source.includes('//#include'))
+        {
+            const result = source.match(/\/\/#include\s+(.+)([\s\n\r]*)/)!
+            if (result)
+            {
+                const [match, name, whitespace] = result
+
+                if (Shader.Includes.has(name))
+                {
+                    source = source.replace(match, Shader.Includes.get(name)! + whitespace)
+                }
+                else
+                {
+                    source = source.replace(match, `// Could not find: ${name + whitespace}`)
+                }
+            }
+        }
+
+        return source
     }
 
-    private getLocation(name: string): WebGLUniformLocation | undefined
+    #getLocation(name: string): WebGLUniformLocation | undefined
     {
         if (this.Ignore.has(name))
         {
             return
         }
-        
+
         let location = this.Inputs[name]
         if (!location)
         {
@@ -227,26 +213,37 @@ export class Shader extends Asset
                 return
             }
         }
-        
+
         return location!
     }
-    
+
+    Bind(): void
+    {
+        GL.useProgram(this.Program)
+        this.#samplerIndex = 0
+    }
+
+    UnBind(): void
+    {
+        GL.useProgram(null)
+    }
+
     SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
 
-        const samplerIndex = this._samplerIndex++
-        if (samplerIndex > this._maxSamplerIndex)
+        this.#samplerIndex++
+        if (this.#samplerIndex > this.#maxSamplerIndex)
         {
             throw new Error('Too many textures attached')
         }
 
-        GL.uniform1i(location, samplerIndex)
-        GL.activeTexture(GL.TEXTURE0 + samplerIndex)
+        GL.uniform1i(location, this.#samplerIndex)
+        GL.activeTexture(GL.TEXTURE0 + this.#samplerIndex)
         if (is3D)
         {
             GL.bindTexture(GL.TEXTURE_3D, texture)
@@ -259,28 +256,27 @@ export class Shader extends Asset
         {
             GL.bindTexture(GL.TEXTURE_2D, texture)
         }
-
     }
 
     SetBool(name: string, bool: boolean): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
-        
+
         GL.uniform1i(location, bool ? 1 : 0)
     }
-    
+
     SetInt(name: string, int: number, unsigned: boolean = false): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
-        
+
         if (unsigned)
         {
             GL.uniform1ui(location, int)
@@ -292,16 +288,26 @@ export class Shader extends Asset
     }
 
     SetFloat(name: string, float: number): void
+    SetFloat(name: string, float: Scalar): void
+    SetFloat(name: string, float: [number]): void
+    SetFloat(name: string, float: number | Scalar | [number]): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
-        
-        GL.uniform1f(location, float)
+
+        if (typeof float === 'number')
+        {
+            GL.uniform1f(location, float)
+        }
+        else
+        {
+            GL.uniform1fv(location, float)
+        }
     }
-    
+
     SetIntVector(name: string, vector: Vector2): void
     SetIntVector(name: string, vector: Vector2, unsigned: boolean): void
     SetIntVector(name: string, vector: [number, number]): void
@@ -322,10 +328,10 @@ export class Shader extends Asset
     SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void
     SetIntVector(name: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
 
         switch (arguments.length)
@@ -386,7 +392,7 @@ export class Shader extends Asset
                     {
                         case 2: GL.uniform2uiv(location, _1 as number[])
                         case 3: GL.uniform3uiv(location, _1 as number[])
-                        case 4: GL.uniform4uiv(location, _1 as number[])            
+                        case 4: GL.uniform4uiv(location, _1 as number[])
                     }
                 }
                 else
@@ -395,7 +401,7 @@ export class Shader extends Asset
                     {
                         case 2: GL.uniform2iv(location, _1 as number[])
                         case 3: GL.uniform3iv(location, _1 as number[])
-                        case 4: GL.uniform4iv(location, _1 as number[])            
+                        case 4: GL.uniform4iv(location, _1 as number[])
                     }
                 }
             }
@@ -406,13 +412,13 @@ export class Shader extends Asset
                 {
                     case 2: GL.uniform2iv(location, _1 as number[])
                     case 3: GL.uniform3iv(location, _1 as number[])
-                    case 4: GL.uniform4iv(location, _1 as number[])            
+                    case 4: GL.uniform4iv(location, _1 as number[])
                 }
             }
             break
         }
     }
-    
+
     SetFloatVector(name: string, vector: Vector2): void
     SetFloatVector(name: string, vector: [number, number]): void
     SetFloatVector(name: string, x: number, y: number): void
@@ -424,24 +430,24 @@ export class Shader extends Asset
     SetFloatVector(name: string, x: number, y: number, z: number, w: number): void
     SetFloatVector(name: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
 
         switch (arguments.length)
         {
-            case 5: 
+            case 5:
                 GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number)
             break
-            case 4: 
+            case 4:
                 GL.uniform3f(location, _1 as number, _2 as number, _3 as number)
             break
-            case 3: 
+            case 3:
                 GL.uniform2f(location, _1 as number, _2 as number)
             break
-            case 2: 
+            case 2:
                 switch ((_1 as number[]).length)
                 {
                     case 2:
@@ -472,11 +478,11 @@ export class Shader extends Asset
                 break
                 case 4:
                     GL.uniform4fv(location, _1)
-                break        
+                break
             }
         }
     }
-    
+
     SetMatrix(name: string, matrix: Matrix2): void
     SetMatrix(name: string, matrix: Matrix2, transpose: boolean): void
     SetMatrix(name: string, matrix: [number, number, number, number]): void
@@ -491,10 +497,10 @@ export class Shader extends Asset
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void
     SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
     {
-        const location = this.getLocation(name)
+        const location = this.#getLocation(name)
         if (!location)
         {
-            return 
+            return
         }
 
         switch (matrix.length)
@@ -506,7 +512,7 @@ export class Shader extends Asset
                 GL.uniformMatrix3fv(location, tranpose, matrix)
             break
             case 16:
-                GL.uniformMatrix4fv(location, tranpose, matrix)            
+                GL.uniformMatrix4fv(location, tranpose, matrix)
             break
         }
     }

@@ -97,7 +97,7 @@ export class RenderWindow
                                 ColourType.FLOAT_RGB, // Position
                                 ColourType.FLOAT_RGB, // Normal
                             ],
-                            depth: DepthType.INT24,
+                            depth: DepthType.FLOAT32,
                             height: this.Resolution.Y * this.Scale.Y,
                             width: this.Resolution.X * this.Scale.X,
                         }),
@@ -114,9 +114,9 @@ export class RenderWindow
                             colour: [
                                 ColourType.UINT_RGBA, // Colour
                             ],
-                            depth: DepthType.INT24,
-                            height: this.Resolution.Y,
-                            width: this.Resolution.X,
+                            depth: DepthType.FLOAT32,
+                            height: this.Resolution.Y * this.Scale.Y,
+                            width: this.Resolution.X * this.Scale.X,
                         }),
                         shader: null!
                     })

@@ -4,8 +4,6 @@ import { Class, EntityId, getComponent, RegistryType } from './Registry'
 
 export class Entity extends RegistryType
 {
-    readonly Scene: Scene
-
     OnCreate(): void { }
     OnDestroy(): void { }
     
@@ -133,9 +131,8 @@ export class Entity extends RegistryType
     #parent?: Entity
     #components: Map<Class<Component>, number> = new Map()
 
-    constructor(scene: Scene)
+    constructor(readonly Scene: Scene)
     {
         super(Entity)
-        this.Scene = scene
     }
 }

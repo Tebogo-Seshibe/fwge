@@ -1,4 +1,4 @@
-import { AreaLight, DefaultWindow, DirectionalLight, Game, RenderSystem, Scene, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
+import { AreaLight, DefaultWindow, DirectionalLight, Entity, Game, RenderSystem, Scene, Script, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
 import { FPSController } from "../entities"
@@ -63,11 +63,17 @@ export class Sponza extends Scene
         }))
         this.CreateEntity().AddComponent(new DirectionalLight(
         {
-            direction: [0, -1, 0],
             intensity: 1.0,
             colour: [1, 1, 1],
             castShadows: true
         }))
+        .AddComponent(new Transform({ rotation: [90, 0, 0] }))
+        .AddComponent(new Script({ 
+            update(delta)
+            {
+                // (this as Entity).GetComponent(Transform)!.Rotation.Z += delta * 10
+            }}
+        ))
         
 
         super.Init()

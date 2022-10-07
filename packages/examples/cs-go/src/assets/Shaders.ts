@@ -11,6 +11,9 @@ import commonFrag from '/public/shaders/_common.frag?raw'
 import commonVert from '/public/shaders/_common.vert?raw'
 import lightingFrag from '/public/shaders/_lighting.frag?raw'
 import lightingVert from '/public/shaders/_lighting.vert?raw'
+import constants from '/public/shaders/constants.vert?raw'
+
+Shader.Includes.set('constants.vert', constants)
 
 export const basicShader = () => new Shader(
     LitAndShadowShadowShaderVert,

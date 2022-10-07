@@ -16,11 +16,11 @@ export class Platform extends GameObject
         this.material = new BasicLitMaterial(
         {
             shader: this.Scene.Game.GetAsset('Basic Shader', Shader)!,
-            colour: [0.5,1,0.5],
+            colour: [231/255, 94/255, 98/255],
             alpha: 1.0,
             renderType: RenderType.OPAQUE
         })
-        this.cubeCollider = new CubeCollider()
+        this.cubeCollider = new CubeCollider({ isStatic: true })
         this.renderer = new MeshRenderer(
         {
             asset: this.Scene.Game.GetAsset('Cube', Mesh)!,
@@ -31,8 +31,8 @@ export class Platform extends GameObject
         this.AddComponent(this.cubeCollider)        
         this.AddComponent(this.renderer)
 
-        this.transform.Scale.Set(100, 0.2, 100)
-        this.transform.Position.Y = -0.1
+        this.transform.Scale.Set(100, 1, 100)
+        this.transform.Position.Y = -1
     }
 
     override OnInput({ Keyboard }: IInputArgs, delta: number): void

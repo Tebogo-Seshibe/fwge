@@ -134,6 +134,24 @@ function getAttachmentType(type: ColourType | DepthType): number
     return -1
 }
 
+function getDataType(type: DepthType): number
+{
+    switch (type)
+    {
+        case DepthType.INT16:
+        case DepthType.INT24:
+            return GL.UNSIGNED_INT
+        case DepthType.INT24_8:
+            return GL.UNSIGNED_INT_24_8
+
+        case DepthType.FLOAT32:
+        case DepthType.FLOAT32_8:
+            return GL.FLOAT
+    }
+
+    return -1
+}
+
 function getAttachmentFormat(type: DepthType): number
 {
     switch (type)
@@ -141,7 +159,7 @@ function getAttachmentFormat(type: DepthType): number
         case DepthType.INT16:
         case DepthType.INT24:
         case DepthType.FLOAT32:
-            return GL.DEPTH_ATTACHMENT
+            return GL.DEPTH_COMPONENT
             
         case DepthType.INT24_8:
         case DepthType.FLOAT32_8:
@@ -188,7 +206,6 @@ export class RenderTarget
                 
                 if (colourType === ColourType.UINT_RGB || colourType === ColourType.UINT_RGBA)
                 {
-
                     GL.texImage2D(GL.TEXTURE_2D, 0, format, this.Width, this.Height, 0, attachmentType, GL.UNSIGNED_BYTE, null)
                     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
                     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
@@ -211,12 +228,12 @@ export class RenderTarget
         
         if (config.depth !== DepthType.NONE)
         { 
-            const attachmentType = getAttachmentType(config.depth)
             const format = getFormatType(config.depth)
+            const dataType = getDataType(config.depth)
 
             const texture = GL.createTexture()!
             GL.bindTexture(GL.TEXTURE_2D, texture)
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT32F, this.Width, this.Height, 0, GL.DEPTH_COMPONENT, GL.FLOAT, null)
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT32F, this.Width, this.Height, 0, GL.DEPTH_COMPONENT, dataType, null)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
@@ -246,8 +263,18 @@ export class RenderTarget
         {
             GL.viewport(0, 0, this.Width, this.Height)
         }
-        GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
+
+        let mask = 0
+        if (this.ColourAttachments.length > 0)
+        {
+            mask |= GL.COLOR_BUFFER_BIT
+            GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
+        }
+        if (this.DepthAttachment)
+        {
+            mask |= GL.DEPTH_BUFFER_BIT
+        }
+        GL.clear(mask)
 
     }
     

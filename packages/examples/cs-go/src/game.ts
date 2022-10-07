@@ -4,6 +4,7 @@ import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
 import { De_Dust2 } from './scenes/De_Dust2'
+import { PhysicsTest } from './scenes/PhysicsTest'
 import { SolarSystem } from './scenes/SolarSystem'
 import { Sponza } from './scenes/Sponza'
 import { Test } from './scenes/Test'
@@ -15,16 +16,18 @@ export class CSGO extends Game
         super(
         {
             canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
-            height: 2560,
-            width: 1440,
-            startupScene: Test,
+            debug: false,
+            height: 1440,
+            width: 2560,
+            startupScene: PhysicsTest,
             scenes: [
                 // Round,
-                Test,
+                // Test,
                 // Sponza,
                 // SolarSystem,
                 // ModernWarfare,
-                // De_Dust2
+                // De_Dust2,
+                PhysicsTest
             ],
             components: [
                 { name: 'CubeMaterial', create: createBasicMaterial },

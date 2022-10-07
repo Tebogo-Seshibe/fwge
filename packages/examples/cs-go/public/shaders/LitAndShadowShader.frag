@@ -3,8 +3,10 @@
 layout (std140) uniform;
 precision highp float;
 precision highp sampler2D;
+precision highp sampler3D;
 
 in vec3 V_Position;
+in vec3 V_Position_2;
 in vec3 V_Normal;
 in vec2 V_UV;
 in vec3 V_Colour;
@@ -12,7 +14,7 @@ in vec4 V_LightPosition;
 
 layout (location = 0) out vec4 O_FragColour;
 
-struct Material
+struct Materials
 {
     vec3 Colour;
     float Shininess;
@@ -26,7 +28,7 @@ struct Material
     bool HasBumpMap;
     bool ReceiveShadows;
 };
-uniform Material U_Material;
+uniform Materials U_Material;
 
 struct Sampler
 {
@@ -36,6 +38,26 @@ struct Sampler
     sampler2D DirectionalShadow;
 };
 uniform Sampler U_Sampler;
+
+uniform sampler2D U_DirectionalSampler;
+
+// struct AmbientLightStruct
+// {
+//     bool HasEnvironmentMap;
+//     sampler3D EnvironmentMap;
+// };
+// uniform AmbientLightStruct U_AmbientLight;
+
+uniform BasicLitMaterial
+{
+    vec4 Albedo;
+} material;
+
+uniform AreaLight
+{
+    vec3 Colour;
+    float Intensity;
+} areaLight;
 
 uniform DirectionalLight
 {
@@ -50,9 +72,9 @@ uniform DirectionalLight
     // float TexelCount;
     // float Bias;
     // int PCFLevel;
-} directionalLight;
 
-uniform sampler2D U_DirectionalSampler;
+    mat4 ShadowMatrix;
+} directionalLight;
 
 uniform PointLight
 {
@@ -63,22 +85,6 @@ uniform PointLight
     float Radius;
 } pointLight;
 
-uniform AreaLight
-{
-    vec3 Colour;
-    float Intensity;
-} areaLight;
-
-// uniform MyMaterial
-// {
-//     vec3 Ambient;
-//     float Alpha;
-
-//     vec3 Diffuse;
-//     float Shininess;
-
-//     vec3 Specular;
-// } myMaterial;
 
 float ShadowWeightPoint(float diffuseDot)
 {
@@ -89,70 +95,81 @@ float ShadowWeightDirectional(float diffuseDot)
 {
     if (!U_Material.ReceiveShadows)
     {
-        return 1.0;
+        return 0.0;
     }
     
     float texelSize = directionalLight.Data[0];
     float texelCount = directionalLight.Data[1];
     float bias = directionalLight.Data[2];
-    int pcfLevel = int(directionalLight.Data[3]);
+    float pcfLevel = directionalLight.Data[3];
 
     float total = 0.0;
-    vec3 lightPosition = V_LightPosition.xyz * 0.5 + 0.5;
+    vec3 lightPosition = (V_LightPosition.xyz / V_LightPosition.w) * 0.5 + 0.5;
     vec2 fragUV = lightPosition.xy;
-    float fragmentDepth = lightPosition.z - bias;
-
-    for (int x = -pcfLevel; x <= pcfLevel; ++x)
+    float fragmentDepth = lightPosition.z;
+    
+    for (float x = -pcfLevel; x <= pcfLevel; ++x)
     {
-        for (int y = -pcfLevel; y <= pcfLevel; ++y)
+        for (float y = -pcfLevel; y <= pcfLevel; ++y)
         {
-            float shadowDepth = texture(U_Sampler.DirectionalShadow, fragUV + (vec2(x, y) * texelSize)).r;
+            vec2 offset = vec2(x, y) * texelSize;
+            float shadowDepth = texture(U_Sampler.DirectionalShadow, fragUV + offset).r + bias;
             if (shadowDepth < fragmentDepth)
             {
                 total += 1.0;
-            }   
+            }
         }
     }
-    return 1.0 - (total / texelCount);
+
+    return total / texelCount;
 }
 
-
-vec3 CalcAreaLight(vec3 colour, float intensity)
+uniform sampler3D AmbientEnvironmentMap;
+uniform bool HasAmbientEnvironmentMap;
+vec3 CalcAreaLight(vec3 colour, float intensity, vec3 fragNormal)
 {
-    return colour * intensity;
+    vec3 environment = HasAmbientEnvironmentMap
+        ? texture(AmbientEnvironmentMap, vec3(0,-1,0)).rgb
+        : vec3(0.0);
+        
+    return (environment + colour) * intensity;
 }
 
 vec3 CalcDirectionalLight(vec3 colour, float intensity, vec3 direction, vec3 normal)
 {
     float val = dot(normal, -direction);
     float diffuse = max(val, 0.0);
-    float shadow = ShadowWeightDirectional(val);
+    float shadow = 1.0 - ShadowWeightDirectional(val);
 
     return colour * diffuse * intensity * shadow;
 }
 
-vec3 CalcPointLight(vec3 colour, float intensity, vec3 position, float radius, vec3 normal)
+vec3 CalcPointLight(vec3 colour, float intensity, vec3 lightPosition, float radius, vec3 fragNormal, float shininess)
 {
-    vec3 diff = position - V_Position;
-    vec3 dir = normalize(diff);
-    float dist = length(diff);
+    vec3 difference = lightPosition - V_Position;
+    vec3 direction = normalize(difference);
+    vec3 eye = normalize(-fragNormal);
+    vec3 reflection = reflect(direction, fragNormal);
+    float len = length(difference);
 
-    float val = dot(normal, dir);
-    float diffuse = max(0.0, val);
-    float attenuation = radius / (dist * dist);
+    float diffuseWeight = max(0.0, dot(fragNormal, direction));
+    float specularWeight = pow(max(0.0, dot(reflection, eye)), shininess);
 
-    float shadow = ShadowWeightPoint(val);
+    float attenuation = radius / (len * len);
 
-    return colour * diffuse * attenuation * intensity;
+    vec3 diffuse = colour * diffuseWeight * attenuation;
+    vec3 specular = colour * specularWeight * attenuation;
+
+    return (diffuse + specular) * intensity;
 }
 
 void main(void)
 {
-    vec3 normal = normalize(V_Normal * texture(U_Sampler.Bump, V_UV).xyz);
+    vec3 normal = normalize(V_Normal); // * texture(U_Sampler.Bump, V_UV).xyz);
 
-    vec3 area = CalcAreaLight(areaLight.Colour, areaLight.Intensity);
+    vec3 area = CalcAreaLight(areaLight.Colour, areaLight.Intensity, normal);
     vec3 directional = CalcDirectionalLight(directionalLight.Colour, directionalLight.Intensity, directionalLight.Direction, normal);
-    vec3 point = CalcPointLight(pointLight.Colour, pointLight.Intensity, pointLight.Position, pointLight.Radius, normal);
+    vec3 point = CalcPointLight(pointLight.Colour, pointLight.Intensity, pointLight.Position, pointLight.Radius, normal, U_Material.Shininess);
 
     vec3 lighting = area + directional + point;
 

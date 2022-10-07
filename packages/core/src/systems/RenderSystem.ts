@@ -57,6 +57,10 @@ export class RenderSystem extends System
 
     Update(_: number): void
     {
+        GL.enable(GL.DEPTH_TEST)
+        GL.enable(GL.CULL_FACE)
+        GL.depthMask(true)
+
         for (const window of this.Scene.Windows)
         {
             const projection = window.Camera.ProjectionMatrix
@@ -105,14 +109,8 @@ export class RenderSystem extends System
                 step.Shader!.UnBind()
                 step.Output.UnBind()
             }
-        }
-            
-        GL.enable(GL.DEPTH_TEST)
-        GL.enable(GL.CULL_FACE)
-        GL.depthMask(true)
+        }            
 
-        const dir = [...this._lights].filter(x => x instanceof DirectionalLight).first() as DirectionalLight
-        // console.log(dir)
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
         GL.clearColor(0, 0, 0, 0)
@@ -127,9 +125,10 @@ export class RenderSystem extends System
             this.shader.SetFloatVector('U_PanelOffset', window.Offset)
             this.shader.SetFloatVector('U_PanelScale', window.Scale)
 
+            // const dir = [...this._lights].filter(x => x instanceof DirectionalLight).first() as DirectionalLight
             // this.shader.SetTexture(`U_RenderImage`, dir.RenderTarget.DepthAttachment!)
-            // this.shader.SetFloatVector('U_PanelOffset', [0, 0])
-            // this.shader.SetFloatVector('U_PanelScale', [1, 1])
+            // this.shader.SetFloatVector('U_PanelOffset', 0, 0)
+            // this.shader.SetFloatVector('U_PanelScale', 1, 1)
                 
             GL.bindVertexArray(window.Panel.VertexArrayBuffer)
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
@@ -174,7 +173,7 @@ export class RenderSystem extends System
 
         for (const light of this._lights)
         {
-            if (!(light instanceof AreaLight) || !light.SkyboxTexture)
+            if (!(light instanceof AreaLight) || !light.Skybox)
             {
                 continue
             }            
@@ -187,11 +186,11 @@ export class RenderSystem extends System
             light.SkyboxShader.Bind()
             light.SkyboxShader.SetMatrix('U_Matrix.View', view, true)
             light.SkyboxShader.SetMatrix('U_Matrix.Projection', projectionMatrix, true)
-            light.SkyboxShader.SetTexture('U_Skybox', light.SkyboxTexture.Texture, false, true)
+            light.SkyboxShader.SetTexture('U_Skybox', light.Skybox.Texture, false, true)
 
-            GL.bindVertexArray(light.Skybox.VertexArrayBuffer)
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, light.Skybox.FaceBuffer)
-            GL.drawElements(GL.TRIANGLES, light.Skybox.FaceCount, GL.UNSIGNED_BYTE, 0)
+            GL.bindVertexArray(light.SkyboxMesh.VertexArrayBuffer)
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, light.SkyboxMesh.FaceBuffer)
+            GL.drawElements(GL.TRIANGLES, light.SkyboxMesh.FaceCount, GL.UNSIGNED_BYTE, 0)
             GL.bindVertexArray(null)
 
             light.SkyboxShader.UnBind()
@@ -293,8 +292,14 @@ export class RenderSystem extends System
 
     renderBatchShadows(batch: Map<number, Map<number, Set<number>>>, shader: Shader)
     {
-        for (const [, renderers] of batch)
+        for (const [materialId, renderers] of batch)
         {
+            const material = getComponent(Material, materialId)
+            if (!material.ProjectsShadows)
+            {
+                continue
+            }
+            
             for (const [rendererId, transforms] of renderers)
             {
                 const renderer = getComponent(Renderer, rendererId)

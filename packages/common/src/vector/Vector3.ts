@@ -1,5 +1,5 @@
 import { root_3 } from "../constants"
-import { FixedLengthArray, NumberArray } from "../types"
+import { FixedLengthArray } from "../types"
 import { IEquatable } from "../utils/interfaces/IEquatable"
 import { Vector2 } from "./Vector2"
 
@@ -58,10 +58,10 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     constructor(xyz: number)
     constructor(x: number, y: number, z: number)
     constructor(vector: Vector3)
-    constructor(array: NumberArray)
+    constructor(array: Vector3Array)
     constructor(buffer: ArrayBuffer)
     constructor(buffer: ArrayBuffer, byteOffset: number)
-    constructor(_0: ArrayBuffer | Vector3 | NumberArray | number = 0, _1?: number, _2?: number)
+    constructor(_0: ArrayBuffer | Vector3 | Vector3Array | number = 0, _1?: number, _2?: number)
     {
         if (_0 instanceof ArrayBuffer)
         {
@@ -81,8 +81,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Set(xyz: number): Vector3
     Set(x: number, y: number, z: number): Vector3
     Set(vector: Vector3): Vector3
-    Set(array: NumberArray): Vector3
-    Set(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Set(array: Vector3Array): Vector3
+    Set(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -112,8 +112,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Add(xyz: number): Vector3
     Add(x: number, y: number, z: number): Vector3
     Add(vector: Vector3): Vector3
-    Add(array: NumberArray): Vector3
-    Add(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Add(array: Vector3Array): Vector3
+    Add(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -134,8 +134,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Subtract(xyz: number): Vector3
     Subtract(x: number, y: number, z: number): Vector3
     Subtract(vector: Vector3): Vector3
-    Subtract(array: NumberArray): Vector3
-    Subtract(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Subtract(array: Vector3Array): Vector3
+    Subtract(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -156,8 +156,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Multiply(xyz: number): Vector3
     Multiply(x: number, y: number, z: number): Vector3
     Multiply(vector: Vector3): Vector3
-    Multiply(array: NumberArray): Vector3
-    Multiply(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Multiply(array: Vector3Array): Vector3
+    Multiply(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -178,8 +178,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Divide(xyz: number): Vector3
     Divide(x: number, y: number, z: number): Vector3
     Divide(vector: Vector3): Vector3
-    Divide(array: NumberArray): Vector3
-    Divide(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Divide(array: Vector3Array): Vector3
+    Divide(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -209,8 +209,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Dot(xyz: number): number
     Dot(x: number, y: number, z: number): number
     Dot(vector: Vector3): number
-    Dot(array: NumberArray): number
-    Dot(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): number
+    Dot(array: Vector3Array): number
+    Dot(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): number
     {
         if (typeof _0 === 'number')
         {
@@ -225,8 +225,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Cross(xyz: number): Vector3
     Cross(x: number, y: number, z: number): Vector3
     Cross(vector: Vector3): Vector3
-    Cross(array: NumberArray): Vector3
-    Cross(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): Vector3
+    Cross(array: Vector3Array): Vector3
+    Cross(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): Vector3
     {
         if (typeof _0 === 'number')
         {
@@ -251,8 +251,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     Distance(xyz: number): number
     Distance(x: number, y: number, z: number): number
     Distance(vector: Vector3): number
-    Distance(array: NumberArray): number
-    Distance(_0: Vector3 | NumberArray | number, _1?: number, _2?: number): number
+    Distance(array: Vector3Array): number
+    Distance(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): number
     {
         let x: number
         let y: number
@@ -354,9 +354,9 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     static Add(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
     static Add(vector1: Vector3, vector2: Vector3): Vector3
     static Add(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
-    static Add(array1: NumberArray, array2: NumberArray): Vector3
-    static Add(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
-    static Add(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    static Add(array1: Vector3Array, array2: Vector3Array): Vector3
+    static Add(array1: Vector3Array, array2: Vector3Array, out: Vector3): Vector3
+    static Add(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
     {
         const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
@@ -380,9 +380,9 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     static Subtract(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
     static Subtract(vector1: Vector3, vector2: Vector3): Vector3
     static Subtract(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
-    static Subtract(array1: NumberArray, array2: NumberArray): Vector3
-    static Subtract(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
-    static Subtract(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    static Subtract(array1: Vector3Array, array2: Vector3Array): Vector3
+    static Subtract(array1: Vector3Array, array2: Vector3Array, out: Vector3): Vector3
+    static Subtract(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
     {
         const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
@@ -406,9 +406,9 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     static Multiply(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
     static Multiply(vector1: Vector3, vector2: Vector3): Vector3
     static Multiply(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
-    static Multiply(array1: NumberArray, array2: NumberArray): Vector3
-    static Multiply(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
-    static Multiply(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    static Multiply(array1: Vector3Array, array2: Vector3Array): Vector3
+    static Multiply(array1: Vector3Array, array2: Vector3Array, out: Vector3): Vector3
+    static Multiply(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
     {
         const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
@@ -432,9 +432,9 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     static Divide(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
     static Divide(vector1: Vector3, vector2: Vector3): Vector3
     static Divide(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
-    static Divide(array1: NumberArray, array2: NumberArray): Vector3
-    static Divide(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
-    static Divide(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    static Divide(array1: Vector3Array, array2: Vector3Array): Vector3
+    static Divide(array1: Vector3Array, array2: Vector3Array, out: Vector3): Vector3
+    static Divide(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
     {
         const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
@@ -469,8 +469,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
 
     static Dot(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number
     static Dot(vector1: Vector3, vector2: Vector3): number
-    static Dot(array1: NumberArray, array2: NumberArray): number
-    static Dot(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: number, _3?: number, _4?: number, _5?: number): number
+    static Dot(array1: Vector3Array, array2: Vector3Array): number
+    static Dot(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: number, _3?: number, _4?: number, _5?: number): number
     {
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -494,9 +494,9 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
     static Cross(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, out: Vector3): Vector3
     static Cross(vector1: Vector3, vector2: Vector3): Vector3
     static Cross(vector1: Vector3, vector2: Vector3, out: Vector3): Vector3
-    static Cross(array1: NumberArray, array2: NumberArray): Vector3
-    static Cross(array1: NumberArray, array2: NumberArray, out: Vector3): Vector3
-    static Cross(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
+    static Cross(array1: Vector3Array, array2: Vector3Array): Vector3
+    static Cross(array1: Vector3Array, array2: Vector3Array, out: Vector3): Vector3
+    static Cross(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Vector3 | number, _3?: number, _4?: number, _5?: number, _6?: Vector3): Vector3
     {
         const out: Vector3 = _6 ?? _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
@@ -522,8 +522,8 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
 
     static Distance(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number
     static Distance(vector1: Vector3, vector2: Vector3): number
-    static Distance(array1: NumberArray, array2: NumberArray): number
-    static Distance(_0: Vector3 | NumberArray | number, _1: Vector3 | NumberArray | number, _2?: number, _3?: number, _4?: number, _5?: number): number
+    static Distance(array1: Vector3Array, array2: Vector3Array): number
+    static Distance(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: number, _3?: number, _4?: number, _5?: number): number
     {
         let x: number
         let y: number
@@ -575,6 +575,36 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
         }
 
         return out
+    }
+    
+    static Length(vector: Vector3): number
+    static Length(vector: Vector3Array): number
+    static Length(x: number, y: number, z: number): number
+    static Length(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): number
+    {
+        if (typeof _0 === 'number')
+        {
+            return Math.sqrt(_0 * _0 + (_1 as number) * (_1 as number) + (_2 as number) * (_2 as number))
+        }
+        else
+        {
+            return Math.sqrt(_0[0] * _0[0] + _0[1] * _0[1] + _0[2] * _0[2])
+        }
+    }
+
+    static LengthSquared(vector: Vector3): number
+    static LengthSquared(vector: Vector3Array): number
+    static LengthSquared(x: number, y: number, z: number): number
+    static LengthSquared(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number): number
+    {
+        if (typeof _0 === 'number')
+        {
+            return _0 * _0 + (_1 as number) * (_1 as number) + (_2 as number) * (_2 as number)
+        }
+        else
+        {
+            return _0[0] * _0[0] + _0[1] * _0[1] + _0[2] * _0[2]
+        }
     }
     //#endregion
 }

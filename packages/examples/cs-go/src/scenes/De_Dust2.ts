@@ -1,4 +1,4 @@
-import { AreaLight, DirectionalLight, Game, RenderSystem, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
+import { AreaLight, DefaultWindow, DirectionalLight, Game, RenderSystem, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from '@fwge/io'
 import { FPSController } from "../entities"
@@ -26,9 +26,7 @@ export class De_Dust2 extends Scene
                 RenderSystem,
                 FPSCounterSystem
             ],
-            windows: [
-                new RenderWindow()
-            ]
+            windows: [ DefaultWindow ]
         })
     }
     

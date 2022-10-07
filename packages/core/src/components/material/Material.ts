@@ -1,7 +1,13 @@
 import { Shader } from "../../base/Shader"
-import { Colour3, GL, isPowerOf2 } from "@fwge/common"
+import { Colour3, GL, IBindable, isPowerOf2, Scalar } from "@fwge/common"
 import { SharedComponent } from "../../ecs"
 import { ImageTexture } from "../../base"
+export function* TheThingDoer() {
+    let count = 0
+    while (true)
+        yield count++
+}
+export const DoTheThing = TheThingDoer()
 
 export enum BlendMode
 {
@@ -24,22 +30,49 @@ export interface IMaterial
     renderType?: RenderType
 }
 
-export class Material extends SharedComponent
+export class Material extends SharedComponent implements IBindable<Float32Array>
 {
+    static BlockIndex = new Map<string, any>()
+    static BindingPoint = new Map<string, number>()
+
     static Empty: WebGLTexture
+    ReceiveShadows: boolean = true
+    ProjectsShadows: boolean = true
 
     Shader: Shader
     RenderType: RenderType
-    readonly Colour: Colour3 = new Colour3(0.8)
+    #alpha: Scalar
+    
+    readonly MaterialBuffer = GL.createBuffer()!
+
+    readonly Colour: Colour3
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
     readonly ImageTextures: Array<ImageTexture | null> = new Array(8).fill(null)
 
-    constructor(shader: Shader, renderType?: RenderType)
+    get Alpha()
     {
+        return this.#alpha.Value
+    }
+
+    set Alpha(alpha: number)
+    {
+        this.#alpha.Value = alpha
+    }
+
+    constructor(
+        shader: Shader,
+        renderType?: RenderType,
+        readonly BufferData: Float32Array = new Float32Array([1, 1, 1, 1])
+    ) {
         super(Material)
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
+        this.Colour = new Colour3()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
+        this.#alpha = new Scalar()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        
+        this.Colour.Set(0.3)
+        this.#alpha.Set(1.0)
 
         if (!Material.Empty)
         {
@@ -51,6 +84,8 @@ export class Material extends SharedComponent
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
             GL.bindTexture(GL.TEXTURE_2D, null)            
         }
+
+        console.log(this)
     }
     
     protected applyImage(texture: WebGLTexture, src: string): void
@@ -89,8 +124,9 @@ export class Material extends SharedComponent
 
     Bind(): void
     {
-        this.Shader!.Bind()
-
+        const shader = this.Shader
+        
+        shader.Bind()
         if (this.RenderType === RenderType.OPAQUE)
         {
             GL.disable(GL.BLEND)
@@ -99,6 +135,40 @@ export class Material extends SharedComponent
         {
             GL.enable(GL.BLEND)
             GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        }
+
+        // this.bindBufferData(shader.Program!)
+    }
+
+    private bindBufferData(shaderProgram: WebGLProgram)
+    {
+        const name = (this as Object).constructor.name
+        let blockIndex = Material.BlockIndex.get(name)!
+        let bindingPoint = Material.BindingPoint.get(name)!
+
+        if (!Material.BlockIndex.has(name))
+        {
+            bindingPoint = DoTheThing.next().value!
+            blockIndex = GL.getUniformBlockIndex(shaderProgram, name)!
+
+            console.log({ name, bindingPoint, blockIndex })
+
+            Material.BlockIndex.set(name, blockIndex)
+            Material.BindingPoint.set(name, bindingPoint)
+
+            if (blockIndex !== GL.INVALID_INDEX)
+            {
+                GL.uniformBlockBinding(shaderProgram, blockIndex, bindingPoint)
+                GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.MaterialBuffer)
+                GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
+            }
+        }
+
+        if (blockIndex !== GL.INVALID_INDEX)
+        {
+            // console.log(this.BufferData)
+            GL.bindBuffer(GL.UNIFORM_BUFFER, this.MaterialBuffer)
+            GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
         }
     }
 

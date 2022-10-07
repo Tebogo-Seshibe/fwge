@@ -11,9 +11,7 @@ export interface IAreaLight extends ILight
 
 export class AreaLight extends Light
 {
-    public SkyMap: Image3D | null = null
-    public SkyboxTexture: SkyboxTexture | null = null
-    public EnvironmentMap: Cubemap | null = null
+    public Skybox: SkyboxTexture | null = null
     public readonly SkyboxShader: Shader = new Shader(
         `#version 300 es
         #pragma vscode_glsllint_stage: vert
@@ -52,7 +50,7 @@ export class AreaLight extends Light
         }
         `
     )
-    public readonly Skybox: StaticMesh = new StaticMesh(
+    public readonly SkyboxMesh: StaticMesh = new StaticMesh(
     {
         position:
         [
@@ -100,10 +98,10 @@ export class AreaLight extends Light
 
         if (light.skyBox)
         {
-            this.SkyboxTexture = new SkyboxTexture(light.skyBox)
+            this.Skybox = new SkyboxTexture(light.skyBox)
         }
 
-        {
+        {   
             `
                 [R] [G] [B] [intensity]
             `
@@ -114,14 +112,14 @@ export class AreaLight extends Light
     {
         super.Bind(shader)
 
-        if (this.EnvironmentMap)
+        if (this.Skybox)
         {
-            shader.SetBool('U_AmbientLight.HasEnvironmentMap', true)
-            shader.SetTexture('U_AmbientLight.EnvironmentMap', this.EnvironmentMap.Texture)
+            shader.SetBool('HasAmbientEnvironmentMap', true)
+            shader.SetTexture('AmbientEnvironmentMap', this.Skybox.Texture, false, true)
         }
         else
         {
-            shader.SetBool('U_AreaLight.HasEnvironmentMap', false)
+            shader.SetBool('HasAmbientEnvironmentMap', false)
         }
     }
 }

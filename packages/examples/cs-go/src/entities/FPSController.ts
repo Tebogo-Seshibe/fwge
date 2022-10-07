@@ -7,7 +7,7 @@ import { GameObject } from "./GameObject"
 export class FPSController extends GameObject
 {    
     readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45, farClipping: 1000 })
-    readonly cameraTransform: Transform = new Transform({ position: [0, 2, 0] })
+    readonly cameraTransform: Transform = new Transform({ position: [0, 0, 0] })
     
     readonly up: Vector3 = Vector3.Zero
     readonly right: Vector3 = Vector3.Zero
@@ -26,21 +26,14 @@ export class FPSController extends GameObject
 
     override OnCreate(): void
     {
+        this.transform.Position.Set(0, 1.5, 15)
+        // this.cameraTransform.Rotation.X = 30
         this.rigidbody = new RigidBody({ mass: 5 })
-        this.collider = new CubeCollider(
-        {
-            isTrigger: true,
-            position: new Vector3(0, 0.25, 0),
-        })
+        this.collider = new CubeCollider()
 
-        this.AddComponent(new PointLight(
-        {
-            colour: [1, 1, 1],
-            intensity: 1.0,
-            radius: 25
-        }))
 
-        this.AddComponent(this.rigidbody)        
+        this.AddComponent(this.collider)
+        this.AddComponent(this.rigidbody)
         this.AddChild(
             this.Scene
                 .CreateEntity()

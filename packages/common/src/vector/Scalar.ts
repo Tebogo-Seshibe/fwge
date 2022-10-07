@@ -11,9 +11,9 @@ export class Scalar extends Float32Array implements IEquatable<Scalar>
         return this[0]
     }
 
-    set Value(v: number)
+    set Value(value: number)
     {
-        this[0] = v
+        this[0] = value
     }
     //#endregion
 
@@ -26,7 +26,7 @@ export class Scalar extends Float32Array implements IEquatable<Scalar>
     {
         if (_0 instanceof ArrayBuffer)
         {
-            super(_0, _1 ?? 0, 1)
+            super(_0, _1 ?? 0, Scalar.SIZE)
         }
         else if (typeof _0 === 'number')
         {

@@ -1,6 +1,7 @@
 import { Colour3, Colour3Array, FixedLengthArray, GL, IBindable, Scalar, Vector3 } from "@fwge/common"
 import { Shader } from "../../base"
 import { UniqueComponent } from "../../ecs"
+import { DoTheThing } from "../material"
 
 export interface ILight
 {
@@ -44,7 +45,7 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
 
     Bind(shader: Shader): void
     Bind(shader: Shader, index: number): void
-    Bind(shader: Shader, index?: number): void
+    Bind(shader: Shader, _index?: number): void
     {
         const name = (this as Object).constructor.name
         let blockIndex = Light.BlockIndex.get(name)!
@@ -52,9 +53,11 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
 
         if (!Light.BlockIndex.has(name))
         {
-            bindingPoint = Light.BlockIndex.size
+            bindingPoint = DoTheThing.next().value!
             blockIndex = GL.getUniformBlockIndex(shader.Program!, name)!
 
+            console.log({ name, bindingPoint, blockIndex })
+            
             Light.BlockIndex.set(name, blockIndex)
             Light.BindingPoint.set(name, bindingPoint)
 

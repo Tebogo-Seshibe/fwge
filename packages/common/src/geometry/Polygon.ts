@@ -1,6 +1,6 @@
-import { Vector2, Vector3 } from "../vector"
+import { Scalar, Vector2, Vector3 } from "../vector"
 
-export abstract class Polygon<T extends Vector2 | Vector3>
+export abstract class Polygon<T extends Scalar | Vector2 | Vector3>
 {   
     constructor(
         public readonly Vertices: T[]

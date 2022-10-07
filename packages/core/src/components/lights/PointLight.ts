@@ -23,12 +23,12 @@ export class PointLight extends Light
     }
     CastShadows: boolean
 
-    readonly ShadowCubeMap: RenderTarget = new RenderTarget({
-      colour: [],
-      depth: DepthType.INT24,
-      height: 1024,
-      width: 1024  
-    })
+    // readonly ShadowCubeMap: RenderTarget = new RenderTarget({
+    //   colour: [],
+    //   depth: DepthType.INT24,
+    //   height: 1024,
+    //   width: 1024  
+    // })
 
     constructor()
     constructor(light: IPointLight)

@@ -10,11 +10,11 @@ export interface ITransform
 
 export class Transform extends UniqueComponent
 {
-    private readonly _buffer: Float32Array = new Float32Array(9)
-    public readonly Position: Vector3 = new Vector3(this._buffer, 0 * Float32Array.BYTES_PER_ELEMENT)
-    public readonly Rotation: Vector3 = new Vector3(this._buffer, 3 * Float32Array.BYTES_PER_ELEMENT)
-    public readonly Scale: Vector3 = new Vector3(this._buffer, 6 * Float32Array.BYTES_PER_ELEMENT)
-
+    private readonly _buffer: Float32Array
+    public readonly Position: Vector3
+    public readonly Rotation: Vector3
+    public readonly Scale: Vector3
+    
     SetPosition(xyz: number): void
     SetPosition(x: number, y: number, z: number): void
     SetPosition(array: [number, number, number]): void
@@ -113,6 +113,36 @@ export class Transform extends UniqueComponent
 
         return position
     }
+
+    GlobalRotation(): Vector3
+    GlobalRotation(rotation: Vector3): Vector3
+    GlobalRotation(rotation: Vector3 = Vector3.Zero): Vector3
+    {
+        let transform: Transform | undefined = this
+
+        while (transform)
+        {
+            rotation.Add(transform.Rotation)
+            transform = transform.Owner?.Parent?.GetComponent(Transform)
+        }
+
+        return rotation
+    }
+
+    GlobalScale(): Vector3
+    GlobalScale(scale: Vector3): Vector3
+    GlobalScale(scale: Vector3 = Vector3.Zero): Vector3
+    {
+        let transform: Transform | undefined = this
+
+        while (transform)
+        {
+            scale.Add(transform.Scale)
+            transform = transform.Owner?.Parent?.GetComponent(Transform)
+        }
+
+        return scale
+    }
     
     LocalModelViewMatrix(): Matrix4
     LocalModelViewMatrix(out: Matrix4): Matrix4
@@ -156,9 +186,14 @@ export class Transform extends UniqueComponent
     {
         super()
         
+        this._buffer = new Float32Array(9)
+        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT)
+        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT)
+        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT)
+
         if (args.position)
         {
-            this.Position.Set(args.position)
+            this.Position.Set(args.position as Vector3Array)
         }
         else
         {
@@ -167,7 +202,7 @@ export class Transform extends UniqueComponent
 
         if (args.rotation)
         {
-            this.Rotation.Set(args.rotation)
+            this.Rotation.Set(args.rotation as Vector3Array)
         }
         else
         {
@@ -176,7 +211,7 @@ export class Transform extends UniqueComponent
 
         if (args.scale)
         {
-            this.Scale.Set(args.scale)
+            this.Scale.Set(args.scale as Vector3Array)
         }
         else
         {
