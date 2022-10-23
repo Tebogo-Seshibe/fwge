@@ -3,11 +3,14 @@ import { basicShader, basicShader2, createBasicShader, createDefaultShader, crea
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components'
 import { basicAnimation } from './components/Animations'
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials'
-import { De_Dust2 } from './scenes/De_Dust2'
 import { PhysicsTest } from './scenes/PhysicsTest'
-import { SolarSystem } from './scenes/SolarSystem'
-import { Sponza } from './scenes/Sponza'
-import { Test } from './scenes/Test'
+
+type Resolution = { Height: number, Width: number }
+const R_HD: Resolution = { Height: 1080, Width: 1920 }
+const R_WQHD: Resolution = { Height: 1440, Width: 2560 }
+const R_4K: Resolution = { Height: 2160, Width: 3840 }
+
+const CurrentResolution: Resolution = R_WQHD
 
 export class CSGO extends Game
 {
@@ -17,8 +20,8 @@ export class CSGO extends Game
         {
             canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
             debug: false,
-            height: 1440,
-            width: 2560,
+            height: CurrentResolution.Height,
+            width: CurrentResolution.Width,
             startupScene: PhysicsTest,
             scenes: [
                 // Round,

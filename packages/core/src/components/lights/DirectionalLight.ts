@@ -1,5 +1,6 @@
-import { clean, Matrix3, Matrix4, Scalar, Vector3, Vector3Array } from "@fwge/common"
+import { clean, CubeGeometry, Matrix2, Matrix3, Matrix4, radian, Scalar, Vector3, Vector3Array } from "@fwge/common"
 import { ColourType, DepthType, RenderTarget, Shader } from "../../base"
+import { Camera, PerspectiveCamera } from "../camera"
 import { Transform } from "../Transform"
 import { ILight, Light } from "./Light"
 
@@ -19,11 +20,12 @@ export class DirectionalLight extends Light
     {
         colour: [],
         depth: DepthType.FLOAT32,
-        height: 2**11,
-        width: 2**11
+        height: 2**13,
+        width: 2**13
     })
     static readonly DefaultDirection: Vector3 = new Vector3(0, -1, 0)
 
+    #viewVolume: CubeGeometry = new CubeGeometry()
     #direction: Vector3
     #castShadows: Scalar
     #texelSize: Scalar
@@ -32,6 +34,11 @@ export class DirectionalLight extends Light
     #pcfLevel: Scalar
     #shadowMatrix: Matrix4
 
+    get Direction()
+    {
+        return this.#direction
+    }
+    
     get CastShadows()
     {
         return this.#castShadows.Value === 0
@@ -88,64 +95,76 @@ export class DirectionalLight extends Light
                 [Texel Size]    [Texel Count]   [Bias]          [PCFLevel]
             `
         }
-
-        console.log(this)
     }
 
     override Bind(shader: Shader)
     {
-        const shadowMatrix = Matrix4.OrthographicProjection([-45, -45, -45], [ 45,  45,  45], [ 90,  90]).Transpose()
         let transform = this.Owner?.GetComponent(Transform)
         if (transform)
         {
-            const rotationMatrix = Matrix3.RotationMatrix(transform.Rotation).Transpose()
-
-            Matrix3.MultiplyVector(
-                rotationMatrix,
-                DirectionalLight.DefaultDirection,
-                this.#direction
+            this.#direction.Set(
+                // Matrix3.MultiplyVector(
+                //     this.ViewMatrix.Matrix3,
+                    DirectionalLight.DefaultDirection
+                // )
             )
-
-            Matrix4.Multiply(shadowMatrix, new Matrix4(rotationMatrix), shadowMatrix)
         }
         else
         {
             this.#direction.Set(DirectionalLight.DefaultDirection)
         }
         
-        this.#shadowMatrix.Set(shadowMatrix)
-        if (this.CastShadows)         
+        this.#shadowMatrix.Set(this.ShadowMatrix)
+        if (this.CastShadows)
         {
             shader.SetTexture('U_Sampler.DirectionalShadow', this.RenderTarget.DepthAttachment!)
         }
         
-        super.Bind(shader)
+        shader.SetFloatVector('U_DirectionalLight.Colour', this.Colour)
+        shader.SetFloat('U_DirectionalLight.Intensity', this.Intensity)
+
+        shader.SetFloatVector('U_DirectionalLight.Direction', this.#direction)
+        shader.SetBool('U_DirectionalLight.CastShadows', this.CastShadows)
+
+        shader.SetFloat('U_DirectionalLight.TexelSize', this.#texelSize)
+        shader.SetFloat('U_DirectionalLight.TexelCount', this.#texelCount)
+        shader.SetFloat('U_DirectionalLight.Bias', this.#bias)
+        shader.SetFloat('U_DirectionalLight.PCFLevel', this.#pcfLevel)
+
+        shader.SetMatrix('U_DirectionalLight.ShadowMatrix', this.#shadowMatrix)
+        // super.Bind(shader)
     }
     
-    BindForShadows()
-    {
+    BindForShadows(offset: Vector3 | Vector3Array = [0,0,0])
+    { 
         this.RenderTarget.Bind()
         DirectionalLight.ShadowShader.Bind()
-
-        const shadowMatrix = Matrix4.OrthographicProjection(
-            [-45, -45, -45],
-            [ 45,  45,  45],
-            [ 90,  90]
-        ).Transpose()
-        let transform = this.Owner?.GetComponent(Transform)
-        if (transform)
-        {
-            const rotationMatrix = Matrix3.RotationMatrix(transform.Rotation).Inverse()
-            Matrix4.Multiply(shadowMatrix, new Matrix4(rotationMatrix), shadowMatrix)
-        }
-
-        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', shadowMatrix)
+        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix.Multiply(Matrix4.TranslationMatrix(offset[0], 0, offset[2]).Transpose()))
     }
 
     UnbindForShadows()
     {
         DirectionalLight.ShadowShader.UnBind()
-        this.RenderTarget.UnBind()
+    }
+
+    readonly ViewMatrix = Matrix4.OrthographicProjectionMatrix(100, 100, 100)
+
+    get ModelMatrix(): Matrix4
+    {
+        const rotationMatrix = Matrix3.Identity
+
+        const transform = this.Owner?.GetComponent(Transform)
+        if (transform)
+        {
+            rotationMatrix.Multiply(Matrix3.RotationMatrix(transform.GlobalRotation()).Transpose())
+        }
+
+        return new Matrix4(rotationMatrix)
+    }
+    
+    get ShadowMatrix(): Matrix4
+    {    
+        return Matrix4.Multiply(this.ViewMatrix, this.ModelMatrix)
     }
 
     static #shadowShader: Shader
@@ -164,6 +183,7 @@ export class DirectionalLight extends Light
                 {
                     mat4 ModelView;
                     mat4 Shadow;
+                    mat4 Camera;
                 };
                 uniform Matrix U_Matrix;
                 
@@ -184,4 +204,5 @@ export class DirectionalLight extends Light
 
         return DirectionalLight.#shadowShader
     }
+    
 }

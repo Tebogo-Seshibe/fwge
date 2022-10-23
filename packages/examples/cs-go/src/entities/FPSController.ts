@@ -1,12 +1,12 @@
 import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
-import { Camera, PerspectiveCamera, PointLight, Transform } from "@fwge/core"
+import { PerspectiveCamera, Transform } from "@fwge/core"
 import { IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
 import { GameObject } from "./GameObject"
 
 export class FPSController extends GameObject
 {    
-    readonly camera: Camera = new PerspectiveCamera({ fieldOfView: 45, farClipping: 1000 })
+    readonly camera: PerspectiveCamera = new PerspectiveCamera({ fieldOfView: 45, farClipping: 1000 })
     readonly cameraTransform: Transform = new Transform({ position: [0, 0, 0] })
     
     readonly up: Vector3 = Vector3.Zero
@@ -16,8 +16,8 @@ export class FPSController extends GameObject
     readonly rotationDelta: Vector2 = Vector2.Zero
     readonly rotationMatrix: Matrix3 = Matrix3.Identity
 
-    readonly movementSpeed: number = 15 // * 0.2
-    readonly turnSpeed: number = 50 // * 0.2
+    readonly movementSpeed: number = 15
+    readonly turnSpeed: number = 50
     readonly jumpHeight: number = 15
     canJump: boolean = true
     
@@ -27,10 +27,8 @@ export class FPSController extends GameObject
     override OnCreate(): void
     {
         this.transform.Position.Set(0, 1.5, 15)
-        // this.cameraTransform.Rotation.X = 30
         this.rigidbody = new RigidBody({ mass: 5 })
         this.collider = new CubeCollider()
-
 
         this.AddComponent(this.collider)
         this.AddComponent(this.rigidbody)
@@ -41,7 +39,7 @@ export class FPSController extends GameObject
                 .AddComponent(this.camera)
         )
 
-        this.Scene.Windows.first().Camera = this.camera
+        this.Scene.Windows.first.Camera = this.camera
     }
 
     override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
@@ -59,7 +57,7 @@ export class FPSController extends GameObject
         const ePressed = Keyboard.KeyE !== KeyState.RELEASED && Keyboard.KeyE !== KeyState.UP
         const shiftPressed = Keyboard.KeyShift !== KeyState.RELEASED && Keyboard.KeyShift !== KeyState.UP
         const movementSpeed = this.movementSpeed * (shiftPressed ? 2 : 1)
-
+        
         Vector2.Scale(Mouse.Offset, this.turnSpeed * delta, this.rotationDelta)
         this.transform.Rotation.Y += this.rotationDelta.X
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + this.rotationDelta.Y, -80, 80)

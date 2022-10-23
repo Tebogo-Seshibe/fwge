@@ -24,6 +24,6 @@ export const OBJMTLPrefabBuilder = (obj: OBJ, mtl: MTL): Prefab<any> =>
 
         }
     }
-    
+
     return root
 }

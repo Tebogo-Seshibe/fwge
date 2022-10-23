@@ -1,16 +1,7 @@
 import { Component } from '../ecs/Component'
 import { Entity } from '../ecs/Entity'
-import { Class, Constructor, TypeId } from '../ecs/Registry'
+import { Class, Constructor, getTypeId, TypeId } from '../ecs/Registry'
 import { Scene } from './Scene'
-
-
-// AddComponent<K extends Component, U extends any[]>(constructor: Constructor<K, U>, ...args: U): Prefab
-// {
-//     this.components.set(constructor as Class<K>, [ constructor, args ])
-
-//     return this
-// }
-
 
 export class Prefab<K extends Entity = Entity>
 {
@@ -21,7 +12,7 @@ export class Prefab<K extends Entity = Entity>
 
     constructor()
     constructor(entityType: Constructor<K, [Scene]>)
-    constructor(entityType?: Constructor<K, [Scene]>)
+    constructor(entityType: Constructor<K, [Scene]> = Entity as Constructor<K, [Scene]>)
     {
         if (entityType)
         {
@@ -30,7 +21,7 @@ export class Prefab<K extends Entity = Entity>
 
     }
 
-    AddChild(prefab: Prefab<K>): Prefab<K>
+    AddChild<V extends Entity = Entity>(prefab: Prefab<V>): Prefab<K>
     {
         this._children.push(prefab)
         return this
@@ -45,13 +36,12 @@ export class Prefab<K extends Entity = Entity>
 
     GetComponent<U extends Component>(componentType: Class<U>): U | undefined
     {
-        return this._components.get(componentType._typeId!) as U
+        return this._components.get(getTypeId(componentType)) as U
     }
 
     RemoveComponent<U extends Component>(componentType: Class<U>): Prefab<K>
     {
-        this._components.delete(componentType._typeId!)        
-
+        this._components.delete(getTypeId(componentType))
         return this
     }
 

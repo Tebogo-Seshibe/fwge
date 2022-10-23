@@ -1,12 +1,14 @@
 import { Class, RegistryType } from "../ecs"
 
-export class Asset extends RegistryType
+export class Asset
 {
+    public readonly Type: Class<Asset>
+
     constructor()
     constructor(assetType: Class<Asset>)
     constructor(type?: Class<Asset>)
     {
-        super(type)
+        this.Type = type ?? new.target
     }
 
     Load(...sources: string[]): void { }

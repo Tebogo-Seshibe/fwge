@@ -1,5 +1,4 @@
-import { Colour3, Vector3Array } from "@fwge/common"
-import { Cubemap, ICubemap, Image3D, Shader } from "../../base"
+import { ICubemap, Shader } from "../../base"
 import { SkyboxTexture } from "../../base/image/SkyboxTexture"
 import { StaticMesh } from "../mesh"
 import { ILight, Light } from "./Light"
@@ -110,7 +109,7 @@ export class AreaLight extends Light
 
     override Bind(shader: Shader): void
     {
-        super.Bind(shader)
+        // super.Bind(shader)
 
         if (this.Skybox)
         {
@@ -121,5 +120,8 @@ export class AreaLight extends Light
         {
             shader.SetBool('HasAmbientEnvironmentMap', false)
         }
+
+        shader.SetFloatVector('U_AreaLight.Colour', this.Colour)
+        shader.SetFloat('U_AreaLight.Intensity', this.Intensity)
     }
 }

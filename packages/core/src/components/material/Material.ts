@@ -84,8 +84,6 @@ export class Material extends SharedComponent implements IBindable<Float32Array>
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
             GL.bindTexture(GL.TEXTURE_2D, null)            
         }
-
-        console.log(this)
     }
     
     protected applyImage(texture: WebGLTexture, src: string): void
@@ -123,54 +121,54 @@ export class Material extends SharedComponent implements IBindable<Float32Array>
     }
 
     Bind(): void
+    Bind(shader: Shader): void
+    Bind(_0?: Shader): void
     {
-        const shader = this.Shader
-        
-        shader.Bind()
-        if (this.RenderType === RenderType.OPAQUE)
-        {
-            GL.disable(GL.BLEND)
-        }
-        else
-        {
-            GL.enable(GL.BLEND)
-            GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-        }
+        // if (this.RenderType === RenderType.OPAQUE)
+        // {
+            // GL.disable(GL.BLEND)
+            // GL.enable(GL.DEPTH_TEST)
+            // GL.enable(GL.CULL_FACE)
+            // GL.cullFace(GL.BACK)
+            // GL.depthMask(true)
+        // }
+        // else
+        // {
+        //     GL.enable(GL.BLEND)
+        //     GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        // }
 
         // this.bindBufferData(shader.Program!)
     }
 
-    private bindBufferData(shaderProgram: WebGLProgram)
-    {
-        const name = (this as Object).constructor.name
-        let blockIndex = Material.BlockIndex.get(name)!
-        let bindingPoint = Material.BindingPoint.get(name)!
+    // private bindBufferData(shaderProgram: WebGLProgram)
+    // {
+    //     const name = (this as Object).constructor.name + 'Buffer'
+    //     let blockIndex = Material.BlockIndex.get(name)!
+    //     let bindingPoint = Material.BindingPoint.get(name)!
 
-        if (!Material.BlockIndex.has(name))
-        {
-            bindingPoint = DoTheThing.next().value!
-            blockIndex = GL.getUniformBlockIndex(shaderProgram, name)!
+    //     if (!Material.BlockIndex.has(name))
+    //     {
+    //         bindingPoint = DoTheThing.next().value!
+    //         blockIndex = GL.getUniformBlockIndex(shaderProgram, name)!
 
-            console.log({ name, bindingPoint, blockIndex })
+    //         Material.BlockIndex.set(name, blockIndex)
+    //         Material.BindingPoint.set(name, bindingPoint)
 
-            Material.BlockIndex.set(name, blockIndex)
-            Material.BindingPoint.set(name, bindingPoint)
+    //         if (blockIndex !== GL.INVALID_INDEX)
+    //         {
+    //             GL.uniformBlockBinding(shaderProgram, blockIndex, bindingPoint)
+    //             GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.MaterialBuffer)
+    //             GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
+    //         }
+    //     }
 
-            if (blockIndex !== GL.INVALID_INDEX)
-            {
-                GL.uniformBlockBinding(shaderProgram, blockIndex, bindingPoint)
-                GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.MaterialBuffer)
-                GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
-            }
-        }
-
-        if (blockIndex !== GL.INVALID_INDEX)
-        {
-            // console.log(this.BufferData)
-            GL.bindBuffer(GL.UNIFORM_BUFFER, this.MaterialBuffer)
-            GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
-        }
-    }
+    //     if (blockIndex !== GL.INVALID_INDEX)
+    //     {
+    //         GL.bindBuffer(GL.UNIFORM_BUFFER, this.MaterialBuffer)
+    //         GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
+    //     }
+    // }
 
     UnBind(): void
     {
@@ -183,7 +181,5 @@ export class Material extends SharedComponent implements IBindable<Float32Array>
                 GL.bindTexture(GL.TEXTURE_2D, null)
             }
         }
-
-        this.Shader!.UnBind()
     }
 }

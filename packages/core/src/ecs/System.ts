@@ -10,7 +10,7 @@ interface ISystem
     requiredComponents: Class<Component>[]
 }
 
-export class System extends RegistryType
+export class System
 {
     
     public readonly entityIds: EntityId[] = []
@@ -20,7 +20,7 @@ export class System extends RegistryType
     {
         if (!this.#scene)
         { 
-            throw new Error(`No scene assinged to current system of type "${this.Type.name}"`)
+            throw new Error(`No scene assinged to current system of type "${this.#name}"`)
         }
 
         return this.#scene
@@ -113,7 +113,8 @@ export class System extends RegistryType
 
     readonly #tickRate: number = 60
     readonly #async: boolean = false
-
+    
+    #name: string
     #prevTick: number = -1
     #currTick: number = -1
     #tickId: number = -1
@@ -121,7 +122,7 @@ export class System extends RegistryType
 
     constructor(scene: Scene, config: ISystem)
     {
-        super(new.target as Class<System>)
+        this.#name = new.target.name
         this.#scene = scene
         this.#async = config.async ?? false
         this.#tickRate = config.tickRate ?? 60

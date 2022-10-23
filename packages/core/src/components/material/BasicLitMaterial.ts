@@ -1,4 +1,5 @@
 import { Colour3, GL, Vector3, Vector3Array } from "@fwge/common"
+import { Shader } from "../../base"
 import { Image2D } from "../../base/image"
 import { IMaterial, Material } from "./Material"
 
@@ -59,7 +60,6 @@ export class BasicLitMaterial extends Material
     set NormalMap(src: string | null | WebGLTexture)
     {
         GL.deleteTexture(this.Textures[1])
-
         
         if (src instanceof WebGLTexture)
         {
@@ -144,11 +144,9 @@ export class BasicLitMaterial extends Material
     }
 
     Bind(): void
+    Bind(shader: Shader): void
+    Bind(shader: Shader = this.Shader): void
     {
-        super.Bind()
-
-        const shader = this.Shader
-
         shader.SetFloat(`U_Material.Shininess`, this.Shininess)
         shader.SetFloat(`U_Material.Alpha`, this.Alpha)
         shader.SetBool(`U_Material.ReceiveShadows`, this.ReceiveShadows)

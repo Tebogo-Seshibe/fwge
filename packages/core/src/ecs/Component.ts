@@ -20,47 +20,47 @@ export abstract class SharedComponent extends Component
 {
     public get Owners(): Entity[]
     {
-        return this.#owners
+        return this._owners
     }
 
     public AddOwner(entity: Entity): void
     {
-        if (!this.#owners.includes(entity))
+        if (!this._owners.includes(entity))
         {
-            this.#owners.push(entity)
+            this._owners.push(entity)
         }
     }
 
     public RemoveOwner(entity: Entity): void
     {
-        const parentIndex = this.#owners.indexOf(entity)
+        const parentIndex = this._owners.indexOf(entity)
 
         if (parentIndex !== -1)
         {
-            this.#owners.swap(parentIndex, this.#owners.length - 1)
-            this.#owners.pop()
+            this._owners.swap(parentIndex, this._owners.length - 1)
+            this._owners.pop()
         }
     }
 
-    #owners: Entity[] = []
+    private _owners: Entity[] = []
 }
 
 export abstract class UniqueComponent extends Component
 {
     public get Owner(): Entity | undefined
     {
-        return this.#owner
+        return this._owner
     }
 
     public AddOwner(owner: Entity): void
     {
-        this.#owner = owner
+        this._owner = owner
     }
 
     public RemoveOwner(_?: Entity): void
     {
-        this.#owner = undefined
+        this._owner = undefined
     }
 
-    #owner?: Entity
+    private _owner?: Entity
 }

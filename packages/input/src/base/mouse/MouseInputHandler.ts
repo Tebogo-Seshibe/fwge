@@ -13,8 +13,6 @@ export class MouseInputHandler
     
     private _canvas: HTMLCanvasElement
     private _values: number[] = []
-    private _delta: number = 0
-    private _isMoving?: any
     
     get State(): MouseState
     {
@@ -58,11 +56,15 @@ export class MouseInputHandler
         this._canvas.addEventListener('wheel', this._wheel.bind(this))
     }
 
-    Update(delta: number): void
-    {
-        this._delta = delta
-    }
+    Update(_: number): void { }
 
+    Reset(): void
+    {
+        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
+        this._values[MouseInputHandler.MouseDeltaX] = 0
+        this._values[MouseInputHandler.MouseDeltaY] = 0
+    }
+    
     Stop(): void
     {
         this._canvas.removeEventListener('click', this._click.bind(this))
@@ -79,16 +81,19 @@ export class MouseInputHandler
     private _click(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
     }
     
     private _dblclick(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
     }
     
     private _mousedown(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
 
         this._values[e.button + MouseInputHandler.Buttons] = ButtonState.PRESSED
     }
@@ -96,6 +101,7 @@ export class MouseInputHandler
     private _mouseup(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
 
         this._values[e.button + MouseInputHandler.Buttons] = ButtonState.RAISED
     }
@@ -103,14 +109,8 @@ export class MouseInputHandler
     private _mousemove(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
 
-        if (this._isMoving !== undefined)
-        {
-            clearTimeout(this._isMoving)
-            this._isMoving = undefined
-        }
-        this._isMoving = setTimeout(() => this._reset(), this._delta)
-        
         this._values[MouseInputHandler.MouseDeltaX] = e.movementX
         this._values[MouseInputHandler.MouseDeltaY] = e.movementY
         this._values[MouseInputHandler.MouseRawX] = e.clientX
@@ -120,31 +120,18 @@ export class MouseInputHandler
     private _contextmenu(e: MouseEvent): void
     {
         e.preventDefault()
+        e.cancelBubble = true
     }
     
     private _wheel(e: WheelEvent): void
     {
         e.preventDefault()
-
-        if (this._isMoving !== undefined)
-        {
-            clearTimeout(this._isMoving)
-            this._isMoving = undefined
-        }
-        this._isMoving = setTimeout(() => this._reset(), this._delta)
+        e.cancelBubble = true
 
         this._values[MouseInputHandler.Wheel] = e.deltaY > 0
             ? WheelState.DOWN
             : e.deltaY < 0 
                 ? WheelState.UP
                 : WheelState.CENTERED
-    }
-
-    
-    private _reset(): void
-    {
-        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
-        this._values[MouseInputHandler.MouseDeltaX] = 0
-        this._values[MouseInputHandler.MouseDeltaY] = 0
     }
 }

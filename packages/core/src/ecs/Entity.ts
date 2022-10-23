@@ -1,40 +1,60 @@
 import { Scene } from '../base/Scene'
 import { Component } from './Component'
-import { Class, EntityId, getComponent, RegistryType } from './Registry'
+import { addComponent, Class, createEntity, deleteEntity, EntityId, getAllComponents, getComponent, hasComponent, removeComponent } from './Registry'
 
-export class Entity extends RegistryType
+export class Entity
 {
-    OnCreate(): void { }
-    OnDestroy(): void { }
+    public readonly Id: EntityId = createEntity()
+
+    private _scene: Scene
+    private _parentId: EntityId = -1
+    private _childrenIds: EntityId[] = []
+
+    constructor(scene: Scene)
+    {
+        this._scene = scene
+    }
     
     //#region Properties
+    public get Scene(): Scene
+    {
+        return this._scene
+    }
+    
     public get Parent(): Entity | undefined
     {
-        return this.#parent
+        return this._scene.GetEntity(this._parentId)
     }
 
-    public set Parent(parent: EntityId | Entity | undefined)
+    public set Parent(parent: Entity| EntityId | undefined)
     {
-        const newParent = typeof parent === 'number'
-            ? this.Scene.GetEntity(parent)
-            : parent
-
-        if (newParent && newParent !== this)
+        if (parent === undefined)
         {
-            this.#parent = newParent
+            this._parentId = -1
+        }
+        else if (typeof parent === 'number')
+        {
+            this._parentId = parent
+        }
+        else
+        {
+            this._parentId = parent.Id
         }
     }
     
     public get Children(): Entity[]
     {
-        return this.#children
-            .filter(x => x !== undefined) as Entity[]
+        const entities: Entity[] = []
+        for (let i = 0; i < this._childrenIds.length; ++i)
+        {
+            entities.push(this.Scene.GetEntity(this._childrenIds[i])!)
+        }            
+        return entities
     }
 
     public get Components(): { [key: string]: Component }
     {
-        return [...this.#components.entries()]
-            .reduce((prev, [type, id]) => ({ ...prev, [type.name]: getComponent(type, id) }), { })
+        return getAllComponents(this.Id).reduce((prev, component) => ({ ...prev, [component.Type.name]: component }), { })
     }
     //#endregion
 
@@ -42,8 +62,7 @@ export class Entity extends RegistryType
     public AddComponent<T extends Component>(component: T): Entity
     {
         component.AddOwner(this)
-        this.#components.set(component.Type, component.Id)
-        this.Scene.OnEntity(this)
+        addComponent(this.Id, component)
 
         return this
     }
@@ -52,26 +71,21 @@ export class Entity extends RegistryType
     public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, childComponentType: Class<U>): U | undefined
     public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, _?: Class<U>): U | undefined
     {
-        const compnentId = this.#components.get(componentType)
-        if (compnentId !== undefined)
-        {
-            return getComponent(componentType, compnentId) as U
-        }
+        return getComponent(this.Id, componentType) as U
     }
 
     public HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        return this.#components.has(componentType)
+        return hasComponent(this.Id, componentType)
     }
     
     public RemoveComponent<T extends Component>(componentType: Class<T>): Entity
     {
-        const compnentId = this.#components.get(componentType)
-        if (compnentId !== undefined)
+        const component = removeComponent(this.Id, componentType)
+
+        if (component)
         {
-            const component = getComponent(componentType, compnentId)
             component.RemoveOwner(this)
-            this.#components.delete(component.Type)
             this.Scene.OnEntity(this)
         }
 
@@ -84,14 +98,12 @@ export class Entity extends RegistryType
     public AddChild(entity: EntityId): Entity
     public AddChild(arg: EntityId | Entity): Entity
     {
-        const child = typeof arg === 'number'
-            ? this.Scene.GetEntity(arg)!
-            : arg as Entity
-        
-        if (child && this !== child && !this.#children.includes(child))
+        const child = typeof arg === 'number' ? arg : arg.Id
+
+        if (child !== this.Id && !this._childrenIds.includes(child))
         {
-            this.#children.push(child)
-            child.Parent = this
+            this._childrenIds.push(child)
+            this.Scene.GetEntity(child)!.Parent = this
         }
 
         return this
@@ -99,40 +111,45 @@ export class Entity extends RegistryType
 
     public GetChild(index: number): Entity
     {
-        if (index >= this.#children.length)
+        if (index >= this._childrenIds.length)
         {
             throw new Error(`Index out of range`)
         }
         
-        return this.#children[index]
+        return this.Scene.GetEntity(this._childrenIds[index])!
     }
 
     public RemoveChild(arg: Entity): Entity
     public RemoveChild(arg: EntityId): Entity
     public RemoveChild(arg: EntityId | Entity): Entity
     {
-        const child = typeof arg === 'number'
-            ? this.Scene.GetEntity(arg)!
-            : arg
+        const child = typeof arg === 'number' ? arg : arg.Id
+        const index = this._childrenIds.indexOf(child)
 
-        const childIndex = this.#children.indexOf(child)
-        if (this.Id !== child.Id && childIndex !== -1)
+        if (index !== -1)
         {
-            this.#children.swap(childIndex, this.#children.length - 1)
-            this.#children.pop()
-            child.Parent = undefined
+            this._childrenIds.swap(index, this._childrenIds.length - 1)
+            this._childrenIds.pop()
+            this.Scene.GetEntity(child)!.Parent = undefined
         }
 
         return this
     }
     //#endregion
-    
-    #children: Entity[] = []
-    #parent?: Entity
-    #components: Map<Class<Component>, number> = new Map()
 
-    constructor(readonly Scene: Scene)
+    //#region Lifecycle
+    public Destroy()
     {
-        super(Entity)
+        this._scene.RemoveEntity(this.Id)
+
+        this._scene = undefined!
+        this._parentId = undefined!
+        this._childrenIds = undefined!
+
+        deleteEntity(this.Id)
     }
+ 
+    OnCreate(): void { }
+    OnDestroy(): void { }
+    //#endregion
 }

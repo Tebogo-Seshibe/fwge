@@ -7,7 +7,7 @@ export type Vector2Array = FixedLengthArray<number, 2>
 
 export class Vector2 extends Float32Array implements IEquatable<Vector2>
 {
-    //#region Local Properties
+    //#region Instance Properties
     get X(): number
     {
         return this[0]
@@ -62,7 +62,7 @@ export class Vector2 extends Float32Array implements IEquatable<Vector2>
         }
     }
 
-    //#region Local Methods
+    //#region Instance Methods
     Set(xy: number): Vector2
     Set(x: number, y: number): Vector2
     Set(vector: Vector2): Vector2

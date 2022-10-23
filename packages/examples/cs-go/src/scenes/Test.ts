@@ -58,7 +58,7 @@ export class Test extends Scene
                 InputSystem,
                 ScriptSystem,
                 RenderSystem,
-                ColliderRenderSystem,
+                // ColliderRenderSystem,
                 FPSCounterSystem
             ],
             windows: [

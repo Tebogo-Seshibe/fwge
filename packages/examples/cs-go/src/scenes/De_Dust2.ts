@@ -1,4 +1,4 @@
-import { AreaLight, DefaultWindow, DirectionalLight, Game, RenderSystem, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
+import { AreaLight, DefaultWindow, DirectionalLight, Game, PointLight, RenderSystem, Scene, ScriptSystem, Shader, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from '@fwge/io'
 import { FPSController } from "../entities"
@@ -12,6 +12,7 @@ export class De_Dust2 extends Scene
     constructor(game: Game)
     {
         super(game, {
+            windows: [ DefaultWindow ],
             entities: [
                 FullScreen,
                 FPSController,
@@ -24,33 +25,41 @@ export class De_Dust2 extends Scene
                 InputSystem,
                 ScriptSystem,
                 RenderSystem,
-                FPSCounterSystem
+                FPSCounterSystem,
             ],
-            windows: [ DefaultWindow ]
         })
     }
     
-    Init(): void
+    override Init(): void
     {
-        this.CreateEntity().AddComponent(new AreaLight(
-        {
-            skyBox: { source: '/img/clouds.jpg' },
-            colour: [1, 1, 1],
-            intensity: 0.25
-        }))
-        .AddComponent(new Script({ start: console.log }))
+        this.CreateEntity()
+            .AddComponent(new AreaLight(
+            {
+                skyBox: { source: '/img/clouds.jpg' },
+                colour: [1, 1, 1],
+                intensity: 1.00
+            }))
 
-        this.CreateEntity().AddComponent(new DirectionalLight(
-        {
-            direction: [0, -1, 0],
-            intensity: 0.75,
-            colour: [1, 1, 1],
-            castShadows: true,
-            bias: 0.01,
-            pcfLevel: 2,
-            shadowResolution: 1024
-        }))
-        .AddComponent(new Script({ start: console.log }))        
+        this.CreateEntity()
+            .AddComponent(new DirectionalLight(
+            {
+                direction: [0, -1, 0],
+                intensity: 0.75,
+                colour: [1, 1, 1],
+                castShadows: true,
+                bias: 0.01,
+                pcfLevel: 2,
+                shadowResolution: 1024
+            }))
+
+        this.CreateEntity()
+            .AddComponent(new PointLight(
+            {
+                intensity: 0.75,
+                colour: [1, 1, 1],
+                castShadows: true,
+                radius: 2,
+            }))
 
         super.Init()
     }

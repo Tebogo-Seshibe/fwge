@@ -1,12 +1,12 @@
 import { GL, Matrix3, Matrix4 } from "@fwge/common"
-import { RenderWindow, Scene, Shader } from "../base"
-import { AreaLight, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components"
+import { Scene, Shader } from "../base"
+import { AreaLight, Camera, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components"
 import { Light } from "../components/lights/Light"
-import { Entity, getComponent, System } from "../ecs"
+import { EntityId, getComponent, getComponentById, System, view } from "../ecs"
 
 export class RenderSystem extends System
 {
-    private _lights: Set<Light> = new Set()
+    private _lights: Light[] = []
     private _transparentBatch: Map<number, Map<number, Set<number>>> = new Map()
     private _batch: Map<number, Map<number, Set<number>>> = new Map()
     private _modelViewMatrices: Map<number, Matrix4> = new Map()
@@ -51,7 +51,47 @@ export class RenderSystem extends System
         super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
     }
 
-    Init(): void { }
+    Init(): void
+    {
+        this._lights = view([Light]).map(entityId => getComponent(entityId, Light)!)
+        const opaque = view([Transform, Material, Renderer],
+        {
+            name: 'opaque',
+            exec: (_0, mat, _2) => mat.RenderType === RenderType.OPAQUE
+        })
+        const tranparent = view([Transform, Material, Renderer],
+        {
+            name: 'opaque',
+            exec: (_0, mat, _2) => mat.RenderType === RenderType.TRANSPARENT
+        })
+
+        this._batch = this._createBatch(opaque)
+        this._transparentBatch = this._createBatch(tranparent)
+    }
+
+    private _createBatch(entities: EntityId[]): Map<number, Map<number, Set<number>>>
+    {
+        const map = new Map<number, Map<number, Set<number>>>()
+
+        for (const entityId of entities)
+        {
+            const material = getComponent(entityId, Material)!
+            const renderer = getComponent(entityId, Renderer)!
+            const transform = getComponent(entityId, Transform)!
+
+            const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>()
+            const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>()
+
+            rendererMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
+            map.set(material.Id, rendererMap)
+            
+            this._modelViewMatrices.set(transform.Id, Matrix4.Identity)
+            this._normalMatrices.set(transform.Id, Matrix3.Identity)
+        }
+
+        return map
+    }
+
     Start(): void { }
     Stop(): void { }    
 
@@ -63,21 +103,18 @@ export class RenderSystem extends System
 
         for (const window of this.Scene.Windows)
         {
-            const projection = window.Camera.ProjectionMatrix
-            const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
-            
-            this.createShadowMaps()
+            this.createShadowMaps(window.Camera)
 
             window.MainPass.Output.Bind()
-            this.renderBatch(this._batch, projection, modelview)
-            this.renderBatch(this._transparentBatch, projection, modelview)
-            this.renderSkybox(projection, modelview)
-            window.MainPass.Output.UnBind()
+            this.renderBatch(this._batch, window.Camera)
+            this.renderBatch(this._transparentBatch, window.Camera)
+            // this.renderSkybox(window.Camera)
 
             for (const step of window.RenderPipeline)
             {
                 step.Output.Bind()
                 step.Shader!.Bind()
+                step.Shader!.Reset()
 
                 for (const inputName of step.Input)
                 {
@@ -105,9 +142,6 @@ export class RenderSystem extends System
                 GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
                 GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
                 GL.bindVertexArray(null)
-                
-                step.Shader!.UnBind()
-                step.Output.UnBind()
             }
         }            
 
@@ -121,11 +155,11 @@ export class RenderSystem extends System
         {
             const window = this.Scene.Windows[i]
 
-            this.shader.SetTexture(`U_RenderImage`, window.FinalComposite.ColourAttachments.first())
+            this.shader.SetTexture(`U_RenderImage`, window.FinalComposite.ColourAttachments.first)
             this.shader.SetFloatVector('U_PanelOffset', window.Offset)
             this.shader.SetFloatVector('U_PanelScale', window.Scale)
 
-            // const dir = [...this._lights].filter(x => x instanceof DirectionalLight).first() as DirectionalLight
+            // const dir = [...this._lights].filter(x => x instanceof DirectionalLight).first as DirectionalLight
             // this.shader.SetTexture(`U_RenderImage`, dir.RenderTarget.DepthAttachment!)
             // this.shader.SetFloatVector('U_PanelOffset', 0, 0)
             // this.shader.SetFloatVector('U_PanelScale', 1, 1)
@@ -138,7 +172,7 @@ export class RenderSystem extends System
         this.shader.UnBind()
     }
     
-    createShadowMaps()
+    createShadowMaps(camera: Camera)
     {
         for (let light of this._lights)
         {
@@ -156,7 +190,7 @@ export class RenderSystem extends System
                     continue
                 }
                 
-                light.BindForShadows()
+                light.BindForShadows() //camera.Owner?.GetComponent(Transform)?.GlobalPosition())
                 this.renderBatchShadows(this._batch, DirectionalLight.ShadowShader)
                 this.renderBatchShadows(this._transparentBatch, DirectionalLight.ShadowShader)
                 light.UnbindForShadows()
@@ -164,8 +198,11 @@ export class RenderSystem extends System
         }
     }
 
-    renderSkybox(projectionMatrix: Matrix4, viewMatrix: Matrix4)
+    renderSkybox(camera: Camera)
     {
+        const projection = camera.ProjectionMatrix
+        const modelview = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+
         GL.enable(GL.DEPTH_TEST)
         GL.enable(GL.CULL_FACE)
         GL.cullFace(GL.FRONT)
@@ -178,14 +215,14 @@ export class RenderSystem extends System
                 continue
             }            
             
-            const view = Matrix4.Multiply(viewMatrix, Matrix4.RotationMatrix(0, 0, 180))
+            const view = Matrix4.Multiply(modelview, Matrix4.RotationMatrix(0, 0, 180))
             view[3] = 0
             view[7] = 0
             view[11] = 0
 
             light.SkyboxShader.Bind()
             light.SkyboxShader.SetMatrix('U_Matrix.View', view, true)
-            light.SkyboxShader.SetMatrix('U_Matrix.Projection', projectionMatrix, true)
+            light.SkyboxShader.SetMatrix('U_Matrix.Projection', projection, true)
             light.SkyboxShader.SetTexture('U_Skybox', light.Skybox.Texture, false, true)
 
             GL.bindVertexArray(light.SkyboxMesh.VertexArrayBuffer)
@@ -199,23 +236,26 @@ export class RenderSystem extends System
         GL.depthFunc(GL.LESS)
         GL.cullFace(GL.BACK)
     }
-
-    renderBatch(batch: Map<number, Map<number, Set<number>>>, projection: Matrix4, modelview: Matrix4)
+    
+    renderBatch(batch: Map<number, Map<number, Set<number>>>, camera: Camera)
     {
+        const projection = camera.ProjectionMatrix
+        const modelview = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+
         for (const [materialId, renderers] of batch)
         {
-            const material = getComponent(Material, materialId)
+            const material = getComponentById(Material, materialId)!
             if (!material.Shader)
             {
                 continue
             }
 
             material.Bind()
-            this._bindShader(material.Shader, projection, modelview) 
+            this._bindShader(material.Shader, projection, modelview, camera)
 
             for (const [rendererId, transforms] of renderers)
             {
-                const renderer = getComponent(Renderer, rendererId)
+                const renderer = getComponentById(Renderer, rendererId)!
                 const mesh = renderer.Asset!
                 let mode = -1
                 let count = 0
@@ -264,7 +304,7 @@ export class RenderSystem extends System
                 GL.bindVertexArray(mesh.VertexArrayBuffer)
                 for (const transformId of transforms)
                 {
-                    const transform = getComponent(Transform, transformId)
+                    const transform = getComponentById(Transform, transformId)!
                     const modelView = this._modelViewMatrices.get(transformId)!
                     const normal = this._normalMatrices.get(transformId)!
 
@@ -294,7 +334,7 @@ export class RenderSystem extends System
     {
         for (const [materialId, renderers] of batch)
         {
-            const material = getComponent(Material, materialId)
+            const material = getComponentById(Material, materialId)!
             if (!material.ProjectsShadows)
             {
                 continue
@@ -302,7 +342,7 @@ export class RenderSystem extends System
             
             for (const [rendererId, transforms] of renderers)
             {
-                const renderer = getComponent(Renderer, rendererId)
+                const renderer = getComponentById(Renderer, rendererId)!
                 const mesh = renderer.Asset!
                 let mode = -1
                 let count = 0
@@ -351,7 +391,7 @@ export class RenderSystem extends System
                 GL.bindVertexArray(mesh.VertexArrayBuffer)
                 for (const transformId of transforms)
                 {
-                    const transform = getComponent(Transform, transformId)
+                    const transform = getComponentById(Transform, transformId)!
                     const modelView = this._modelViewMatrices.get(transformId)!
                     const normal = this._normalMatrices.get(transformId)!
 
@@ -376,7 +416,7 @@ export class RenderSystem extends System
         }
     }
 
-    private _bindShader(shader: Shader, projection: Matrix4, modelview: Matrix4, useLighting: boolean = true): void
+    private _bindShader(shader: Shader, projection: Matrix4, modelview: Matrix4, camera: Camera, useLighting: boolean = true): void
     {
         shader.SetMatrix('U_Matrix.View', modelview, true)
         shader.SetMatrix('U_Matrix.Projection', projection, true)
@@ -395,43 +435,8 @@ export class RenderSystem extends System
             }
             else
             {
-                light.Bind(shader)
+                light.Bind(shader, camera)
             }
-        }
-    }
-
-    override OnUpdateEntity(entity: Entity): void
-    {
-        super.OnUpdateEntity(entity)
-
-        const light = entity.GetComponent(Light)
-        if (light && !this._lights.has(light))
-        {
-            this._lights.add(light)
-        }
-
-        if (this.IsValidEntity(entity))
-        {
-            const material = entity.GetComponent(Material)!
-            const renderer = entity.GetComponent(Renderer)!
-            const transform = entity.GetComponent(Transform)!
-
-            const materialMap = (material.RenderType === RenderType.TRANSPARENT ? this._transparentBatch : this._batch) ?? new Map<number, Map<number, Set<number>>>()
-            const meshMap = materialMap.get(material.Id) ?? new Map<number, Set<number>>()
-            const transformSet = meshMap.get(renderer.Id) ?? new Set<number>()
-
-            meshMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
-            materialMap.set(material.Id, meshMap)
-            if (material.RenderType === RenderType.TRANSPARENT)
-            {
-                this._transparentBatch = materialMap
-            }
-            else
-            {
-                this._batch = materialMap
-            }
-            this._modelViewMatrices.set(transform.Id, Matrix4.Identity)
-            this._normalMatrices.set(transform.Id, Matrix3.Identity)
         }
     }
 }

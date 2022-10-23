@@ -30,7 +30,7 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
     }
 
     constructor(
-        colour: Colour3 | Vector3 | FixedLengthArray<number, 3> = [0.7, 0.7, 0.7],
+        colour: Colour3 | Vector3 | Colour3Array = [0.7, 0.7, 0.7],
         intensity: number = 1.0,
         readonly BufferData: Float32Array = new Float32Array(4)
     ) {
@@ -43,36 +43,32 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
         this.#intensity.Set(intensity)
     }
 
-    Bind(shader: Shader): void
-    Bind(shader: Shader, index: number): void
-    Bind(shader: Shader, _index?: number): void
+    Bind(shader: Shader, ..._args: any[]): void
     {
-        const name = (this as Object).constructor.name
-        let blockIndex = Light.BlockIndex.get(name)!
-        let bindingPoint = Light.BindingPoint.get(name)!
+        // const name = (this as Object).constructor.name + 'Buffer'
+        // let blockIndex = Light.BlockIndex.get(name)!
+        // let bindingPoint = Light.BindingPoint.get(name)!
 
-        if (!Light.BlockIndex.has(name))
-        {
-            bindingPoint = DoTheThing.next().value!
-            blockIndex = GL.getUniformBlockIndex(shader.Program!, name)!
-
-            console.log({ name, bindingPoint, blockIndex })
+        // if (!Light.BlockIndex.has(name))
+        // {
+        //     bindingPoint = DoTheThing.next().value!
+        //     blockIndex = GL.getUniformBlockIndex(shader.Program!, name)!
             
-            Light.BlockIndex.set(name, blockIndex)
-            Light.BindingPoint.set(name, bindingPoint)
+        //     Light.BlockIndex.set(name, blockIndex)
+        //     Light.BindingPoint.set(name, bindingPoint)
 
-            if (blockIndex !== GL.INVALID_INDEX)
-            {
-                GL.uniformBlockBinding(shader.Program!, blockIndex, bindingPoint)
-                GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.LightBuffer)
-                GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
-            }
-        }
+        //     if (blockIndex !== GL.INVALID_INDEX)
+        //     {
+        //         GL.uniformBlockBinding(shader.Program!, blockIndex, bindingPoint)
+        //         GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.LightBuffer)
+        //         GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
+        //     }
+        // }
 
-        if (blockIndex !== GL.INVALID_INDEX)
-        {
-            GL.bindBuffer(GL.UNIFORM_BUFFER, this.LightBuffer)
-            GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
-        }
+        // if (blockIndex !== GL.INVALID_INDEX)
+        // {
+        //     GL.bindBuffer(GL.UNIFORM_BUFFER, this.LightBuffer)
+        //     GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
+        // }
     }
 }

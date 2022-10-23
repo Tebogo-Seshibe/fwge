@@ -60,7 +60,7 @@ export class RenderWindow
     get FinalComposite(): RenderTarget
     {
         if (this.RenderPipeline.length > 0)
-            return this.RenderPipeline.last().Output
+            return this.RenderPipeline.last.Output
         else 
             return this.MainPass.Output
     }
@@ -93,13 +93,13 @@ export class RenderWindow
                         output: new RenderTarget(
                         { 
                             colour: [
-                                ColourType.UINT_RGBA, // Colour [Albedo.R, Albedo.G, Albedo.B, Specular]
                                 ColourType.FLOAT_RGB, // Position
                                 ColourType.FLOAT_RGB, // Normal
+                                ColourType.BYTE_RGBA, // Colour [Albedo.R, Albedo.G, Albedo.B, Specular]
                             ],
                             depth: DepthType.FLOAT32,
-                            height: this.Resolution.Y * this.Scale.Y,
-                            width: this.Resolution.X * this.Scale.X,
+                            height: this.Resolution[1] * this.Scale[1],
+                            width: this.Resolution[0] * this.Scale[0],
                         }),
                         shader: null!
                     })
@@ -112,7 +112,7 @@ export class RenderWindow
                         output: new RenderTarget(
                         { 
                             colour: [
-                                ColourType.UINT_RGBA, // Colour
+                                ColourType.BYTE_RGBA, // Colour
                             ],
                             depth: DepthType.FLOAT32,
                             height: this.Resolution.Y * this.Scale.Y,

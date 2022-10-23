@@ -1,5 +1,5 @@
 import { GL } from "@fwge/common"
-import { Scene, System } from "@fwge/core"
+import { getComponent, Scene, System, view } from "@fwge/core"
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
 import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler"
@@ -20,6 +20,7 @@ export class InputSystem extends System
 
     Init(): void
     {
+        view([Input])
         this._keyboard = new KeyboardInputHandler(GL.canvas)
         this._mouse = new MouseInputHandler(GL.canvas)
         this._controllers = new ControllerInputHandler(GL.canvas)
@@ -33,7 +34,7 @@ export class InputSystem extends System
             this._mouse = new MouseInputHandler(GL.canvas)
         if (!this._controllers)
             this._controllers = new ControllerInputHandler(GL.canvas)
-
+        
         this._keyboard.Start()
         this._mouse.Start()
         this._controllers.Start()
@@ -41,12 +42,16 @@ export class InputSystem extends System
 
     Update(delta: number): void
     {   
-        for (const entityId of this.entityIds)
+        this._keyboard.Update(delta)
+        this._mouse.Update(delta)
+        this._controllers.Update(delta)
+
+        for (const entityId of view([Input]))
         {
             const entity = this.Scene.GetEntity(entityId)!
-            const { OnInput } = entity.GetComponent(Input)!
+            const input = getComponent(entityId, Input)!
 
-            OnInput.call(entity,
+            input.OnInput.call(entity,
             {
                 Keyboard: this._keyboard.State,
                 Mouse: this._mouse.State,
@@ -54,9 +59,9 @@ export class InputSystem extends System
             }, delta)
         }
         
-        this._keyboard.Update(delta)
-        this._mouse.Update(delta)
-        this._controllers.Update(delta)
+        // this._keyboard.Start()
+        this._mouse.Reset()
+        // this._controllers.Start()
     }
 
     Stop(): void        
@@ -65,5 +70,4 @@ export class InputSystem extends System
         this._mouse.Stop()
         this._controllers.Stop()
     }
-
 }

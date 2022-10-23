@@ -13,12 +13,16 @@ export let GLCall: Function
 
 export function createContext(canvas: HTMLCanvasElement, debug: boolean = true): void
 {
-    const context = canvas.getContext('webgl2', { alpha: true, antialias: true })
+    const context = canvas.getContext('webgl2')
 
     if (!context)
     {
         throw new Error('Could not initialize context')
     }
+            
+    context.getExtension('EXT_color_buffer_float')
+    // context.getExtension('OES_texture_float')
+    context.getExtension('OES_texture_float_linear')
 
     GL = debug ? new GLWrapper(context) : context
 

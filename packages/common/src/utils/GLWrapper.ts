@@ -2520,7 +2520,7 @@ export function glCheckError(GL: WebGL2RenderingContext, functionName: string, a
         let result = key + ': '
         const value = args[key]
 
-        if (typeof value !== 'number' && 'length' in value)
+        if (value !== undefined && value !== null && typeof value !== 'number' && 'length' in value)
         {
             result += '[' + value.toString() + ']'
         }

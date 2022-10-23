@@ -20,6 +20,7 @@ export class Platform extends GameObject
             alpha: 1.0,
             renderType: RenderType.OPAQUE
         })
+        this.material.Colour.Set(1.0)
         this.cubeCollider = new CubeCollider({ isStatic: true })
         this.renderer = new MeshRenderer(
         {

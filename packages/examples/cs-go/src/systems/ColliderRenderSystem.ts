@@ -23,7 +23,7 @@ export class ColliderRenderSystem extends System
     
     Update(_: number): void
     {
-        const window = this.Scene.Windows.first()
+        const window = this.Scene.Windows.first
         const projection = window.Camera.ProjectionMatrix
         const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
         

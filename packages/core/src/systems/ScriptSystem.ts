@@ -1,6 +1,6 @@
 import { Scene } from "../base"
 import { Script } from "../components/Script"
-import { Entity, getComponent } from "../ecs"
+import { Entity, getComponent, view } from "../ecs"
 import { System } from "../ecs/System"
 
 export class ScriptSystem extends System
@@ -12,44 +12,35 @@ export class ScriptSystem extends System
         super(scene, { requiredComponents: [ Script ] })
     }
 
-    Init(): void { }
+    Init(): void
+    {
+        view([Script])
+    }
     
     Start(): void
     {
-        for (const [ scriptId, entityIds ] of this._scripts)
+        for (const entityId of view([Script]))
         {
-            const script = getComponent(Script, scriptId)
-
-            for (const entityId of entityIds)
-            {
-                script.Start.call(this.Scene.GetEntity(entityId)!)
-            }
+            const script = getComponent(entityId, Script)!
+            script.Start.call(this.Scene.GetEntity(entityId)!)
         }
     }
 
     Update(delta: number): void
     {
-        for (const [ scriptId, entityIds ] of this._scripts)
+        for (const entityId of view([Script]))
         {
-            const script = getComponent(Script, scriptId)
-            
-            for (const entityId of entityIds)
-            {
-                script.Update.call(this.Scene.GetEntity(entityId)!, delta)
-            }
+            const script = getComponent(entityId, Script)!
+            script.Update.call(this.Scene.GetEntity(entityId)!, delta)
         }
     }
 
     Stop(): void
     {
-        for (const [ scriptId, entityIds ] of this._scripts)
+        for (const entityId of view([Script]))
         {
-            const script = getComponent(Script, scriptId)
-            
-            for (const entityId of entityIds)
-            {
-                script.End.call(this.Scene.GetEntity(entityId)!)
-            }
+            const script = getComponent(entityId, Script)!
+            script.End.call(this.Scene.GetEntity(entityId)!)
         }
     }
 

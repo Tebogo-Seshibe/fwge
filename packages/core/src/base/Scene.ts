@@ -15,8 +15,12 @@ export interface IScene
     entities: (Class<Entity> | Prefab)[]
 }
 
-export class Scene extends RegistryType
+
+export class Scene
 {
+    private static ID: number = 0
+
+    readonly Id = Scene.ID++
     readonly Game: Game
     readonly Entities: Map<EntityId, Entity> = new Map()
     readonly Systems: System[] = []
@@ -28,8 +32,6 @@ export class Scene extends RegistryType
     constructor(game: Game, config: IScene)
     constructor(game: Game, config?: IScene)
     {
-        super(Scene)
-
         this.Game = game
 
         config = {

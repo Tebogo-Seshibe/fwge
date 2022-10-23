@@ -11,10 +11,48 @@ export interface IPerspectiveCamera
 
 export class PerspectiveCamera extends Camera
 {
-    FieldOfView: number
-    AspectRatio: number
-    NearClipping: number
-    FarClipping: number
+    private readonly Data = new Float32Array(4)
+
+    get FieldOfView(): number
+    {
+        return this.Data[0]
+    }
+    set FieldOfView(fieldOfView: number)
+    {
+        this.Data[0] = fieldOfView
+        this.UpdateProjection()
+    }
+
+    get AspectRatio(): number
+    {
+        return this.Data[1]
+    }
+    set AspectRatio(aspectRatio: number)
+    {
+        this.Data[1] = aspectRatio
+        this.UpdateProjection()
+    }
+
+    get NearClipping(): number
+    {
+        return this.Data[2]
+    }
+    set NearClipping(nearClipping: number)
+    {
+        this.Data[2] = nearClipping
+        this.UpdateProjection()
+    }
+
+    get FarClipping(): number
+    {
+        return this.Data[3]
+    }
+    set FarClipping(farClipping: number)
+    {
+        this.Data[3] = farClipping
+        this.UpdateProjection()
+    }
+
 
     constructor()
     constructor(camera: IPerspectiveCamera)

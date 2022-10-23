@@ -1,8 +1,11 @@
-import { NumberArray } from '../types'
+import { FixedLengthArray, NumberArray } from '../types'
 import { Colour3 } from './Colour3'
 
+export type Colour4Array = FixedLengthArray<number, 4>
+
 export class Colour4 extends Float32Array
-{    
+{
+    //#region Instance Properties
     get R(): number
     {
         return this[0]
@@ -37,7 +40,8 @@ export class Colour4 extends Float32Array
     {
         this[3] = alpha
     }
-    
+    //#endregion
+
     get RGB(): Colour3
     {
         return new Colour3(this[0], this[1], this[2])
@@ -79,8 +83,6 @@ export class Colour4 extends Float32Array
     {
         return 'TODO'
     }
-
-    static readonly SIZE: number = 4
     
     constructor()
     constructor(rgba: number)
@@ -106,11 +108,13 @@ export class Colour4 extends Float32Array
         }
     }
     
+    //#region Instance Methods
     Set(rgba: number): Colour4
     Set(r: number, g: number, b: number, a: number): Colour4
     Set(rgb: Colour3, a: number): Colour4
+    Set(array: Colour4Array): Colour4
     Set(colour: Colour4): Colour4
-    Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number, _3?: number): Colour4
+    Set(_0: Colour4 | Colour3 | Colour4Array | number, _1?: number, _2?: number, _3?: number): Colour4
     {
         if (typeof _0 === 'number')
         {
@@ -134,4 +138,15 @@ export class Colour4 extends Float32Array
     {
         return new Colour4(this)
     }
+
+    Equals(other: Colour4): boolean
+    {
+        return this[0] === other[0] && 
+            this[1] === other[1] &&
+            this[2] === other[2] &&
+            this[3] === other[3]
+    }
+    //#endregion
+
+    static readonly SIZE: number = 4
 }

@@ -14,22 +14,22 @@ out vec2 V_UV;
 out vec3 V_Colour;
 out vec4 V_LightPosition;
 
-uniform DirectionalLight
+struct DirectionalLight
 {
     vec3 Colour;
     float Intensity;
-    
+
     vec3 Direction;
     bool CastShadows;
-    
-    vec4 Data;
-    // float TexelSize;
-    // float TexelCount;
-    // float Bias;
-    // int PCFLevel;
+
+    float TexelSize;
+    float TexelCount;
+    float Bias;
+    float PCFLevel;
 
     mat4 ShadowMatrix;
-} directionalLight;
+};
+uniform DirectionalLight U_DirectionalLight;
 
 struct Matrix
 {
@@ -49,7 +49,7 @@ void main(void)
     V_Normal = normalize(U_Matrix.Normal * A_Normal);
     V_UV = A_UV;
     V_Colour = A_Colour;
-    V_LightPosition = directionalLight.ShadowMatrix * position;
+    V_LightPosition = U_DirectionalLight.ShadowMatrix * position;
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * position;
 }

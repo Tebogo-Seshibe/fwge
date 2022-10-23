@@ -1,104 +1,206 @@
 import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common"
 import { Asset } from "./Asset"
 
+export interface UniformBlock
+{
+    index: number
+    offset: number
+    size: number
+    binndingPoint: number
+}
+
 export class Shader extends Asset
 {
     static readonly Includes: Map<string, string> = new Map()
-    
-    #program: WebGLProgram | null = null
-    #vertexShader: WebGLShader | null = null
-    #fragmentShader: WebGLShader | null = null
-    #rawVertexSource: string | null = null
-    #rawFragmentSource: string | null = null
-    #vertexSource: string | null = null
-    #fragmentSource: string | null = null
+    static readonly BlockIndex: Map<string, number> = new Map()
+    static readonly BlockOffset: Map<string, number> = new Map()
+    static readonly BindingPoint: Map<string, number> = new Map()
+    static readonly UniformBlocks: Map<string, UniformBlock> = new Map()
 
-    #samplerIndex: number = 0
-    #maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS)
+    static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/
+    static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g
+    static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g
+
+    private _program: WebGLProgram | null = null
+    private _vertexShader: WebGLShader | null = null
+    private _fragmentShader: WebGLShader | null = null
+    private _rawVertexSource: string | null = null
+    private _rawFragmentSource: string | null = null
+    private _vertexSource: string | null = null
+    private _fragmentSource: string | null = null
+
+    private _samplerIndex: number = 0
+    private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS)
 
     public readonly Inputs: {[key: string]: WebGLUniformLocation | undefined} = {}
     public readonly Ignore: Set<string> = new Set()
 
+    public readonly Structs: Map<string, Map<string, string>> = new Map()
+    public readonly Uniforms: Map<string, Map<string, string>> = new Map()
+
+    private readonly Buffer: WebGLBuffer = GL.createBuffer()!
+    private readonly BufferData: Float32Array = new Float32Array()
+
     get Program(): WebGLProgram | null
     {
-        return this.#program
+        return this._program
     }
 
     get VertexShader(): WebGLShader | null
     {
-        return this.#vertexShader
+        return this._vertexShader
     }
 
     get FragmentShader(): WebGLShader | null
     {
-        return this.#fragmentShader
+        return this._fragmentShader
     }
 
     get RawVertexSource(): string | null
     {
-        return this.#rawVertexSource
+        return this._rawVertexSource
     }
 
     get VertexSource(): string | null
     {
-        return this.#vertexSource
+        return this._vertexSource
     }
 
     set VertexSource(vertexSource: string | null)
     {
         if (vertexSource)
         {
-            this.#rawVertexSource = vertexSource
-            this.#vertexSource = this.#addIncludes(vertexSource)
+            this._rawVertexSource = vertexSource
+            this._vertexSource = this._addIncludes(vertexSource)
         }
         else
         {
-            this.#rawVertexSource = null
-            this.#vertexSource = null
+            this._rawVertexSource = null
+            this._vertexSource = null
         }
-        this.#compileShaders()
+        this._compileShaders()
     }
 
     get FragmentSource(): string | null
     {
-        return this.#rawFragmentSource
+        return this._rawFragmentSource
     }
     
     get FullFragmentSource(): string | null
     {
-        return this.#rawFragmentSource ? this.#addIncludes(this.#rawFragmentSource) : null
+        return this._rawFragmentSource ? this._addIncludes(this._rawFragmentSource) : null
     }
 
     set FragmentSource(fragmentSource: string | null)
     {
         if (fragmentSource)
         {
-            this.#rawFragmentSource = fragmentSource
-            this.#fragmentSource = this.#addIncludes(fragmentSource)
+            this._rawFragmentSource = fragmentSource
+            this._fragmentSource = this._addIncludes(fragmentSource)
         }
         else
         {
-            this.#rawFragmentSource = null
-            this.#fragmentSource = null
+            this._rawFragmentSource = null
+            this._fragmentSource = null
         }
-        this.#compileShaders()
+        this._compileShaders()
     }
 
     constructor(vertexShader: string, fragmentShader: string)
     {
         super(Shader)
 
-        this.#rawVertexSource = vertexShader
-        this.#rawFragmentSource = fragmentShader
-        this.#vertexSource = this.#addIncludes(vertexShader)
-        this.#fragmentSource = this.#addIncludes(fragmentShader)
-        this.#compileShaders()
+        this._rawVertexSource = vertexShader
+        this._rawFragmentSource = fragmentShader
+        this._vertexSource = this._addIncludes(vertexShader)
+        this._fragmentSource = this._addIncludes(fragmentShader)
+        this._addUniformStructs(this._vertexSource, this._fragmentSource)
+        this._compileShaders()
+    }
+    
+    _addUniformStructs(vertexSource: string, fragmentSource: string): void
+    {
+        let match
 
+        const vertStructs = vertexSource.matchAll(Shader.StructRegex)
+        const fragStructs = fragmentSource.matchAll(Shader.StructRegex)
+        
+        
+        while (!(match = vertStructs.next()).done)
+        {
+            const { name, fields, instance } = match.value.groups!
+            const props = new Map<string, string>()
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            for (const fieldName of fieldNames)
+            {
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
+                props.set(prop, type)
+            }
+            if (instance)
+            {
+                props.set('instance', instance)
+            }
+            this.Structs.set(name, props)
+        }
+        while (!(match = fragStructs.next()).done)
+        {
+            const { name, fields, instance } = match.value.groups!
+            const props = new Map<string, string>()
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            for (const fieldName of fieldNames)
+            {
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
+                props.set(prop, type)
+            }
+            if (instance)
+            {
+                props.set('instance', instance)
+            }
+            this.Structs.set(name, props)
+        }
+        
+        const vertUniforms = vertexSource.matchAll(Shader.UniformBlockRegex)
+        const fragUniforms = fragmentSource.matchAll(Shader.UniformBlockRegex)
+
+        while (!(match = vertUniforms.next()).done)
+        {
+            const { name, fields, instance } = match.value.groups!
+            const props = new Map<string, string>()
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            for (const fieldName of fieldNames)
+            {
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
+                props.set(prop, type)
+            }
+            if (instance)
+            {
+                props.set('instance', instance)
+            }
+            this.Uniforms.set(name, props)
+        }
+        while (!(match = fragUniforms.next()).done)
+        {
+            const { name, fields, instance } = match.value.groups!
+            const props = new Map<string, string>()
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            for (const fieldName of fieldNames)
+            {
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
+                props.set(prop, type)
+            }
+            if (instance)
+            {
+                props.set('instance', instance)
+            }
+            this.Uniforms.set(name, props)
+        }
     }
 
-    #compileShaders(): void
+
+
+    _compileShaders(): void
     {
-        if (this.#vertexSource ===  null || this.#fragmentSource === null)
+        if (this._vertexSource ===  null || this._fragmentSource === null)
         {
             return
         }
@@ -124,21 +226,21 @@ export class Shader extends Asset
 
         const log = []
 
-        GL.shaderSource(vertexShader, this.#vertexSource)
+        GL.shaderSource(vertexShader, this._vertexSource)
         GL.compileShader(vertexShader)
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
         {
             log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
-            log.push(this.#vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push(this._vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
 
-        GL.shaderSource(fragmentShader, this.#fragmentSource!)
+        GL.shaderSource(fragmentShader, this._fragmentSource!)
         GL.compileShader(fragmentShader)
         if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
         {
             log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
-            log.push(this.#fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push(this._fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
         }
 
         GL.attachShader(program, vertexShader)
@@ -154,25 +256,25 @@ export class Shader extends Asset
             throw new Error(log.join('\n'))
         }
 
-        if (this.#program)
+        if (this._program)
         {
-            GL.deleteProgram(this.#program)
-            GL.deleteShader(this.#vertexShader)
-            GL.deleteShader(this.#fragmentShader)
+            GL.deleteProgram(this._program)
+            GL.deleteShader(this._vertexShader)
+            GL.deleteShader(this._fragmentShader)
         }
 
-        this.#program = program
-        this.#vertexShader = vertexShader
-        this.#fragmentShader = fragmentShader
+        this._program = program
+        this._vertexShader = vertexShader
+        this._fragmentShader = fragmentShader
     }
 
-    #addIncludes(shaderSource: string): string
+    _addIncludes(shaderSource: string): string
     {
         let source = shaderSource.toString()
 
         while (source.includes('//#include'))
         {
-            const result = source.match(/\/\/#include\s+(.+)([\s\n\r]*)/)!
+            const result = source.match(Shader.IncludeRegex)!
             if (result)
             {
                 const [match, name, whitespace] = result
@@ -191,7 +293,7 @@ export class Shader extends Asset
         return source
     }
 
-    #getLocation(name: string): WebGLUniformLocation | undefined
+    private _getLocation(name: string): WebGLUniformLocation | undefined
     {
         if (this.Ignore.has(name))
         {
@@ -220,7 +322,11 @@ export class Shader extends Asset
     Bind(): void
     {
         GL.useProgram(this.Program)
-        this.#samplerIndex = 0
+    }
+    
+    Reset()
+    {
+        this._samplerIndex = 0
     }
 
     UnBind(): void
@@ -228,22 +334,35 @@ export class Shader extends Asset
         GL.useProgram(null)
     }
 
+    SetBufferData(name: string, bufferData: Float32Array): void
+    SetBufferData(name: string, bufferData: Float32Array, offset: number): void
+    SetBufferData(name: string, bufferData: Float32Array, offset: number = 0): void
+    {
+        let blockIndex = Shader.BlockIndex.get(name)
+        
+        if (blockIndex !== undefined && blockIndex !== GL.INVALID_INDEX)
+        {
+            const offset = Shader.BlockOffset.get(name)!
+            GL.bindBuffer(GL.UNIFORM_BUFFER, this.Buffer)
+            GL.bufferSubData(GL.UNIFORM_BUFFER, offset, this.BufferData)
+        }
+    }
+
     SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
         }
 
-        this.#samplerIndex++
-        if (this.#samplerIndex > this.#maxSamplerIndex)
+        this._samplerIndex++
+        if (this._samplerIndex > this._maxSamplerIndex)
         {
             throw new Error('Too many textures attached')
         }
 
-        GL.uniform1i(location, this.#samplerIndex)
-        GL.activeTexture(GL.TEXTURE0 + this.#samplerIndex)
+        GL.activeTexture(GL.TEXTURE0 + this._samplerIndex)
         if (is3D)
         {
             GL.bindTexture(GL.TEXTURE_3D, texture)
@@ -256,11 +375,12 @@ export class Shader extends Asset
         {
             GL.bindTexture(GL.TEXTURE_2D, texture)
         }
+        GL.uniform1i(location, this._samplerIndex)
     }
 
     SetBool(name: string, bool: boolean): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -271,7 +391,7 @@ export class Shader extends Asset
 
     SetInt(name: string, int: number, unsigned: boolean = false): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -292,7 +412,7 @@ export class Shader extends Asset
     SetFloat(name: string, float: [number]): void
     SetFloat(name: string, float: number | Scalar | [number]): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -328,7 +448,7 @@ export class Shader extends Asset
     SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void
     SetIntVector(name: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -430,7 +550,7 @@ export class Shader extends Asset
     SetFloatVector(name: string, x: number, y: number, z: number, w: number): void
     SetFloatVector(name: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -497,7 +617,7 @@ export class Shader extends Asset
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void
     SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
     {
-        const location = this.#getLocation(name)
+        const location = this._getLocation(name)
         if (!location)
         {
             return
@@ -516,4 +636,114 @@ export class Shader extends Asset
             break
         }
     }
+}
+
+(window as any).layout140 = (fieldTypes: string[]): number =>
+{
+    let totalBufferLength = 0
+    let currentBufferLength = 0
+    
+    for (const fieldType of fieldTypes)
+    {
+        if (fieldType.includes('vec'))
+        {
+            const floats = fieldType.split('').last.trim()
+            switch (floats)
+            {
+                case '2':
+                    if (currentBufferLength === 0 || currentBufferLength == 2)
+                    {
+                        currentBufferLength += 2
+                    }
+                    else
+                    {
+                        totalBufferLength += 4
+                        currentBufferLength = 2
+                    }
+                    break
+
+                case '3':
+                    if (currentBufferLength === 0)
+                    {
+                        currentBufferLength += 3
+                    }
+                    else
+                    {
+                        totalBufferLength += 4
+                        currentBufferLength = 3
+                    }
+                    break
+
+                case '4':
+                    if (currentBufferLength === 0)
+                    {
+                        currentBufferLength += 4
+                    }
+                    else
+                    {
+                        totalBufferLength += 4
+                        currentBufferLength = 4
+                    }
+                    break
+            }
+        }
+        else if (fieldType.includes('mat'))
+        {
+            const suffix = fieldType.substring(3).trim()
+            switch (suffix)
+            {
+                case '2':
+                    totalBufferLength += 8
+                    break
+
+                case '3':
+                    totalBufferLength += 12
+                    break
+
+                case '4':
+                    totalBufferLength += 16
+                    break
+
+                case '2x3':
+                    totalBufferLength += 8
+                    break
+                    case '2x4':
+                        
+                case '3x2':
+                    totalBufferLength += 8
+                    break
+                    
+                case '3x4':
+                    totalBufferLength += 16
+                    break
+                    
+                case '4x2':
+                    totalBufferLength += 8
+                    break
+                    
+                case '4x3':
+                    totalBufferLength += 12
+                    break
+            }
+        }
+        else
+        {
+            if (currentBufferLength === 4)
+            {
+                totalBufferLength += 4
+                currentBufferLength = 1
+            }
+            else
+            {
+                currentBufferLength += 1
+            }
+        }
+    }
+
+    if (currentBufferLength > 0 && currentBufferLength < 4)
+    {
+        totalBufferLength += 4
+    }
+
+    return totalBufferLength
 }

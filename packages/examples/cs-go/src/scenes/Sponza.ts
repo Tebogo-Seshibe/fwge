@@ -1,9 +1,10 @@
-import { AreaLight, DefaultWindow, DirectionalLight, Entity, Game, RenderSystem, Scene, Script, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
+import { AreaLight, BasicLitMaterial, DefaultWindow, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderSystem, RenderType, Scene, Script, ScriptSystem, Shader, Tag, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io"
 import { FPSController } from "../entities"
 import { FullScreen } from "../entities/FullScreen"
 import { FPSCounterSystem } from "../systems/FPSCounterSystem"
+import { MyWindow } from "./PhysicsTest"
 import sponzaMTL from '/public/objects/sponza/sponza.mtl?raw'
 import sponzaOBJ from '/public/objects/sponza/sponza.obj?raw'
 
@@ -32,7 +33,7 @@ export class Sponza extends Scene
             //     }),
             // ],
             windows: [
-                DefaultWindow
+                MyWindow
             ],
             entities: [
                 FullScreen,
@@ -75,6 +76,72 @@ export class Sponza extends Scene
             }}
         ))
         
+        let x = 0
+        this.CreateEntity()
+            .AddComponent(new Transform({ position: [0, 2.5, 5], scale: [0.5,0.5,0.5] }))
+            .AddComponent(new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! }))
+            .AddComponent(new BasicLitMaterial(
+            {
+                shininess: 32,
+                colour: [1, 1, 1],
+                shader: new Shader(`#version 300 es
+
+                layout(location = 0) in vec3 A_Position;
+                out vec3 V_Position;
+                struct Matrix
+                {
+                    mat4 ModelView;
+                    mat3 Normal;
+                    mat4 View;
+                    mat4 Projection;
+                };
+                uniform Matrix U_Matrix;
+                
+                void main(void)
+                {
+                    gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
+                }
+                `,
+                `#version 300 es
+
+                precision highp float;
+                
+                in vec3 V_Position;
+                layout (location = 0) out vec4 O_FragColour;
+
+                struct Materials
+                {
+                    vec3 Colour;
+                };
+                uniform Materials U_Material;
+                void main(void)
+                {
+                    O_FragColour = vec4(U_Material.Colour, 1.0);
+                }
+                `),
+                renderType: RenderType.OPAQUE,
+                alpha: 1,
+                receiveShadows: false,
+                projectShadows: false
+            }))
+            .AddComponent(new PointLight(
+            {
+                colour: [1, 1, 1],
+                intensity: 1,
+                radius: 50
+            }))
+            .AddComponent(new Script(
+            {
+                update(delta)
+                {    
+                    x += delta * 5
+
+                    const entity = this as Entity
+                    const transform = entity.GetComponent(Transform)!
+                    transform.Position.X = Math.cos(x) * 2.5
+                    transform.Position.Z = Math.sin(x) * 2.5
+                }
+            }))
 
         super.Init()
     }

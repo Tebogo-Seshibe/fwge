@@ -2,8 +2,10 @@ import { FixedLengthArray, NumberArray } from '../types'
 import { Colour4 } from './Colour4'
 
 export type Colour3Array = FixedLengthArray<number, 3>
+
 export class Colour3 extends Float32Array
-{    
+{
+    //#region Properties
     get R(): number
     {
         return this[0]
@@ -33,6 +35,7 @@ export class Colour3 extends Float32Array
     {
         this[2] = blue
     }
+    //#endregion
     
     get RGBA(): Colour4
     {
@@ -75,8 +78,6 @@ export class Colour3 extends Float32Array
     {
         return 'TODO'
     }
-
-    static readonly SIZE: number = 3
     
     constructor()
     constructor(rgb: number)
@@ -109,11 +110,17 @@ export class Colour3 extends Float32Array
     Set(colour: Colour4): Colour3
     Set(_0: Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number): Colour3
     {
-        if (typeof _0 === 'number')
+        if (arguments.length === 3)
+        {
+            this[0] = _0 as number
+            this[1] = _1 as number
+            this[2] = _2 as number
+        }
+        else if (typeof _0 === 'number')
         {
             this[0] = _0
-            this[1] = _1 ?? _0
-            this[2] = _2 ?? _0
+            this[1] = _0
+            this[2] = _0
         }
         else
         {            
@@ -129,4 +136,13 @@ export class Colour3 extends Float32Array
     {
         return new Colour3(this)
     }
+
+    Equals(other: Colour3): boolean
+    {
+        return this[0] === other[0] &&
+            this[1] === other[1] &&
+            this[2] === other[2]
+    }
+
+    static readonly SIZE: number = 3
 }

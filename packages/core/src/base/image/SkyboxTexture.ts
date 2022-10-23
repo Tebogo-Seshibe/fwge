@@ -1,12 +1,12 @@
 import { GL } from "@fwge/common"
-import { Image3D } from "./Image3D"
+import { ImageTexture } from "./ImageTexture"
 
 export interface ISkyboxTexture
 {
     source: string
 }
 
-export class SkyboxTexture extends Image3D
+export class SkyboxTexture extends ImageTexture
 {
     constructor(config: ISkyboxTexture)
     {

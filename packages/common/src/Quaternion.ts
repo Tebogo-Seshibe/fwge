@@ -3,7 +3,7 @@ import { Vector3, Vector4 } from "./vector"
 
 export class Quaternion extends Float32Array
 {
-    //#region Local Properties
+    //#region Instance Properties
     get X(): number
     {
         return this[0]
@@ -66,7 +66,7 @@ export class Quaternion extends Float32Array
         ] : _0)
     }
 
-    //#region Local Methods
+    //#region Instance Methods
     //#endregion
 
     //#region Static Properties

@@ -143,7 +143,7 @@ export class Game
 
         if (!this.#activeScene)
         {
-            this.#tickId = window.requestAnimationFrame(() => this.#start())
+            this.#tickId = window.setTimeout(() => this.#start())
         }
 
         this.#prevTick = Date.now()
