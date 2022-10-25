@@ -114,7 +114,6 @@ export class RenderSystem extends System
             {
                 step.Output.Bind()
                 step.Shader!.Bind()
-                step.Shader!.Reset()
 
                 for (const inputName of step.Input)
                 {
@@ -418,6 +417,7 @@ export class RenderSystem extends System
 
     private _bindShader(shader: Shader, projection: Matrix4, modelview: Matrix4, camera: Camera, useLighting: boolean = true): void
     {
+        shader.Bind()
         shader.SetMatrix('U_Matrix.View', modelview, true)
         shader.SetMatrix('U_Matrix.Projection', projection, true)
 

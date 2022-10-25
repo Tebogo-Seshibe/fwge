@@ -36,6 +36,23 @@ export function lerp(t: number, p0: number, p1: number): number
     return p0 + (t * (p1 - p0))
 }
 
+export function lerp2(t: number, p0: number, p1: number): number
+{
+    return p0 + ((t**2) * (p1 - p0))
+}
+
+export function lerpsqrt(t: number, p0: number, p1: number): number
+{
+    return p0 + (Math.sqrt(t) * (p1 - p0))
+}
+
+export function smoothstep(t: number, p0: number, p1: number): number
+{
+    let a = t * t
+    let b = 1.0 - (1.0 - t) * (1.0 - t)
+    return lerp(t, a, b)
+}
+
 export function inverseLerp(p: number, p0: number, p1: number): number
 {
     return (p - p0) / (p1 - p0)

@@ -301,21 +301,7 @@ export function view(
 
 
 let typeId = 1
-const IDGen: Map<Class<any>, number> = new Map()
 const TypeIDs: Map<Class<any>, number> = new Map()
-
-const EntityIdArray: Uint8ClampedArray = new Uint8ClampedArray()
 const EntityMap: boolean[] = []
 const ComponentArray: (Component | undefined)[][] = []
 const ComponentsArray: (Component | undefined)[][] = []
-
-setTimeout(() =>
-{
-    console.log(
-    {
-        EntityMap,
-        ComponentArray,
-        ComponentsArray,
-        CustomView
-    })
-},  5000)

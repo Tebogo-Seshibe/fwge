@@ -1,7 +1,7 @@
 import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common"
 import { Scene, Shader } from "../base"
-import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components"
-import { EntityId, getComponent, getComponentById, System, view } from "../ecs"
+import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components"
+import { getComponent, getComponentById, System, view } from "../ecs"
 
 export class DeferredRenderSystem extends System
 {
@@ -10,10 +10,11 @@ export class DeferredRenderSystem extends System
     _batch!: Map<number, Map<number, Set<number>>>
     _modelViewMatrices: Map<number, Matrix4> = new Map()
     _normalMatrices: Map<number, Matrix3> = new Map()
+    tempShader!: Shader
 
     constructor(scene: Scene)
     {
-        super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
+        super(scene, { requiredComponents: [Transform, Material, Renderer] })
     }
 
     Init()
@@ -21,18 +22,61 @@ export class DeferredRenderSystem extends System
         this._prepassShader = new Shader(prepassVert, prepassFrag)
         this._lightPassShader = new Shader(mainPassVert, mainPassFrag)
 
-        view([Light], { name: PointLight.name, exec: light => light instanceof PointLight })
-        view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight })
-        view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight })
+        view([Light], { name: PointLight.name,          exec: light => light instanceof PointLight          })
+        view([Light], { name: DirectionalLight.name,    exec: light => light instanceof DirectionalLight    })
+        view([Light], { name: AreaLight.name,           exec: light => light instanceof AreaLight           })
 
-        this._createBatch(view([ Transform, Material, Renderer ]))
+        this._createBatch()
+        this.tempShader = new Shader(`#version 300 es
+        #pragma vscode_glsllint_stage: vert
+        layout(location = 0) in vec3 A_Position;
+        struct Vertex
+        {
+            vec3 Position;
+        };
+        out Vertex V_Vertex;
+
+        struct Matrix
+        {
+            mat4 ModelView;
+            mat4 View;
+            mat3 Normal;
+            mat4 Projection;
+        };
+        uniform Matrix U_Matrix;
+
+        void main(void)
+        {
+            vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
+
+            V_Vertex.Position = position.xyz;
+
+            gl_Position = U_Matrix.Projection * U_Matrix.View * position;
+        }
+        `,`#version 300 es
+        #pragma vscode_glsllint_stage: frag
+        precision highp float;
+
+        layout(location = 0) out vec4 O_FragmentColour;
+
+        struct Vertex
+        {
+            vec3 Position;
+        };
+        in Vertex V_Vertex;
+
+        void main()
+        {
+            // O_FragmentColour = vec4(1.0);
+            O_FragmentColour = vec4(V_Vertex.Position, 1.0);
+        }`)
     }
-    
-    private _createBatch(entities: EntityId[]): void
+
+    private _createBatch(): void
     {
         const map = new Map<number, Map<number, Set<number>>>()
 
-        for (const entityId of entities)
+        for (const entityId of view([Transform, Material, Renderer]))
         {
             const material = getComponent(entityId, Material)!
             const renderer = getComponent(entityId, Renderer)!
@@ -43,7 +87,7 @@ export class DeferredRenderSystem extends System
 
             rendererMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
             map.set(material.Id, rendererMap)
-            
+
             this._modelViewMatrices.set(transform.Id, Matrix4.Identity)
             this._normalMatrices.set(transform.Id, Matrix3.Identity)
         }
@@ -65,49 +109,51 @@ export class DeferredRenderSystem extends System
         {
             window.MainPass.Output.Bind()
             this.prepassRender(window.Camera)
-
-            // for (const step of window.RenderPipeline)
-            // {
-            //     step.Output.Bind()
-            //     step.Shader!.Bind()
-
-            //     for (const inputName of step.Input)
-            //     {
-            //         if (!window.RenderPipelineMap.has(inputName))
-            //         {
-            //             continue
-            //         }
-
-            //         const inputIndex = window.RenderPipelineMap.get(inputName)!
-            //         const input = inputIndex === -1
-            //             ? window.MainPass
-            //             : window.RenderPipeline[inputIndex]
-
-            //         for (let outputIndex = 0; outputIndex < input.Output.ColourAttachments.length; ++outputIndex)
-            //         {
-            //             step.Shader!.SetTexture(`U_${inputName}_Colour[${outputIndex}]`, input.Output.ColourAttachments[outputIndex]!)
-            //         }
-            //         step.Shader!.SetTexture(`U_${inputName}_Depth`, input.Output.DepthAttachment!)
-            //     }
-
-            //     step.Shader!.SetFloat('U_Width', step.Output.Width)
-            //     step.Shader!.SetFloat('U_Height', step.Output.Height)
-
-            //     GL.bindVertexArray(window.Panel.VertexArrayBuffer)
-            //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
-            //     GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
-            //     GL.bindVertexArray(null)
-
-            //     step.Shader!.UnBind()
-            //     step.Output.UnBind()
-            // }
+            this.shdaowpassRender()
         }
 
-        
+        // for (const step of window.RenderPipeline)
+        // {
+        //     step.Output.Bind()
+        //     step.Shader!.Bind()
+
+        //     for (const inputName of step.Input)
+        //     {
+        //         if (!window.RenderPipelineMap.has(inputName))
+        //         {
+        //             continue
+        //         }
+
+        //         const inputIndex = window.RenderPipelineMap.get(inputName)!
+        //         const input = inputIndex === -1
+        //             ? window.MainPass
+        //             : window.RenderPipeline[inputIndex]
+
+        //         for (let outputIndex = 0; outputIndex < input.Output.ColourAttachments.length; ++outputIndex)
+        //         {
+        //             step.Shader!.SetTexture(`U_${inputName}_Colour[${outputIndex}]`, input.Output.ColourAttachments[outputIndex]!)
+        //         }
+        //         step.Shader!.SetTexture(`U_${inputName}_Depth`, input.Output.DepthAttachment!)
+        //     }
+
+        //     step.Shader!.SetFloat('U_Width', step.Output.Width)
+        //     step.Shader!.SetFloat('U_Height', step.Output.Height)
+
+        //     GL.bindVertexArray(window.Panel.VertexArrayBuffer)
+        //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
+        //     GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
+        //     GL.bindVertexArray(null)
+
+        //     step.Shader!.UnBind()
+        //     step.Output.UnBind()
+        // }
+
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
         GL.clearColor(0, 0, 0, 0)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+
+        const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight
 
         this._lightPassShader.Bind()
         this._lightPassShader.Reset()
@@ -115,15 +161,16 @@ export class DeferredRenderSystem extends System
         {
             const window = this.Scene.Windows[i]
 
-            this._lightPassShader.SetTexture(`U_Position`, window.FinalComposite.ColourAttachments[0])
-            this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1])
-            this._lightPassShader.SetTexture(`U_ColourSpecular`, window.FinalComposite.ColourAttachments[2])
-            this._lightPassShader.SetTexture(`U_Depth`, window.FinalComposite.DepthAttachment!)
-            this._lightPassShader.SetFloatVector('U_PanelOffset', window.Offset)
-            this._lightPassShader.SetFloatVector('U_PanelScale', window.Scale)
+            this._lightPassShader.SetTexture(`U_Position`,          window.FinalComposite.ColourAttachments[0])
+            this._lightPassShader.SetTexture(`U_Normal`,            window.FinalComposite.ColourAttachments[1])
+            this._lightPassShader.SetTexture(`U_ColourSpecular`,    window.FinalComposite.ColourAttachments[2])
+            this._lightPassShader.SetTexture(`U_Depth`,             window.FinalComposite.DepthAttachment!)
+            this._lightPassShader.SetTexture(`U_Other`,             dir.RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetFloatVector('U_PanelOffset',   window.Offset)
+            this._lightPassShader.SetFloatVector('U_PanelScale',    window.Scale)
 
             this.bindLights()
-                
+
             GL.bindVertexArray(window.Panel.VertexArrayBuffer)
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
             GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
@@ -142,10 +189,10 @@ export class DeferredRenderSystem extends System
         {
             const light = getComponent(entityId, Light)! as AreaLight
             const shader = this._lightPassShader
-            
+
             shader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour)
             shader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity)
-            
+
             a++
         }
 
@@ -153,41 +200,144 @@ export class DeferredRenderSystem extends System
         {
             const light = getComponent(entityId, Light)! as DirectionalLight
             const shader = this._lightPassShader
-            
+
             shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour)
             shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity)
 
             shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, light.Direction)
-            // shader.SetFloat(`U_DirectionalLight[${d}].Radius`, light.Radius)
+            shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows)
 
+            shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width)
+            shader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2)
+            shader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias)
+            shader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel)
+
+            shader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix)
             d++
         }
-        
+
         for (const entityId of view([Light], PointLight.name))
         {
             const light = getComponent(entityId, Light)! as PointLight
             const shader = this._lightPassShader
-            
+
             const position = light.Owner?.GetComponent(Transform)?.GlobalPosition() ?? Vector3.Zero
             shader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour)
             shader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity)
 
             shader.SetFloatVector(`U_PointLight[${p}].Position`, position)
             shader.SetFloat(`U_PointLight[${p}].Radius`, light.Radius)
-            
+
             p++
         }
+    }
 
-        this._lightPassShader.SetInt(`U_AreaLightCount`, a)
-        this._lightPassShader.SetInt(`U_DirectionalLightCount`, d)
-        this._lightPassShader.SetInt(`U_PointLightCount`, p)
+    private shdaowpassRender()
+    {
+        GL.cullFace(GL.FRONT)
+        for (const lightEntityId of view([Light], DirectionalLight.name))
+        {
+            const light = getComponent(lightEntityId, Light)! as DirectionalLight
+            if (!light.CastShadows)
+            {
+                continue
+            }
+
+            const shader = DirectionalLight.ShadowShader
+            light.BindForShadows()
+            for (const [materialId, renderers] of this._batch)
+            {
+                const material = getComponentById(Material, materialId)!
+                if (!material.ProjectsShadows)
+                {
+                    continue
+                }
+            
+                for (const [rendererId, transforms] of renderers)
+                {
+                    const renderer = getComponentById(Renderer, rendererId)!
+                    const mesh = renderer.Asset!
+
+                    let mode = -1
+                    let count = 0
+                    let buffer = null
+
+                    switch (renderer.RenderMode)
+                    {
+                        case RenderMode.FACE:
+                        {
+                            mode = GL.TRIANGLES
+                            count = mesh.FaceCount
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.FaceBuffer
+                            }
+                        }
+                        break
+
+                        case RenderMode.EDGE:
+                        {
+                            mode = GL.LINES
+                            count = mesh.EdgeCount
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.EdgeBuffer
+                                mode = GL.LINES
+                            }
+                        }
+                        break
+
+                        case RenderMode.POINT:
+                        {
+                            mode = GL.POINTS
+                            count = mesh.PointCount
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.PointBuffer
+                            }
+                        }
+                        break
+                    }
+
+                    GL.bindVertexArray(mesh.VertexArrayBuffer)
+                    for (const transformId of transforms)
+                    {
+                        const transform = getComponentById(Transform, transformId)!
+                        const modelView = this._modelViewMatrices.get(transformId)!
+                        const normal = this._normalMatrices.get(transformId)!
+
+                        transform.ModelViewMatrix(modelView)
+                        Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+
+                        shader.SetMatrix('U_Matrix.ModelView', modelView, true)
+                        shader.SetMatrix('U_Matrix.Normal', normal, true)
+
+                        if (buffer)
+                        {
+                            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+                            GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+                        }
+                        else
+                        {
+                            GL.drawArrays(mode, 0, count)
+                        }
+                    }
+                    GL.bindVertexArray(null)
+                }
+            }
+            light.UnbindForShadows()
+        }
+        GL.cullFace(GL.BACK)
     }
 
     private prepassRender(camera: Camera)
-    {        
+    {
         const projection = camera.ProjectionMatrix
         const view = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
-        
+
         this._prepassShader.Bind()
         this._prepassShader.SetMatrix('U_Matrix.View', view, true)
         this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true)
@@ -195,18 +345,18 @@ export class DeferredRenderSystem extends System
         for (const [materialId, renderers] of this._batch)
         {
             const material = getComponentById(Material, materialId)!
-            this._prepassShader.Reset()
             material.Bind(this._prepassShader)
-            
+            this._prepassShader.Reset()
+
             for (const [rendererId, transforms] of renderers)
             {
                 const renderer = getComponentById(Renderer, rendererId)!
-
                 const mesh = renderer.Asset!
+
                 let mode = -1
                 let count = 0
                 let buffer = null
-                
+
                 switch (renderer.RenderMode)
                 {
                     case RenderMode.FACE:
@@ -246,7 +396,7 @@ export class DeferredRenderSystem extends System
                     }
                     break
                 }
-                
+
                 GL.bindVertexArray(mesh.VertexArrayBuffer)
                 for (const transformId of transforms)
                 {
@@ -256,7 +406,7 @@ export class DeferredRenderSystem extends System
 
                     transform.ModelViewMatrix(modelView)
                     Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
-                    
+
                     this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true)
                     this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true)
 
@@ -272,135 +422,9 @@ export class DeferredRenderSystem extends System
                 }
                 GL.bindVertexArray(null)
             }
-            material.UnBind()
-        }
-        this._prepassShader.UnBind()
-    }
-    
-    private prepassShadowRender(camera: Camera)
-    {        
-
-        const projection = camera.ProjectionMatrix
-        const modelview = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
-
-        for (const entityId of view([Transform, Material, Renderer]))
-        {
-            const material = getComponent(entityId, Material)!
-            const renderer = getComponent(entityId, Renderer)!
-            const transform = getComponent(entityId, Transform)!
-            
-            material.Bind()
-            this._prepassShader.Bind()
-            this._prepassShader.SetMatrix('U_Matrix.View', modelview, true)
-            this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true)
-            const shader = this._prepassShader
-
-            if (material instanceof BasicLitMaterial)
-            {
-                shader.SetFloat(`U_Material.Shininess`, material.Shininess)
-                shader.SetFloat(`U_Material.Alpha`, material.Alpha)
-                shader.SetBool(`U_Material.ReceiveShadows`, material.ReceiveShadows)
-                shader.SetFloatVector('U_Material.Ambient', material.Ambient)
-                shader.SetFloatVector('U_Material.Diffuse', material.Diffuse)
-                shader.SetFloatVector('U_Material.Specular', material.Specular)
-                shader.SetFloatVector('U_Material.Colour', material.Colour)
-        
-                if (material.Textures[0])
-                {
-                    // shader.SetTexture('U_Sampler.Image', this.Textures[0])
-                    shader.SetTexture('U_Sampler.Image', material.AmbientTexture.Texture)
-                }
-                else
-                {
-                    shader.SetTexture('U_Sampler.Image', Material.Empty)
-                }
-        
-                if (material.Textures[1])
-                {
-                    shader.SetTexture('U_Sampler.Bump', material.Textures[1])
-                }
-                else
-                {
-                    shader.SetTexture('U_Sampler.Bump', Material.Empty)
-                }
-        
-                if (material.Textures[2])
-                {
-                    shader.SetTexture('U_Sampler.Shadow', material.Textures[2])
-                }
-                else
-                {
-                    shader.SetTexture('U_Sampler.Shadow', Material.Empty)
-                }  
-            } 
-
-            const mesh = renderer.Asset!
-            let mode = -1
-            let count = 0
-            let buffer = null
-            
-            switch (renderer.RenderMode)
-            {
-                case RenderMode.FACE:
-                {
-                    mode = GL.TRIANGLES
-                    count = mesh.FaceCount
-
-                    if (mesh.IsIndexed)
-                    {
-                        buffer = mesh.FaceBuffer
-                    }
-                }
-                break
-
-                case RenderMode.EDGE:
-                {
-                    mode = GL.LINES
-                    count = mesh.EdgeCount
-
-                    if (mesh.IsIndexed)
-                    {
-                        buffer = mesh.EdgeBuffer
-                        mode = GL.LINES
-                    }
-                }
-                break
-
-                case RenderMode.POINT:
-                {
-                    mode = GL.POINTS
-                    count = mesh.PointCount
-
-                    if (mesh.IsIndexed)
-                    {
-                        buffer = mesh.PointBuffer
-                    }
-                }
-                break
-            }
-            
-            GL.bindVertexArray(mesh.VertexArrayBuffer)
-            const modelView = transform.ModelViewMatrix() 
-            const normal = modelView.Matrix3.Transpose()
-            this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true)
-            this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true)            
-            if (buffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
-            }
-            else
-            {
-                GL.drawArrays(mode, 0, count)
-            }
-            GL.bindVertexArray(null)
-
-            this._prepassShader.UnBind()
-            material.UnBind()
         }
     }
 }
-
 
 const prepassVert = `#version 300 es
 #pragma vscode_glsllint_stage: vert
@@ -409,10 +433,14 @@ layout(location = 1) in vec3 A_Normal;
 layout(location = 2) in vec2 A_UV;
 layout(location = 3) in vec3 A_Colour;
 
-out vec3 V_Position;
-out vec3 V_Normal;
-out vec2 V_UV;
-out vec3 V_Colour;
+struct Vertex
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 UV;
+    vec3 Colour;
+};
+out Vertex V_Vertex;
 
 struct Matrix
 {
@@ -427,10 +455,10 @@ void main(void)
 {
     vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
 
-    V_Position = position.xyz;
-    V_Normal = U_Matrix.Normal * A_Normal;
-    V_UV = A_UV;
-    V_Colour = A_Colour;
+    V_Vertex.Position = position.xyz;
+    V_Vertex.Normal = U_Matrix.Normal * A_Normal;
+    V_Vertex.UV = A_UV;
+    V_Vertex.Colour = A_Colour;
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * position;
 }
@@ -444,10 +472,14 @@ layout(location = 0) out vec3 O_Position;
 layout(location = 1) out vec3 O_Normal;
 layout(location = 2) out vec4 O_ColourSpecular;
 
-in vec3 V_Position;
-in vec3 V_Normal;
-in vec2 V_UV;
-in vec3 V_Colour;
+struct Vertex
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 UV;
+    vec3 Colour;
+};
+in Vertex V_Vertex;
 
 struct Material
 {
@@ -476,12 +508,12 @@ uniform Sampler U_Sampler;
 
 void main(void)
 {
-    vec4 tex = texture(U_Sampler.Image, V_UV);
-    vec3 albedo = U_Material.Colour * tex.rgb;
+    vec4 tex = texture(U_Sampler.Image, V_Vertex.UV);
+    vec3 albedo = U_Material.Colour * tex.rgb * V_Vertex.Colour;
     float alpha = U_Material.Alpha * tex.a;
-    
-    O_Position = V_Position;
-    O_Normal = normalize(V_Normal);
+
+    O_Position = V_Vertex.Position;
+    O_Normal = normalize(V_Vertex.Normal);
     O_ColourSpecular = vec4(albedo, alpha);
 }
 `
@@ -489,30 +521,39 @@ const mainPassVert = `#version 300 es
 #pragma vscode_glsllint_stage: vert
 
 layout(location = 0) in vec2 A_Position;
+out vec2 V_UV;
 
 uniform vec2 U_PanelOffset;
 uniform vec2 U_PanelScale;
-
-out vec2 V_UV;
 
 void main(void)
 {
     V_UV = A_Position * 0.5 + 0.5;
     gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
-}`
+}
+`
 
 const mainPassFrag = `#version 300 es
 #pragma vscode_glsllint_stage: frag
 precision highp float;
 
-layout(location = 0) out vec4 O_FragColour;
-
 in vec2 V_UV;
+layout(location = 0) out vec4 O_FragColour;
 
 uniform sampler2D U_Position;
 uniform sampler2D U_Normal;
 uniform sampler2D U_ColourSpecular;
 uniform sampler2D U_Depth;
+uniform sampler2D U_Other;
+
+struct Fragment
+{
+    vec3 Position;
+    vec3 Normal;
+    vec3 Diffuse;
+    float Specular;
+    float Depth;
+}   fragment;
 
 struct AreaLight
 {
@@ -521,9 +562,9 @@ struct AreaLight
 };
 uniform AreaLight[1] U_AreaLight;
 
-vec3 CalcAreaLight(vec3 colour, float intensity)
+vec3 CalcAreaLight(AreaLight light)
 {
-    return colour * intensity;
+    return light.Colour * light.Intensity;
 }
 
 struct DirectionalLight
@@ -543,15 +584,66 @@ struct DirectionalLight
 };
 uniform DirectionalLight[1] U_DirectionalLight;
 
-vec3 CalcDirectionalLight(int index, vec3 normal)
+float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot)
 {
-    DirectionalLight dir = U_DirectionalLight[index];
+    vec4 shadowPosition = dir.ShadowMatrix * vec4(fragment.Position, 1.0);
+    float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
+    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    vec2 fragUV = lightPosition.xy;
+    float fragmentDepth = lightPosition.z;
 
-    float val = dot(normal, -dir.Direction);
+    if (fragmentDepth > 1.0)
+    {
+        fragmentDepth = 1.0;
+    }
+
+    float total = 0.0;
+    for (float x = -dir.PCFLevel; x <= dir.PCFLevel; ++x)
+    {
+        for (float y = -dir.PCFLevel; y <= dir.PCFLevel; ++y)
+        {
+            vec2 offset = vec2(x, y) * dir.TexelSize;
+            vec2 uv = fragUV + offset;
+            if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0)
+            {
+                continue;
+            }
+
+            float shadowDepth = texture(U_Other, uv).r + bias;
+            if (shadowDepth < fragmentDepth)
+            {
+                total += 1.0;
+            }
+        }
+    }
+
+    return total / dir.TexelCount;
+}
+
+float ShadowWeightDirectional2(DirectionalLight dir, float diffuseDot)
+{
+    vec4 shadowPosition = dir.ShadowMatrix * vec4(fragment.Position, 1.0);
+    float bias = max(0.05 * (1.0 - diffuseDot), 0.0005);
+    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    vec2 fragUV = lightPosition.xy;
+    float fragmentDepth = lightPosition.z;
+
+    if (fragmentDepth > 1.0)
+    {
+        return 0.0;
+    }
+
+    float shadowDepth = texture(U_Other, fragUV).r + bias;
+    return (shadowDepth < fragmentDepth) ? 1.0 : 0.0;
+}
+
+vec3 CalcDirectionalLight(DirectionalLight light)
+{
+    float val = dot(fragment.Normal, -light.Direction);
     float diffuse = max(val, 0.0);
-    float shadow = 1.0; // - ShadowWeightDirectional(val);
+    float shadow = 1.0 - ShadowWeightDirectional(light, val);
 
-    return dir.Colour * diffuse * dir.Intensity * shadow;
+    return light.Colour * diffuse * light.Intensity * shadow;
 }
 
 struct PointLight
@@ -564,56 +656,52 @@ struct PointLight
 };
 uniform PointLight[230] U_PointLight;
 
-vec3 CalcPointLight(vec3 colour, float intensity, vec3 lightPosition, float radius, float shininess, vec3 fragNormal, vec3 fragPosition)
+vec3 CalcPointLight(PointLight light)
 {
-    vec3 difference = lightPosition - fragPosition;
+    vec3 difference = light.Position - fragment.Position;
     vec3 direction = normalize(difference);
-    vec3 eye = normalize(-fragNormal);
-    vec3 reflection = reflect(direction, fragNormal);
+    vec3 eye = normalize(-fragment.Normal);
+    vec3 reflection = reflect(direction, fragment.Normal);
     float len = length(difference);
 
-    float diffuseWeight = max(0.0, dot(fragNormal, direction));
-    float specularWeight = pow(max(0.0, dot(reflection, eye)), shininess);
+    float diffuseWeight = max(0.0, dot(fragment.Normal, direction));
+    float specularWeight = pow(max(0.0, dot(reflection, eye)), 32.0);
+    float attenuation = light.Radius / (len * len);
 
-    float attenuation = radius / (len * len);
+    vec3 diffuse = light.Colour * diffuseWeight * attenuation;
+    vec3 specular = light.Colour * specularWeight * attenuation; // * fragment.Specular;
 
-    vec3 diffuse = colour * diffuseWeight * attenuation;
-    vec3 specular = colour * specularWeight * attenuation;
-
-    return (diffuse + specular) * intensity;
+    return (diffuse + specular) * light.Intensity;
 }
-
-uniform int U_AreaLightCount;
-uniform int U_DirectionalLightCount;
-uniform int U_PointLightCount;
 
 void main(void)
 {
-    vec3 vPosition = texture(U_Position, V_UV).rgb;
-    vec3 vNormal = texture(U_Normal, V_UV).rgb;
-    vec3 vDiffuse = texture(U_ColourSpecular, V_UV).rgb;
-    float vSpecular = texture(U_ColourSpecular, V_UV).a;
-    float vDepth = texture(U_Depth, V_UV).r;
-    
+    fragment = Fragment(
+        texture(U_Position, V_UV).rgb,
+        texture(U_Normal, V_UV).rgb,
+        texture(U_ColourSpecular, V_UV).rgb,
+        texture(U_ColourSpecular, V_UV).a,
+        texture(U_Depth, V_UV).r
+    );
+
     vec3 lighting = vec3(0.0);
 
-    for (int i = 0; i < U_AreaLightCount; ++i)
+    for (int i = 0; i < U_AreaLight.length(); ++i)
     {
-        lighting += CalcAreaLight(U_AreaLight[i].Colour, U_AreaLight[i].Intensity);
+        lighting += CalcAreaLight(U_AreaLight[i]);
     }
 
-    for (int i = 0; i < U_DirectionalLightCount; ++i)
+    for (int i = 0; i < U_DirectionalLight.length(); ++i)
     {
-        lighting += CalcDirectionalLight(i, vNormal);
+        lighting += CalcDirectionalLight(U_DirectionalLight[i]);
     }
 
-    int items = U_PointLight.length();
-    for (int i = 0; i < items; ++i)
+    for (int i = 0; i < U_PointLight.length(); ++i)
     {
-        lighting += CalcPointLight(U_PointLight[i].Colour, U_PointLight[i].Intensity, U_PointLight[i].Position, U_PointLight[i].Radius, 32.0, vNormal, vPosition);
+        lighting += CalcPointLight(U_PointLight[i]);
     }
 
-    // O_FragColour = vec4(lighting * vDiffuse, 1.0);
-    O_FragColour = vec4(vec3(vPosition), 1.0);
-    // O_FragColour = vec4(texture(U_RenderImage[1], V_UV).rgb, 1.0);
-}`
+    O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
+    // O_FragColour = vec4(vec3(texture(U_Other, V_UV).r), 1.0);
+}
+`

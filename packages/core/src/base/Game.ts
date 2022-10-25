@@ -1,4 +1,4 @@
-import { CalcuateDelay, createContext, GL, IDelay } from "@fwge/common"
+import { CalcuateDelay, createContext, GL, IDelay, UUID } from "@fwge/common"
 import { SharedComponent } from "../ecs"
 import { Class, SceneId } from "../ecs/Registry"
 import { Asset } from "./Asset"
@@ -27,6 +27,7 @@ export interface IGame
 
 export class Game
 {
+    public readonly UUID: UUID = UUID.Create()
     readonly Height: number
     readonly Width: number
     readonly Scenes: Map<SceneId, Scene> = new Map()    

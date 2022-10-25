@@ -83,8 +83,8 @@ export class DirectionalLight extends Light
         this.#shadowMatrix = new Matrix4(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12)
 
         this.#direction.Set(DirectionalLight.DefaultDirection)
-        this.CastShadows = light.castShadows ?? false
-        this.Bias = light.bias ?? 0.005
+        this.CastShadows = light.castShadows ?? true
+        this.Bias = light.bias ?? 0.001
         this.PCFLevel = light.pcfLevel ?? 2
         this.#shadowMatrix.Identity()
 
@@ -147,7 +147,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind()
     }
 
-    readonly ViewMatrix = Matrix4.OrthographicProjectionMatrix(100, 100, 100)
+    readonly ViewMatrix = Matrix4.OrthographicProjectionMatrix(55, 55, 55)
 
     get ModelMatrix(): Matrix4
     {

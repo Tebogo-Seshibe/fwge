@@ -322,6 +322,7 @@ export class Shader extends Asset
     Bind(): void
     {
         GL.useProgram(this.Program)
+        this._samplerIndex = 0
     }
     
     Reset()

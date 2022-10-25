@@ -124,19 +124,20 @@ export class Material extends SharedComponent implements IBindable<Float32Array>
     Bind(shader: Shader): void
     Bind(_0?: Shader): void
     {
-        // if (this.RenderType === RenderType.OPAQUE)
-        // {
-            // GL.disable(GL.BLEND)
-            // GL.enable(GL.DEPTH_TEST)
-            // GL.enable(GL.CULL_FACE)
-            // GL.cullFace(GL.BACK)
-            // GL.depthMask(true)
-        // }
-        // else
-        // {
-        //     GL.enable(GL.BLEND)
-        //     GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-        // }
+        if (this.RenderType === RenderType.OPAQUE)
+        {
+            GL.disable(GL.BLEND)
+            GL.enable(GL.DEPTH_TEST)
+            GL.enable(GL.CULL_FACE)
+            GL.cullFace(GL.FRONT)
+            GL.depthFunc(GL.LESS)
+            GL.depthMask(true)
+        }
+        else
+        {
+            GL.enable(GL.BLEND)
+            GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        }
 
         // this.bindBufferData(shader.Program!)
     }

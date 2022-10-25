@@ -675,6 +675,7 @@ export class GLWrapper
     
     clear(mask: GLbitfield): void
     {
+        console.log(mask)
         glClearErrors(this.context)
         this.context.clear(mask)
         glCheckError(this.context, 'clear', { mask })

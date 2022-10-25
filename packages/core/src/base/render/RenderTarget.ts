@@ -215,6 +215,7 @@ export class RenderTarget
             const type = colourDataType(colourType)
             
             const texture = GL.createTexture()!
+
             GL.bindTexture(GL.TEXTURE_2D, texture)
             GL.texImage2D(GL.TEXTURE_2D, 0, internalFormat, this.Width, this.Height, 0, format, type, null)
             if (colourType === ColourType.BYTE_RGB || colourType === ColourType.BYTE_RGBA)
@@ -230,9 +231,9 @@ export class RenderTarget
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
             GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0 + index, GL.TEXTURE_2D, texture, 0)
-            drawBuffers.push(GL.COLOR_ATTACHMENT0 + index)
             GL.bindTexture(GL.TEXTURE_2D, null)
-
+            
+            drawBuffers.push(GL.COLOR_ATTACHMENT0 + index)
             return texture
         })
         
@@ -245,6 +246,7 @@ export class RenderTarget
             const attachment = depthAttachment(config.depth)
 
             const texture = GL.createTexture()!
+
             GL.bindTexture(GL.TEXTURE_2D, texture)
             GL.texImage2D(GL.TEXTURE_2D, 0, internalFormat, this.Width, this.Height, 0, format, type, null)
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
@@ -262,35 +264,29 @@ export class RenderTarget
             drawBuffers.push(GL.NONE)
             GL.readBuffer(GL.NONE)
         }
+        
         GL.drawBuffers(drawBuffers)
-
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        console.log(this)
     }
 
     Bind()
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
-        if (!this.Framebuffer)
-        {
-            GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        }
-        else
-        {
-            GL.viewport(0, 0, this.Width, this.Height)
-        }
+        GL.viewport(0, 0, this.Width, this.Height)
 
-        let mask = 0
-        if (this.ColourAttachments.length > 0)
-        {
-            mask |= GL.COLOR_BUFFER_BIT
-            GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
-        }
-        if (this.DepthAttachment)
-        {
-            mask |= GL.DEPTH_BUFFER_BIT
-        }
-        GL.clear(mask)
+        // let mask = 0
+        // if (this.ColourAttachments.length > 0)
+        // {
+        //     mask |= GL.COLOR_BUFFER_BIT
+        // }
+        // if (this.DepthAttachment)
+        // {
+        //     mask |= GL.DEPTH_BUFFER_BIT
+        // }
+
+        GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
+        // GL.clear(mask)
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
     }
 }
 /**

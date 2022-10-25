@@ -1,11 +1,9 @@
-import { Vector3Array } from "@fwge/common"
-import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, Prefab, RenderMode, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
+import { Vector3, Vector3Array } from "@fwge/common"
+import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderMode, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { CubeCollider } from "@fwge/physics"
-import { ParticleSystem } from "@fwge/render"
 import { FPSController } from "../entities"
 import { FullScreen } from "../entities/FullScreen"
-import { GameObject } from "../entities/GameObject"
 import { Platform } from "../entities/Platform"
 import { FPSCounterSystem } from "../systems/FPSCounterSystem"
 
@@ -37,7 +35,6 @@ export class PhysicsTest extends Scene
             systems: [
                 InputSystem,
                 ScriptSystem,
-                ParticleSystem,
                 DeferredRenderSystem,
                 FPSCounterSystem,
             ],
@@ -130,21 +127,34 @@ export class PhysicsTest extends Scene
                 }
             }
         })
+        const jumpingCube = new Script(
+        {
+            update()
+            {
+                const entity = this as Entity
+                const transform = entity.GetComponent(Transform)!
+                let x = (scene.x + entity.Id % 11) * ((transform.Id % 7) + 1) / 5
+                if (transform.Id % 2 === 0)
+                {
+                    transform.Position.Y = Math.sin(x) + 2.0
+                }
+                else
+                {
+                    x = 360 - (x % 360)
+                    transform.Position.Y = Math.sin(-x) + 2.0
+                }
+            }
+        })
 
         const positions = []
-        const min = -1
-        const max = 1
+        const min = -24
+        const max = 24
         for (let x = min; x <= max; x+=2)
         {
             for (let z = min; z <= max; z+=2)
             {
-                positions.push([x, 0.5, z])
+                positions.push([x, 1, z])
             }
-        }
-
-        while (positions.length > 1)
-        {
-            positions.pop()
         }
 
         let i = 0
@@ -155,9 +165,10 @@ export class PhysicsTest extends Scene
                 .AddComponent(material)
                 .AddComponent(new Transform({ position: position as Vector3Array }))
                 .AddComponent(cubeRenderer)
+                .AddComponent(jumpingCube)
 
             const light = this.CreateEntity()
-                .AddComponent(new Transform({ position: [0, 1, 5], scale: [0.5, 0.5, 0.5] }))
+                .AddComponent(new Transform({ position: Vector3.Add(position as Vector3Array, [0, 1, 5]), scale: [0.5, 0.5, 0.5] }))
                 .AddComponent(sphereRotator)
 
             if (i++ % 3 === 0)
@@ -184,14 +195,17 @@ export class PhysicsTest extends Scene
             }))
 
         this.CreateEntity()
-            .AddComponent(new Transform({ rotation: [45, 0, 45] }))
+            .AddComponent(new Transform({ rotation: [90, 0, 0] }))
             .AddComponent(new DirectionalLight(
             {
-                intensity: 0.00,
-                colour: [1, 1, 1],
-                castShadows: true,
-                pcfLevel: 5,
-                bias: 0.002
+                intensity: 0.15,
+            }))
+            .AddComponent(new Script({
+                update(delta) {
+                    const entity = this as Entity
+                    const transform = entity.GetComponent(Transform)!
+                    transform.Rotation.X += delta * 50
+                },
             }))
 
         super.Init()

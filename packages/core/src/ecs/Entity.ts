@@ -1,3 +1,4 @@
+import { UUID } from '@fwge/common'
 import { Scene } from '../base/Scene'
 import { Component } from './Component'
 import { addComponent, Class, createEntity, deleteEntity, EntityId, getAllComponents, getComponent, hasComponent, removeComponent } from './Registry'
@@ -5,6 +6,7 @@ import { addComponent, Class, createEntity, deleteEntity, EntityId, getAllCompon
 export class Entity
 {
     public readonly Id: EntityId = createEntity()
+    public readonly UUID: UUID = UUID.Create()
 
     private _scene: Scene
     private _parentId: EntityId = -1

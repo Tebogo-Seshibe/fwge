@@ -1,3 +1,4 @@
+import { UUID } from "@fwge/common"
 import { Scene } from "../base/Scene"
 import { Component } from "./Component"
 import { Entity } from "./Entity"
@@ -12,7 +13,7 @@ interface ISystem
 
 export class System
 {
-    
+    public readonly UUID: UUID = UUID.Create()    
     public readonly entityIds: EntityId[] = []
     public readonly requiredComponents: Set<Class<Component>> = new Set()
 

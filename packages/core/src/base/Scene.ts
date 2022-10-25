@@ -1,3 +1,4 @@
+import { UUID } from "@fwge/common"
 import { Entity } from "../ecs/Entity"
 import { Class, Constructor, EntityId, RegistryType } from "../ecs/Registry"
 import { System } from "../ecs/System"
@@ -19,6 +20,7 @@ export interface IScene
 export class Scene
 {
     private static ID: number = 0
+    public readonly UUID: UUID = UUID.Create()
 
     readonly Id = Scene.ID++
     readonly Game: Game
