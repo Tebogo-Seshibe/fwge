@@ -121,11 +121,13 @@ export function getComponentById<T extends Component>(componentTypeAndId: Class<
 }
 
 export function getComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T | undefined
+export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentType: Class<T>, childType: Class<U>): U | undefined
 export function getComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined
-export function getComponent<T extends Component>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId): T | undefined
+export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeId: TypeId, childType: Class<U>): U | undefined
+export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId, _?: Class<U>): U | undefined
 {
     const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId))
-    return ComponentArray[componentIndex][entityId] as T
+    return ComponentArray[componentIndex][entityId] as U
 }
 
 export function getAllComponents(entityId: EntityId): Component[]

@@ -17,7 +17,7 @@ export class FPSController extends GameObject
     readonly rotationMatrix: Matrix3 = Matrix3.Identity
 
     readonly movementSpeed: number = 15
-    readonly turnSpeed: number = 50
+    readonly turnSpeed: number = 25
     readonly jumpHeight: number = 15
     canJump: boolean = true
     

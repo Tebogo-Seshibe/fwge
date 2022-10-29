@@ -10,7 +10,6 @@ export class DeferredRenderSystem extends System
     _batch!: Map<number, Map<number, Set<number>>>
     _modelViewMatrices: Map<number, Matrix4> = new Map()
     _normalMatrices: Map<number, Matrix3> = new Map()
-    tempShader!: Shader
 
     constructor(scene: Scene)
     {
@@ -27,49 +26,6 @@ export class DeferredRenderSystem extends System
         view([Light], { name: AreaLight.name,           exec: light => light instanceof AreaLight           })
 
         this._createBatch()
-        this.tempShader = new Shader(`#version 300 es
-        #pragma vscode_glsllint_stage: vert
-        layout(location = 0) in vec3 A_Position;
-        struct Vertex
-        {
-            vec3 Position;
-        };
-        out Vertex V_Vertex;
-
-        struct Matrix
-        {
-            mat4 ModelView;
-            mat4 View;
-            mat3 Normal;
-            mat4 Projection;
-        };
-        uniform Matrix U_Matrix;
-
-        void main(void)
-        {
-            vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
-
-            V_Vertex.Position = position.xyz;
-
-            gl_Position = U_Matrix.Projection * U_Matrix.View * position;
-        }
-        `,`#version 300 es
-        #pragma vscode_glsllint_stage: frag
-        precision highp float;
-
-        layout(location = 0) out vec4 O_FragmentColour;
-
-        struct Vertex
-        {
-            vec3 Position;
-        };
-        in Vertex V_Vertex;
-
-        void main()
-        {
-            // O_FragmentColour = vec4(1.0);
-            O_FragmentColour = vec4(V_Vertex.Position, 1.0);
-        }`)
     }
 
     private _createBatch(): void
@@ -165,7 +121,12 @@ export class DeferredRenderSystem extends System
             this._lightPassShader.SetTexture(`U_Normal`,            window.FinalComposite.ColourAttachments[1])
             this._lightPassShader.SetTexture(`U_ColourSpecular`,    window.FinalComposite.ColourAttachments[2])
             this._lightPassShader.SetTexture(`U_Depth`,             window.FinalComposite.DepthAttachment!)
-            this._lightPassShader.SetTexture(`U_Other`,             dir.RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetTexture(`U_Other[0]`,          dir.ShadowCascades[0].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`,     Matrix4.Multiply(dir.ShadowCascades[0].Projection!, dir.ModelMatrix))
+            this._lightPassShader.SetTexture(`U_Other[1]`,          dir.ShadowCascades[1].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`,     Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix))
+            this._lightPassShader.SetTexture(`U_Other[2]`,          dir.ShadowCascades[2].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[2]`,     Matrix4.Multiply(dir.ShadowCascades[2].Projection!, dir.ModelMatrix))
             this._lightPassShader.SetFloatVector('U_PanelOffset',   window.Offset)
             this._lightPassShader.SetFloatVector('U_PanelScale',    window.Scale)
 
@@ -184,11 +145,11 @@ export class DeferredRenderSystem extends System
         let a = 0
         let d = 0
         let p = 0
+        const shader = this._lightPassShader
 
         for (const entityId of view([Light], AreaLight.name))
         {
             const light = getComponent(entityId, Light)! as AreaLight
-            const shader = this._lightPassShader
 
             shader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour)
             shader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity)
@@ -199,12 +160,21 @@ export class DeferredRenderSystem extends System
         for (const entityId of view([Light], DirectionalLight.name))
         {
             const light = getComponent(entityId, Light)! as DirectionalLight
-            const shader = this._lightPassShader
+            const transform = getComponent(entityId, Transform)
+            const rotx = transform?.GlobalRotation().X ?? 0
+            const roty = transform?.GlobalRotation().Y ?? 0
+            const rotz = transform?.GlobalRotation().Z ?? 0
+
+            const direction = Vector3.Add(
+                new Vector3(0,-1,0).RotateAroundAxis([1,0,0], rotx),
+                new Vector3(0,-1,0).RotateAroundAxis([0,1,0], roty),
+                new Vector3(0,-1,0).RotateAroundAxis([0,0,1], rotz)
+            ).Normalize().Negate()
 
             shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour)
             shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity)
 
-            shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, light.Direction)
+            shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction)
             shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows)
 
             shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width)
@@ -218,10 +188,9 @@ export class DeferredRenderSystem extends System
 
         for (const entityId of view([Light], PointLight.name))
         {
-            const light = getComponent(entityId, Light)! as PointLight
-            const shader = this._lightPassShader
-
+            const light = getComponent(entityId, Light, PointLight)!
             const position = light.Owner?.GetComponent(Transform)?.GlobalPosition() ?? Vector3.Zero
+
             shader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour)
             shader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity)
 
@@ -234,7 +203,8 @@ export class DeferredRenderSystem extends System
 
     private shdaowpassRender()
     {
-        GL.cullFace(GL.FRONT)
+        GL.disable(GL.CULL_FACE)
+        DirectionalLight.ShadowShader.Bind()
         for (const lightEntityId of view([Light], DirectionalLight.name))
         {
             const light = getComponent(lightEntityId, Light)! as DirectionalLight
@@ -243,94 +213,100 @@ export class DeferredRenderSystem extends System
                 continue
             }
 
-            const shader = DirectionalLight.ShadowShader
-            light.BindForShadows()
-            for (const [materialId, renderers] of this._batch)
+            for (const cascade of light.ShadowCascades)
             {
-                const material = getComponentById(Material, materialId)!
-                if (!material.ProjectsShadows)
-                {
-                    continue
-                }
-            
-                for (const [rendererId, transforms] of renderers)
-                {
-                    const renderer = getComponentById(Renderer, rendererId)!
-                    const mesh = renderer.Asset!
+                const matrix = Matrix4.Multiply(cascade.Projection, light.ModelMatrix)
 
-                    let mode = -1
-                    let count = 0
-                    let buffer = null
-
-                    switch (renderer.RenderMode)
+                cascade.RenderTarget.Bind()
+                DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', matrix)
+                const shader = DirectionalLight.ShadowShader
+                for (const [materialId, renderers] of this._batch)
+                {
+                    const material = getComponentById(Material, materialId)!
+                    if (!material.ProjectsShadows)
                     {
-                        case RenderMode.FACE:
-                        {
-                            mode = GL.TRIANGLES
-                            count = mesh.FaceCount
+                        continue
+                    }
+                
+                    for (const [rendererId, transforms] of renderers)
+                    {
+                        const renderer = getComponentById(Renderer, rendererId)!
+                        const mesh = renderer.Asset!
 
-                            if (mesh.IsIndexed)
+                        let mode = -1
+                        let count = 0
+                        let buffer = null
+
+                        switch (renderer.RenderMode)
+                        {
+                            case RenderMode.FACE:
                             {
-                                buffer = mesh.FaceBuffer
+                                mode = GL.TRIANGLES
+                                count = mesh.FaceCount
+
+                                if (mesh.IsIndexed)
+                                {
+                                    buffer = mesh.FaceBuffer
+                                }
                             }
-                        }
-                        break
+                            break
 
-                        case RenderMode.EDGE:
-                        {
-                            mode = GL.LINES
-                            count = mesh.EdgeCount
-
-                            if (mesh.IsIndexed)
+                            case RenderMode.EDGE:
                             {
-                                buffer = mesh.EdgeBuffer
                                 mode = GL.LINES
+                                count = mesh.EdgeCount
+
+                                if (mesh.IsIndexed)
+                                {
+                                    buffer = mesh.EdgeBuffer
+                                    mode = GL.LINES
+                                }
                             }
-                        }
-                        break
+                            break
 
-                        case RenderMode.POINT:
-                        {
-                            mode = GL.POINTS
-                            count = mesh.PointCount
-
-                            if (mesh.IsIndexed)
+                            case RenderMode.POINT:
                             {
-                                buffer = mesh.PointBuffer
+                                mode = GL.POINTS
+                                count = mesh.PointCount
+
+                                if (mesh.IsIndexed)
+                                {
+                                    buffer = mesh.PointBuffer
+                                }
+                            }
+                            break
+                        }
+
+                        GL.bindVertexArray(mesh.VertexArrayBuffer)
+                        for (const transformId of transforms)
+                        {
+                            const transform = getComponentById(Transform, transformId)!
+                            const modelView = this._modelViewMatrices.get(transformId)!
+                            const normal = this._normalMatrices.get(transformId)!
+
+                            transform.ModelViewMatrix(modelView)
+                            Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+
+                            shader.SetMatrix('U_Matrix.ModelView', modelView, true)
+                            shader.SetMatrix('U_Matrix.Normal', normal, true)
+
+                            if (buffer)
+                            {
+                                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+                                GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+                            }
+                            else
+                            {
+                                GL.drawArrays(mode, 0, count)
                             }
                         }
-                        break
+                        GL.bindVertexArray(null)
                     }
-
-                    GL.bindVertexArray(mesh.VertexArrayBuffer)
-                    for (const transformId of transforms)
-                    {
-                        const transform = getComponentById(Transform, transformId)!
-                        const modelView = this._modelViewMatrices.get(transformId)!
-                        const normal = this._normalMatrices.get(transformId)!
-
-                        transform.ModelViewMatrix(modelView)
-                        Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
-
-                        shader.SetMatrix('U_Matrix.ModelView', modelView, true)
-                        shader.SetMatrix('U_Matrix.Normal', normal, true)
-
-                        if (buffer)
-                        {
-                            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                            GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
-                        }
-                        else
-                        {
-                            GL.drawArrays(mode, 0, count)
-                        }
-                    }
-                    GL.bindVertexArray(null)
                 }
             }
-            light.UnbindForShadows()
         }
-        GL.cullFace(GL.BACK)
+        DirectionalLight.ShadowShader.UnBind()
+        GL.enable(GL.CULL_FACE)
     }
 
     private prepassRender(camera: Camera)
@@ -544,7 +520,8 @@ uniform sampler2D U_Position;
 uniform sampler2D U_Normal;
 uniform sampler2D U_ColourSpecular;
 uniform sampler2D U_Depth;
-uniform sampler2D U_Other;
+uniform sampler2D[4] U_Other;
+uniform mat4[4] U_OtherMatrix;
 
 struct Fragment
 {
@@ -584,9 +561,9 @@ struct DirectionalLight
 };
 uniform DirectionalLight[1] U_DirectionalLight;
 
-float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot)
+float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D shadowSampler, mat4 shadowMatrix)
 {
-    vec4 shadowPosition = dir.ShadowMatrix * vec4(fragment.Position, 1.0);
+    vec4 shadowPosition = shadowMatrix * vec4(fragment.Position, 1.0);
     float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
     vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
     vec2 fragUV = lightPosition.xy;
@@ -609,7 +586,7 @@ float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot)
                 continue;
             }
 
-            float shadowDepth = texture(U_Other, uv).r + bias;
+            float shadowDepth = texture(shadowSampler, uv).r + bias;
             if (shadowDepth < fragmentDepth)
             {
                 total += 1.0;
@@ -620,28 +597,15 @@ float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot)
     return total / dir.TexelCount;
 }
 
-float ShadowWeightDirectional2(DirectionalLight dir, float diffuseDot)
-{
-    vec4 shadowPosition = dir.ShadowMatrix * vec4(fragment.Position, 1.0);
-    float bias = max(0.05 * (1.0 - diffuseDot), 0.0005);
-    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
-    vec2 fragUV = lightPosition.xy;
-    float fragmentDepth = lightPosition.z;
-
-    if (fragmentDepth > 1.0)
-    {
-        return 0.0;
-    }
-
-    float shadowDepth = texture(U_Other, fragUV).r + bias;
-    return (shadowDepth < fragmentDepth) ? 1.0 : 0.0;
-}
-
 vec3 CalcDirectionalLight(DirectionalLight light)
 {
-    float val = dot(fragment.Normal, -light.Direction);
+    float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
-    float shadow = 1.0 - ShadowWeightDirectional(light, val);
+    float cascade1 = ShadowWeightDirectional(light, val, U_Other[0], U_OtherMatrix[0]);
+    float cascade2 = ShadowWeightDirectional(light, val, U_Other[1], U_OtherMatrix[1]);
+    float cascade3 = ShadowWeightDirectional(light, val, U_Other[2], U_OtherMatrix[2]);
+    float cascade = max(cascade1, max(cascade2, cascade3));
+    float shadow = 1.0 - cascade;
 
     return light.Colour * diffuse * light.Intensity * shadow;
 }
@@ -665,7 +629,7 @@ vec3 CalcPointLight(PointLight light)
     float len = length(difference);
 
     float diffuseWeight = max(0.0, dot(fragment.Normal, direction));
-    float specularWeight = pow(max(0.0, dot(reflection, eye)), 32.0);
+    float specularWeight = pow(max(0.0, dot(reflection, eye)), 32.0f);
     float attenuation = light.Radius / (len * len);
 
     vec3 diffuse = light.Colour * diffuseWeight * attenuation;
@@ -702,6 +666,6 @@ void main(void)
     }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
-    // O_FragColour = vec4(vec3(texture(U_Other, V_UV).r), 1.0);
+    // O_FragColour = vec4(vec3(texture(U_Other[2], V_UV).r), 1.0);
 }
 `

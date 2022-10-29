@@ -1,6 +1,5 @@
-import { clean, CubeGeometry, Matrix2, Matrix3, Matrix4, radian, Scalar, Vector3, Vector3Array } from "@fwge/common"
-import { ColourType, DepthType, RenderTarget, Shader } from "../../base"
-import { Camera, PerspectiveCamera } from "../camera"
+import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common"
+import { DepthType, RenderTarget, Shader } from "../../base"
 import { Transform } from "../Transform"
 import { ILight, Light } from "./Light"
 
@@ -12,6 +11,110 @@ export interface IDirectionalLight extends ILight
     bias?: number
     pcfLevel?: PCFLevelType
     shadowResolution?: number
+    cascades?: [IShadowCascade, IShadowCascade, IShadowCascade]
+}
+
+export interface IShadowCascade
+{
+    dimensions: Vector3 | Vector3Array
+    resolution: Vector2 | Vector2Array
+}
+
+export class ShadowCascade
+{
+    private _dimensions: Vector3 = Vector3.Zero
+    private _resolution: Vector2 = Vector2.Zero
+    private _projection: Matrix4 = Matrix4.Identity
+    private _renderTarget: RenderTarget = new RenderTarget(
+    {
+        colour: [],
+        depth: DepthType.INT24,
+        height: 2**13,
+        width: 2**13
+    })
+
+    get Width(): number
+    {
+        return this._dimensions[0]
+    }
+    set Width(width: number)
+    {
+        this._dimensions[0] = width
+        this._projection.M11 = 2 / width
+    }
+
+    get Height(): number
+    {
+        return this._dimensions[1]
+    }
+    set Height(height: number)
+    {
+        this._dimensions[1] = height
+        this._projection.M22 = 2 / height
+    }
+
+    get Depth(): number
+    {
+        return this._dimensions[2]
+    }
+    set Depth(depth: number)
+    {
+        this._dimensions[2] = depth
+        this._projection.M33 = 2 / depth
+    }
+
+    get ResolutionX(): number
+    {
+        return this._resolution[0]
+    }
+    set ResolutionX(x: number)
+    {
+        this._resolution[0] = x
+        this._renderTarget = new RenderTarget(
+        {
+            colour: [],
+            depth: DepthType.INT24,
+            width: x,
+            height: this._resolution[1],
+        })
+    }
+
+    get ResolutionY(): number
+    {
+        return this._resolution[1]
+    }
+    set ResolutionY(y: number)
+    {
+        this._resolution[1] = y
+        this._renderTarget = new RenderTarget(
+        {
+            colour: [],
+            depth: DepthType.INT24,
+            width: this._resolution[0],
+            height: y,
+        })
+    }
+
+    get Projection(): Matrix4
+    {
+        return this._projection
+    }
+    
+    get RenderTarget(): RenderTarget
+    {
+        return this._renderTarget
+    }
+
+    constructor(config: IShadowCascade)
+    {
+        this._dimensions = new Vector3(config.dimensions as Vector3Array)    
+        this._resolution = new Vector2(config.resolution as Vector2Array)
+        this._projection = Matrix4.OrthographicProjectionMatrix(
+            this._dimensions[0],
+            this._dimensions[1],
+            this._dimensions[2]
+        )
+    }
 }
 
 export class DirectionalLight extends Light
@@ -19,12 +122,14 @@ export class DirectionalLight extends Light
     readonly RenderTarget: RenderTarget = new RenderTarget(
     {
         colour: [],
-        depth: DepthType.FLOAT32,
+        depth: DepthType.INT24,
         height: 2**13,
         width: 2**13
     })
     static readonly DefaultDirection: Vector3 = new Vector3(0, -1, 0)
 
+    readonly ShadowCascades: [ShadowCascade, ShadowCascade, ShadowCascade]
+    
     #viewVolume: CubeGeometry = new CubeGeometry()
     #direction: Vector3
     #castShadows: Scalar
@@ -84,7 +189,7 @@ export class DirectionalLight extends Light
 
         this.#direction.Set(DirectionalLight.DefaultDirection)
         this.CastShadows = light.castShadows ?? true
-        this.Bias = light.bias ?? 0.001
+        this.Bias = light.bias ?? 0.025
         this.PCFLevel = light.pcfLevel ?? 2
         this.#shadowMatrix.Identity()
 
@@ -95,6 +200,23 @@ export class DirectionalLight extends Light
                 [Texel Size]    [Texel Count]   [Bias]          [PCFLevel]
             `
         }
+
+        this.ShadowCascades = (light.cascades ?? [
+            {
+                dimensions: [10, 10, 10],
+                resolution: [1024, 1024]
+            },
+            {
+                dimensions: [25, 25, 25],
+                resolution: [1024, 1024]
+            },
+            {
+                dimensions: [50, 50, 50],
+                resolution: [1024, 1024]
+            }
+        ]).map(config => new ShadowCascade(config)) as [ShadowCascade, ShadowCascade, ShadowCascade]
+
+        console.log(this)
     }
 
     override Bind(shader: Shader)
@@ -139,7 +261,7 @@ export class DirectionalLight extends Light
     { 
         this.RenderTarget.Bind()
         DirectionalLight.ShadowShader.Bind()
-        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix.Multiply(Matrix4.TranslationMatrix(offset[0], 0, offset[2]).Transpose()))
+        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix)
     }
 
     UnbindForShadows()
@@ -147,19 +269,24 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind()
     }
 
-    readonly ViewMatrix = Matrix4.OrthographicProjectionMatrix(55, 55, 55)
+    readonly ViewMatrix = Matrix4.OrthographicProjectionMatrix(10)
 
     get ModelMatrix(): Matrix4
     {
-        const rotationMatrix = Matrix3.Identity
-
         const transform = this.Owner?.GetComponent(Transform)
-        if (transform)
-        {
-            rotationMatrix.Multiply(Matrix3.RotationMatrix(transform.GlobalRotation()).Transpose())
-        }
+        const rotx = transform?.GlobalRotation().X ?? 0
+        const roty = transform?.GlobalRotation().Y ?? 0
+        const rotz = transform?.GlobalRotation().Z ?? 0
 
-        return new Matrix4(rotationMatrix)
+        return Matrix4.RotationMatrix(rotx + 90, roty, rotz).Transpose()
+        // const rot = Matrix4.RotationMatrix(rotx + 90, roty, rotz)
+        // const pos = Matrix4.TranslationMatrix(1, 0, 0)
+        // return Matrix4.Multiply(rot, pos).Inverse()
+        // return Matrix4.TransformationMatrix(
+        //     [0, 0, 0],
+        //     [rotx, roty, rotz],
+        //     [1, 1, 1]
+        // ).Inverse()
     }
     
     get ShadowMatrix(): Matrix4

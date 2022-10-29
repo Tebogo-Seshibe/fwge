@@ -274,19 +274,19 @@ export class RenderTarget
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
         GL.viewport(0, 0, this.Width, this.Height)
 
-        // let mask = 0
-        // if (this.ColourAttachments.length > 0)
-        // {
-        //     mask |= GL.COLOR_BUFFER_BIT
-        // }
-        // if (this.DepthAttachment)
-        // {
-        //     mask |= GL.DEPTH_BUFFER_BIT
-        // }
+        let mask = 0
+        if (this.ColourAttachments.length > 0)
+        {
+            mask |= GL.COLOR_BUFFER_BIT
+        }
+        if (this.DepthAttachment)
+        {
+            mask |= GL.DEPTH_BUFFER_BIT
+        }
 
         GL.clearColor(this.ClearColour[0], this.ClearColour[1], this.ClearColour[2], this.ClearColour[3])
-        // GL.clear(mask)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
+        GL.clear(mask)
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
     }
 }
 /**

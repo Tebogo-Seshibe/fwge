@@ -1,5 +1,5 @@
-import { Vector3, Vector3Array } from "@fwge/common"
-import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderMode, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
+import { Vector3Array } from "@fwge/common"
+import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { CubeCollider } from "@fwge/physics"
 import { FPSController } from "../entities"
@@ -44,7 +44,7 @@ export class PhysicsTest extends Scene
     override Init(): void
     {
         const scene = this
-        const cubeCollider = new CubeCollider({ })
+        const cubeCollider = new CubeCollider()
         const material = new BasicLitMaterial(
         {
             shininess: 255,
@@ -96,17 +96,10 @@ export class PhysicsTest extends Scene
             renderType: RenderType.OPAQUE,
             alpha: 1,
             receiveShadows: false,
-            projectShadows: false
+            projectShadows: true
         })
-        const cubeRenderer = new MeshRenderer(
-        {
-            asset: this.Game.GetAsset('Cube', Mesh)!,
-            renderMode: RenderMode.FACE
-        })
-        const sphereRender = new MeshRenderer(
-        {
-            asset: this.Game.GetAsset('OBJ Sphere', Mesh)!
-        })
+        const cubeRenderer = new MeshRenderer({ asset: this.Game.GetAsset('Cube', Mesh)! })
+        const sphereRender = new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! })
         const sphereRotator = new Script(
         {
             update()
@@ -114,35 +107,8 @@ export class PhysicsTest extends Scene
                 const entity = this as Entity
                 const transform = entity.GetComponent(Transform)!
                 let x = scene.x * ((transform.Id % 7) + 1) / 5
-                if (transform.Id % 2 === 0)
-                {
-                    transform.Position.X = Math.cos(x)
-                    transform.Position.Z = Math.sin(x)
-                }
-                else
-                {
-                    x = 360 - (x % 360)
-                    transform.Position.X = Math.cos(-x)
-                    transform.Position.Z = Math.sin(-x)
-                }
-            }
-        })
-        const jumpingCube = new Script(
-        {
-            update()
-            {
-                const entity = this as Entity
-                const transform = entity.GetComponent(Transform)!
-                let x = (scene.x + entity.Id % 11) * ((transform.Id % 7) + 1) / 5
-                if (transform.Id % 2 === 0)
-                {
-                    transform.Position.Y = Math.sin(x) + 2.0
-                }
-                else
-                {
-                    x = 360 - (x % 360)
-                    transform.Position.Y = Math.sin(-x) + 2.0
-                }
+                transform.Position.X = Math.cos(x)
+                transform.Position.Z = Math.sin(x)
             }
         })
 
@@ -161,31 +127,32 @@ export class PhysicsTest extends Scene
         for (const position of positions)
         {
             const cube = this.CreateEntity()
+                .AddComponent(new Transform({ position: position as Vector3Array }))
                 .AddComponent(cubeCollider)
                 .AddComponent(material)
-                .AddComponent(new Transform({ position: position as Vector3Array }))
                 .AddComponent(cubeRenderer)
-                .AddComponent(jumpingCube)
+                // .AddComponent(jumpingCube)
 
-            const light = this.CreateEntity()
-                .AddComponent(new Transform({ position: Vector3.Add(position as Vector3Array, [0, 1, 5]), scale: [0.5, 0.5, 0.5] }))
-                .AddComponent(sphereRotator)
+            const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }))
 
             if (i++ % 3 === 0)
             {
-                light.AddComponent(new PointLight({ 
-                    colour: [Math.random(), Math.random(), Math.random()],
-                    intensity: 1,
-                    radius: 2
-                }))
+                // light.AddComponent(new PointLight(
+                // { 
+                //     colour: [Math.random(), Math.random(), Math.random()],
+                //     intensity: 1,
+                //     radius: 2
+                // }))
+                // .GetComponent(Transform)!.Position.Y = 2
             }
             else
             {
-                light.AddComponent(sphereRender).AddComponent(simpleMaterial)
+                light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator)
             }
                 
             cube.AddChild(light)
         }
+
         this.CreateEntity()
             .AddComponent(new AreaLight(
             {
@@ -195,18 +162,8 @@ export class PhysicsTest extends Scene
             }))
 
         this.CreateEntity()
-            .AddComponent(new Transform({ rotation: [90, 0, 0] }))
-            .AddComponent(new DirectionalLight(
-            {
-                intensity: 0.15,
-            }))
-            .AddComponent(new Script({
-                update(delta) {
-                    const entity = this as Entity
-                    const transform = entity.GetComponent(Transform)!
-                    transform.Rotation.X += delta * 50
-                },
-            }))
+            .AddComponent(new Transform({ rotation: [30, 0, 10] }))
+            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02 }))
 
         super.Init()
     }

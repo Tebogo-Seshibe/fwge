@@ -153,13 +153,13 @@ export class Matrix3 extends Float32Array implements IEquatable<Matrix3>
     constructor()
     constructor(diag: number)
     constructor(m11: number, m12: number, m13: number, m21: number, m22: number, m23: number, m31: number, m32: number, m33: number)
-    constructor(matrix: Matrix3)
+    constructor(matrix: Matrix2)
     constructor(matrix: Matrix3)
     constructor(matrix: Matrix4)
     constructor(array: NumberArray)
     constructor(buffer: ArrayBuffer)
     constructor(buffer: ArrayBuffer, byteOffset: number)
-    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix3 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
+    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
     {
         if (_0 instanceof ArrayBuffer)
         {

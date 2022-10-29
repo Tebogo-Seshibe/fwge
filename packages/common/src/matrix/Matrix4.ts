@@ -1507,17 +1507,35 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         )
     }
     
+    static OrthographicProjectionMatrix(xyz: number): Matrix4
+    static OrthographicProjectionMatrix(xyz: number, out: Matrix4): Matrix4
     static OrthographicProjectionMatrix(width: number, height: number, depth: number): Matrix4
     static OrthographicProjectionMatrix(width: number, height: number, depth: number, out: Matrix4): Matrix4
-    static OrthographicProjectionMatrix(_0: number, _1: number, _2: number, _3?: Matrix4): Matrix4
+    static OrthographicProjectionMatrix(_0: number, _1?: number | Matrix4, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ?? new Matrix4()
+        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 : new Matrix4()
+        let height: number
+        let width: number
+        let depth: number
+
+        if (typeof _1 === 'number')
+        {
+            width = _0 as number
+            height = _1 as number
+            depth = _2 as number
+        }
+        else
+        {
+            width = _0
+            height = _0
+            depth = _0
+        }
 
         return out.Set(
-            2 / _0,      0,      0, 0,
-                 0, 2 / _1,      0, 0,
-                 0,      0, 2 / _2, 0,
-                 0,      0,      0, 1
+            2 / width,          0,          0, 0,
+                    0, 2 / height,          0, 0,
+                    0,          0,  2 / depth, 0,
+                    0,          0,          0, 1
         )
     }
 
