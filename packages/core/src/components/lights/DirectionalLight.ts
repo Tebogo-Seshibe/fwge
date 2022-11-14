@@ -1,5 +1,5 @@
 import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common"
-import { DepthType, RenderTarget, Shader } from "../../base"
+import { ColourType, DepthType, RenderTarget, Shader } from "../../base"
 import { Transform } from "../Transform"
 import { ILight, Light } from "./Light"
 
@@ -18,6 +18,9 @@ export interface IShadowCascade
 {
     dimensions: Vector3 | Vector3Array
     resolution: Vector2 | Vector2Array
+
+    near: number
+    far: number
 }
 
 export class ShadowCascade
@@ -27,10 +30,11 @@ export class ShadowCascade
     private _projection: Matrix4 = Matrix4.Identity
     private _renderTarget: RenderTarget = new RenderTarget(
     {
-        colour: [],
+        colour: [ ColourType.FLOAT_RGB ],
         depth: DepthType.INT24,
         height: 2**13,
-        width: 2**13
+        width: 2**13,
+        clear: [1,1,1,1]
     })
 
     get Width(): number
@@ -109,10 +113,19 @@ export class ShadowCascade
     {
         this._dimensions = new Vector3(config.dimensions as Vector3Array)    
         this._resolution = new Vector2(config.resolution as Vector2Array)
-        this._projection = Matrix4.OrthographicProjectionMatrix(
-            this._dimensions[0],
-            this._dimensions[1],
-            this._dimensions[2]
+        // this._projection = Matrix4.OrthographicProjectionMatrix(
+        //     this._dimensions[0],
+        //     this._dimensions[1],
+        //     this._dimensions[2]
+        // )
+
+        const x = this._dimensions.X / 2
+        const y = this._dimensions.Y / 2
+
+        this._projection = Matrix4.OrthographicProjection(
+            [-x, -y, config.near],
+            [x,  y, config.far],
+            [90, 90]
         )
     }
 }
@@ -204,15 +217,21 @@ export class DirectionalLight extends Light
         this.ShadowCascades = (light.cascades ?? [
             {
                 dimensions: [10, 10, 10],
-                resolution: [1024, 1024]
+                resolution: [1024, 1024],
+                near: 0,
+                far: 10
             },
             {
                 dimensions: [25, 25, 25],
-                resolution: [1024, 1024]
+                resolution: [1024, 1024],
+                near: 10,
+                far: 25
             },
             {
                 dimensions: [50, 50, 50],
-                resolution: [1024, 1024]
+                resolution: [1024, 1024],
+                near: 25,
+                far: 50
             }
         ]).map(config => new ShadowCascade(config)) as [ShadowCascade, ShadowCascade, ShadowCascade]
 
@@ -303,8 +322,10 @@ export class DirectionalLight extends Light
             (
                 `#version 300 es
                 #pragma vscode_glsllint_stage: vert
+                precision highp float;
 
                 layout(location = 0) in vec3 A_Position;
+                out vec4 cascade;
 
                 struct Matrix
                 {
@@ -316,15 +337,20 @@ export class DirectionalLight extends Light
                 
                 void main(void)
                 {
-                    gl_Position = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
+                    cascade = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
+                    gl_Position = vec4(0.0,0.0,0.0,1.0);
                 }`,
 
                 `#version 300 es
                 #pragma vscode_glsllint_stage: frag
+                precision highp float;
+
+                in vec4 cascade;
+                layout(location = 0) out vec3 O_FragDepth;
 
                 void main(void)
                 {
-                    
+                    O_FragDepth.r = ((cascade.z / cascade.w) + 1.0) * 0.5;
                 }`
             )
         }

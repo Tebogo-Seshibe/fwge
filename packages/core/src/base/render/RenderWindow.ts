@@ -1,4 +1,4 @@
-import { AtLeastOne, Vector2, Vector2Array } from "@fwge/common"
+import { Vector2, Vector2Array } from "@fwge/common"
 import { Camera, PerspectiveCamera, StaticMesh } from "../../components"
 import { Scene } from "../Scene"
 import { RenderPipelineMode } from "./RenderPipelineMode"
@@ -29,13 +29,13 @@ export class RenderWindow
     readonly Offset: Vector2
     readonly Scale: Vector2
 
-    private static panel: StaticMesh
+    private static _panel: StaticMesh
 
     get Panel(): StaticMesh
     {
-        if (!RenderWindow.panel)
+        if (!RenderWindow._panel)
         {
-            RenderWindow.panel  = new StaticMesh(
+            RenderWindow._panel  = new StaticMesh(
             {
                 position: [
                     [-1, 1, 0],
@@ -50,24 +50,26 @@ export class RenderWindow
             })
         }
 
-        return RenderWindow.panel
+        return RenderWindow._panel
     }
-
-
 
     Camera: Camera
 
     get FinalComposite(): RenderTarget
     {
-        if (this.RenderPipeline.length > 0)
+        if (this.RenderPipeline.any())
+        {
             return this.RenderPipeline.last.Output
-        else 
+        }
+        else
+        {
             return this.MainPass.Output
+        }
     }
 
     constructor(scene: Scene)
     constructor(scene: Scene, window: IRenderWindow)
-    constructor(scene: Scene, window: IRenderWindow = { })
+    constructor(_scene: Scene, window: IRenderWindow = { })
     {
         this.Camera = window.camera ?? new PerspectiveCamera() 
         this.Resolution = new Vector2(window.resolution ?? [1920, 1080])
@@ -93,9 +95,9 @@ export class RenderWindow
                         output: new RenderTarget(
                         { 
                             colour: [
-                                ColourType.FLOAT_RGB, // Position
-                                ColourType.FLOAT_RGB, // Normal
-                                ColourType.BYTE_RGBA, // Colour [Albedo.R, Albedo.G, Albedo.B, Specular]
+                                ColourType.FLOAT_RGB, // [Position.X, Position.Y, Position.Z]
+                                ColourType.FLOAT_RGB, // [Normal.X, Normal.Y, Normal.Z]
+                                ColourType.BYTE_RGBA, // [Colour.R, Colour.G, Colour.B, Specular]
                             ],
                             depth: DepthType.FLOAT32,
                             height: this.Resolution[1] * this.Scale[1],
@@ -112,7 +114,7 @@ export class RenderWindow
                         output: new RenderTarget(
                         { 
                             colour: [
-                                ColourType.BYTE_RGBA, // Colour
+                                ColourType.BYTE_RGBA, // [Colour.R, Colour.G, Colour.B, Colour.A]
                             ],
                             depth: DepthType.FLOAT32,
                             height: this.Resolution.Y * this.Scale.Y,

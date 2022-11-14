@@ -17,12 +17,15 @@
     "directory": "packages/common"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
-    "jest": "^28.1.0",
-    "ts-jest": "^28.0.3",
+    "@types/jsdom": "^20.0.1",
+    "jest-environment-jsdom": "^29.3.1",
+    "jsdom": "^20.0.2",
+    "ts-jest": "^28.0.8",
     "typescript": "^4.7.2"
   }
 }

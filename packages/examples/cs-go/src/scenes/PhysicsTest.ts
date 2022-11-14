@@ -113,8 +113,8 @@ export class PhysicsTest extends Scene
         })
 
         const positions = []
-        const min = -24
-        const max = 24
+        const min = -5
+        const max = 5
         for (let x = min; x <= max; x+=2)
         {
             for (let z = min; z <= max; z+=2)
@@ -137,13 +137,13 @@ export class PhysicsTest extends Scene
 
             if (i++ % 3 === 0)
             {
-                // light.AddComponent(new PointLight(
-                // { 
-                //     colour: [Math.random(), Math.random(), Math.random()],
-                //     intensity: 1,
-                //     radius: 2
-                // }))
-                // .GetComponent(Transform)!.Position.Y = 2
+                light.AddComponent(new PointLight(
+                { 
+                    colour: [Math.random(), Math.random(), Math.random()],
+                    intensity: 1,
+                    radius: 2
+                }))
+                .GetComponent(Transform)!.Position.Y = 2
             }
             else
             {
@@ -163,7 +163,7 @@ export class PhysicsTest extends Scene
 
         this.CreateEntity()
             .AddComponent(new Transform({ rotation: [30, 0, 10] }))
-            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02 }))
+            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3 }))
 
         super.Init()
     }

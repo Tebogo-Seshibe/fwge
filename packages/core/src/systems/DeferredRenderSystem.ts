@@ -5,6 +5,12 @@ import { getComponent, getComponentById, System, view } from "../ecs"
 
 export class DeferredRenderSystem extends System
 {
+    static BlockIndex = new Map<string, any>()
+    static BindingPoint = new Map<string, number>()
+
+    _globalBufferData: Float32Array = new Float32Array(16 * 4)
+    _globalBuffer!: WebGLBuffer
+
     _prepassShader!: Shader
     _lightPassShader!: Shader
     _batch!: Map<number, Map<number, Set<number>>>
@@ -68,42 +74,6 @@ export class DeferredRenderSystem extends System
             this.shdaowpassRender()
         }
 
-        // for (const step of window.RenderPipeline)
-        // {
-        //     step.Output.Bind()
-        //     step.Shader!.Bind()
-
-        //     for (const inputName of step.Input)
-        //     {
-        //         if (!window.RenderPipelineMap.has(inputName))
-        //         {
-        //             continue
-        //         }
-
-        //         const inputIndex = window.RenderPipelineMap.get(inputName)!
-        //         const input = inputIndex === -1
-        //             ? window.MainPass
-        //             : window.RenderPipeline[inputIndex]
-
-        //         for (let outputIndex = 0; outputIndex < input.Output.ColourAttachments.length; ++outputIndex)
-        //         {
-        //             step.Shader!.SetTexture(`U_${inputName}_Colour[${outputIndex}]`, input.Output.ColourAttachments[outputIndex]!)
-        //         }
-        //         step.Shader!.SetTexture(`U_${inputName}_Depth`, input.Output.DepthAttachment!)
-        //     }
-
-        //     step.Shader!.SetFloat('U_Width', step.Output.Width)
-        //     step.Shader!.SetFloat('U_Height', step.Output.Height)
-
-        //     GL.bindVertexArray(window.Panel.VertexArrayBuffer)
-        //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
-        //     GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
-        //     GL.bindVertexArray(null)
-
-        //     step.Shader!.UnBind()
-        //     step.Output.UnBind()
-        // }
-
         GL.bindFramebuffer(GL.FRAMEBUFFER, null)
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
         GL.clearColor(0, 0, 0, 0)
@@ -121,16 +91,16 @@ export class DeferredRenderSystem extends System
             this._lightPassShader.SetTexture(`U_Normal`,            window.FinalComposite.ColourAttachments[1])
             this._lightPassShader.SetTexture(`U_ColourSpecular`,    window.FinalComposite.ColourAttachments[2])
             this._lightPassShader.SetTexture(`U_Depth`,             window.FinalComposite.DepthAttachment!)
-            this._lightPassShader.SetTexture(`U_Other[0]`,          dir.ShadowCascades[0].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetTexture(`U_Other[0]`,          dir.ShadowCascades[0].RenderTarget.ColourAttachments.first!)
             this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`,     Matrix4.Multiply(dir.ShadowCascades[0].Projection!, dir.ModelMatrix))
-            this._lightPassShader.SetTexture(`U_Other[1]`,          dir.ShadowCascades[1].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetTexture(`U_Other[1]`,          dir.ShadowCascades[1].RenderTarget.ColourAttachments.first!)
             this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`,     Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix))
-            this._lightPassShader.SetTexture(`U_Other[2]`,          dir.ShadowCascades[2].RenderTarget.DepthAttachment!)
+            this._lightPassShader.SetTexture(`U_Other[2]`,          dir.ShadowCascades[2].RenderTarget.ColourAttachments.first!)
             this._lightPassShader.SetMatrix(`U_OtherMatrix[2]`,     Matrix4.Multiply(dir.ShadowCascades[2].Projection!, dir.ModelMatrix))
             this._lightPassShader.SetFloatVector('U_PanelOffset',   window.Offset)
             this._lightPassShader.SetFloatVector('U_PanelScale',    window.Scale)
 
-            this.bindLights()
+            // this.bindLights()
 
             GL.bindVertexArray(window.Panel.VertexArrayBuffer)
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
@@ -409,6 +379,9 @@ layout(location = 1) in vec3 A_Normal;
 layout(location = 2) in vec2 A_UV;
 layout(location = 3) in vec3 A_Colour;
 
+layout (std140) uniform;
+precision highp float;
+
 struct Vertex
 {
     vec3 Position;
@@ -426,6 +399,14 @@ struct Matrix
     mat4 Projection;
 };
 uniform Matrix U_Matrix;
+
+// uniform Globals
+// {
+//     mat4 ProjectionMatrix;
+//     mat4 ViewMatrix;
+//     mat4 ModelViewMatrix;
+//     mat3 NormalMatrix;
+// };
 
 void main(void)
 {
@@ -666,6 +647,6 @@ void main(void)
     }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
-    // O_FragColour = vec4(vec3(texture(U_Other[2], V_UV).r), 1.0);
+    // O_FragColour = vec4(vec3(texture(U_Other[0], V_UV).r), 1.0);
 }
 `

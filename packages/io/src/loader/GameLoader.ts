@@ -2,7 +2,6 @@ import { AreaLight, Camera, Class, Component, DirectionalLight, Entity, Game, Ma
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { ParticleSpawner } from "@fwge/render"
-import exampleScene from './example.scene'
 import { ILoader } from "./ILoader"
 
 interface SceneConfig
@@ -90,7 +89,7 @@ TypeMappers.set('Material', Material)
 
 export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
 {    
-    const newGame: GameConfig = JSON.parse(exampleScene)
+    const newGame: GameConfig = JSON.parse(src)
     const components: Component[] = []
     const entities: Prefab<any>[] = []
     const systems: System[] = []

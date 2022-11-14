@@ -124,18 +124,18 @@ export class Game
     Start(delay: IDelay): void
     Start(delay: IDelay = { }): void
     {
-        window.setTimeout(() => this.#start(), CalcuateDelay(delay))
+        window.setTimeout(() => this._start(), CalcuateDelay(delay))
     }
     
     Stop(): void
     Stop(delay: IDelay): void
     Stop(delay: IDelay = { }): void
     {
-        window.setTimeout(() => this.#stop(), CalcuateDelay(delay))
+        window.setTimeout(() => this._stop(), CalcuateDelay(delay))
     }
 
     //#region Private Methods
-    #start()
+    private _start()
     {
         if (this.#running)
         {
@@ -144,27 +144,27 @@ export class Game
 
         if (!this.#activeScene)
         {
-            this.#tickId = window.setTimeout(() => this.#start())
+            this.#tickId = window.setTimeout(() => this._start())
         }
 
         this.#prevTick = Date.now()
         this.#currTick = Date.now()
         this.#activeScene!.Start()
 
-        this.#tickId = window.requestAnimationFrame(() => this.#update(0))
+        this.#tickId = window.requestAnimationFrame(() => this._update(0))
     }
     
-    #update(delta: number): void
+    private _update(delta: number): void
     {
         this.#activeScene!.Update(delta)
         
         this.#prevTick = this.#currTick
         this.#currTick = Date.now()
         
-        this.#tickId = window.requestAnimationFrame(() => this.#update((this.#currTick - this.#prevTick) / 1000))
+        this.#tickId = window.requestAnimationFrame(() => this._update((this.#currTick - this.#prevTick) / 1000))
     }
     
-    #stop()
+    private _stop()
     {
         this.#running = false
 

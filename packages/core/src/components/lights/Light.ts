@@ -16,17 +16,17 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
 
     readonly LightBuffer = GL.createBuffer()!
 
-    #intensity: Scalar
+    private _intensity: Scalar
     readonly Colour: Colour3
     
     get Intensity(): number
     {
-        return this.#intensity.Value
+        return this._intensity.Value
     }
 
     set Intensity(intensity: number)
     {
-        this.#intensity.Value = intensity
+        this._intensity.Value = intensity
     }
 
     constructor(
@@ -37,10 +37,10 @@ export class Light extends UniqueComponent implements IBindable<Float32Array>
         super(Light)
 
         this.Colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this.#intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        this._intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
 
         this.Colour.Set(colour as Colour3Array)
-        this.#intensity.Set(intensity)
+        this._intensity.Set(intensity)
     }
 
     Bind(shader: Shader, ..._args: any[]): void

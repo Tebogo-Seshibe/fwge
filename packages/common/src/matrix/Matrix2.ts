@@ -92,10 +92,10 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     constructor(matrix: Matrix2)
     constructor(matrix: Matrix3)
     constructor(matrix: Matrix4)
-    constructor(array: NumberArray)
+    constructor(array: Matrix2Array)
     constructor(buffer: ArrayBuffer)
     constructor(buffer: ArrayBuffer, byteOffset: number)
-    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number)
+    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | Matrix2Array | number = 0, _1?: number, _2?: number, _3?: number)
     {
         if (_0 instanceof ArrayBuffer)
         {
@@ -126,8 +126,8 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     //#region Local Methods
     Set(m11: number, m12: number, m21: number, m22: number): Matrix2
     Set(matrix: Matrix2): Matrix2
-    Set(array: NumberArray): Matrix2
-    Set(_0: Matrix2 | NumberArray | number, _1?: number, _2?: number, _3?: number): Matrix2
+    Set(array: Matrix2Array): Matrix2
+    Set(_0: Matrix2 | Matrix2Array | number, _1?: number, _2?: number, _3?: number): Matrix2
     {
         if (typeof _0 === 'number')
         {
@@ -149,8 +149,8 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
 
     Add(m11: number, m12: number, m21: number, m22: number): Matrix2
     Add(matrix: Matrix2): Matrix2
-    Add(array: NumberArray): Matrix2
-    Add(_0: Matrix2 | NumberArray | number, _1?: number, _2?: number, _3?: number): Matrix2
+    Add(array: Matrix2Array): Matrix2
+    Add(_0: Matrix2 | Matrix2Array | number, _1?: number, _2?: number, _3?: number): Matrix2
     {
         if (typeof _0 === 'number')
         {
@@ -169,11 +169,34 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
 
         return this
     }
+
+    Subtract(m11: number, m12: number, m21: number, m22: number): Matrix2
+    Subtract(matrix: Matrix2): Matrix2
+    Subtract(array: Matrix2Array): Matrix2
+    Subtract(_0: Matrix2 | Matrix2Array | number, _1?: number, _2?: number, _3?: number): Matrix2
+    {
+        if (typeof _0 === 'number')
+        {
+            this[0] -= _0 as number
+            this[1] -= _1 as number
+            this[2] -= _2 as number
+            this[3] -= _3 as number
+        }
+        else
+        {
+            this[0] -= _0[0]
+            this[1] -= _0[1]
+            this[2] -= _0[2]
+            this[3] -= _0[3]
+        }
+
+        return this
+    }
     
     Multiply(matrix: Matrix2): Matrix2
     Multiply(m11: number, m12: number, m21: number, m22: number): Matrix2
-    Multiply(array: [number, number, number, number]): Matrix2
-    Multiply(_0: Matrix2 | number[] | number, _1?: number, _2?: number, _3?: number): Matrix2
+    Multiply(array: Matrix2Array): Matrix2
+    Multiply(_0: Matrix2 | Matrix2Array | number, _1?: number, _2?: number, _3?: number): Matrix2
     {
         if (typeof _0 === 'number')
         {
@@ -238,6 +261,7 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         return this
     
     }
+
     Identity(): Matrix2
     {
         this[0] = 1
@@ -281,9 +305,9 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     static Add(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number, out: Matrix2): Matrix2
     static Add(matrix1: Matrix2, matrix2: Matrix2): Matrix2
     static Add(matrix1: Matrix2, matrix2: Matrix2, out: Matrix2): Matrix2
-    static Add(array1: NumberArray, array2: NumberArray): Matrix2
-    static Add(array1: NumberArray, array2: NumberArray, out: Matrix2): Matrix2
-    static Add(_0: Matrix2 | NumberArray | number, _1:  Matrix2 | NumberArray | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
+    static Add(array1: Matrix2Array, array2: Matrix2Array): Matrix2
+    static Add(array1: Matrix2Array, array2: Matrix2Array, out: Matrix2): Matrix2
+    static Add(_0: Matrix2 | Matrix2Array | number, _1:  Matrix2 | Matrix2Array | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
     {
         const out = _8 ?? _2 instanceof Matrix2 ? _2 as Matrix2: new Matrix2()
 
@@ -309,9 +333,9 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     static Multiply(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number, out: Matrix2): Matrix2
     static Multiply(matrix1: Matrix2, matrix2: Matrix2): Matrix2
     static Multiply(matrix1: Matrix2, matrix2: Matrix2, out: Matrix2): Matrix2
-    static Multiply(array1: NumberArray, array2: NumberArray): Matrix2
-    static Multiply(array1: NumberArray, array2: NumberArray, out: Matrix2): Matrix2
-    static Multiply(_0: Matrix2 | NumberArray | number, _1:  Matrix2 | NumberArray | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
+    static Multiply(array1: Matrix2Array, array2: Matrix2Array): Matrix2
+    static Multiply(array1: Matrix2Array, array2: Matrix2Array, out: Matrix2): Matrix2
+    static Multiply(_0: Matrix2 | Matrix2Array | number, _1:  Matrix2 | Matrix2Array | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
     {
         const out = _8 ?? _2 instanceof Matrix2 ? _2 as Matrix2: new Matrix2()
 
