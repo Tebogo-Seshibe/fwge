@@ -1,7 +1,7 @@
-import { FixedLengthArray, NumberArray } from '../types'
+import { FixedLengthArray } from '../types'
 import { radian } from '../utils'
 import { IEquatable } from '../utils/interfaces/IEquatable'
-import { Vector2 } from '../vector'
+import { Vector2, Vector2Array } from '../vector'
 import { Matrix3 } from './Matrix3'
 import { Matrix4 } from './Matrix4'
 
@@ -309,14 +309,14 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     static Add(array1: Matrix2Array, array2: Matrix2Array, out: Matrix2): Matrix2
     static Add(_0: Matrix2 | Matrix2Array | number, _1:  Matrix2 | Matrix2Array | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
     {
-        const out = _8 ?? _2 instanceof Matrix2 ? _2 as Matrix2: new Matrix2()
+        const out = _8 instanceof Matrix2 ? _8 : _2 instanceof Matrix2 ? _2 as Matrix2 : new Matrix2()
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
             out[0] = (_0 as number) + (_4 as number)
             out[1] = (_1 as number) + (_5 as number)
             out[2] = (_2 as number) + (_6 as number)
-            out[2] = (_3 as number) + (_7 as number)
+            out[3] = (_3 as number) + (_7 as number)
         }
         else
         {
@@ -329,6 +329,34 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         return out
     }
     
+    static Subtract(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number): Matrix2
+    static Subtract(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number, out: Matrix2): Matrix2
+    static Subtract(matrix1: Matrix2, matrix2: Matrix2): Matrix2
+    static Subtract(matrix1: Matrix2, matrix2: Matrix2, out: Matrix2): Matrix2
+    static Subtract(array1: Matrix2Array, array2: Matrix2Array): Matrix2
+    static Subtract(array1: Matrix2Array, array2: Matrix2Array, out: Matrix2): Matrix2
+    static Subtract(_0: Matrix2 | Matrix2Array | number, _1:  Matrix2 | Matrix2Array | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
+    {
+        const out = _8 instanceof Matrix2 ? _8 : _2 instanceof Matrix2 ? _2 as Matrix2 : new Matrix2()
+
+        if (typeof _0 === 'number' || typeof _1 === 'number')
+        {
+            out[0] = (_0 as number) - (_4 as number)
+            out[1] = (_1 as number) - (_5 as number)
+            out[2] = (_2 as number) - (_6 as number)
+            out[3] = (_3 as number) - (_7 as number)
+        }
+        else
+        {
+            out[0] = _0[0] - _1[0]
+            out[1] = _0[1] - _1[1]
+            out[2] = _0[2] - _1[2]
+            out[3] = _0[3] - _1[3]
+        }
+
+        return out
+    }
+
     static Multiply(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number): Matrix2
     static Multiply(m1_11: number, m1_12: number, m1_21: number, m1_22: number, m2_11: number, m2_12: number, m2_21: number, m2_22: number, out: Matrix2): Matrix2
     static Multiply(matrix1: Matrix2, matrix2: Matrix2): Matrix2
@@ -337,7 +365,7 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     static Multiply(array1: Matrix2Array, array2: Matrix2Array, out: Matrix2): Matrix2
     static Multiply(_0: Matrix2 | Matrix2Array | number, _1:  Matrix2 | Matrix2Array | number, _2?: Matrix2 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix2): Matrix2
     {
-        const out = _8 ?? _2 instanceof Matrix2 ? _2 as Matrix2: new Matrix2()
+        const out = _8 instanceof Matrix2 ? _8 : _2 instanceof Matrix2 ? _2 as Matrix2 : new Matrix2()
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -365,10 +393,10 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
     {
         const out = _2 ?? new Matrix2()
 
-        out[0] *= _1
-        out[1] *= _1
-        out[2] *= _1
-        out[3] *= _1
+        out[0] = _0[0] * _1
+        out[1] = _0[1] * _1
+        out[2] = _0[2] * _1
+        out[3] = _0[3] * _1
 
         return out
     }
@@ -403,16 +431,32 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         return out
     }
     
+    static MultiplyVector(matrix: Matrix2, x: number, y: number): Vector2
+    static MultiplyVector(matrix: Matrix2, x: number, y: number, out: Vector2): Vector2
     static MultiplyVector(matrix: Matrix2, vector: Vector2): Vector2
     static MultiplyVector(matrix: Matrix2, vector: Vector2, out: Vector2): Vector2
-    static MultiplyVector(_0: Matrix2, _1: Vector2, _2?: Vector2): Vector2
+    static MultiplyVector(matrix: Matrix2, vector: Vector2Array): Vector2
+    static MultiplyVector(matrix: Matrix2, vector: Vector2Array, out: Vector2): Vector2
+    static MultiplyVector(_0: Matrix2, _1: Vector2 | Vector2Array | number, _2?: Vector2 | number, _3?: Vector2): Vector2
     {
-        const out = _2 ?? new Vector2()
+        const out = _3 instanceof Vector2 ? _3 : _2 instanceof Vector2 ? _2 as Vector2 : new Vector2()
 
-        return out.Set(
-            _0[0] * _1[0] + _0[1] * _1[1],
-            _0[2] * _1[0] + _0[3] * _1[1]
-        )
+        if (typeof _1 === 'number' || typeof _2 === 'number')
+        {
+            out.Set(
+                _0[0] * (_1 as number) + _0[1] * (_2 as number),
+                _0[2] * (_1 as number) + _0[3] * (_2 as number)
+            )
+        }
+        else
+        {
+            out.Set(
+                _0[0] * _1[0] + _0[1] * _1[1],
+                _0[2] * _1[0] + _0[3] * _1[1]
+            )
+        }
+
+        return out
     }
 
     static RotationMatrix(degrees: number): Matrix2

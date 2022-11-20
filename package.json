@@ -19,6 +19,7 @@
     "scripts": {
         "publish": "node ./script/publish-packages",
         "test": "npm test -ws",
+        "coverage": "npm test --coverage --workspace=common --workspace=core --workspace=render --workspace=audio --workspace=input --workspace=physics --workspace=animation --workspace=ui --workspace=io --workspace=cli",
         "build": "tsc --build tsconfig.json --watch",
         "editor": "cd packages/editor && npm i && npm start",
         "lib:clean": "node ./scripts/clean-packages",
