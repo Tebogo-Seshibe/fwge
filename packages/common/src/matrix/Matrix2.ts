@@ -243,7 +243,7 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         if (det !== 0)
         {
             this.Set(
-                 this[3] / det, -this[1] / det,
+                this[3] / det,   -this[1] / det,
                 -this[2] / det,  this[0] / det
             )
         }
@@ -470,7 +470,7 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         const sinTheta = Math.sin(theta)
         
         return out.Set(
-             cosTheta, sinTheta,
+            cosTheta,  sinTheta,
             -sinTheta, cosTheta
         )
     }
@@ -482,8 +482,8 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
         const out = _1 ?? new Matrix2()
         
         return out.Set(
-             _0,  0,
-              0, _0
+            _0, 0,
+            0,  _0
         )
     }
     //#endregion

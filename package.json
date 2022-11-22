@@ -18,8 +18,7 @@
     },
     "scripts": {
         "publish": "node ./script/publish-packages",
-        "test": "npm test -ws",
-        "coverage": "npm test --coverage --workspace=common --workspace=core --workspace=render --workspace=audio --workspace=input --workspace=physics --workspace=animation --workspace=ui --workspace=io --workspace=cli",
+        "test": "npm test --workspace=packages/fwge --workspace=packages/core --workspace=packages/render --workspace=packages/audio --workspace=packages/input --workspace=packages/physics --workspace=packages/animation --workspace=packages/ui --workspace=packages/io --workspace=packages/cli",
         "build": "tsc --build tsconfig.json --watch",
         "editor": "cd packages/editor && npm i && npm start",
         "lib:clean": "node ./scripts/clean-packages",
