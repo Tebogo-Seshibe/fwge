@@ -18,7 +18,7 @@
     },
     "scripts": {
         "publish": "node ./script/publish-packages",
-        "test": "npm test --workspace=packages/fwge --workspace=packages/core --workspace=packages/render --workspace=packages/audio --workspace=packages/input --workspace=packages/physics --workspace=packages/animation --workspace=packages/ui --workspace=packages/io --workspace=packages/cli",
+        "test": "npm test -ws",
         "build": "tsc --build tsconfig.json --watch",
         "editor": "cd packages/editor && npm i && npm start",
         "lib:clean": "node ./scripts/clean-packages",

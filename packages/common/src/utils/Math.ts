@@ -373,8 +373,3 @@ export function permutation(from: number, permute: number): number
 
     return factorial(from) / factorial(from - permute)
 }
-
-
-Math.cos(4)
-
-parseInt('5', 10)

@@ -67,8 +67,8 @@ describe('Matrix2', () =>
 
         it('Should assign component-wise when an array buffer is passed', () =>
         {
-            const buffer = new Float32Array([1,2,3,4,5,6])
-            const matrix = new Matrix2(buffer.buffer)
+            const data = new Float32Array([1,2,3,4,5,6])
+            const matrix = new Matrix2(data.buffer)
             expect(matrix[0]).toBe(1)
             expect(matrix[1]).toBe(2)
             expect(matrix[2]).toBe(3)
@@ -77,8 +77,8 @@ describe('Matrix2', () =>
 
         it('Should assign component-wise when an array buffer is passed with an offset', () =>
         {
-            const buffer = new Float32Array([1,2,3,4,5,6])
-            const matrix = new Matrix2(buffer.buffer, Float32Array.BYTES_PER_ELEMENT)
+            const data = new Float32Array([1,2,3,4,5,6])
+            const matrix = new Matrix2(data.buffer, Float32Array.BYTES_PER_ELEMENT)
             expect(matrix[0]).toBe(2)
             expect(matrix[1]).toBe(3)
             expect(matrix[2]).toBe(4)
@@ -167,6 +167,7 @@ describe('Matrix2', () =>
             {
                 const matrix = new Matrix2(1, 2, 3, 4)
                 const column = matrix.Column1
+                expect(column).toBeInstanceOf(Vector2)
                 expect(column[0]).toBe(1)
                 expect(column[1]).toBe(3)
             })
@@ -178,6 +179,7 @@ describe('Matrix2', () =>
             {
                 const matrix = new Matrix2(1, 2, 3, 4)
                 const column = matrix.Column2
+                expect(column).toBeInstanceOf(Vector2)
                 expect(column[0]).toBe(2)
                 expect(column[1]).toBe(4)
             })
@@ -189,6 +191,7 @@ describe('Matrix2', () =>
             {
                 const matrix = new Matrix2(1, 2, 3, 4)
                 const row = matrix.Row1
+                expect(row).toBeInstanceOf(Vector2)
                 expect(row[0]).toBe(1)
                 expect(row[1]).toBe(2)
             })
@@ -200,6 +203,7 @@ describe('Matrix2', () =>
             {
                 const matrix = new Matrix2(1, 2, 3, 4)
                 const row = matrix.Row2
+                expect(row).toBeInstanceOf(Vector2)
                 expect(row[0]).toBe(3)
                 expect(row[1]).toBe(4)
             })
@@ -211,6 +215,7 @@ describe('Matrix2', () =>
             {
                 const matrix = new Matrix2(1, 2, 3, 4)
                 const diag = matrix.Diagonal
+                expect(diag).toBeInstanceOf(Vector2)
                 expect(diag[0]).toBe(1)
                 expect(diag[1]).toBe(4)
             })

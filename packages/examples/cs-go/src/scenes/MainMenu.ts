@@ -8,6 +8,9 @@ export class MainMenu extends Scene
     constructor(game: Game)
     {
         super(game, {
+            windows: [
+                
+            ],
             entities: [
                 FullScreen
             ],

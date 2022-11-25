@@ -36,53 +36,21 @@ export class Colour4 extends Float32Array
         this[2] = blue
     }
 
+    get A()
+    {
+        return this[3]
+    }
+
     set A(alpha: number)
     {
         this[3] = alpha
     }
-    //#endregion
-
+    
     get RGB(): Colour3
     {
         return new Colour3(this[0], this[1], this[2])
     }
-
-    get BIN(): string
-    {
-        let str = 'b'
-        this.forEach(i => str += Math.round(i * 255).toString(2))
-
-        return str
-    }
-
-    get OCT(): string
-    {
-        let str = 'o'
-        this.forEach(i => str += Math.round(i * 255).toString(8))
-
-        return str
-    }
-
-    get DEC(): string
-    {
-        let str = ''
-        this.forEach(i => str += Math.round(i * 255).toString(10) + ',')
-
-        return str.substring(0, str.length - 1)
-    }
-
-    get HEX(): string
-    {
-        let str = '#' 
-        this.forEach(i => str += Math.round(i * 255).toString(16))
-
-        return str
-    }
-
-    get HSV(): string
-    {
-        return 'TODO'
-    }
+    //#endregion
     
     constructor()
     constructor(rgba: number)
@@ -101,6 +69,10 @@ export class Colour4 extends Float32Array
         else if (typeof _0 === 'number')
         {
             super([_0, _1 ?? _0, _2 ?? _0, _3 ?? _0])
+        }
+        else if (_0 instanceof Colour3)
+        {
+            super([_0[0], _0[1], _0[2], _1 as number])
         }
         else
         {

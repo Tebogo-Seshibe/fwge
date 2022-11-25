@@ -5,6 +5,6 @@ export class MeshRenderer extends Renderer<Mesh>
 {
     constructor(renderer: IRenderer<Mesh>)
     {
-        super(renderer.asset, renderer.renderMode ?? RenderMode.FACE)
+        super(renderer.asset, renderer.renderMode ?? RenderMode.FACE, renderer.instances)
     }
 }

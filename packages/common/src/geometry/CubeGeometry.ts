@@ -1,7 +1,7 @@
-import { Vector3 } from "../vector"
-import { Polygon3D } from "./Polygon3D"
+import { Vector3 } from "../vector";
+import { Geometry3D } from "./Geometry3D";
 
-export class CubeGeometry extends Polygon3D
+export class CubeGeometry extends Geometry3D
 {
     constructor()
     {

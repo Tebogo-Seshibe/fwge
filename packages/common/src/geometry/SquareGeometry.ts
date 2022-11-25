@@ -1,7 +1,7 @@
-import { Vector2 } from "../vector"
-import { Polygon2D } from "./Polygon2D"
+import { Vector2 } from "../vector";
+import { Geometry2D } from "./Geometry2D";
 
-export class SquareGeometry extends Polygon2D
+export class SquareGeometry extends Geometry2D
 {
     constructor()
     {
