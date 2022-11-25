@@ -83,7 +83,6 @@ export class Colour4 extends Float32Array
     //#region Instance Methods
     Set(rgba: number): Colour4
     Set(r: number, g: number, b: number, a: number): Colour4
-    Set(rgb: Colour3, a: number): Colour4
     Set(array: Colour4Array): Colour4
     Set(colour: Colour4): Colour4
     Set(_0: Colour4 | Colour3 | Colour4Array | number, _1?: number, _2?: number, _3?: number): Colour4
@@ -100,7 +99,7 @@ export class Colour4 extends Float32Array
             this[0] = _0[0]
             this[1] = _0[1]
             this[2] = _0[2]
-            this[3] = _0[3] ?? _1
+            this[3] = _0[3]
         }
         
         return this

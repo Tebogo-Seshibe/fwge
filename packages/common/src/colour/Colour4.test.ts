@@ -161,6 +161,16 @@ describe('Colour4', () =>
     {
         describe('Set', () => 
         {        
+            it('Should set all components when all an argument is passed', () =>
+            {
+                const colour = new Colour4(0.1, 0.2, 0.3, 0.4)
+                colour.Set(0.7)
+                expect(colour[0]).toBeCloseTo(0.7)
+                expect(colour[1]).toBeCloseTo(0.7)
+                expect(colour[2]).toBeCloseTo(0.7)
+                expect(colour[3]).toBeCloseTo(0.7)
+            })
+
             it('Should set all components when all arguments are passed', () =>
             {
                 const colour = new Colour4(0.1, 0.2, 0.3, 0.4)
