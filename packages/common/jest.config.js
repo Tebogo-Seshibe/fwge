@@ -2,5 +2,5 @@
 module.exports = {
   preset: 'ts-jest',
   rootDir: '.',
-  testPathIgnorePatterns: ['lib', 'node_modules']
+  testPathIgnorePatterns: ['lib', 'node_modules'],
 };

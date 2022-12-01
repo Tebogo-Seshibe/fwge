@@ -1775,71 +1775,71 @@ describe('Matrix3', () =>
             });
         });
 
-        describe('RotationMatrix', () => 
-        {
-            const theta = radian(60)
-            const cosTheta = Math.cos(theta)
-            const sinTheta = Math.sin(theta)
+        // describe('RotationMatrix', () => 
+        // {
+        //     const theta = radian(60)
+        //     const cosTheta = Math.cos(theta)
+        //     const sinTheta = Math.sin(theta)
 
-            it('Should create a new rotation matrix', () =>
-            {
-                const matrix = Matrix3.RotationMatrix(60)
-                const vector = Matrix3.MultiplyVector(matrix, 0, 0, 1)
-                expect(matrix[0]).toBeCloseTo( cosTheta)
-                expect(matrix[1]).toBeCloseTo( sinTheta)
-                expect(matrix[2]).toBeCloseTo(-sinTheta)
-                expect(matrix[3]).toBeCloseTo( cosTheta)
-            })
+        //     it('Should create a new rotation matrix', () =>
+        //     {
+        //         const matrix = Matrix3.RotationMatrix(60)
+        //         const vector = Matrix3.MultiplyVector(matrix, 0, 0, 1)
+        //         expect(matrix[0]).toBeCloseTo( cosTheta)
+        //         expect(matrix[1]).toBeCloseTo( sinTheta)
+        //         expect(matrix[2]).toBeCloseTo(-sinTheta)
+        //         expect(matrix[3]).toBeCloseTo( cosTheta)
+        //     })
 
-            it('Should set a given matrix as a rotation matrix', () =>
-            {
-                const matrix = new Matrix3(
-                    1, 2, 3,
-                    4, 5, 6,
-                    7, 8, 9
-                )
-                Matrix3.RotationMatrix(60, matrix)
-                expect(matrix[0]).toBeCloseTo( cosTheta)
-                expect(matrix[1]).toBeCloseTo( sinTheta)
-                expect(matrix[2]).toBeCloseTo(-sinTheta)
-                expect(matrix[3]).toBeCloseTo( cosTheta)
-            })
-        })
+        //     it('Should set a given matrix as a rotation matrix', () =>
+        //     {
+        //         const matrix = new Matrix3(
+        //             1, 2, 3,
+        //             4, 5, 6,
+        //             7, 8, 9
+        //         )
+        //         Matrix3.RotationMatrix(60, matrix)
+        //         expect(matrix[0]).toBeCloseTo( cosTheta)
+        //         expect(matrix[1]).toBeCloseTo( sinTheta)
+        //         expect(matrix[2]).toBeCloseTo(-sinTheta)
+        //         expect(matrix[3]).toBeCloseTo( cosTheta)
+        //     })
+        // })
 
-        describe('ScaleMatrix', () => 
-        {
-            it('Should create a new rotation matrix', () =>
-            {
-                const matrix = Matrix3.ScaleMatrix(45, 45, 45);
-                expect(matrix[0]).toBe(45);
-                expect(matrix[1]).toBe(0);
-                expect(matrix[2]).toBe(0);
-                expect(matrix[3]).toBe(0);
-                expect(matrix[4]).toBe(45);
-                expect(matrix[5]).toBe(0);
-                expect(matrix[6]).toBe(0);
-                expect(matrix[7]).toBe(0);
-                expect(matrix[8]).toBe(45);
-            });
+        // describe('ScaleMatrix', () => 
+        // {
+        //     it('Should create a new rotation matrix', () =>
+        //     {
+        //         const matrix = Matrix3.ScaleMatrix(45, 45, 45);
+        //         expect(matrix[0]).toBe(45);
+        //         expect(matrix[1]).toBe(0);
+        //         expect(matrix[2]).toBe(0);
+        //         expect(matrix[3]).toBe(0);
+        //         expect(matrix[4]).toBe(45);
+        //         expect(matrix[5]).toBe(0);
+        //         expect(matrix[6]).toBe(0);
+        //         expect(matrix[7]).toBe(0);
+        //         expect(matrix[8]).toBe(45);
+        //     });
 
-            it('Should set a given matrix as a rotation matrix', () =>
-            {
-                const matrix = new Matrix3(
-                    1, 2, 3,
-                    4, 5, 6,
-                    7, 8, 9
-                );
-                Matrix3.ScaleMatrix(45, 45, 45, matrix);
-                expect(matrix[0]).toBe(45);
-                expect(matrix[1]).toBe(0);
-                expect(matrix[2]).toBe(0);
-                expect(matrix[3]).toBe(0);
-                expect(matrix[4]).toBe(45);
-                expect(matrix[5]).toBe(0);
-                expect(matrix[6]).toBe(0);
-                expect(matrix[7]).toBe(0);
-                expect(matrix[8]).toBe(45);
-            });
-        });
+        //     it('Should set a given matrix as a rotation matrix', () =>
+        //     {
+        //         const matrix = new Matrix3(
+        //             1, 2, 3,
+        //             4, 5, 6,
+        //             7, 8, 9
+        //         );
+        //         Matrix3.ScaleMatrix(45, 45, 45, matrix);
+        //         expect(matrix[0]).toBe(45);
+        //         expect(matrix[1]).toBe(0);
+        //         expect(matrix[2]).toBe(0);
+        //         expect(matrix[3]).toBe(0);
+        //         expect(matrix[4]).toBe(45);
+        //         expect(matrix[5]).toBe(0);
+        //         expect(matrix[6]).toBe(0);
+        //         expect(matrix[7]).toBe(0);
+        //         expect(matrix[8]).toBe(45);
+        //     });
+        // });
     });
 });

@@ -1,372 +1,376 @@
-import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common"
-import { Scene, Shader } from "../base"
-import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components"
-import { getComponent, getComponentById, System, view } from "../ecs"
+import { GL, Matrix3, Matrix4, Vector3, Vector3Array } from "@fwge/common";
+import { Scene, Shader } from "../base";
+import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
+import { getComponent, getComponentById, System, view } from "../ecs";
 
 export class DeferredRenderSystem extends System
 {
-    static BlockIndex = new Map<string, any>()
-    static BindingPoint = new Map<string, number>()
+    static BlockIndex = new Map<string, any>();
+    static BindingPoint = new Map<string, number>();
 
-    _globalBufferData: Float32Array = new Float32Array(16 * 4)
-    _globalBuffer!: WebGLBuffer
+    _globalBufferData: Float32Array = new Float32Array(16 * 4);
+    _globalBuffer!: WebGLBuffer;
 
-    _prepassShader!: Shader
-    _lightPassShader!: Shader
-    _batch!: Map<number, Map<number, Set<number>>>
-    _modelViewMatrices: Map<number, Matrix4> = new Map()
-    _normalMatrices: Map<number, Matrix3> = new Map()
+    _prepassShader!: Shader;
+    _lightPassShader!: Shader;
+    _batch!: Map<number, Map<number, Set<number>>>;
+    _modelViewMatrices: Map<number, Matrix4> = new Map();
+    _normalMatrices: Map<number, Matrix3> = new Map();
+
+
 
     constructor(scene: Scene)
     {
-        super(scene, { requiredComponents: [Transform, Material, Renderer] })
+        super(scene, { requiredComponents: [Transform, Material, Renderer] });
     }
 
     Init()
     {
-        this._prepassShader = new Shader(prepassVert, prepassFrag)
-        this._lightPassShader = new Shader(mainPassVert, mainPassFrag)
+        this._prepassShader = new Shader(prepassVert, prepassFrag);
+        this._lightPassShader = new Shader(mainPassVert, mainPassFrag);
 
-        view([Light], { name: PointLight.name,          exec: light => light instanceof PointLight          })
-        view([Light], { name: DirectionalLight.name,    exec: light => light instanceof DirectionalLight    })
-        view([Light], { name: AreaLight.name,           exec: light => light instanceof AreaLight           })
+        view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
+        view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
+        view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
 
-        this._createBatch()
+        this._createBatch();
     }
 
     private _createBatch(): void
     {
-        const map = new Map<number, Map<number, Set<number>>>()
+        const map = new Map<number, Map<number, Set<number>>>();
 
         for (const entityId of view([Transform, Material, Renderer]))
         {
-            const material = getComponent(entityId, Material)!
-            const renderer = getComponent(entityId, Renderer)!
-            const transform = getComponent(entityId, Transform)!
+            const material = getComponent(entityId, Material)!;
+            const renderer = getComponent(entityId, Renderer)!;
+            const transform = getComponent(entityId, Transform)!;
 
-            const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>()
-            const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>()
+            const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>();
+            const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>();
 
-            rendererMap.set(renderer.Id, new Set([...transformSet, transform.Id]))
-            map.set(material.Id, rendererMap)
+            rendererMap.set(renderer.Id, new Set([...transformSet, transform.Id]));
+            map.set(material.Id, rendererMap);
 
-            this._modelViewMatrices.set(transform.Id, Matrix4.Identity)
-            this._normalMatrices.set(transform.Id, Matrix3.Identity)
+            this._modelViewMatrices.set(transform.Id, Matrix4.Identity);
+            this._normalMatrices.set(transform.Id, Matrix3.Identity);
         }
 
-        this._batch = map
+        this._batch = map;
     }
 
-    Start(){}
-    Stop(){}
+    Start() { }
+    Stop() { }
 
     Update(_: number)
     {
-        GL.enable(GL.DEPTH_TEST)
-        GL.enable(GL.CULL_FACE)
-        GL.cullFace(GL.BACK)
-        GL.depthMask(true)
+        GL.enable(GL.DEPTH_TEST);
+        GL.enable(GL.CULL_FACE);
+        GL.cullFace(GL.BACK);
+        GL.depthMask(true);
 
         for (const window of this.Scene.Windows)
         {
-            window.MainPass.Output.Bind()
-            this.prepassRender(window.Camera)
-            this.shdaowpassRender()
+            window.MainPass.Output.Bind();
+            this.prepassRender(window.Camera);
+            // this.shdaowpassRender()
         }
 
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight)
-        GL.clearColor(0, 0, 0, 0)
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+        GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+        GL.clearColor(0, 0, 0, 0);
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
-        const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight
+        const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight;
 
-        this._lightPassShader.Bind()
-        this._lightPassShader.Reset()
+        this._lightPassShader.Bind();
+        this._lightPassShader.Reset();
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
-            const window = this.Scene.Windows[i]
+            const window = this.Scene.Windows[i];
 
-            this._lightPassShader.SetTexture(`U_Position`,          window.FinalComposite.ColourAttachments[0])
-            this._lightPassShader.SetTexture(`U_Normal`,            window.FinalComposite.ColourAttachments[1])
-            this._lightPassShader.SetTexture(`U_ColourSpecular`,    window.FinalComposite.ColourAttachments[2])
-            this._lightPassShader.SetTexture(`U_Depth`,             window.FinalComposite.DepthAttachment!)
-            this._lightPassShader.SetTexture(`U_Other[0]`,          dir.ShadowCascades[0].RenderTarget.ColourAttachments.first!)
-            this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`,     Matrix4.Multiply(dir.ShadowCascades[0].Projection!, dir.ModelMatrix))
-            this._lightPassShader.SetTexture(`U_Other[1]`,          dir.ShadowCascades[1].RenderTarget.ColourAttachments.first!)
-            this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`,     Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix))
-            this._lightPassShader.SetTexture(`U_Other[2]`,          dir.ShadowCascades[2].RenderTarget.ColourAttachments.first!)
-            this._lightPassShader.SetMatrix(`U_OtherMatrix[2]`,     Matrix4.Multiply(dir.ShadowCascades[2].Projection!, dir.ModelMatrix))
-            this._lightPassShader.SetFloatVector('U_PanelOffset',   window.Offset)
-            this._lightPassShader.SetFloatVector('U_PanelScale',    window.Scale)
+            this._lightPassShader.SetTexture(`U_Position`, window.FinalComposite.ColourAttachments[0]);
+            this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1]);
+            this._lightPassShader.SetTexture(`U_ColourSpecular`, window.FinalComposite.ColourAttachments[2]);
+            this._lightPassShader.SetTexture(`U_Depth`, window.FinalComposite.DepthAttachment!);
+            this._lightPassShader.SetTexture(`U_Other[0]`, dir.ShadowCascades[0].RenderTarget.ColourAttachments.first!);
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`, Matrix4.Multiply(dir.ShadowCascades[0].Projection!, dir.ModelMatrix));
+            this._lightPassShader.SetTexture(`U_Other[1]`, dir.ShadowCascades[1].RenderTarget.ColourAttachments.first!);
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`, Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix));
+            this._lightPassShader.SetTexture(`U_Other[2]`, dir.ShadowCascades[2].RenderTarget.ColourAttachments.first!);
+            this._lightPassShader.SetMatrix(`U_OtherMatrix[2]`, Matrix4.Multiply(dir.ShadowCascades[2].Projection!, dir.ModelMatrix));
+            this._lightPassShader.SetFloatVector('U_PanelOffset', window.Offset);
+            this._lightPassShader.SetFloatVector('U_PanelScale', window.Scale);
 
-            // this.bindLights()
+            this.bindLights();
 
-            GL.bindVertexArray(window.Panel.VertexArrayBuffer)
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer)
-            GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0)
-            GL.bindVertexArray(null)
+            GL.bindVertexArray(window.Panel.VertexArrayBuffer);
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer);
+            GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0);
+            GL.bindVertexArray(null);
         }
-        this._lightPassShader.UnBind()
+        this._lightPassShader.UnBind();
     }
 
     private bindLights()
     {
-        let a = 0
-        let d = 0
-        let p = 0
-        const shader = this._lightPassShader
+        let a = 0;
+        let d = 0;
+        let p = 0;
+        const shader = this._lightPassShader;
 
         for (const entityId of view([Light], AreaLight.name))
         {
-            const light = getComponent(entityId, Light)! as AreaLight
+            const light = getComponent(entityId, Light)! as AreaLight;
 
-            shader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour)
-            shader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity)
+            shader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour);
+            shader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity);
 
-            a++
+            a++;
         }
 
         for (const entityId of view([Light], DirectionalLight.name))
         {
-            const light = getComponent(entityId, Light)! as DirectionalLight
-            const transform = getComponent(entityId, Transform)
-            const rotx = transform?.GlobalRotation().X ?? 0
-            const roty = transform?.GlobalRotation().Y ?? 0
-            const rotz = transform?.GlobalRotation().Z ?? 0
+            const light = getComponent(entityId, Light)! as DirectionalLight;
+            const transform = getComponent(entityId, Transform);
+            const rotx = transform?.GlobalRotation().X ?? 0;
+            const roty = transform?.GlobalRotation().Y ?? 0;
+            const rotz = transform?.GlobalRotation().Z ?? 0;
 
-            const direction = Vector3.Add(
-                new Vector3(0,-1,0).RotateAroundAxis([1,0,0], rotx),
-                new Vector3(0,-1,0).RotateAroundAxis([0,1,0], roty),
-                new Vector3(0,-1,0).RotateAroundAxis([0,0,1], rotz)
-            ).Normalize().Negate()
+            const direction = [rotx, roty, rotz].map(x => 2 * ((180 - (x % 360)) / 180) - 1) as Vector3Array;
+            console.log(direction)
+            // Vector3.Add(
+            //     new Vector3(0,-1,0).RotateAroundAxis([1,0,0], rotx),
+            //     new Vector3(0,-1,0).RotateAroundAxis([0,1,0], roty),
+            //     new Vector3(0,-1,0).RotateAroundAxis([0,0,1], rotz)
+            // ).Normalize().Negate()
 
-            shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour)
-            shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity)
+            shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
+            shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction)
-            shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows)
+            shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction);
+            shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
-            shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width)
-            shader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2)
-            shader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias)
-            shader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel)
+            shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
+            shader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
+            shader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
+            shader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
 
-            shader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix)
-            d++
+            shader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix);
+            d++;
         }
 
-        for (const entityId of view([Light], PointLight.name))
-        {
-            const light = getComponent(entityId, Light, PointLight)!
-            const position = light.Owner?.GetComponent(Transform)?.GlobalPosition() ?? Vector3.Zero
+        // for (const entityId of view([Light], PointLight.name))
+        // {
+        //     const light = getComponent(entityId, Light, PointLight)!
+        //     const position = light.Owner?.GetComponent(Transform)?.GlobalPosition() ?? Vector3.Zero
 
-            shader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour)
-            shader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity)
+        //     shader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour)
+        //     shader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity)
 
-            shader.SetFloatVector(`U_PointLight[${p}].Position`, position)
-            shader.SetFloat(`U_PointLight[${p}].Radius`, light.Radius)
+        //     shader.SetFloatVector(`U_PointLight[${p}].Position`, position)
+        //     shader.SetFloat(`U_PointLight[${p}].Radius`, light.Radius)
 
-            p++
-        }
+        //     p++
+        // }
     }
 
     private shdaowpassRender()
     {
-        GL.disable(GL.CULL_FACE)
-        DirectionalLight.ShadowShader.Bind()
+        GL.disable(GL.CULL_FACE);
+        DirectionalLight.ShadowShader.Bind();
         for (const lightEntityId of view([Light], DirectionalLight.name))
         {
-            const light = getComponent(lightEntityId, Light)! as DirectionalLight
+            const light = getComponent(lightEntityId, Light)! as DirectionalLight;
             if (!light.CastShadows)
             {
-                continue
+                continue;
             }
 
             for (const cascade of light.ShadowCascades)
             {
-                const matrix = Matrix4.Multiply(cascade.Projection, light.ModelMatrix)
+                const matrix = Matrix4.Multiply(cascade.Projection, light.ModelMatrix);
 
-                cascade.RenderTarget.Bind()
-                DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', matrix)
-                const shader = DirectionalLight.ShadowShader
+                cascade.RenderTarget.Bind();
+                DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', matrix);
+                const shader = DirectionalLight.ShadowShader;
                 for (const [materialId, renderers] of this._batch)
                 {
-                    const material = getComponentById(Material, materialId)!
+                    const material = getComponentById(Material, materialId)!;
                     if (!material.ProjectsShadows)
                     {
-                        continue
+                        continue;
                     }
-                
+
                     for (const [rendererId, transforms] of renderers)
                     {
-                        const renderer = getComponentById(Renderer, rendererId)!
-                        const mesh = renderer.Asset!
+                        const renderer = getComponentById(Renderer, rendererId)!;
+                        const mesh = renderer.Asset!;
 
-                        let mode = -1
-                        let count = 0
-                        let buffer = null
+                        let mode = -1;
+                        let count = 0;
+                        let buffer = null;
 
                         switch (renderer.RenderMode)
                         {
                             case RenderMode.FACE:
-                            {
-                                mode = GL.TRIANGLES
-                                count = mesh.FaceCount
-
-                                if (mesh.IsIndexed)
                                 {
-                                    buffer = mesh.FaceBuffer
+                                    mode = GL.TRIANGLES;
+                                    count = mesh.FaceCount;
+
+                                    if (mesh.IsIndexed)
+                                    {
+                                        buffer = mesh.FaceBuffer;
+                                    }
                                 }
-                            }
-                            break
+                                break;
 
                             case RenderMode.EDGE:
-                            {
-                                mode = GL.LINES
-                                count = mesh.EdgeCount
-
-                                if (mesh.IsIndexed)
                                 {
-                                    buffer = mesh.EdgeBuffer
-                                    mode = GL.LINES
+                                    mode = GL.LINES;
+                                    count = mesh.EdgeCount;
+
+                                    if (mesh.IsIndexed)
+                                    {
+                                        buffer = mesh.EdgeBuffer;
+                                        mode = GL.LINES;
+                                    }
                                 }
-                            }
-                            break
+                                break;
 
                             case RenderMode.POINT:
-                            {
-                                mode = GL.POINTS
-                                count = mesh.PointCount
-
-                                if (mesh.IsIndexed)
                                 {
-                                    buffer = mesh.PointBuffer
+                                    mode = GL.POINTS;
+                                    count = mesh.PointCount;
+
+                                    if (mesh.IsIndexed)
+                                    {
+                                        buffer = mesh.PointBuffer;
+                                    }
                                 }
-                            }
-                            break
+                                break;
                         }
 
-                        GL.bindVertexArray(mesh.VertexArrayBuffer)
+                        GL.bindVertexArray(mesh.VertexArrayBuffer);
                         for (const transformId of transforms)
                         {
-                            const transform = getComponentById(Transform, transformId)!
-                            const modelView = this._modelViewMatrices.get(transformId)!
-                            const normal = this._normalMatrices.get(transformId)!
+                            const transform = getComponentById(Transform, transformId)!;
+                            const modelView = this._modelViewMatrices.get(transformId)!;
+                            const normal = this._normalMatrices.get(transformId)!;
 
-                            transform.ModelViewMatrix(modelView)
-                            Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+                            transform.ModelViewMatrix(modelView);
+                            Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
 
-                            shader.SetMatrix('U_Matrix.ModelView', modelView, true)
-                            shader.SetMatrix('U_Matrix.Normal', normal, true)
+                            shader.SetMatrix('U_Matrix.ModelView', modelView, true);
+                            shader.SetMatrix('U_Matrix.Normal', normal, true);
 
                             if (buffer)
                             {
-                                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                                GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+                                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+                                GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
                             }
                             else
                             {
-                                GL.drawArrays(mode, 0, count)
+                                GL.drawArrays(mode, 0, count);
                             }
                         }
-                        GL.bindVertexArray(null)
+                        GL.bindVertexArray(null);
                     }
                 }
             }
         }
-        DirectionalLight.ShadowShader.UnBind()
-        GL.enable(GL.CULL_FACE)
+        DirectionalLight.ShadowShader.UnBind();
+        GL.enable(GL.CULL_FACE);
     }
 
     private prepassRender(camera: Camera)
     {
-        const projection = camera.ProjectionMatrix
-        const view = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+        const projection = camera.ProjectionMatrix;
+        const view = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
 
-        this._prepassShader.Bind()
-        this._prepassShader.SetMatrix('U_Matrix.View', view, true)
-        this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true)
+        this._prepassShader.Bind();
+        this._prepassShader.SetMatrix('U_Matrix.View', view, true);
+        this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true);
 
         for (const [materialId, renderers] of this._batch)
         {
-            const material = getComponentById(Material, materialId)!
-            material.Bind(this._prepassShader)
-            this._prepassShader.Reset()
+            const material = getComponentById(Material, materialId)!;
+            material.Bind(this._prepassShader);
+            this._prepassShader.Reset();
 
             for (const [rendererId, transforms] of renderers)
             {
-                const renderer = getComponentById(Renderer, rendererId)!
-                const mesh = renderer.Asset!
+                const renderer = getComponentById(Renderer, rendererId)!;
+                const mesh = renderer.Asset!;
 
-                let mode = -1
-                let count = 0
-                let buffer = null
+                let mode = -1;
+                let count = 0;
+                let buffer = null;
 
                 switch (renderer.RenderMode)
                 {
                     case RenderMode.FACE:
-                    {
-                        mode = GL.TRIANGLES
-                        count = mesh.FaceCount
-
-                        if (mesh.IsIndexed)
                         {
-                            buffer = mesh.FaceBuffer
+                            mode = GL.TRIANGLES;
+                            count = mesh.FaceCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.FaceBuffer;
+                            }
                         }
-                    }
-                    break
+                        break;
 
                     case RenderMode.EDGE:
-                    {
-                        mode = GL.LINES
-                        count = mesh.EdgeCount
-
-                        if (mesh.IsIndexed)
                         {
-                            buffer = mesh.EdgeBuffer
-                            mode = GL.LINES
+                            mode = GL.LINES;
+                            count = mesh.EdgeCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.EdgeBuffer;
+                                mode = GL.LINES;
+                            }
                         }
-                    }
-                    break
+                        break;
 
                     case RenderMode.POINT:
-                    {
-                        mode = GL.POINTS
-                        count = mesh.PointCount
-
-                        if (mesh.IsIndexed)
                         {
-                            buffer = mesh.PointBuffer
+                            mode = GL.POINTS;
+                            count = mesh.PointCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.PointBuffer;
+                            }
                         }
-                    }
-                    break
+                        break;
                 }
 
-                GL.bindVertexArray(mesh.VertexArrayBuffer)
+                GL.bindVertexArray(mesh.VertexArrayBuffer);
                 for (const transformId of transforms)
                 {
-                    const transform = getComponentById(Transform, transformId)!
-                    const modelView = this._modelViewMatrices.get(transformId)!
-                    const normal = this._normalMatrices.get(transformId)!
+                    const transform = getComponentById(Transform, transformId)!;
+                    const modelView = this._modelViewMatrices.get(transformId)!;
+                    const normal = this._normalMatrices.get(transformId)!;
 
-                    transform.ModelViewMatrix(modelView)
-                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+                    transform.ModelViewMatrix(modelView);
+                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
 
-                    this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true)
-                    this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true)
+                    this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true);
+                    this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true);
 
                     if (buffer)
                     {
-                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
                     }
                     else
                     {
-                        GL.drawArrays(mode, 0, count)
+                        GL.drawArrays(mode, 0, count);
                     }
                 }
-                GL.bindVertexArray(null)
+                GL.bindVertexArray(null);
             }
         }
     }
@@ -419,7 +423,7 @@ void main(void)
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * position;
 }
-`
+`;
 
 const prepassFrag = `#version 300 es
 #pragma vscode_glsllint_stage: frag
@@ -478,7 +482,7 @@ void main(void)
     O_Normal = normalize(V_Vertex.Normal);
     O_ColourSpecular = vec4(albedo, alpha);
 }
-`
+`;
 const mainPassVert = `#version 300 es
 #pragma vscode_glsllint_stage: vert
 
@@ -493,7 +497,7 @@ void main(void)
     V_UV = A_Position * 0.5 + 0.5;
     gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
 }
-`
+`;
 
 const mainPassFrag = `#version 300 es
 #pragma vscode_glsllint_stage: frag
@@ -587,11 +591,11 @@ vec3 CalcDirectionalLight(DirectionalLight light)
 {
     float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
-    float cascade1 = ShadowWeightDirectional(light, val, U_Other[0], U_OtherMatrix[0]);
-    float cascade2 = ShadowWeightDirectional(light, val, U_Other[1], U_OtherMatrix[1]);
-    float cascade3 = ShadowWeightDirectional(light, val, U_Other[2], U_OtherMatrix[2]);
-    float cascade = max(cascade1, max(cascade2, cascade3));
-    float shadow = 1.0 - cascade;
+    // float cascade1 = ShadowWeightDirectional(light, val, U_Other[0], U_OtherMatrix[0]);
+    // float cascade2 = ShadowWeightDirectional(light, val, U_Other[1], U_OtherMatrix[1]);
+    // float cascade3 = ShadowWeightDirectional(light, val, U_Other[2], U_OtherMatrix[2]);
+    // float cascade = max(cascade1, max(cascade2, cascade3));
+    float shadow = 1.0; // - cascade;
 
     return light.Colour * diffuse * light.Intensity * shadow;
 }
@@ -646,12 +650,12 @@ void main(void)
         lighting += CalcDirectionalLight(U_DirectionalLight[i]);
     }
 
-    for (int i = 0; i < U_PointLight.length(); ++i)
-    {
-        lighting += CalcPointLight(U_PointLight[i]);
-    }
+    // for (int i = 0; i < U_PointLight.length(); ++i)
+    // {
+    //     lighting += CalcPointLight(U_PointLight[i]);
+    // }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
-    // O_FragColour = vec4(vec3(texture(U_Other[0], V_UV).r), 1.0);
+    // O_FragColour = vec4(fragment.Normal, 1.0);
 }
-`
+`;

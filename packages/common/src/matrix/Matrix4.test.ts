@@ -3,7 +3,7 @@
  */
 
 import { radian } from "../utils";
-import { Vector4, Vector4Array } from "../vector";
+import { Vector3, Vector3Array, Vector4, Vector4Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
 import { Matrix3 } from "./Matrix3";
 import { Matrix4, Matrix4Array } from "./Matrix4";
@@ -88,7 +88,60 @@ describe('Matrix4', () =>
             expect(matrix[15]).toBe(16);
         });
 
-        it('Should assign component-wise when another matrix is passed', () =>
+        it('Should assign component-wise when another {Matrix2} is passed', () =>
+        {
+            const other = new Matrix2(
+                1, 2,
+                3, 4
+            );
+            const matrix = new Matrix4(other);
+            expect(matrix[0]).toBe(1);
+            expect(matrix[1]).toBe(2);
+            expect(matrix[2]).toBe(0);
+            expect(matrix[3]).toBe(0);
+            expect(matrix[4]).toBe(3);
+            expect(matrix[5]).toBe(4);
+            expect(matrix[6]).toBe(0);
+            expect(matrix[7]).toBe(0);
+            expect(matrix[8]).toBe(0);
+            expect(matrix[9]).toBe(0);
+            expect(matrix[10]).toBe(1);
+            expect(matrix[11]).toBe(0);
+            expect(matrix[12]).toBe(0);
+            expect(matrix[13]).toBe(0);
+            expect(matrix[14]).toBe(0);
+            expect(matrix[15]).toBe(1);
+        });
+
+
+        it('Should assign component-wise when another {Matrix3} is passed', () =>
+        {
+            const other = new Matrix3(
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9
+            );
+            const matrix = new Matrix4(other);
+            expect(matrix[0]).toBe(1);
+            expect(matrix[1]).toBe(2);
+            expect(matrix[2]).toBe(3);
+            expect(matrix[3]).toBe(0);
+            expect(matrix[4]).toBe(4);
+            expect(matrix[5]).toBe(5);
+            expect(matrix[6]).toBe(6);
+            expect(matrix[7]).toBe(0);
+            expect(matrix[8]).toBe(7);
+            expect(matrix[9]).toBe(8);
+            expect(matrix[10]).toBe(9);
+            expect(matrix[11]).toBe(0);
+            expect(matrix[12]).toBe(0);
+            expect(matrix[13]).toBe(0);
+            expect(matrix[14]).toBe(0);
+            expect(matrix[15]).toBe(1);
+        });
+
+
+        it('Should assign component-wise when another {Matrix4} is passed', () =>
         {
             const other = new Matrix4(
                 1, 2, 3, 4,
@@ -2420,110 +2473,289 @@ describe('Matrix4', () =>
             });
         });
 
-        // describe('MultiplyVector', () => 
-        // {
-        //     it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const result = Matrix4.MultiplyVector(matrix, 5, 6)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
+        describe('MultiplyVector', () => 
+        {
+            it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const result = Matrix4.MultiplyVector(matrix, 17, 18, 19, 20);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
 
-        //     it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const result = new Vector4()
-        //         Matrix4.MultiplyVector(matrix, 5, 6, result)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
+            it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const result = new Vector4();
+                Matrix4.MultiplyVector(matrix, 17, 18, 19, 20, result);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
 
-        //     it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const vector = new Vector4(5, 6)
-        //         const result = Matrix4.MultiplyVector(matrix, vector)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
+            it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const vector = new Vector4(17, 18, 19, 20);
+                const result = Matrix4.MultiplyVector(matrix, vector);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
 
-        //     it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const vector = new Vector4(5, 6)
-        //         const result = new Vector4()
-        //         Matrix4.MultiplyVector(matrix, vector, result)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
+            it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const vector = new Vector4(17, 18, 19, 20);
+                const result = new Vector4();
+                Matrix4.MultiplyVector(matrix, vector, result);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
 
-        //     it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const vector: Vector4Array = [5, 6]
-        //         const result = Matrix4.MultiplyVector(matrix, vector)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
+            it('Should multiply a matrix with 2 numbers and return a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const vector: Vector4Array = [17, 18, 19, 20];
+                const result = Matrix4.MultiplyVector(matrix, vector);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
 
-        //     it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
-        //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         const vector: Vector4Array = [5, 6]
-        //         const result = new Vector4()
-        //         Matrix4.MultiplyVector(matrix, vector, result)
-        //         expect(result[0]).toBe(17)
-        //         expect(result[1]).toBe(39)
-        //     })
-        // })
+            it('Should multiply a matrix with 2 numbers and set a {Vector4} with the product', () =>
+            {
+                const matrix = new Matrix4(
+                    1, 2, 3, 4,
+                    5, 6, 7, 8,
+                    9, 10, 11, 12,
+                    13, 14, 15, 16,
+                );
+                const vector: Vector4Array = [17, 18, 19, 20];
+                const result = new Vector4();
+                Matrix4.MultiplyVector(matrix, vector, result);
+                expect(result[0]).toBe(190);
+                expect(result[1]).toBe(486);
+                expect(result[2]).toBe(782);
+                expect(result[3]).toBe(1078);
+            });
+        });
+
+
+        describe('TranslationMatrix', () => 
+        {
+            it('Should create a new translation matrix using number inputs', () =>
+            {
+                const matrix = Matrix4.TranslationMatrix(3, 5, 7);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+
+            it('Should set a given matrix as a translation matrix using number inputs', () =>
+            {
+                const matrix = new Matrix4();
+                Matrix4.TranslationMatrix(3, 5, 7, matrix);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+            
+            it('Should create a new translation matrix using an array input', () =>
+            {
+                const translation = [3, 5, 7] as Vector3Array
+                const matrix = Matrix4.TranslationMatrix(translation);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+
+            it('Should set a given matrix as a translation matrix using an array input', () =>
+            {
+                const translation = [3, 5, 7] as Vector3Array
+                const matrix = new Matrix4();
+                Matrix4.TranslationMatrix(translation,matrix);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+            
+            it('Should create a new translation matrix using a vector input', () =>
+            {
+                const translation = new Vector3(3, 5, 7)
+                const matrix = Matrix4.TranslationMatrix(translation);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+
+            it('Should set a given matrix as a translation matrix using a vector input', () =>
+            {
+                const translation = new Vector3(3, 5, 7)
+                const matrix = new Matrix4();
+                Matrix4.TranslationMatrix(translation, matrix);
+                expect(matrix[0]).toBe(1)
+                expect(matrix[1]).toBe(0);
+                expect(matrix[2]).toBe(0);
+                expect(matrix[3]).toBe(3);
+                expect(matrix[4]).toBe(0);
+                expect(matrix[5]).toBe(1);
+                expect(matrix[6]).toBe(0);
+                expect(matrix[7]).toBe(5);
+                expect(matrix[8]).toBe(0);
+                expect(matrix[9]).toBe(0);
+                expect(matrix[10]).toBe(1);
+                expect(matrix[11]).toBe(7);
+                expect(matrix[12]).toBe(0);
+                expect(matrix[13]).toBe(0);
+                expect(matrix[14]).toBe(0);
+                expect(matrix[15]).toBe(1);
+            });
+        });
 
         // describe('RotationMatrix', () => 
         // {
-        //     const theta = radian(60)
-        //     const cosTheta = Math.cos(theta)
-        //     const sinTheta = Math.sin(theta)
+        //     const theta = radian(60);
+        //     const cosTheta = Math.cos(theta);
+        //     const sinTheta = Math.sin(theta);
 
         //     it('Should create a new rotation matrix', () =>
         //     {
-        //         const matrix = Matrix4.RotationMatrix(60)
-        //         expect(matrix[0]).toBeCloseTo( cosTheta)
-        //         expect(matrix[1]).toBeCloseTo( sinTheta)
-        //         expect(matrix[2]).toBeCloseTo(-sinTheta)
-        //         expect(matrix[3]).toBeCloseTo( cosTheta)
-        //     })
+        //         const matrix = Matrix4.RotationMatrix(60);
+        //         expect(matrix[0]).toBeCloseTo(cosTheta);
+        //         expect(matrix[1]).toBeCloseTo(sinTheta);
+        //         expect(matrix[2]).toBeCloseTo(-sinTheta);
+        //         expect(matrix[3]).toBeCloseTo(cosTheta);
+        //     });
 
         //     it('Should set a given matrix as a rotation matrix', () =>
         //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         Matrix4.RotationMatrix(60, matrix)
-        //         expect(matrix[0]).toBeCloseTo( cosTheta)
-        //         expect(matrix[1]).toBeCloseTo( sinTheta)
-        //         expect(matrix[2]).toBeCloseTo(-sinTheta)
-        //         expect(matrix[3]).toBeCloseTo( cosTheta)
-        //     })
-        // })
+        //         const matrix = new Matrix4(1, 2, 3, 4);
+        //         Matrix4.RotationMatrix(60, matrix);
+        //         expect(matrix[0]).toBeCloseTo(cosTheta);
+        //         expect(matrix[1]).toBeCloseTo(sinTheta);
+        //         expect(matrix[2]).toBeCloseTo(-sinTheta);
+        //         expect(matrix[3]).toBeCloseTo(cosTheta);
+        //     });
+        // });
 
         // describe('ScaleMatrix', () => 
         // {
         //     it('Should create a new rotation matrix', () =>
         //     {
-        //         const matrix = Matrix4.ScaleMatrix(45)
-        //         expect(matrix[0]).toBe(45)
-        //         expect(matrix[1]).toBe(0)
-        //         expect(matrix[2]).toBe(0)
-        //         expect(matrix[3]).toBe(45)
-        //     })
+        //         const matrix = Matrix4.ScaleMatrix(45);
+        //         expect(matrix[0]).toBe(45);
+        //         expect(matrix[1]).toBe(0);
+        //         expect(matrix[2]).toBe(0);
+        //         expect(matrix[3]).toBe(45);
+        //     });
 
         //     it('Should set a given matrix as a rotation matrix', () =>
         //     {
-        //         const matrix = new Matrix4(1, 2, 3, 4)
-        //         Matrix4.ScaleMatrix(45, matrix)
-        //         expect(matrix[0]).toBe(45)
-        //         expect(matrix[1]).toBe(0)
-        //         expect(matrix[2]).toBe(0)
-        //         expect(matrix[3]).toBe(45)
-        //     })
-        // })
+        //         const matrix = new Matrix4(1, 2, 3, 4);
+        //         Matrix4.ScaleMatrix(45, matrix);
+        //         expect(matrix[0]).toBe(45);
+        //         expect(matrix[1]).toBe(0);
+        //         expect(matrix[2]).toBe(0);
+        //         expect(matrix[3]).toBe(45);
+        //     });
+        // });
     });
 });

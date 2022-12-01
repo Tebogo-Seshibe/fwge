@@ -1,4 +1,4 @@
-import { clamp, Matrix3, Vector2, Vector3 } from "@fwge/common"
+import { clamp, Matrix3, Matrix4, Vector2, Vector3 } from "@fwge/common"
 import { PerspectiveCamera, Transform } from "@fwge/core"
 import { IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
@@ -62,7 +62,7 @@ export class FPSController extends GameObject
         this.transform.Rotation.Y += this.rotationDelta.X
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + this.rotationDelta.Y, -80, 80)
 
-        Matrix3.RotationMatrix(this.transform.Rotation, this.rotationMatrix)
+        this.rotationMatrix.Set(Matrix4.RotationMatrix(this.transform.Rotation).Matrix3)
         Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward)
         Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right)
 

@@ -63,41 +63,41 @@ export class Transform extends UniqueComponent
         }
     }
 
-    RotateAround(target: Transform, axis: Vector3 | Vector3Array, angle: number): void
-    {
-        Matrix3.MultiplyVector(
-            Matrix3.RotationMatrixAroundAxis(
-                Vector3.Add(target.Position, Vector3.Normalize(axis as Vector3Array)),
-                angle
-            ),
-            this.Position,
-        this.Position)
-    }
+    // RotateAround(target: Transform, axis: Vector3 | Vector3Array, angle: number): void
+    // {
+    //     Matrix3.MultiplyVector(
+    //         Matrix3.RotationMatrixAroundAxis(
+    //             Vector3.Add(target.Position, Vector3.Normalize(axis as Vector3Array)),
+    //             angle
+    //         ),
+    //         this.Position,
+    //     this.Position)
+    // }
 
-    RotateAroundAxis(xyz: number, angle: number): void
-    RotateAroundAxis(x: number, y: number, z: number, angle: number): void
-    RotateAroundAxis(array: [number, number, number], angle: number): void
-    RotateAroundAxis(vector: Vector3, angle: number): void
-    RotateAroundAxis(_0: Transform | Vector3 | [number, number, number] | number, _1?: number, _2?: number, _3?: number): void
-    {
-        let mat: Matrix3
-        if (typeof _0 === 'number')
-        {
-            if (_2 === undefined || _3 === undefined)
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number)
-            }
-            else
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
-            }
-        }
-        else 
-        {
-            mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
-        }
-        Matrix3.MultiplyVector(mat, this.Position, this.Position)
-    }
+    // RotateAroundAxis(xyz: number, angle: number): void
+    // RotateAroundAxis(x: number, y: number, z: number, angle: number): void
+    // RotateAroundAxis(array: [number, number, number], angle: number): void
+    // RotateAroundAxis(vector: Vector3, angle: number): void
+    // RotateAroundAxis(_0: Transform | Vector3 | [number, number, number] | number, _1?: number, _2?: number, _3?: number): void
+    // {
+    //     let mat: Matrix3
+    //     if (typeof _0 === 'number')
+    //     {
+    //         if (_2 === undefined || _3 === undefined)
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number)
+    //         }
+    //         else
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
+    //         }
+    //     }
+    //     else 
+    //     {
+    //         mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
+    //     }
+    //     Matrix3.MultiplyVector(mat, this.Position, this.Position)
+    // }
 
     GlobalPosition(): Vector3
     GlobalPosition(position: Vector3): Vector3

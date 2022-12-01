@@ -256,32 +256,32 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
 
     }
     
-    RotateAroundAxis(xyz: number, angle: number): Vector3
-    RotateAroundAxis(x: number, y: number, z: number, angle: number): Vector3
-    RotateAroundAxis(array: Vector3Array, angle: number): Vector3
-    RotateAroundAxis(vector: Vector3, angle: number): Vector3
-    RotateAroundAxis(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number, _3?: number): Vector3
-    {
-        let mat: Matrix3
-        if (typeof _0 === 'number')
-        {
-            if (_2 === undefined || _3 === undefined)
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number * 2)
-            }
-            else
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number * 2)
-            }
-        }
-        else 
-        {
-            mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number * 2)
-        }
-        Matrix3.MultiplyVector(mat, this, this)
+    // RotateAroundAxis(xyz: number, angle: number): Vector3
+    // RotateAroundAxis(x: number, y: number, z: number, angle: number): Vector3
+    // RotateAroundAxis(array: Vector3Array, angle: number): Vector3
+    // RotateAroundAxis(vector: Vector3, angle: number): Vector3
+    // RotateAroundAxis(_0: Vector3 | Vector3Array | number, _1?: number, _2?: number, _3?: number): Vector3
+    // {
+    //     let mat: Matrix3
+    //     if (typeof _0 === 'number')
+    //     {
+    //         if (_2 === undefined || _3 === undefined)
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number * 2)
+    //         }
+    //         else
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number * 2)
+    //         }
+    //     }
+    //     else 
+    //     {
+    //         mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number * 2)
+    //     }
+    //     Matrix3.MultiplyVector(mat, this, this)
 
-        return this
-    }
+    //     return this
+    // }
     
     Distance(xyz: number): number
     Distance(x: number, y: number, z: number): number
@@ -642,38 +642,38 @@ export class Vector3 extends Float32Array implements IEquatable<Vector3>
         }
     }
     
-    static RotateAroundAxis(xyz: number, angle: number): Vector3
-    static RotateAroundAxis(xyz: number, angle: number, out: Vector3): Vector3
-    static RotateAroundAxis(x: number, y: number, z: number, angle: number): Vector3
-    static RotateAroundAxis(x: number, y: number, z: number, angle: number, out: Vector3): Vector3
-    static RotateAroundAxis(array: Vector3Array, angle: number): Vector3
-    static RotateAroundAxis(array: Vector3Array, angle: number, out: Vector3): Vector3
-    static RotateAroundAxis(vector: Vector3, angle: number): Vector3
-    static RotateAroundAxis(vector: Vector3, angle: number, out: Vector3): Vector3
-    static RotateAroundAxis(_0: Vector3 | Vector3Array | number, _1?: number, _2?: Vector3 | number, _3?: Vector3 | number, _4?: Vector3): Vector3
-    {
-        const out: Vector3 = _4 ?? _3 instanceof Vector3 ? _3 as Vector3 : _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
+    // static RotateAroundAxis(xyz: number, angle: number): Vector3
+    // static RotateAroundAxis(xyz: number, angle: number, out: Vector3): Vector3
+    // static RotateAroundAxis(x: number, y: number, z: number, angle: number): Vector3
+    // static RotateAroundAxis(x: number, y: number, z: number, angle: number, out: Vector3): Vector3
+    // static RotateAroundAxis(array: Vector3Array, angle: number): Vector3
+    // static RotateAroundAxis(array: Vector3Array, angle: number, out: Vector3): Vector3
+    // static RotateAroundAxis(vector: Vector3, angle: number): Vector3
+    // static RotateAroundAxis(vector: Vector3, angle: number, out: Vector3): Vector3
+    // static RotateAroundAxis(_0: Vector3 | Vector3Array | number, _1?: number, _2?: Vector3 | number, _3?: Vector3 | number, _4?: Vector3): Vector3
+    // {
+    //     const out: Vector3 = _4 ?? _3 instanceof Vector3 ? _3 as Vector3 : _2 instanceof Vector3 ? _2 as Vector3 : new Vector3()
 
-        let mat: Matrix3
-        if (typeof _0 === 'number')
-        {
-            if (_2 === undefined || _3 === undefined)
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number)
-            }
-            else
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
-            }
-        }
-        else 
-        {
-            mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
-        }
+    //     let mat: Matrix3
+    //     if (typeof _0 === 'number')
+    //     {
+    //         if (_2 === undefined || _3 === undefined)
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number)
+    //         }
+    //         else
+    //         {
+    //             mat = Matrix3.RotationMatrixAroundAxis(_0, _1 as number, _2 as number, _3 as number)
+    //         }
+    //     }
+    //     else 
+    //     {
+    //         mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1 as number)
+    //     }
 
-        Matrix3.MultiplyVector(mat, out, out)
+    //     Matrix3.MultiplyVector(mat, out, out)
 
-        return out
-    }
+    //     return out
+    // }
     //#endregion
 }

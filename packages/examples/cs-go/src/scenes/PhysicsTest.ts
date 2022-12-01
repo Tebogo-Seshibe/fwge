@@ -1,64 +1,64 @@
-import { Vector3Array } from "@fwge/common"
-import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core"
-import { InputSystem } from "@fwge/input"
-import { CubeCollider } from "@fwge/physics"
-import { FPSController } from "../entities"
-import { FullScreen } from "../entities/FullScreen"
-import { Platform } from "../entities/Platform"
-import { FPSCounterSystem } from "../systems/FPSCounterSystem"
+import { Vector3Array } from "@fwge/common";
+import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
+import { InputSystem } from "@fwge/input";
+import { CubeCollider } from "@fwge/physics";
+import { FPSController } from "../entities";
+import { FullScreen } from "../entities/FullScreen";
+import { Platform } from "../entities/Platform";
+import { FPSCounterSystem } from "../systems/FPSCounterSystem";
 
 export class MyWindow extends RenderWindow
 {
     constructor(scene: Scene)
     {
         super(scene,
-        {
-            resolution: [scene.Game.Width, scene.Game.Height],
-            renderPipelineMode: RenderPipelineMode.DEFERRED
-        })
+            {
+                resolution: [scene.Game.Width, scene.Game.Height],
+                renderPipelineMode: RenderPipelineMode.DEFERRED
+            });
     }
 }
 
 export class PhysicsTest extends Scene
 {
-    x: number = 0
+    x: number = 0;
     constructor(game: Game)
     {
         super(game,
-        {
-            windows: [ MyWindow ],
-            entities: [
-                FullScreen,
-                FPSController,
-                Platform
-            ],
-            systems: [
-                InputSystem,
-                ScriptSystem,
-                DeferredRenderSystem,
-                FPSCounterSystem,
-            ],
-        })
+            {
+                windows: [MyWindow],
+                entities: [
+                    FullScreen,
+                    FPSController,
+                    Platform
+                ],
+                systems: [
+                    InputSystem,
+                    ScriptSystem,
+                    DeferredRenderSystem,
+                    FPSCounterSystem,
+                ],
+            });
     }
 
     override Init(): void
     {
-        const scene = this
-        const cubeCollider = new CubeCollider()
+        const scene = this;
+        const cubeCollider = new CubeCollider();
         const material = new BasicLitMaterial(
-        {
-            shininess: 255,
-            colour: [116/255, 163/255, 202/255],
-            shader: this.Game.GetAsset('Basic Shader', Shader)!,
-            renderType: RenderType.OPAQUE,
-            alpha: 1.0
-        })
-        material.Colour.Set(1.0)
+            {
+                shininess: 255,
+                colour: [116 / 255, 163 / 255, 202 / 255],
+                shader: this.Game.GetAsset('Basic Shader', Shader)!,
+                renderType: RenderType.OPAQUE,
+                alpha: 1.0
+            });
+        material.Colour.Set(1.0, 1.0, 1.0);
         const simpleMaterial = new BasicLitMaterial(
-        {
-            shininess: 32,
-            colour: [1, 1, 1],
-            shader: new Shader(`#version 300 es
+            {
+                shininess: 32,
+                colour: [1, 1, 1],
+                shader: new Shader(`#version 300 es
 
             layout(location = 0) in vec3 A_Position;
             out vec3 V_Position;
@@ -76,7 +76,7 @@ export class PhysicsTest extends Scene
                 gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
             }
             `,
-            `#version 300 es
+                    `#version 300 es
 
             precision highp float;
             
@@ -93,84 +93,84 @@ export class PhysicsTest extends Scene
                 O_FragColour = vec4(U_Material.Colour, 1.0);
             }
             `),
-            renderType: RenderType.OPAQUE,
-            alpha: 1,
-            receiveShadows: false,
-            projectShadows: true
-        })
-        const cubeRenderer = new MeshRenderer({ asset: this.Game.GetAsset('Cube', Mesh)! })
-        const sphereRender = new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! })
+                renderType: RenderType.OPAQUE,
+                alpha: 1,
+                receiveShadows: false,
+                projectShadows: true
+            });
+        const cubeRenderer = new MeshRenderer({ asset: this.Game.GetAsset('Cube', Mesh)! });
+        const sphereRender = new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! });
         const sphereRotator = new Script(
-        {
-            update()
             {
-                const entity = this as Entity
-                const transform = entity.GetComponent(Transform)!
-                let x = scene.x * ((transform.Id % 7) + 1) / 5
-                transform.Position.X = Math.cos(x)
-                transform.Position.Z = Math.sin(x)
-            }
-        })
+                update()
+                {
+                    const entity = this as Entity;
+                    const transform = entity.GetComponent(Transform)!;
+                    let x = scene.x * ((transform.Id % 7) + 1) / 5;
+                    transform.Position.X = Math.cos(x);
+                    transform.Position.Z = Math.sin(x);
+                }
+            });
 
-        const positions = []
-        const min = -5
-        const max = 5
-        for (let x = min; x <= max; x+=2)
+        const positions = [];
+        const min = -5;
+        const max = 5;
+        for (let x = min; x <= max; x += 2)
         {
-            for (let z = min; z <= max; z+=2)
+            for (let z = min; z <= max; z += 2)
             {
-                positions.push([x, 1, z])
+                positions.push([x, 1, z]);
             }
         }
 
-        let i = 0
+        let i = 0;
         for (const position of positions)
         {
             const cube = this.CreateEntity()
                 .AddComponent(new Transform({ position: position as Vector3Array }))
                 .AddComponent(cubeCollider)
                 .AddComponent(material)
-                .AddComponent(cubeRenderer)
-                // .AddComponent(jumpingCube)
+                .AddComponent(cubeRenderer);
+            // .AddComponent(jumpingCube)
 
-            const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }))
+            const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }));
 
             if (i++ % 3 === 0)
             {
                 light.AddComponent(new PointLight(
-                { 
-                    colour: [Math.random(), Math.random(), Math.random()],
-                    intensity: 1,
-                    radius: 2
-                }))
-                .GetComponent(Transform)!.Position.Y = 2
+                    {
+                        colour: [Math.random(), Math.random(), Math.random()],
+                        intensity: 1,
+                        radius: 2
+                    }))
+                    .GetComponent(Transform)!.Position.Y = 2;
             }
             else
             {
-                light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator)
+                light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator);
             }
-                
-            cube.AddChild(light)
+
+            cube.AddChild(light);
         }
 
         this.CreateEntity()
             .AddComponent(new AreaLight(
-            {
-                skyBox: { source: '/img/clouds.jpg' },
-                colour: [1, 1, 1],
-                intensity: 0.15
-            }))
+                {
+                    skyBox: { source: '/img/clouds.jpg' },
+                    colour: [1, 1, 1],
+                    intensity: 0.15
+                }));
 
         this.CreateEntity()
-            .AddComponent(new Transform({ rotation: [30, 0, 10] }))
-            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3 }))
+            .AddComponent(new Transform({ rotation: [0, 0, 0] }))
+            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3 }));
 
-        super.Init()
+        super.Init();
     }
 
     override Update(delta: number): void
-    {    
-        this.x += delta * 5
-        super.Update(delta)
+    {
+        this.x += delta * 5;
+        super.Update(delta);
     }
 }

@@ -680,114 +680,114 @@ export class Matrix3 extends Float32Array implements IEquatable<Matrix3>
         );
     }
 
-    static RotationMatrixAroundAxis(xyz: number, angle: number): Matrix3;
-    static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix3): Matrix3;
-    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix3;
-    static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix3): Matrix3;
-    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number): Matrix3;
-    static RotationMatrixAroundAxis(axis: [number, number, number], angle: number, out: Matrix3): Matrix3;
-    static RotationMatrixAroundAxis(axis: Vector3, angle: number): Matrix3;
-    static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix3): Matrix3;
-    static RotationMatrixAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: Matrix3 | number, _3?: number, _4?: Matrix3): Matrix3
-    {
-        const out = _4 ?? _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
-        const axis = typeof _0 === 'number'
-            ? (_3 ? [_0, _1 as number, _2 as number] : [_0, _0, _0])
-            : _0;
-        const rotation = typeof _0 === 'number'
-            ? _3 ?? _1
-            : _1;
+    // static RotationMatrixAroundAxis(xyz: number, angle: number): Matrix3;
+    // static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix3): Matrix3;
+    // static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix3;
+    // static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix3): Matrix3;
+    // static RotationMatrixAroundAxis(axis: [number, number, number], angle: number): Matrix3;
+    // static RotationMatrixAroundAxis(axis: [number, number, number], angle: number, out: Matrix3): Matrix3;
+    // static RotationMatrixAroundAxis(axis: Vector3, angle: number): Matrix3;
+    // static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix3): Matrix3;
+    // static RotationMatrixAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: Matrix3 | number, _3?: number, _4?: Matrix3): Matrix3
+    // {
+    //     const out = _4 ?? _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
+    //     const axis = typeof _0 === 'number'
+    //         ? (_3 ? [_0, _1 as number, _2 as number] : [_0, _0, _0])
+    //         : _0;
+    //     const rotation = typeof _0 === 'number'
+    //         ? _3 ?? _1
+    //         : _1;
 
-        const angle = radian(rotation);
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        const inv_cos = 1 - cos;
+    //     const angle = radian(rotation);
+    //     const cos = Math.cos(angle);
+    //     const sin = Math.sin(angle);
+    //     const inv_cos = 1 - cos;
 
-        return out.Set(
-            (cos) + (axis[0] * axis[0] * inv_cos),
-            (axis[0] * axis[1] * inv_cos) - (axis[2] * sin),
-            (axis[0] * axis[2] * inv_cos) + (axis[1] * sin),
+    //     return out.Set(
+    //         (cos) + (axis[0] * axis[0] * inv_cos),
+    //         (axis[0] * axis[1] * inv_cos) - (axis[2] * sin),
+    //         (axis[0] * axis[2] * inv_cos) + (axis[1] * sin),
 
-            (axis[1] * axis[0] * inv_cos) + (axis[2] * sin),
-            (cos) + (axis[1] * axis[1] * inv_cos),
-            (axis[1] * axis[2] * inv_cos) - (axis[0] * sin),
+    //         (axis[1] * axis[0] * inv_cos) + (axis[2] * sin),
+    //         (cos) + (axis[1] * axis[1] * inv_cos),
+    //         (axis[1] * axis[2] * inv_cos) - (axis[0] * sin),
 
-            (axis[2] * axis[0] * inv_cos) - (axis[1] * sin),
-            (axis[2] * axis[1] * inv_cos) + (axis[0] * sin),
-            (cos) + (axis[2] * axis[2] * cos),
-        );
-    }
+    //         (axis[2] * axis[0] * inv_cos) - (axis[1] * sin),
+    //         (axis[2] * axis[1] * inv_cos) + (axis[0] * sin),
+    //         (cos) + (axis[2] * axis[2] * cos),
+    //     );
+    // }
 
-    static RotationMatrix(xyz: number): Matrix3;
-    static RotationMatrix(xyz: number, out: Matrix3): Matrix3;
-    static RotationMatrix(x: number, y: number, z: number): Matrix3;
-    static RotationMatrix(x: number, y: number, z: number, out: Matrix3): Matrix3;
-    static RotationMatrix(xyz: Vector3): Matrix3;
-    static RotationMatrix(xyz: Vector3, out: Matrix3): Matrix3;
-    static RotationMatrix(xyz: NumberArray): Matrix3;
-    static RotationMatrix(xyz: NumberArray, out: Matrix3): Matrix3;
-    static RotationMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
-    {
-        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
-        const rotation = typeof _0 === 'number'
-            ? [_0, _1 as number ?? _0, _2 as number ?? _0]
-            : _0;
+    // static RotationMatrix(xyz: number): Matrix3;
+    // static RotationMatrix(xyz: number, out: Matrix3): Matrix3;
+    // static RotationMatrix(x: number, y: number, z: number): Matrix3;
+    // static RotationMatrix(x: number, y: number, z: number, out: Matrix3): Matrix3;
+    // static RotationMatrix(xyz: Vector3): Matrix3;
+    // static RotationMatrix(xyz: Vector3, out: Matrix3): Matrix3;
+    // static RotationMatrix(xyz: NumberArray): Matrix3;
+    // static RotationMatrix(xyz: NumberArray, out: Matrix3): Matrix3;
+    // static RotationMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
+    // {
+    //     const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
+    //     const rotation = typeof _0 === 'number'
+    //         ? [_0, _1 as number ?? _0, _2 as number ?? _0]
+    //         : _0;
 
-        const x = radian(rotation[0]);
-        const y = radian(rotation[1]);
-        const z = radian(rotation[2]);
+    //     const x = radian(rotation[0]);
+    //     const y = radian(rotation[1]);
+    //     const z = radian(rotation[2]);
 
-        const sin_x = Math.sin(x);
-        const sin_y = Math.sin(y);
-        const sin_z = Math.sin(z);
+    //     const sin_x = Math.sin(x);
+    //     const sin_y = Math.sin(y);
+    //     const sin_z = Math.sin(z);
 
-        const cos_x = Math.cos(x);
-        const cos_y = Math.cos(y);
-        const cos_z = Math.cos(z);
+    //     const cos_x = Math.cos(x);
+    //     const cos_y = Math.cos(y);
+    //     const cos_z = Math.cos(z);
 
-        out[0] = cos_y * cos_z;
-        out[1] = cos_y * sin_z;
-        out[2] = -sin_y;
-        out[3] = sin_x * sin_y * cos_z - cos_x * sin_z;
-        out[4] = sin_x * sin_y * sin_z + cos_x * cos_z;
-        out[5] = sin_x * cos_y;
-        out[6] = cos_x * sin_y * cos_z + sin_x * sin_z;
-        out[7] = cos_x * sin_y * sin_z - sin_x * cos_z;
-        out[8] = cos_x * cos_y;
+    //     out[0] = cos_y * cos_z;
+    //     out[1] = cos_y * sin_z;
+    //     out[2] = -sin_y;
+    //     out[3] = sin_x * sin_y * cos_z - cos_x * sin_z;
+    //     out[4] = sin_x * sin_y * sin_z + cos_x * cos_z;
+    //     out[5] = sin_x * cos_y;
+    //     out[6] = cos_x * sin_y * cos_z + sin_x * sin_z;
+    //     out[7] = cos_x * sin_y * sin_z - sin_x * cos_z;
+    //     out[8] = cos_x * cos_y;
 
-        return out;
-    }
+    //     return out;
+    // }
 
 
-    static ScaleMatrix(x: number, y: number, z: number): Matrix3;
-    static ScaleMatrix(x: number, y: number, z: number, out: Matrix3): Matrix3;
-    static ScaleMatrix(xyz: Vector3): Matrix3;
-    static ScaleMatrix(xyz: Vector3, out: Matrix3): Matrix3;
-    static ScaleMatrix(xyz: NumberArray): Matrix3;
-    static ScaleMatrix(xyz: NumberArray, out: Matrix3): Matrix3;
-    static ScaleMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
-    {
-        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
-        const scale = typeof _0 === 'number'
-            ? [_0, _1 as number, _2 as number]
-            : _0;
+    // static ScaleMatrix(x: number, y: number, z: number): Matrix3;
+    // static ScaleMatrix(x: number, y: number, z: number, out: Matrix3): Matrix3;
+    // static ScaleMatrix(xyz: Vector3): Matrix3;
+    // static ScaleMatrix(xyz: Vector3, out: Matrix3): Matrix3;
+    // static ScaleMatrix(xyz: NumberArray): Matrix3;
+    // static ScaleMatrix(xyz: NumberArray, out: Matrix3): Matrix3;
+    // static ScaleMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
+    // {
+    //     const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
+    //     const scale = typeof _0 === 'number'
+    //         ? [_0, _1 as number, _2 as number]
+    //         : _0;
 
-        if (typeof _0 === 'number')
-        {
-            return out.Set(
-                _0, 0, 0,
-                0, _1 as number, 0,
-                0, 0, _2 as number
-            );
-        }
-        else
-        {
-            return out.Set(
-                scale[0], 0, 0,
-                0, scale[1], 0,
-                0, 0, scale[2]
-            );
-        }
-    }
+    //     if (typeof _0 === 'number')
+    //     {
+    //         return out.Set(
+    //             _0, 0, 0,
+    //             0, _1 as number, 0,
+    //             0, 0, _2 as number
+    //         );
+    //     }
+    //     else
+    //     {
+    //         return out.Set(
+    //             scale[0], 0, 0,
+    //             0, scale[1], 0,
+    //             0, 0, scale[2]
+    //         );
+    //     }
+    // }
     //#endregion
 }

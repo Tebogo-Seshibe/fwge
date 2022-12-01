@@ -476,31 +476,5 @@ export class Matrix2 extends Float32Array implements IEquatable<Matrix2>
 
         return out;
     }
-
-    static ScaleMatrix(x: number, y: number): Matrix2;
-    static ScaleMatrix(x: number, y: number, out: Matrix2): Matrix2;
-    static ScaleMatrix(xy: Vector2): Matrix2;
-    static ScaleMatrix(xy: Vector2, out: Matrix2): Matrix2;
-    static ScaleMatrix(xy: Vector2Array): Matrix2;
-    static ScaleMatrix(xy: Vector2Array, out: Matrix2): Matrix2;
-    static ScaleMatrix(_0: number | Vector2 | Vector2Array, _1?: number | Matrix2, _2?: Matrix2): Matrix2
-    {
-        const out = _2 !== undefined ? _2 : _1 instanceof Matrix2 ? _1 as Matrix2 : new Matrix2();
-
-        if (typeof _0 === 'number')
-        {
-            return out.Set(
-                _0, 0,
-                0, _1 as number
-            );
-        }
-        else
-        {
-            return out.Set(
-                _0[0], 0,
-                0, _0[1]
-            );
-        }
-    }
     //#endregion
 }

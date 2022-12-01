@@ -1,7 +1,7 @@
 import { FixedLengthArray } from "../types";
 import { clean, cot, radian } from "../utils";
 import { IEquatable } from "../utils/interfaces/IEquatable";
-import { Vector2, Vector2Array, Vector3, Vector3Array, Vector4 } from "../vector";
+import { Vector2, Vector2Array, Vector3, Vector3Array, Vector4, Vector4Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
 import { Matrix3 } from "./Matrix3";
 
@@ -838,7 +838,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 !== undefined ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -924,7 +924,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 !== undefined ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -1010,7 +1010,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 !== undefined ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -1061,7 +1061,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static Scale(matrix: Matrix4, scalar: number, out: Matrix4): Matrix4;
     static Scale(_0: Matrix4, _1: number, _2?: Matrix4): Matrix4
     {
-        const out = _2 ?? new Matrix4();
+        const out = _2 ? _2 : new Matrix4();
 
         out[0] = _0[0] * _1;
         out[1] = _0[1] * _1;
@@ -1087,7 +1087,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static Transpose(matrix: Matrix4, out: Matrix4): Matrix4;
     static Transpose(_0: Matrix4, _1?: Matrix4): Matrix4
     {
-        const out = _1 ?? new Matrix4();
+        const out = _1 ? _1 : new Matrix4();
 
         return out.Set(
             _0[0], _0[4], _0[8], _0[12],
@@ -1101,7 +1101,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static Inverse(matrix: Matrix4, out: Matrix4): Matrix4;
     static Inverse(_0: Matrix4, _1?: Matrix4): Matrix4
     {
-        const out = _1 ?? new Matrix4();
+        const out = _1 ? _1 : new Matrix4();
         const det = _0.Determinant;
 
         if (det !== 0)
@@ -1259,31 +1259,36 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         return out;
     }
 
-    static MultiplyVector(matrix: Matrix4, xyzw: number): Vector4;
-    static MultiplyVector(matrix: Matrix4, xyzw: number, out: Vector4): Vector4;
     static MultiplyVector(matrix: Matrix4, x: number, y: number, z: number, w: number): Vector4;
     static MultiplyVector(matrix: Matrix4, x: number, y: number, z: number, w: number, out: Vector4): Vector4;
     static MultiplyVector(matrix: Matrix4, vector: Vector4): Vector4;
     static MultiplyVector(matrix: Matrix4, vector: Vector4, out: Vector4): Vector4;
-    static MultiplyVector(matrix: Matrix4, array: Matrix4Array): Vector4;
-    static MultiplyVector(matrix: Matrix4, array: Matrix4Array, out: Vector4): Vector4;
-    static MultiplyVector(_0: Matrix4, _1: Vector4 | Matrix4Array | number, _2?: Vector4 | number, _3?: number, _4?: number, _5?: Vector4): Vector4
+    static MultiplyVector(matrix: Matrix4, array: Vector4Array): Vector4;
+    static MultiplyVector(matrix: Matrix4, array: Vector4Array, out: Vector4): Vector4;
+    static MultiplyVector(_0: Matrix4, _1: Vector4 | Vector4Array | number, _2?: Vector4 | number, _3?: number, _4?: number, _5?: Vector4): Vector4
     {
-        const out = _5 ?? _2 instanceof Vector4 ? _2 as Vector4 : new Vector4();
-        const vec = typeof _1 === 'number'
-            ? [_1, _2 as number ?? _1, _3 as number ?? _1, _4 as number ?? _1]
-            : _1;
+        const out = _5 ? _5 : _2 instanceof Vector4 ? _2 as Vector4 : new Vector4();
 
-        return out.Set(
-            (_0[0] * vec[0]) + (_0[1] * vec[1]) + (_0[2] * vec[2]) + (_0[3] * vec[3]),
-            (_0[4] * vec[0]) + (_0[5] * vec[1]) + (_0[6] * vec[2]) + (_0[7] * vec[3]),
-            (_0[8] * vec[0]) + (_0[9] * vec[1]) + (_0[10] * vec[2]) + (_0[11] * vec[3]),
-            (_0[12] * vec[0]) + (_0[13] * vec[1]) + (_0[14] * vec[2]) + (_0[15] * vec[3])
-        );
+        if (typeof _1 === 'number')
+        {
+            return out.Set(
+                (_0[0] * (_1 as number)) + (_0[1] * (_2 as number)) + (_0[2] * (_3 as number)) + (_0[3] * (_4 as number)),
+                (_0[4] * (_1 as number)) + (_0[5] * (_2 as number)) + (_0[6] * (_3 as number)) + (_0[7] * (_4 as number)),
+                (_0[8] * (_1 as number)) + (_0[9] * (_2 as number)) + (_0[10] * (_3 as number)) + (_0[11] * (_4 as number)),
+                (_0[12] * (_1 as number)) + (_0[13] * (_2 as number)) + (_0[14] * (_3 as number)) + (_0[15] * (_4 as number))
+            );
+        }
+        else
+        {
+            return out.Set(
+                (_0[0] * _1[0]) + (_0[1] * _1[1]) + (_0[2] * _1[2]) + (_0[3] * _1[3]),
+                (_0[4] * _1[0]) + (_0[5] * _1[1]) + (_0[6] * _1[2]) + (_0[7] * _1[3]),
+                (_0[8] * _1[0]) + (_0[9] * _1[1]) + (_0[10] * _1[2]) + (_0[11] * _1[3]),
+                (_0[12] * _1[0]) + (_0[13] * _1[1]) + (_0[14] * _1[2]) + (_0[15] * _1[3])
+            );
+        }
     }
 
-    static RotationMatrixAroundAxis(xyz: number, angle: number): Matrix4;
-    static RotationMatrixAroundAxis(xyz: number, angle: number, out: Matrix4): Matrix4;
     static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number): Matrix4;
     static RotationMatrixAroundAxis(x: number, y: number, z: number, angle: number, out: Matrix4): Matrix4;
     static RotationMatrixAroundAxis(axis: Vector3Array, angle: number): Matrix4;
@@ -1292,41 +1297,37 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix4): Matrix4;
     static RotationMatrixAroundAxis(_0: Vector3 | Vector3Array | number, _1: number, _2?: Matrix4 | number, _3?: number, _4?: Matrix4): Matrix4
     {
-        const out = _4 ?? _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _4 ? _4 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
         const axis = typeof _0 === 'number'
-            ? (_3 ? [_0, _1 as number, _2 as number] : [_0, _0, _0])
+            ? [_0, _1 as number, _2 as number] as Vector3Array
             : _0;
-        const rotation = typeof _0 === 'number'
-            ? _3 ?? _1
-            : _1;
+        const rotation = typeof _3 === 'number' ? _3 : _1;
 
         const angle = radian(rotation);
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
         const inv_cos = 1 - cos;
 
-        return out.Set(
-            (cos) + (axis[0] * axis[0] * inv_cos),
-            (axis[0] * axis[1] * inv_cos) - (axis[2] * sin),
-            (axis[0] * axis[2] * inv_cos) + (axis[1] * sin),
-            0,
-
-            (axis[1] * axis[0] * inv_cos) + (axis[2] * sin),
-            (cos) + (axis[1] * axis[1] * inv_cos),
-            (axis[1] * axis[2] * inv_cos) - (axis[0] * sin),
-            0,
-
-            (axis[2] * axis[0] * inv_cos) - (axis[1] * sin),
-            (axis[2] * axis[1] * inv_cos) + (axis[0] * sin),
-            (cos) + (axis[2] * axis[2] * cos),
-            0,
-
-            0, 0, 0, 1
-        );
+        out[0] = cos + (axis[0] * axis[0] * inv_cos);
+        out[1] = (axis[0] * axis[1] * inv_cos) - (axis[2] * sin);
+        out[2] = (axis[0] * axis[2] * inv_cos) + (axis[1] * sin);
+        out[3] = 0;
+        out[4] = (axis[1] * axis[0] * inv_cos) + (axis[2] * sin);
+        out[5] = cos + (axis[1] * axis[1] * inv_cos);
+        out[6] = (axis[1] * axis[2] * inv_cos) - (axis[0] * sin);
+        out[7] = 0;
+        out[8] = (axis[2] * axis[0] * inv_cos) - (axis[1] * sin);
+        out[9] = (axis[2] * axis[1] * inv_cos) + (axis[0] * sin);
+        out[10] = cos + (axis[2] * axis[2] * cos);
+        out[11] = 0;
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+        out[15] = 1;
+        
+        return out;
     }
 
-    static TranslationMatrix(xyz: number): Matrix4;
-    static TranslationMatrix(xyz: number, out: Matrix4): Matrix4;
     static TranslationMatrix(x: number, y: number, z: number): Matrix4;
     static TranslationMatrix(x: number, y: number, z: number, out: Matrix4): Matrix4;
     static TranslationMatrix(xyz: Vector3): Matrix4;
@@ -1335,21 +1336,31 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static TranslationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static TranslationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
         const translation = typeof _0 === 'number'
-            ? [_0, _1 as number ?? _0, _2 as number ?? _0]
+            ? [_0, _1 as number, _2 as number] as Vector3Array
             : _0;
 
-        return out.Set(
-            1, 0, 0, translation[0],
-            0, 1, 0, translation[1],
-            0, 0, 1, translation[2],
-            0, 0, 0, 1
-        );
+        out[0] = 1;
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = translation[0];
+        out[4] = 0;
+        out[5] = 1;
+        out[6] = 0;
+        out[7] = translation[1];
+        out[8] = 0;
+        out[9] = 0;
+        out[10] = 1;
+        out[11] = translation[2];
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+        out[15] = 1;
+
+        return out;
     }
 
-    static RotationMatrix(xyz: number): Matrix4;
-    static RotationMatrix(xyz: number, out: Matrix4): Matrix4;
     static RotationMatrix(x: number, y: number, z: number): Matrix4;
     static RotationMatrix(x: number, y: number, z: number, out: Matrix4): Matrix4;
     static RotationMatrix(xyz: Vector3): Matrix4;
@@ -1358,9 +1369,9 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static RotationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static RotationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
         const rotation = typeof _0 === 'number'
-            ? [_0, _1 as number ?? _0, _2 as number ?? _0]
+            ? [_0, _1 as number ?? _0, _2 as number ?? _0] as Vector3Array
             : _0;
 
         const x = radian(rotation[0]);
@@ -1375,24 +1386,24 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         const cos_y = Math.cos(y);
         const cos_z = Math.cos(z);
 
-        return out.Set(
-            cos_y * cos_z,
-            cos_y * sin_z,
-            -sin_y,
-            0,
-
-            sin_x * sin_y * cos_z - cos_x * sin_z,
-            sin_x * sin_y * sin_z + cos_x * cos_z,
-            sin_x * cos_y,
-            0,
-
-            cos_x * sin_y * cos_z + sin_x * sin_z,
-            cos_x * sin_y * sin_z - sin_x * cos_z,
-            cos_x * cos_y,
-            0,
-
-            0, 0, 0, 1
-        );
+        out[0] = cos_y * cos_z;
+        out[1] = cos_y * sin_z;
+        out[2] = -sin_y;
+        out[3] = 0;
+        out[4] = sin_x * sin_y * cos_z - cos_x * sin_z;
+        out[5] = sin_x * sin_y * sin_z + cos_x * cos_z;
+        out[6] = sin_x * cos_y;
+        out[7] = 0;
+        out[8] = cos_x * sin_y * cos_z + sin_x * sin_z;
+        out[9] = cos_x * sin_y * sin_z - sin_x * cos_z;
+        out[10] = cos_x * cos_y;
+        out[11] = 0;
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+        out[15] = 1;
+        
+        return out;
     }
 
     static ScaleMatrix(xyz: number): Matrix4;
@@ -1405,9 +1416,9 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static ScaleMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static ScaleMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ?? _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
         const scale = typeof _0 === 'number'
-            ? [_0, _1 as number ?? _0, _2 as number ?? _0]
+            ? [_0, _1 as number ?? _0, _2 as number ?? _0] as Vector3Array
             : _0;
 
         return out.Set(
@@ -1424,13 +1435,18 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     static TransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array, out: Matrix4): Matrix4;
     static TransformationMatrix(_0: Vector3 | Vector3Array, _1: Vector3 | Vector3Array, _2: Vector3 | Vector3Array, _3?: Matrix4): Matrix4
     {
-        const out = _3 ?? _1 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4();
+        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
 
-        Matrix4.ScaleMatrix(_2 as Vector3Array, out);
-        Matrix4.Multiply(Matrix4.RotationMatrix(_1 as Vector3Array), out, out);
-        Matrix4.Multiply(Matrix4.TranslationMatrix(_0 as Vector3Array), out, out);
+        const transformations = new Float32Array(Matrix4.SIZE * 3);
+        const translation = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 0);
+        const rotation = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 1);
+        const scale = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 2)
 
-        return out;
+        Matrix4.ScaleMatrix(_2 as Vector3Array, scale);
+        Matrix4.RotationMatrix(_1 as Vector3Array, rotation);
+        Matrix4.TranslationMatrix(_0 as Vector3Array, translation);
+
+        return out.Set(translation).Multiply(rotation).Multiply(scale);
     }
 
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number): Matrix4;
@@ -1487,121 +1503,54 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         const height = top - bottom;
         const depth = far - near;
 
-        return out.Set
-            (
-                2 / width,
-                0,
-                0,
-                0,
+        out[0] = 2 / width;
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = 0;
+        out[4] = 0;
+        out[5] = 2 / height;
+        out[6] = 0;
+        out[7] = 0;
+        out[8] = theta;
+        out[9] = phi;
+        out[10] = -2 / depth;
+        out[11] = 0;
+        out[12] = -(left + right) / width;
+        out[13] = -(top + bottom) / height;
+        out[14] = -(far + near) / depth;
+        out[15] = 1;
 
-                0,
-                2 / (top - bottom),
-                0,
-                0,
-
-                theta,
-                phi,
-                -2 / (far - near),
-                0,
-
-
-                -(left + right) / width,
-                -(top + bottom) / height,
-                -(far + near) / depth,
-                1
-            );
-    }
-
-    static OrthographicProjectionMatrix(xyz: number): Matrix4;
-    static OrthographicProjectionMatrix(xyz: number, out: Matrix4): Matrix4;
-    static OrthographicProjectionMatrix(width: number, height: number, depth: number): Matrix4;
-    static OrthographicProjectionMatrix(width: number, height: number, depth: number, out: Matrix4): Matrix4;
-    static OrthographicProjectionMatrix(_0: number, _1?: number | Matrix4, _2?: number, _3?: Matrix4): Matrix4
-    {
-        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 : new Matrix4();
-        let height: number;
-        let width: number;
-        let depth: number;
-
-        if (typeof _1 === 'number')
-        {
-            width = _0 as number;
-            height = _1 as number;
-            depth = _2 as number;
-        }
-        else
-        {
-            width = _0;
-            height = _0;
-            depth = _0;
-        }
-
-        return out.Set(
-            2 / width, 0, 0, 0,
-            0, 2 / height, 0, 0,
-            0, 0, 2 / depth, 0,
-            0, 0, 0, 1
-        );
+        return out;
     }
 
     static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number): Matrix4;
     static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4;
     static PerspectiveProjectionMatrix(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4
     {
-        const out = _4 ?? new Matrix4();
+        const out = _4 ? _4 : new Matrix4();
         const near = _0;
         const far = _1;
-        const top = near * Math.tan(radian(_2) / 2);
+        const top = near * Math.tan(radian(_2 * 0.5));
+        const bottom = -top
         const right = top * _3;
-        const depth = far - near;
-
-        return out.Set
-            (
-                near / right, 0, 0, 0,
-                0, near / top, 0, 0,
-                0, 0, -(far + near) / depth, -(2 * far * near) / depth,
-                0, 0, -1, 0
-            );
-    }
-
-    static LookAt(forward: Vector3, right: Vector3, up: Vector3): Matrix4;
-    static LookAt(forward: Vector3, right: Vector3, up: Vector3, out: Matrix4): Matrix4;
-    static LookAt(forward: Vector3Array, right: Vector3Array, up: Vector3Array): Matrix4;
-    static LookAt(forward: Vector3Array, right: Vector3Array, up: Vector3Array, out: Matrix4): Matrix4;
-    static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number): Matrix4;
-    static LookAt(forwardX: number, forwardY: number, forwardZ: number, rightX: number, rightY: number, rightZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4;
-    static LookAt(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector3 | Vector3Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
-    {
-        const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4();
-
-        if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
-        {
-            out[0] = _3 as number;
-            out[1] = _4 as number;
-            out[2] = _5 as number;
-
-            out[4] = _6 as number;
-            out[5] = _7 as number;
-            out[6] = _8 as number;
-
-            out[8] = _0 as number;
-            out[9] = _1 as number;
-            out[10] = _2 as number;
-        }
-        else
-        {
-            out[0] = _1[0];
-            out[1] = _1[1];
-            out[2] = _1[2];
-
-            out[4] = _2[0];
-            out[5] = _2[1];
-            out[6] = _2[2];
-
-            out[8] = _0[0];
-            out[9] = _0[1];
-            out[10] = _0[2];
-        }
+        const left = bottom * _3;
+        
+        out[0] = (near * 2.0) / (right - left);
+        out[1] = 0;
+        out[2] = (right + left) / (right - left);
+        out[3] = 0;
+        out[4] = 0;
+        out[5] = (near * 2.0) / (top - bottom);
+        out[6] = (top + bottom) / (top - bottom);
+        out[7] = 0;
+        out[8] = 0;
+        out[9] = 0;
+        out[10] = -(far + near) / (far - near);
+        out[11] = -(2 * far * near) / (far - near);
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = -1;
+        out[15] = 0;
 
         return out;
     }
@@ -1632,22 +1581,28 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
             up.Set(_2 as Vector3Array);
         }
 
-        const zAxis = Vector3.Subtract(target, eye).Normalize();
+        const zAxis = Vector3.Subtract(eye, target).Normalize();
         const xAxis = Vector3.Cross(up, zAxis).Normalize();
         const yAxis = Vector3.Cross(zAxis, xAxis).Normalize();
 
-        return out.Set(
-            xAxis[0], xAxis[1], xAxis[2], 0,
-            yAxis[0], yAxis[1], yAxis[2], 0,
-            zAxis[0], zAxis[1], zAxis[2], 0,
-            eye[0], eye[1], eye[2], 1
-        ).Transpose();
-        // return out.Set(
-        //     xAxis[0], xAxis[1], xAxis[2], -xAxis.Dot(eye),
-        //     yAxis[0], yAxis[1], yAxis[2], -yAxis.Dot(eye),
-        //     zAxis[0], zAxis[1], zAxis[2], -zAxis.Dot(eye),
-        //            0,        0,        0,               1
-        // )
+        out[0] = xAxis[0];
+        out[1] = xAxis[1];
+        out[2] = xAxis[2];
+        out[3] = -((xAxis[0] * eye[0]) + (xAxis[1] * eye[1]) + (xAxis[2] * eye[2]));
+        out[4] = yAxis[0];
+        out[5] = yAxis[1];
+        out[6] = yAxis[2];
+        out[7] = -((yAxis[0] * eye[0]) + (yAxis[1] * eye[1]) + (yAxis[2] * eye[2]));
+        out[8] = zAxis[0];
+        out[9] = zAxis[1];
+        out[10] = zAxis[2];
+        out[11] = -((zAxis[0] * eye[0]) + (zAxis[1] * eye[1]) + (zAxis[2] * eye[2]));
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+        out[15] = 1;
+        
+        return out;
     }
     //#endregion
 }

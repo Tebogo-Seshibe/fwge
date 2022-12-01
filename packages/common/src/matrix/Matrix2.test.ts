@@ -1234,31 +1234,5 @@ describe('Matrix2', () =>
                 expect(vector[1]).toBeCloseTo(roty);
             });
         });
-
-
-        describe('ScaleMatrix', () => 
-        {
-            it('Should create a new rotation matrix', () =>
-            {
-                const matrix = Matrix2.ScaleMatrix(45, 45);
-                expect(matrix[0]).toBe(45);
-                expect(matrix[1]).toBe(0);
-                expect(matrix[2]).toBe(0);
-                expect(matrix[3]).toBe(45);
-            });
-
-            it('Should set a given matrix as a rotation matrix', () =>
-            {
-                const matrix = new Matrix2(
-                    1, 2,
-                    3, 4
-                );
-                Matrix2.ScaleMatrix(45, 45, matrix);
-                expect(matrix[0]).toBe(45);
-                expect(matrix[1]).toBe(0);
-                expect(matrix[2]).toBe(0);
-                expect(matrix[3]).toBe(45);
-            });
-        });
     });
 });

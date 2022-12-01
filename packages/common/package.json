@@ -18,7 +18,8 @@
   },
   "scripts": {
     "test": "jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "coverage:w": "jest --coverage --watchAll"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
