@@ -429,6 +429,11 @@ layout(location = 0) out vec3 O_Position;
 layout(location = 1) out vec3 O_Normal;
 layout(location = 2) out vec4 O_ColourSpecular;
 
+// Position         Position            Position
+// Normal           Normal              Normal
+// Diffuse          Diffuse             Diffuse             Specular
+// AmbientOcclusion AmbientOcclusion    AmbientOcclusion    RoughnessMetallic
+
 struct Vertex
 {
     vec3 Position;

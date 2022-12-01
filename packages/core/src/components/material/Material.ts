@@ -71,7 +71,7 @@ export class Material extends SharedComponent implements IBindable<Float32Array>
         this.Colour = new Colour3()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
         this.#alpha = new Scalar()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
         
-        this.Colour.Set(0.3)
+        this.Colour.Set(0.3, 0.3, 0.3)
         this.#alpha.Set(1.0)
 
         if (!Material.Empty)

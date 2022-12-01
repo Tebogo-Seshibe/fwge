@@ -1,2 +1,2 @@
-export * from './Colour3'
-export * from './Colour4'
+export * from './Colour3';
+export * from './Colour4';
