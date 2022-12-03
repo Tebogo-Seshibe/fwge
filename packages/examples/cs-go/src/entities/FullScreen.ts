@@ -29,8 +29,15 @@ export class FullScreen extends GameObject
 
     override OnUpdate(): void
     {
-        this.canvas.height = this.canvas.clientHeight
-        this.canvas.width = this.canvas.clientWidth
+        if (this.canvas.height !== this.canvas.clientHeight)
+        {
+            this.canvas.height = this.canvas.clientHeight;
+        }
+
+        if (this.canvas.width !== this.canvas.clientWidth)
+        {
+            this.canvas.width = this.canvas.clientWidth;
+        }
     }
 
     override OnInput({ Keyboard, Mouse }: IInputArgs): void

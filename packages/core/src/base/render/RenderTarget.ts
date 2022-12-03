@@ -231,8 +231,6 @@ export class RenderTarget
 
     Reconfigure(config: Partial<RenderTargetConfig>)
     {
-        console.log(config)
-        console.log(this)
         const height = config.height ?? this._config.height
         const width = config.width ?? this._config.width
 
@@ -288,7 +286,6 @@ export class RenderTarget
     
     private _bindColourAttachment(colourType: ColourType, index: number)
     {
-        console.log({ colourType, index })
         const internalFormat = colourInternalFormat(colourType)
         const format = colourFormat(colourType)
         const type = colourDataType(colourType)

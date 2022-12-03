@@ -43,14 +43,13 @@ export class Colour3 extends Float32Array
     //#endregion
 
     constructor();
-    constructor(rgb: number);
     constructor(r: number, g: number, b: number);
     constructor(colour: Colour3);
     constructor(colour: Colour4);
     constructor(colour: Colour3Array);
     constructor(buffer: ArrayBuffer);
     constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Colour4 | Colour3 | NumberArray | number = 0, _1?: number, _2?: number)
+    constructor(_0?: ArrayBuffer | Colour4 | Colour3 | NumberArray | number, _1?: number, _2?: number)
     {
         if (_0 instanceof ArrayBuffer)
         {
@@ -60,9 +59,13 @@ export class Colour3 extends Float32Array
         {
             super([_0, _1 ?? _0, _2 ?? _0]);
         }
-        else
+        else if (_0 !== undefined)
         {
             super(_0);
+        }
+        else
+        {
+            super(Colour3.SIZE);
         }
     }
 

@@ -1,198 +1,198 @@
-import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { Asset } from "./Asset"
+import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common";
+import { Asset } from "./Asset";
 
 export interface UniformBlock
 {
-    index: number
-    offset: number
-    size: number
-    binndingPoint: number
+    index: number;
+    offset: number;
+    size: number;
+    binndingPoint: number;
 }
 
 export class Shader extends Asset
 {
-    static readonly Includes: Map<string, string> = new Map()
-    static readonly BlockIndex: Map<string, number> = new Map()
-    static readonly BlockOffset: Map<string, number> = new Map()
-    static readonly BindingPoint: Map<string, number> = new Map()
-    static readonly UniformBlocks: Map<string, UniformBlock> = new Map()
+    static readonly Includes: Map<string, string> = new Map();
+    static readonly BlockIndex: Map<string, number> = new Map();
+    static readonly BlockOffset: Map<string, number> = new Map();
+    static readonly BindingPoint: Map<string, number> = new Map();
+    static readonly UniformBlocks: Map<string, UniformBlock> = new Map();
 
-    static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/
-    static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g
-    static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g
+    static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/;
+    static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
+    static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
 
-    private _program: WebGLProgram | null = null
-    private _vertexShader: WebGLShader | null = null
-    private _fragmentShader: WebGLShader | null = null
-    private _rawVertexSource: string | null = null
-    private _rawFragmentSource: string | null = null
-    private _vertexSource: string | null = null
-    private _fragmentSource: string | null = null
+    private _program: WebGLProgram | null = null;
+    private _vertexShader: WebGLShader | null = null;
+    private _fragmentShader: WebGLShader | null = null;
+    private _rawVertexSource: string | null = null;
+    private _rawFragmentSource: string | null = null;
+    private _vertexSource: string | null = null;
+    private _fragmentSource: string | null = null;
 
-    private _samplerIndex: number = 0
-    private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS)
+    private _samplerIndex: number = 0;
+    private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 
-    public readonly Inputs: {[key: string]: WebGLUniformLocation | undefined} = {}
-    public readonly Ignore: Set<string> = new Set()
+    public readonly Inputs: { [key: string]: WebGLUniformLocation | undefined; } = {};
+    public readonly Ignore: Set<string> = new Set();
 
-    public readonly Structs: Map<string, Map<string, string>> = new Map()
-    public readonly Uniforms: Map<string, Map<string, string>> = new Map()
+    public readonly Structs: Map<string, Map<string, string>> = new Map();
+    public readonly Uniforms: Map<string, Map<string, string>> = new Map();
 
-    private readonly Buffer: WebGLBuffer = GL.createBuffer()!
-    private readonly BufferData: Float32Array = new Float32Array()
+    private readonly Buffer: WebGLBuffer = GL.createBuffer()!;
+    private readonly BufferData: Float32Array = new Float32Array();
 
     get Program(): WebGLProgram | null
     {
-        return this._program
+        return this._program;
     }
 
     get VertexShader(): WebGLShader | null
     {
-        return this._vertexShader
+        return this._vertexShader;
     }
 
     get FragmentShader(): WebGLShader | null
     {
-        return this._fragmentShader
+        return this._fragmentShader;
     }
 
     get RawVertexSource(): string | null
     {
-        return this._rawVertexSource
+        return this._rawVertexSource;
     }
 
     get VertexSource(): string | null
     {
-        return this._vertexSource
+        return this._vertexSource;
     }
 
     set VertexSource(vertexSource: string | null)
     {
         if (vertexSource)
         {
-            this._rawVertexSource = vertexSource
-            this._vertexSource = this._addIncludes(vertexSource)
+            this._rawVertexSource = vertexSource;
+            this._vertexSource = this._addIncludes(vertexSource);
         }
         else
         {
-            this._rawVertexSource = null
-            this._vertexSource = null
+            this._rawVertexSource = null;
+            this._vertexSource = null;
         }
-        this._compileShaders()
+        this._compileShaders();
     }
 
     get FragmentSource(): string | null
     {
-        return this._rawFragmentSource
+        return this._rawFragmentSource;
     }
-    
+
     get FullFragmentSource(): string | null
     {
-        return this._rawFragmentSource ? this._addIncludes(this._rawFragmentSource) : null
+        return this._rawFragmentSource ? this._addIncludes(this._rawFragmentSource) : null;
     }
 
     set FragmentSource(fragmentSource: string | null)
     {
         if (fragmentSource)
         {
-            this._rawFragmentSource = fragmentSource
-            this._fragmentSource = this._addIncludes(fragmentSource)
+            this._rawFragmentSource = fragmentSource;
+            this._fragmentSource = this._addIncludes(fragmentSource);
         }
         else
         {
-            this._rawFragmentSource = null
-            this._fragmentSource = null
+            this._rawFragmentSource = null;
+            this._fragmentSource = null;
         }
-        this._compileShaders()
+        this._compileShaders();
     }
 
     constructor(vertexShader: string, fragmentShader: string)
     {
-        super(Shader)
+        super(Shader);
 
-        this._rawVertexSource = vertexShader
-        this._rawFragmentSource = fragmentShader
-        this._vertexSource = this._addIncludes(vertexShader)
-        this._fragmentSource = this._addIncludes(fragmentShader)
-        this._addUniformStructs(this._vertexSource, this._fragmentSource)
-        this._compileShaders()
+        this._rawVertexSource = vertexShader;
+        this._rawFragmentSource = fragmentShader;
+        this._vertexSource = this._addIncludes(vertexShader);
+        this._fragmentSource = this._addIncludes(fragmentShader);
+        this._addUniformStructs(this._vertexSource, this._fragmentSource);
+        this._compileShaders();
     }
-    
+
     _addUniformStructs(vertexSource: string, fragmentSource: string): void
     {
-        let match
+        let match;
 
-        const vertStructs = vertexSource.matchAll(Shader.StructRegex)
-        const fragStructs = fragmentSource.matchAll(Shader.StructRegex)
-        
-        
+        const vertStructs = vertexSource.matchAll(Shader.StructRegex);
+        const fragStructs = fragmentSource.matchAll(Shader.StructRegex);
+
+
         while (!(match = vertStructs.next()).done)
         {
-            const { name, fields, instance } = match.value.groups!
-            const props = new Map<string, string>()
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            const { name, fields, instance } = match.value.groups!;
+            const props = new Map<string, string>();
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
             for (const fieldName of fieldNames)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
-                props.set(prop, type)
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
+                props.set(prop, type);
             }
             if (instance)
             {
-                props.set('instance', instance)
+                props.set('instance', instance);
             }
-            this.Structs.set(name, props)
+            this.Structs.set(name, props);
         }
         while (!(match = fragStructs.next()).done)
         {
-            const { name, fields, instance } = match.value.groups!
-            const props = new Map<string, string>()
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            const { name, fields, instance } = match.value.groups!;
+            const props = new Map<string, string>();
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
             for (const fieldName of fieldNames)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
-                props.set(prop, type)
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
+                props.set(prop, type);
             }
             if (instance)
             {
-                props.set('instance', instance)
+                props.set('instance', instance);
             }
-            this.Structs.set(name, props)
+            this.Structs.set(name, props);
         }
-        
-        const vertUniforms = vertexSource.matchAll(Shader.UniformBlockRegex)
-        const fragUniforms = fragmentSource.matchAll(Shader.UniformBlockRegex)
+
+        const vertUniforms = vertexSource.matchAll(Shader.UniformBlockRegex);
+        const fragUniforms = fragmentSource.matchAll(Shader.UniformBlockRegex);
 
         while (!(match = vertUniforms.next()).done)
         {
-            const { name, fields, instance } = match.value.groups!
-            const props = new Map<string, string>()
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            const { name, fields, instance } = match.value.groups!;
+            const props = new Map<string, string>();
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
             for (const fieldName of fieldNames)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
-                props.set(prop, type)
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
+                props.set(prop, type);
             }
             if (instance)
             {
-                props.set('instance', instance)
+                props.set('instance', instance);
             }
-            this.Uniforms.set(name, props)
+            this.Uniforms.set(name, props);
         }
         while (!(match = fragUniforms.next()).done)
         {
-            const { name, fields, instance } = match.value.groups!
-            const props = new Map<string, string>()
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x)
+            const { name, fields, instance } = match.value.groups!;
+            const props = new Map<string, string>();
+            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
             for (const fieldName of fieldNames)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x)
-                props.set(prop, type)
+                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
+                props.set(prop, type);
             }
             if (instance)
             {
-                props.set('instance', instance)
+                props.set('instance', instance);
             }
-            this.Uniforms.set(name, props)
+            this.Uniforms.set(name, props);
         }
     }
 
@@ -200,388 +200,388 @@ export class Shader extends Asset
 
     _compileShaders(): void
     {
-        if (this._vertexSource ===  null || this._fragmentSource === null)
+        if (this._vertexSource === null || this._fragmentSource === null)
         {
-            return
+            return;
         }
 
-        const program = GL.createProgram()
-        const vertexShader = GL.createShader(GL.VERTEX_SHADER)
-        const fragmentShader = GL.createShader(GL.FRAGMENT_SHADER)
+        const program = GL.createProgram();
+        const vertexShader = GL.createShader(GL.VERTEX_SHADER);
+        const fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
 
         if (!program)
         {
-            throw new Error('WebGL failed to create shader program')
+            throw new Error('WebGL failed to create shader program');
         }
 
         if (!vertexShader)
         {
-            throw new Error('WebGL failed to create vertex shader')
+            throw new Error('WebGL failed to create vertex shader');
         }
 
         if (!fragmentShader)
         {
-            throw new Error('WebGL failed to create fragment shader')
+            throw new Error('WebGL failed to create fragment shader');
         }
 
-        const log = []
+        const log = [];
 
-        GL.shaderSource(vertexShader, this._vertexSource)
-        GL.compileShader(vertexShader)
+        GL.shaderSource(vertexShader, this._vertexSource);
+        GL.compileShader(vertexShader);
         if (!GL.getShaderParameter(vertexShader, GL.COMPILE_STATUS))
         {
-            log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader))
-            log.push(this._vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push('Vertex Shader: ' + GL.getShaderInfoLog(vertexShader));
+            log.push(this._vertexSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'));
         }
 
 
-        GL.shaderSource(fragmentShader, this._fragmentSource!)
-        GL.compileShader(fragmentShader)
+        GL.shaderSource(fragmentShader, this._fragmentSource!);
+        GL.compileShader(fragmentShader);
         if (!GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS))
         {
-            log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader))
-            log.push(this._fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'))
+            log.push('Fragment Shader: ' + GL.getShaderInfoLog(fragmentShader));
+            log.push(this._fragmentSource.split('\n').map((line, i) => (i + 1) + '\t' + line).join('\n'));
         }
 
-        GL.attachShader(program, vertexShader)
-        GL.attachShader(program, fragmentShader)
-        GL.linkProgram(program)
+        GL.attachShader(program, vertexShader);
+        GL.attachShader(program, fragmentShader);
+        GL.linkProgram(program);
         if (!GL.getProgramParameter(program, GL.LINK_STATUS))
         {
-            log.push(GL.getProgramInfoLog(program))
+            log.push(GL.getProgramInfoLog(program));
         }
 
         if (log.length > 0)
         {
-            throw new Error(log.join('\n'))
+            throw new Error(log.join('\n'));
         }
 
         if (this._program)
         {
-            GL.deleteProgram(this._program)
-            GL.deleteShader(this._vertexShader)
-            GL.deleteShader(this._fragmentShader)
+            GL.deleteProgram(this._program);
+            GL.deleteShader(this._vertexShader);
+            GL.deleteShader(this._fragmentShader);
         }
 
-        this._program = program
-        this._vertexShader = vertexShader
-        this._fragmentShader = fragmentShader
+        this._program = program;
+        this._vertexShader = vertexShader;
+        this._fragmentShader = fragmentShader;
     }
 
     _addIncludes(shaderSource: string): string
     {
-        let source = shaderSource.toString()
+        let source = shaderSource.toString();
 
         while (source.includes('//#include'))
         {
-            const result = source.match(Shader.IncludeRegex)!
+            const result = source.match(Shader.IncludeRegex)!;
             if (result)
             {
-                const [match, name, whitespace] = result
+                const [match, name, whitespace] = result;
 
                 if (Shader.Includes.has(name))
                 {
-                    source = source.replace(match, Shader.Includes.get(name)! + whitespace)
+                    source = source.replace(match, Shader.Includes.get(name)! + whitespace);
                 }
                 else
                 {
-                    source = source.replace(match, `// Could not find: ${name + whitespace}`)
+                    source = source.replace(match, `// Could not find: ${name + whitespace}`);
                 }
             }
         }
 
-        return source
+        return source;
     }
 
     private _getLocation(name: string): WebGLUniformLocation | undefined
     {
         if (this.Ignore.has(name))
         {
-            return
+            return;
         }
 
-        let location = this.Inputs[name]
+        let location = this.Inputs[name];
         if (!location)
         {
-            const loc = GL.getUniformLocation(this.Program!, name)
+            const loc = GL.getUniformLocation(this.Program!, name);
             if (loc)
             {
-                this.Inputs[name] = loc
-                location = loc
+                this.Inputs[name] = loc;
+                location = loc;
             }
             else
             {
-                this.Ignore.add(name)
-                return
+                this.Ignore.add(name);
+                return;
             }
         }
 
-        return location!
+        return location!;
     }
 
     Bind(): void
     {
-        GL.useProgram(this.Program)
-        this._samplerIndex = 0
+        GL.useProgram(this.Program);
+        this._samplerIndex = 0;
     }
-    
+
     Reset()
     {
-        this._samplerIndex = 0
+        this._samplerIndex = 0;
     }
 
     UnBind(): void
     {
-        GL.useProgram(null)
+        GL.useProgram(null);
     }
 
-    SetBufferData(name: string, bufferData: Float32Array): void
-    SetBufferData(name: string, bufferData: Float32Array, offset: number): void
+    SetBufferData(name: string, bufferData: Float32Array): void;
+    SetBufferData(name: string, bufferData: Float32Array, offset: number): void;
     SetBufferData(name: string, bufferData: Float32Array, offset: number = 0): void
     {
-        let blockIndex = Shader.BlockIndex.get(name)
-        
+        let blockIndex = Shader.BlockIndex.get(name);
+
         if (blockIndex !== undefined && blockIndex !== GL.INVALID_INDEX)
         {
-            const offset = Shader.BlockOffset.get(name)!
-            GL.bindBuffer(GL.UNIFORM_BUFFER, this.Buffer)
-            GL.bufferSubData(GL.UNIFORM_BUFFER, offset, this.BufferData)
+            const offset = Shader.BlockOffset.get(name)!;
+            GL.bindBuffer(GL.UNIFORM_BUFFER, this.Buffer);
+            GL.bufferSubData(GL.UNIFORM_BUFFER, offset, this.BufferData);
         }
     }
 
     SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
-        this._samplerIndex++
+        this._samplerIndex++;
         if (this._samplerIndex > this._maxSamplerIndex)
         {
-            throw new Error('Too many textures attached')
+            throw new Error('Too many textures attached');
         }
 
-        GL.activeTexture(GL.TEXTURE0 + this._samplerIndex)
+        GL.activeTexture(GL.TEXTURE0 + this._samplerIndex);
         if (is3D)
         {
-            GL.bindTexture(GL.TEXTURE_3D, texture)
+            GL.bindTexture(GL.TEXTURE_3D, texture);
         }
         else if (isCube)
         {
-            GL.bindTexture(GL.TEXTURE_CUBE_MAP, texture)
+            GL.bindTexture(GL.TEXTURE_CUBE_MAP, texture);
         }
         else
         {
-            GL.bindTexture(GL.TEXTURE_2D, texture)
+            GL.bindTexture(GL.TEXTURE_2D, texture);
         }
-        GL.uniform1i(location, this._samplerIndex)
+        GL.uniform1i(location, this._samplerIndex);
     }
 
     SetBool(name: string, bool: boolean): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
-        GL.uniform1i(location, bool ? 1 : 0)
+        GL.uniform1i(location, bool ? 1 : 0);
     }
 
     SetInt(name: string, int: number, unsigned: boolean = false): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
         if (unsigned)
         {
-            GL.uniform1ui(location, int)
+            GL.uniform1ui(location, int);
         }
         else
         {
-            GL.uniform1i(location, int)
+            GL.uniform1i(location, int);
         }
     }
 
-    SetFloat(name: string, float: number): void
-    SetFloat(name: string, float: Scalar): void
-    SetFloat(name: string, float: [number]): void
+    SetFloat(name: string, float: number): void;
+    SetFloat(name: string, float: Scalar): void;
+    SetFloat(name: string, float: [number]): void;
     SetFloat(name: string, float: number | Scalar | [number]): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
         if (typeof float === 'number')
         {
-            GL.uniform1f(location, float)
+            GL.uniform1f(location, float);
         }
         else
         {
-            GL.uniform1fv(location, float)
+            GL.uniform1fv(location, float);
         }
     }
 
-    SetIntVector(name: string, vector: Vector2): void
-    SetIntVector(name: string, vector: Vector2, unsigned: boolean): void
-    SetIntVector(name: string, vector: [number, number]): void
-    SetIntVector(name: string, vector: [number, number], unsigned: boolean): void
-    SetIntVector(name: string, x: number, y: number): void
-    SetIntVector(name: string, x: number, y: number, unsigned: boolean): void
-    SetIntVector(name: string, vector: Vector3): void
-    SetIntVector(name: string, vector: Vector3, unsigned: boolean): void
-    SetIntVector(name: string, vector: [number, number, number]): void
-    SetIntVector(name: string, vector: [number, number, number], unsigned: boolean): void
-    SetIntVector(name: string, x: number, y: number, z: number): void
-    SetIntVector(name: string, x: number, y: number, z: number, unsigned: boolean): void
-    SetIntVector(name: string, vector: Vector4): void
-    SetIntVector(name: string, vector: Vector4, unsigned: boolean): void
-    SetIntVector(name: string, vector: [number, number, number, number]): void
-    SetIntVector(name: string, vector: [number, number, number, number], unsigned: boolean): void
-    SetIntVector(name: string, x: number, y: number, z: number, w: number): void
-    SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void
-    SetIntVector(name: string, _1:  Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
+    SetIntVector(name: string, vector: Vector2): void;
+    SetIntVector(name: string, vector: Vector2, unsigned: boolean): void;
+    SetIntVector(name: string, vector: [number, number]): void;
+    SetIntVector(name: string, vector: [number, number], unsigned: boolean): void;
+    SetIntVector(name: string, x: number, y: number): void;
+    SetIntVector(name: string, x: number, y: number, unsigned: boolean): void;
+    SetIntVector(name: string, vector: Vector3): void;
+    SetIntVector(name: string, vector: Vector3, unsigned: boolean): void;
+    SetIntVector(name: string, vector: [number, number, number]): void;
+    SetIntVector(name: string, vector: [number, number, number], unsigned: boolean): void;
+    SetIntVector(name: string, x: number, y: number, z: number): void;
+    SetIntVector(name: string, x: number, y: number, z: number, unsigned: boolean): void;
+    SetIntVector(name: string, vector: Vector4): void;
+    SetIntVector(name: string, vector: Vector4, unsigned: boolean): void;
+    SetIntVector(name: string, vector: [number, number, number, number]): void;
+    SetIntVector(name: string, vector: [number, number, number, number], unsigned: boolean): void;
+    SetIntVector(name: string, x: number, y: number, z: number, w: number): void;
+    SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void;
+    SetIntVector(name: string, _1: Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
         switch (arguments.length)
         {
             case 6:
-            {
-                if (_5 as boolean)
                 {
-                    GL.uniform4ui(location, _1 as number, _2 as number, _3 as number, _4 as number)
+                    if (_5 as boolean)
+                    {
+                        GL.uniform4ui(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                    }
+                    else
+                    {
+                        GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                    }
                 }
-                else
-                {
-                    GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number)
-                }
-            }
-            break
+                break;
             case 5:
-            {
-                if (typeof _4 === 'number')
                 {
-                    GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number)
+                    if (typeof _4 === 'number')
+                    {
+                        GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                    }
+                    else if (_4 as boolean)
+                    {
+                        GL.uniform3ui(location, _1 as number, _2 as number, _3 as number);
+                    }
+                    else
+                    {
+                        GL.uniform3i(location, _1 as number, _2 as number, _3 as number);
+                    }
                 }
-                else if (_4 as boolean)
-                {
-                    GL.uniform3ui(location, _1 as number, _2 as number, _3 as number)
-                }
-                else
-                {
-                    GL.uniform3i(location, _1 as number, _2 as number, _3 as number)
-                }
-            }
-            break
+                break;
             case 4:
-            {
-                if (typeof _3 === 'number')
                 {
-                    GL.uniform3i(location, _1 as number, _2 as number, _3 as number)
+                    if (typeof _3 === 'number')
+                    {
+                        GL.uniform3i(location, _1 as number, _2 as number, _3 as number);
+                    }
+                    else if (_3 as boolean)
+                    {
+                        GL.uniform2ui(location, _1 as number, _2 as number);
+                    }
+                    else
+                    {
+                        GL.uniform2i(location, _1 as number, _2 as number);
+                    }
                 }
-                else if (_3 as boolean)
-                {
-                    GL.uniform2ui(location, _1 as number, _2 as number)
-                }
-                else
-                {
-                    GL.uniform2i(location, _1 as number, _2 as number)
-                }
-            }
-            break
+                break;
             case 3:
-            {
-                if (typeof _2 === 'number')
                 {
-                    GL.uniform2i(location, _1 as number, _2 as number)
-                }
-                else if (_2 as boolean)
-                {
-                    switch ((_1 as number[]).length)
+                    if (typeof _2 === 'number')
                     {
-                        case 2: GL.uniform2uiv(location, _1 as number[])
-                        case 3: GL.uniform3uiv(location, _1 as number[])
-                        case 4: GL.uniform4uiv(location, _1 as number[])
+                        GL.uniform2i(location, _1 as number, _2 as number);
+                    }
+                    else if (_2 as boolean)
+                    {
+                        switch ((_1 as number[]).length)
+                        {
+                            case 2: GL.uniform2uiv(location, _1 as number[]);
+                            case 3: GL.uniform3uiv(location, _1 as number[]);
+                            case 4: GL.uniform4uiv(location, _1 as number[]);
+                        }
+                    }
+                    else
+                    {
+                        switch ((_1 as number[]).length)
+                        {
+                            case 2: GL.uniform2iv(location, _1 as number[]);
+                            case 3: GL.uniform3iv(location, _1 as number[]);
+                            case 4: GL.uniform4iv(location, _1 as number[]);
+                        }
                     }
                 }
-                else
-                {
-                    switch ((_1 as number[]).length)
-                    {
-                        case 2: GL.uniform2iv(location, _1 as number[])
-                        case 3: GL.uniform3iv(location, _1 as number[])
-                        case 4: GL.uniform4iv(location, _1 as number[])
-                    }
-                }
-            }
-            break
+                break;
             case 2:
-            {
-                switch ((_1 as number[]).length)
                 {
-                    case 2: GL.uniform2iv(location, _1 as number[])
-                    case 3: GL.uniform3iv(location, _1 as number[])
-                    case 4: GL.uniform4iv(location, _1 as number[])
+                    switch ((_1 as number[]).length)
+                    {
+                        case 2: GL.uniform2iv(location, _1 as number[]);
+                        case 3: GL.uniform3iv(location, _1 as number[]);
+                        case 4: GL.uniform4iv(location, _1 as number[]);
+                    }
                 }
-            }
-            break
+                break;
         }
     }
 
-    SetFloatVector(name: string, vector: Vector2): void
-    SetFloatVector(name: string, vector: [number, number]): void
-    SetFloatVector(name: string, x: number, y: number): void
-    SetFloatVector(name: string, vector: Vector3 | Colour3): void
-    SetFloatVector(name: string, vector: [number, number, number]): void
-    SetFloatVector(name: string, x: number, y: number, z: number): void
-    SetFloatVector(name: string, vector: Vector4 | Colour4): void
-    SetFloatVector(name: string, vector: [number, number, number, number]): void
-    SetFloatVector(name: string, x: number, y: number, z: number, w: number): void
+    SetFloatVector(name: string, vector: Vector2): void;
+    SetFloatVector(name: string, vector: [number, number]): void;
+    SetFloatVector(name: string, x: number, y: number): void;
+    SetFloatVector(name: string, vector: Vector3 | Colour3): void;
+    SetFloatVector(name: string, vector: [number, number, number]): void;
+    SetFloatVector(name: string, x: number, y: number, z: number): void;
+    SetFloatVector(name: string, vector: Vector4 | Colour4): void;
+    SetFloatVector(name: string, vector: [number, number, number, number]): void;
+    SetFloatVector(name: string, x: number, y: number, z: number, w: number): void;
     SetFloatVector(name: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
         switch (arguments.length)
         {
             case 5:
-                GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number)
-            break
+                GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                break;
             case 4:
-                GL.uniform3f(location, _1 as number, _2 as number, _3 as number)
-            break
+                GL.uniform3f(location, _1 as number, _2 as number, _3 as number);
+                break;
             case 3:
-                GL.uniform2f(location, _1 as number, _2 as number)
-            break
+                GL.uniform2f(location, _1 as number, _2 as number);
+                break;
             case 2:
                 switch ((_1 as number[]).length)
                 {
                     case 2:
-                        GL.uniform2fv(location, _1 as number[])
-                    break
+                        GL.uniform2fv(location, _1 as number[]);
+                        break;
                     case 3:
-                        GL.uniform3fv(location, _1 as number[])
-                    break
+                        GL.uniform3fv(location, _1 as number[]);
+                        break;
                     case 4:
-                        GL.uniform4fv(location, _1 as number[])
-                    break
+                        GL.uniform4fv(location, _1 as number[]);
+                        break;
                 }
-            break
+                break;
         }
         if (typeof _1 === 'number')
         {
@@ -592,159 +592,159 @@ export class Shader extends Asset
             switch (_1.length)
             {
                 case 2:
-                    GL.uniform2fv(location, _1)
-                break
+                    GL.uniform2fv(location, _1);
+                    break;
                 case 3:
-                    GL.uniform3fv(location, _1)
-                break
+                    GL.uniform3fv(location, _1);
+                    break;
                 case 4:
-                    GL.uniform4fv(location, _1)
-                break
+                    GL.uniform4fv(location, _1);
+                    break;
             }
         }
     }
 
-    SetMatrix(name: string, matrix: Matrix2): void
-    SetMatrix(name: string, matrix: Matrix2, transpose: boolean): void
-    SetMatrix(name: string, matrix: [number, number, number, number]): void
-    SetMatrix(name: string, matrix: [number, number, number, number], transpose: boolean): void
-    SetMatrix(name: string, matrix: Matrix3): void
-    SetMatrix(name: string, matrix: Matrix3, transpose: boolean): void
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number]): void
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number], transpose: boolean): void
-    SetMatrix(name: string, matrix: Matrix4): void
-    SetMatrix(name: string, matrix: Matrix4, transpose: boolean): void
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void
+    SetMatrix(name: string, matrix: Matrix2): void;
+    SetMatrix(name: string, matrix: Matrix2, transpose: boolean): void;
+    SetMatrix(name: string, matrix: [number, number, number, number]): void;
+    SetMatrix(name: string, matrix: [number, number, number, number], transpose: boolean): void;
+    SetMatrix(name: string, matrix: Matrix3): void;
+    SetMatrix(name: string, matrix: Matrix3, transpose: boolean): void;
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number]): void;
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number], transpose: boolean): void;
+    SetMatrix(name: string, matrix: Matrix4): void;
+    SetMatrix(name: string, matrix: Matrix4, transpose: boolean): void;
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void;
+    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void;
     SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
     {
-        const location = this._getLocation(name)
+        const location = this._getLocation(name);
         if (!location)
         {
-            return
+            return;
         }
 
         switch (matrix.length)
         {
             case 4:
-                GL.uniformMatrix2fv(location, tranpose, matrix)
-            break
+                GL.uniformMatrix2fv(location, tranpose, matrix);
+                break;
             case 9:
-                GL.uniformMatrix3fv(location, tranpose, matrix)
-            break
+                GL.uniformMatrix3fv(location, tranpose, matrix);
+                break;
             case 16:
-                GL.uniformMatrix4fv(location, tranpose, matrix)
-            break
+                GL.uniformMatrix4fv(location, tranpose, matrix);
+                break;
         }
     }
 }
 
 (window as any).layout140 = (fieldTypes: string[]): number =>
 {
-    let totalBufferLength = 0
-    let currentBufferLength = 0
-    
+    let totalBufferLength = 0;
+    let currentBufferLength = 0;
+
     for (const fieldType of fieldTypes)
     {
         if (fieldType.includes('vec'))
         {
-            const floats = fieldType.split('').last.trim()
+            const floats = fieldType.split('').last.trim();
             switch (floats)
             {
                 case '2':
                     if (currentBufferLength === 0 || currentBufferLength == 2)
                     {
-                        currentBufferLength += 2
+                        currentBufferLength += 2;
                     }
                     else
                     {
-                        totalBufferLength += 4
-                        currentBufferLength = 2
+                        totalBufferLength += 4;
+                        currentBufferLength = 2;
                     }
-                    break
+                    break;
 
                 case '3':
                     if (currentBufferLength === 0)
                     {
-                        currentBufferLength += 3
+                        currentBufferLength += 3;
                     }
                     else
                     {
-                        totalBufferLength += 4
-                        currentBufferLength = 3
+                        totalBufferLength += 4;
+                        currentBufferLength = 3;
                     }
-                    break
+                    break;
 
                 case '4':
                     if (currentBufferLength === 0)
                     {
-                        currentBufferLength += 4
+                        currentBufferLength += 4;
                     }
                     else
                     {
-                        totalBufferLength += 4
-                        currentBufferLength = 4
+                        totalBufferLength += 4;
+                        currentBufferLength = 4;
                     }
-                    break
+                    break;
             }
         }
         else if (fieldType.includes('mat'))
         {
-            const suffix = fieldType.substring(3).trim()
+            const suffix = fieldType.substring(3).trim();
             switch (suffix)
             {
                 case '2':
-                    totalBufferLength += 8
-                    break
+                    totalBufferLength += 8;
+                    break;
 
                 case '3':
-                    totalBufferLength += 12
-                    break
+                    totalBufferLength += 12;
+                    break;
 
                 case '4':
-                    totalBufferLength += 16
-                    break
+                    totalBufferLength += 16;
+                    break;
 
                 case '2x3':
-                    totalBufferLength += 8
-                    break
-                    case '2x4':
-                        
+                    totalBufferLength += 8;
+                    break;
+                case '2x4':
+
                 case '3x2':
-                    totalBufferLength += 8
-                    break
-                    
+                    totalBufferLength += 8;
+                    break;
+
                 case '3x4':
-                    totalBufferLength += 16
-                    break
-                    
+                    totalBufferLength += 16;
+                    break;
+
                 case '4x2':
-                    totalBufferLength += 8
-                    break
-                    
+                    totalBufferLength += 8;
+                    break;
+
                 case '4x3':
-                    totalBufferLength += 12
-                    break
+                    totalBufferLength += 12;
+                    break;
             }
         }
         else
         {
             if (currentBufferLength === 4)
             {
-                totalBufferLength += 4
-                currentBufferLength = 1
+                totalBufferLength += 4;
+                currentBufferLength = 1;
             }
             else
             {
-                currentBufferLength += 1
+                currentBufferLength += 1;
             }
         }
     }
 
     if (currentBufferLength > 0 && currentBufferLength < 4)
     {
-        totalBufferLength += 4
+        totalBufferLength += 4;
     }
 
-    return totalBufferLength
-}
+    return totalBufferLength;
+};

@@ -1324,7 +1324,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         out[13] = 0;
         out[14] = 0;
         out[15] = 1;
-        
+
         return out;
     }
 
@@ -1402,7 +1402,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         out[13] = 0;
         out[14] = 0;
         out[15] = 1;
-        
+
         return out;
     }
 
@@ -1437,16 +1437,9 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
     {
         const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
 
-        const transformations = new Float32Array(Matrix4.SIZE * 3);
-        const translation = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 0);
-        const rotation = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 1);
-        const scale = new Matrix4(transformations.buffer, Float32Array.BYTES_PER_ELEMENT * Matrix4.SIZE * 2)
-
-        Matrix4.ScaleMatrix(_2 as Vector3Array, scale);
-        Matrix4.RotationMatrix(_1 as Vector3Array, rotation);
-        Matrix4.TranslationMatrix(_0 as Vector3Array, translation);
-
-        return out.Set(translation).Multiply(rotation).Multiply(scale);
+        return Matrix4.TranslationMatrix(_0 as Vector3Array, out)
+            .Multiply(Matrix4.RotationMatrix(_1 as Vector3Array))
+            .Multiply(Matrix4.ScaleMatrix(_2 as Vector3Array));
     }
 
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number): Matrix4;
@@ -1531,10 +1524,10 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         const near = _0;
         const far = _1;
         const top = near * Math.tan(radian(_2 * 0.5));
-        const bottom = -top
+        const bottom = -top;
         const right = top * _3;
         const left = bottom * _3;
-        
+
         out[0] = (near * 2.0) / (right - left);
         out[1] = 0;
         out[2] = (right + left) / (right - left);
@@ -1601,7 +1594,7 @@ export class Matrix4 extends Float32Array implements IEquatable<Matrix4>
         out[13] = 0;
         out[14] = 0;
         out[15] = 1;
-        
+
         return out;
     }
     //#endregion

@@ -26,9 +26,9 @@ export class BasicLitMaterial extends Material
 {
     Shininess: number = 32
     HasTransparency: boolean = false
-    readonly Ambient: Colour3 = new Colour3(0.30)
-    readonly Diffuse: Colour3 = new Colour3(0.75)
-    readonly Specular: Colour3 = new Colour3(1.00)
+    readonly Ambient: Colour3 = new Colour3(0.30, 0.30, 0.30)
+    readonly Diffuse: Colour3 = new Colour3(0.75, 0.75, 0.75)
+    readonly Specular: Colour3 = new Colour3(1.00, 1.00, 1.00)
 
     AmbientTexture: Image2D = new Image2D()
 

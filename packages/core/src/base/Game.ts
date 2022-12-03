@@ -1,52 +1,52 @@
-import { CalcuateDelay, createContext, GL, IDelay, UUID } from "@fwge/common"
-import { SharedComponent } from "../ecs"
-import { Class, SceneId } from "../ecs/Registry"
-import { Asset } from "./Asset"
-import { Prefab } from "./Prefab"
-import { Scene } from "./Scene"
+import { CalcuateDelay, createContext, GL, IDelay, UUID } from "@fwge/common";
+import { SharedComponent } from "../ecs";
+import { Class, SceneId } from "../ecs/Registry";
+import { Asset } from "./Asset";
+import { Prefab } from "./Prefab";
+import { Scene } from "./Scene";
 
 export interface LibraryEntry<T>
 {
-    name: string
-    create: () => T
+    name: string;
+    create: () => T;
 }
 
 export interface IGame
 {
-    debug?: boolean
-    height: number
-    width: number
-    canvas: HTMLCanvasElement | (() => HTMLCanvasElement)
-    scenes: Class<Scene>[]
-    startupScene: Class<Scene>
+    debug?: boolean;
+    height: number;
+    width: number;
+    canvas: HTMLCanvasElement | (() => HTMLCanvasElement);
+    scenes: Class<Scene>[];
+    startupScene: Class<Scene>;
 
-    assets?: Array<LibraryEntry<Asset>>
-    components?: Array<LibraryEntry<SharedComponent>>
-    prefabs?: Array<LibraryEntry<Prefab>>
+    assets?: Array<LibraryEntry<Asset>>;
+    components?: Array<LibraryEntry<SharedComponent>>;
+    prefabs?: Array<LibraryEntry<Prefab>>;
 }
 
 export class Game
 {
-    public readonly UUID: UUID = UUID.Create()
-    readonly Height: number
-    readonly Width: number
-    readonly Scenes: Map<SceneId, Scene> = new Map()    
-    readonly Assets: Map<string, Map<string, Asset>> = new Map()
-    readonly Components: Map<string, Map<string, SharedComponent>> = new Map()
-    readonly Prefabs: Map<string, Map<string, Prefab>> = new Map()
-    
+    public readonly UUID: UUID = UUID.Create();
+    readonly Height: number;
+    readonly Width: number;
+    readonly Scenes: Map<SceneId, Scene> = new Map();
+    readonly Assets: Map<string, Map<string, Asset>> = new Map();
+    readonly Components: Map<string, Map<string, SharedComponent>> = new Map();
+    readonly Prefabs: Map<string, Map<string, Prefab>> = new Map();
+
     //#region Private Fields
-    #scenesIds: Map<Class<Scene>, SceneId> = new Map()
-    #activeScene: Scene | undefined = undefined
-    #currTick: number = -1
-    #prevTick: number = -1
-    #tickId: number | undefined = undefined
-    #delayId: number | undefined = undefined
-    #running: boolean = false
+    scenesIds: Map<Class<Scene>, SceneId> = new Map();
+    activeScene: Scene | undefined = undefined;
+    #currTick: number = -1;
+    #prevTick: number = -1;
+    tickId: number | undefined = undefined;
+    #delayId: number | undefined = undefined;
+    running: boolean = false;
     //#endregion    
 
-    constructor()
-    constructor(config: IGame)
+    constructor();
+    constructor(config: IGame);
     constructor(config?: IGame)
     {
         config = {
@@ -54,181 +54,175 @@ export class Game
             debug: config?.debug === undefined ? false : config.debug,
             components: config?.components ?? [],
             assets: config?.assets ?? []
-        }
+        };
 
         config.canvas = config.canvas instanceof HTMLCanvasElement
             ? config.canvas!
-            : config.canvas!()
+            : config.canvas!();
 
         if (!config.canvas)
         {
-            throw new Error('No canvas element found')
+            throw new Error('No canvas element found');
         }
 
-        this.ResetContext(config.canvas, config.debug!)
+        this.ResetContext(config.canvas, config.debug!);
 
-        GL.canvas.width = config.width
-        GL.canvas.height = config.height
+        GL.canvas.width = config.width;
+        GL.canvas.height = config.height;
 
-        this.Width = config.width
-        this.Height = config.height
-        
+        this.Width = config.width;
+        this.Height = config.height;
+
         for (const { name, create } of config.prefabs!)
         {
-            const asset = create()
-            const library = this.Prefabs.get(asset.Type.name) ?? new Map()
-            library.set(name, asset)
-            this.Prefabs.set(asset.Type.name, library)
+            const asset = create();
+            const library = this.Prefabs.get(asset.Type.name) ?? new Map();
+            library.set(name, asset);
+            this.Prefabs.set(asset.Type.name, library);
         }
-        
+
         for (const { name, create } of config.assets!)
         {
-            const asset = create()
-            const library = this.Assets.get(asset.Type.name) ?? new Map()
-            library.set(name, asset)
-            this.Assets.set(asset.Type.name, library)
+            const asset = create();
+            const library = this.Assets.get(asset.Type.name) ?? new Map();
+            library.set(name, asset);
+            this.Assets.set(asset.Type.name, library);
         }
 
         for (const { name, create } of config.components!)
         {
-            const component = create()
-            const library = this.Components.get(component.Type.name) ?? new Map()
-            library.set(name, component)
-            this.Components.set(component.Type.name, library)
+            const component = create();
+            const library = this.Components.get(component.Type.name) ?? new Map();
+            library.set(name, component);
+            this.Components.set(component.Type.name, library);
         }
-        
+
         for (const SceneConstructor of config.scenes!)
         {
             const newScene = new SceneConstructor(this);
-            this.Scenes.set(newScene.Id, newScene);
-            this.#scenesIds.set(SceneConstructor, newScene.Id);
-            
-            newScene.Init()
+            this.Scenes.set(newScene.ID, newScene);
+            this.scenesIds.set(SceneConstructor, newScene.ID);
+
+            newScene.Init();
         }
 
-        this.SetScene(config.startupScene)
+        this.SetScene(config.startupScene);
     }
-    
+
     ResetContext(canvas: HTMLCanvasElement, debug: boolean)
     {
-        createContext(canvas, debug)
-
-        canvas.addEventListener('resize', () => {
-            const rect = canvas.getBoundingClientRect()
-            canvas.height = rect.height
-            canvas.width = rect.width
-        })
+        createContext(canvas, debug);
     }
 
-    Start(): void
-    Start(delay: IDelay): void
-    Start(delay: IDelay = { }): void
+    Start(): void;
+    Start(delay: IDelay): void;
+    Start(delay: IDelay = {}): void
     {
-        window.setTimeout(() => this._start(), CalcuateDelay(delay))
+        window.setTimeout(() => this._start(), CalcuateDelay(delay));
     }
-    
-    Stop(): void
-    Stop(delay: IDelay): void
-    Stop(delay: IDelay = { }): void
+
+    Stop(): void;
+    Stop(delay: IDelay): void;
+    Stop(delay: IDelay = {}): void
     {
-        window.setTimeout(() => this._stop(), CalcuateDelay(delay))
+        window.setTimeout(() => this._stop(), CalcuateDelay(delay));
     }
 
     //#region Private Methods
     private _start()
     {
-        if (this.#running)
+        if (this.running)
         {
-            return 
+            return;
         }
 
-        if (!this.#activeScene)
+        if (!this.activeScene)
         {
-            this.#tickId = window.setTimeout(() => this._start())
+            this.tickId = window.setTimeout(() => this._start());
         }
 
-        this.#prevTick = Date.now()
-        this.#currTick = Date.now()
-        this.#activeScene!.Start()
+        this.#prevTick = Date.now();
+        this.#currTick = Date.now();
+        this.activeScene!.Start();
 
-        this.#tickId = window.requestAnimationFrame(() => this._update(0))
+        this.tickId = window.requestAnimationFrame(() => this._update(0));
     }
-    
+
     private _update(delta: number): void
     {
-        this.#activeScene!.Update(delta)
-        
-        this.#prevTick = this.#currTick
-        this.#currTick = Date.now()
-        
-        this.#tickId = window.requestAnimationFrame(() => this._update((this.#currTick - this.#prevTick) / 1000))
+        this.activeScene!.Update(delta);
+
+        this.#prevTick = this.#currTick;
+        this.#currTick = Date.now();
+
+        this.tickId = window.requestAnimationFrame(() => this._update((this.#currTick - this.#prevTick) / 1000));
     }
-    
+
     private _stop()
     {
-        this.#running = false
+        this.running = false;
 
         if (this.#delayId !== undefined)
         {
-            window.clearTimeout(this.#delayId)
+            window.clearTimeout(this.#delayId);
         }
 
-        if (this.#tickId !== undefined)
+        if (this.tickId !== undefined)
         {
-            window.cancelAnimationFrame(this.#tickId)
+            window.cancelAnimationFrame(this.tickId);
         }
 
-        this.#activeScene?.Stop()
-        this.#tickId = undefined
+        this.activeScene?.Stop();
+        this.tickId = undefined;
     }
     //#endregion
 
     AddScene(scene: Scene): void
     {
-        this.Scenes.set(scene.Id, scene)
+        this.Scenes.set(scene.ID, scene);
     }
 
-    GetScene(sceneType: Class<Scene>): Scene | undefined
-    GetScene(sceneId: SceneId): Scene | undefined
+    GetScene(sceneType: Class<Scene>): Scene | undefined;
+    GetScene(sceneId: SceneId): Scene | undefined;
     GetScene(scene: Class<Scene> | SceneId): Scene | undefined
     {
         if (typeof scene !== 'number')
         {
-            scene = this.#scenesIds.get(scene) as SceneId
+            scene = this.scenesIds.get(scene) as SceneId;
         }
-        
-        return this.Scenes.get(scene)
+
+        return this.Scenes.get(scene);
     }
 
-    SetScene(sceneType: Class<Scene>): void
-    SetScene(sceneId: SceneId): void
+    SetScene(sceneType: Class<Scene>): void;
+    SetScene(sceneId: SceneId): void;
     SetScene(sceneId: Class<Scene> | SceneId): void
     {
         if (typeof sceneId !== 'number')
         {
-            sceneId = this.#scenesIds.get(sceneId) as SceneId
+            sceneId = this.scenesIds.get(sceneId) as SceneId;
         }
-        const newScene = this.Scenes.get(sceneId)
+        const newScene = this.Scenes.get(sceneId);
 
-        if (!newScene || (this.#activeScene && this.#activeScene.Id === newScene.Id))
+        if (!newScene || (this.activeScene && this.activeScene.ID === newScene.ID))
         {
-            return
+            return;
         }
-        this.#activeScene = newScene
+        this.activeScene = newScene;
     }
 
     GetComponent<T extends SharedComponent>(name: string, type: Class<T>): T | undefined
     {
-        return this.Components.get(type.name)?.get(name) as T
+        return this.Components.get(type.name)?.get(name) as T;
     }
 
     GetAsset<T extends Asset>(name: string, type: Class<T>): T | undefined
     {
-        return this.Assets.get(type.name)?.get(name) as T
+        return this.Assets.get(type.name)?.get(name) as T;
     }
 
     GetPrefab<T extends Prefab>(name: string, type: Class<T>): T | undefined
     {
-        return this.Prefabs.get(type.name)?.get(name) as T
+        return this.Prefabs.get(type.name)?.get(name) as T;
     }
 }

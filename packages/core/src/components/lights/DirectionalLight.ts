@@ -18,7 +18,6 @@ export interface IShadowCascade
 {
     dimensions: Vector3 | Vector3Array;
     resolution: Vector2 | Vector2Array;
-
     near: number;
     far: number;
 }
@@ -143,47 +142,47 @@ export class DirectionalLight extends Light
 
     readonly ShadowCascades: [ShadowCascade, ShadowCascade, ShadowCascade];
 
-    #viewVolume: CubeGeometry = new CubeGeometry();
-    #direction: Vector3;
-    #castShadows: Scalar;
-    #texelSize: Scalar;
-    #texelCount: Scalar;
-    #bias: Scalar;
-    #pcfLevel: Scalar;
-    #shadowMatrix: Matrix4;
+    private readonly _viewVolume: CubeGeometry = new CubeGeometry();
+    private readonly _direction: Vector3;
+    private readonly _castShadows: Scalar;
+    private readonly _texelSize: Scalar;
+    private readonly _texelCount: Scalar;
+    private readonly _bias: Scalar;
+    private readonly _pcfLevel: Scalar;
+    private readonly _shadowMatrix: Matrix4;
 
     get Direction()
     {
-        return this.#direction;
+        return this._direction;
     }
 
     get CastShadows()
     {
-        return this.#castShadows.Value === 0;
+        return this._castShadows.Value === 0;
     }
     set CastShadows(castShadows: boolean)
     {
-        this.#castShadows.Value = castShadows ? 0 : 1;
+        this._castShadows.Value = castShadows ? 0 : 1;
     }
 
     get Bias()
     {
-        return this.#bias.Value;
+        return this._bias.Value;
     }
     set Bias(bias: number)
     {
-        this.#bias.Value = bias;
+        this._bias.Value = bias;
     }
 
     get PCFLevel()
     {
-        return this.#pcfLevel.Value as PCFLevelType;
+        return this._pcfLevel.Value as PCFLevelType;
     }
     set PCFLevel(pcfLevel: PCFLevelType)
     {
-        this.#pcfLevel.Value = pcfLevel;
-        this.#texelCount.Value = ((pcfLevel * 2) + 1) ** 2;
-        this.#texelSize.Value = 1 / this.RenderTarget.Width;
+        this._pcfLevel.Value = pcfLevel;
+        this._texelCount.Value = ((pcfLevel * 2) + 1) ** 2;
+        this._texelSize.Value = 1 / this.RenderTarget.Width;
     }
 
     constructor();
@@ -192,19 +191,19 @@ export class DirectionalLight extends Light
     {
         super(light.colour, light.intensity, new Float32Array(28));
 
-        this.#direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
-        this.#castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
-        this.#texelSize = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8);
-        this.#texelCount = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 9);
-        this.#bias = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 10);
-        this.#pcfLevel = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 11);
-        this.#shadowMatrix = new Matrix4(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12);
+        this._direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
+        this._castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
+        this._texelSize = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8);
+        this._texelCount = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 9);
+        this._bias = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 10);
+        this._pcfLevel = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 11);
+        this._shadowMatrix = new Matrix4(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12);
 
-        this.#direction.Set(DirectionalLight.DefaultDirection);
+        this._direction.Set(DirectionalLight.DefaultDirection);
         this.CastShadows = light.castShadows ?? true;
         this.Bias = light.bias ?? 0.025;
         this.PCFLevel = light.pcfLevel ?? 2;
-        this.#shadowMatrix.Identity();
+        this._shadowMatrix.Identity();
 
         {
             `
@@ -215,23 +214,23 @@ export class DirectionalLight extends Light
         }
 
         this.ShadowCascades = (light.cascades ?? [
-            {
-                dimensions: [10, 10, 10],
-                resolution: [1024, 1024],
-                near: 0,
-                far: 10
-            },
-            {
-                dimensions: [25, 25, 25],
-                resolution: [1024, 1024],
-                near: 10,
-                far: 25
-            },
+            // {
+            //     dimensions: [10, 10, 10],
+            //     resolution: [1024, 1024],
+            //     near: 0,
+            //     far: 10
+            // },
+            // {
+            //     dimensions: [25, 25, 25],
+            //     resolution: [1024, 1024],
+            //     near: 10,
+            //     far: 25
+            // },
             {
                 dimensions: [50, 50, 50],
                 resolution: [1024, 1024],
                 near: 25,
-                far: 50
+                far: 50,
             }
         ]).map(config => new ShadowCascade(config)) as [ShadowCascade, ShadowCascade, ShadowCascade];
 
@@ -243,7 +242,7 @@ export class DirectionalLight extends Light
         let transform = this.Owner?.GetComponent(Transform);
         if (transform)
         {
-            this.#direction.Set(
+            this._direction.Set(
                 // Matrix3.MultiplyVector(
                 //     this.ViewMatrix.Matrix3,
                 DirectionalLight.DefaultDirection
@@ -252,10 +251,10 @@ export class DirectionalLight extends Light
         }
         else
         {
-            this.#direction.Set(DirectionalLight.DefaultDirection);
+            this._direction.Set(DirectionalLight.DefaultDirection);
         }
 
-        this.#shadowMatrix.Set(this.ShadowMatrix);
+        this._shadowMatrix.Set(this.ShadowMatrix);
         if (this.CastShadows)
         {
             shader.SetTexture('U_Sampler.DirectionalShadow', this.RenderTarget.DepthAttachment!);
@@ -264,15 +263,15 @@ export class DirectionalLight extends Light
         shader.SetFloatVector('U_DirectionalLight.Colour', this.Colour);
         shader.SetFloat('U_DirectionalLight.Intensity', this.Intensity);
 
-        shader.SetFloatVector('U_DirectionalLight.Direction', this.#direction);
+        shader.SetFloatVector('U_DirectionalLight.Direction', this._direction);
         shader.SetBool('U_DirectionalLight.CastShadows', this.CastShadows);
 
-        shader.SetFloat('U_DirectionalLight.TexelSize', this.#texelSize);
-        shader.SetFloat('U_DirectionalLight.TexelCount', this.#texelCount);
-        shader.SetFloat('U_DirectionalLight.Bias', this.#bias);
-        shader.SetFloat('U_DirectionalLight.PCFLevel', this.#pcfLevel);
+        shader.SetFloat('U_DirectionalLight.TexelSize', this._texelSize);
+        shader.SetFloat('U_DirectionalLight.TexelCount', this._texelCount);
+        shader.SetFloat('U_DirectionalLight.Bias', this._bias);
+        shader.SetFloat('U_DirectionalLight.PCFLevel', this._pcfLevel);
 
-        shader.SetMatrix('U_DirectionalLight.ShadowMatrix', this.#shadowMatrix);
+        shader.SetMatrix('U_DirectionalLight.ShadowMatrix', this._shadowMatrix);
         // super.Bind(shader)
     }
 
@@ -297,7 +296,7 @@ export class DirectionalLight extends Light
         const roty = transform?.GlobalRotation().Y ?? 0;
         const rotz = transform?.GlobalRotation().Z ?? 0;
 
-        return Matrix4.RotationMatrix(rotx + 90, roty, rotz).Transpose();
+        return Matrix4.RotationMatrix(rotx - 90, roty, rotz);
         // const rot = Matrix4.RotationMatrix(rotx + 90, roty, rotz)
         // const pos = Matrix4.TranslationMatrix(1, 0, 0)
         // return Matrix4.Multiply(rot, pos).Inverse()
@@ -313,19 +312,18 @@ export class DirectionalLight extends Light
         return Matrix4.Multiply(this.ViewMatrix, this.ModelMatrix);
     }
 
-    static #shadowShader: Shader;
+    static _shadowShader: Shader;
     static get ShadowShader(): Shader
     {
-        if (!DirectionalLight.#shadowShader)
+        if (!DirectionalLight._shadowShader)
         {
-            DirectionalLight.#shadowShader = new Shader
+            DirectionalLight._shadowShader = new Shader
                 (
                     `#version 300 es
                 #pragma vscode_glsllint_stage: vert
                 precision highp float;
 
                 layout(location = 0) in vec3 A_Position;
-                out vec4 cascade;
 
                 struct Matrix
                 {
@@ -337,25 +335,20 @@ export class DirectionalLight extends Light
                 
                 void main(void)
                 {
-                    cascade = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
-                    gl_Position = vec4(0.0,0.0,0.0,1.0);
+                    gl_Position = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
                 }`,
 
                     `#version 300 es
                 #pragma vscode_glsllint_stage: frag
                 precision highp float;
 
-                in vec4 cascade;
-                layout(location = 0) out vec3 O_FragDepth;
-
                 void main(void)
                 {
-                    O_FragDepth.r = ((cascade.z / cascade.w) + 1.0) * 0.5;
                 }`
                 );
         }
 
-        return DirectionalLight.#shadowShader;
+        return DirectionalLight._shadowShader;
     }
 
 }

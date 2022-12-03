@@ -5,7 +5,6 @@ import { CubeCollider } from "@fwge/physics";
 import { FPSController } from "../entities";
 import { FullScreen } from "../entities/FullScreen";
 import { Platform } from "../entities/Platform";
-import { FPSCounterSystem } from "../systems/FPSCounterSystem";
 
 export class MyWindow extends RenderWindow
 {
@@ -36,7 +35,6 @@ export class PhysicsTest extends Scene
                     InputSystem,
                     ScriptSystem,
                     DeferredRenderSystem,
-                    FPSCounterSystem,
                 ],
             });
     }
@@ -58,41 +56,42 @@ export class PhysicsTest extends Scene
             {
                 shininess: 32,
                 colour: [1, 1, 1],
-                shader: new Shader(`#version 300 es
-
-            layout(location = 0) in vec3 A_Position;
-            out vec3 V_Position;
-            struct Matrix
-            {
-                mat4 ModelView;
-                mat3 Normal;
-                mat4 View;
-                mat4 Projection;
-            };
-            uniform Matrix U_Matrix;
-            
-            void main(void)
-            {
-                gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
-            }
-            `,
+                shader: new Shader(
                     `#version 300 es
+                    #pragma vscode_glsllint_stage: vert
+                    layout(location = 0) in vec3 A_Position;
+                    out vec3 V_Position;
+                    struct Matrix
+                    {
+                        mat4 ModelView;
+                        mat3 Normal;
+                        mat4 View;
+                        mat4 Projection;
+                    };
+                    uniform Matrix U_Matrix;
+                    
+                    void main(void)
+                    {
+                        gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
+                    }
+                    `,
+                    `#version 300 es
+                    #pragma vscode_glsllint_stage: frag
+                    precision highp float;
+                    
+                    in vec3 V_Position;
+                    layout (location = 0) out vec4 O_FragColour;
 
-            precision highp float;
-            
-            in vec3 V_Position;
-            layout (location = 0) out vec4 O_FragColour;
-
-            struct Materials
-            {
-                vec3 Colour;
-            };
-            uniform Materials U_Material;
-            void main(void)
-            {
-                O_FragColour = vec4(U_Material.Colour, 1.0);
-            }
-            `),
+                    struct Materials
+                    {
+                        vec3 Colour;
+                    };
+                    uniform Materials U_Material;
+                    void main(void)
+                    {
+                        O_FragColour = vec4(U_Material.Colour, 1.0);
+                    }
+                `),
                 renderType: RenderType.OPAQUE,
                 alpha: 1,
                 receiveShadows: false,
@@ -113,8 +112,8 @@ export class PhysicsTest extends Scene
             });
 
         const positions = [];
-        const min = -5;
-        const max = 5;
+        const min = -25;
+        const max = 25;
         for (let x = min; x <= max; x += 2)
         {
             for (let z = min; z <= max; z += 2)
@@ -140,7 +139,7 @@ export class PhysicsTest extends Scene
                 light.AddComponent(new PointLight(
                     {
                         colour: [Math.random(), Math.random(), Math.random()],
-                        intensity: 1,
+                        intensity: 0.5,
                         radius: 2
                     }))
                     .GetComponent(Transform)!.Position.Y = 2;
@@ -162,7 +161,7 @@ export class PhysicsTest extends Scene
                 }));
 
         this.CreateEntity()
-            .AddComponent(new Transform({ rotation: [0, 0, 0] }))
+            .AddComponent(new Transform({ rotation: [30, 0, 0] }))
             .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3 }));
 
         super.Init();

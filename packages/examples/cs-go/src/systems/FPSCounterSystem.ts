@@ -15,7 +15,7 @@ export class FPSCounterSystem extends System
     }
 
     Update(delta: number): void
-    {        
+    {
         const fps = Math.round(delta === 0 ? 0 : 1 / delta)
         this.fpsCounter.textContent = fps.toString()
     }
