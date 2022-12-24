@@ -74,9 +74,13 @@ export class Colour4 extends Float32Array
         {
             super([_0[0], _0[1], _0[2], _1 as number]);
         }
-        else
+        else if (_0 !== undefined)
         {
             super(_0);
+        }
+        else
+        {
+            super(Colour4.SIZE)
         }
     }
 

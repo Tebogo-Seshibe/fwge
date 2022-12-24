@@ -24,15 +24,6 @@ describe('Colour3', () =>
             expect(colour[2]).toBe(0);
         });
 
-
-        it('Should default all components to {x} when only {x} is passed', () =>
-        {
-            const colour = new Colour3(0.7);
-            expect(colour[0]).toBeCloseTo(0.7);
-            expect(colour[1]).toBeCloseTo(0.7);
-            expect(colour[2]).toBeCloseTo(0.7);
-        });
-
         it('Should assign component-wise when another colour is passed', () =>
         {
             const other = new Colour3(0.5, 0.6, 0.7);

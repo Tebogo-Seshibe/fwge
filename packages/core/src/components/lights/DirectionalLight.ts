@@ -233,8 +233,6 @@ export class DirectionalLight extends Light
                 far: 50,
             }
         ]).map(config => new ShadowCascade(config)) as [ShadowCascade, ShadowCascade, ShadowCascade];
-
-        console.log(this);
     }
 
     override Bind(shader: Shader)

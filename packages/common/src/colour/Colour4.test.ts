@@ -35,6 +35,16 @@ describe('Colour4', () =>
             expect(colour[3]).toBeCloseTo(0.7);
         });
 
+        it('Should assign component-wise when another {Colour3} and alpha is passed', () =>
+        {
+            const other = new Colour3(0.5, 0.6, 0.7);
+            const colour = new Colour4(other, 0.8);
+            expect(colour[0]).toBeCloseTo(0.5);
+            expect(colour[1]).toBeCloseTo(0.6);
+            expect(colour[2]).toBeCloseTo(0.7);
+            expect(colour[3]).toBeCloseTo(0.8);
+        });
+
         it('Should assign component-wise when another colour is passed', () =>
         {
             const other = new Colour4(0.5, 0.6, 0.7, 0.8);

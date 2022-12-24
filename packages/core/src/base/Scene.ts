@@ -1,6 +1,6 @@
 import { UUID } from "@fwge/common";
 import { Entity } from "../ecs/Entity";
-import { addScene, Class, Constructor, EntityId, RegistryItem, SceneId, SceneList } from "../ecs/Registry";
+import { addScene, Class, Constructor, EntityId, RegistryItem, SceneId, SceneManager } from "../ecs/Registry";
 import { System } from "../ecs/System";
 import { Game } from "./Game";
 import { Prefab } from "./Prefab";
@@ -28,13 +28,12 @@ export class Scene extends RegistryItem
 
     constructor(game: Game);
     constructor(game: Game, config: IScene);
-    constructor(game: Game, config?: IScene)
+    constructor(game: Game, config?: IScene, uuid?: UUID)
     {
-        super(SceneList);
+        super(SceneManager, uuid);
 
         this.Game = game;
         addScene(this);
-        console.log(this);
 
         config = {
             windows: config?.windows ?? [DefaultWindow],

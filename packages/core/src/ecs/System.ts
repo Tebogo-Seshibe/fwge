@@ -2,7 +2,7 @@ import { UUID } from "@fwge/common";
 import { Scene } from "../base/Scene";
 import { Component } from "./Component";
 import { Entity } from "./Entity";
-import { Class, EntityId, getScene, RegistryItem, SceneId, SystemList } from "./Registry";
+import { Class, EntityId, getScene, RegistryItem, SceneId, SystemManager } from "./Registry";
 
 interface ISystem
 {
@@ -115,9 +115,9 @@ export class System extends RegistryItem
     tickId: number = -1;
     sceneId: SceneId | undefined;
 
-    constructor(scene: Scene, config: ISystem)
+    constructor(scene: Scene, config: ISystem, uuid?: UUID)
     {
-        super(SystemList);        
+        super(SystemManager, uuid);
 
         this.name = new.target.name;
         this.sceneId = scene.ID;

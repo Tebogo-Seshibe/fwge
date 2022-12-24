@@ -44,11 +44,6 @@ export class ListManager<T extends any = any, U extends number = number>
     private readonly main: (T | undefined)[] = [];
     private readonly free: number[] = [];
 
-    constructor()
-    {
-        console.log({ main: this.main, free: this.free });
-    }
-
     create(item: T): U
     {
         let index = (this.free.length > 0)
@@ -365,17 +360,18 @@ const Scenes: Scene[] = [];
 
 export const AssetList = new ListManager<ListManager<Asset, SceneId>>();
 export const ComponentList = new ListManager<ListManager<Component, SceneId>>();
-export const SceneList = new ListManager<Scene, SceneId>();
-export const EntityList = new ListManager<Entity, EntityId>();
-export const SystemList = new ListManager<System>();
+export const SceneManager = new ListManager<Scene, SceneId>();
+export const EntityManager = new ListManager<Entity, EntityId>();
+export const SystemManager = new ListManager<System>();
 
 export abstract class RegistryItem
 {
-    readonly UUID: UUID = UUID.Create();
+    readonly UUID: UUID;
     readonly ID: number;
 
-    constructor(manager: ListManager)
+    constructor(manager: ListManager, uuid: UUID = UUID.Create())
     {
         this.ID = manager.create(this);
+        this.UUID = uuid;
     }
 }

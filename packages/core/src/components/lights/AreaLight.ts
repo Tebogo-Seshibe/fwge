@@ -45,7 +45,6 @@ export class AreaLight extends Light
         {
             O_FragColour.rgb = texture(U_Skybox, V_UV).rgb;
             O_FragColour.a = 1.0;
-
         }
         `
     )
@@ -107,9 +106,9 @@ export class AreaLight extends Light
         }
     }
 
-    override Bind(shader: Shader): void
+    override Bind(shader: Shader, index: number = 0): void
     {
-        // super.Bind(shader)
+        shader.SetBufferData('AreaLight', this.BufferData, index * this.BufferData.length)
 
         if (this.Skybox)
         {

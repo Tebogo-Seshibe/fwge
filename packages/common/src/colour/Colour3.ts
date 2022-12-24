@@ -69,6 +69,7 @@ export class Colour3 extends Float32Array
         }
     }
 
+    //#region Instance Methods
     Set(r: number, g: number, b: number): Colour3;
     Set(colour: Colour3): Colour3;
     Set(colour: Colour3Array): Colour3;
@@ -101,6 +102,7 @@ export class Colour3 extends Float32Array
             this[1] === other[1] &&
             this[2] === other[2];
     }
+    //#endregion
 
     static readonly SIZE: number = 3;
 }

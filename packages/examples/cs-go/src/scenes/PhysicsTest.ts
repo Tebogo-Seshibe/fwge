@@ -112,8 +112,8 @@ export class PhysicsTest extends Scene
             });
 
         const positions = [];
-        const min = -25;
-        const max = 25;
+        const min = -15;
+        const max = 15;
         for (let x = min; x <= max; x += 2)
         {
             for (let z = min; z <= max; z += 2)
@@ -134,20 +134,14 @@ export class PhysicsTest extends Scene
 
             const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }));
 
-            if (i++ % 3 === 0)
-            {
-                light.AddComponent(new PointLight(
-                    {
-                        colour: [Math.random(), Math.random(), Math.random()],
-                        intensity: 0.5,
-                        radius: 2
-                    }))
-                    .GetComponent(Transform)!.Position.Y = 2;
-            }
-            else
-            {
-                light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator);
-            }
+            light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator);
+            // light.AddComponent(new PointLight(
+            //     {
+            //         colour: [Math.random(), Math.random(), Math.random()],
+            //         intensity: 0.5,
+            //         radius: 2
+            //     }))
+            //     .GetComponent(Transform)!.Position.Y = 1;
 
             cube.AddChild(light);
         }
@@ -157,7 +151,7 @@ export class PhysicsTest extends Scene
                 {
                     skyBox: { source: '/img/clouds.jpg' },
                     colour: [1, 1, 1],
-                    intensity: 0.15
+                    intensity: 0.5
                 }));
 
         this.CreateEntity()

@@ -1,34 +1,24 @@
 import { UUID } from '@fwge/common';
 import { Scene } from '../base/Scene';
 import { Component } from './Component';
-import { addComponent, Class, createEntity, deleteEntity, EntityId, EntityList, getAllComponents, getComponent, getScene, hasComponent, RegistryItem, removeComponent, SceneId, SceneList } from './Registry';
+import { addComponent, Class, createEntity, deleteEntity, EntityId, EntityManager, getAllComponents, getComponent, getScene, hasComponent, RegistryItem, removeComponent, SceneId, SceneManager } from './Registry';
 
 export class Entity extends RegistryItem
 {
     public readonly Id: EntityId = createEntity();
-    public readonly UUID: UUID = UUID.Create();
 
     private _sceneId: SceneId;
     private _parentId: EntityId = -1;
     private _childrenIds: EntityId[] = [];
 
-    constructor(scene: Scene)
-    {
-        super(EntityList);        
-        
-        this._sceneId = scene.ID;
-    }
-
-    //#region Properties
-    // get Id() { return this.ID}
     public get Scene(): Scene
     {
-        return SceneList.get(this._sceneId);
+        return SceneManager.get(this._sceneId);
     }
 
     public get Parent(): Entity | undefined
     {
-        return EntityList.get(this._parentId);
+        return EntityManager.get(this._parentId);
     }
 
     public set Parent(parent: Entity | EntityId | undefined)
@@ -62,6 +52,13 @@ export class Entity extends RegistryItem
         return getAllComponents(this.Id).reduce((prev, component) => ({ ...prev, [component.Type.name]: component }), {});
     }
     //#endregion
+    
+    constructor(scene: Scene, uuid?: UUID)
+    {
+        super(EntityManager, uuid);        
+        
+        this._sceneId = scene.ID;
+    }
 
     //#region Component Methods
     public AddComponent<T extends Component>(component: T): Entity
@@ -150,7 +147,7 @@ export class Entity extends RegistryItem
         this._childrenIds = undefined!;
 
         deleteEntity(this.Id);
-        EntityList.remove(this.ID);
+        EntityManager.remove(this.ID);
     }
 
     OnCreate(): void { }

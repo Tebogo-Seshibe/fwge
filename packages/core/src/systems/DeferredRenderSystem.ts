@@ -1,4 +1,4 @@
-import { GL, Matrix3, Matrix4, Vector3, Vector3Array } from "@fwge/common";
+import { Colour4, GL, Matrix3, Matrix4, Vector3, Vector3Array } from "@fwge/common";
 import { Scene, Shader } from "../base";
 import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
 import { getComponent, getComponentById, System, view } from "../ecs";
@@ -39,8 +39,6 @@ export class DeferredRenderSystem extends System
         this._mvBuffer = new Float32Array(entities * Matrix4.SIZE);
         this._nBuffer = new Float32Array(entities * Matrix3.SIZE);
         this._createBatch();
-
-        console.log(this);
     }
 
     private _createBatch(): void
@@ -96,6 +94,8 @@ export class DeferredRenderSystem extends System
         const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight;
 
         this._lightPassShader.Bind();
+        this._lightPassShader.SetBufferData('MyAreaLight', new Colour4(1,1,1,0.15));
+        this._lightPassShader.PushBufferData('MyAreaLight');
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
             const window = this.Scene.Windows[i];
@@ -293,6 +293,8 @@ export class DeferredRenderSystem extends System
         this._prepassShader.Bind();
         this._prepassShader.SetMatrix('U_Matrix.View', view, true);
         this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true);
+        // this._prepassShader.SetBufferData('Camera', view.Transpose(), 0);
+        // this._prepassShader.SetBufferData('Camera', projection.Transpose(), Matrix4.BYTES_PER_ELEMENT * Matrix4.SIZE);
 
         for (const [materialId, renderers] of this._batch)
         {
@@ -406,6 +408,12 @@ struct Matrix
 };
 uniform Matrix U_Matrix;
 
+// uniform Camera
+// {
+//     mat4 ViewMatrix;
+//     mat4 ProjectionMatrix;
+    
+// } camera;
 // uniform Globals
 // {
 //     mat4 ProjectionMatrix;
@@ -423,6 +431,7 @@ void main(void)
     V_Vertex.UV = A_UV;
     V_Vertex.Colour = A_Colour;
 
+    // gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * position;
     gl_Position = U_Matrix.Projection * U_Matrix.View * position;
 }
 `;
@@ -504,6 +513,7 @@ void main(void)
 const mainPassFrag = `#version 300 es
 #pragma vscode_glsllint_stage: frag
 precision highp float;
+layout (std140) uniform;
 
 in vec2 V_UV;
 layout(location = 0) out vec4 O_FragColour;
@@ -531,9 +541,14 @@ struct AreaLight
 };
 uniform AreaLight[1] U_AreaLight;
 
+uniform MyAreaLight
+{
+    AreaLight[1] areaLights;
+};
+
 vec3 CalcAreaLight(AreaLight light)
 {
-    return light.Colour * light.Intensity;
+    return U_AreaLight[0].Colour * U_AreaLight[0].Intensity;
 }
 
 struct DirectionalLight
