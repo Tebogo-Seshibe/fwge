@@ -21,7 +21,7 @@ export class Shader extends Asset
     static readonly UniformBlocks: Map<string, UniformBlock> = new Map();
 
     static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/;
-    static readonly UniformBlockRegex = /uniform[\n\s]+(?<name>\w+)[\n\s]*{(?<fields>(([\n\s]*|\w+|\[\d+\])+;)+)[\n\s]*}[\n\s]*(?<instance>\w+);/g;
+    static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
     static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
     static readonly PropertyRegex = /(?<property>(?<prop_type>\w+)[\s\n]*((?<prop_length_prefix>\[\d+\])[\s\n]*(?<prop_length_prefix_name>\w+)|(?<prop_length_postfix_name>\w+)[\s\n]*(?<prop_length_postfix_length>\[\d+\])|([\s\n]+(?<prop_name>\w+)))[\s\n]*;)/
 
@@ -128,29 +128,11 @@ export class Shader extends Asset
 
     _addUniformStructs(vertexSource: string, fragmentSource: string): void
     {
-        let match;
+        const source = vertexSource + "\n" + fragmentSource;
+        const structs = source.matchAll(Shader.StructRegex);
+        const uniforms = source.matchAll(Shader.UniformBlockRegex);
 
-        const vertStructs = vertexSource.matchAll(Shader.StructRegex);
-        const fragStructs = fragmentSource.matchAll(Shader.StructRegex);
-
-
-        while (!(match = vertStructs.next()).done)
-        {
-            const { name, fields, instance } = match.value.groups!;
-            const props = new Map<string, string>();
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
-            for (const fieldName of fieldNames)
-            {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
-                props.set(prop, type);
-            }
-            if (instance)
-            {
-                props.set('_instance_', instance);
-            }
-            this.Structs.set(name, props);
-        }
-        while (!(match = fragStructs.next()).done)
+        for (let match = structs.next(); !match.done; match = structs.next())
         {
             const { name, fields, instance } = match.value.groups!;
             const props = new Map<string, string>();
@@ -167,28 +149,9 @@ export class Shader extends Asset
             this.Structs.set(name, props);
         }
 
-        const vertUniforms = vertexSource.matchAll(Shader.UniformBlockRegex);
-        const fragUniforms = fragmentSource.matchAll(Shader.UniformBlockRegex);
-
-        while (!(match = vertUniforms.next()).done)
+        for (let match = uniforms.next(); !match.done; match = uniforms.next())
         {
             const { name, fields, instance } = match.value.groups!;
-            const props = new Map<string, string>();
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
-            for (const fieldName of fieldNames)
-            {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
-                props.set(prop, type);
-            }
-            if (instance)
-            {
-                props.set('_instance_', instance);
-            }
-            this.Uniforms.set(name, props);
-        }
-        while (!(match = fragUniforms.next()).done)
-        {
-            const { name, fields, length, instance } = match.value.groups!;
             const props = new Map<string, string>();
             const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
             for (const fieldName of fieldNames)

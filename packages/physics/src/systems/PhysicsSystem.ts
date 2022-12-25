@@ -42,7 +42,7 @@ export class PhysicsSystem extends System
             const entity = this.Scene.GetEntity(entityId)!
             const transform = entity.GetComponent(Transform)!
             transform.Position.Add(offset)
-            offset.Set(0)
+            offset.Set(0, 0, 0)
         }
     }
 
@@ -51,7 +51,7 @@ export class PhysicsSystem extends System
         for (const [entityId, offsetIndex] of this.offsetBufferIndex)
         {
             const offset = this.offsetBuffer.slice(offsetIndex, 3) as any as Vector3Array
-            if (Vector3.Length(offset) === 0)
+            if (Vector3.DistanceSquared([0,0,0], offset) === 0)
             {
                 continue
             }

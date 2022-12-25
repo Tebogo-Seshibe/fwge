@@ -611,7 +611,8 @@ vec3 CalcDirectionalLight(DirectionalLight light)
     float cascade = ShadowWeightDirectional(light, val, U_Other[0], light.ShadowMatrix); //U_OtherMatrix[0]);
     float shadow = 1.0 - cascade;
 
-    return light.Colour * diffuse * light.Intensity * shadow;
+    // return light.Colour * diffuse * light.Intensity * shadow;
+    return vec3(1.0);
 }
 
 struct PointLight
@@ -639,7 +640,8 @@ vec3 CalcPointLight(PointLight light)
     vec3 diffuse = light.Colour * diffuseWeight * attenuation;
     vec3 specular = light.Colour * specularWeight * attenuation; // * fragment.Specular;
 
-    return (diffuse + specular) * light.Intensity;
+    // return (diffuse + specular) * light.Intensity;
+    return vec3(1.0);
 }
 
 void main(void)

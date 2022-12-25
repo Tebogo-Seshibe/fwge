@@ -57,10 +57,10 @@ export class Particle
 
     constructor(
         delay: number = 0,
-        public readonly Position: Vector3 = new Vector3(0.0),
-        public readonly Rotation: Vector3 = new Vector3(0.0),
-        public readonly Scale: Vector3 = new Vector3(0.0),
-        public readonly Colour: Colour4 = new Colour4(0.0),
+        public readonly Position: Vector3 = new Vector3(0, 0, 0),
+        public readonly Rotation: Vector3 = new Vector3(0, 0, 0),
+        public readonly Scale: Vector3 = new Vector3(0, 0, 0),
+        public readonly Colour: Colour4 = new Colour4(0, 0, 0, 1),
     ) {
         this.Lifetime = -delay
     }    

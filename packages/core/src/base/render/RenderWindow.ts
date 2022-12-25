@@ -72,9 +72,9 @@ export class RenderWindow
     constructor(_scene: Scene, window: IRenderWindow = { })
     {
         this.Camera = window.camera ?? new PerspectiveCamera() 
-        this.Resolution = new Vector2(window.resolution ?? [1920, 1080])
-        this.Offset = new Vector2(window.offset ?? [0, 0])
-        this.Scale = new Vector2(window.scale ?? [1, 1])
+        this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080])
+        this.Offset = new Vector2(window.offset as Vector2Array ?? [0, 0])
+        this.Scale = new Vector2(window.scale as Vector2Array ?? [1, 1])
         this.RenderPipelineMode = window.renderPipelineMode ?? RenderPipelineMode.FORWARD
         this.RenderPipeline = window.pipeline ?? []
         this.RenderPipelineMap = new Map([[RenderWindow.MainPassName, -1]])
