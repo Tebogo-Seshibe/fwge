@@ -1,6 +1,6 @@
 import { clamp, Matrix3, Matrix4, Vector2, Vector3 } from "@fwge/common"
 import { PerspectiveCamera, Transform } from "@fwge/core"
-import { IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input"
+import { ControllerState, IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input"
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics"
 import { GameObject } from "./GameObject"
 
@@ -42,12 +42,69 @@ export class FPSController extends GameObject
         this.Scene.Windows.first.Camera = this.camera
     }
 
-    override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
+    override OnInput({ Keyboard, Controllers, Mouse }: IInputArgs, delta: number): void
     {
-        this.handleMovement(Keyboard, Mouse, delta)
+        const controller = Controllers.first;
+        if (controller)
+        {
+            this.handleControllerMovement(controller, delta);
+        }
+        else
+        {
+            this.handleKeyboardMovement(Keyboard, Mouse, delta)
+        }
+    }
+
+    private handleControllerMovement(controller: ControllerState, delta: number)
+    {
+        const movementSpeed = this.movementSpeed * (controller.LeftStickButton ? 2 : 1)
+        const deadzone = 0.25;
+        const turn = controller.RightStick.YX
+        if (Math.abs(turn.X) < deadzone)
+        {
+            turn.X = 0;
+        }
+        if (Math.abs(turn.Y) < deadzone)
+        {
+            turn.Y = 0;
+        }
+
+        Vector2.Scale(turn, this.turnSpeed * delta * 10, this.rotationDelta)
+        this.transform.Rotation.Y += this.rotationDelta.Y
+        this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X - this.rotationDelta.X, -80, 80)
+
+        this.rotationMatrix.Set(Matrix4.RotationMatrix(this.transform.Rotation).Matrix3)
+        Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward)
+        Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right)
+
+        if (Math.abs(controller.LeftStick.Y) < deadzone)
+        {
+            this.forward.Set(0, 0, 0)
+        }
+        else if (controller.LeftStick.Y < -deadzone)
+        {
+            this.forward.Negate()
+        }
+
+        if (Math.abs(controller.LeftStick.X) < deadzone)
+        {
+            this.right.Set(0, 0, 0)
+        }
+        else if (controller.LeftStick.X < -deadzone)
+        {
+            this.right.Negate()
+        }
+
+        Vector3.Add(this.forward, this.right, this.movement)
+        if (this.movement.Length !== 0)
+        {
+            this.movement.Scale(movementSpeed * delta / this.movement.Length)
+        }
+
+        this.transform.Position.Add(this.movement).Add(this.up)
     }
     
-    private handleMovement(Keyboard: KeyboardState, Mouse: MouseState, delta: number)
+    private handleKeyboardMovement(Keyboard: KeyboardState, Mouse: MouseState,  delta: number)
     {    
         const wPressed = Keyboard.KeyW !== KeyState.RELEASED && Keyboard.KeyW !== KeyState.UP
         const aPressed = Keyboard.KeyA !== KeyState.RELEASED && Keyboard.KeyA !== KeyState.UP
@@ -68,7 +125,7 @@ export class FPSController extends GameObject
 
         if ((wPressed && sPressed) || (!wPressed && !sPressed))
         {
-            this.forward.Set(0)
+            this.forward.Set(0, 0, 0)
         }
         else if (!wPressed && sPressed)
         {
@@ -77,7 +134,7 @@ export class FPSController extends GameObject
 
         if ((dPressed && aPressed) || (!dPressed && !aPressed))
         {
-            this.right.Set(0)
+            this.right.Set(0, 0, 0)
         }
         else if (!dPressed && aPressed)
         {
@@ -88,7 +145,7 @@ export class FPSController extends GameObject
 
         if ((qPressed && ePressed) || (!qPressed && !ePressed))
         {
-            this.up.Set(0)
+            this.up.Set(0, 0, 0)
         }
         else if (!qPressed && ePressed)
         {

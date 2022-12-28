@@ -16,7 +16,7 @@ export class CelestialBody extends GameObject
         this.orbit = orbit
         this.turnSpeed = rotationSpeed
         this.parent = parent
-        this.transform.Scale.Set(radius)
+        this.transform.Scale.Set(radius, radius, radius)
         this.transform.Rotation.Set(tilt)
     }
 
@@ -32,14 +32,14 @@ export class CelestialBody extends GameObject
     
     override OnUpdate(delta: number)
     {
-        if (this.parent)
-        {
-            this.transform.RotateAround(this.parent.transform, [0,1,0], this.orbit * delta * 10)
-        }
-        else
-        {
-            this.transform.RotateAroundAxis(0,1,0, this.orbit * delta * 10)
-        }
+        // if (this.parent)
+        // {
+        //     this.transform.RotateAround(this.parent.transform, [0,1,0], this.orbit * delta * 10)
+        // }
+        // else
+        // {
+        //     this.transform.RotateAroundAxis(0,1,0, this.orbit * delta * 10)
+        // }
         this.transform.Rotation.Y += delta * this.turnSpeed * 10
     }
 }

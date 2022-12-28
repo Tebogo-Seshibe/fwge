@@ -1,6 +1,6 @@
 import { SharedComponent } from "../ecs/Component"
 
-interface IScript
+type IScript =
 {
     start?: () => void
     update?: (delta: number) => void

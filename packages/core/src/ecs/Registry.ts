@@ -349,6 +349,11 @@ export function view(
     return viewResults;
 }
 
+export function registerView()
+{
+
+}
+
 
 
 let typeId = 1;

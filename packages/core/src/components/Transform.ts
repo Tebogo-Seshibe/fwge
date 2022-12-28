@@ -1,7 +1,7 @@
 import { Matrix3, Matrix4, Vector3, Vector3Array } from '@fwge/common'
 import { UniqueComponent } from '../ecs/Component'
 
-export interface ITransform
+export type ITransform = 
 {
     position?: Vector3 | [number, number, number]
     rotation?: Vector3 | [number, number, number]

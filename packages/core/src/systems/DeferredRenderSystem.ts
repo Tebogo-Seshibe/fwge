@@ -74,6 +74,10 @@ export class DeferredRenderSystem extends System
 
     Update(_: number)
     {
+        // foreach Window
+        // Render Scene Data
+        // Composite Windows together
+        
         GL.enable(GL.DEPTH_TEST);
         GL.enable(GL.CULL_FACE);
         GL.cullFace(GL.BACK);
@@ -82,8 +86,12 @@ export class DeferredRenderSystem extends System
         for (const window of this.Scene.Windows)
         {
             window.MainPass.Output.Bind();
+            // GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+            // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+            // GL.clearColor(0, 0, 0, 0);
+            // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
             this.prepassRender(window.Camera);
-            this.shdaowpassRender();
+            // this.shdaowpassRender();
         }
 
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
@@ -94,8 +102,8 @@ export class DeferredRenderSystem extends System
         const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight;
 
         this._lightPassShader.Bind();
-        this._lightPassShader.SetBufferData('MyAreaLight', new Colour4(1,1,1,0.15));
-        this._lightPassShader.PushBufferData('MyAreaLight');
+        // this._lightPassShader.SetBufferData('MyAreaLight', new Colour4(1,1,1,0.15));
+        // this._lightPassShader.PushBufferData('MyAreaLight');
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
             const window = this.Scene.Windows[i];
@@ -105,8 +113,8 @@ export class DeferredRenderSystem extends System
             this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1]);
             this._lightPassShader.SetTexture(`U_ColourSpecular`, window.FinalComposite.ColourAttachments[2]);
             this._lightPassShader.SetTexture(`U_Depth`, window.FinalComposite.DepthAttachment!);
-            this._lightPassShader.SetTexture(`U_Other[0]`, dir.RenderTarget.DepthAttachment!);
-            this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`, dir.ShadowMatrix);
+            // this._lightPassShader.SetTexture(`U_Other[0]`, dir.RenderTarget.DepthAttachment!);
+            // this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`, dir.ShadowMatrix);
             // this._lightPassShader.SetTexture(`U_Other[1]`, dir.ShadowCascades[1].RenderTarget.ColourAttachments.first!);
             // this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`, Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix));
             // this._lightPassShader.SetTexture(`U_Other[2]`, dir.ShadowCascades[2].RenderTarget.ColourAttachments.first!);
@@ -114,7 +122,7 @@ export class DeferredRenderSystem extends System
             this._lightPassShader.SetFloatVector('U_PanelOffset', window.Offset);
             this._lightPassShader.SetFloatVector('U_PanelScale', window.Scale);
 
-            this.bindLights();
+            // this.bindLights();
 
             GL.bindVertexArray(window.Panel.VertexArrayBuffer);
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer);
@@ -412,8 +420,8 @@ uniform Matrix U_Matrix;
 // {
 //     mat4 ViewMatrix;
 //     mat4 ProjectionMatrix;
-    
 // } camera;
+
 // uniform Globals
 // {
 //     mat4 ProjectionMatrix;
@@ -654,22 +662,22 @@ void main(void)
         texture(U_Depth, V_UV).r
     );
 
-    vec3 lighting = vec3(0.0);
+    vec3 lighting = vec3(1.0);
 
-    for (int i = 0; i < U_AreaLight.length(); ++i)
-    {
-        lighting += CalcAreaLight(U_AreaLight[i]);
-    }
+    // for (int i = 0; i < U_AreaLight.length(); ++i)
+    // {
+    //     lighting += CalcAreaLight(U_AreaLight[i]);
+    // }
 
-    for (int i = 0; i < U_DirectionalLight.length(); ++i)
-    {
-        lighting += CalcDirectionalLight(U_DirectionalLight[i]);
-    }
+    // for (int i = 0; i < U_DirectionalLight.length(); ++i)
+    // {
+    //     lighting += CalcDirectionalLight(U_DirectionalLight[i]);
+    // }
 
-    for (int i = 0; i < U_PointLight.length(); ++i)
-    {
-        lighting += CalcPointLight(U_PointLight[i]);
-    }
+    // for (int i = 0; i < U_PointLight.length(); ++i)
+    // {
+    //     lighting += CalcPointLight(U_PointLight[i]);
+    // }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
     // O_FragColour = vec4(texture(U_Other[0], V_UV).rrr, 1.0);

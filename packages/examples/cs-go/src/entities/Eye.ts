@@ -76,7 +76,7 @@ export class Eye extends GameObject
         
         if ((wPressed && sPressed) || (!wPressed && !sPressed))
         {
-            this.forward.Set(0)
+            this.forward.Set(0, 0, 0)
         }
         else if (!wPressed && sPressed)
         {
@@ -85,7 +85,7 @@ export class Eye extends GameObject
 
         if ((dPressed && aPressed) || (!dPressed && !aPressed))
         {
-            this.right.Set(0)
+            this.right.Set(0, 0, 0)
         }
         else if (!dPressed && aPressed)
         {

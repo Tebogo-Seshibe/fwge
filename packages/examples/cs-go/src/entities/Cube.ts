@@ -17,10 +17,8 @@ export class Cube extends GameObject
 
         const rand = randBetween(2,5)
         this.transform.Position.Set((Math.random() * 100) - 50, randBetween(1, 10), (Math.random() * 100) - 50)
-        this.transform.Scale.Set(rand)
+        this.transform.Scale.Set(rand, rand, rand)
 
-        // this.transform.Scale.Set(5)
-        // this.transform.Position.Set(0, 5, 0)
         this.material = new BasicLitMaterial(
         {
             shininess: 32,

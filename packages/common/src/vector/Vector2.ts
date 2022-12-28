@@ -37,6 +37,11 @@ export class Vector2 extends Float32Array implements IEquatable<Vector2>
     {
         return this[0] * this[0] + this[1] * this[1];
     }
+
+    get YX(): Vector2
+    {
+        return new Vector2(this[1], this[0]);
+    }
     //#endregion
 
     constructor();
