@@ -1,11 +1,11 @@
 import { root_2 } from "../constants";
 import { FixedLengthArray, NumberArray } from "../types";
 import { radian } from "../utils";
-import { IEquatable } from "../utils/interfaces/IEquatable";
+import { IsEquatable } from "../utils/interfaces/IsEquatable";
 
 export type Vector2Array = FixedLengthArray<number, 2>;
 
-export class Vector2 extends Float32Array implements IEquatable<Vector2>
+export class Vector2 extends Float32Array implements IsEquatable<Vector2>
 {
     //#region Instance Properties
     get X(): number

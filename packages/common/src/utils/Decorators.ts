@@ -29,10 +29,10 @@ export const getDefaultSerializer = <T>(keys?: (keyof T)[]) => (target: any) =>
     }, serialized)
 }
 
-export function IsSerializable<T>(): ClassDecorator
-export function IsSerializable<T>(...keys: (keyof T)[]): ClassDecorator
-export function IsSerializable<T>(serializer: Serializer<T>): ClassDecorator
-export function IsSerializable<T>(arg?: Serializer<T> | keyof T, ...keys: (keyof T)[] ): ClassDecorator
+export function IsSerializabler<T>(): ClassDecorator
+export function IsSerializabler<T>(...keys: (keyof T)[]): ClassDecorator
+export function IsSerializabler<T>(serializer: Serializer<T>): ClassDecorator
+export function IsSerializabler<T>(arg?: Serializer<T> | keyof T, ...keys: (keyof T)[] ): ClassDecorator
 {
     if (arg === undefined)
     {

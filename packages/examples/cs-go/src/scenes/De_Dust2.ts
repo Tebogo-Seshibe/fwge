@@ -1,11 +1,9 @@
-import { AreaLight, DefaultWindow, DirectionalLight, Game, PointLight, RenderSystem, Scene, ScriptSystem, Shader, Transform } from "@fwge/core"
-import { InputSystem } from "@fwge/input"
-import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from '@fwge/io'
-import { FPSController } from "../entities"
-import { FullScreen } from "../entities/FullScreen"
-import { FPSCounterSystem } from "../systems/FPSCounterSystem"
-import de_dust2_MTL from '/public/objects/de_dust2_mat/de_dust2.mtl?raw'
-import de_dust2_OBJ from '/public/objects/de_dust2_mat/de_dust2.obj?raw'
+import { AreaLight, DefaultWindow, DirectionalLight, Game, PointLight, RenderSystem, Scene, ScriptSystem } from "@fwge/core";
+import { InputSystem } from "@fwge/input";
+import { FPSController } from "../entities";
+import { FullScreen } from "../entities/FullScreen";
+import { DeDust2OBJ } from "../prefabs";
+import { FPSCounterSystem } from "../systems/FPSCounterSystem";
 
 export class De_Dust2 extends Scene
 {
@@ -16,10 +14,7 @@ export class De_Dust2 extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                OBJMTLPrefabBuilder(
-                    OBJLoader(de_dust2_OBJ),
-                    MTLLoader(de_dust2_MTL, game.GetAsset('Basic Shader', Shader))
-                ).AddComponent(new Transform({ position: [0, 0, 0] }))
+                DeDust2OBJ(game)
             ],
             systems: [
                 InputSystem,

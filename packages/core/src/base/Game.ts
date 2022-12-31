@@ -11,14 +11,14 @@ export interface LibraryEntry<T>
     create: () => T;
 }
 
-export interface IGame
+export interface GameConfig
 {
     debug?: boolean;
     height: number;
     width: number;
     canvas: HTMLCanvasElement | (() => HTMLCanvasElement);
     scenes: Class<Scene>[];
-    startupScene: Class<Scene>;
+    startupScene: Class<Scene> | keyof this['scenes'];
 
     assets?: Array<LibraryEntry<Asset>>;
     components?: Array<LibraryEntry<SharedComponent>>;
@@ -28,6 +28,7 @@ export interface IGame
 export class Game
 {
     public readonly UUID: UUID = UUID.Create();
+
     readonly Height: number;
     readonly Width: number;
     readonly Scenes: Map<SceneId, Scene> = new Map();
@@ -36,18 +37,18 @@ export class Game
     readonly Prefabs: Map<string, Map<string, Prefab>> = new Map();
 
     //#region Private Fields
-    scenesIds: Map<Class<Scene>, SceneId> = new Map();
-    activeScene: Scene | undefined = undefined;
-    #currTick: number = -1;
-    #prevTick: number = -1;
-    tickId: number | undefined = undefined;
-    #delayId: number | undefined = undefined;
-    running: boolean = false;
+    private _scenesIds: Map<Class<Scene>, SceneId> = new Map();
+    private _activeScene: Scene | undefined = undefined;
+    private _currTick: number = -1;
+    private _prevTick: number = -1;
+    private _tickId: number | undefined = undefined;
+    private _delayId: number | undefined = undefined;
+    private _running: boolean = false;
     //#endregion    
 
     constructor();
-    constructor(config: IGame);
-    constructor(config?: IGame)
+    constructor(config: GameConfig);
+    constructor(config?: GameConfig)
     {
         config = {
             ...config!,
@@ -57,8 +58,8 @@ export class Game
         };
 
         config.canvas = config.canvas instanceof HTMLCanvasElement
-            ? config.canvas!
-            : config.canvas!();
+            ? config.canvas
+            : config.canvas?.call(document);
 
         if (!config.canvas)
         {
@@ -101,12 +102,12 @@ export class Game
         {
             const newScene = new SceneConstructor(this);
             this.Scenes.set(newScene.ID, newScene);
-            this.scenesIds.set(SceneConstructor, newScene.ID);
+            this._scenesIds.set(SceneConstructor, newScene.ID);
 
             newScene.Init();
         }
 
-        this.SetScene(config.startupScene);
+        this.SetScene(config.startupScene as Class<Scene>);
     }
 
     ResetContext(canvas: HTMLCanvasElement, debug: boolean)
@@ -131,49 +132,50 @@ export class Game
     //#region Private Methods
     private _start()
     {
-        if (this.running)
+        if (this._running)
         {
             return;
         }
 
-        if (!this.activeScene)
+        if (!this._activeScene)
         {
-            this.tickId = window.setTimeout(() => this._start());
+            this._tickId = window.setTimeout(this._start.bind(this));
         }
 
-        this.#prevTick = Date.now();
-        this.#currTick = Date.now();
-        this.activeScene!.Start();
+        this._prevTick = Date.now();
+        this._currTick = Date.now();
+        this._activeScene!.Start();
 
-        this.tickId = window.requestAnimationFrame(() => this._update(0));
+        this._tickId = window.requestAnimationFrame(this._update.bind(this));
     }
 
-    private _update(delta: number): void
+    private _update(): void
     {
-        this.activeScene!.Update(delta);
+        const delta = (this._currTick - this._prevTick) / 1000;
+        
+        this._activeScene!.Update(delta);
+        this._prevTick = this._currTick;
+        this._currTick = Date.now();
 
-        this.#prevTick = this.#currTick;
-        this.#currTick = Date.now();
-
-        this.tickId = window.requestAnimationFrame(() => this._update((this.#currTick - this.#prevTick) / 1000));
+        this._tickId = window.requestAnimationFrame(this._update.bind(this));
     }
 
     private _stop()
     {
-        this.running = false;
+        this._running = false;
 
-        if (this.#delayId !== undefined)
+        if (this._delayId !== undefined)
         {
-            window.clearTimeout(this.#delayId);
+            window.clearTimeout(this._delayId);
         }
 
-        if (this.tickId !== undefined)
+        if (this._tickId !== undefined)
         {
-            window.cancelAnimationFrame(this.tickId);
+            window.cancelAnimationFrame(this._tickId);
         }
 
-        this.activeScene?.Stop();
-        this.tickId = undefined;
+        this._activeScene?.Stop();
+        this._tickId = undefined;
     }
     //#endregion
 
@@ -188,7 +190,7 @@ export class Game
     {
         if (typeof scene !== 'number')
         {
-            scene = this.scenesIds.get(scene) as SceneId;
+            scene = this._scenesIds.get(scene) as SceneId;
         }
 
         return this.Scenes.get(scene);
@@ -200,15 +202,15 @@ export class Game
     {
         if (typeof sceneId !== 'number')
         {
-            sceneId = this.scenesIds.get(sceneId) as SceneId;
+            sceneId = this._scenesIds.get(sceneId) as SceneId;
         }
         const newScene = this.Scenes.get(sceneId);
 
-        if (!newScene || (this.activeScene && this.activeScene.ID === newScene.ID))
+        if (!newScene || (this._activeScene && this._activeScene.ID === newScene.ID))
         {
             return;
         }
-        this.activeScene = newScene;
+        this._activeScene = newScene;
     }
 
     GetComponent<T extends SharedComponent>(name: string, type: Class<T>): T | undefined

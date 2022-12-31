@@ -1,5 +1,5 @@
 import { Shader } from "../../base/Shader"
-import { Colour3, GL, IBindable, isPowerOf2, Scalar } from "@fwge/common"
+import { Colour3, GL, IsBindable, isPowerOf2, Scalar } from "@fwge/common"
 import { SharedComponent } from "../../ecs"
 import { ImageTexture } from "../../base"
 export function* TheThingDoer() {
@@ -30,7 +30,7 @@ export interface IMaterial
     renderType?: RenderType
 }
 
-export class Material extends SharedComponent implements IBindable<Float32Array>
+export class Material extends SharedComponent implements IsBindable<Float32Array>
 {
     static BlockIndex = new Map<string, any>()
     static BindingPoint = new Map<string, number>()

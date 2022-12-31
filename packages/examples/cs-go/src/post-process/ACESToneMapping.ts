@@ -58,7 +58,7 @@ export class ACESToneMapping extends RenderPipelineStep
             ),
             output: new RenderTarget(
             { 
-                colour: [ ColourType.UINT_RGBA ],
+                colour: [ ColourType.BYTE_RGBA ],
                 depth: DepthType.NONE,
                 height,
                 width,

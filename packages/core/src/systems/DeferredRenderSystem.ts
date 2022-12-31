@@ -1,7 +1,8 @@
-import { Colour4, GL, Matrix3, Matrix4, Vector3, Vector3Array } from "@fwge/common";
+import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common";
 import { Scene, Shader } from "../base";
 import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
 import { getComponent, getComponentById, System, view } from "../ecs";
+
 
 export class DeferredRenderSystem extends System
 {
@@ -102,6 +103,7 @@ export class DeferredRenderSystem extends System
         const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight;
 
         this._lightPassShader.Bind();
+        this.bindLights();
         // this._lightPassShader.SetBufferData('MyAreaLight', new Colour4(1,1,1,0.15));
         // this._lightPassShader.PushBufferData('MyAreaLight');
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
@@ -549,14 +551,14 @@ struct AreaLight
 };
 uniform AreaLight[1] U_AreaLight;
 
-uniform MyAreaLight
-{
-    AreaLight[1] areaLights;
-};
+// uniform MyAreaLight
+// {
+//     AreaLight[1] areaLights;
+// };
 
 vec3 CalcAreaLight(AreaLight light)
 {
-    return U_AreaLight[0].Colour * U_AreaLight[0].Intensity;
+    return light.Colour * light.Intensity;
 }
 
 struct DirectionalLight
@@ -616,11 +618,10 @@ vec3 CalcDirectionalLight(DirectionalLight light)
 {
     float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
-    float cascade = ShadowWeightDirectional(light, val, U_Other[0], light.ShadowMatrix); //U_OtherMatrix[0]);
+    float cascade = 0.0; //ShadowWeightDirectional(light, val, U_Other[0], light.ShadowMatrix); //U_OtherMatrix[0]);
     float shadow = 1.0 - cascade;
 
-    // return light.Colour * diffuse * light.Intensity * shadow;
-    return vec3(1.0);
+    return light.Colour * diffuse * light.Intensity * shadow;
 }
 
 struct PointLight
@@ -648,8 +649,8 @@ vec3 CalcPointLight(PointLight light)
     vec3 diffuse = light.Colour * diffuseWeight * attenuation;
     vec3 specular = light.Colour * specularWeight * attenuation; // * fragment.Specular;
 
-    // return (diffuse + specular) * light.Intensity;
-    return vec3(1.0);
+    return (diffuse + specular) * light.Intensity;
+    // return vec3(1.0);
 }
 
 void main(void)
@@ -662,25 +663,26 @@ void main(void)
         texture(U_Depth, V_UV).r
     );
 
-    vec3 lighting = vec3(1.0);
+    vec3 lighting = vec3(0.0);
 
-    // for (int i = 0; i < U_AreaLight.length(); ++i)
-    // {
-    //     lighting += CalcAreaLight(U_AreaLight[i]);
-    // }
+    for (int i = 0; i < U_AreaLight.length(); ++i)
+    {
+        lighting += CalcAreaLight(U_AreaLight[i]);
+    }
 
-    // for (int i = 0; i < U_DirectionalLight.length(); ++i)
-    // {
-    //     lighting += CalcDirectionalLight(U_DirectionalLight[i]);
-    // }
+    for (int i = 0; i < U_DirectionalLight.length(); ++i)
+    {
+        lighting += CalcDirectionalLight(U_DirectionalLight[i]);
+    }
 
-    // for (int i = 0; i < U_PointLight.length(); ++i)
-    // {
-    //     lighting += CalcPointLight(U_PointLight[i]);
-    // }
+    for (int i = 0; i < U_PointLight.length(); ++i)
+    {
+        lighting += CalcPointLight(U_PointLight[i]);
+    }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
     // O_FragColour = vec4(texture(U_Other[0], V_UV).rrr, 1.0);
     // O_FragColour = vec4(fragment.Normal, 1.0);
+    // O_FragColour = vec4(lighting, 1.0);
 }
 `;

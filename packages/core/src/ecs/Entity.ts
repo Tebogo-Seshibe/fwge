@@ -3,6 +3,8 @@ import { Scene } from '../base/Scene';
 import { Component } from './Component';
 import { addComponent, Class, createEntity, deleteEntity, EntityId, EntityManager, getAllComponents, getComponent, getScene, hasComponent, RegistryItem, removeComponent, SceneId, SceneManager } from './Registry';
 
+export type EntityType<T extends Entity = Entity> = Class<T>;
+
 export class Entity extends RegistryItem
 {
     public readonly Id: EntityId = createEntity();
@@ -52,11 +54,11 @@ export class Entity extends RegistryItem
         return getAllComponents(this.Id).reduce((prev, component) => ({ ...prev, [component.Type.name]: component }), {});
     }
     //#endregion
-    
+
     constructor(scene: Scene, uuid?: UUID)
     {
-        super(EntityManager, uuid);        
-        
+        super(EntityManager, uuid);
+
         this._sceneId = scene.ID;
     }
 

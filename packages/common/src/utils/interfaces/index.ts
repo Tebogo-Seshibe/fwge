@@ -1,3 +1,2 @@
-export * from './IBindable'
-export * from './IEquatable'
-export * from './ISerializable'
+export * from './IsBindable'
+export * from './IsEquatable'

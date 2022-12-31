@@ -112,8 +112,8 @@ export class PhysicsTest extends Scene
             });
 
         const positions = [];
-        const min = -15;
-        const max = 15;
+        const min = -0;
+        const max = 0;
         for (let x = min; x <= max; x += 2)
         {
             for (let z = min; z <= max; z += 2)
@@ -122,7 +122,6 @@ export class PhysicsTest extends Scene
             }
         }
 
-        let i = 0;
         for (const position of positions)
         {
             const cube = this.CreateEntity()
@@ -134,14 +133,16 @@ export class PhysicsTest extends Scene
 
             const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }));
 
-            light.AddComponent(sphereRender).AddComponent(simpleMaterial).AddComponent(sphereRotator);
-            // light.AddComponent(new PointLight(
-            //     {
-            //         colour: [Math.random(), Math.random(), Math.random()],
-            //         intensity: 0.5,
-            //         radius: 2
-            //     }))
-            //     .GetComponent(Transform)!.Position.Y = 1;
+            light.AddComponent(sphereRender)
+                .AddComponent(simpleMaterial)
+                .AddComponent(sphereRotator);
+            light.AddComponent(new PointLight(
+                {
+                    colour: [Math.random(), Math.random(), Math.random()],
+                    intensity: 0.5,
+                    radius: 2
+                }))
+                .GetComponent(Transform)!.Position.Y = 1;
 
             cube.AddChild(light);
         }
@@ -151,12 +152,12 @@ export class PhysicsTest extends Scene
                 {
                     skyBox: { source: '/img/clouds.jpg' },
                     colour: [1, 1, 1],
-                    intensity: 0.5
+                    intensity: 0.15
                 }));
 
         this.CreateEntity()
             .AddComponent(new Transform({ rotation: [30, 0, 0] }))
-            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3 }));
+            .AddComponent(new DirectionalLight({ intensity: 0.15, bias: 0.02, pcfLevel: 3 }));
 
         super.Init();
     }

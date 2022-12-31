@@ -1,5 +1,5 @@
 import { AnimationSystem } from "@fwge/animation"
-import { Game, RenderSystem, Scene } from "@fwge/core"
+import { DefaultWindow, Game, RenderSystem, Scene } from "@fwge/core"
 import { InputSystem } from "@fwge/input"
 import { FullScreen } from "../entities/FullScreen"
 
@@ -9,7 +9,7 @@ export class MainMenu extends Scene
     {
         super(game, {
             windows: [
-                
+                DefaultWindow
             ],
             entities: [
                 FullScreen

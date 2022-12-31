@@ -38,12 +38,7 @@ export class Sponza extends Scene
             entities: [
                 FullScreen,
                 FPSController,
-                OBJMTLPrefabBuilder(
-                    OBJLoader(sponzaOBJ),
-                    MTLLoader(sponzaMTL, game.GetAsset('Basic Shader', Shader))
-                )
-                .AddComponent(new Tag('Sponza'))
-                .AddComponent(new Transform({ scale: [5,5,5] }))
+                
             ],
             systems: [
                 InputSystem,

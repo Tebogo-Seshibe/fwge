@@ -1,5 +1,5 @@
-import { GL } from "@fwge/common"
-import { Asset } from "../Asset"
+import { GL } from "@fwge/common";
+import { Asset } from "../Asset";
 
 export enum TextureFilter
 {
@@ -16,17 +16,17 @@ export enum WrapMode
 
 export class ImageTexture extends Asset
 {
-    readonly Filtering: TextureFilter
-    readonly WrapMode: WrapMode
-    readonly Texture: WebGLTexture = GL.createTexture()!
+    readonly Filtering: TextureFilter;
+    readonly WrapMode: WrapMode;
+    readonly Texture: WebGLTexture = GL.createTexture()!;
 
     constructor(filtering: TextureFilter = TextureFilter.LINEAR, wrapMode: WrapMode = WrapMode.REPEAT)
     {
-        super(ImageTexture)
+        super(ImageTexture);
 
-        this.Filtering = filtering
-        this.WrapMode = wrapMode
+        this.Filtering = filtering;
+        this.WrapMode = wrapMode;
     }
 
-    protected applyImage(...images: HTMLImageElement[]): void {}
+    protected applyImage(...images: HTMLImageElement[]): void { }
 }

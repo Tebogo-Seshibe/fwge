@@ -223,10 +223,10 @@ export function getTypeId<T>(_class: Class<T>): TypeId
 }
 
 export type ViewFilter<T extends Component[] = Component[]> =
-    {
-        name: string;
-        exec: (...args: T) => boolean;
-    };
+{
+    name: string;
+    exec: (...args: T) => boolean;
+};
 
 const CustomView: Map<string, number[]> = new Map();
 

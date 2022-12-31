@@ -7,3 +7,8 @@ export type FixedLengthArray<Type, Length extends number, Arr extends Type[] = [
     : FixedLengthArray<Type, Length, [Type, ...Arr]>
 
 export type AtLeastOne<Type> = [Type, ...Type[]]
+
+export type Index<Length extends number, Values = never, Count extends number[] = []> =
+    Count['length'] extends Length
+    ? Count['length'] | Values
+    : Values | Index<Length, Count['length'] | Values, [...Count, Length]>

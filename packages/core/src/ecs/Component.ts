@@ -1,18 +1,21 @@
-import { Entity } from "./Entity"
-import { Class, createComponent, RegistryType } from "./Registry"
+import { Entity } from "./Entity";
+import { Class, ComponentId, createComponent, RegistryType, TypeId } from "./Registry";
 
-export class Component extends RegistryType
+export type ComponentRef = [TypeId, ComponentId];
+export type ComponentType<T extends Component = Component> = Class<T>;
+
+export abstract class Component extends RegistryType
 {
-    AddOwner(entitiy: Entity): void { }
-    RemoveOwner(entity: Entity): void { }
+    abstract AddOwner(entity: Entity): void;
+    abstract RemoveOwner(entity: Entity): void;
 
-    constructor()
-    constructor(componentType: Class<Component>)
+    constructor();
+    constructor(componentType: Class<Component>);
     constructor(type?: Class<Component>)
     {
-        super(type)
+        super(type);
 
-        createComponent(this)
+        createComponent(this);
     }
 }
 
@@ -20,47 +23,47 @@ export abstract class SharedComponent extends Component
 {
     public get Owners(): Entity[]
     {
-        return this._owners
+        return this._owners;
     }
 
     public AddOwner(entity: Entity): void
     {
         if (!this._owners.includes(entity))
         {
-            this._owners.push(entity)
+            this._owners.push(entity);
         }
     }
 
     public RemoveOwner(entity: Entity): void
     {
-        const parentIndex = this._owners.indexOf(entity)
+        const parentIndex = this._owners.indexOf(entity);
 
         if (parentIndex !== -1)
         {
-            this._owners.swap(parentIndex, this._owners.length - 1)
-            this._owners.pop()
+            this._owners.swap(parentIndex, this._owners.length - 1);
+            this._owners.pop();
         }
     }
 
-    private _owners: Entity[] = []
+    private _owners: Entity[] = [];
 }
 
 export abstract class UniqueComponent extends Component
 {
     public get Owner(): Entity | undefined
     {
-        return this._owner
+        return this._owner;
     }
 
     public AddOwner(owner: Entity): void
     {
-        this._owner = owner
+        this._owner = owner;
     }
 
     public RemoveOwner(_?: Entity): void
     {
-        this._owner = undefined
+        this._owner = undefined;
     }
 
-    private _owner?: Entity
+    private _owner?: Entity;
 }

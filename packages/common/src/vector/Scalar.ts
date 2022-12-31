@@ -1,9 +1,9 @@
 import { FixedLengthArray, NumberArray } from "../types";
-import { IEquatable } from "../utils";
+import { IsEquatable } from "../utils";
 
 export type ScalarArray = FixedLengthArray<number, 1>;
 
-export class Scalar extends Float32Array implements IEquatable<Scalar>
+export class Scalar extends Float32Array implements IsEquatable<Scalar>
 {
     //#region Local Properties
     get Value(): number

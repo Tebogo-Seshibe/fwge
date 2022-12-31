@@ -13,7 +13,7 @@ export class ModernWarfare extends Scene
     {
         super(game, {
             windows: [
-                new RenderWindow({
+                new RenderWindow(this, {
                     offset: [-0.5, 0.0],
                     resolution: [1920/2, 1080],
                     scale: [0.5, 1.0],
@@ -22,7 +22,7 @@ export class ModernWarfare extends Scene
                         new ACESToneMapping(1920, 1080, 'MyBlur', 'ACES')
                     ]
                 }),
-                new RenderWindow({
+                new RenderWindow(this, {
                     offset: [0.5, 0.0],
                     resolution: [1920/2, 1080],
                     scale: [0.5, 1.0],

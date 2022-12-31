@@ -1,10 +1,10 @@
 import { FixedLengthArray, NumberArray } from "../types";
-import { IEquatable } from "../utils/interfaces/IEquatable";
+import { IsEquatable } from "../utils/interfaces/IsEquatable";
 import { Vector3 } from "./Vector3";
 
 export type Vector4Array = FixedLengthArray<number, 4>;
 
-export class Vector4 extends Float32Array implements IEquatable<Vector4>
+export class Vector4 extends Float32Array implements IsEquatable<Vector4>
 {
     //#region Instance Properties
     get X(): number

@@ -1,4 +1,3 @@
-
 export class UUID
 {
     private constructor(

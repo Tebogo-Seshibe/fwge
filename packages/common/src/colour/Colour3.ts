@@ -1,9 +1,10 @@
 import { FixedLengthArray, NumberArray } from '../types';
+import { IsEquatable } from '../utils';
 import { Colour4 } from './Colour4';
 
 export type Colour3Array = FixedLengthArray<number, 3>;
 
-export class Colour3 extends Float32Array
+export class Colour3 extends Float32Array implements IsEquatable<Colour3>
 {
     //#region Properties
     get R(): number

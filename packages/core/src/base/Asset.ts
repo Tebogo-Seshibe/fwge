@@ -1,12 +1,14 @@
-import { Class, RegistryType } from "../ecs"
+import { Class } from "../ecs";
+
+export type AssetType<T extends Asset = Asset> = Class<T>;
 
 export class Asset
 {
-    public readonly Type: Class<Asset>
+    public readonly Type: AssetType
 
     constructor()
-    constructor(assetType: Class<Asset>)
-    constructor(type?: Class<Asset>)
+    constructor(assetType: AssetType)
+    constructor(type?: AssetType)
     {
         this.Type = type ?? new.target
     }

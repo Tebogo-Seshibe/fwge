@@ -7,7 +7,7 @@ import { Prefab } from "./Prefab";
 import { DefaultWindow } from "./render/DefaultWindow";
 import { RenderWindow } from "./render/RenderWindow";
 
-export type SceneType = Class<Scene>;
+export type SceneType<T extends Scene = Scene> = Class<T>;
 
 export interface IScene
 {

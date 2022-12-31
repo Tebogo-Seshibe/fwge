@@ -4,8 +4,7 @@ export class HorizontalBlur extends RenderPipelineStep
 {
     constructor(width: number, height: number, input: string, output: string)
     {
-        super(
-        {
+        super({
             name: output,
             input: [ input ],
             shader: new Shader(
@@ -59,7 +58,7 @@ export class HorizontalBlur extends RenderPipelineStep
             ),
             output: new RenderTarget(
             { 
-                colour: [ ColourType.UINT_RGBA ],
+                colour: [ ColourType.BYTE_RGBA ],
                 depth: DepthType.NONE,
                 height,
                 width,
