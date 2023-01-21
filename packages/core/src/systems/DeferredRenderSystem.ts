@@ -3,7 +3,6 @@ import { Scene, Shader } from "../base";
 import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
 import { getComponent, getComponentById, System, view } from "../ecs";
 
-
 export class DeferredRenderSystem extends System
 {
     static BlockIndex = new Map<string, any>();
@@ -681,8 +680,5 @@ void main(void)
     }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
-    // O_FragColour = vec4(texture(U_Other[0], V_UV).rrr, 1.0);
-    // O_FragColour = vec4(fragment.Normal, 1.0);
-    // O_FragColour = vec4(lighting, 1.0);
 }
 `;

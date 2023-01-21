@@ -13,6 +13,7 @@
         "emitDecoratorMetadata": true,
         "composite": true,
         "incremental": true,
+        "forceConsistentCasingInFileNames": true,
     },
     "buildOptions": {
         "incremental": true,

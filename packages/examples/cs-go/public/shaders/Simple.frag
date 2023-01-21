@@ -1,8 +1,8 @@
 #version 300 es
 precision highp float;
 
-// common.frag
-// lighting.frag
+//#include common.frag
+//#include lighting.frag
 
 void main(void)
 {

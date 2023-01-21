@@ -8,12 +8,13 @@ interface IAudioPlayer
 
 export class AudioPlayer extends SharedComponent
 {
-    private _audio?: HTMLAudioElement = new Audio()
+    private _audio?: HTMLAudioElement = new Audio();
 
     public set Source(source: string)
     {
         this.Pause()
         this._audio = new Audio(source)
+
     }
 
     constructor()

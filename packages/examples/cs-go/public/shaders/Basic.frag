@@ -1,10 +1,10 @@
 #version 300 es
 precision mediump float;
 
-// common.frag
-// lighting.frag
+//#include common.frag
+//#include lighting.frag
 
-vec4 MyCalcPointLight(in PointLight point)
+vec4 MyCalcPointLight(PointLight point)
 {
     float falloff = smoothstep(point.Radius, 0.0, min(length(point.Position - V_Position.xyz), point.Radius));
     return vec4(vec3(falloff), 1.0);

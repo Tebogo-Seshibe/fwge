@@ -1,6 +1,97 @@
 import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common";
 import { Asset } from "./Asset";
 
+export type ShaderVariableType = 
+    'bool'
+    | 'int'
+    | 'uint'
+    | 'float'
+    | 'double'
+    | 'bvec2'
+    | 'bvec3'
+    | 'bvec4'
+    | 'uvec2'
+    | 'uvec3'
+    | 'uvec4'
+    | 'ivec2'
+    | 'ivec3'
+    | 'ivec4'
+    | 'vec2'
+    | 'vec3'
+    | 'vec4'
+    | 'dvec2'
+    | 'dvec3'
+    | 'dvec4'
+    | 'mat2'
+    | 'mat2x2'
+    | 'mat2x3'
+    | 'mat2x4'
+    | 'mat3'
+    | 'mat3x2'
+    | 'mat3x3'
+    | 'mat3x4'
+    | 'mat4'
+    | 'mat4x2'
+    | 'mat4x3'
+    | 'mat4x4'
+    | 'sampler1D'
+    | 'sampler2D'
+    | 'sampler3D'
+    | 'samplerCube'
+    | 'sampler2DRect'
+    | 'sampler1DArray'
+    | 'sampler2DArray'
+    | 'samplerCubeArray'
+    | 'samplerBuffer'
+    | 'sampler2DMS'
+    | 'sampler2DMSArray'
+
+export const ShaderVariableTypeSet = new Set<ShaderVariableType>([
+    'bool',
+    'int',
+    'uint',
+    'float',
+    'double',
+    'bvec2',
+    'bvec3',
+    'bvec4',
+    'uvec2',
+    'uvec3',
+    'uvec4',
+    'ivec2',
+    'ivec3',
+    'ivec4',
+    'vec2',
+    'vec3',
+    'vec4',
+    'dvec2',
+    'dvec3',
+    'dvec4',
+    'mat2',
+    'mat2x2',
+    'mat2x3',
+    'mat2x4',
+    'mat3',
+    'mat3x2',
+    'mat3x3',
+    'mat3x4',
+    'mat4',
+    'mat4x2',
+    'mat4x3',
+    'mat4x4',
+    'sampler1D',
+    'sampler2D',
+    'sampler3D',
+    'samplerCube',
+    'sampler2DRect',
+    'sampler1DArray',
+    'sampler2DArray',
+    'samplerCubeArray',
+    'samplerBuffer',
+    'sampler2DMS',
+    'sampler2DMSArray'
+]);
+
 export interface UniformBlock
 {
     index: number;
@@ -24,6 +115,8 @@ export class Shader extends Asset
     static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
     static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
     static readonly PropertyRegex = /(?<property>(?<prop_type>\w+)[\s\n]*((?<prop_length_prefix>\[\d+\])[\s\n]*(?<prop_length_prefix_name>\w+)|(?<prop_length_postfix_name>\w+)[\s\n]*(?<prop_length_postfix_length>\[\d+\])|([\s\n]+(?<prop_name>\w+)))[\s\n]*;)/
+    static readonly UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]+)(?<name>\w+)(?:[\n\s]*;)/g;
+    static readonly GLSLTypes = /(sampler([123]D(Rect|Array|MS(Array)?)|(Cube(Array)?|Buffer))|bool|u?int|float|double)|([uibd]?vec[234])|(mat[234](x[234])?)/;
 
     private _program: WebGLProgram | null = null;
     private _vertexShader: WebGLShader | null = null;
@@ -36,12 +129,12 @@ export class Shader extends Asset
     private _samplerIndex: number = 0;
     private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 
-    public readonly Inputs: { [key: string]: WebGLUniformLocation | undefined; } = {};
-    public readonly Ignore: Set<string> = new Set();
+    private readonly _inputs: { [key: string]: WebGLUniformLocation | undefined; } = {};
+    private readonly _ignore: Set<string> = new Set();
 
-    public readonly Structs: Map<string, Map<string, string>> = new Map();
-    public readonly Uniforms: Map<string, Map<string, string>> = new Map();
-    public readonly UniformBlocks: Map<string, UniformBlock> = new Map();
+    private readonly _structs: Map<string, Map<string, string>> = new Map();
+    private readonly _uniforms: Map<string, Map<string, string>> = new Map();
+    private readonly _uniformBlocks: Map<string, UniformBlock> = new Map();
 
     private readonly Buffer: WebGLBuffer = GL.createBuffer()!;
     private readonly BufferData: Float32Array = new Float32Array();
@@ -119,16 +212,19 @@ export class Shader extends Asset
         this._rawFragmentSource = fragmentShader;
         this._vertexSource = this._addIncludes(vertexShader);
         this._fragmentSource = this._addIncludes(fragmentShader);
-        this._compileShaders();
 
-        this._addUniformStructs(this._vertexSource, this._fragmentSource);
+        this._addUniformStructs();
+        this._compileShaders();
+        
+        this._addUniformVariables();
         this._indexUniformBlocks();
+
         console.log(this);
     }
 
-    _addUniformStructs(vertexSource: string, fragmentSource: string): void
+    _addUniformStructs(): void
     {
-        const source = vertexSource + "\n" + fragmentSource;
+        const source = this._vertexSource + "\n" + this._fragmentSource;
         const structs = source.matchAll(Shader.StructRegex);
         const uniforms = source.matchAll(Shader.UniformBlockRegex);
 
@@ -146,7 +242,7 @@ export class Shader extends Asset
             {
                 props.set('_instance_', instance);
             }
-            this.Structs.set(name, props);
+            this._structs.set(name, props);
         }
 
         for (let match = uniforms.next(); !match.done; match = uniforms.next())
@@ -163,15 +259,44 @@ export class Shader extends Asset
             {
                 props.set('_instance_', instance);
             }
-            this.Uniforms.set(name, props);
+            this._uniforms.set(name, props);
         }
     }
 
+    private _addUniformVariables(): void
+    {
+        const source = this._vertexSource + "\n" + this._fragmentSource;
+        const uniforms = source.matchAll(Shader.UniformVariable);
+
+        for (let match = uniforms.next(); !match.done; match = uniforms.next())
+        {
+            const { type, name } = match.value.groups!;
+
+            if (ShaderVariableTypeSet.has(type as ShaderVariableType))
+            {
+                this._getLocation(name);
+            }
+            else
+            {
+                const struct = this._structs.get(type);
+                if (!struct)
+                {
+                    continue;
+                }
+                
+                for (const field of struct.keys())
+                {
+                    this._getLocation(`${name}.${field}`);
+                }
+            }
+        }
+    }
+    
     private _indexUniformBlocks(): void
     {
         let print = false
 
-        for (const [uniform, fields] of this.Uniforms)
+        for (const [uniform, fields] of this._uniforms)
         {
             const fieldTypes: string[] = [];
             for (const [field, type] of fields)
@@ -198,7 +323,7 @@ export class Shader extends Asset
                 print = true
                 Shader.BlockIndex.set(uniform, uniformBlock.index);
                 Shader.BindingPoint.set(uniform, uniformBlock.bindingPoint);
-                this.UniformBlocks.set(uniform, uniformBlock);
+                this._uniformBlocks.set(uniform, uniformBlock);
                 
                 GL.uniformBlockBinding(this._program!, uniformBlock.index, uniformBlock.bindingPoint);
                 GL.bindBufferBase(GL.UNIFORM_BUFFER, uniformBlock.bindingPoint, uniformBlock.buffer);
@@ -307,23 +432,23 @@ export class Shader extends Asset
 
     private _getLocation(name: string): WebGLUniformLocation | undefined
     {
-        if (this.Ignore.has(name))
+        if (this._ignore.has(name))
         {
             return;
         }
 
-        let location = this.Inputs[name];
+        let location = this._inputs[name];
         if (!location)
         {
             const loc = GL.getUniformLocation(this.Program!, name);
             if (loc)
             {
-                this.Inputs[name] = loc;
+                this._inputs[name] = loc;
                 location = loc;
             }
             else
             {
-                this.Ignore.add(name);
+                this._ignore.add(name);
                 return;
             }
         }
@@ -351,23 +476,23 @@ export class Shader extends Asset
     SetBufferData(name: string, bufferData: Float32Array, offset: number): void;
     SetBufferData(name: string, bufferData: Float32Array, offset: number = 0): void
     {
-        if (!this.UniformBlocks.has(name))
+        if (!this._uniformBlocks.has(name))
         { 
             return;
         }
 
-        const uniformBlock = this.UniformBlocks.get(name)!;
+        const uniformBlock = this._uniformBlocks.get(name)!;
         uniformBlock.data.set(bufferData, offset);
     }
 
     PushBufferData(name: string): void
     {        
-        if (!this.UniformBlocks.has(name))
+        if (!this._uniformBlocks.has(name))
         { 
             return;
         }
 
-        const uniformBlock = this.UniformBlocks.get(name)!;
+        const uniformBlock = this._uniformBlocks.get(name)!;
         if (uniformBlock.index !== GL.INVALID_INDEX)
         {
             GL.bindBuffer(GL.UNIFORM_BUFFER, uniformBlock.buffer);

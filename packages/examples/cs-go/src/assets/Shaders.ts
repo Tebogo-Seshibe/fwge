@@ -14,6 +14,10 @@ import lightingVert from '/public/shaders/_lighting.vert?raw'
 import constants from '/public/shaders/constants.vert?raw'
 
 Shader.Includes.set('constants.vert', constants)
+Shader.Includes.set('common.vert', commonVert)
+Shader.Includes.set('common.frag', commonFrag)
+Shader.Includes.set('lighting.vert', lightingVert)
+Shader.Includes.set('lighting.frag', lightingFrag)
 
 export const basicShader = () => new Shader(
     LitAndShadowShadowShaderVert,
@@ -26,16 +30,16 @@ export const basicShader2 = () => new Shader(
 )
 
 export const createSimpleShader = () => new Shader(
-    defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
-    simpleFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag)
+    defaultVert,
+    simpleFrag
 )
 
 export const createBasicShader = () => new Shader(
-    defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
-    basicFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag)
+    defaultVert,
+    basicFrag
 )
     
 export const createDefaultShader = () => new Shader(
-    defaultVert.replace('// common.vert', commonVert).replace('// lighting.vert', lightingVert),
-    defaultFrag.replace('// common.frag', commonFrag).replace('// lighting.frag', lightingFrag)
+    defaultVert,
+    defaultFrag
 )

@@ -32,17 +32,17 @@ void _Init_DirectionalLights()
 {
     DirectionalLights = DirectionalLight[DIRbuffers.length()];
 
-    for (int i = 0; i < DIRbuffers.length() )
+    for (int i = 0; i < DIRbuffers.length())
     {
-        lights[i].Colour = _DirectionalLight[i].Data0.xyz;
-        lights[i].Intensity = _DirectionalLight[i].Data0.w;
-        lights[i].Direction = _DirectionalLight[i].Data1.xyz;
-        lights[i].CastShadows = bool(_DirectionalLight[i].Data1.w);
-        lights[i].TexelSize = _DirectionalLight[i].Data2.x;
-        lights[i].TexelCount = _DirectionalLight[i].Data2.y;
-        lights[i].Bias = _DirectionalLight[i].Data2.z;
-        lights[i].PCFLevel = _DirectionalLight[i].Data2.w;
-        lights[i].ShadowMatrix = _DirectionalLight[i].Data3;
+        DirectionalLights[i].Colour = _DirectionalLight[i].Data0.xyz;
+        DirectionalLights[i].Intensity = _DirectionalLight[i].Data0.w;
+        DirectionalLights[i].Direction = _DirectionalLight[i].Data1.xyz;
+        DirectionalLights[i].CastShadows = bool(_DirectionalLight[i].Data1.w);
+        DirectionalLights[i].TexelSize = _DirectionalLight[i].Data2.x;
+        DirectionalLights[i].TexelCount = _DirectionalLight[i].Data2.y;
+        DirectionalLights[i].Bias = _DirectionalLight[i].Data2.z;
+        DirectionalLights[i].PCFLevel = _DirectionalLight[i].Data2.w;
+        DirectionalLights[i].ShadowMatrix = _DirectionalLight[i].Data3;
     }
 }
 
@@ -68,12 +68,12 @@ void _Calculate_DirectionalLight(DirectionalLight dir, vec3 fragmentNormal, bool
 
                 if (shadowDepth < fragmentDepth)
                 {
-                    total += 1.0;
+                    total += 1.0f;
                 }
             }
         }
 
-        diffuseIntensity *= 1.0 - (total / dir.TexelCount);
+        diffuseIntensity *= 1.0f - (total / dir.TexelCount);
     }
 
     return dir.Colour * diffuseIntensity * dir.Intensity;
@@ -83,13 +83,13 @@ vec3 CalculateDirectionalLight(vec3 fragmentNormal, bool receiveShadows, vec3 sh
 {
     Init_DirectionalLights();
     
-    vec3 colour = vec3(0.0);
+    vec3 colour = vec3(0.0f);
 
     for (int i = 0; i < DirectionalLights.length(); ++i)
     {
         DirectionalLight dir = DirectionalLights[i];
         
-        if (dir.Intensity <= 1.0)
+        if (dir.Intensity <= 1.0f)
         {
             colour += _CalculateDirectionalLight(dir, fragmentNormal, receiveShadows, shadowCoordinates);
         }

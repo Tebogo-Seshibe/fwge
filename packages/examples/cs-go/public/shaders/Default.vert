@@ -1,7 +1,7 @@
 #version 300 es
 
-// common.vert
-// lighting.vert
+//#include common.vert
+//#include lighting.vert
 
 void main(void)
 {

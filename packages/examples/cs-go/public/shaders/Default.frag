@@ -35,7 +35,7 @@ struct Sampler
 };
 uniform Sampler U_Sampler;
 
-// common.frag
+//#include common.frag
 
 vec4 CalcPointLight(in PointLight point)
 {                
