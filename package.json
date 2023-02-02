@@ -18,8 +18,8 @@
     },
     "scripts": {
         "publish": "node ./script/publish-packages",
-        "test": "npm test -ws",
-        "build": "tsc --build tsconfig.json --watch",
+        "test": "npx lerna run test",
+        "build": "npx lerna run build",
         "editor": "cd packages/editor && npm i && npm start",
         "lib:clean": "node ./scripts/clean-packages",
         "lib:init": "node ./scripts/init-packages",
@@ -55,6 +55,7 @@
         "rollup-plugin-swc": "^0.2.1"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^2.3.3"
+        "@vitejs/plugin-vue": "^2.3.3",
+        "lerna": "^6.4.1"
     }
 }

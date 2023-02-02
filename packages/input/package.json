@@ -3,6 +3,7 @@
   "description": "Input package for the fwge library",
   "version": "1.0.0",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "author": {
     "name": "Tebogo Christopher Seshibe",
@@ -17,11 +18,13 @@
     "directory": "packages/input"
   },
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "link": "npm link",
+    "test": "jest --coverage"
   },
   "dependencies": {
-    "@fwge/core": "1.0.0",
-    "@fwge/common": "1.0.0"
+    "@fwge/core": "*",
+    "@fwge/common": "*"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",

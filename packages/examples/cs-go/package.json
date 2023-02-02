@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@fwge/animation": "file:../../@fwge/animation",
-    "@fwge/common": "file:../../@fwge/common",
-    "@fwge/core": "file:../../@fwge/core",
-    "@fwge/input": "file:../../@fwge/input",
-    "@fwge/physics": "file:../../@fwge/physics",
-    "@fwge/render": "file:../../@fwge/render",
+    "@fwge/animation": "*",
+    "@fwge/common": "*",
+    "@fwge/core": "*",
+    "@fwge/input": "*",
+    "@fwge/physics": "*",
+    "@fwge/render": "*",
     "rollup-plugin-swc": "^0.2.1"
   },
   "devDependencies": {

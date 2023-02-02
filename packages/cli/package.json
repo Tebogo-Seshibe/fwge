@@ -3,6 +3,7 @@
     "description": "CLI package for the fwge library",
     "version": "1.0.0",
     "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "license": "MIT",
     "author": {
         "name": "Tebogo Christopher Seshibe",
@@ -17,7 +18,9 @@
         "directory": "packages/cli"
     },
     "scripts": {
-        "test": "jest"
+        "build": "tsc",
+        "link": "npm link",
+        "test": "jest --coverage"
     },
     "bin": {
         "@tseshibe/fwge": "bin/fwge",
@@ -28,13 +31,13 @@
         "fwge"
     ],
     "dependencies": {
-        "@fwge/audio": "1.0.0",
-        "@fwge/common": "1.0.0",
-        "@fwge/core": "1.0.0",
-        "@fwge/input": "1.0.0",
-        "@fwge/physics": "1.0.0",
-        "@fwge/render": "1.0.0",
-        "@fwge/ui": "1.0.0",
+        "@fwge/audio": "*",
+        "@fwge/common": "*",
+        "@fwge/core": "*",
+        "@fwge/input": "*",
+        "@fwge/physics": "*",
+        "@fwge/render": "*",
+        "@fwge/ui": "*",
         "@types/inquirer": "^9.0.1",
         "commander": "^9.4.0",
         "dotenv": "^16.0.1",

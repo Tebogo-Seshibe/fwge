@@ -3,6 +3,7 @@
   "description": "Audio library for the FWGE package",
   "version": "1.0.0",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "author": {
     "name": "Tebogo Christopher Seshibe",
@@ -17,11 +18,13 @@
     "directory": "packages/animation"
   },
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "link": "npm link",
+    "test": "jest --coverage"
   },
   "dependencies": {
-    "@fwge/common": "file:../common",
-    "@fwge/core": "file:../core"
+    "@fwge/common": "*",
+    "@fwge/core": "*"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",

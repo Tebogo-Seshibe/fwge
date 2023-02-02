@@ -3,6 +3,7 @@
   "description": "Common package for the fwge library",
   "version": "1.0.0",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "author": {
     "name": "Tebogo Christopher Seshibe",
@@ -17,9 +18,9 @@
     "directory": "packages/common"
   },
   "scripts": {
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "coverage:w": "jest --coverage --watchAll"
+    "build": "tsc",
+    "link": "npm link",
+    "test": "jest --coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",

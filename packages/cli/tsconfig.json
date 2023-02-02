@@ -9,7 +9,6 @@
         "strict": true,
         "outDir": "./lib",
         "allowJs": false,
-        "watch": true
     },
     "compileOnSave": true,
     "include": [
