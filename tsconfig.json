@@ -9,7 +9,6 @@
         { "path": "packages/physics"    },
         { "path": "packages/animation"  },
         { "path": "packages/ui"         },
-        { "path": "packages/io"         },
-        { "path": "packages/cli"        },
-    ],
+        { "path": "packages/io"         }
+    ]
 }

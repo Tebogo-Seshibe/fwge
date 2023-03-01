@@ -29,6 +29,7 @@
     },
     "link": {
       "dependsOn": [
+        "^build",
         "^link"
       ]
     }

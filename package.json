@@ -17,13 +17,9 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "publish": "node ./script/publish-packages",
         "test": "npx lerna run test",
         "build": "npx lerna run build",
-        "editor": "cd packages/editor && npm i && npm start",
-        "lib:clean": "node ./scripts/clean-packages",
-        "lib:init": "node ./scripts/init-packages",
-        "lib:link": "node ./scripts/link-packages",
+        "link": "npx link",
         "play:cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",

@@ -13,7 +13,7 @@ const ResolutionMap =
     R_4K: { Height: 2160, Width: 3840 } as Resolution,
 } as const;
 
-const CurrentResolution: Resolution = ResolutionMap.R_WQHD;
+const CurrentResolution: Resolution = ResolutionMap.R_HD;
 
 export class CSGO extends Game
 {

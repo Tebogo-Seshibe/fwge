@@ -1,0 +1,13 @@
+{
+    "packages": [
+        "packages/common",
+        "packages/core",
+        "packages/render",
+        "packages/audio",
+        "packages/input",
+        "packages/physics",
+        "packages/animation",
+        "packages/ui",
+        "packages/io"
+    ]
+}

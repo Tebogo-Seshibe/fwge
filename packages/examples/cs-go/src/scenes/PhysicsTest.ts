@@ -1,5 +1,5 @@
 import { Vector3Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
+import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, ForwardPlusRenderSystem, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
 import { CubeCollider } from "@fwge/physics";
 import { FPSController } from "../entities";
@@ -34,7 +34,7 @@ export class PhysicsTest extends Scene
                 systems: [
                     InputSystem,
                     ScriptSystem,
-                    DeferredRenderSystem,
+                    ForwardPlusRenderSystem,
                 ],
             });
     }

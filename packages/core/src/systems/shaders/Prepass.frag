@@ -20,7 +20,6 @@ struct Vertex
 };
 in Vertex V_Vertex;
 
-mat
 struct Material
 {
     vec3 Colour;

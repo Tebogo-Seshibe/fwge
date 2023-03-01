@@ -18,7 +18,7 @@ export interface GameConfig
     width: number;
     canvas: HTMLCanvasElement | (() => HTMLCanvasElement);
     scenes: Class<Scene>[];
-    startupScene: Class<Scene> | keyof this['scenes'];
+    startupScene: Class<Scene>;
 
     assets?: Array<LibraryEntry<Asset>>;
     components?: Array<LibraryEntry<SharedComponent>>;
