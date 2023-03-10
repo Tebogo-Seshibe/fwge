@@ -20,7 +20,8 @@
     "scripts": {
         "build": "tsc",
         "link": "npm link",
-        "test": "jest --coverage"
+        "test": "jest",
+        "coverage": "jest --coverage"
     },
     "bin": {
         "@tseshibe/fwge": "bin/fwge",
@@ -31,17 +32,10 @@
         "fwge"
     ],
     "dependencies": {
-        "@fwge/audio": "*",
-        "@fwge/common": "*",
-        "@fwge/core": "*",
-        "@fwge/input": "*",
-        "@fwge/physics": "*",
-        "@fwge/render": "*",
-        "@fwge/ui": "*",
         "@types/inquirer": "^9.0.1",
         "commander": "^9.4.0",
-        "dotenv": "^16.0.1",
-        "inquirer": "^9.1.0"
+        "inquirer": "^9.1.0",
+        "yaml": "^2.2.1"
     },
     "devDependencies": {
         "@types/jest": "^27.5.1",
