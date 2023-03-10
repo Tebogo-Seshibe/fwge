@@ -1,0 +1,21 @@
+import { PhysicsTest } from './scenes';
+
+export class {{project-name}} extends Game
+{
+    constructor()
+    {
+        super({
+            canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
+            debug: false,
+            height: 720,
+            width: 1280,
+            startupScene: Startup,
+            scenes: [
+                Startup
+            ],
+            components: [],
+            assets: [],
+            prefabs: []
+        });
+    }
+}

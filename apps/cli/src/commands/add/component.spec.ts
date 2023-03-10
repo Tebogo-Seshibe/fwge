@@ -1,6 +1,5 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addComponent } from "./component";
-import { AddSuccess } from "./utils";
 
 describe('Adding a new component', () => {
     const logSpy = jest.spyOn(console, 'log');

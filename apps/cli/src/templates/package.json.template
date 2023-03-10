@@ -1,7 +1,7 @@
 {
-  "name": "cs-go",
+  "name": "{{project-name}}",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,11 +13,7 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
-    "@fwge/animation": "*",
     "@fwge/common": "*",
     "@fwge/core": "*",
-    "@fwge/input": "*",
-    "@fwge/physics": "*",
-    "@fwge/render": "*"
   }
 }

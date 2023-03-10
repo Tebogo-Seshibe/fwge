@@ -1,20 +1,17 @@
 import { GL, Matrix3 } from "@fwge/common"
-import { Camera, Material, Scene, Shader, System, Transform } from "@fwge/core"
+import { Camera, Material, Scene, Shader, System, Transform, view } from "@fwge/core"
 import { Particle, ParticleSpawner } from "../components"
 
 export class ParticleSystem extends System
 {
     private particleShader!: Shader
     private _time: number = 0
-    private _timeLoc!: WebGLUniformLocation
+    private _timeLoc!: WebGLUniformLocation;
 
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Transform, ParticleSpawner ] })
-    }
 
     Init(): void
     {
+        this.entityIds.concat(view([ Transform, ParticleSpawner ]));
         this.particleShader = new Shader(particleShaderArgs.vertexShader.source, particleShaderArgs.fragmentShader.source)
         this._timeLoc = GL.getUniformLocation(this.particleShader.Program!, 'Time')!
     }

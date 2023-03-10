@@ -14,7 +14,7 @@ const {
     addAsset,
 } = require('../lib')
 
-program.version('0.0.1');
+program.version('1.0.0');
 
 //#region Project Commands
 program.command('new')

@@ -1,6 +1,5 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addAsset } from "./asset";
-import { AddSuccess } from "./utils";
 
 describe('Adding a new asset', () => {
     const logSpy = jest.spyOn(console, 'log');

@@ -1,5 +1,4 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
-import { AddSuccess } from "./utils";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 
 export async function addScene(name: string): Promise<void>
 {

@@ -1,6 +1,5 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addScene } from "./scene";
-import { AddSuccess } from "./utils";
 
 describe('Adding a new scene', () => {
     const logSpy = jest.spyOn(console, 'log');

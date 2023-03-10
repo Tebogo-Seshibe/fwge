@@ -1,8 +1,8 @@
-import { GL, Matrix3, Matrix4 } from "@fwge/common"
-import { Scene, Shader } from "../base"
-import { AreaLight, Camera, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components"
-import { Light } from "../components/lights/Light"
-import { EntityId, getComponent, getComponentById, System, view } from "../ecs"
+import { GL, Matrix3, Matrix4 } from "@fwge/common";
+import { Shader } from "../base";
+import { AreaLight, Camera, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components";
+import { Light } from "../components/lights/Light";
+import { EntityId, getComponent, getComponentById, System, view } from "../ecs";
 
 export class RenderSystem extends System
 {
@@ -46,11 +46,6 @@ export class RenderSystem extends System
         }`
     )
     
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Transform, Material, Renderer ] })
-    }
-
     Init(): void
     {
         this._lights = view([Light]).map(entityId => getComponent(entityId, Light)!)

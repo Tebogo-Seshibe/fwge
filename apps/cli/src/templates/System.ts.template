@@ -1,0 +1,14 @@
+import { System } from "@fwge/core";
+
+export class {{system-name}} extends System
+{
+    // constructor(scene: Scene)
+    // {
+    //     super(scene, { async: true, tickRate: 60 })
+    // }
+
+    override Init(): void { }
+    override Start(): void { }
+    override Update(delta: number): void { }
+    override Stop(): void { }
+}

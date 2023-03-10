@@ -1,5 +1,5 @@
 import { Vector3, Vector3Array } from "@fwge/common"
-import { Entity, EntityId, getComponent, Scene, System, Transform } from "@fwge/core"
+import { Entity, EntityId, getComponent, Scene, System, Transform, view } from "@fwge/core"
 import { Collider } from "../components"
 import { Test } from "./MeshMesh"
 import { SAT } from "./SAT"
@@ -13,13 +13,10 @@ export class PhysicsSystem extends System
     private offsets: Map<EntityId, Vector3> = new Map()
     private offsetBuffer: Float32Array = new Float32Array()
     private offsetBufferIndex: Map<EntityId, number> = new Map()
-
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Transform, Collider ] })
-    }
     
-    Init(): void { }
+    Init(): void { 
+        this.entityIds.concat(view([ Transform, Collider ]));
+    }
     Start(): void { console.log(this) }
     Stop(): void { }
 

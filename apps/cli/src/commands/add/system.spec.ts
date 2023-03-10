@@ -1,6 +1,5 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addSystem } from "./system";
-import { AddSuccess } from "./utils";
 
 describe('Adding a new system', () => {
     const logSpy = jest.spyOn(console, 'log');

@@ -1,6 +1,5 @@
-import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addEntity } from "./entity";
-import { AddSuccess } from "./utils";
 
 describe('Adding a new entity', () => {
     const logSpy = jest.spyOn(console, 'log');
