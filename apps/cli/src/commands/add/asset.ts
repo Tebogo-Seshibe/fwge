@@ -1,4 +1,12 @@
+import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess } from "./utils";
+
 export async function addAsset(name: string): Promise<void>
 {
-    console.log(`Asset with name '${name}' created`);
+    if (!name)
+    {
+        throw new InvalidArgumentsException();
+    }
+
+    console.log(AddSuccess('Asset', name));
 }

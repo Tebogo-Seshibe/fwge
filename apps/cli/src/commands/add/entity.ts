@@ -1,4 +1,12 @@
+import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess } from "./utils";
+
 export async function addEntity(name: string): Promise<void>
 {
-    console.log(`Entity with name '${name}' created`);
+    if (!name)
+    {
+        throw new InvalidArgumentsException();
+    }
+
+    console.log(AddSuccess('Entity', name));
 }

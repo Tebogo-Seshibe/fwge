@@ -1,4 +1,12 @@
+import { InvalidArgumentsException } from "../../utils/InvalidArgumentsException";
+import { AddSuccess } from "./utils";
+
 export async function addComponent(name: string): Promise<void>
 {
-    console.log(`Component with name '${name}' created`);   
+    if (!name)
+    {
+        throw new InvalidArgumentsException();
+    }
+
+    console.log(AddSuccess('Component', name));  
 }
