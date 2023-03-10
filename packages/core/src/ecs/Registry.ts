@@ -83,6 +83,7 @@ export class RegistryType
 
         this.TypeId = getTypeId(type);
         this.Id = nextId(type);
+        console.log(this);
     }
 }
 

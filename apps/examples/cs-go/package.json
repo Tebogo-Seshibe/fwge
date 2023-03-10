@@ -1,0 +1,23 @@
+{
+  "name": "cs-go",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "@fwge/animation": "file://../../../packages/animation",
+    "@fwge/common": "file://../../../packages/common",
+    "@fwge/core": "file://../../../packages/core",
+    "@fwge/input": "file://../../../packages/input",
+    "@fwge/physics": "file://../../../packages/physics",
+    "@fwge/render": "file://../../../packages/render"
+  }
+}

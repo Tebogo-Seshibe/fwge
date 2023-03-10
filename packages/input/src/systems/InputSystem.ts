@@ -21,9 +21,9 @@ export class InputSystem extends System
     Init(): void
     {
         view([Input])
-        this._keyboard = new KeyboardInputHandler(GL.canvas)
-        this._mouse = new MouseInputHandler(GL.canvas)
-        this._controllers = new ControllerInputHandler(GL.canvas)
+        this._keyboard = new KeyboardInputHandler(GL.canvas as HTMLCanvasElement)
+        this._mouse = new MouseInputHandler(GL.canvas as HTMLCanvasElement)
+        this._controllers = new ControllerInputHandler(GL.canvas as HTMLCanvasElement)
     }
     
     Start(): void        

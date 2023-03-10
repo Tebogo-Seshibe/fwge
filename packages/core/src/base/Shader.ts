@@ -218,8 +218,6 @@ export class Shader extends Asset
         
         this._addUniformVariables();
         this._indexUniformBlocks();
-
-        console.log(this);
     }
 
     _addUniformStructs(): void

@@ -5,15 +5,22 @@
       "options": {
         "cacheableOperations": [
           "build",
+          "link",
           "test"
         ]
       }
     }
   },
   "targetDefaults": {
+    "add": {
+      "dependsOn": [
+        "^add"
+      ]
+    },
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "^add"
       ],
       "outputs": [
         "{projectRoot}/lib"

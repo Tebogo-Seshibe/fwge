@@ -17,10 +17,13 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "test": "npx lerna run test",
-        "build": "npx lerna run build",
+        "test": "lerna run test",
+        "build": "lerna run build",
         "link": "npx link",
-        "play:cs-go": "cd packages/examples/cs-go && npm i && npm run dev"
+        "add": "npm i",
+        "build:watch": "lerna watch -- lerna run build --scope=@fwge/*",
+        "link:watch": "lerna watch -- lerna run link --scope=@fwge/*",
+        "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",
     "keywords": [

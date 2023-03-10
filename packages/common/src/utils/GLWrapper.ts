@@ -568,7 +568,7 @@ export class GLWrapper
     //#region Properties
     get canvas(): HTMLCanvasElement
     {
-        return this.context.canvas
+        return this.context.canvas as HTMLCanvasElement
     }
     get drawingBufferHeight(): GLsizei
     {
