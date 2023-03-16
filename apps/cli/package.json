@@ -18,7 +18,7 @@
         "directory": "packages/cli"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "gulp",
         "link": "npm link",
         "test": "jest",
         "coverage": "jest --coverage"

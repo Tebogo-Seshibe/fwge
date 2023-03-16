@@ -1,6 +1,6 @@
 import { Entity } from "@fwge/core"
 
-export class {{entity-name}} extends Entity
+export class {{entity}} extends Entity
 {
     // constructor(scene: Scene)
     // {

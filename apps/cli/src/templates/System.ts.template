@@ -1,6 +1,6 @@
 import { System } from "@fwge/core";
 
-export class {{system-name}} extends System
+export class {{system}} extends System
 {
     // constructor(scene: Scene)
     // {

@@ -1,6 +1,7 @@
-import { PhysicsTest } from './scenes';
+import { Game } from '@fwge/core';
+import { Startup } from './scenes';
 
-export class {{project-name}} extends Game
+export class {{game}} extends Game
 {
     constructor()
     {
