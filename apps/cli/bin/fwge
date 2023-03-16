@@ -1,63 +1,88 @@
 #!/usr/bin/env node
 
-const { program, Argument, createArgument } = require('commander')
-const { 
-    newGame,
-    addAsset,
-    addComponent,
-    addEntity,
+const { program, Argument } = require('commander')
+const {
+    newProject,
+    saveProject,
+    loadProject,
+    buildProject,
+
     addScene,
-    addSystem
+    addSystem,
+    addEntity,
+    addComponent,
+    addAsset,
 } = require('../lib')
 
-program.version('0.0.1')
+program.version('1.0.0');
 
+//#region Project Commands
 program.command('new')
-        .description('Creates a new project')
-        .argument('<project-name>')
-        .action(newGame)
+    .description('Creates a new project')
+    .argument('<project-name>')
+    .action(newProject);
 
-program.command('run')
-        .description('Runs the game locally')
+program.command('load')
+    .description('Load an existing project')
+    .argument('<filename>')
+    .action(loadProject);
+
+program.command('save')
+    .description('Save the current project')
+    .argument('<project-name>')
+    .action(saveProject);
 
 program.command('build')
-        .description('Builds the game')
-        
+    .description('Builds the current project')
+    .addArgument(new Argument('type')
+        .choices(
+        [
+            'native',
+            'pwa',
+        ])
+    )
+    .action(buildProject);
+//#endregion
+
+//#region Unit Commands
 program.command('add')
     .description('Used to add a unit to the game')
     .addArgument(
         new Argument('type')
-        .choices([
-            'asset',
-            'component',
-            'entity',
-            'scene',
-            'system'
-        ])
+            .choices([
+                'scene',
+                'system',
+                'entity',
+                'component',
+                'asset',
+            ])
     )
-    .argument('<name>')    
-    .action((type, name) => {
-        switch (type) {
-            case 'asset':
-                addAsset(name)
-                break
-
-            case 'component':
-                addComponent(name)
-                break
-
-            case 'entity':
-                addEntity(name)
-                break
-
+    .argument('<name>')
+    .action((type, name) =>
+    {
+        switch (type)
+        {
             case 'scene':
-                addScene(name)
-                break
+                addScene(name);
+                break;
 
             case 'system':
-                addSystem(name)
-                break
-        }
-    })
+                addSystem(name);
+                break;
 
-program.parse()
+            case 'entity':
+                addEntity(name);
+                break;
+
+            case 'component':
+                addComponent(name);
+                break;
+
+            case 'asset':
+                addAsset(name);
+                break;
+        }
+    });
+//#endregion
+
+program.parse();

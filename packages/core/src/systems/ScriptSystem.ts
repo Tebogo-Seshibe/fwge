@@ -1,16 +1,10 @@
-import { Scene } from "../base"
-import { Script } from "../components/Script"
-import { Entity, getComponent, view } from "../ecs"
-import { System } from "../ecs/System"
+import { Script } from "../components/Script";
+import { Entity, getComponent, view } from "../ecs";
+import { System } from "../ecs/System";
 
 export class ScriptSystem extends System
 {
-    private _scripts: Map<number, Set<number>> = new Map()
-
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Script ] })
-    }
+    private _scripts: Map<number, Set<number>> = new Map();
 
     Init(): void
     {

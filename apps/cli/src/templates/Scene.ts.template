@@ -1,0 +1,17 @@
+import { InputSystem, RenderSystem, Scene, ScriptSystem } from "@fwge/core";
+
+export class {{scene}} extends Scene
+{
+    // constructor(game: Game)
+    // {
+    //     super(game, {
+    //         entities: [
+    //         ],    
+    //         systems: [
+    //             InputSystem,
+    //             ScriptSystem
+    //             RenderSystem,
+    //         ]
+    //     });
+    // }
+}

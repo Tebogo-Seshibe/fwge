@@ -13,11 +13,6 @@ export class InputSystem extends System
 
     private _inputListeners: Map<number, number[]> = new Map()
 
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Input ] })
-    }
-
     Init(): void
     {
         view([Input])

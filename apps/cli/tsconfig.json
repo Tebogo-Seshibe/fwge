@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
         "target": "ES5",
         "declaration": true,
         "module": "commonjs",
@@ -9,13 +10,10 @@
         "strict": true,
         "outDir": "./lib",
         "allowJs": false,
+        "watch": true
     },
     "compileOnSave": true,
     "include": [
         "./src",
-    ],
-    "exclude": [
-        "./node_modules",
-        "./dist"
     ]
 }

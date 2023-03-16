@@ -91,11 +91,6 @@ export class MyForwardPlusRenderSystem extends System
         `
     );
 
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [Transform, Material, Renderer] });
-    }
-
     public Init(): void
     {
         console.log(this);

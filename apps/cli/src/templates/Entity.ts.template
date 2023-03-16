@@ -1,0 +1,12 @@
+import { Entity } from "@fwge/core"
+
+export class {{entity}} extends Entity
+{
+    // constructor(scene: Scene)
+    // {
+    //     super(scene);
+    // }
+
+    override OnCreate(): void { }
+    override OnDestroy(): void { }
+}

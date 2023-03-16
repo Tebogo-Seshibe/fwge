@@ -8,7 +8,6 @@ interface ISystem
 {
     async?: boolean;
     tickRate?: number;
-    requiredComponents: Class<Component>[];
 }
 
 export class System extends RegistryItem
@@ -121,8 +120,7 @@ export class System extends RegistryItem
 
         this.name = new.target.name;
         this.sceneId = scene.ID;
-        this.async = config.async ?? false;
-        this.tickRate = config.tickRate ?? 60;
-        this.requiredComponents = new Set(config.requiredComponents);
+        this.async = config?.async ?? false;
+        this.tickRate = config?.tickRate ?? 60;
     }
 }

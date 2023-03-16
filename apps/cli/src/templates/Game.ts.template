@@ -1,0 +1,22 @@
+import { Game } from '@fwge/core';
+import { Startup } from './scenes';
+
+export class {{game}} extends Game
+{
+    constructor()
+    {
+        super({
+            canvas: () => document.querySelector<HTMLCanvasElement>('#canvas')!,
+            debug: false,
+            height: 720,
+            width: 1280,
+            startupScene: Startup,
+            scenes: [
+                Startup
+            ],
+            components: [],
+            assets: [],
+            prefabs: []
+        });
+    }
+}

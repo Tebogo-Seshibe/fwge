@@ -1,5 +1,5 @@
 import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { Scene, Shader } from "../base";
+import { Shader } from "../base";
 import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
 import { getComponent, getComponentById, System, view } from "../ecs";
 
@@ -20,11 +20,6 @@ export class DeferredRenderSystem extends System
     _mvBuffer!: Float32Array;
     _nBuffer!: Float32Array;
     _lightBuffer!: Float32Array;
-
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [Transform, Material, Renderer] });
-    }
 
     Init()
     {

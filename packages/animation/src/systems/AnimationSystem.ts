@@ -1,15 +1,13 @@
-import { Entity, Scene, System } from "@fwge/core"
+import { Entity, Scene, System, view } from "@fwge/core"
 import { Animation, Keyframe } from "../base"
 import { AnimationPlayer } from "../components"
 
 export class AnimationSystem extends System
 {
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ AnimationPlayer ] })
+    Init(): void { 
+        this.entityIds.concat(view([ AnimationPlayer ]));
     }
 
-    Init(): void { }
     Start(): void { }
     Stop(): void { }
 
