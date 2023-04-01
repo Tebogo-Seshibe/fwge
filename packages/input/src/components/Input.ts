@@ -1,5 +1,5 @@
-import { SharedComponent, Entity } from '@fwge/core'
-import { ControllerState, KeyboardState, MouseState } from '..'
+import { SharedComponent } from '@fwge/core';
+import { ControllerState, KeyboardState, MouseState } from '..';
 
 export interface IInputArgs
 {

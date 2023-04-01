@@ -2551,7 +2551,7 @@ export function glCheckError(GL: WebGL2RenderingContext, functionName: string, a
 
 function instanceOfA<T>(object: any, ...keys: (keyof T)[]): object is T
 {
-    return keys.reduce((curr, key) => curr && key in object, true)
+    return keys.reduce((curr, key) => curr && (key as string) in object, true as boolean)
 }
 
 const instanceOfArrayBufferView = (object: any) => instanceOfA<ArrayBufferView>(object, 'buffer', 'byteLength', 'byteOffset')

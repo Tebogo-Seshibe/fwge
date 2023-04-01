@@ -1,4 +1,4 @@
-import { Vector3, Matrix3, clean, Matrix4, GL } from '@fwge/common'
+import { Vector3, Matrix3, clean, Matrix4, GL, CompositeDataView } from '@fwge/common'
 import { CSGO } from './game'
 import './style.css'
 
@@ -11,3 +11,4 @@ game.Start();
 (window as any).Vector3 = Vector3;
 (window as any).Matrix3 = Matrix3;
 (window as any).Matrix4 = Matrix4;
+(window as any).CompositeDataView = CompositeDataView;

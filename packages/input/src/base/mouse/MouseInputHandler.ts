@@ -1,81 +1,60 @@
-import { Vector2 } from "@fwge/common"
-import { ButtonState, WheelState } from "../InputState"
-import { MouseState } from "./MouseState"
+import { ButtonState, WheelState } from "../InputState";
 
 export class MouseInputHandler
 {
-    static readonly MouseDeltaX: number = 0
-    static readonly MouseDeltaY: number = 1
-    static readonly MouseRawX: number = 2
-    static readonly MouseRawY: number = 3
-    static readonly Wheel: number = 4
-    static readonly Buttons: number = 5
+    public static readonly TOTAL_KEYS = 12;
+    private readonly dimensions: Uint8ClampedArray = new Uint8ClampedArray(4);
     
-    private _canvas: HTMLCanvasElement
-    private _values: number[] = []
-    
-    get State(): MouseState
-    {
-        const { top, left, width, height } = this._canvas.getBoundingClientRect()
 
-        return new MouseState(
-            new Vector2(
-                this._values[MouseInputHandler.MouseDeltaX],
-                this._values[MouseInputHandler.MouseDeltaY]
-            ),
-            new Vector2(
-                this._values[MouseInputHandler.MouseRawX],
-                this._values[MouseInputHandler.MouseRawY]
-            ),
-            new Vector2(
-                this._values[MouseInputHandler.MouseRawX] - left - (width / 2),
-                -this._values[MouseInputHandler.MouseRawY] + top + (height / 2)
-            ),
-            this._values[MouseInputHandler.Wheel],
-            this._values.slice(MouseInputHandler.Buttons)
-        ) 
-    }
-
-    constructor(canvas: HTMLCanvasElement)
-    {
-        this._values[MouseInputHandler.MouseDeltaX] = 0
-        this._values[MouseInputHandler.MouseDeltaY] = 0
-        this._values[MouseInputHandler.MouseRawX] = 0
-        this._values[MouseInputHandler.MouseRawY] = 0
-        this._canvas = canvas
-    }
+    constructor(
+        private readonly canvas: HTMLCanvasElement,
+        private readonly mouse_movement: Float32Array = new Float32Array(MouseInputHandler.TOTAL_KEYS), 
+        private readonly mouse_buttons: Uint8ClampedArray = new Uint8ClampedArray(MouseInputHandler.TOTAL_KEYS)
+    ) { }
 
     Start(): void
     {
-        this._canvas.addEventListener('click', this._click.bind(this))
-        this._canvas.addEventListener('dblclick', this._dblclick.bind(this))
-        this._canvas.addEventListener('mousedown', this._mousedown.bind(this))
-        this._canvas.addEventListener('mouseup', this._mouseup.bind(this))
-        this._canvas.addEventListener('mousemove', this._mousemove.bind(this))
-        this._canvas.addEventListener('contextmenu', this._contextmenu.bind(this))
-        this._canvas.addEventListener('wheel', this._wheel.bind(this))
+        this._resize();
+        this.canvas.addEventListener('resize', this._resize.bind(this))
+        this.canvas.addEventListener('click', this._click.bind(this))
+        this.canvas.addEventListener('dblclick', this._dblclick.bind(this))
+        this.canvas.addEventListener('mousedown', this._mousedown.bind(this))
+        this.canvas.addEventListener('mouseup', this._mouseup.bind(this))
+        this.canvas.addEventListener('mousemove', this._mousemove.bind(this))
+        this.canvas.addEventListener('contextmenu', this._contextmenu.bind(this))
+        this.canvas.addEventListener('wheel', this._wheel.bind(this))
     }
 
     Update(_: number): void { }
 
     Reset(): void
     {
-        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
-        this._values[MouseInputHandler.MouseDeltaX] = 0
-        this._values[MouseInputHandler.MouseDeltaY] = 0
+        this.mouse_movement[0] = 0;
+        this.mouse_movement[1] = 0;
+        this.mouse_buttons[0] = 0;
     }
     
     Stop(): void
     {
-        this._canvas.removeEventListener('click', this._click.bind(this))
-        this._canvas.removeEventListener('dblclick', this._dblclick.bind(this))
-        this._canvas.removeEventListener('mousedown', this._mousedown.bind(this))
-        this._canvas.removeEventListener('mouseup', this._mouseup.bind(this))
-        this._canvas.removeEventListener('mousemove', this._mousemove.bind(this))
-        this._canvas.removeEventListener('contextmenu', this._contextmenu.bind(this))
-        this._canvas.removeEventListener('wheel', this._wheel.bind(this))
+        this.canvas.removeEventListener('resize', this._resize.bind(this))
+        this.canvas.removeEventListener('click', this._click.bind(this))
+        this.canvas.removeEventListener('dblclick', this._dblclick.bind(this))
+        this.canvas.removeEventListener('mousedown', this._mousedown.bind(this))
+        this.canvas.removeEventListener('mouseup', this._mouseup.bind(this))
+        this.canvas.removeEventListener('mousemove', this._mousemove.bind(this))
+        this.canvas.removeEventListener('contextmenu', this._contextmenu.bind(this))
+        this.canvas.removeEventListener('wheel', this._wheel.bind(this))
+        
+        this.Reset();
+    }
 
-        this._values[MouseInputHandler.Wheel] = WheelState.CENTERED
+    private _resize()
+    {
+        const { top, left, width, height } = this.canvas.getBoundingClientRect();
+        this.dimensions[0] = top;
+        this.dimensions[1] = left;
+        this.dimensions[2] = width;
+        this.dimensions[3] = height;
     }
 
     private _click(e: MouseEvent): void
@@ -95,7 +74,7 @@ export class MouseInputHandler
         e.preventDefault()
         e.cancelBubble = true
 
-        this._values[e.button + MouseInputHandler.Buttons] = ButtonState.PRESSED
+        this.mouse_buttons[e.button + 1] = ButtonState.PRESSED
     }
     
     private _mouseup(e: MouseEvent): void
@@ -103,18 +82,23 @@ export class MouseInputHandler
         e.preventDefault()
         e.cancelBubble = true
 
-        this._values[e.button + MouseInputHandler.Buttons] = ButtonState.RAISED
+        this.mouse_buttons[e.button + 1] = ButtonState.RAISED
     }
     
     private _mousemove(e: MouseEvent): void
     {
         e.preventDefault()
         e.cancelBubble = true
+        
 
-        this._values[MouseInputHandler.MouseDeltaX] = e.movementX
-        this._values[MouseInputHandler.MouseDeltaY] = e.movementY
-        this._values[MouseInputHandler.MouseRawX] = e.clientX
-        this._values[MouseInputHandler.MouseRawY] = e.clientY
+        
+        this.mouse_movement[0] = e.movementX
+        this.mouse_movement[1] = e.movementY
+        this.mouse_movement[2] = e.clientX
+        this.mouse_movement[3] = e.clientY
+        this.mouse_movement[4] = e.clientX - this.dimensions[1] - (this.dimensions[2] / 2)
+        this.mouse_movement[5] = -e.clientY + this.dimensions[0] + (this.dimensions[3] / 2)
+        // console.log(this.mouse_movement)
     }
     
     private _contextmenu(e: MouseEvent): void
@@ -128,7 +112,7 @@ export class MouseInputHandler
         e.preventDefault()
         e.cancelBubble = true
 
-        this._values[MouseInputHandler.Wheel] = e.deltaY > 0
+        this.mouse_buttons[0] = e.deltaY > 0
             ? WheelState.DOWN
             : e.deltaY < 0 
                 ? WheelState.UP

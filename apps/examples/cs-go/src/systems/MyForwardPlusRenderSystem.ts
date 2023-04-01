@@ -135,6 +135,8 @@ export class MyForwardPlusRenderSystem extends System
             console.log(renderable);
         }
         console.groupEnd();
+
+        view([Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform], 'name')
     }
     public Start(): void { }
     public Stop(): void { }

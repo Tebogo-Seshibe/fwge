@@ -69,6 +69,7 @@ export class FPSController extends GameObject
             turn.Y = 0;
         }
 
+        // console.log(controller.LeftStick)
         Vector2.Scale(turn, this.turnSpeed * delta * 10, this.rotationDelta);
         this.transform.Rotation.Y += this.rotationDelta.Y;
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X - this.rotationDelta.X, -80, 80);
@@ -169,5 +170,6 @@ export class FPSController extends GameObject
         {
             this.canJump = true;
         }
+
     }
 }

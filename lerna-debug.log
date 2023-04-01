@@ -1,0 +1,26 @@
+0 silly argv {
+0 silly argv   _: [ 'watch' ],
+0 silly argv   '--': [ 'lerna', 'run', 'build', '--scope=@fwge/*' ],
+0 silly argv   lernaVersion: '6.4.1',
+0 silly argv   '$0': 'node_modules\\lerna\\cli.js',
+0 silly argv   command: 'lerna run build --scope=@fwge/*'
+0 silly argv }
+1 notice cli v6.4.1
+2 verbose rootPath D:\Projects\Personal\@fwge
+3 error Error: Cannot find module 'ci-info'
+3 error Require stack:
+3 error - D:\Projects\Personal\@fwge\node_modules\is-ci\index.js
+3 error - D:\Projects\Personal\@fwge\node_modules\@lerna\command\index.js
+3 error - D:\Projects\Personal\@fwge\node_modules\lerna\commands\watch\index.js
+3 error - D:\Projects\Personal\@fwge\node_modules\lerna\commands\watch\command.js
+3 error - D:\Projects\Personal\@fwge\node_modules\lerna\index.js
+3 error - D:\Projects\Personal\@fwge\node_modules\lerna\cli.js
+3 error     at Function.Module._resolveFilename (node:internal/modules/cjs/loader:995:15)
+3 error     at Function.Module._load (node:internal/modules/cjs/loader:841:27)
+3 error     at Module.require (node:internal/modules/cjs/loader:1067:19)
+3 error     at require (node:internal/modules/cjs/helpers:103:18)
+3 error     at Object.<anonymous> (D:\Projects\Personal\@fwge\node_modules\is-ci\index.js:3:18)
+3 error     at Module._compile (node:internal/modules/cjs/loader:1165:14)
+3 error     at Object.Module._extensions..js (node:internal/modules/cjs/loader:1219:10)
+3 error     at Module.load (node:internal/modules/cjs/loader:1043:32)
+3 error     at Function.Module._load (node:internal/modules/cjs/loader:878:12)
