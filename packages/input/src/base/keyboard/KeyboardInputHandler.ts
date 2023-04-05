@@ -1,16 +1,20 @@
 import { KeyState } from "../InputState";
+import { KeyboardState } from "./KeyboardState";
 
 export const NUM_KEYBOARD_KEYS: number = 256;
 
 export class KeyboardInputHandler
 {
     private readonly keyDelays: Float32Array = new Float32Array(NUM_KEYBOARD_KEYS);
+    public readonly State: KeyboardState;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly keyDelay: number = 0.2,
-        private readonly buffer: Uint8ClampedArray = new Uint8ClampedArray(NUM_KEYBOARD_KEYS)
-    ) { }
+        private readonly keys: Uint8ClampedArray
+    ) {
+        this.State = new KeyboardState(keys);
+    }
     
     Start(): void        
     {
@@ -20,19 +24,19 @@ export class KeyboardInputHandler
 
     Update(delta: number): void
     {
-        for (let i = 0 ; i < this.buffer.length; ++i)
+        for (let i = 0 ; i < this.keys.length; ++i)
         {
             if (this.keyDelays[i] <= 0)
             {
-                switch(this.buffer[i])
+                switch(this.keys[i])
                 {
                     case KeyState.PRESSED:
                     case KeyState.DOUBLE_PRESSED:
-                        this.buffer[i] = KeyState.DOWN;
+                        this.keys[i] = KeyState.DOWN;
                         break
 
                     case KeyState.RELEASED:
-                        this.buffer[i] = KeyState.UP;
+                        this.keys[i] = KeyState.UP;
                         break
                 }
             }
@@ -53,14 +57,14 @@ export class KeyboardInputHandler
     {
         e.preventDefault();
 
-        if (this.buffer[e.which] === KeyState.UP)
+        if (this.keys[e.which] === KeyState.UP)
         {
-            this.buffer[e.which] = KeyState.PRESSED;
+            this.keys[e.which] = KeyState.PRESSED;
             this.keyDelays[e.which] = this.keyDelay;
         }
-        else if (this.buffer[e.which] === KeyState.RELEASED)
+        else if (this.keys[e.which] === KeyState.RELEASED)
         {
-            this.buffer[e.which] = KeyState.DOUBLE_PRESSED;
+            this.keys[e.which] = KeyState.DOUBLE_PRESSED;
             this.keyDelays[e.which] = this.keyDelay;
         }
     }
@@ -68,6 +72,6 @@ export class KeyboardInputHandler
     private keyup(e: KeyboardEvent)
     {
         e.preventDefault();
-        this.buffer[e.which] = KeyState.RELEASED;
+        this.keys[e.which] = KeyState.RELEASED;
     }
 }

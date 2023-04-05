@@ -1,5 +1,5 @@
-import { Enumerate, FixedLengthArray } from "@fwge/common";
-import { KeyState } from "../InputState"
+import { FixedLengthArray } from "@fwge/common";
+import { KeyState } from "../InputState";
 
 export class  KeyboardState
 {

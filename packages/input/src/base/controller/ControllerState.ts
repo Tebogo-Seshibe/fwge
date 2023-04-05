@@ -167,13 +167,13 @@ export class ControllerState
     public readonly Buttons: Readonly<FixedLengthArray<ButtonState, 16>>;
 
     constructor(
-        controller_axes: Float32Array,
-        controller_axes_offset: number,
-        controller_buttons: Uint8ClampedArray,
-        controller_buttons_offset: number,
+        controllerAxes: Float32Array,
+        controllerAxesOffset: number,
+        controllerButtons: Uint8ClampedArray,
+        controllerButtonsOffset: number,
     ) {
-        this.LeftStick = new Vector2(controller_axes.buffer, (0 + controller_axes_offset) * Vector2.BYTES_PER_ELEMENT);
-        this.RightStick = new Vector2(controller_axes.buffer, (2 + controller_axes_offset) * Vector2.BYTES_PER_ELEMENT);
-        this.Buttons = new Uint8ClampedArray(controller_buttons, controller_buttons_offset * Vector2.BYTES_PER_ELEMENT, 16) as any as FixedLengthArray<ButtonState, 16>;
+        this.LeftStick = new Vector2(controllerAxes.buffer, (0 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
+        this.RightStick = new Vector2(controllerAxes.buffer, (2 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
+        this.Buttons = new Uint8ClampedArray(controllerButtons, controllerButtonsOffset * Vector2.BYTES_PER_ELEMENT, 16) as any as FixedLengthArray<ButtonState, 16>;
     }
 }

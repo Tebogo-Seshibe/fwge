@@ -1,6 +1,6 @@
-import { GL } from "@fwge/common"
-import { ButtonState, IInputArgs, KeyState } from "@fwge/input"
-import { GameObject } from "./GameObject"
+import { FixedLengthArray, GL } from "@fwge/common";
+import { ButtonState, ControllerState, KeyState, KeyboardState, MouseState } from "@fwge/input";
+import { GameObject } from "./GameObject";
 
 export class FullScreen extends GameObject
 {
@@ -12,7 +12,7 @@ export class FullScreen extends GameObject
     {
         super.OnCreate()
 
-        this.canvas = GL.canvas
+        this.canvas = GL.canvas as HTMLCanvasElement;
 
         document.onfullscreenchange = e =>
         {
@@ -40,7 +40,7 @@ export class FullScreen extends GameObject
         }
     }
 
-    override OnInput({ Keyboard, Mouse }: IInputArgs): void
+    OnInput(_delta: number, Keyboard: Readonly<KeyboardState>, Mouse: Readonly<MouseState>, _Controllers: Readonly<FixedLengthArray<ControllerState, 4>>)
     {
         if (!this.fullscreen && Keyboard.KeyF11 === KeyState.PRESSED)
         {

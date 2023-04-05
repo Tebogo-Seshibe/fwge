@@ -1,5 +1,6 @@
 import { Colour3, GL, Matrix3, Matrix4 } from "@fwge/common";
-import { AreaLight, Class, Component, DirectionalLight, getComponent, Light, Material, PointLight, Renderer, RenderMode, RenderWindow, Scene, Shader, System, Transform, view } from "@fwge/core";
+import { AreaLight, DirectionalLight, Light, Material, PointLight, RenderMode, RenderWindow, Renderer, Shader, System, Transform, getComponent, view } from "@fwge/core";
+
 
 export class MyForwardPlusRenderSystem extends System
 {
@@ -93,55 +94,16 @@ export class MyForwardPlusRenderSystem extends System
 
     public Init(): void
     {
-        console.log(this);
-        const view_PointLight = view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
-        const view_DirectionalLight = view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
-        const view_AreaLight = view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
-        const view_Renderable = view([Transform, Material, Renderer]);
-        
-        console.groupCollapsed('Point Lights');
-        for (const entityId of view_PointLight)
-        {
-            const light = getComponent(entityId, Light, PointLight);
-            console.log(light);
-        }
-        console.groupEnd();
-        
-        console.groupCollapsed('Directional Lights');
-        for (const entityId of view_DirectionalLight)
-        {
-            const light = getComponent(entityId, Light, DirectionalLight);
-            console.log(light);
-        }
-        console.groupEnd();
-        
-        console.groupCollapsed('Area Lights');
-        for (const entityId of view_AreaLight)
-        {
-            const light = getComponent(entityId, Light, AreaLight);
-            console.log(light);
-        }
-        console.groupEnd();
-        
-        console.group('Renderables');
-        for (const entityId of view_Renderable)
-        {
-            const renderable =  {
-                entityId,
-                transform: getComponent(entityId, Transform),
-                material: getComponent(entityId, Material),
-                renderer: getComponent(entityId, Renderer)
-            }
-            console.log(renderable);
-        }
-        console.groupEnd();
-
+        view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
+        view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
+        view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
+        view([Transform, Material, Renderer]);
         view([Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform], 'name')
     }
     public Start(): void { }
     public Stop(): void { }
 
-    public Update(_: number): void
+    public Update(): void
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
@@ -297,6 +259,7 @@ export class MyForwardPlusRenderSystem extends System
         }
     }
 
+    // @ts-ignore
     private drawWindowToScreen(window: RenderWindow): void
     {
         this._screenShader.Reset();

@@ -27,7 +27,8 @@ export class System extends RegistryItem
 
     public Init(): void { }
     public Start(): void { }
-    public Update(_: number): void { }
+    // @ts-ignore
+    public Update(delta: number): void { }
     public Stop(): void { }
 
     //#region Control Logic

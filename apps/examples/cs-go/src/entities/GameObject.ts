@@ -1,5 +1,6 @@
-import { Entity, Scene, Script, Transform } from "@fwge/core"
-import { IInputArgs, Input } from "@fwge/input"
+import { FixedLengthArray } from "@fwge/common";
+import { Entity, Scene, Script, Transform } from "@fwge/core";
+import { ControllerState, Input, KeyboardState, MouseState } from "@fwge/input";
 
 export class GameObject extends Entity
 {
@@ -12,11 +13,11 @@ export class GameObject extends Entity
         this.AddComponent(new Transform())
         this.AddComponent(new Input(
         {
-            onInput(this: GameObject, input: IInputArgs, delta: number)
+            onInput(this: GameObject, delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>)
             {
-                this.OnInput(input, delta)
+                this.OnInput(delta, keyboard, mouse, controllers);
             }
-        }))
+        }));
         this.AddComponent(new Script(
         {
             start(this: GameObject)
@@ -31,13 +32,15 @@ export class GameObject extends Entity
             {
                 this.OnStop()
             }
-        }))
+        }));
 
         this.transform = this.GetComponent(Transform)!
     }
 
     OnStart(): void { }
-    OnUpdate(_delta: number): void { }
+    // @ts-ignore
+    OnUpdate(delta: number): void { }
     OnStop(): void { }
-    OnInput(_args: IInputArgs, _delta: number): void { }
+    // @ts-ignore
+    OnInput(delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) { }
 }

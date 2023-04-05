@@ -1,5 +1,6 @@
 import { SharedComponent } from '@fwge/core';
 import { ControllerState, KeyboardState, MouseState } from '..';
+import { FixedLengthArray } from '@fwge/common';
 
 export interface IInputArgs
 {
@@ -9,12 +10,12 @@ export interface IInputArgs
 }
 interface IInput
 {
-    onInput: (input: IInputArgs, delta: number) => void
+    onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
 }
 
 export class Input extends SharedComponent
 {
-    OnInput: (input: IInputArgs, delta: number) => void
+    OnInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
     
     constructor(args: IInput)
     {
