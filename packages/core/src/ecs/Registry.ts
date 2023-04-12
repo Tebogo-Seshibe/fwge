@@ -26,16 +26,18 @@ export type Tuple<ChildTypes extends unknown[], IdentifiedTypes extends unknown[
 
 
 export type Class<T = {}> =
-    {
-        new(...args: any[]): T;
-        prototype: Partial<T>;
-    };
+{
+    new(...args: any[]): T;
+    prototype: Partial<T>;
+    TypeId?: TypeId;
+};
 
 export type Constructor<T, U extends ConstructorParameters<Class<T>>> =
-    {
-        new(...args: U): T;
-        prototype: Partial<T>;
-    };
+{
+    new(...args: U): T;
+    prototype: Partial<T>;
+    TypeId?: TypeId;
+};
 
 export const typeIdToType = new Map<number, Class<any>>();
 
@@ -70,7 +72,7 @@ export class ListManager<T extends any = any, U extends number = number>
 export class RegistryType
 {
     readonly Id: number;
-    readonly TypeId: number;
+    readonly TypeId: TypeId;
 
     get Type(): Class<any>
     {
@@ -139,7 +141,7 @@ export function removeComponent<T extends Component>(entityId: EntityId, compone
 export function removeComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined;
 export function removeComponent<T extends Component>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId): T | undefined
 {
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
+    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : componentTypeAndId.TypeId!);
     const component = ComponentArray[componentIndex][entityId];
     ComponentArray[componentIndex][entityId] = undefined;
     return component as T;
@@ -149,7 +151,7 @@ export function getAComponent<T extends Component>(typeId: TypeId, entityId: Ent
 export function getAComponent<T extends Component>(typeId: Class<T>, entityId: EntityId): T;
 export function getAComponent<T extends Component>(type: TypeId | Class<T>, entityId: EntityId): T
 {
-    const typeIndex = Math.log2(typeof type === 'number' ? type : getTypeId(type));
+    const typeIndex = Math.log2(typeof type === 'number' ? type : type.TypeId!);
     return ComponentArray[typeIndex][entityId] as T;
 }
 
@@ -157,7 +159,7 @@ export function hasComponent<T extends Component>(entityId: EntityId, componentT
 export function hasComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): boolean;
 export function hasComponent<T extends Component>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId): boolean
 {
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
+    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : componentTypeAndId.TypeId!);
     return ComponentArray[componentIndex][entityId] !== undefined;
 }
 
@@ -165,7 +167,7 @@ export function getComponentById<T extends Component>(componentType: Class<T>, c
 export function getComponentById<T extends Component>(componentTypeId: TypeId, componentId: EntityId): T | undefined;
 export function getComponentById<T extends Component>(componentTypeAndId: Class<T> | TypeId, componentId: EntityId): T | undefined
 {
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
+    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : componentTypeAndId.TypeId!);
     return ComponentsArray[componentIndex][componentId] as T;
 }
 
@@ -175,7 +177,7 @@ export function getComponent<T extends Component>(entityId: EntityId, componentT
 export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeId: TypeId, childType: Class<U>): U | undefined;
 export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId, _?: Class<U>): U | undefined
 {
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
+    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : componentTypeAndId.TypeId!);
     return ComponentArray[componentIndex][entityId] as U;
 }
 
@@ -217,6 +219,7 @@ export function getTypeId<T>(_class: Class<T>): TypeId
         typeIdToType.set(componentTypeId, _class);
         ComponentArray.push([]);
         ComponentsArray.push([]);
+        _class.TypeId = componentTypeId;
     }
 
     return componentTypeId;

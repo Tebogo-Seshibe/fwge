@@ -41,7 +41,7 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
 
     Shader: Shader
     RenderType: RenderType
-    #alpha: Scalar
+    private readonly _alpha: Scalar
     
     readonly MaterialBuffer = GL.createBuffer()!
 
@@ -51,12 +51,12 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
 
     get Alpha()
     {
-        return this.#alpha.Value
+        return this._alpha.Value
     }
 
     set Alpha(alpha: number)
     {
-        this.#alpha.Value = alpha
+        this._alpha.Value = alpha
     }
 
     constructor(
@@ -68,11 +68,11 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
-        this.Colour = new Colour3()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this.#alpha = new Scalar()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        this.Colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
+        this._alpha = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
         
         this.Colour.Set(0.3, 0.3, 0.3)
-        this.#alpha.Set(1.0)
+        this._alpha.Set(1.0)
 
         if (!Material.Empty)
         {

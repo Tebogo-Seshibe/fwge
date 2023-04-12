@@ -1,5 +1,5 @@
 import { Vector3Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
+import { AreaLight, BasicLitMaterial, DefaultWindow, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
 import { CubeCollider } from "@fwge/physics";
 import { FPSController } from "../entities";
@@ -14,7 +14,7 @@ export class MyWindow extends RenderWindow
         super(scene,
             {
                 resolution: [scene.Game.Width, scene.Game.Height],
-                renderPipelineMode: RenderPipelineMode.FORWARD
+                renderPipelineMode: RenderPipelineMode.DEFERRED
             });
     }
 }
@@ -35,7 +35,7 @@ export class PhysicsTest extends Scene
                 systems: [
                     InputSystem,
                     ScriptSystem,
-                    MyForwardPlusRenderSystem,
+                    DeferredRenderSystem,
                 ],
             });
     }
@@ -112,7 +112,7 @@ export class PhysicsTest extends Scene
                 }
             });
 
-        const positions = [];
+        const positions: Vector3Array[] = [];
         const min = -0;
         const max = 0;
         for (let x = min; x <= max; x += 2)

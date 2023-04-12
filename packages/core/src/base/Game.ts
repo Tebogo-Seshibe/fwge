@@ -1,6 +1,6 @@
+import { Component, SharedComponent } from "../ecs";
 import { CalcuateDelay, createContext, GL, IDelay, UUID } from "@fwge/common";
-import { SharedComponent } from "../ecs";
-import { Class, SceneId } from "../ecs/Registry";
+import { Class, SceneId, getTypeId } from "../ecs/Registry";
 import { Asset } from "./Asset";
 import { Prefab } from "./Prefab";
 import { Scene } from "./Scene";
@@ -23,6 +23,7 @@ export interface GameConfig
     assets?: Array<LibraryEntry<Asset>>;
     components?: Array<LibraryEntry<SharedComponent>>;
     prefabs?: Array<LibraryEntry<Prefab>>;
+    componentsTypes: Array<Class<Component>>;
 }
 
 export class Game
@@ -73,6 +74,11 @@ export class Game
 
         this.Width = config.width;
         this.Height = config.height;
+
+        for (const componentType of config.componentsTypes)
+        {
+            getTypeId(componentType);
+        }
 
         for (const { name, create } of config.prefabs!)
         {

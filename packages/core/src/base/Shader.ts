@@ -119,8 +119,6 @@ export class Shader extends Asset
     static readonly GLSLTypes = /(sampler([123]D(Rect|Array|MS(Array)?)|(Cube(Array)?|Buffer))|bool|u?int|float|double)|([uibd]?vec[234])|(mat[234](x[234])?)/;
 
     private _program: WebGLProgram | null = null;
-    private _vertexShader: WebGLShader | null = null;
-    private _fragmentShader: WebGLShader | null = null;
     private _rawVertexSource: string | null = null;
     private _rawFragmentSource: string | null = null;
     private _vertexSource: string | null = null;
@@ -142,16 +140,6 @@ export class Shader extends Asset
     get Program(): WebGLProgram | null
     {
         return this._program;
-    }
-
-    get VertexShader(): WebGLShader | null
-    {
-        return this._vertexShader;
-    }
-
-    get FragmentShader(): WebGLShader | null
-    {
-        return this._fragmentShader;
     }
 
     get RawVertexSource(): string | null
@@ -394,13 +382,11 @@ export class Shader extends Asset
         if (this._program)
         {
             GL.deleteProgram(this._program);
-            GL.deleteShader(this._vertexShader);
-            GL.deleteShader(this._fragmentShader);
         }
+        GL.deleteShader(vertexShader);
+        GL.deleteShader(fragmentShader);
 
         this._program = program;
-        this._vertexShader = vertexShader;
-        this._fragmentShader = fragmentShader;
     }
 
     _addIncludes(shaderSource: string): string

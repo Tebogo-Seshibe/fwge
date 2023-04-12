@@ -1,9 +1,10 @@
 import { Colour3, GL, Matrix3, Matrix4 } from "@fwge/common";
-import { AreaLight, DirectionalLight, Light, Material, PointLight, RenderMode, RenderWindow, Renderer, Shader, System, Transform, getComponent, view } from "@fwge/core";
+import { AreaLight, DirectionalLight, Light, Material, PointLight, RenderMode, RenderWindow, Renderer, Shader, System, Transform, getComponent, getComponentById, view } from "@fwge/core";
 
 
 export class MyForwardPlusRenderSystem extends System
 {
+    private renderables = new Map<number, Map<number, number[]>>();
     private _modelViewMatrices = new Map<number, Matrix4>();
     private _normalMatrices = new Map<number, Matrix3>();
     private _screenShader = new Shader(
@@ -98,6 +99,28 @@ export class MyForwardPlusRenderSystem extends System
         view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
         view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
         view([Transform, Material, Renderer]);
+        for (const renderable of view([Transform, Material, Renderer]))
+        {
+            const material = getComponent(renderable, Material)!;
+            const renderer = getComponent(renderable, Renderer)!;
+            const transform = getComponent(renderable, Transform)!;
+
+            if (!this.renderables.has(material.Id))
+            {
+                this.renderables.set(material.Id, new Map());
+            }
+
+            const materialMap = this.renderables.get(material.Id)!;
+
+            if (!materialMap.has(renderer.Id))
+            {
+                materialMap.set(renderer.Id, []);
+            }
+
+            const rendererArray = materialMap.get(renderer.Id)!;
+            rendererArray.push(transform.Id);
+        }
+
         view([Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform], 'name')
     }
     public Start(): void { }
@@ -148,96 +171,196 @@ export class MyForwardPlusRenderSystem extends System
         // viewMatrix.Identity();
         // window.MainPass.Output.Bind();
 
-        for (const entityId of view([Transform, Material, Renderer]))
+        for (const [materialId, materialMap] of this.renderables)
         {
-            const colour = this.colours[i++ % 4];
-            const transform = getComponent(entityId, Transform)!;
-            const material = getComponent(entityId, Material)!;
-            const renderer = getComponent(entityId, Renderer)!;
-            const mesh = renderer.Asset!;
+            const material = getComponentById(Material, materialId)!
+            const shader = material.Shader!;
 
-            if (!this._modelViewMatrices.has(entityId))
-            {
-                this._modelViewMatrices.set(entityId, Matrix4.Identity);
-            }
-
-            if (!this._normalMatrices.has(entityId))
-            {
-                this._normalMatrices.set(entityId, Matrix3.Identity);
-            }
-
-            const modelView = this._modelViewMatrices.get(entityId)!;
-            const normal = this._normalMatrices.get(entityId)!;
-            transform.ModelViewMatrix(modelView);
-            Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
-
-            let renderMode = -1;
-            let renderCount = 0;
-            let buffer = null;
-            const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
-
-            switch (renderType)
-            {
-                case RenderMode.FACE:
-                    {
-                        renderMode = GL.TRIANGLES;
-                        renderCount = mesh.FaceCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.FaceBuffer;
-                        }
-                    }
-                    break;
-
-                case RenderMode.EDGE:
-                    {
-                        renderMode = GL.LINES;
-                        renderCount = mesh.EdgeCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.EdgeBuffer;
-                        }
-                    }
-                    break;
-
-                case RenderMode.POINT:
-                    {
-                        renderMode = GL.POINTS;
-                        renderCount = mesh.PointCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.PointBuffer;
-                        }
-                    }
-                    break;
-            }
-
-            GL.bindVertexArray(mesh.VertexArrayBuffer);
-            shader = material.Shader;
             shader.Bind();
-            material.Bind()
             this._bindLights(shader);
-            shader.SetFloatVector('U_Colour', colour);
             shader.SetMatrix('U_Matrix.Projection', camera.ProjectionMatrix, true);
             shader.SetMatrix('U_Matrix.View', camera.ViewMatrix, true);
-            shader.SetMatrix('U_Matrix.ModelView', modelView, true);
-            shader.SetMatrix('U_Matrix.Normal', normal, true);
 
-            if (buffer)
+            material.Bind();
+
+            for (const [rendererId, transforms] of materialMap)
             {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-                GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+                const renderer = getComponentById(Renderer, rendererId)!;
+                const mesh = renderer.Asset!;
+
+                let renderMode = -1;
+                let renderCount = 0;
+                let buffer = null;
+                const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
+    
+                switch (renderType)
+                {
+                    case RenderMode.FACE:
+                        {
+                            renderMode = GL.TRIANGLES;
+                            renderCount = mesh.FaceCount;
+    
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.FaceBuffer;
+                            }
+                        }
+                        break;
+    
+                    case RenderMode.EDGE:
+                        {
+                            renderMode = GL.LINES;
+                            renderCount = mesh.EdgeCount;
+    
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.EdgeBuffer;
+                            }
+                        }
+                        break;
+    
+                    case RenderMode.POINT:
+                        {
+                            renderMode = GL.POINTS;
+                            renderCount = mesh.PointCount;
+    
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.PointBuffer;
+                            }
+                        }
+                        break;
+                }
+    
+                GL.bindVertexArray(mesh.VertexArrayBuffer);
+                for (const transformId of transforms)
+                {
+                    const transform = getComponentById(Transform, transformId)!
+                    const entityId = transform.Owner!.Id;
+                    if (!this._modelViewMatrices.has(entityId))
+                    {
+                        this._modelViewMatrices.set(entityId, Matrix4.Identity);
+                    }
+        
+                    if (!this._normalMatrices.has(entityId))
+                    {
+                        this._normalMatrices.set(entityId, Matrix3.Identity);
+                    }
+        
+                    const modelView = this._modelViewMatrices.get(entityId)!;
+                    const normal = this._normalMatrices.get(entityId)!;
+                    transform.ModelViewMatrix(modelView);
+                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+                    shader.SetMatrix('U_Matrix.ModelView', modelView, true);
+                    shader.SetMatrix('U_Matrix.Normal', normal, true);
+
+                    if (buffer)
+                    {
+                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+                        GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+                    }
+                    else
+                    {
+                        GL.drawArrays(renderMode, 0, renderCount);
+                    }
+                }
+
+                GL.bindVertexArray(null);
             }
-            else
-            {
-                GL.drawArrays(renderMode, 0, renderCount);
-            }
-            GL.bindVertexArray(null);
+            
             shader.UnBind();
         }
+
+        // for (const entityId of view([Transform, Material, Renderer]))
+        // {
+        //     const colour = this.colours[i++ % 4];
+        //     const transform = getComponent(entityId, Transform)!;
+        //     const material = getComponent(entityId, Material)!;
+        //     const renderer = getComponent(entityId, Renderer)!;
+        //     const mesh = renderer.Asset!;
+
+        //     if (!this._modelViewMatrices.has(entityId))
+        //     {
+        //         this._modelViewMatrices.set(entityId, Matrix4.Identity);
+        //     }
+
+        //     if (!this._normalMatrices.has(entityId))
+        //     {
+        //         this._normalMatrices.set(entityId, Matrix3.Identity);
+        //     }
+
+        //     const modelView = this._modelViewMatrices.get(entityId)!;
+        //     const normal = this._normalMatrices.get(entityId)!;
+        //     transform.ModelViewMatrix(modelView);
+        //     Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+
+        //     let renderMode = -1;
+        //     let renderCount = 0;
+        //     let buffer = null;
+        //     const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
+
+        //     switch (renderType)
+        //     {
+        //         case RenderMode.FACE:
+        //             {
+        //                 renderMode = GL.TRIANGLES;
+        //                 renderCount = mesh.FaceCount;
+
+        //                 if (mesh.IsIndexed)
+        //                 {
+        //                     buffer = mesh.FaceBuffer;
+        //                 }
+        //             }
+        //             break;
+
+        //         case RenderMode.EDGE:
+        //             {
+        //                 renderMode = GL.LINES;
+        //                 renderCount = mesh.EdgeCount;
+
+        //                 if (mesh.IsIndexed)
+        //                 {
+        //                     buffer = mesh.EdgeBuffer;
+        //                 }
+        //             }
+        //             break;
+
+        //         case RenderMode.POINT:
+        //             {
+        //                 renderMode = GL.POINTS;
+        //                 renderCount = mesh.PointCount;
+
+        //                 if (mesh.IsIndexed)
+        //                 {
+        //                     buffer = mesh.PointBuffer;
+        //                 }
+        //             }
+        //             break;
+        //     }
+
+        //     GL.bindVertexArray(mesh.VertexArrayBuffer);
+        //     shader = material.Shader;
+        //     shader.Bind();
+        //     material.Bind()
+        //     this._bindLights(shader);
+        //     shader.SetFloatVector('U_Colour', colour);
+        //     shader.SetMatrix('U_Matrix.Projection', camera.ProjectionMatrix, true);
+        //     shader.SetMatrix('U_Matrix.View', camera.ViewMatrix, true);
+        //     shader.SetMatrix('U_Matrix.ModelView', modelView, true);
+        //     shader.SetMatrix('U_Matrix.Normal', normal, true);
+
+        //     if (buffer)
+        //     {
+        //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+        //         GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+        //     }
+        //     else
+        //     {
+        //         GL.drawArrays(renderMode, 0, renderCount);
+        //     }
+        //     GL.bindVertexArray(null);
+        //     shader.UnBind();
+        // }
     }
     private _bindLights(shader: Shader)
     {
