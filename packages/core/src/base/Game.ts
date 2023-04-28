@@ -1,9 +1,9 @@
+import { CalcuateDelay, CreateUUID, GL, IDelay, UUID, createContext } from "@fwge/common";
 import { Component, SharedComponent } from "../ecs";
-import { CalcuateDelay, createContext, GL, IDelay, UUID } from "@fwge/common";
-import { Class, SceneId, getTypeId } from "../ecs/Registry";
+import { Class, Registry } from "../ecs/Registry";
 import { Asset } from "./Asset";
 import { Prefab } from "./Prefab";
-import { Scene } from "./Scene";
+import { Scene, SceneId } from "./Scene";
 
 export interface LibraryEntry<T>
 {
@@ -28,17 +28,17 @@ export interface GameConfig
 
 export class Game
 {
-    public readonly UUID: UUID = UUID.Create();
+    public readonly UUID: UUID = CreateUUID();
+    public readonly Height: number;
+    public readonly Width: number;
 
-    readonly Height: number;
-    readonly Width: number;
-    readonly Scenes: Map<SceneId, Scene> = new Map();
-    readonly Assets: Map<string, Map<string, Asset>> = new Map();
-    readonly Components: Map<string, Map<string, SharedComponent>> = new Map();
-    readonly Prefabs: Map<string, Map<string, Prefab>> = new Map();
+    private readonly Scenes: Record<SceneId, Scene> = {};
+    private readonly Assets: Record<string, Record<string, Asset>> = {};
+    private readonly Components: Record<string, Record<string, SharedComponent>> = {};
+    private readonly Prefabs: Record<string, Record<string, Prefab>> = {};
+    private readonly _scenesIds: Map<Class<Scene>, SceneId> = new Map();
 
     //#region Private Fields
-    private _scenesIds: Map<Class<Scene>, SceneId> = new Map();
     private _activeScene: Scene | undefined = undefined;
     private _currTick: number = -1;
     private _prevTick: number = -1;
@@ -75,40 +75,37 @@ export class Game
         this.Width = config.width;
         this.Height = config.height;
 
-        for (const componentType of config.componentsTypes)
-        {
-            getTypeId(componentType);
-        }
+        Registry.registerComponents(...config.componentsTypes); 
 
         for (const { name, create } of config.prefabs!)
         {
             const asset = create();
-            const library = this.Prefabs.get(asset.Type.name) ?? new Map();
-            library.set(name, asset);
-            this.Prefabs.set(asset.Type.name, library);
+            const library = this.Prefabs[asset.Type.name] ?? {};
+            library[name] = asset;
+            this.Prefabs[asset.Type.name] = library;
         }
 
         for (const { name, create } of config.assets!)
         {
             const asset = create();
-            const library = this.Assets.get(asset.Type.name) ?? new Map();
-            library.set(name, asset);
-            this.Assets.set(asset.Type.name, library);
+            const library = this.Assets[asset.Type.name] ?? {};
+            library[name] = asset;
+            this.Assets[asset.Type.name] = library;
         }
 
         for (const { name, create } of config.components!)
         {
             const component = create();
-            const library = this.Components.get(component.Type.name) ?? new Map();
-            library.set(name, component);
-            this.Components.set(component.Type.name, library);
+            const library = this.Components[component.Type.name] ?? {};
+            library[name] = component;
+            this.Components[component.Type.name] = library;
         }
 
         for (const SceneConstructor of config.scenes!)
         {
             const newScene = new SceneConstructor(this);
-            this.Scenes.set(newScene.ID, newScene);
-            this._scenesIds.set(SceneConstructor, newScene.ID);
+            this.Scenes[newScene.Id] = newScene;
+            this._scenesIds.set(SceneConstructor, newScene.Id);
 
             newScene.Init();
         }
@@ -187,7 +184,7 @@ export class Game
 
     AddScene(scene: Scene): void
     {
-        this.Scenes.set(scene.ID, scene);
+        this.Scenes[scene.Id] = scene;
     }
 
     GetScene(sceneType: Class<Scene>): Scene | undefined;
@@ -199,7 +196,7 @@ export class Game
             scene = this._scenesIds.get(scene) as SceneId;
         }
 
-        return this.Scenes.get(scene);
+        return this.Scenes[scene];
     }
 
     SetScene(sceneType: Class<Scene>): void;
@@ -210,9 +207,9 @@ export class Game
         {
             sceneId = this._scenesIds.get(sceneId) as SceneId;
         }
-        const newScene = this.Scenes.get(sceneId);
+        const newScene = this.Scenes[sceneId];
 
-        if (!newScene || (this._activeScene && this._activeScene.ID === newScene.ID))
+        if (!newScene || (this._activeScene && this._activeScene.Id === newScene.Id))
         {
             return;
         }
@@ -221,16 +218,16 @@ export class Game
 
     GetComponent<T extends SharedComponent>(name: string, type: Class<T>): T | undefined
     {
-        return this.Components.get(type.name)?.get(name) as T;
+        return this.Components[type.name][name] as T;
     }
 
     GetAsset<T extends Asset>(name: string, type: Class<T>): T | undefined
     {
-        return this.Assets.get(type.name)?.get(name) as T;
+        return this.Assets[type.name][name] as T;
     }
 
     GetPrefab<T extends Prefab>(name: string, type: Class<T>): T | undefined
     {
-        return this.Prefabs.get(type.name)?.get(name) as T;
+        return this.Prefabs[type.name][name] as T;
     }
 }

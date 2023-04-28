@@ -1,8 +1,4 @@
-import { UUID } from "@fwge/common";
 import { Scene } from "../base/Scene";
-import { Component } from "./Component";
-import { Entity } from "./Entity";
-import { Class, EntityId, getScene, RegistryItem, SceneId, SystemManager } from "./Registry";
 
 interface ISystem
 {
@@ -10,19 +6,33 @@ interface ISystem
     tickRate?: number;
 }
 
-export class System extends RegistryItem
+export class System
 {
-    public readonly entityIds: EntityId[] = [];
-    public readonly requiredComponents: Set<Class<Component>> = new Set();
+    readonly tickRate: number;
+    readonly async: boolean;
+
+    public name: string;
+    protected prevTick: number = -1;
+    protected currTick: number = -1;
+    protected tickId: number = -1;
+    private _scene: Scene;
 
     public get Scene(): Scene
     {
-        return getScene(this.sceneId!);
+        return this._scene;
     }
 
     public set Scene(newScene: Scene)
     {
-        this.sceneId = newScene.ID;
+        this._scene = newScene;
+    }
+
+    constructor(scene: Scene, config: ISystem)
+    {
+        this.name = new.target.name;
+        this._scene = scene;
+        this.async = config?.async ?? false;
+        this.tickRate = config?.tickRate ?? 60;
     }
 
     public Init(): void { }
@@ -30,12 +40,6 @@ export class System extends RegistryItem
     // @ts-ignore
     public Update(delta: number): void { }
     public Stop(): void { }
-
-    //#region Control Logic
-    public Reset()
-    {
-        this.entityIds.empty();
-    }
 
     public onStart()
     {
@@ -69,59 +73,4 @@ export class System extends RegistryItem
         this.Stop();
     }
     //#endregion
-
-    //#region Entity Logic
-    public OnUpdateEntity(entity: Entity): void
-    {
-        const isValid = this.IsValidEntity(entity);
-
-        if (isValid && !this.entityIds.includes(entity.Id))
-        {
-            this.entityIds.push(entity.Id);
-        }
-        else if (!isValid && this.entityIds.includes(entity.Id))
-        {
-            const entityIndex = this.entityIds.indexOf(entity.Id);
-            this.entityIds.swap(entityIndex, this.entityIds.length - 1);
-            this.entityIds.pop();
-        }
-    }
-
-    protected IsValidEntity(entity: Entity): boolean
-    {
-        if (this.requiredComponents.size === 0)
-        {
-            return false;
-        }
-
-        for (const componentType of this.requiredComponents)
-        {
-            if (!entity.HasComponent(componentType))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    //#endregion
-
-    readonly tickRate: number = 60;
-    readonly async: boolean = false;
-
-    name: string;
-    prevTick: number = -1;
-    currTick: number = -1;
-    tickId: number = -1;
-    sceneId: SceneId | undefined;
-
-    constructor(scene: Scene, config: ISystem, uuid?: UUID)
-    {
-        super(SystemManager, uuid);
-
-        this.name = new.target.name;
-        this.sceneId = scene.ID;
-        this.async = config?.async ?? false;
-        this.tickRate = config?.tickRate ?? 60;
-    }
 }

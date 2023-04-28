@@ -19,8 +19,8 @@
     },
     "build": {
       "dependsOn": [
-        "^build",
-        "^add"
+        "^install",
+        "^build"
       ],
       "outputs": [
         "{projectRoot}/lib"

@@ -1,26 +1,11 @@
-import { FixedLengthArray } from "@fwge/common";
 import { Component } from "./Component";
 
-export type Head<T extends unknown[]> = T[0];
-export type Tail<T extends unknown[]> = T extends [Head<T>, ...infer TailType] ? TailType : never;
-
 export type ViewKey = string | symbol | number;
-export type GroupKey = string | symbol | number;
 export type TypeId = number;
 export type EntityId = number;
 export type ComponentId = number;
 export type ViewFilter<T extends any[] = any[]> = (...args: T) => boolean;
-export type View = EntityId[];
 export type ViewGroup<T extends any[] = any[]> = (...args: T) => ComponentId;
-export type ViewConfig = { componentTypes: Class<Component>[], rules: ViewFilter[] };
-export type Group<
-    Depth extends number,
-    Count extends unknown[] = FixedLengthArray<number, Depth>
-> = 
-    Count['length'] extends 0 
-    ? number[]
-    : Map<EntityId, Group<Depth, Tail<Count>>
->;
 
 export type Class<T = {}> =
 {
@@ -38,32 +23,25 @@ export type Constructor<T, U extends ConstructorParameters<Class<T>>> =
 
 export class Registry
 {
-    private static readonly EMPTY_VIEW: View = [];
-    private static readonly EMPTY_GROUP: Group<1> = new Map();
+    private static readonly ENTITY_SIZE = 128;
 
-    private static entityIdIndex: EntityId = 0;
+    private static entities: Int32Array = new Int32Array(Registry.ENTITY_SIZE).fill(-1);
     private static freeIds: number[] = [];
 
     private static componentIds: ComponentId[] = [];
     private static components: (Component | undefined)[][] = [];
     private static componentTypeIndex: number = 0;
 
-    private static readonly views: Map<ViewKey, View> = new Map();
-    private static readonly viewConfig: Map<ViewKey, ViewConfig> = new Map();
-    private static readonly mappedViews: Map<ComponentId, ViewKey[]> = new Map();
-
-    private static readonly groups: Map<ViewKey, Group<number>> = new Map();
-    private static readonly groupConfig: Map<ViewKey, ViewConfig> = new Map();
-    private static readonly mappedGroups: Map<ComponentId, GroupKey[]> = new Map();
+    private static views: Map<ViewKey, number[]> = new Map();
+    private static viewConfig: Map<ViewKey, { componentTypes: Class<Component>[], rules: ViewFilter[] }> = new Map();
+    private static mappedViews: Map<ComponentId, ViewKey[]> = new Map();
 
     static registerComponents(...componentTypes: Class<Component>[]): void
     {
         for (const componentType of componentTypes)
         {
-            componentType.TypeId = this.componentTypeIndex;
+            componentType.TypeId = this.componentTypeIndex++;
             this.componentIds.push(0);
-            this.components[this.componentTypeIndex] = [];
-            this.componentTypeIndex++;
         }
     }
 
@@ -77,24 +55,24 @@ export class Registry
         }
         else
         {
-            entityId = this.entityIdIndex++;
+            entityId = this.entities.findIndex(x => x === -1);
+
+            if (entityId === -1)
+            {
+                const newBuffer = new Int32Array(this.entities.length + Registry.ENTITY_SIZE).fill(-1);
+                newBuffer[this.entities.length] = 0;
+                newBuffer.set(this.entities);
+                this.entities = newBuffer;
+            }
         }
+
+        this.components[entityId] = [];
 
         return entityId;
     }
 
-    static removeEntity(entityId: EntityId): void
-    {
-        for (let i = 0; i < this.components.length; ++i)
-        {
-            this.components[i][entityId] = undefined;
-        }
-
-        this.freeIds.push(entityId);
-    }
-
-    static createComponent<T extends Component>(componentType: Class<T>): ComponentId;
-    static createComponent<T extends Component>(componentTypeId: TypeId): ComponentId;
+    static createComponent<T extends Component>(componentType: Class<T>): ComponentId
+    static createComponent<T extends Component>(componentTypeId: TypeId): ComponentId
     static createComponent<T extends Component>(componentTypeOrTypeId: Class<T> | TypeId): ComponentId
     {
         const typeId = typeof componentTypeOrTypeId === 'number'
@@ -106,7 +84,12 @@ export class Registry
 
     static addComponent<T extends Component>(entityId: EntityId, component: T): void
     {
-        this.components[component.TypeId][entityId] = component;
+        if ((this.entities[entityId] & component.TypeId) === 0)
+        {
+            this.entities[entityId] += component.TypeId;
+        }
+
+        this.components[entityId][component.TypeId] = component;
 
         const views = this.mappedViews.get(component.TypeId) ?? [];
         for (const key of views)
@@ -133,7 +116,7 @@ export class Registry
             ? componentTypeOrTypeId
             : componentTypeOrTypeId.TypeId!
 
-        return !!this.components[typeId][entityId];
+        return (this.entities[entityId] & typeId) > 0;
     }
 
     static getComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T | undefined;
@@ -144,34 +127,24 @@ export class Registry
             ? componentTypeOrTypeId
             : componentTypeOrTypeId.TypeId!
 
-        return this.components[typeId][entityId] as T | undefined;
-    }
+        return this.components[entityId][typeId] as T | undefined;
+    }    
 
-    static getAllComponents(entityId: EntityId): Component[]
-    {
-        const components: Component[] = [];
-
-        for (let i = 0; i < this.components.length; ++i)
-        {
-            if (this.components[i][entityId])
-            {
-                components.push(this.components[i][entityId]!);
-            }
-        }
-
-        return components;
-    }
-
-    static removeComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T;
-    static removeComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T;
-    static removeComponent<T extends Component>(entityId: EntityId, componentTypeOrTypeId: Class<T> | TypeId): T
+    static removeComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): void;
+    static removeComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): void;
+    static removeComponent<T extends Component>(entityId: EntityId, componentTypeOrTypeId: Class<T> | TypeId): void
     {
         const typeId = typeof componentTypeOrTypeId === 'number'
             ? componentTypeOrTypeId
             : componentTypeOrTypeId.TypeId!
 
-        const component = this.components[typeId][entityId];
-        this.components[typeId][entityId] = undefined;
+        if ((this.entities[entityId] & typeId) === 0)
+        {
+            return;
+        }
+
+        this.entities[entityId] -= typeId;
+        this.components[entityId][typeId] = undefined;
         
         const views = this.mappedViews.get(typeId) ?? [];
         for (const key of views)
@@ -188,8 +161,6 @@ export class Registry
                 view.splice(view.indexOf(entityId), 1);
             }
         }
-
-        return component as T;
     }
 
     static registerView<T1 extends Component>(key: ViewKey, componentTypes: [Class<T1>]): void
@@ -210,8 +181,7 @@ export class Registry
             this.mappedViews.get(componentType.TypeId!)!.push(key);
         }
 
-        const totalEntities = this.components.reduce((curr, arr) => arr.length > curr ? arr.length : curr, 0)
-        for (let entityId = 0; entityId < totalEntities; ++entityId)
+        for (const entityId of this.entities)
         {
             if (this.testValidViewEntity(entityId, componentTypes, rules))
             {
@@ -221,45 +191,6 @@ export class Registry
         
         this.views.set(key, entityIds);
         this.viewConfig.set(key, { componentTypes, rules })
-    }
-
-    static getView(key: ViewKey): View
-    {
-        return this.views.get(key) ?? this.EMPTY_VIEW;
-    }
-
-    static registerGroup<T1 extends Component, T2 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>]): void
-    static registerGroup<T1 extends Component, T2 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>], rules: ViewFilter<[T1, T2]>[]): void
-    static registerGroup<T1 extends Component, T2 extends Component, T3 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>]): void
-    static registerGroup<T1 extends Component, T2 extends Component, T3 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>], rules: ViewFilter<[T1, T2, T3]>[]): void
-    static registerGroup<T extends Component[]>(key: GroupKey, componentTypes: Class<T[number]>[], rules: ViewFilter<T[number][]>[] = []): void
-    {
-        const entityIds: EntityId[] = [];
-        for (const componentType of componentTypes)
-        {
-            if (!this.mappedViews.has(componentType.TypeId!))
-            {
-                this.mappedViews.set(componentType.TypeId!, []);
-            }
-            this.mappedViews.get(componentType.TypeId!)!.push(key);
-        }
-
-        const totalEntities = this.components.reduce((curr, arr) => arr.length > curr ? arr.length : curr, 0)
-        for (let entityId = 0; entityId < totalEntities; ++entityId)
-        {
-            if (this.testValidViewEntity(entityId, componentTypes, rules))
-            {
-                entityIds.push(entityId);
-            }
-        }
-        
-        this.views.set(key, entityIds);
-        this.groupConfig.set(key, { componentTypes, rules })
-    }
-
-    static getGroup<Depth extends number>(key: GroupKey): Group<Depth>
-    {
-        return this.groups.get(key) ?? this.EMPTY_GROUP as any;
     }
 
     private static testValidViewEntity(entityId: EntityId, componentTypes: Class<Component>[], rules: ViewFilter[]): boolean
@@ -285,5 +216,10 @@ export class Registry
         }
 
         return true;
+    }
+
+    static getView(key: ViewKey): number[]
+    {
+        return this.views.get(key) ?? [];
     }
 }

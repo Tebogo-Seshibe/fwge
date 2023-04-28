@@ -1,10 +1,13 @@
 import { Vector3, Matrix3, clean, Matrix4, GL, CompositeDataView } from '@fwge/common'
 import { CSGO } from './game'
 import './style.css'
+import { Registry } from '@fwge/core';
 
+console.log({ Registry });
 const game = new CSGO();
 game.Start();
 
+(window as any).Registry = Registry;
 (window as any).game = game;
 (window as any).GL = GL;
 (window as any).clean = clean;

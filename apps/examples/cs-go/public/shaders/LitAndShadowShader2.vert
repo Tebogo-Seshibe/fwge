@@ -29,4 +29,6 @@ void main(void)
     V_Colour = A_Colour;
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * vec4(V_Position, 1.0);
+    gl_Position = vec4(0.0,1.0,0.0,1.0);
+    gl_PointSize = 50.0;
 }

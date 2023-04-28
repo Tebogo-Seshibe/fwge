@@ -24,4 +24,5 @@ void main(void)
     O_DiffuseSpecular = vec4(V_Colour, 1.0) * texture(U_Sampler.Image, V_UV);
     O_Position = V_Position;
     O_Normal = normalize(V_Normal * texture(U_Sampler.Bump, V_UV).xyz);
+    O_DiffuseSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 }

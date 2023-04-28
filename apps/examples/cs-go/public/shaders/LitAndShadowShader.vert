@@ -52,4 +52,6 @@ void main(void)
     V_LightPosition = U_DirectionalLight.ShadowMatrix * position;
 
     gl_Position = U_Matrix.Projection * U_Matrix.View * position;
+    gl_Position = vec4(0.0,1.0,0.0,1.0);
+    gl_PointSize = 50.0;
 }

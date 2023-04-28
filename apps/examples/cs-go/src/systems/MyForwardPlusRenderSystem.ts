@@ -1,9 +1,14 @@
 import { Colour3, GL, Matrix3, Matrix4 } from "@fwge/common";
-import { AreaLight, DirectionalLight, Light, Material, PointLight, RenderMode, RenderWindow, Renderer, Shader, System, Transform, getComponent, getComponentById, view } from "@fwge/core";
+import { AreaLight, DirectionalLight, Light, Material, PointLight, Registry, RenderMode, RenderWindow, Renderer, Shader, System, Transform } from "@fwge/core";
 
 
 export class MyForwardPlusRenderSystem extends System
 {
+    private readonly _pointLights = Symbol();
+    private readonly _directionalLights = Symbol();
+    private readonly _areaLights = Symbol();
+    private readonly _renderables = Symbol();
+
     private renderables = new Map<number, Map<number, number[]>>();
     private _modelViewMatrices = new Map<number, Matrix4>();
     private _normalMatrices = new Map<number, Matrix3>();
@@ -95,15 +100,21 @@ export class MyForwardPlusRenderSystem extends System
 
     public Init(): void
     {
-        view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
-        view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
-        view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
-        view([Transform, Material, Renderer]);
-        for (const renderable of view([Transform, Material, Renderer]))
+        Registry.registerView(this._areaLights, [Light], [ light => light instanceof AreaLight]);
+        Registry.registerView(this._directionalLights, [Light], [ light => light instanceof DirectionalLight]);
+        Registry.registerView(this._pointLights, [Light], [ light => light instanceof PointLight]);
+        Registry.registerView(this._renderables, [Transform, Material, Renderer]);
+
+        // view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
+        // view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
+        // view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
+        // view([Transform, Material, Renderer]);
+
+        for (const renderable of Registry.getView(this._renderables))
         {
-            const material = getComponent(renderable, Material)!;
-            const renderer = getComponent(renderable, Renderer)!;
-            const transform = getComponent(renderable, Transform)!;
+            const material = Registry.getComponent(renderable, Material)!;
+            const renderer = Registry.getComponent(renderable, Renderer)!;
+            const transform = Registry.getComponent(renderable, Transform)!;
 
             if (!this.renderables.has(material.Id))
             {
@@ -120,9 +131,8 @@ export class MyForwardPlusRenderSystem extends System
             const rendererArray = materialMap.get(renderer.Id)!;
             rendererArray.push(transform.Id);
         }
-
-        view([Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform, Transform], 'name')
     }
+
     public Start(): void { }
     public Stop(): void { }
 
@@ -138,7 +148,7 @@ export class MyForwardPlusRenderSystem extends System
 
         for (const window of this.Scene.Windows)
         {
-            this.drawSceneWindow(window);
+            // this.drawSceneWindow(window);
         }
 
         // this._screenShader.Bind();
@@ -158,226 +168,136 @@ export class MyForwardPlusRenderSystem extends System
 
     debug = false;
 
-    private drawSceneWindow(window: RenderWindow): void
-    {
-        let shader = this._defaultShader;
-        // const modelview = window.Camera.ProjectionMatrix;
-        // const projection = window.Camera.ViewMatrix;
-        let i = 0;
-        // const projectionMatrix = window.Camera.ProjectionMatrix
-        // const viewMatrix = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
-        const camera = window.Camera;
+    // private drawSceneWindow(window: RenderWindow): void
+    // {
+    //     let shader = this._defaultShader;
+    //     // const modelview = window.Camera.ProjectionMatrix;
+    //     // const projection = window.Camera.ViewMatrix;
+    //     let i = 0;
+    //     // const projectionMatrix = window.Camera.ProjectionMatrix
+    //     // const viewMatrix = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+    //     const camera = window.Camera;
 
-        // viewMatrix.Identity();
-        // window.MainPass.Output.Bind();
+    //     // viewMatrix.Identity();
+    //     // window.MainPass.Output.Bind();
 
-        for (const [materialId, materialMap] of this.renderables)
-        {
-            const material = getComponentById(Material, materialId)!
-            const shader = material.Shader!;
+    //     for (const [materialId, materialMap] of this.renderables)
+    //     {
+    //         const material = getComponentById(Material, materialId)!
+    //         const shader = material.Shader!;
 
-            shader.Bind();
-            this._bindLights(shader);
-            shader.SetMatrix('U_Matrix.Projection', camera.ProjectionMatrix, true);
-            shader.SetMatrix('U_Matrix.View', camera.ViewMatrix, true);
+    //         shader.Bind();
+    //         this._bindLights(shader);
+    //         shader.SetMatrix('U_Matrix.Projection', camera.ProjectionMatrix, true);
+    //         shader.SetMatrix('U_Matrix.View', camera.ViewMatrix, true);
 
-            material.Bind();
+    //         material.Bind();
 
-            for (const [rendererId, transforms] of materialMap)
-            {
-                const renderer = getComponentById(Renderer, rendererId)!;
-                const mesh = renderer.Asset!;
+    //         for (const [rendererId, transforms] of materialMap)
+    //         {
+    //             const renderer = getComponentById(Renderer, rendererId)!;
+    //             const mesh = renderer.Asset!;
 
-                let renderMode = -1;
-                let renderCount = 0;
-                let buffer = null;
-                const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
+    //             let renderMode = -1;
+    //             let renderCount = 0;
+    //             let buffer = null;
+    //             const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
     
-                switch (renderType)
-                {
-                    case RenderMode.FACE:
-                        {
-                            renderMode = GL.TRIANGLES;
-                            renderCount = mesh.FaceCount;
+    //             switch (renderType)
+    //             {
+    //                 case RenderMode.FACE:
+    //                     {
+    //                         renderMode = GL.TRIANGLES;
+    //                         renderCount = mesh.FaceCount;
     
-                            if (mesh.IsIndexed)
-                            {
-                                buffer = mesh.FaceBuffer;
-                            }
-                        }
-                        break;
+    //                         if (mesh.IsIndexed)
+    //                         {
+    //                             buffer = mesh.FaceBuffer;
+    //                         }
+    //                     }
+    //                     break;
     
-                    case RenderMode.EDGE:
-                        {
-                            renderMode = GL.LINES;
-                            renderCount = mesh.EdgeCount;
+    //                 case RenderMode.EDGE:
+    //                     {
+    //                         renderMode = GL.LINES;
+    //                         renderCount = mesh.EdgeCount;
     
-                            if (mesh.IsIndexed)
-                            {
-                                buffer = mesh.EdgeBuffer;
-                            }
-                        }
-                        break;
+    //                         if (mesh.IsIndexed)
+    //                         {
+    //                             buffer = mesh.EdgeBuffer;
+    //                         }
+    //                     }
+    //                     break;
     
-                    case RenderMode.POINT:
-                        {
-                            renderMode = GL.POINTS;
-                            renderCount = mesh.PointCount;
+    //                 case RenderMode.POINT:
+    //                     {
+    //                         renderMode = GL.POINTS;
+    //                         renderCount = mesh.PointCount;
     
-                            if (mesh.IsIndexed)
-                            {
-                                buffer = mesh.PointBuffer;
-                            }
-                        }
-                        break;
-                }
+    //                         if (mesh.IsIndexed)
+    //                         {
+    //                             buffer = mesh.PointBuffer;
+    //                         }
+    //                     }
+    //                     break;
+    //             }
     
-                GL.bindVertexArray(mesh.VertexArrayBuffer);
-                for (const transformId of transforms)
-                {
-                    const transform = getComponentById(Transform, transformId)!
-                    const entityId = transform.Owner!.Id;
-                    if (!this._modelViewMatrices.has(entityId))
-                    {
-                        this._modelViewMatrices.set(entityId, Matrix4.Identity);
-                    }
+    //             GL.bindVertexArray(mesh.VertexArrayBuffer);
+    //             for (const transformId of transforms)
+    //             {
+    //                 const transform = Registry.getComponent(Transform, transformId)!
+    //                 const entityId = transform.Owner!.Id;
+    //                 if (!this._modelViewMatrices.has(entityId))
+    //                 {
+    //                     this._modelViewMatrices.set(entityId, Matrix4.Identity);
+    //                 }
         
-                    if (!this._normalMatrices.has(entityId))
-                    {
-                        this._normalMatrices.set(entityId, Matrix3.Identity);
-                    }
+    //                 if (!this._normalMatrices.has(entityId))
+    //                 {
+    //                     this._normalMatrices.set(entityId, Matrix3.Identity);
+    //                 }
         
-                    const modelView = this._modelViewMatrices.get(entityId)!;
-                    const normal = this._normalMatrices.get(entityId)!;
-                    transform.ModelViewMatrix(modelView);
-                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
-                    shader.SetMatrix('U_Matrix.ModelView', modelView, true);
-                    shader.SetMatrix('U_Matrix.Normal', normal, true);
+    //                 const modelView = this._modelViewMatrices.get(entityId)!;
+    //                 const normal = this._normalMatrices.get(entityId)!;
+    //                 transform.ModelViewMatrix(modelView);
+    //                 Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+    //                 shader.SetMatrix('U_Matrix.ModelView', modelView, true);
+    //                 shader.SetMatrix('U_Matrix.Normal', normal, true);
 
-                    if (buffer)
-                    {
-                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-                        GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
-                    }
-                    else
-                    {
-                        GL.drawArrays(renderMode, 0, renderCount);
-                    }
-                }
+    //                 if (buffer)
+    //                 {
+    //                     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+    //                     GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+    //                 }
+    //                 else
+    //                 {
+    //                     GL.drawArrays(renderMode, 0, renderCount);
+    //                 }
+    //             }
 
-                GL.bindVertexArray(null);
-            }
+    //             GL.bindVertexArray(null);
+    //         }
             
-            shader.UnBind();
-        }
-
-        // for (const entityId of view([Transform, Material, Renderer]))
-        // {
-        //     const colour = this.colours[i++ % 4];
-        //     const transform = getComponent(entityId, Transform)!;
-        //     const material = getComponent(entityId, Material)!;
-        //     const renderer = getComponent(entityId, Renderer)!;
-        //     const mesh = renderer.Asset!;
-
-        //     if (!this._modelViewMatrices.has(entityId))
-        //     {
-        //         this._modelViewMatrices.set(entityId, Matrix4.Identity);
-        //     }
-
-        //     if (!this._normalMatrices.has(entityId))
-        //     {
-        //         this._normalMatrices.set(entityId, Matrix3.Identity);
-        //     }
-
-        //     const modelView = this._modelViewMatrices.get(entityId)!;
-        //     const normal = this._normalMatrices.get(entityId)!;
-        //     transform.ModelViewMatrix(modelView);
-        //     Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
-
-        //     let renderMode = -1;
-        //     let renderCount = 0;
-        //     let buffer = null;
-        //     const renderType = this.debug ? RenderMode.POINT : renderer.RenderMode;
-
-        //     switch (renderType)
-        //     {
-        //         case RenderMode.FACE:
-        //             {
-        //                 renderMode = GL.TRIANGLES;
-        //                 renderCount = mesh.FaceCount;
-
-        //                 if (mesh.IsIndexed)
-        //                 {
-        //                     buffer = mesh.FaceBuffer;
-        //                 }
-        //             }
-        //             break;
-
-        //         case RenderMode.EDGE:
-        //             {
-        //                 renderMode = GL.LINES;
-        //                 renderCount = mesh.EdgeCount;
-
-        //                 if (mesh.IsIndexed)
-        //                 {
-        //                     buffer = mesh.EdgeBuffer;
-        //                 }
-        //             }
-        //             break;
-
-        //         case RenderMode.POINT:
-        //             {
-        //                 renderMode = GL.POINTS;
-        //                 renderCount = mesh.PointCount;
-
-        //                 if (mesh.IsIndexed)
-        //                 {
-        //                     buffer = mesh.PointBuffer;
-        //                 }
-        //             }
-        //             break;
-        //     }
-
-        //     GL.bindVertexArray(mesh.VertexArrayBuffer);
-        //     shader = material.Shader;
-        //     shader.Bind();
-        //     material.Bind()
-        //     this._bindLights(shader);
-        //     shader.SetFloatVector('U_Colour', colour);
-        //     shader.SetMatrix('U_Matrix.Projection', camera.ProjectionMatrix, true);
-        //     shader.SetMatrix('U_Matrix.View', camera.ViewMatrix, true);
-        //     shader.SetMatrix('U_Matrix.ModelView', modelView, true);
-        //     shader.SetMatrix('U_Matrix.Normal', normal, true);
-
-        //     if (buffer)
-        //     {
-        //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-        //         GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
-        //     }
-        //     else
-        //     {
-        //         GL.drawArrays(renderMode, 0, renderCount);
-        //     }
-        //     GL.bindVertexArray(null);
-        //     shader.UnBind();
-        // }
-    }
+    //         shader.UnBind();
+    //     }
+    // }
+    
     private _bindLights(shader: Shader)
     {
         let index = 0;
-        for (const entityId of view([Light], PointLight.name))
+        for (const entityId of Registry.getView(this._pointLights))
         {
-            const light = getComponent(entityId, Light, PointLight)!;
+            const light = Registry.getComponent(entityId, PointLight)!;
             light.Bind(shader, index++);
         }
-        for (const entityId of view([Light], DirectionalLight.name))
+        for (const entityId of Registry.getView(this._directionalLights))
         {
-            const light = getComponent(entityId,  Light, DirectionalLight)!;
+            const light = Registry.getComponent(entityId, DirectionalLight)!;
             light.Bind(shader);
         }
-        for (const entityId of view([Light], AreaLight.name))
+        for (const entityId of Registry.getView(this._areaLights))
         {
-            const light = getComponent(entityId,  Light, AreaLight)!;
+            const light = Registry.getComponent(entityId, AreaLight)!;
             light.Bind(shader);
         }
     }

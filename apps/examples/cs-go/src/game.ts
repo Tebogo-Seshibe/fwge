@@ -1,10 +1,11 @@
-import { BasicLitMaterial, Game, Image2D, Material, RenderType, Renderer, Script, Transform } from '@fwge/core';
+import { BasicLitMaterial, Camera, Game, Image2D, Light, Material, RenderType, Renderer, Script, Transform } from '@fwge/core';
 import { basicShader, basicShader2, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders';
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components';
 import { basicAnimation } from './components/Animations';
 import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/Materials';
 import { PhysicsTest } from './scenes/PhysicsTest';
 import { Input } from '@fwge/input';
+import { Collider, RigidBody } from '@fwge/physics';
 
 type Resolution = { Height: number, Width: number; };
 const ResolutionMap =
@@ -34,6 +35,10 @@ export class CSGO extends Game
                     Material,
                     Renderer,
                     Script,
+                    Camera,
+                    Collider,
+                    RigidBody,
+                    Light
                 ],
                 scenes:
                 [

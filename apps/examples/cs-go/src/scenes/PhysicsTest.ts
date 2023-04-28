@@ -1,11 +1,10 @@
 import { Vector3Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, DefaultWindow, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
+import { AreaLight, BasicLitMaterial, DeferredRenderSystem, DirectionalLight, Entity, Game, Mesh, MeshRenderer, PointLight, RenderPipelineMode, RenderType, RenderWindow, Scene, Script, ScriptSystem, Shader, Transform } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
 import { CubeCollider } from "@fwge/physics";
 import { FPSController } from "../entities";
 import { FullScreen } from "../entities/FullScreen";
 import { Platform } from "../entities/Platform";
-import { MyForwardPlusRenderSystem } from "../systems/MyForwardPlusRenderSystem";
 
 export class MyWindow extends RenderWindow
 {
@@ -48,56 +47,56 @@ export class PhysicsTest extends Scene
             {
                 shininess: 255,
                 colour: [116 / 255, 163 / 255, 202 / 255],
-                shader: this.Game.GetAsset('Basic Shader', Shader)!,
+                shader: this.Game.GetAsset('Basic Shader 2', Shader)!,
                 renderType: RenderType.OPAQUE,
                 alpha: 1.0
             });
         material.Colour.Set(1.0, 1.0, 1.0);
-        const simpleMaterial = new BasicLitMaterial(
-            {
-                shininess: 32,
-                colour: [1, 1, 1],
-                shader: new Shader(
-                    `#version 300 es
-                    #pragma vscode_glsllint_stage: vert
-                    layout(location = 0) in vec3 A_Position;
-                    out vec3 V_Position;
-                    struct Matrix
-                    {
-                        mat4 ModelView;
-                        mat3 Normal;
-                        mat4 View;
-                        mat4 Projection;
-                    };
-                    uniform Matrix U_Matrix;
+        // const simpleMaterial = new BasicLitMaterial(
+        //     {
+        //         shininess: 32,
+        //         colour: [1, 1, 1],
+        //         shader: new Shader(
+        //             `#version 300 es
+        //             #pragma vscode_glsllint_stage: vert
+        //             layout(location = 0) in vec3 A_Position;
+        //             out vec3 V_Position;
+        //             struct Matrix
+        //             {
+        //                 mat4 ModelView;
+        //                 mat3 Normal;
+        //                 mat4 View;
+        //                 mat4 Projection;
+        //             };
+        //             uniform Matrix U_Matrix;
                     
-                    void main(void)
-                    {
-                        gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
-                    }
-                    `,
-                    `#version 300 es
-                    #pragma vscode_glsllint_stage: frag
-                    precision highp float;
+        //             void main(void)
+        //             {
+        //                 gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
+        //             }
+        //             `,
+        //             `#version 300 es
+        //             #pragma vscode_glsllint_stage: frag
+        //             precision highp float;
                     
-                    in vec3 V_Position;
-                    layout (location = 0) out vec4 O_FragColour;
+        //             in vec3 V_Position;
+        //             layout (location = 0) out vec4 O_FragColour;
 
-                    struct Materials
-                    {
-                        vec3 Colour;
-                    };
-                    uniform Materials U_Material;
-                    void main(void)
-                    {
-                        O_FragColour = vec4(U_Material.Colour, 1.0);
-                    }
-                `),
-                renderType: RenderType.OPAQUE,
-                alpha: 1,
-                receiveShadows: false,
-                projectShadows: true
-            });
+        //             struct Materials
+        //             {
+        //                 vec3 Colour;
+        //             };
+        //             uniform Materials U_Material;
+        //             void main(void)
+        //             {
+        //                 O_FragColour = vec4(U_Material.Colour, 1.0);
+        //             }
+        //         `),
+        //         renderType: RenderType.OPAQUE,
+        //         alpha: 1,
+        //         receiveShadows: false,
+        //         projectShadows: true
+        //     });
         const cubeRenderer = new MeshRenderer({ asset: this.Game.GetAsset('Cube', Mesh)! });
         const sphereRender = new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! });
         const sphereRotator = new Script(
@@ -135,7 +134,7 @@ export class PhysicsTest extends Scene
             const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }));
 
             light.AddComponent(sphereRender)
-                .AddComponent(simpleMaterial)
+                .AddComponent(material)
                 .AddComponent(sphereRotator);
             light.AddComponent(new PointLight(
                 {
@@ -160,6 +159,7 @@ export class PhysicsTest extends Scene
             .AddComponent(new Transform({ rotation: [30, 0, 0] }))
             .AddComponent(new DirectionalLight({ intensity: 0.15, bias: 0.02, pcfLevel: 3 }));
 
+        console.log(material);
         super.Init();
     }
 
