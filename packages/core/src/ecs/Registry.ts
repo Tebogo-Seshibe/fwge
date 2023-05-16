@@ -18,8 +18,8 @@ export type Group<
     Count extends unknown[] = FixedLengthArray<number, Depth>
 > = 
     Count['length'] extends 0 
-    ? number[]
-    : Map<EntityId, Group<Depth, Tail<Count>>
+    ? EntityId[]
+    : Map<ComponentId, Group<Depth, Tail<Count>>
 >;
 
 export type Class<T = {}> =
@@ -46,6 +46,7 @@ export class Registry
 
     private static componentIds: ComponentId[] = [];
     private static components: (Component | undefined)[][] = [];
+    private static componentInstances: (Component | undefined)[][] = [];
     private static componentTypeIndex: number = 0;
 
     private static readonly views: Map<ViewKey, View> = new Map();
@@ -63,6 +64,7 @@ export class Registry
             componentType.TypeId = this.componentTypeIndex;
             this.componentIds.push(0);
             this.components[this.componentTypeIndex] = [];
+            this.componentInstances[this.componentTypeIndex] = [];
             this.componentTypeIndex++;
         }
     }
@@ -93,15 +95,17 @@ export class Registry
         this.freeIds.push(entityId);
     }
 
-    static createComponent<T extends Component>(componentType: Class<T>): ComponentId;
-    static createComponent<T extends Component>(componentTypeId: TypeId): ComponentId;
-    static createComponent<T extends Component>(componentTypeOrTypeId: Class<T> | TypeId): ComponentId
+    static createComponent<T extends Component>(component: T): ComponentId
     {
-        const typeId = typeof componentTypeOrTypeId === 'number'
-            ? componentTypeOrTypeId
-            : componentTypeOrTypeId.TypeId!
+        const componentId = this.componentIds[component.TypeId]++;
+        this.componentInstances[component.TypeId][componentId] = component;
         
-        return this.componentIds[typeId]++;
+        return componentId;
+    }
+
+    static deleteComponent<T extends Component>(component: T): void
+    {
+        this.componentInstances[component.TypeId][component.Id] = undefined;
     }
 
     static addComponent<T extends Component>(entityId: EntityId, component: T): void
@@ -122,6 +126,33 @@ export class Registry
             {
                 view.push(entityId);
             }
+        }
+
+
+        const groups = this.mappedGroups.get(component.TypeId) ?? [];
+        for (const key of groups)
+        {
+            const config = this.groupConfig.get(key)!
+            if (!this.testValidViewEntity(entityId, config.componentTypes, config.rules))
+            {
+                continue;
+            }
+
+            let group = this.groups.get(key)! as any as Map<ComponentId, any>;
+            for (let i = 0; i < config.componentTypes.length - 1; ++i)
+            {
+                const component = this.getComponent(entityId, config.componentTypes[i])!;
+
+                if (!group.has(component.Id))
+                {
+                    group.set(component.Id, new Map<ComponentId, any>());
+                }
+
+                group = group.get(component.Id)  as any as Map<ComponentId, any>;
+            }
+            const lastComponent = Registry.getComponent(entityId, config.componentTypes.last)!;
+            group.get(lastComponent.Id).push(entityId);
+            
         }
     }
 
@@ -145,6 +176,17 @@ export class Registry
             : componentTypeOrTypeId.TypeId!
 
         return this.components[typeId][entityId] as T | undefined;
+    }
+
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentType: Class<T>): T | undefined;
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentTypeId: TypeId): T | undefined;
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentTypeOrTypeId: Class<T> | TypeId): T | undefined
+    {
+        const typeId = typeof componentTypeOrTypeId === 'number'
+            ? componentTypeOrTypeId
+            : componentTypeOrTypeId.TypeId!
+
+        return this.componentInstances[typeId][componentId] as T | undefined;
     }
 
     static getAllComponents(entityId: EntityId): Component[]
@@ -237,11 +279,11 @@ export class Registry
         const entityIds: EntityId[] = [];
         for (const componentType of componentTypes)
         {
-            if (!this.mappedViews.has(componentType.TypeId!))
+            if (!this.mappedGroups.has(componentType.TypeId!))
             {
-                this.mappedViews.set(componentType.TypeId!, []);
+                this.mappedGroups.set(componentType.TypeId!, []);
             }
-            this.mappedViews.get(componentType.TypeId!)!.push(key);
+            this.mappedGroups.get(componentType.TypeId!)!.push(key);
         }
 
         const totalEntities = this.components.reduce((curr, arr) => arr.length > curr ? arr.length : curr, 0)
@@ -253,8 +295,51 @@ export class Registry
             }
         }
         
-        this.views.set(key, entityIds);
+        this.groups.set(key, this.addGroup(componentTypes.first, entityIds, componentTypes.slice(1)));
         this.groupConfig.set(key, { componentTypes, rules })
+    }
+
+    private static addGroup<Depth extends number>(baseComponent: Class<Component>, entities: EntityId[], children: Class<Component>[] = []): Group<Depth> | EntityId[]
+    {
+        const validEntities: EntityId[] = [];
+
+        if (children.length === 0)
+        {
+            for (let i = 0; i < entities.length; ++i)
+            {
+                if (this.hasComponent(entities[i], baseComponent))
+                {
+                    validEntities.push(entities[i]);
+                }
+            }
+            return validEntities;
+        }
+        else
+        {
+            const groupedEntities = new Map<ComponentId, EntityId[]>();
+            for (let i = 0; i < entities.length; ++i)
+            {
+                const component = this.getComponent(entities[i], baseComponent);
+                if (!component)
+                {
+                    continue;
+                }
+
+                if (!groupedEntities.has(component.Id))
+                {
+                    groupedEntities.set(component.Id, []);
+                }
+
+                groupedEntities.get(component.Id)!.push(entities[i]);
+            }
+            
+            const group = new Map();
+            for (const [componentId, entityIds] of groupedEntities)
+            {
+                group.set(componentId, this.addGroup(children.first, entityIds, children.slice(1)));
+            }
+            return group as any;
+        }
     }
 
     static getGroup<Depth extends number>(key: GroupKey): Group<Depth>

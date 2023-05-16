@@ -181,6 +181,50 @@ export class BasicLitMaterial extends Material
         else
         {
             shader.SetTexture('U_Sampler.Shadow', Material.Empty)
-        }       
+        }
+    }
+
+
+    BindBlock(): void
+    BindBlock(shader: Shader): void
+    BindBlock(shader: Shader = this.Shader): void
+    {
+        shader.SetBufferDataField('BasicLitMaterial', 'Colour', this.Colour);
+        shader.SetBufferDataField('BasicLitMaterial', 'Shininess', this.Shininess);
+        shader.SetBufferDataField('BasicLitMaterial', 'Alpha', this.Alpha);
+        shader.SetBufferDataField('BasicLitMaterial', 'Ambient', this.Ambient);
+        shader.SetBufferDataField('BasicLitMaterial', 'Diffuse', this.Diffuse);
+        shader.SetBufferDataField('BasicLitMaterial', 'Specular', this.Specular);
+        shader.SetBufferDataField('BasicLitMaterial', 'HasImageMap', this.ImageMap ? 1 : 0);
+        shader.SetBufferDataField('BasicLitMaterial', 'HasBumpMap', this.NormalMap ? 1 : 0);
+        shader.SetBufferDataField('BasicLitMaterial', 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
+        shader.PushBufferData('BasicLitMaterial');
+        
+        if (this.Textures[0])
+        {
+            shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture);
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Image', Material.Empty);
+        }
+
+        if (this.Textures[1])
+        {
+            shader.SetTexture('U_Sampler.Bump', this.Textures[1]);
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Bump', Material.Empty);
+        }
+
+        if (this.Textures[2])
+        {
+            shader.SetTexture('U_Sampler.Shadow', this.Textures[2]);
+        }
+        else
+        {
+            shader.SetTexture('U_Sampler.Shadow', Material.Empty);
+        }
     }
 }

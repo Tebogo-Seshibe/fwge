@@ -52,51 +52,101 @@ export class PhysicsTest extends Scene
                 alpha: 1.0
             });
         material.Colour.Set(1.0, 1.0, 1.0);
-        // const simpleMaterial = new BasicLitMaterial(
-        //     {
-        //         shininess: 32,
-        //         colour: [1, 1, 1],
-        //         shader: new Shader(
-        //             `#version 300 es
-        //             #pragma vscode_glsllint_stage: vert
-        //             layout(location = 0) in vec3 A_Position;
-        //             out vec3 V_Position;
-        //             struct Matrix
-        //             {
-        //                 mat4 ModelView;
-        //                 mat3 Normal;
-        //                 mat4 View;
-        //                 mat4 Projection;
-        //             };
-        //             uniform Matrix U_Matrix;
-                    
-        //             void main(void)
-        //             {
-        //                 gl_Position = U_Matrix.Projection * U_Matrix.View * U_Matrix.ModelView * vec4(A_Position, 1.0);
-        //             }
-        //             `,
-        //             `#version 300 es
-        //             #pragma vscode_glsllint_stage: frag
-        //             precision highp float;
-                    
-        //             in vec3 V_Position;
-        //             layout (location = 0) out vec4 O_FragColour;
+        const simpleMaterial = new BasicLitMaterial(
+        {
+            shininess: 32,
+            colour: [1, 1, 1],
+            shader: new Shader(
+                `#version 300 es
+                #pragma vscode_glsllint_stage: vert
 
-        //             struct Materials
-        //             {
-        //                 vec3 Colour;
-        //             };
-        //             uniform Materials U_Material;
-        //             void main(void)
-        //             {
-        //                 O_FragColour = vec4(U_Material.Colour, 1.0);
-        //             }
-        //         `),
-        //         renderType: RenderType.OPAQUE,
-        //         alpha: 1,
-        //         receiveShadows: false,
-        //         projectShadows: true
-        //     });
+                layout (std140) uniform;
+                precision highp float;
+
+                layout(location = 0) in vec3 A_Position;
+                layout(location = 1) in vec3 A_Normal;
+                layout(location = 2) in vec2 A_UV;
+                layout(location = 3) in vec3 A_Colour;
+
+                struct Vertex
+                {
+                    vec3 Position;
+                    vec3 Normal;
+                    vec2 UV;
+                    vec3 Colour;
+                };
+                out Vertex V_Vertex;
+
+                uniform Object
+                {
+                    mat4 ModelViewMatrix;
+                    mat3 NormalMatrix;
+                } object;
+
+                uniform Camera
+                {
+                    mat4 ViewMatrix;
+                    mat4 ProjectionMatrix;
+                } camera;
+
+                void main(void)
+                {
+                    V_Vertex.Position = (object.ModelViewMatrix * vec4(A_Position, 1.0)).xyz;
+                    V_Vertex.Normal = normalize(object.NormalMatrix * A_Normal);
+                    V_Vertex.UV = A_UV;
+                    V_Vertex.Colour = A_Colour;
+
+                    gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(V_Vertex.Position, 1.0);
+                }
+                `,
+                `#version 300 es
+                #pragma vscode_glsllint_stage: frag
+                
+                precision highp float;
+                precision highp sampler2D;
+
+                layout (std140) uniform;
+                layout(location = 0) out vec3 O_Position;
+                layout(location = 1) out vec3 O_Normal;
+                layout(location = 2) out vec4 O_DiffuseSpecular;
+
+                struct Vertex
+                {
+                    vec3 Position;
+                    vec3 Normal;
+                    vec2 UV;
+                    vec3 Colour;
+                };
+                in Vertex V_Vertex;
+
+                uniform BasicLitMaterial
+                {
+                    vec3 Colour;
+                    float Shininess;
+                    float Alpha;
+
+                    vec3 Ambient;
+                    vec3 Diffuse;
+                    vec3 Specular;
+
+                    bool HasImageMap;
+                    bool HasBumpMap;
+                    bool ReceiveShadows;
+                } basicLitMaterial;
+
+                void main(void)
+                {
+                    O_Position = V_Vertex.Position;
+                    O_Normal = normalize(V_Vertex.Normal);
+                    O_DiffuseSpecular = vec4(V_Vertex.Position, basicLitMaterial.Alpha);
+                }
+
+            `),
+            renderType: RenderType.OPAQUE,
+            alpha: 0.1,
+            receiveShadows: false,
+            projectShadows: true
+        });
         const cubeRenderer = new MeshRenderer({ asset: this.Game.GetAsset('Cube', Mesh)! });
         const sphereRender = new MeshRenderer({ asset: this.Game.GetAsset('OBJ Sphere', Mesh)! });
         const sphereRotator = new Script(
@@ -122,6 +172,7 @@ export class PhysicsTest extends Scene
             }
         }
 
+        let i = 0;
         for (const position of positions)
         {
             const cube = this.CreateEntity()
@@ -131,18 +182,22 @@ export class PhysicsTest extends Scene
                 .AddComponent(cubeRenderer);
             // .AddComponent(jumpingCube)
 
-            const light = this.CreateEntity().AddComponent(new Transform({ position: [0, 1, 0] }));
+            const light = this.CreateEntity().AddComponent(new Transform({ scale: [0.25, 0.25, 0.25] }));
 
             light.AddComponent(sphereRender)
-                .AddComponent(material)
+                .AddComponent(simpleMaterial)
                 .AddComponent(sphereRotator);
-            light.AddComponent(new PointLight(
+                // .GetComponent(Transform)!.Position.Y = 1;
+
+            if (i++ % 11 === 0)
+            {
+                light.AddComponent(new PointLight(
                 {
                     colour: [Math.random(), Math.random(), Math.random()],
                     intensity: 0.5,
-                    radius: 2
-                }))
-                .GetComponent(Transform)!.Position.Y = 1;
+                    radius: 15
+                }));
+            }
 
             cube.AddChild(light);
         }
@@ -159,7 +214,6 @@ export class PhysicsTest extends Scene
             .AddComponent(new Transform({ rotation: [30, 0, 0] }))
             .AddComponent(new DirectionalLight({ intensity: 0.15, bias: 0.02, pcfLevel: 3 }));
 
-        console.log(material);
         super.Init();
     }
 

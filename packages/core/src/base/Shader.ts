@@ -1,5 +1,6 @@
-import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, Vector2, Vector3, Vector4 } from "@fwge/common";
+import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, TypedArray, Vector2, Vector3, Vector4 } from "@fwge/common";
 import { Asset } from "./Asset";
+import { STD140 } from "./std140";
 
 export type ShaderVariableType = 
     'bool'
@@ -100,6 +101,7 @@ export interface UniformBlock
     bindingPoint: number;
     buffer: WebGLBuffer;
     data: Float32Array;
+    layout: Layout140;
 }
 
 export class Shader extends Asset
@@ -132,7 +134,7 @@ export class Shader extends Asset
 
     private readonly _structs: Map<string, Map<string, string>> = new Map();
     private readonly _uniforms: Map<string, Map<string, string>> = new Map();
-    private readonly _uniformBlocks: Map<string, UniformBlock> = new Map();
+    private readonly _uniformBlocks: {[key: string]: UniformBlock} = Object.create(null);
 
     private readonly Buffer: WebGLBuffer = GL.createBuffer()!;
     private readonly BufferData: Float32Array = new Float32Array();
@@ -280,8 +282,6 @@ export class Shader extends Asset
     
     private _indexUniformBlocks(): void
     {
-        let print = false
-
         for (const [uniform, fields] of this._uniforms)
         {
             const fieldTypes: string[] = [];
@@ -293,32 +293,28 @@ export class Shader extends Asset
                 }
             }
             
-            const size = layout140(fieldTypes)
-            const uniformBlock: UniformBlock = {
-                size,
-                buffer: GL.createBuffer()!,
-                bindingPoint: Shader.CurrentBlockIndex++,
-                index: GL.getUniformBlockIndex(this._program!, uniform),
-                offset: 0,
-                data: new Float32Array(size)
-            };
+            const size = layout140(fieldTypes as ShaderVariableType[])
+            const uniformBlock: UniformBlock = Object.create(null);
+            uniformBlock.size = size;
+            uniformBlock.buffer = GL.createBuffer()!;
+            uniformBlock.bindingPoint = Shader.CurrentBlockIndex++;
+            uniformBlock.index = GL.getUniformBlockIndex(this._program!, uniform);
+            uniformBlock.offset = 0;
+            uniformBlock.data = new Float32Array(size);
+            uniformBlock.layout = buildLayout140(fields);
 
             
             if (uniformBlock.index !== GL.INVALID_INDEX)
             {
-                print = true
                 Shader.BlockIndex.set(uniform, uniformBlock.index);
                 Shader.BindingPoint.set(uniform, uniformBlock.bindingPoint);
-                this._uniformBlocks.set(uniform, uniformBlock);
+                this._uniformBlocks[uniform] = uniformBlock;
                 
                 GL.uniformBlockBinding(this._program!, uniformBlock.index, uniformBlock.bindingPoint);
                 GL.bindBufferBase(GL.UNIFORM_BUFFER, uniformBlock.bindingPoint, uniformBlock.buffer);
                 GL.bufferData(GL.UNIFORM_BUFFER, new Float32Array(uniformBlock.size), GL.DYNAMIC_DRAW);
             }
         }
-
-        if (print)
-            console.log(this);
     }
 
     _compileShaders(): void
@@ -441,9 +437,11 @@ export class Shader extends Asset
     }
 
     Bind(): void
+    Bind(samplerIndex: number): void
+    Bind(samplerIndex: number = 0): void
     {
         GL.useProgram(this.Program);
-        this._samplerIndex = 0;
+        this._samplerIndex = samplerIndex;
     }
 
     Reset()
@@ -460,23 +458,146 @@ export class Shader extends Asset
     SetBufferData(name: string, bufferData: Float32Array, offset: number): void;
     SetBufferData(name: string, bufferData: Float32Array, offset: number = 0): void
     {
-        if (!this._uniformBlocks.has(name))
+        const uniformBlock = this._uniformBlocks[name];
+        if (!uniformBlock)
         { 
             return;
         }
 
-        const uniformBlock = this._uniformBlocks.get(name)!;
         uniformBlock.data.set(bufferData, offset);
+    }
+
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, tranpose: boolean = false): void
+    {
+        if (typeof data === 'number')
+        {
+            data = [data] as any as Scalar;
+        }
+
+        const uniformBlock = this._uniformBlocks[name];
+        if (!uniformBlock)
+        { 
+            return;
+        }
+
+        const layout = uniformBlock.layout.fields[field]!;
+
+        switch (layout.size) {
+            case 1:
+                uniformBlock.data[layout.offset + 0] = data[0];
+                break;
+
+            case 2:
+                uniformBlock.data[layout.offset + 0] = data[0];
+                uniformBlock.data[layout.offset + 1] = data[1];
+                break;
+            case 3:
+                uniformBlock.data[layout.offset + 0] = data[0];
+                uniformBlock.data[layout.offset + 1] = data[1];
+                uniformBlock.data[layout.offset + 2] = data[2];
+                break;
+            case 4:
+                uniformBlock.data[layout.offset + 0] = data[0];
+                uniformBlock.data[layout.offset + 1] = data[1];
+                uniformBlock.data[layout.offset + 2] = data[2];
+                uniformBlock.data[layout.offset + 3] = data[3];
+                break;
+            case 8:
+                if (tranpose) {
+                    uniformBlock.data[layout.offset + 0] = data[0];
+                    uniformBlock.data[layout.offset + 1] = data[2];
+                    
+                    uniformBlock.data[layout.offset + 4] = data[1];
+                    uniformBlock.data[layout.offset + 5] = data[3];
+                } else {
+                    uniformBlock.data[layout.offset + 0] = data[0];
+                    uniformBlock.data[layout.offset + 1] = data[1];
+                    
+                    uniformBlock.data[layout.offset + 4] = data[2];
+                    uniformBlock.data[layout.offset + 5] = data[3];
+                }
+                break;
+            case 12:
+                if (tranpose) {
+                    uniformBlock.data[layout.offset +  0] = data[0];
+                    uniformBlock.data[layout.offset +  1] = data[3];
+                    uniformBlock.data[layout.offset +  2] = data[6];
+
+                    uniformBlock.data[layout.offset +  4] = data[1];
+                    uniformBlock.data[layout.offset +  5] = data[4];
+                    uniformBlock.data[layout.offset +  6] = data[7];
+
+                    uniformBlock.data[layout.offset +  8] = data[2];
+                    uniformBlock.data[layout.offset +  9] = data[5];
+                    uniformBlock.data[layout.offset + 10] = data[8];
+                } else {
+                    uniformBlock.data[layout.offset +  0] = data[0];
+                    uniformBlock.data[layout.offset +  1] = data[1];
+                    uniformBlock.data[layout.offset +  2] = data[2];
+
+                    uniformBlock.data[layout.offset +  4] = data[3];
+                    uniformBlock.data[layout.offset +  5] = data[4];
+                    uniformBlock.data[layout.offset +  6] = data[5];
+
+                    uniformBlock.data[layout.offset +  8] = data[6];
+                    uniformBlock.data[layout.offset +  9] = data[7];
+                    uniformBlock.data[layout.offset + 10] = data[8];
+                }
+                break;
+            case 16:
+                if (tranpose) {
+                    uniformBlock.data[layout.offset +  0] = data[ 0];
+                    uniformBlock.data[layout.offset +  1] = data[ 4];
+                    uniformBlock.data[layout.offset +  2] = data[ 8];
+                    uniformBlock.data[layout.offset +  3] = data[12];
+
+                    uniformBlock.data[layout.offset +  4] = data[ 1];
+                    uniformBlock.data[layout.offset +  5] = data[ 5];
+                    uniformBlock.data[layout.offset +  6] = data[ 9];
+                    uniformBlock.data[layout.offset +  7] = data[13];
+
+                    uniformBlock.data[layout.offset +  8] = data[ 2];
+                    uniformBlock.data[layout.offset +  9] = data[ 6];
+                    uniformBlock.data[layout.offset + 10] = data[10];
+                    uniformBlock.data[layout.offset + 11] = data[14];
+
+                    uniformBlock.data[layout.offset + 12] = data[ 3];
+                    uniformBlock.data[layout.offset + 13] = data[ 7];
+                    uniformBlock.data[layout.offset + 14] = data[11];
+                    uniformBlock.data[layout.offset + 15] = data[15];
+                } else {
+                    uniformBlock.data[layout.offset +  0] = data[ 0];
+                    uniformBlock.data[layout.offset +  1] = data[ 1];
+                    uniformBlock.data[layout.offset +  2] = data[ 2];
+                    uniformBlock.data[layout.offset +  3] = data[ 3];
+
+                    uniformBlock.data[layout.offset +  4] = data[ 4];
+                    uniformBlock.data[layout.offset +  5] = data[ 5];
+                    uniformBlock.data[layout.offset +  6] = data[ 6];
+                    uniformBlock.data[layout.offset +  7] = data[ 7];
+
+                    uniformBlock.data[layout.offset +  8] = data[ 8];
+                    uniformBlock.data[layout.offset +  9] = data[ 9];
+                    uniformBlock.data[layout.offset + 10] = data[10];
+                    uniformBlock.data[layout.offset + 11] = data[11];
+
+                    uniformBlock.data[layout.offset + 12] = data[12];
+                    uniformBlock.data[layout.offset + 13] = data[13];
+                    uniformBlock.data[layout.offset + 14] = data[14];
+                    uniformBlock.data[layout.offset + 15] = data[15];
+                }
+                break;
+        }
     }
 
     PushBufferData(name: string): void
     {        
-        if (!this._uniformBlocks.has(name))
+        const uniformBlock = this._uniformBlocks[name];
+        if (!uniformBlock)
         { 
             return;
         }
 
-        const uniformBlock = this._uniformBlocks.get(name)!;
         if (uniformBlock.index !== GL.INVALID_INDEX)
         {
             GL.bindBuffer(GL.UNIFORM_BUFFER, uniformBlock.buffer);
@@ -760,7 +881,7 @@ export class Shader extends Asset
     SetMatrix(name: string, matrix: Matrix4, transpose: boolean): void;
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void;
     SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void;
-    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], tranpose: boolean = false): void
+    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean = false): void
     {
         const location = this._getLocation(name);
         if (!location)
@@ -771,126 +892,107 @@ export class Shader extends Asset
         switch (matrix.length)
         {
             case 4:
-                GL.uniformMatrix2fv(location, tranpose, matrix);
+                GL.uniformMatrix2fv(location, transpose, matrix);
                 break;
             case 9:
-                GL.uniformMatrix3fv(location, tranpose, matrix);
+                GL.uniformMatrix3fv(location, transpose, matrix);
                 break;
             case 16:
-                GL.uniformMatrix4fv(location, tranpose, matrix);
+                GL.uniformMatrix4fv(location, transpose, matrix);
                 break;
         }
     }
 }
 
-function layout140(fieldTypes: string[]): number
-{
+type Layout140Size = 1 | 2 | 3 | 4 | 8 | 12 | 16;
+
+type Layout140 = {
+    fields: {
+        [field: string]: {
+            size: Layout140Size;
+            offset: number;
+        };
+    };
+    totalSize: number;
+}
+
+function buildLayout140(uniform: Map<string, string>): Layout140 {
+    const layout: Layout140 = {
+        totalSize: 0,
+        fields: {}
+    };
+
+    for (const [field, type] of uniform)
+    {
+        if (field === '_instance_') continue;
+
+        const size = STD140[type as ShaderVariableType];
+        layout.fields[field] = {
+
+            size: size,
+            offset: layout.totalSize
+        };
+
+        const offset = layout.totalSize % 4;
+        if (
+            (offset === 0)  ||
+            (offset === 1 && (size === 1 || size === 3)) ||
+            (offset === 2 && (size === 1 || size === 2)) ||
+            (offset === 3 && size === 1)) {
+            layout.totalSize += size;
+        } else {
+            layout.totalSize += offset + size;
+        }
+    }
+
+    layout.totalSize += layout.totalSize % 4;
+
+    return layout;
+}
+
+function layout140(fieldTypes: ShaderVariableType[]): number
+{    
     let totalBufferLength = 0;
-    let currentBufferLength = 0;
 
     for (const fieldType of fieldTypes)
     {
-        if (fieldType.includes('vec'))
+        const size = STD140[fieldType];
+        const offset = totalBufferLength % 4;
+        
+        if (offset === 0)
         {
-            const floats = fieldType.split('').last.trim();
-            switch (floats)
+            totalBufferLength += size;
+        } 
+        else if (offset === 1)
+        {
+            if (size !== 2)
             {
-                case '2':
-                    if (currentBufferLength === 0 || currentBufferLength == 2)
-                    {
-                        currentBufferLength += 2;
-                    }
-                    else
-                    {
-                        totalBufferLength += 4;
-                        currentBufferLength = 2;
-                    }
-                    break;
-
-                case '3':
-                    if (currentBufferLength === 0)
-                    {
-                        currentBufferLength += 3;
-                    }
-                    else
-                    {
-                        totalBufferLength += 4;
-                        currentBufferLength = 3;
-                    }
-                    break;
-
-                case '4':
-                    if (currentBufferLength === 0)
-                    {
-                        currentBufferLength += 4;
-                    }
-                    else
-                    {
-                        totalBufferLength += 4;
-                        currentBufferLength = 4;
-                    }
-                    break;
+                totalBufferLength += size;
             }
+            
+            totalBufferLength += 3;
         }
-        else if (fieldType.includes('mat'))
+        else if (offset === 2)
         {
-            const suffix = fieldType.substring(3).trim();
-            switch (suffix)
+            if (size !== 1 && size !== 2)
             {
-                case '2':
-                    totalBufferLength += 8;
-                    break;
-
-                case '3':
-                    totalBufferLength += 12;
-                    break;
-
-                case '4':
-                    totalBufferLength += 16;
-                    break;
-
-                case '2x3':
-                    totalBufferLength += 8;
-                    break;
-                case '2x4':
-
-                case '3x2':
-                    totalBufferLength += 8;
-                    break;
-
-                case '3x4':
-                    totalBufferLength += 16;
-                    break;
-
-                case '4x2':
-                    totalBufferLength += 8;
-                    break;
-
-                case '4x3':
-                    totalBufferLength += 12;
-                    break;
+                totalBufferLength += size;
             }
+            
+            totalBufferLength += 2;
         }
         else
         {
-            if (currentBufferLength === 4)
+            if (size !== 1)
             {
-                totalBufferLength += 4;
-                currentBufferLength = 1;
+                totalBufferLength += size
             }
-            else
-            {
-                currentBufferLength += 1;
-            }
+
+            totalBufferLength += 1;
         }
     }
 
-    if (currentBufferLength > 0 && currentBufferLength < 4)
-    {
-        totalBufferLength += 4;
-    }
-
-    return totalBufferLength + 4;
+    return totalBufferLength + (totalBufferLength % 4);
 };
 
 (window as any).layout140 = layout140;

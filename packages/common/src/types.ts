@@ -7,10 +7,9 @@ export type FixedLengthArray<Type, Length extends number, Arr extends Type[] = [
     ? Arr
     : FixedLengthArray<Type, Length, [Type, ...Arr]>;
 
-export type AtLeastOne<Type> = [Type, ...Type[]];
+export type MinLengthArray<Type, Length extends number> = [...FixedLengthArray<Type, Length>, ...Type[]];
 
 export type Enumerate<N extends number, Acc extends number[] = []> = 
     Acc['length'] extends N
     ? Acc[number]
     : Enumerate<N, [...Acc, Acc['length']]>;
-    

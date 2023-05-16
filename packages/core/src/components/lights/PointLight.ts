@@ -61,11 +61,11 @@ export class PointLight extends Light
         // super.Bind(shader)
     }
 
-    static ShadowMapCamera: Camera = new PerspectiveCamera(
-    {
-        fieldOfView: 90,
-        nearClipping: 0.1,
-        farClipping: 1000,
-        aspectRatio: 1.0
-    })
+    // static ShadowMapCamera: Camera = new PerspectiveCamera(
+    // {
+    //     fieldOfView: 90,
+    //     nearClipping: 0.1,
+    //     farClipping: 1000,
+    //     aspectRatio: 1.0
+    // })
 }

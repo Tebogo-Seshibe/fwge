@@ -1,6 +1,6 @@
 import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common";
 import { Shader } from "../base";
-import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
+import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
 import { Registry, System } from "../ecs";
 
 export class DeferredRenderSystem extends System
@@ -9,14 +9,12 @@ export class DeferredRenderSystem extends System
     private readonly _directionalLights = Symbol();
     private readonly _areaLights = Symbol();
     private readonly _renderables = Symbol();
-
-    static BlockIndex = new Map<string, any>();
-    static BindingPoint = new Map<string, number>();
+    private readonly _renderableGroups = '_renderableGroups';
 
     _globalBufferData: Float32Array = new Float32Array(16 * 4);
     _globalBuffer!: WebGLBuffer;
 
-    _prepassShader!: Shader;
+    // _prepassShader!: Shader;
     _lightPassShader!: Shader;
     _batch!: Map<number, Map<number, Set<number>>>;
     _modelViewMatrices: Map<number, Matrix4> = new Map();
@@ -28,13 +26,14 @@ export class DeferredRenderSystem extends System
 
     Init()
     {
-        this._prepassShader = new Shader(prepassVert, prepassFrag);
+        // this._prepassShader = new Shader(prepassVert, prepassFrag);
         this._lightPassShader = new Shader(mainPassVert, mainPassFrag);
-
+        console.log(this._lightPassShader);
         Registry.registerView(this._areaLights, [Light], [ light => light instanceof AreaLight]);
         Registry.registerView(this._directionalLights, [Light], [ light => light instanceof DirectionalLight]);
         Registry.registerView(this._pointLights, [Light], [ light => light instanceof PointLight]);
         Registry.registerView(this._renderables, [Transform, Material, Renderer]);
+        Registry.registerGroup(this._renderableGroups, [Material, Renderer, Transform]);
 
         const entities = Registry.getView(this._renderables).length;
         this._mvBuffer = new Float32Array(entities * Matrix4.SIZE);
@@ -82,46 +81,29 @@ export class DeferredRenderSystem extends System
 
         for (const window of this.Scene.Windows)
         {
-            // console.log(_)
             window.MainPass.Output.Bind();
-            // GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-            // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-            // GL.clearColor(0, 0, 0, 0);
-            // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-            this.prepassRender(window.Camera);
+            this.prepassRender2(window.Camera);
             // this.shdaowpassRender();
         }
-
+        
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
         GL.clearColor(0, 0, 0, 0);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
-        // // const dir = Registry.getView(this._directionalLights).map(id => Registry.getComponent(id, DirectionalLight)!).first;
-
         this._lightPassShader.Bind();
         this.bindLights();
-        // // this._lightPassShader.SetBufferData('MyAreaLight', new Colour4(1,1,1,0.15));
-        // // this._lightPassShader.PushBufferData('MyAreaLight');
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
             const window = this.Scene.Windows[i];
-            this._lightPassShader.Reset();
+            // this._lightPassShader.Reset();
             
             this._lightPassShader.SetTexture(`U_Position`, window.FinalComposite.ColourAttachments[0]);
             this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1]);
             this._lightPassShader.SetTexture(`U_ColourSpecular`, window.FinalComposite.ColourAttachments[2]);
             this._lightPassShader.SetTexture(`U_Depth`, window.FinalComposite.DepthAttachment!);
-            // this._lightPassShader.SetTexture(`U_Other[0]`, dir.RenderTarget.DepthAttachment!);
-            // this._lightPassShader.SetMatrix(`U_OtherMatrix[0]`, dir.ShadowMatrix);
-            // this._lightPassShader.SetTexture(`U_Other[1]`, dir.ShadowCascades[1].RenderTarget.ColourAttachments.first!);
-            // this._lightPassShader.SetMatrix(`U_OtherMatrix[1]`, Matrix4.Multiply(dir.ShadowCascades[1].Projection!, dir.ModelMatrix));
-            // this._lightPassShader.SetTexture(`U_Other[2]`, dir.ShadowCascades[2].RenderTarget.ColourAttachments.first!);
-            // this._lightPassShader.SetMatrix(`U_OtherMatrix[2]`, Matrix4.Multiply(dir.ShadowCascades[2].Projection!, dir.ModelMatrix));
             this._lightPassShader.SetFloatVector('U_PanelOffset', window.Offset);
             this._lightPassShader.SetFloatVector('U_PanelScale', window.Scale);
-
-            // this.bindLights();
 
             GL.bindVertexArray(window.Panel.VertexArrayBuffer);
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer);
@@ -191,228 +173,121 @@ export class DeferredRenderSystem extends System
         }
     }
 
-    // private shdaowpassRender()
-    // {
-    //     GL.disable(GL.CULL_FACE);
-    //     for (const lightEntityId of view([Light], DirectionalLight.name))
-    //     {
-    //         const light = getComponent(lightEntityId, Light)! as DirectionalLight;
-    //         if (!light.CastShadows)
-    //         {
-    //             continue;
-    //         }
+    private prepassRender2(camera: Camera): void
+    {
+        const projection: Matrix4 = camera.ProjectionMatrix;
+        const view: Matrix4 = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
 
-    //         light.BindForShadows();
-    //         for (const cascade of light.ShadowCascades)
-    //         {
-    //             // const matrix = Matrix4.Multiply(cascade.Projection, light.ModelMatrix);
+        for (const [materialId, group] of Registry.getGroup<2>(this._renderableGroups))
+        {
+            const material = Registry.getComponentInstance(materialId, BasicLitMaterial)!;
+            const shader = material.Shader;
+            if (!shader)
+            {
+                continue;
+            }
 
-    //             // cascade.RenderTarget.Bind();
-    //             // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', matrix);
-    //             const shader = DirectionalLight.ShadowShader;
-    //             for (const [materialId, renderers] of this._batch)
-    //             {
-    //                 const material = getComponentById(Material, materialId)!;
-    //                 if (!material.ProjectsShadows)
-    //                 {
-    //                     continue;
-    //                 }
+            shader.Bind();
+            shader.SetBufferDataField('Camera', 'ViewMatrix', view, true);
+            shader.SetBufferDataField('Camera', 'ProjectionMatrix', projection, true);
+            shader.PushBufferData('Camera');
+            material.BindBlock();
 
-    //                 for (const [rendererId, transforms] of renderers)
-    //                 {
-    //                     const renderer = getComponentById(Renderer, rendererId)!;
-    //                     const mesh = renderer.Asset!;
+            for (const [rendererId, entities] of group)
+            {
+                const renderer = Registry.getComponentInstance(rendererId, Renderer)!;
+                const mesh = renderer.Asset!;
+                
+                let mode = -1;
+                let count = 0;
+                let buffer = null;
 
-    //                     let mode = -1;
-    //                     let count = 0;
-    //                     let buffer = null;
+                switch (renderer.RenderMode)
+                {
+                    case RenderMode.FACE:
+                        {
+                            mode = GL.TRIANGLES;
+                            count = mesh.FaceCount;
 
-    //                     switch (renderer.RenderMode)
-    //                     {
-    //                         case RenderMode.FACE:
-    //                             {
-    //                                 mode = GL.TRIANGLES;
-    //                                 count = mesh.FaceCount;
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.FaceBuffer;
+                            }
+                        }
+                        break;
 
-    //                                 if (mesh.IsIndexed)
-    //                                 {
-    //                                     buffer = mesh.FaceBuffer;
-    //                                 }
-    //                             }
-    //                             break;
+                    case RenderMode.EDGE:
+                        {
+                            mode = GL.LINES;
+                            count = mesh.EdgeCount;
 
-    //                         case RenderMode.EDGE:
-    //                             {
-    //                                 mode = GL.LINES;
-    //                                 count = mesh.EdgeCount;
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.EdgeBuffer;
+                            }
+                        }
+                        break;
 
-    //                                 if (mesh.IsIndexed)
-    //                                 {
-    //                                     buffer = mesh.EdgeBuffer;
-    //                                     mode = GL.LINES;
-    //                                 }
-    //                             }
-    //                             break;
+                    case RenderMode.POINT:
+                        {
+                            mode = GL.POINTS;
+                            count = mesh.PointCount;
 
-    //                         case RenderMode.POINT:
-    //                             {
-    //                                 mode = GL.POINTS;
-    //                                 count = mesh.PointCount;
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.PointBuffer;
+                            }
+                        }
+                        break;
+                }
+                
+                GL.bindVertexArray(mesh.VertexArrayBuffer);
+                for (const entityId of entities)
+                {
+                    const transform = Registry.getComponent(entityId, Transform)!;
+                    const modelView = this._modelViewMatrices.get(transform.Id) ?? Matrix4.Identity;
+                    const normal = this._normalMatrices.get(transform.Id)! ?? Matrix3.Identity;
+                    this._modelViewMatrices.set(transform.Id, modelView);
+                    this._normalMatrices.set(transform.Id, normal);
+                    
+                    transform.ModelViewMatrix(modelView);
+                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+                        
+                    shader.SetBufferDataField('Object', 'ModelViewMatrix', modelView, true);
+                    shader.SetBufferDataField('Object', 'NormalMatrix', normal, true);
+                    shader.PushBufferData('Object');
+        
+                    if (buffer)
+                    {
+                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
+                    }
+                    else
+                    {
+                        GL.drawArrays(mode, 0, count);
+                    }
+                }
+                GL.bindVertexArray(null);
+            }
 
-    //                                 if (mesh.IsIndexed)
-    //                                 {
-    //                                     buffer = mesh.PointBuffer;
-    //                                 }
-    //                             }
-    //                             break;
-    //                     }
+            shader.UnBind();
+        }
+    }
 
-    //                     GL.bindVertexArray(mesh.VertexArrayBuffer);
-    //                     for (const transformId of transforms)
-    //                     {
-    //                         const modelView = this._modelViewMatrices.get(transformId)!;
-    //                         shader.SetMatrix('U_Matrix.ModelView', modelView, true);
-
-    //                         if (buffer)
-    //                         {
-    //                             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-    //                             GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
-    //                         }
-    //                         else
-    //                         {
-    //                             GL.drawArrays(mode, 0, count);
-    //                         }
-    //                     }
-    //                     GL.bindVertexArray(null);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     DirectionalLight.ShadowShader.UnBind();
-    //     GL.enable(GL.CULL_FACE);
-    // }
-
-    // private prepassRender(camera: Camera)
-    // {
-    //     const projection = camera.ProjectionMatrix;
-    //     const view = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
-
-    //     this._prepassShader.Bind();
-    //     this._prepassShader.SetMatrix('U_Matrix.View', view, true);
-    //     this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true);
-    //     // this._prepassShader.SetBufferData('Camera', view.Transpose(), 0);
-    //     // this._prepassShader.SetBufferData('Camera', projection.Transpose(), Matrix4.BYTES_PER_ELEMENT * Matrix4.SIZE);
-
-    //     for (const [materialId, renderers] of this._batch)
-    //     {
-    //         const material = getComponentById(Material, materialId)!;
-    //         material.Bind(this._prepassShader);
-    //         this._prepassShader.Reset();
-
-    //         for (const [rendererId, transforms] of renderers)
-    //         {
-    //             const renderer = getComponentById(Renderer, rendererId)!;
-    //             const mesh = renderer.Asset!;
-
-    //             let mode = -1;
-    //             let count = 0;
-    //             let buffer = null;
-
-    //             switch (renderer.RenderMode)
-    //             {
-    //                 case RenderMode.FACE:
-    //                     {
-    //                         mode = GL.TRIANGLES;
-    //                         count = mesh.FaceCount;
-
-    //                         if (mesh.IsIndexed)
-    //                         {
-    //                             buffer = mesh.FaceBuffer;
-    //                         }
-    //                     }
-    //                     break;
-
-    //                 case RenderMode.EDGE:
-    //                     {
-    //                         mode = GL.LINES;
-    //                         count = mesh.EdgeCount;
-
-    //                         if (mesh.IsIndexed)
-    //                         {
-    //                             buffer = mesh.EdgeBuffer;
-    //                             mode = GL.LINES;
-    //                         }
-    //                     }
-    //                     break;
-
-    //                 case RenderMode.POINT:
-    //                     {
-    //                         mode = GL.POINTS;
-    //                         count = mesh.PointCount;
-
-    //                         if (mesh.IsIndexed)
-    //                         {
-    //                             buffer = mesh.PointBuffer;
-    //                         }
-    //                     }
-    //                     break;
-    //             }
-
-    //             GL.bindVertexArray(mesh.VertexArrayBuffer);
-    //             for (const transformId of transforms)
-    //             {
-    //                 const transform = getComponentById(Transform, transformId)!;
-    //                 const modelView = this._modelViewMatrices.get(transformId)!;
-    //                 const normal = this._normalMatrices.get(transformId)!;
-
-    //                 transform.ModelViewMatrix(modelView);
-    //                 Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
-
-    //                 this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true);
-    //                 this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true);
-
-    //                 if (buffer)
-    //                 {
-    //                     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-    //                     GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
-    //                 }
-    //                 else
-    //                 {
-    //                     GL.drawArrays(mode, 0, count);
-    //                 }
-    //             }
-    //             GL.bindVertexArray(null);
-    //         }
-    //     }
-    // }
-
-    yes = true;
-    
     private prepassRender(camera: Camera)
     {
-        if (this.yes)
-        {
-            console.log(camera)
-            this.yes = false;
-        }
-        const projection = camera.ProjectionMatrix;
-        // const projection = Matrix4.Identity;
-        const view = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
+        const projection: Matrix4 = camera.ProjectionMatrix;
+        const view: Matrix4 = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
 
-        this._prepassShader.Bind();
-        // this._prepassShader.SetMatrix('U_Matrix.View', view, true);
-        // this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true);
-        this._prepassShader.SetMatrix('U_Matrix.View', view, true);
-        this._prepassShader.SetMatrix('U_Matrix.Projection', projection, true);
-        // this._prepassShader.SetBufferData('Camera', view.Transpose(), 0);
-        // this._prepassShader.SetBufferData('Camera', projection.Transpose(), Matrix4.BYTES_PER_ELEMENT * Matrix4.SIZE);
+        const shaderIndexMap: Map<Shader, number> = new Map();
 
         for (const entityId of Registry.getView(this._renderables))
         {
-            const material = Registry.getComponent(entityId, Material)!;
+            const material = Registry.getComponent(entityId, BasicLitMaterial)!;
             const renderer = Registry.getComponent(entityId, Renderer)!;
             const transform = Registry.getComponent(entityId, Transform)!;
             const mesh = renderer.Asset!;
+            const shader = material.Shader!;
 
             const modelView = this._modelViewMatrices.get(transform.Id)!;
             const normal = this._normalMatrices.get(transform.Id)!;
@@ -460,17 +335,27 @@ export class DeferredRenderSystem extends System
                     break;
             }
 
-            this._prepassShader.Reset();
-            material.Bind(this._prepassShader);
-         
-            GL.bindVertexArray(mesh.VertexArrayBuffer);
+            if (!shaderIndexMap.has(shader))
+            {
+                shaderIndexMap.set(shader, 0);
+            }
+            const shaderIndex = shaderIndexMap.get(shader)!;
+
+            shader.Bind(shaderIndex);
+            shaderIndexMap.set(shader, shaderIndex + 1);
+            shader.SetBufferDataField('Camera', 'ViewMatrix', view, true);
+            shader.SetBufferDataField('Camera', 'ProjectionMatrix', projection, true);
+            shader.PushBufferData('Camera');
 
             transform.ModelViewMatrix(modelView);
-            Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+            // Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
+                
+            shader.SetBufferDataField('Object', 'ModelViewMatrix', modelView, true);
+            shader.SetBufferDataField('Object', 'NormalMatrix', modelView.Matrix3, false);
+            shader.PushBufferData('Object');
+            material.BindBlock(shader);
 
-            this._prepassShader.SetMatrix('U_Matrix.ModelView', modelView, true);
-            this._prepassShader.SetMatrix('U_Matrix.Normal', normal, true);
-
+            GL.bindVertexArray(mesh.VertexArrayBuffer);
             if (buffer)
             {
                 GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
@@ -481,8 +366,16 @@ export class DeferredRenderSystem extends System
                 GL.drawArrays(mode, 0, count);
             }
             GL.bindVertexArray(null);
+            shader.UnBind();
+        }
+
+        if (this.print)
+        {
+            console.log(shaderIndexMap);
+            this.print = false;
         }
     }
+    print = true;
 }
 
 const prepassVert = `#version 300 es
@@ -504,40 +397,28 @@ struct Vertex
 };
 out Vertex V_Vertex;
 
-struct Matrix
+uniform Object
 {
-    mat4 ModelView;
-    mat4 View;
-    mat3 Normal;
-    mat4 Projection;
-};
-uniform Matrix U_Matrix;
+    mat4 ModelViewMatrix;
+    mat3 NormalMatrix;
+} object;
 
-// uniform Camera
-// {
-//     mat4 ViewMatrix;
-//     mat4 ProjectionMatrix;
-// } camera;
-
-// uniform Globals
-// {
-//     mat4 ProjectionMatrix;
-//     mat4 ViewMatrix;
-//     mat4 ModelViewMatrix;
-//     mat3 NormalMatrix;
-// };
+uniform Camera
+{
+    mat4 ViewMatrix;
+    mat4 ProjectionMatrix;
+} camera;
 
 void main(void)
 {
-    vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
+    vec4 position = object.ModelViewMatrix * vec4(A_Position, 1.0);
 
     V_Vertex.Position = position.xyz;
-    V_Vertex.Normal = U_Matrix.Normal * A_Normal;
+    V_Vertex.Normal = object.NormalMatrix * A_Normal;
     V_Vertex.UV = A_UV;
     V_Vertex.Colour = A_Colour;
 
-    // gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * position;
-    gl_Position = U_Matrix.Projection * U_Matrix.View * position;
+    gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * position;
 }
 `;
 
@@ -568,6 +449,21 @@ struct Material
     vec3 Colour;
     float Shininess;
     float Alpha;
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+    bool HasImageMap;
+    bool HasBumpMap;
+    bool ReceiveShadows;
+};
+uniform Material U_Material;
+
+
+uniform BasicLitMaterial
+{
+    vec3 Colour;
+    float Shininess;
+    float Alpha;
 
     vec3 Ambient;
     vec3 Diffuse;
@@ -576,8 +472,7 @@ struct Material
     bool HasImageMap;
     bool HasBumpMap;
     bool ReceiveShadows;
-};
-uniform Material U_Material;
+} myMaterial;
 
 struct Sampler
 {
@@ -591,8 +486,8 @@ uniform Sampler U_Sampler;
 void main(void)
 {
     vec4 tex = texture(U_Sampler.Image, V_Vertex.UV);
-    vec3 albedo = U_Material.Colour * tex.rgb * V_Vertex.Colour;
-    float alpha = U_Material.Alpha * tex.a;
+    vec3 albedo = myMaterial.Colour * tex.rgb * V_Vertex.Colour;
+    float alpha = myMaterial.Alpha * tex.a;
 
     O_Position = V_Vertex.Position;
     O_Normal = normalize(V_Vertex.Normal);
@@ -613,7 +508,6 @@ void main(void)
 {
     V_UV = A_Position * 0.5 + 0.5;
     gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
-    // gl_Position = vec4(0.0,0.0,0.0,1.0);
 }
 `;
 

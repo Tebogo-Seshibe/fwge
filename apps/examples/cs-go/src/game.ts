@@ -6,6 +6,7 @@ import { createBasicMaterial, createPrincipledBSDFMaterial } from './components/
 import { PhysicsTest } from './scenes/PhysicsTest';
 import { Input } from '@fwge/input';
 import { Collider, RigidBody } from '@fwge/physics';
+import { AnimationPlayer } from '@fwge/animation';
 
 type Resolution = { Height: number, Width: number; };
 const ResolutionMap =
@@ -38,7 +39,8 @@ export class CSGO extends Game
                     Camera,
                     Collider,
                     RigidBody,
-                    Light
+                    Light,
+                    AnimationPlayer
                 ],
                 scenes:
                 [

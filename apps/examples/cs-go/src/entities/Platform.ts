@@ -16,7 +16,7 @@ export class Platform extends GameObject
 
         this.material = new BasicLitMaterial(
         {
-            shader: this.Scene.Game.GetAsset('Basic Shader', Shader)!,
+            shader: this.Scene.Game.GetAsset('Basic Shader 2', Shader)!,
             colour: [231/255, 94/255, 98/255],
             alpha: 1.0,
             renderType: RenderType.OPAQUE,
