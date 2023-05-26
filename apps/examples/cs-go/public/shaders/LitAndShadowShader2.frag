@@ -39,6 +39,11 @@ uniform BasicLitMaterial
     bool ReceiveShadows;
 } basicLitMaterial;
 
+uniform DirectionalLights
+{
+    vec3 Colour;
+};
+
 void main(void)
 {
     vec4 tex = texture(U_Sampler.Image, V_Vertex.UV);

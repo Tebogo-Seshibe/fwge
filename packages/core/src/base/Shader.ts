@@ -104,21 +104,61 @@ export interface UniformBlock
     layout: Layout140;
 }
 
+export type UniformBlockRegexMatch = {
+    name: string;
+    body: string;
+    instance: string;
+};
+export const UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<body>(?:(?:\w|[*/\\]|\[\d+\]|[\n\s]*)+;)+[\n\s]*)}[\n\s]*(?<instance>\w+)*;/g;
+
+export type StructBlockRegexMatch = {
+    name: string;
+    body: string;
+    instance: string;
+};
+export const StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<body>(?:(?:\w|[*/\\]|\[\d+\]|[\n\s]*)+;)+[\n\s]*)}[\n\s]*(?<instance>\w+)*;/g;
+
+export type PropertyRegexMatch = {
+    property: string;
+    prop_type: string;
+    prop_length_prefix_length: string;
+    prop_length_prefix_name: string;
+    prop_length_postfix_name: string;
+    prop_length_postfix_length: string;
+    prop_name: string;
+};
+export const PropertyRegex = /(?<property>(?<prop_type>\w+)[\s\n]*(?:(?<prop_length_prefix_length>\[\d+\])[\s\n]*(?<prop_length_prefix_name>\w+)|(?<prop_length_postfix_name>\w+)[\s\n]*(?<prop_length_postfix_length>\[\d+\])|(?:[\s\n]+(?<prop_name>\w+)))[\s\n]*;)/g;
+
+export type UniformVariableRegexMatch = {
+    type: string;
+    name: string;
+};
+export const UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]+)(?<name>\w+)(?:[\n\s]*;)/g;
+
+export type ShaderProp = {
+    name: string;
+    type: string;
+    length?: number;
+    
+};
+
 export class Shader extends Asset
 {
     private static CurrentBlockIndex = 0;
-    static readonly Includes: Map<string, string> = new Map();
-    static readonly BlockIndex: Map<string, number> = new Map();
-    static readonly BlockOffset: Map<string, number> = new Map();
-    static readonly BindingPoint: Map<string, number> = new Map();
-    static readonly UniformBlocks: Map<string, UniformBlock> = new Map();
+    private static readonly Includes: Map<string, string> = new Map();
+    private static readonly BlockIndex: Map<string, number> = new Map();
+    private static readonly BlockOffset: Map<string, number> = new Map();
+    private static readonly BindingPoint: Map<string, number> = new Map();
+    private static readonly UniformBlocks: Map<string, UniformBlock> = new Map();
 
-    static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/;
-    static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
-    static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<fields>(?:[\n\s]*\w+[\n\s]+\w+;)+)[\n\s]*}(?<instance>[\n\s]*\w+)?;/g;
-    static readonly PropertyRegex = /(?<property>(?<prop_type>\w+)[\s\n]*((?<prop_length_prefix>\[\d+\])[\s\n]*(?<prop_length_prefix_name>\w+)|(?<prop_length_postfix_name>\w+)[\s\n]*(?<prop_length_postfix_length>\[\d+\])|([\s\n]+(?<prop_name>\w+)))[\s\n]*;)/
-    static readonly UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]+)(?<name>\w+)(?:[\n\s]*;)/g;
-    static readonly GLSLTypes = /(sampler([123]D(Rect|Array|MS(Array)?)|(Cube(Array)?|Buffer))|bool|u?int|float|double)|([uibd]?vec[234])|(mat[234](x[234])?)/;
+    private static readonly IncludeRegex = /\/\/#include\s+(.+)([\s\n\r]*)/;
+    //TODO Fix borked regex for uniforms
+    // Allow for arrays
+    // Fix buildLayout140 method not including structs
+    private static readonly UniformBlockRegex = /uniform\s+(?<name>\w+)[\n\s]*{(?<body>(?:\s*\w+\s+\w+\s*;|\n)*)}(?<instance>[\n\s]*\w+)?;/g;
+    private static readonly StructRegex = /struct\s+(?<name>\w+)[\n\s]*{(?<body>(?:\s*\w+\s+\w+\s*;|\n)*)}(?<instance>[\n\s]*\w+)?;/g;
+    private static readonly PropertyRegex = /(?<property>(?<prop_type>\w+)[\s\n]*(?:(?<prop_length_prefix_length>\[\d+\])[\s\n]*(?<prop_length_prefix_name>\w+)|(?<prop_length_postfix_name>\w+)[\s\n]*(?<prop_length_postfix_length>\[\d+\])|(?:[\s\n]+(?<prop_name>\w+)))[\s\n]*;)/g;
+    private static readonly UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]+)(?<name>\w+)(?:[\n\s]*;)/g;
 
     private _program: WebGLProgram | null = null;
     private _rawVertexSource: string | null = null;
@@ -132,9 +172,12 @@ export class Shader extends Asset
     private readonly _inputs: { [key: string]: WebGLUniformLocation | undefined; } = {};
     private readonly _ignore: Set<string> = new Set();
 
-    private readonly _structs: Map<string, Map<string, string>> = new Map();
-    private readonly _uniforms: Map<string, Map<string, string>> = new Map();
-    private readonly _uniformBlocks: {[key: string]: UniformBlock} = Object.create(null);
+    //TODO Make this a lot cleaner
+    private readonly _structs: Map<string, Map<string, ShaderProp>> = new Map();
+    private readonly _structLayouts: Map<string, Layout140> = new Map();
+    private readonly _uniforms: Map<string, Map<string, ShaderProp>> = new Map();
+    private readonly _uniformBlocksProps: Map<string, Layout140> = new Map();
+    private readonly _uniformBlocks: {[key: string]: UniformBlock} = {};
 
     private readonly Buffer: WebGLBuffer = GL.createBuffer()!;
     private readonly BufferData: Float32Array = new Float32Array();
@@ -213,48 +256,81 @@ export class Shader extends Asset
     _addUniformStructs(): void
     {
         const source = this._vertexSource + "\n" + this._fragmentSource;
-        const structs = source.matchAll(Shader.StructRegex);
-        const uniforms = source.matchAll(Shader.UniformBlockRegex);
+        const structs = [...source.matchAll(StructRegex)];
+        const uniforms = [...source.matchAll(UniformBlockRegex)];
 
-        for (let match = structs.next(); !match.done; match = structs.next())
+        for (let match of structs)
         {
-            const { name, fields, instance } = match.value.groups!;
-            const props = new Map<string, string>();
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
-            for (const fieldName of fieldNames)
+            const { name, body } = match.groups! as StructBlockRegexMatch;
+            const propMatches = [...body.matchAll(PropertyRegex)];
+            const mappedProps = new Map<string, ShaderProp>()
+
+            for (const propMatch of propMatches)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
-                props.set(prop, type);
+                const { 
+                    prop_name,
+                    prop_length_prefix_name,
+                    prop_length_postfix_name,
+
+                    prop_type,
+                    prop_length_prefix_length,
+                    prop_length_postfix_length
+                } = propMatch.groups! as PropertyRegexMatch;
+
+                const name = prop_name ?? prop_length_prefix_name ?? prop_length_postfix_name;
+                const type = prop_type;
+                const length = prop_length_prefix_length 
+                    ? Number(prop_length_prefix_length.replace(/(\[|\])/g, ''))
+                    : prop_length_postfix_length
+                        ? Number(prop_length_postfix_length.replace(/(\[|\])/g, ''))
+                        : undefined;
+                
+                mappedProps.set(name, { name, type, length });
             }
-            if (instance)
-            {
-                props.set('_instance_', instance);
-            }
-            this._structs.set(name, props);
+
+            this._structs.set(name, mappedProps);
         }
 
-        for (let match = uniforms.next(); !match.done; match = uniforms.next())
+        for (let match of uniforms)
         {
-            const { name, fields, instance } = match.value.groups!;
-            const props = new Map<string, string>();
-            const fieldNames = fields.trim().split(';').map(x => x.trim()).filter(x => x);
-            for (const fieldName of fieldNames)
+            const { name, body } = match.groups! as StructBlockRegexMatch;
+            const propMatches = [...body.matchAll(PropertyRegex)];
+            const mappedProps = new Map<string, ShaderProp>()
+            
+            for (const propMatch of propMatches)
             {
-                const [type, prop] = fieldName.split(' ').map(x => x.trim()).filter(x => x);
-                props.set(prop, type);
+                const { 
+                    prop_name,
+                    prop_length_prefix_name,
+                    prop_length_postfix_name,
+
+                    prop_type,
+                    prop_length_prefix_length,
+                    prop_length_postfix_length
+                } = propMatch.groups! as PropertyRegexMatch;
+
+                const name = prop_name ?? prop_length_prefix_name ?? prop_length_postfix_name;
+                const type = prop_type;
+                const length = prop_length_prefix_length 
+                    ? Number(prop_length_prefix_length.replace(/(\[|\])/g, ''))
+                    : prop_length_postfix_length
+                        ? Number(prop_length_postfix_length.replace(/(\[|\])/g, ''))
+                        : undefined;
+                
+                mappedProps.set(name, { name, type, length });
             }
-            if (instance)
-            {
-                props.set('_instance_', instance);
-            }
-            this._uniforms.set(name, props);
+            
+            this._uniforms.set(name, mappedProps);
+            
+            if (name === 'MeshData') debugger;
+            this._uniformBlocksProps.set(name, this.BuildLayout140([...mappedProps.values()]));
         }
     }
 
     private _addUniformVariables(): void
     {
         const source = this._vertexSource + "\n" + this._fragmentSource;
-        const uniforms = source.matchAll(Shader.UniformVariable);
+        const uniforms = source.matchAll(UniformVariable);
 
         for (let match = uniforms.next(); !match.done; match = uniforms.next())
         {
@@ -282,27 +358,16 @@ export class Shader extends Asset
     
     private _indexUniformBlocks(): void
     {
-        for (const [uniform, fields] of this._uniforms)
+        for (const [uniform, layout] of this._uniformBlocksProps)
         {
-            const fieldTypes: string[] = [];
-            for (const [field, type] of fields)
-            {
-                if (field !== '_instance_')
-                {
-                    fieldTypes.push(type);
-                }
-            }
-            
-            const size = layout140(fieldTypes as ShaderVariableType[])
             const uniformBlock: UniformBlock = Object.create(null);
-            uniformBlock.size = size;
+            uniformBlock.size = layout.totalSize;
             uniformBlock.buffer = GL.createBuffer()!;
             uniformBlock.bindingPoint = Shader.CurrentBlockIndex++;
             uniformBlock.index = GL.getUniformBlockIndex(this._program!, uniform);
             uniformBlock.offset = 0;
-            uniformBlock.data = new Float32Array(size);
-            uniformBlock.layout = buildLayout140(fields);
-
+            uniformBlock.data = new Float32Array(uniformBlock.size);
+            uniformBlock.layout = this._uniformBlocksProps.get(uniform)!;
             
             if (uniformBlock.index !== GL.INVALID_INDEX)
             {
@@ -467,8 +532,30 @@ export class Shader extends Asset
         uniformBlock.data.set(bufferData, offset);
     }
 
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, tranpose: boolean = false): void
+    SetBufferDataBlock(name: string, data: TypedArray, offset: number = 0): void
     {
+        const uniformBlock = this._uniformBlocks[name];
+        if (!uniformBlock)
+        { 
+            return;
+        }
+
+        uniformBlock.data.set(data, offset);
+    }
+
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4): void
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose: boolean): void
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number): void
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number, transpose: boolean): void
+    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose_offset: number | boolean = 0, transpose: boolean = false): void
+    {
+        const offset = typeof transpose_offset === 'number'
+            ? transpose_offset
+            : 0
+        transpose = typeof transpose_offset === 'number'
+            ? transpose
+            : transpose_offset
+            
         if (typeof data === 'number')
         {
             data = [data] as any as Scalar;
@@ -484,107 +571,107 @@ export class Shader extends Asset
 
         switch (layout.size) {
             case 1:
-                uniformBlock.data[layout.offset + 0] = data[0];
+                uniformBlock.data[layout.offset + offset + 0] = data[0];
                 break;
 
             case 2:
-                uniformBlock.data[layout.offset + 0] = data[0];
-                uniformBlock.data[layout.offset + 1] = data[1];
+                uniformBlock.data[layout.offset + offset + 0] = data[0];
+                uniformBlock.data[layout.offset + offset + 1] = data[1];
                 break;
             case 3:
-                uniformBlock.data[layout.offset + 0] = data[0];
-                uniformBlock.data[layout.offset + 1] = data[1];
-                uniformBlock.data[layout.offset + 2] = data[2];
+                uniformBlock.data[layout.offset + offset + 0] = data[0];
+                uniformBlock.data[layout.offset + offset + 1] = data[1];
+                uniformBlock.data[layout.offset + offset + 2] = data[2];
                 break;
             case 4:
-                uniformBlock.data[layout.offset + 0] = data[0];
-                uniformBlock.data[layout.offset + 1] = data[1];
-                uniformBlock.data[layout.offset + 2] = data[2];
-                uniformBlock.data[layout.offset + 3] = data[3];
+                uniformBlock.data[layout.offset + offset + 0] = data[0];
+                uniformBlock.data[layout.offset + offset + 1] = data[1];
+                uniformBlock.data[layout.offset + offset + 2] = data[2];
+                uniformBlock.data[layout.offset + offset + 3] = data[3];
                 break;
             case 8:
-                if (tranpose) {
-                    uniformBlock.data[layout.offset + 0] = data[0];
-                    uniformBlock.data[layout.offset + 1] = data[2];
+                if (transpose) {
+                    uniformBlock.data[layout.offset + offset + 0] = data[0];
+                    uniformBlock.data[layout.offset + offset + 1] = data[2];
                     
-                    uniformBlock.data[layout.offset + 4] = data[1];
-                    uniformBlock.data[layout.offset + 5] = data[3];
+                    uniformBlock.data[layout.offset + offset + 4] = data[1];
+                    uniformBlock.data[layout.offset + offset + 5] = data[3];
                 } else {
-                    uniformBlock.data[layout.offset + 0] = data[0];
-                    uniformBlock.data[layout.offset + 1] = data[1];
+                    uniformBlock.data[layout.offset + offset + 0] = data[0];
+                    uniformBlock.data[layout.offset + offset + 1] = data[1];
                     
-                    uniformBlock.data[layout.offset + 4] = data[2];
-                    uniformBlock.data[layout.offset + 5] = data[3];
+                    uniformBlock.data[layout.offset + offset + 4] = data[2];
+                    uniformBlock.data[layout.offset + offset + 5] = data[3];
                 }
                 break;
             case 12:
-                if (tranpose) {
-                    uniformBlock.data[layout.offset +  0] = data[0];
-                    uniformBlock.data[layout.offset +  1] = data[3];
-                    uniformBlock.data[layout.offset +  2] = data[6];
+                if (transpose) {
+                    uniformBlock.data[layout.offset + offset +  0] = data[0];
+                    uniformBlock.data[layout.offset + offset +  1] = data[3];
+                    uniformBlock.data[layout.offset + offset +  2] = data[6];
 
-                    uniformBlock.data[layout.offset +  4] = data[1];
-                    uniformBlock.data[layout.offset +  5] = data[4];
-                    uniformBlock.data[layout.offset +  6] = data[7];
+                    uniformBlock.data[layout.offset + offset +  4] = data[1];
+                    uniformBlock.data[layout.offset + offset +  5] = data[4];
+                    uniformBlock.data[layout.offset + offset +  6] = data[7];
 
-                    uniformBlock.data[layout.offset +  8] = data[2];
-                    uniformBlock.data[layout.offset +  9] = data[5];
-                    uniformBlock.data[layout.offset + 10] = data[8];
+                    uniformBlock.data[layout.offset + offset +  8] = data[2];
+                    uniformBlock.data[layout.offset + offset +  9] = data[5];
+                    uniformBlock.data[layout.offset + offset + 10] = data[8];
                 } else {
-                    uniformBlock.data[layout.offset +  0] = data[0];
-                    uniformBlock.data[layout.offset +  1] = data[1];
-                    uniformBlock.data[layout.offset +  2] = data[2];
+                    uniformBlock.data[layout.offset + offset +  0] = data[0];
+                    uniformBlock.data[layout.offset + offset +  1] = data[1];
+                    uniformBlock.data[layout.offset + offset +  2] = data[2];
 
-                    uniformBlock.data[layout.offset +  4] = data[3];
-                    uniformBlock.data[layout.offset +  5] = data[4];
-                    uniformBlock.data[layout.offset +  6] = data[5];
+                    uniformBlock.data[layout.offset + offset +  4] = data[3];
+                    uniformBlock.data[layout.offset + offset +  5] = data[4];
+                    uniformBlock.data[layout.offset + offset +  6] = data[5];
 
-                    uniformBlock.data[layout.offset +  8] = data[6];
-                    uniformBlock.data[layout.offset +  9] = data[7];
-                    uniformBlock.data[layout.offset + 10] = data[8];
+                    uniformBlock.data[layout.offset + offset +  8] = data[6];
+                    uniformBlock.data[layout.offset + offset +  9] = data[7];
+                    uniformBlock.data[layout.offset + offset + 10] = data[8];
                 }
                 break;
             case 16:
-                if (tranpose) {
-                    uniformBlock.data[layout.offset +  0] = data[ 0];
-                    uniformBlock.data[layout.offset +  1] = data[ 4];
-                    uniformBlock.data[layout.offset +  2] = data[ 8];
-                    uniformBlock.data[layout.offset +  3] = data[12];
+                if (transpose) {
+                    uniformBlock.data[layout.offset + offset +  0] = data[ 0];
+                    uniformBlock.data[layout.offset + offset +  1] = data[ 4];
+                    uniformBlock.data[layout.offset + offset +  2] = data[ 8];
+                    uniformBlock.data[layout.offset + offset +  3] = data[12];
 
-                    uniformBlock.data[layout.offset +  4] = data[ 1];
-                    uniformBlock.data[layout.offset +  5] = data[ 5];
-                    uniformBlock.data[layout.offset +  6] = data[ 9];
-                    uniformBlock.data[layout.offset +  7] = data[13];
+                    uniformBlock.data[layout.offset + offset +  4] = data[ 1];
+                    uniformBlock.data[layout.offset + offset +  5] = data[ 5];
+                    uniformBlock.data[layout.offset + offset +  6] = data[ 9];
+                    uniformBlock.data[layout.offset + offset +  7] = data[13];
 
-                    uniformBlock.data[layout.offset +  8] = data[ 2];
-                    uniformBlock.data[layout.offset +  9] = data[ 6];
-                    uniformBlock.data[layout.offset + 10] = data[10];
-                    uniformBlock.data[layout.offset + 11] = data[14];
+                    uniformBlock.data[layout.offset + offset +  8] = data[ 2];
+                    uniformBlock.data[layout.offset + offset +  9] = data[ 6];
+                    uniformBlock.data[layout.offset + offset + 10] = data[10];
+                    uniformBlock.data[layout.offset + offset + 11] = data[14];
 
-                    uniformBlock.data[layout.offset + 12] = data[ 3];
-                    uniformBlock.data[layout.offset + 13] = data[ 7];
-                    uniformBlock.data[layout.offset + 14] = data[11];
-                    uniformBlock.data[layout.offset + 15] = data[15];
+                    uniformBlock.data[layout.offset + offset + 12] = data[ 3];
+                    uniformBlock.data[layout.offset + offset + 13] = data[ 7];
+                    uniformBlock.data[layout.offset + offset + 14] = data[11];
+                    uniformBlock.data[layout.offset + offset + 15] = data[15];
                 } else {
-                    uniformBlock.data[layout.offset +  0] = data[ 0];
-                    uniformBlock.data[layout.offset +  1] = data[ 1];
-                    uniformBlock.data[layout.offset +  2] = data[ 2];
-                    uniformBlock.data[layout.offset +  3] = data[ 3];
+                    uniformBlock.data[layout.offset + offset +  0] = data[ 0];
+                    uniformBlock.data[layout.offset + offset +  1] = data[ 1];
+                    uniformBlock.data[layout.offset + offset +  2] = data[ 2];
+                    uniformBlock.data[layout.offset + offset +  3] = data[ 3];
 
-                    uniformBlock.data[layout.offset +  4] = data[ 4];
-                    uniformBlock.data[layout.offset +  5] = data[ 5];
-                    uniformBlock.data[layout.offset +  6] = data[ 6];
-                    uniformBlock.data[layout.offset +  7] = data[ 7];
+                    uniformBlock.data[layout.offset + offset +  4] = data[ 4];
+                    uniformBlock.data[layout.offset + offset +  5] = data[ 5];
+                    uniformBlock.data[layout.offset + offset +  6] = data[ 6];
+                    uniformBlock.data[layout.offset + offset +  7] = data[ 7];
 
-                    uniformBlock.data[layout.offset +  8] = data[ 8];
-                    uniformBlock.data[layout.offset +  9] = data[ 9];
-                    uniformBlock.data[layout.offset + 10] = data[10];
-                    uniformBlock.data[layout.offset + 11] = data[11];
+                    uniformBlock.data[layout.offset + offset +  8] = data[ 8];
+                    uniformBlock.data[layout.offset + offset +  9] = data[ 9];
+                    uniformBlock.data[layout.offset + offset + 10] = data[10];
+                    uniformBlock.data[layout.offset + offset + 11] = data[11];
 
-                    uniformBlock.data[layout.offset + 12] = data[12];
-                    uniformBlock.data[layout.offset + 13] = data[13];
-                    uniformBlock.data[layout.offset + 14] = data[14];
-                    uniformBlock.data[layout.offset + 15] = data[15];
+                    uniformBlock.data[layout.offset + offset + 12] = data[12];
+                    uniformBlock.data[layout.offset + offset + 13] = data[13];
+                    uniformBlock.data[layout.offset + offset + 14] = data[14];
+                    uniformBlock.data[layout.offset + offset + 15] = data[15];
                 }
                 break;
         }
@@ -635,6 +722,7 @@ export class Shader extends Asset
         GL.uniform1i(location, this._samplerIndex);
     }
 
+    //#region Set uniform variables
     SetBool(name: string, bool: boolean): void
     {
         const location = this._getLocation(name);
@@ -646,6 +734,8 @@ export class Shader extends Asset
         GL.uniform1i(location, bool ? 1 : 0);
     }
 
+    SetInt(name: string, int: number): void
+    SetInt(name: string, int: number, unsigned: boolean): void
     SetInt(name: string, int: number, unsigned: boolean = false): void
     {
         const location = this._getLocation(name);
@@ -711,97 +801,82 @@ export class Shader extends Asset
             return;
         }
 
-        switch (arguments.length)
+        if (typeof _1 !== 'number')
         {
-            case 6:
-                {
-                    if (_5 as boolean)
+            const unsigned = _2 as boolean ?? false;
+            
+            switch (_1.length)
+            {
+                case 2: 
+                    if (unsigned)
                     {
-                        GL.uniform4ui(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                        GL.uniform2uiv(location, _1 as number[]);
                     }
                     else
                     {
-                        GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                        GL.uniform2iv(location, _1 as number[]);
                     }
-                }
-                break;
-            case 5:
-                {
-                    if (typeof _4 === 'number')
+                    break;
+                case 3: 
+                    if (unsigned)
                     {
-                        GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number);
-                    }
-                    else if (_4 as boolean)
-                    {
-                        GL.uniform3ui(location, _1 as number, _2 as number, _3 as number);
+                        GL.uniform3uiv(location, _1 as number[]);
                     }
                     else
                     {
-                        GL.uniform3i(location, _1 as number, _2 as number, _3 as number);
+                        GL.uniform3iv(location, _1 as number[]);
                     }
-                }
-                break;
-            case 4:
-                {
+                    break;
+                case 4: 
+                    if (unsigned)
+                    {
+                        GL.uniform4uiv(location, _1 as number[]);
+                    }
+                    else
+                    {
+                        GL.uniform4iv(location, _1 as number[]);
+                    }
+                    break;
+            }
+        }
+        else
+        {
+            switch (arguments.length)
+            {
+                case 3:
+                    GL.uniform2i(location, _1 as number, _2 as number);
+                    break;
+
+                case 4:
                     if (typeof _3 === 'number')
                     {
                         GL.uniform3i(location, _1 as number, _2 as number, _3 as number);
                     }
-                    else if (_3 as boolean)
+                    else if (_3)
                     {
                         GL.uniform2ui(location, _1 as number, _2 as number);
                     }
-                    else
+                    break;
+                case 5:
                     {
-                        GL.uniform2i(location, _1 as number, _2 as number);
-                    }
-                }
-                break;
-            case 3:
-                {
-                    if (typeof _2 === 'number')
-                    {
-                        GL.uniform2i(location, _1 as number, _2 as number);
-                    }
-                    else if (_2 as boolean)
-                    {
-                        switch ((_1 as number[]).length)
+                        if (typeof _4 === 'number' || !_5)
                         {
-                            case 2: GL.uniform2uiv(location, _1 as number[]);
-                                break;
-                            case 3: GL.uniform3uiv(location, _1 as number[]);
-                                break;
-                            case 4: GL.uniform4uiv(location, _1 as number[]);
-                                break;
+                            GL.uniform4i(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                        }
+                        else if (_4)
+                        {
+                            GL.uniform3ui(location, _1 as number, _2 as number, _3 as number);
                         }
                     }
-                    else
+                    break;
+
+                case 6:
+                    if (_5)
                     {
-                        switch ((_1 as number[]).length)
-                        {
-                            case 2: GL.uniform2iv(location, _1 as number[]);
-                                break;
-                            case 3: GL.uniform3iv(location, _1 as number[]);
-                                break;
-                            case 4: GL.uniform4iv(location, _1 as number[]);
-                                break;
-                        }
+                        GL.uniform4ui(location, _1 as number, _2 as number, _3 as number, _4 as number);
                     }
-                }
-                break;
-            case 2:
-                {
-                    switch ((_1 as number[]).length)
-                    {
-                        case 2: GL.uniform2iv(location, _1 as number[]);
-                            break;
-                        case 3: GL.uniform3iv(location, _1 as number[]);
-                            break;
-                        case 4: GL.uniform4iv(location, _1 as number[]);
-                            break;
-                    }
-                }
-                break;
+                    break;
+            }
         }
     }
 
@@ -822,37 +897,7 @@ export class Shader extends Asset
             return;
         }
 
-        switch (arguments.length)
-        {
-            case 5:
-                GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number);
-                break;
-            case 4:
-                GL.uniform3f(location, _1 as number, _2 as number, _3 as number);
-                break;
-            case 3:
-                GL.uniform2f(location, _1 as number, _2 as number);
-                break;
-            case 2:
-                switch ((_1 as number[]).length)
-                {
-                    case 2:
-                        GL.uniform2fv(location, _1 as number[]);
-                        break;
-                    case 3:
-                        GL.uniform3fv(location, _1 as number[]);
-                        break;
-                    case 4:
-                        GL.uniform4fv(location, _1 as number[]);
-                        break;
-                }
-                break;
-        }
-        if (typeof _1 === 'number')
-        {
-
-        }
-        else
+        if (typeof _1 !== 'number')
         {
             switch (_1.length)
             {
@@ -864,6 +909,21 @@ export class Shader extends Asset
                     break;
                 case 4:
                     GL.uniform4fv(location, _1);
+                    break;
+            }
+        }
+        else
+        {
+            switch (arguments.length)
+            {
+                case 5:
+                    GL.uniform4f(location, _1 as number, _2 as number, _3 as number, _4 as number);
+                    break;
+                case 4:
+                    GL.uniform3f(location, _1 as number, _2 as number, _3 as number);
+                    break;
+                case 3:
+                    GL.uniform2f(location, _1 as number, _2 as number);
                     break;
             }
         }
@@ -902,6 +962,68 @@ export class Shader extends Asset
                 break;
         }
     }
+    //#endregion
+
+    BuildLayout140(uniform: ShaderProp[]): Layout140 {        
+        const layout: Layout140 = {
+            totalSize: 0,
+            fields: {}
+        };
+    
+        let currentOffset = 0;
+
+        for (const {name, type, length} of uniform)
+        {
+            const size = this.CalculateFieldSize(layout.totalSize % 4, type, length);
+
+            layout.totalSize += size;
+            layout.fields[name] = {    
+                size: size,
+                offset: currentOffset
+            };
+
+            currentOffset += size;
+        }
+        
+        layout.totalSize += layout.totalSize % 4;
+    
+        return layout;
+    }
+    
+    CalculateFieldSize(offset: number, type: string, length: number = 1): number
+    {
+        let totalSize = 0;
+
+        while (length-- > 0)
+        {
+            let size = STD140[type as ShaderVariableType];
+            if (!size)
+            {
+                const struct = this._structs.get(type)!;
+                const fields = [...struct.values()];
+
+                for (const { type, length } of fields)
+                {
+                    totalSize += this.CalculateFieldSize((offset + totalSize) % 4, type, length);
+                }
+            }
+            else
+            {         
+                if (
+                    (offset === 0 && (size === 1 || size === 2 || size === 3)) ||
+                    (offset === 1 && size === 1) ||
+                    (offset === 2 && (size === 1 || size === 2)) ||
+                    (offset === 3 && size === 1)) {
+                    totalSize += size;
+                } else {
+                    totalSize += size + (size % 4);
+                }
+                offset = totalSize % 4;
+            }
+        }
+
+        return totalSize;
+    }
 }
 
 type Layout140Size = 1 | 2 | 3 | 4 | 8 | 12 | 16;
@@ -909,90 +1031,9 @@ type Layout140Size = 1 | 2 | 3 | 4 | 8 | 12 | 16;
 type Layout140 = {
     fields: {
         [field: string]: {
-            size: Layout140Size;
+            size: number;
             offset: number;
         };
     };
     totalSize: number;
 }
-
-function buildLayout140(uniform: Map<string, string>): Layout140 {
-    const layout: Layout140 = {
-        totalSize: 0,
-        fields: {}
-    };
-
-    for (const [field, type] of uniform)
-    {
-        if (field === '_instance_') continue;
-
-        const size = STD140[type as ShaderVariableType];
-        layout.fields[field] = {
-
-            size: size,
-            offset: layout.totalSize
-        };
-
-        const offset = layout.totalSize % 4;
-        if (
-            (offset === 0)  ||
-            (offset === 1 && (size === 1 || size === 3)) ||
-            (offset === 2 && (size === 1 || size === 2)) ||
-            (offset === 3 && size === 1)) {
-            layout.totalSize += size;
-        } else {
-            layout.totalSize += offset + size;
-        }
-    }
-
-    layout.totalSize += layout.totalSize % 4;
-
-    return layout;
-}
-
-function layout140(fieldTypes: ShaderVariableType[]): number
-{    
-    let totalBufferLength = 0;
-
-    for (const fieldType of fieldTypes)
-    {
-        const size = STD140[fieldType];
-        const offset = totalBufferLength % 4;
-        
-        if (offset === 0)
-        {
-            totalBufferLength += size;
-        } 
-        else if (offset === 1)
-        {
-            if (size !== 2)
-            {
-                totalBufferLength += size;
-            }
-            
-            totalBufferLength += 3;
-        }
-        else if (offset === 2)
-        {
-            if (size !== 1 && size !== 2)
-            {
-                totalBufferLength += size;
-            }
-            
-            totalBufferLength += 2;
-        }
-        else
-        {
-            if (size !== 1)
-            {
-                totalBufferLength += size
-            }
-
-            totalBufferLength += 1;
-        }
-    }
-
-    return totalBufferLength + (totalBufferLength % 4);
-};
-
-(window as any).layout140 = layout140;

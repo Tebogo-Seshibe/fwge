@@ -138,7 +138,7 @@ export class PhysicsTest extends Scene
                 {
                     O_Position = V_Vertex.Position;
                     O_Normal = normalize(V_Vertex.Normal);
-                    O_DiffuseSpecular = vec4(V_Vertex.Position, basicLitMaterial.Alpha);
+                    O_DiffuseSpecular = vec4(basicLitMaterial.Colour, basicLitMaterial.Alpha);
                 }
 
             `),
@@ -162,8 +162,8 @@ export class PhysicsTest extends Scene
             });
 
         const positions: Vector3Array[] = [];
-        const min = -0;
-        const max = 0;
+        const min = -4;
+        const max = 4;
         for (let x = min; x <= max; x += 2)
         {
             for (let z = min; z <= max; z += 2)
@@ -180,21 +180,20 @@ export class PhysicsTest extends Scene
                 .AddComponent(cubeCollider)
                 .AddComponent(material)
                 .AddComponent(cubeRenderer);
-            // .AddComponent(jumpingCube)
 
-            const light = this.CreateEntity().AddComponent(new Transform({ scale: [0.25, 0.25, 0.25] }));
-
-            light.AddComponent(sphereRender)
+            const light = this.CreateEntity()
+                .AddComponent(new Transform({ scale: [0.25, 0.25, 0.25] }))
+                .AddComponent(sphereRender)
                 .AddComponent(simpleMaterial)
                 .AddComponent(sphereRotator);
-                // .GetComponent(Transform)!.Position.Y = 1;
 
-            if (i++ % 11 === 0)
+            if (i++ % 2 === 0)
             {
                 light.AddComponent(new PointLight(
                 {
                     colour: [Math.random(), Math.random(), Math.random()],
-                    intensity: 0.5,
+                    intensity: 0.15,
+                    castShadows: false,
                     radius: 15
                 }));
             }
@@ -211,9 +210,9 @@ export class PhysicsTest extends Scene
                 }));
 
         this.CreateEntity()
-            .AddComponent(new Transform({ rotation: [30, 0, 0] }))
-            .AddComponent(new DirectionalLight({ intensity: 0.15, bias: 0.02, pcfLevel: 3 }));
-
+            .AddComponent(new Transform({ rotation: [ 30, 0, 0 ] }))
+            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3, castShadows: true }));
+            
         super.Init();
     }
 

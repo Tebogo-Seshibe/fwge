@@ -9,6 +9,8 @@ export class DeferredRenderSystem extends System
     private readonly _directionalLights = Symbol();
     private readonly _areaLights = Symbol();
     private readonly _renderables = Symbol();
+    private readonly _shadowCasters = Symbol();
+    private readonly _shadowReceivers = Symbol();
     private readonly _renderableGroups = '_renderableGroups';
 
     _globalBufferData: Float32Array = new Float32Array(16 * 4);
@@ -26,53 +28,28 @@ export class DeferredRenderSystem extends System
 
     Init()
     {
-        // this._prepassShader = new Shader(prepassVert, prepassFrag);
         this._lightPassShader = new Shader(mainPassVert, mainPassFrag);
-        console.log(this._lightPassShader);
         Registry.registerView(this._areaLights, [Light], [ light => light instanceof AreaLight]);
         Registry.registerView(this._directionalLights, [Light], [ light => light instanceof DirectionalLight]);
         Registry.registerView(this._pointLights, [Light], [ light => light instanceof PointLight]);
         Registry.registerView(this._renderables, [Transform, Material, Renderer]);
         Registry.registerGroup(this._renderableGroups, [Material, Renderer, Transform]);
+        Registry.registerGroup(this._shadowCasters, [Material, Renderer, Transform], [
+            (mat) => mat.ProjectsShadows
+        ]);
+        Registry.registerGroup(this._shadowReceivers, [Material, Renderer, Transform], [
+            (mat) => mat.ReceiveShadows
+        ]);
 
         const entities = Registry.getView(this._renderables).length;
         this._mvBuffer = new Float32Array(entities * Matrix4.SIZE);
         this._nBuffer = new Float32Array(entities * Matrix3.SIZE);
-        this._createBatch();
     }
-
-    private _createBatch(): void
-    {
-        const map = new Map<number, Map<number, Set<number>>>();
-        let offset = 0;
-
-        for (const entityId of Registry.getView(this._renderables))
-        {
-            const material = Registry.getComponent(entityId, Material)!;
-            const renderer = Registry.getComponent(entityId, Renderer)!;
-            const transform = Registry.getComponent(entityId, Transform)!;
-
-            const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>();
-            const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>();
-
-            rendererMap.set(renderer.Id, new Set([...transformSet, transform.Id]));
-            map.set(material.Id, rendererMap);
-
-            const mv = new Matrix4(this._mvBuffer.buffer, Matrix4.BYTES_PER_ELEMENT * Matrix4.SIZE * offset).Identity();
-            const n = new Matrix3(this._nBuffer.buffer, Matrix3.BYTES_PER_ELEMENT * Matrix3.SIZE * offset).Identity();
-            offset++;
-
-            this._modelViewMatrices.set(transform.Id, mv);
-            this._normalMatrices.set(transform.Id, n);
-        }
-
-        this._batch = map;
-    }
-
+    
     Start() { }
     Stop() { }
 
-    Update(_: number)
+    Update()
     {
         GL.enable(GL.DEPTH_TEST);
         GL.enable(GL.CULL_FACE);
@@ -82,15 +59,15 @@ export class DeferredRenderSystem extends System
         for (const window of this.Scene.Windows)
         {
             window.MainPass.Output.Bind();
-            this.prepassRender2(window.Camera);
-            // this.shdaowpassRender();
+            this.prepassRender(window.Camera);
+            this.shadowpassRender();
         }
         
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
         GL.clearColor(0, 0, 0, 0);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-
+        
         this._lightPassShader.Bind();
         this.bindLights();
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
@@ -102,6 +79,7 @@ export class DeferredRenderSystem extends System
             this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1]);
             this._lightPassShader.SetTexture(`U_ColourSpecular`, window.FinalComposite.ColourAttachments[2]);
             this._lightPassShader.SetTexture(`U_Depth`, window.FinalComposite.DepthAttachment!);
+            this._lightPassShader.SetTexture(`U_Dir_Tex`, Registry.getComponent(Registry.getView(this._directionalLights).first!, DirectionalLight)!.RenderTarget.DepthAttachment!);
             this._lightPassShader.SetFloatVector('U_PanelOffset', window.Offset);
             this._lightPassShader.SetFloatVector('U_PanelScale', window.Scale);
 
@@ -112,6 +90,92 @@ export class DeferredRenderSystem extends System
         }
         this._lightPassShader.UnBind();
     }
+
+    shadowpassRender()
+    {
+        const light = Registry.getComponent(Registry.getView(this._directionalLights).first!, DirectionalLight)!;
+        light.BindForShadows();
+        
+        for (const [materialId, group] of Registry.getGroup<2>(this._renderableGroups))
+        {
+            const material = Registry.getComponentInstance(materialId, Material)!;
+            if (!material.ProjectsShadows) continue;
+
+            for (const [rendererId, transforms] of group)
+            {
+                const renderer = Registry.getComponentInstance(rendererId, Renderer)!;
+                const mesh = renderer.Asset!;
+                
+                let mode = -1;
+                let count = 0;
+                let buffer = null;
+
+                switch (renderer.RenderMode)
+                {
+                    case RenderMode.FACE:
+                        {
+                            mode = GL.TRIANGLES;
+                            count = mesh.FaceCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.FaceBuffer;
+                            }
+                        }
+                        break;
+
+                    case RenderMode.EDGE:
+                        {
+                            mode = GL.LINES;
+                            count = mesh.EdgeCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.EdgeBuffer;
+                            }
+                        }
+                        break;
+
+                    case RenderMode.POINT:
+                        {
+                            mode = GL.POINTS;
+                            count = mesh.PointCount;
+
+                            if (mesh.IsIndexed)
+                            {
+                                buffer = mesh.PointBuffer;
+                            }
+                        }
+                        break;
+                }
+
+                GL.bindVertexArray(mesh.VertexArrayBuffer);
+                for (const entityId of transforms)
+                {
+                    const transform = Registry.getComponent(entityId, Transform)!;
+                    const modelView = this._modelViewMatrices.get(transform.Id) ?? Matrix4.Identity;
+                    this._modelViewMatrices.set(transform.Id, modelView);
+                    
+                    transform.ModelViewMatrix(modelView);
+                    DirectionalLight.ShadowShader.SetMatrix('U_Matrix.ModelView', modelView, true)
+        
+                    if (buffer)
+                    {
+                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
+                    }
+                    else
+                    {
+                        GL.drawArrays(mode, 0, count);
+                    }
+                }
+                GL.bindVertexArray(null);
+            }
+        }
+        light.UnbindForShadows();
+    }
+
+    print = true;
 
     private bindLights()
     {
@@ -143,18 +207,36 @@ export class DeferredRenderSystem extends System
                 0,0,1
             ).Normalize()
 
-            shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
-            shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
+            // debugger;
+            // light.BindBlock(shader, `DirectionalLights.U_DirectionalLight`);
+            
+            const data = new Float32Array([
+                ...[light.Colour.R, light.Colour.G, light.Colour.B, light.Intensity],
+                ...[direction.X, direction.Y, direction.Z, light.CastShadows ? 1 : 0],
+                ...[1 / light.RenderTarget.Width,  ((light.PCFLevel * 2) + 1) ** 2, light.Bias, light.PCFLevel],
+                ...light.ShadowMatrix.Clone().Transpose()
+            ])
 
-            shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction);
-            shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
+            if (this.print)
+            {
+                console.log(data)
+                this.print = false;
+            }
+            // shader.SetBufferDataField('DirectionalLights', 'U_DirectionalLight', data);
+            shader.SetBufferDataBlock('DirectionalLights', data)
+            shader.PushBufferData('DirectionalLights')
+            // shader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
+            // shader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
-            shader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
-            shader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
-            shader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
+            // shader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction);
+            // shader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
-            shader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix);
+            // shader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
+            // shader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
+            // shader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
+            // shader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
+
+            // shader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix);
             d++;
         }
 
@@ -173,7 +255,7 @@ export class DeferredRenderSystem extends System
         }
     }
 
-    private prepassRender2(camera: Camera): void
+    private prepassRender(camera: Camera): void
     {
         const projection: Matrix4 = camera.ProjectionMatrix;
         const view: Matrix4 = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
@@ -273,227 +355,7 @@ export class DeferredRenderSystem extends System
             shader.UnBind();
         }
     }
-
-    private prepassRender(camera: Camera)
-    {
-        const projection: Matrix4 = camera.ProjectionMatrix;
-        const view: Matrix4 = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity;
-
-        const shaderIndexMap: Map<Shader, number> = new Map();
-
-        for (const entityId of Registry.getView(this._renderables))
-        {
-            const material = Registry.getComponent(entityId, BasicLitMaterial)!;
-            const renderer = Registry.getComponent(entityId, Renderer)!;
-            const transform = Registry.getComponent(entityId, Transform)!;
-            const mesh = renderer.Asset!;
-            const shader = material.Shader!;
-
-            const modelView = this._modelViewMatrices.get(transform.Id)!;
-            const normal = this._normalMatrices.get(transform.Id)!;
-
-            let mode = -1;
-            let count = 0;
-            let buffer = null;
-
-            switch (renderer.RenderMode)
-            {
-                case RenderMode.FACE:
-                    {
-                        mode = GL.TRIANGLES;
-                        count = mesh.FaceCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.FaceBuffer;
-                        }
-                    }
-                    break;
-
-                case RenderMode.EDGE:
-                    {
-                        mode = GL.LINES;
-                        count = mesh.EdgeCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.EdgeBuffer;
-                        }
-                    }
-                    break;
-
-                case RenderMode.POINT:
-                    {
-                        mode = GL.POINTS;
-                        count = mesh.PointCount;
-
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.PointBuffer;
-                        }
-                    }
-                    break;
-            }
-
-            if (!shaderIndexMap.has(shader))
-            {
-                shaderIndexMap.set(shader, 0);
-            }
-            const shaderIndex = shaderIndexMap.get(shader)!;
-
-            shader.Bind(shaderIndex);
-            shaderIndexMap.set(shader, shaderIndex + 1);
-            shader.SetBufferDataField('Camera', 'ViewMatrix', view, true);
-            shader.SetBufferDataField('Camera', 'ProjectionMatrix', projection, true);
-            shader.PushBufferData('Camera');
-
-            transform.ModelViewMatrix(modelView);
-            // Matrix3.Inverse(modelView.Matrix3.Transpose(), normal);
-                
-            shader.SetBufferDataField('Object', 'ModelViewMatrix', modelView, true);
-            shader.SetBufferDataField('Object', 'NormalMatrix', modelView.Matrix3, false);
-            shader.PushBufferData('Object');
-            material.BindBlock(shader);
-
-            GL.bindVertexArray(mesh.VertexArrayBuffer);
-            if (buffer)
-            {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-                GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0);
-            }
-            else
-            {
-                GL.drawArrays(mode, 0, count);
-            }
-            GL.bindVertexArray(null);
-            shader.UnBind();
-        }
-
-        if (this.print)
-        {
-            console.log(shaderIndexMap);
-            this.print = false;
-        }
-    }
-    print = true;
 }
-
-const prepassVert = `#version 300 es
-#pragma vscode_glsllint_stage: vert
-layout(location = 0) in vec3 A_Position;
-layout(location = 1) in vec3 A_Normal;
-layout(location = 2) in vec2 A_UV;
-layout(location = 3) in vec3 A_Colour;
-
-layout (std140) uniform;
-precision highp float;
-
-struct Vertex
-{
-    vec3 Position;
-    vec3 Normal;
-    vec2 UV;
-    vec3 Colour;
-};
-out Vertex V_Vertex;
-
-uniform Object
-{
-    mat4 ModelViewMatrix;
-    mat3 NormalMatrix;
-} object;
-
-uniform Camera
-{
-    mat4 ViewMatrix;
-    mat4 ProjectionMatrix;
-} camera;
-
-void main(void)
-{
-    vec4 position = object.ModelViewMatrix * vec4(A_Position, 1.0);
-
-    V_Vertex.Position = position.xyz;
-    V_Vertex.Normal = object.NormalMatrix * A_Normal;
-    V_Vertex.UV = A_UV;
-    V_Vertex.Colour = A_Colour;
-
-    gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * position;
-}
-`;
-
-const prepassFrag = `#version 300 es
-#pragma vscode_glsllint_stage: frag
-precision highp float;
-
-layout(location = 0) out vec3 O_Position;
-layout(location = 1) out vec3 O_Normal;
-layout(location = 2) out vec4 O_ColourSpecular;
-
-// Position         Position            Position
-// Normal           Normal              Normal
-// Diffuse          Diffuse             Diffuse             Specular
-// AmbientOcclusion AmbientOcclusion    AmbientOcclusion    RoughnessMetallic
-
-struct Vertex
-{
-    vec3 Position;
-    vec3 Normal;
-    vec2 UV;
-    vec3 Colour;
-};
-in Vertex V_Vertex;
-
-struct Material
-{
-    vec3 Colour;
-    float Shininess;
-    float Alpha;
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
-    bool HasImageMap;
-    bool HasBumpMap;
-    bool ReceiveShadows;
-};
-uniform Material U_Material;
-
-
-uniform BasicLitMaterial
-{
-    vec3 Colour;
-    float Shininess;
-    float Alpha;
-
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
-
-    bool HasImageMap;
-    bool HasBumpMap;
-    bool ReceiveShadows;
-} myMaterial;
-
-struct Sampler
-{
-    sampler2D Image;
-    sampler2D Bump;
-    sampler2D ShadowMap;
-    sampler2D DirectionalShadow;
-};
-uniform Sampler U_Sampler;
-
-void main(void)
-{
-    vec4 tex = texture(U_Sampler.Image, V_Vertex.UV);
-    vec3 albedo = myMaterial.Colour * tex.rgb * V_Vertex.Colour;
-    float alpha = myMaterial.Alpha * tex.a;
-
-    O_Position = V_Vertex.Position;
-    O_Normal = normalize(V_Vertex.Normal);
-    O_ColourSpecular = vec4(albedo, alpha);
-}
-`;
 
 const mainPassVert = `#version 300 es
 #pragma vscode_glsllint_stage: vert
@@ -523,6 +385,7 @@ uniform sampler2D U_Position;
 uniform sampler2D U_Normal;
 uniform sampler2D U_ColourSpecular;
 uniform sampler2D U_Depth;
+uniform sampler2D U_Dir_Tex;
 uniform sampler2D[4] U_Other;
 uniform mat4[4] U_OtherMatrix;
 
@@ -541,11 +404,6 @@ struct AreaLight
     float Intensity;
 };
 uniform AreaLight[1] U_AreaLight;
-
-// uniform MyAreaLight
-// {
-//     AreaLight[1] areaLights;
-// };
 
 vec3 CalcAreaLight(AreaLight light)
 {
@@ -567,7 +425,6 @@ struct DirectionalLight
 
     mat4 ShadowMatrix;
 };
-uniform DirectionalLight[1] U_DirectionalLight;
 
 float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D shadowSampler, mat4 shadowMatrix)
 {
@@ -609,7 +466,7 @@ vec3 CalcDirectionalLight(DirectionalLight light)
 {
     float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
-    float cascade = 0.0; //ShadowWeightDirectional(light, val, U_Other[0], light.ShadowMatrix); //U_OtherMatrix[0]);
+    float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, light.ShadowMatrix); //U_OtherMatrix[0]);
     float shadow = 1.0 - cascade;
 
     return light.Colour * diffuse * light.Intensity * shadow;
@@ -643,6 +500,11 @@ vec3 CalcPointLight(PointLight light)
     return (diffuse + specular) * light.Intensity;
     // return vec3(1.0);
 }
+
+uniform DirectionalLights {
+    DirectionalLight U_DirectionalLight[1];
+};
+
 
 void main(void)
 {

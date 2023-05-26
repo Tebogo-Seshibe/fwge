@@ -1,7 +1,7 @@
-import { Colour3, GL, Vector3, Vector3Array } from "@fwge/common"
-import { Shader } from "../../base"
-import { Image2D } from "../../base/image"
-import { IMaterial, Material } from "./Material"
+import { Colour3, GL, Vector3, Vector3Array } from "@fwge/common";
+import { Shader } from "../../base";
+import { Image2D } from "../../base/image";
+import { IMaterial, Material } from "./Material";
 
 export interface IBasicLitMaterial extends IMaterial
 {
@@ -24,6 +24,22 @@ export interface IBasicLitMaterial extends IMaterial
 
 export class BasicLitMaterial extends Material
 {
+    static ShaderContent = `
+    uniform BasicLitMaterial
+    {
+        vec3 Colour;
+        float Shininess;
+        float Alpha;
+    
+        vec3 Ambient;
+        vec3 Diffuse;
+        vec3 Specular;
+    
+        bool HasImageMap;
+        bool HasBumpMap;
+        bool ReceiveShadows;
+    } basicLitMaterial;`
+
     Shininess: number = 32
     HasTransparency: boolean = false
     readonly Ambient: Colour3 = new Colour3(0.30, 0.30, 0.30)
@@ -184,21 +200,32 @@ export class BasicLitMaterial extends Material
         }
     }
 
-
+    print = true
     BindBlock(): void
     BindBlock(shader: Shader): void
-    BindBlock(shader: Shader = this.Shader): void
+    BindBlock(shader: Shader, block: string, push: boolean): void
+    BindBlock(shader: Shader = this.Shader, block = 'BasicLitMaterial', push: boolean = true): void
     {
-        shader.SetBufferDataField('BasicLitMaterial', 'Colour', this.Colour);
-        shader.SetBufferDataField('BasicLitMaterial', 'Shininess', this.Shininess);
-        shader.SetBufferDataField('BasicLitMaterial', 'Alpha', this.Alpha);
-        shader.SetBufferDataField('BasicLitMaterial', 'Ambient', this.Ambient);
-        shader.SetBufferDataField('BasicLitMaterial', 'Diffuse', this.Diffuse);
-        shader.SetBufferDataField('BasicLitMaterial', 'Specular', this.Specular);
-        shader.SetBufferDataField('BasicLitMaterial', 'HasImageMap', this.ImageMap ? 1 : 0);
-        shader.SetBufferDataField('BasicLitMaterial', 'HasBumpMap', this.NormalMap ? 1 : 0);
-        shader.SetBufferDataField('BasicLitMaterial', 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
-        shader.PushBufferData('BasicLitMaterial');
+        if (this.print)
+        {
+            console.log(this)
+            console.log(shader)
+            this.print = false
+        }
+        shader.SetBufferDataField(block, 'Colour', this.Colour);
+        shader.SetBufferDataField(block, 'Shininess', this.Shininess);
+        shader.SetBufferDataField(block, 'Alpha', this.Alpha);
+        shader.SetBufferDataField(block, 'Ambient', this.Ambient);
+        shader.SetBufferDataField(block, 'Diffuse', this.Diffuse);
+        shader.SetBufferDataField(block, 'Specular', this.Specular);
+        shader.SetBufferDataField(block, 'HasImageMap', this.ImageMap ? 1 : 0);
+        shader.SetBufferDataField(block, 'HasBumpMap', this.NormalMap ? 1 : 0);
+        shader.SetBufferDataField(block, 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
+
+        if (push)
+        {
+            shader.PushBufferData(block);
+        }
         
         if (this.Textures[0])
         {

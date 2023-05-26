@@ -1,74 +1,67 @@
-import { Colour3, Colour3Array, FixedLengthArray, GL, IsBindable, Scalar, Vector3 } from "@fwge/common"
-import { Shader } from "../../base"
-import { UniqueComponent } from "../../ecs"
-import { DoTheThing } from "../material"
+import { Colour3, Colour3Array, FixedLengthArray, GL, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
+import { Shader } from "../../base";
+import { UniqueComponent } from "../../ecs";
 
 export interface ILight
 {
-    colour?: Colour3 | Vector3 | FixedLengthArray<number, 3>
-    intensity?: number
+    colour?: Colour3 | Vector3 | FixedLengthArray<number, 3>;
+    intensity?: number;
 }
 
 export class Light extends UniqueComponent implements IsBindable<Float32Array>
 {
-    static BlockIndex = new Map<string, any>()
-    static BindingPoint = new Map<string, number>()
+    static BlockIndex = new Map<string, any>();
+    static BindingPoint = new Map<string, number>();
 
-    readonly LightBuffer = GL.createBuffer()!
+    readonly LightBuffer = GL.createBuffer()!;
 
-    private _intensity: Scalar
-    readonly Colour: Colour3
-    
+    private _intensity: Scalar;
+    readonly _colour: Colour3;
+
     get Intensity(): number
     {
-        return this._intensity.Value
+        return this._intensity.Value;
     }
 
-    set Intensity(intensity: number)
+    set Intensity(intensity: number | Scalar)
     {
-        this._intensity.Value = intensity
+        if (typeof intensity === 'number')
+        {
+            this._intensity.Value = intensity;
+        }
+        else
+        {
+            this._intensity.Value = intensity.Value;
+        }
+    }
+
+    get Colour(): Colour3
+    {
+        return this._colour;
+    }
+
+    set Colour(colour: Colour3 | Vector3 | Vector3Array)
+    {
+        this._colour.Set(colour as Vector3Array);
     }
 
     constructor(
         colour: Colour3 | Vector3 | Colour3Array = [0.7, 0.7, 0.7],
         intensity: number = 1.0,
         readonly BufferData: Float32Array = new Float32Array(4)
-    ) {
-        super(Light)
+    )
+    {
+        super(Light);
 
-        this.Colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this._intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        this._colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0);
+        this._intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3);
 
-        this.Colour.Set(colour as Colour3Array)
-        this._intensity.Set(intensity)
+        this.Colour.Set(colour as Colour3Array);
+        this._intensity.Set(intensity);
     }
 
     Bind(shader: Shader, ..._args: any[]): void
     {
-        // const name = (this as Object).constructor.name + 'Buffer'
-        // let blockIndex = Light.BlockIndex.get(name)!
-        // let bindingPoint = Light.BindingPoint.get(name)!
-
-        // if (!Light.BlockIndex.has(name))
-        // {
-        //     bindingPoint = DoTheThing.next().value!
-        //     blockIndex = GL.getUniformBlockIndex(shader.Program!, name)!
-            
-        //     Light.BlockIndex.set(name, blockIndex)
-        //     Light.BindingPoint.set(name, bindingPoint)
-
-        //     if (blockIndex !== GL.INVALID_INDEX)
-        //     {
-        //         GL.uniformBlockBinding(shader.Program!, blockIndex, bindingPoint)
-        //         GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.LightBuffer)
-        //         GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
-        //     }
-        // }
-
-        // if (blockIndex !== GL.INVALID_INDEX)
-        // {
-        //     GL.bindBuffer(GL.UNIFORM_BUFFER, this.LightBuffer)
-        //     GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
-        // }
+        throw new Error('Please implement')
     }
 }

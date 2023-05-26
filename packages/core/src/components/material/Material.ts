@@ -1,13 +1,7 @@
-import { Shader } from "../../base/Shader"
-import { Colour3, GL, IsBindable, isPowerOf2, Scalar } from "@fwge/common"
-import { SharedComponent } from "../../ecs"
-import { ImageTexture } from "../../base"
-export function* TheThingDoer() {
-    let count = 0
-    while (true)
-        yield count++
-}
-export const DoTheThing = TheThingDoer()
+import { Colour3, GL, isPowerOf2, Scalar } from "@fwge/common";
+import { ImageTexture } from "../../base";
+import { Shader } from "../../base/Shader";
+import { SharedComponent } from "../../ecs";
 
 export enum BlendMode
 {
@@ -30,22 +24,19 @@ export interface IMaterial
     renderType?: RenderType
 }
 
-export class Material extends SharedComponent implements IsBindable<Float32Array>
+export class Material extends SharedComponent
 {
-    static BlockIndex = new Map<string, any>()
-    static BindingPoint = new Map<string, number>()
-
-    static Empty: WebGLTexture
-    ReceiveShadows: boolean = true
-    ProjectsShadows: boolean = true
-
+    static Empty: WebGLTexture;
+    
+    ReceiveShadows: boolean = true;
+    ProjectsShadows: boolean = true;
     Shader: Shader
-    RenderType: RenderType
-    private readonly _alpha: Scalar
+    RenderType: RenderType;
+
+    private readonly _alpha: Scalar;
+    private readonly _colour: Colour3;
     
     readonly MaterialBuffer = GL.createBuffer()!
-
-    readonly Colour: Colour3
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
     readonly ImageTextures: Array<ImageTexture | null> = new Array(8).fill(null)
 
@@ -59,6 +50,11 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
         this._alpha.Value = alpha
     }
 
+    get Colour()
+    {
+        return this._colour;
+    }
+
     constructor(
         shader: Shader,
         renderType?: RenderType,
@@ -68,11 +64,8 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
-        this.Colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this._alpha = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
-        
-        this.Colour.Set(0.3, 0.3, 0.3)
-        this._alpha.Set(1.0)
+        this._colour = new Colour3(0.3, 0.3, 0.3)
+        this._alpha = new Scalar(1.0)
 
         if (!Material.Empty)
         {
@@ -120,54 +113,23 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
         img.src = src
     }
 
-    Bind(): void
-    Bind(shader: Shader): void
-    Bind(_0?: Shader): void
-    {
-        if (this.RenderType === RenderType.OPAQUE)
-        {
-            GL.disable(GL.BLEND)
-            GL.enable(GL.DEPTH_TEST)
-            GL.enable(GL.CULL_FACE)
-            GL.cullFace(GL.FRONT)
-            GL.depthFunc(GL.LESS)
-            GL.depthMask(true)
-        }
-        else
-        {
-            GL.enable(GL.BLEND)
-            GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-        }
-
-        // this.bindBufferData(shader.Program!)
-    }
-
-    // private bindBufferData(shaderProgram: WebGLProgram)
+    // Bind(): void
+    // Bind(shader: Shader): void
+    // Bind(_0?: Shader): void
     // {
-    //     const name = (this as Object).constructor.name + 'Buffer'
-    //     let blockIndex = Material.BlockIndex.get(name)!
-    //     let bindingPoint = Material.BindingPoint.get(name)!
-
-    //     if (!Material.BlockIndex.has(name))
+    //     if (this.RenderType === RenderType.OPAQUE)
     //     {
-    //         bindingPoint = DoTheThing.next().value!
-    //         blockIndex = GL.getUniformBlockIndex(shaderProgram, name)!
-
-    //         Material.BlockIndex.set(name, blockIndex)
-    //         Material.BindingPoint.set(name, bindingPoint)
-
-    //         if (blockIndex !== GL.INVALID_INDEX)
-    //         {
-    //             GL.uniformBlockBinding(shaderProgram, blockIndex, bindingPoint)
-    //             GL.bindBufferBase(GL.UNIFORM_BUFFER, bindingPoint, this.MaterialBuffer)
-    //             GL.bufferData(GL.UNIFORM_BUFFER, this.BufferData, GL.DYNAMIC_DRAW)
-    //         }
+    //         GL.disable(GL.BLEND)
+    //         GL.enable(GL.DEPTH_TEST)
+    //         GL.enable(GL.CULL_FACE)
+    //         GL.cullFace(GL.FRONT)
+    //         GL.depthFunc(GL.LESS)
+    //         GL.depthMask(true)
     //     }
-
-    //     if (blockIndex !== GL.INVALID_INDEX)
+    //     else
     //     {
-    //         GL.bindBuffer(GL.UNIFORM_BUFFER, this.MaterialBuffer)
-    //         GL.bufferSubData(GL.UNIFORM_BUFFER, 0, this.BufferData)
+    //         GL.enable(GL.BLEND)
+    //         GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
     //     }
     // }
 

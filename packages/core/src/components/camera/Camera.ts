@@ -37,6 +37,7 @@ export class Camera extends UniqueComponent
 
         return new CubeGeometry(min, max);
     }
+
     UpdateProjection(): void {}
     
     constructor()
