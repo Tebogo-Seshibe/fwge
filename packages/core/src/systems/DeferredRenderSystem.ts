@@ -73,7 +73,7 @@ export class DeferredRenderSystem extends System
         for (let i = this.Scene.Windows.length - 1; i >= 0; --i)
         {
             const window = this.Scene.Windows[i];
-            // this._lightPassShader.Reset();
+            this._lightPassShader.Reset();
             
             this._lightPassShader.SetTexture(`U_Position`, window.FinalComposite.ColourAttachments[0]);
             this._lightPassShader.SetTexture(`U_Normal`, window.FinalComposite.ColourAttachments[1]);
@@ -214,7 +214,7 @@ export class DeferredRenderSystem extends System
                 ...[light.Colour.R, light.Colour.G, light.Colour.B, light.Intensity],
                 ...[direction.X, direction.Y, direction.Z, light.CastShadows ? 1 : 0],
                 ...[1 / light.RenderTarget.Width,  ((light.PCFLevel * 2) + 1) ** 2, light.Bias, light.PCFLevel],
-                ...light.ShadowMatrix.Clone().Transpose()
+                ...light.ShadowMatrix
             ])
 
             if (this.print)
@@ -534,5 +534,6 @@ void main(void)
     }
 
     O_FragColour = vec4(lighting * fragment.Diffuse, 1.0);
+    // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).rrrr);
 }
 `;

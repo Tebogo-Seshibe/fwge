@@ -5,6 +5,10 @@ import { CubeCollider } from "@fwge/physics";
 import { FPSController } from "../entities";
 import { FullScreen } from "../entities/FullScreen";
 import { Platform } from "../entities/Platform";
+import helipad_obj from '/public/objects/helipad/helipad.obj?raw';
+import helipad_mtl from '/public/objects/helipad/helipad.mtl?raw';
+import { MTLLoader, OBJLoader, OBJMTLPrefabBuilder } from "@fwge/io";
+import { SponzaOBJ } from "../prefabs";
 
 export class MyWindow extends RenderWindow
 {
@@ -194,7 +198,7 @@ export class PhysicsTest extends Scene
                     colour: [Math.random(), Math.random(), Math.random()],
                     intensity: 0.15,
                     castShadows: false,
-                    radius: 15
+                    radius: 5
                 }));
             }
 
@@ -211,8 +215,10 @@ export class PhysicsTest extends Scene
 
         this.CreateEntity()
             .AddComponent(new Transform({ rotation: [ 30, 0, 0 ] }))
-            .AddComponent(new DirectionalLight({ intensity: 0.5, bias: 0.02, pcfLevel: 3, castShadows: true }));
+            .AddComponent(new DirectionalLight({ intensity: 0.15, bias: 0.02, pcfLevel: 3, castShadows: true }));
             
+        // OBJMTLPrefabBuilder(OBJLoader(helipad_obj), MTLLoader(helipad_mtl, this.Game.GetAsset('Basic Shader 2', Shader)!))
+        SponzaOBJ(this.Game).Instance(this)
         super.Init();
     }
 

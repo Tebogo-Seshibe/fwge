@@ -1,4 +1,4 @@
-import { BasicLitMaterial, Camera, Game, Image2D, Light, Material, RenderType, Renderer, Script, Transform } from '@fwge/core';
+import { BasicLitMaterial, Camera, Game, Image2D, Light, Material, RenderType, Renderer, Script, Tag, Transform } from '@fwge/core';
 import { basicShader, basicShader2, createBasicShader, createDefaultShader, createSimpleShader } from './assets/Shaders';
 import { createCube, mtlCube, objBase, objCube, objSphere } from './components';
 import { basicAnimation } from './components/Animations';
@@ -31,6 +31,7 @@ export class CSGO extends Game
                 width: CurrentResolution.Width,
                 startupScene: PhysicsTest,
                 componentsTypes: [
+                    Tag,
                     Input,
                     Transform,
                     Material,
