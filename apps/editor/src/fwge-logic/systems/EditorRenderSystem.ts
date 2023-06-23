@@ -1,9 +1,7 @@
-import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { Shader } from "../base";
-import { AreaLight, Camera, DirectionalLight, Light, Material, PointLight, Renderer, RenderMode, Transform } from "../components";
-import { getComponent, getComponentById, System, view } from "../ecs";
+import { Matrix4, Matrix3, GL, Vector3 } from "@fwge/common";
+import { System, Shader, view, Light, PointLight, DirectionalLight, AreaLight, Transform, Material, Renderer, getComponent, getComponentById, RenderMode, type Camera } from "@fwge/core";
 
-export class DeferredRenderSystem extends System
+export class EditorRenderSystem extends System
 {
     static BlockIndex = new Map<string, any>();
     static BindingPoint = new Map<string, number>();
@@ -91,7 +89,7 @@ export class DeferredRenderSystem extends System
 
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-        GL.clearColor(1, 0, 0, 0);
+        GL.clearColor(0, 0, 0, 1);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
         const dir = view([Light], DirectionalLight.name).map(id => getComponent(id, Light)).first as DirectionalLight;

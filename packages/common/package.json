@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "link": "npm link",
+    "link": "npx link -- symlink",
     "test": "jest --coverage"
   },
   "devDependencies": {

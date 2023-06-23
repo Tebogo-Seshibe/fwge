@@ -1,9 +1,9 @@
-import { GL } from "@fwge/common"
-import { getComponent, Scene, System, view } from "@fwge/core"
-import { ControllerInputHandler } from "../base/controller/ControllerInputHandler"
-import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler"
-import { MouseInputHandler } from "../base/mouse/MouseInputHandler"
-import { Input } from "../components"
+import { GL } from "@fwge/common";
+import { getComponent, System, view } from "@fwge/core";
+import { ControllerInputHandler } from "../base/controller/ControllerInputHandler";
+import { KeyboardInputHandler } from "../base/keyboard/KeyboardInputHandler";
+import { MouseInputHandler } from "../base/mouse/MouseInputHandler";
+import { Input } from "../components";
 
 export class InputSystem extends System
 {
