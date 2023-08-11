@@ -17,25 +17,23 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
+        "lint": "eslint ./packages/**/* --fix",
+        "init": "node scripts/init",
         "test": "lerna run test",
         "build": "lerna run build",
         "link": "npx link",
-        "add": "npm i",
-        "build:watch": "lerna watch -- lerna run build --scope=@fwge/*",
-        "link:watch": "lerna watch -- lerna run link --scope=@fwge/*",
         "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",
     "keywords": [
         "fwge",
-        "gamedev",
         "webgl",
+        "webgl2",
+        "gamedev",
         "typescript",
-        "pwa",
         "html5",
         "game-engine",
         "game-development",
-        "webgl2",
         "3d"
     ],
     "workspaces": [
@@ -50,6 +48,8 @@
         "packages/io"
     ],
     "devDependencies": {
-        "lerna": "^6.4.1"
+        "@typescript-eslint/eslint-plugin": "^5.60.1",
+        "@typescript-eslint/parser": "^5.60.1",
+        "eslint": "^8.44.0"
     }
 }
