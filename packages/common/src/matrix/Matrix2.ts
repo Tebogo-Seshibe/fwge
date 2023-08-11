@@ -93,33 +93,45 @@ export class Matrix2 extends Float32Array implements IsEquatable<Matrix2>
     constructor(matrix: Matrix3);
     constructor(matrix: Matrix4);
     constructor(array: Matrix2Array);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | Matrix2Array | number = 0, _1?: number, _2?: number, _3?: number)
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | Matrix4 | Matrix3 | Matrix2 | Matrix2Array | number = 0, _1: number= 0, _2?: number, _3?: number)
     {
-        if (_0 instanceof ArrayBuffer)
-        {
-            super(_0, _1 ?? 0, Matrix2.SIZE);
-        }
-        else if (_0 instanceof Matrix4 || _0 instanceof Matrix3 || _0 instanceof Matrix2)
+        if (typeof _2 === 'number')
         {
             super(
-                [
-                    _0.M11, _0.M12,
-                    _0.M21, _0.M22
-                ]);
+            [
+                _0 as number, _1 as number,
+                _2 as number, _3 as number
+            ]);
         }
         else if (typeof _0 === 'number')
         {
             super(
-                [
-                    _0, _1 ?? 0,
-                    _2 ?? 0, _3 ?? _0
-                ]);
+            [
+                _0,  0,
+                 0, _0
+            ]);
+        }
+        else if (_0 instanceof Matrix4 || _0 instanceof Matrix3 || _0 instanceof Matrix2)
+        {
+            super(
+            [
+                _0.M11, _0.M12,
+                _0.M21, _0.M22
+            ]);
+        }
+        else if (_0 instanceof Array)
+        {
+            super(
+            [
+                _0[0], _0[1],
+                _0[2], _0[3]
+            ]);
         }
         else
         {
-            super(_0);
+            super(_0, _1, Matrix2.SIZE);
         }
     }
 
@@ -463,8 +475,8 @@ export class Matrix2 extends Float32Array implements IsEquatable<Matrix2>
     static RotationMatrix(degrees: number, out: Matrix2): Matrix2;
     static RotationMatrix(_0: number, _1?: Matrix2): Matrix2
     {
-        const out = _1 ?? new Matrix2();
-
+        const out = _1 || new Matrix2();
+        
         const theta = radian(_0);
         const cosTheta = Math.cos(theta);
         const sinTheta = Math.sin(theta);

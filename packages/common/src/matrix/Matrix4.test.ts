@@ -7,6 +7,7 @@ import { Vector3, Vector3Array, Vector4, Vector4Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
 import { Matrix3 } from "./Matrix3";
 import { Matrix4, Matrix4Array } from "./Matrix4";
+import { describe, it, expect } from 'vitest';
 
 describe('Matrix4', () =>
 {

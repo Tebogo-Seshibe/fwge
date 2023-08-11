@@ -3,6 +3,7 @@
  */
 import { Colour3, Colour3Array } from './Colour3';
 import { Colour4 } from './Colour4';
+import { describe, it, expect } from 'vitest';
 
 describe('Colour3', () =>
 {

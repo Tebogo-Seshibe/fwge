@@ -68,8 +68,8 @@ export class Material extends SharedComponent implements IsBindable<Float32Array
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
-        this.Colour = new Colour3()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this.#alpha = new Scalar()//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        this.Colour = new Colour3(1,1,1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
+        this.#alpha = new Scalar(1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
         
         this.Colour.Set(0.3, 0.3, 0.3)
         this.#alpha.Set(1.0)

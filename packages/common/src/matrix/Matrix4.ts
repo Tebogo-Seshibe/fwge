@@ -1,5 +1,5 @@
 import { FixedLengthArray } from "../types";
-import { clean, cot, radian } from "../utils";
+import { clean, cot, instanceOf, radian } from "../utils";
 import { IsEquatable } from "../utils/interfaces/IsEquatable";
 import { Vector2, Vector2Array, Vector3, Vector3Array, Vector4, Vector4Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
@@ -275,23 +275,39 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     constructor(matrix: Matrix3);
     constructor(matrix: Matrix4);
     constructor(array: Matrix4Array);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | number[] | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number)
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | Matrix4 | Matrix3 | Matrix2 | number[] | number = 0, _1: number = 0, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number)
     {
-        if (_0 instanceof ArrayBuffer)
+        if (typeof _2 === 'number')
         {
-            super(_0, _1 ?? 0, Matrix4.SIZE);
+            super(
+            [
+                 _0 as number,  _1 as number,  _2 as number,  _3 as number,
+                 _4 as number,  _5 as number,  _6 as number,  _7 as number, 
+                 _8 as number,  _9 as number, _10 as number, _11 as number,
+                _12 as number, _13 as number, _14 as number, _15 as number, 
+            ]);
+        }
+        else if (typeof _0 === 'number')
+        {
+            super(
+            [
+                _0,  0,  0,  0,
+                 0, _0,  0,  0,
+                 0,  0, _0,  0,
+                 0,  0,  0, _0,
+            ]);
         }
         else if (_0 instanceof Matrix3)
         {
             super(
-                [
-                    _0.M11, _0.M12, _0.M13, 0,
-                    _0.M21, _0.M22, _0.M23, 0,
-                    _0.M31, _0.M32, _0.M33, 0,
-                    0, 0, 0, 1
-                ]);
+            [
+                _0.M11, _0.M12, _0.M13, 0,
+                _0.M21, _0.M22, _0.M23, 0,
+                _0.M31, _0.M32, _0.M33, 0,
+                0, 0, 0, 1
+            ]);
         }
         else if (_0 instanceof Matrix2)
         {
@@ -303,19 +319,19 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
                     0, 0, 0, 1,
                 ]);
         }
-        else if (typeof _0 === 'number')
+        else if (_0 instanceof Matrix4 || _0 instanceof Array)
         {
             super(
-                [
-                    _0, _1 ?? 0, _2 ?? 0, _3 ?? 0,
-                    _4 ?? 0, _5 ?? _0, _6 ?? 0, _7 ?? 0,
-                    _8 ?? 0, _9 ?? 0, _10 ?? _0, _11 ?? 0,
-                    _12 ?? 0, _13 ?? 0, _14 ?? 0, _15 ?? _0
-                ]);
+            [
+                _0[0],  _0[1],  _0[2],  _0[3],
+                _0[4],  _0[5],  _0[6],  _0[7],
+                _0[8],  _0[9], _0[10], _0[11],
+               _0[12], _0[13], _0[14], _0[15],
+            ]);
         }
         else
         {
-            super(_0);
+            super(_0, _1, Matrix4.SIZE);
         }
     }
 
@@ -838,7 +854,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 || (_2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -924,7 +940,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 || (_2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -1010,7 +1026,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         _32?: Matrix4
     ): Matrix4
     {
-        const out = _32 ? _32 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _32 || (_2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -1061,7 +1077,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static Scale(matrix: Matrix4, scalar: number, out: Matrix4): Matrix4;
     static Scale(_0: Matrix4, _1: number, _2?: Matrix4): Matrix4
     {
-        const out = _2 ? _2 : new Matrix4();
+        const out = _2 || new Matrix4();
 
         out[0] = _0[0] * _1;
         out[1] = _0[1] * _1;
@@ -1087,7 +1103,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static Transpose(matrix: Matrix4, out: Matrix4): Matrix4;
     static Transpose(_0: Matrix4, _1?: Matrix4): Matrix4
     {
-        const out = _1 ? _1 : new Matrix4();
+        const out = _1 || new Matrix4();
 
         return out.Set(
             _0[0], _0[4], _0[8], _0[12],
@@ -1101,7 +1117,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static Inverse(matrix: Matrix4, out: Matrix4): Matrix4;
     static Inverse(_0: Matrix4, _1?: Matrix4): Matrix4
     {
-        const out = _1 ? _1 : new Matrix4();
+        const out = _1 || new Matrix4();
         const det = _0.Determinant;
 
         if (det !== 0)
@@ -1267,7 +1283,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static MultiplyVector(matrix: Matrix4, array: Vector4Array, out: Vector4): Vector4;
     static MultiplyVector(_0: Matrix4, _1: Vector4 | Vector4Array | number, _2?: Vector4 | number, _3?: number, _4?: number, _5?: Vector4): Vector4
     {
-        const out = _5 ? _5 : _2 instanceof Vector4 ? _2 as Vector4 : new Vector4();
+        const out = _5 || (_2 instanceof Vector4 ? _2 as Vector4 : new Vector4());
 
         if (typeof _1 === 'number')
         {
@@ -1297,7 +1313,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix4): Matrix4;
     static RotationMatrixAroundAxis(_0: Vector3 | Vector3Array | number, _1: number, _2?: Matrix4 | number, _3?: number, _4?: Matrix4): Matrix4
     {
-        const out = _4 ? _4 : _2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4();
+        const out = _4 || (_2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4());
         const axis = typeof _0 === 'number'
             ? [_0, _1 as number, _2 as number] as Vector3Array
             : _0;
@@ -1336,7 +1352,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static TranslationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static TranslationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
         const translation = typeof _0 === 'number'
             ? [_0, _1 as number, _2 as number] as Vector3Array
             : _0;
@@ -1369,7 +1385,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static RotationMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static RotationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
         const rotation = typeof _0 === 'number'
             ? [_0, _1 as number ?? _0, _2 as number ?? _0] as Vector3Array
             : _0;
@@ -1416,7 +1432,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static ScaleMatrix(xyz: Vector3Array, out: Matrix4): Matrix4;
     static ScaleMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix4 | number, _2?: number, _3?: Matrix4): Matrix4
     {
-        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
         const scale = typeof _0 === 'number'
             ? [_0, _1 as number ?? _0, _2 as number ?? _0] as Vector3Array
             : _0;
@@ -1435,7 +1451,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static TransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array, out: Matrix4): Matrix4;
     static TransformationMatrix(_0: Vector3 | Vector3Array, _1: Vector3 | Vector3Array, _2: Vector3 | Vector3Array, _3?: Matrix4): Matrix4
     {
-        const out = _3 ? _3 : _1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4();
+        const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
 
         return Matrix4.TranslationMatrix(_0 as Vector3Array, out)
             .Multiply(Matrix4.RotationMatrix(_1 as Vector3Array))
@@ -1450,7 +1466,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static OrthographicProjection(min: Vector3Array, max: Vector3Array, tilt: Vector2Array, out: Matrix4): Matrix4;
     static OrthographicProjection(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector2 | Vector2Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: Matrix4): Matrix4
     {
-        const out = _8 ? _8 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4();
+        const out = _8 || (_3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4());
         let theta: number;
         let phi: number;
         let left: number;
@@ -1462,8 +1478,8 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
 
         if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
         {
-            theta = cot(radian(_6 ?? 0));
-            phi = cot(radian(_7 ?? 0));
+            theta = cot(radian(0));
+            phi = cot(radian(0));
 
             left = _0 as number;
             bottom = _1 as number;
@@ -1520,7 +1536,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4;
     static PerspectiveProjectionMatrix(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4
     {
-        const out = _4 ? _4 : new Matrix4();
+        const out = _4 || new Matrix4();
         const near = _0;
         const far = _1;
         const top = near * Math.tan(radian(_2 * 0.5));
@@ -1556,7 +1572,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     static LookAtMatrix(eyeX: number, eyeY: number, eyeZ: number, targetX: number, targetY: number, targetZ: number, upX: number, upY: number, upZ: number, out: Matrix4): Matrix4;
     static LookAtMatrix(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2: Vector3 | Vector3Array | number, _3?: Matrix4 | number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: Matrix4): Matrix4
     {
-        const out = _9 ? _9 : _3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4();
+        const out = _9 || (_3 instanceof Matrix4 ? _3 as Matrix4 : new Matrix4());
         const eye = new Vector3();
         const target = new Vector3();
         const up = new Vector3();

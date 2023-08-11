@@ -1,5 +1,6 @@
 import { FixedLengthArray, NumberArray } from "../types";
 import { IsEquatable } from "../utils/interfaces/IsEquatable";
+import { Vector2 } from "./Vector2";
 import { Vector3 } from "./Vector3";
 
 export type Vector4Array = FixedLengthArray<number, 4>;
@@ -65,32 +66,29 @@ export class Vector4 extends Float32Array implements IsEquatable<Vector4>
 
     constructor();
     constructor(x: number, y: number, z: number, w: number);
-    constructor(vector: Vector4);
+    constructor(xy: Vector2, z: number, w: number);
     constructor(xyz: Vector3, w: number);
-    constructor(array: NumberArray);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0?: ArrayBuffer | Vector4 | Vector3 | NumberArray | number, _1?: number, _2?: number, _3?: number)
+    constructor(vector: Vector4);
+    constructor(array: Vector4Array);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | Vector4 | Vector3 | Vector2 | Vector4Array | number = 0, _1: number  = 0, _2: number = 0, _3: number = 0)
     {
-        if (_0 instanceof ArrayBuffer)
+        if (typeof _0 === 'number')
         {
-            super(_0, _1 ?? 0, Vector4.SIZE);
+            super([_0 as number, _1 as number, _2 as number, _3 as number]);
         }
-        else if (_0 instanceof Vector3)
+        else if (_0 instanceof Vector2 && typeof _1 === 'number')
         {
-            super([..._0, _1 as number]);
+            super([_0[0], _0[1], _1, _2]);
         }
-        else if (typeof _0 === 'number')
+        else if (_0 instanceof Vector3 || _0 instanceof Vector4 || _0 instanceof Array)
         {
-            super([_0, _1 as number, _2 as number, _3 as number]);
-        }
-        else if (_0 !== undefined)
-        {
-            super(_0);
+            super([_0[0], _0[1], _0[2]]);
         }
         else
         {
-            super(Vector4.SIZE);
+            super(_0, _1 as number, Vector4.SIZE);
         }
     }
 
@@ -152,7 +150,6 @@ export class Vector4 extends Float32Array implements IsEquatable<Vector4>
         return this;
     }
 
-    Subtract(xyzw: number): Vector4;
     Subtract(x: number, y: number, z: number, w: number): Vector4;
     Subtract(vector: Vector4): Vector4;
     Subtract(array: NumberArray): Vector4;
@@ -246,6 +243,62 @@ export class Vector4 extends Float32Array implements IsEquatable<Vector4>
         {
             return this[0] * _0[0] + this[1] * _0[1] + this[2] * _0[2] + this[3] * _0[3];
         }
+    }
+
+    Distance(x: number, y: number, z: number): number;
+    Distance(vector: Vector4): number;
+    Distance(array: Vector4Array): number;
+    Distance(_0: Vector4 | Vector4Array | number, _1?: number, _2?: number, _3?: number): number
+    {
+        let x: number;
+        let y: number;
+        let z: number;
+        let w: number;
+
+        if (typeof _0 === 'number')
+        {
+            x = this[0] - _0;
+            y = this[1] - (_1 as number);
+            z = this[2] - (_2 as number);
+            w = this[3] - (_3 as number);
+        }
+        else
+        {
+            x = this[0] - _0[0];
+            y = this[1] - _0[1];
+            z = this[2] - _0[2];
+            w = this[3] - _0[3];
+        }
+
+        return Math.sqrt(x * x + y * y + z * z + w * w);
+    }
+
+    DistanceSquared(x: number, y: number, z: number): number;
+    DistanceSquared(vector: Vector4): number;
+    DistanceSquared(array: Vector4Array): number;
+    DistanceSquared(_0: Vector4 | Vector4Array | number, _1?: number, _2?: number, _3?: number): number
+    {
+        let x: number;
+        let y: number;
+        let z: number;
+        let w: number;
+
+        if (typeof _0 === 'number')
+        {
+            x = this[0] - _0;
+            y = this[1] - (_1 as number);
+            z = this[2] - (_2 as number);
+            w = this[3] - (_3 as number);
+        }
+        else
+        {
+            x = this[0] - _0[0];
+            y = this[1] - _0[1];
+            z = this[2] - _0[2];
+            w = this[3] - _0[3];
+        }
+
+        return x * x + y * y + z * z + w * w;
     }
 
     Normalize(): Vector4

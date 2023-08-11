@@ -6,6 +6,7 @@ import { radian } from "../utils";
 import { Vector3, Vector3Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
 import { Matrix3, Matrix3Array } from "./Matrix3";
+import { describe, it, expect } from 'vitest';
 
 describe('Matrix3', () =>
 {

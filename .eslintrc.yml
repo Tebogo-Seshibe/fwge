@@ -4,22 +4,22 @@ env:
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
-parser: '@typescript-eslint/parser'
+parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: latest
   sourceType: module
 plugins:
-  - '@typescript-eslint'
+  - "@typescript-eslint"
 ignorePatterns:
-  - 'apps'
-  - 'node_modules'
-  - '.github'
-  - 'scripts'
-  - 'packages/**/lib'
-  - 'packages/**/*.js'
-  - 'packages/**/*.json'
-  - 'packages/**/*.tsbuildinfo'
-
+  - "apps"
+  - "node_modules"
+  - ".github"
+  - "scripts"
+  - "packages/**/lib"
+  - "packages/**/*.js"
+  - "packages/**/*.json"
+  - "packages/**/*.tsbuildinfo"
+  - "packages"
 rules:
   indent:
     - error
