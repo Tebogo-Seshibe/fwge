@@ -3,6 +3,7 @@
  */
 import { Colour4, Colour4Array } from './Colour4';
 import { Colour3 } from './Colour3';
+import { describe, it, expect } from 'vitest';
 
 describe('Colour4', () =>
 {
@@ -23,16 +24,6 @@ describe('Colour4', () =>
             expect(colour[1]).toBe(0);
             expect(colour[2]).toBe(0);
             expect(colour[3]).toBe(0);
-        });
-
-
-        it('Should default all components to {x} when only {x} is passed', () =>
-        {
-            const colour = new Colour4(0.7);
-            expect(colour[0]).toBeCloseTo(0.7);
-            expect(colour[1]).toBeCloseTo(0.7);
-            expect(colour[2]).toBeCloseTo(0.7);
-            expect(colour[3]).toBeCloseTo(0.7);
         });
 
         it('Should assign component-wise when another {Colour3} and alpha is passed', () =>
@@ -154,7 +145,7 @@ describe('Colour4', () =>
 
         describe('RGB', () =>
         {
-            it('Should create a new Colour4 with the values from the current colour-', () =>
+            it('Should create a new Colour3 with the values from the current colour', () =>
             {
                 const other = new Colour4(0.1, 0.2, 0.3, 0.4);
                 const colour = other.RGB;

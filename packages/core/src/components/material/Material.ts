@@ -64,8 +64,11 @@ export class Material extends SharedComponent
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
-        this._colour = new Colour3(0.3, 0.3, 0.3)
-        this._alpha = new Scalar(1.0)
+        this.Colour = new Colour3(1,1,1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
+        this.#alpha = new Scalar(1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        
+        this.Colour.Set(0.3, 0.3, 0.3)
+        this.#alpha.Set(1.0)
 
         if (!Material.Empty)
         {

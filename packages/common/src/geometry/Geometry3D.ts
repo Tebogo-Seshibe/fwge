@@ -3,7 +3,7 @@ import { Vector3, Vector4 } from "../vector";
 import { Geometry } from "./Geometry";
 
 export class Geometry3D extends Geometry<Vector3, Matrix4>
-{    
+{
     TransformedVertices(transformationMatrix: Matrix4): Vector3[]
     TransformedVertices(transformationMatrix: Matrix4, out: Vector3[]): Vector3[]
     TransformedVertices(transformationMatrix: Matrix4, out?: Vector3[]): Vector3[]

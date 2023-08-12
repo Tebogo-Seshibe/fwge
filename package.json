@@ -17,32 +17,23 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "print-2": "node scripts/print",
-        "build-2": "node scripts/build",
-        "init-2": "node scripts/init",
-        "clean-2": "node scripts/clean",
-        "link-2": "node scripts/link",
+        "lint": "eslint ./packages/**/* --fix",
+        "init": "node scripts/init",
         "test": "lerna run test",
         "build": "lerna run build",
         "link": "npx link",
-        "add": "npm i",
-        "editor:svelte": "cd apps/editor && npm run dev",
-        "editor:tauri": "cd apps/editor && npm run tauri dev",
-        "build:watch": "lerna watch -- lerna run build --scope=@fwge/*",
-        "link:watch": "lerna watch -- lerna run link --scope=@fwge/*",
         "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
     },
     "license": "MIT",
     "keywords": [
         "fwge",
-        "gamedev",
         "webgl",
+        "webgl2",
+        "gamedev",
         "typescript",
-        "pwa",
         "html5",
         "game-engine",
         "game-development",
-        "webgl2",
         "3d"
     ],
     "workspaces": [
@@ -57,10 +48,9 @@
         "packages/io"
     ],
     "devDependencies": {
-        "lerna": "^6.4.1"
-    },
-    "dependencies": {
-        "@tauri-apps/api": "^1.3.0",
-        "@tauri-apps/cli": "^1.3.1"
+        "@tauri-apps/cli": "^1.4.0",
+        "@typescript-eslint/eslint-plugin": "^5.60.1",
+        "@typescript-eslint/parser": "^5.60.1",
+        "eslint": "^8.44.0"
     }
 }

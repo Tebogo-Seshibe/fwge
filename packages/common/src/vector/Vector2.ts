@@ -2,6 +2,8 @@ import { root_2 } from "../constants";
 import { FixedLengthArray, NumberArray } from "../types";
 import { radian } from "../utils";
 import { IsEquatable } from "../utils/interfaces/IsEquatable";
+import { Vector3 } from "./Vector3";
+import { Vector4 } from "./Vector4";
 
 export type Vector2Array = FixedLengthArray<number, 2>;
 
@@ -47,26 +49,24 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     constructor();
     constructor(x: number, y: number);
     constructor(vector: Vector2);
+    constructor(vector: Vector3);
+    constructor(vector: Vector4);
     constructor(array: Vector2Array);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Vector2 | Vector2Array | number = 0, _1?: number)
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | Vector2 | Vector3 | Vector4 | Vector2Array | number = 0, _1: number = 0)
     {
-        if (_0 instanceof ArrayBuffer)
+        if (typeof _0 === 'number')
         {
-            super(_0, _1 ?? 0, Vector2.SIZE);
+            super([_0, _1]);
         }
-        else if (typeof _0 === 'number')
+        else if (_0 instanceof Vector2 || _0 instanceof Vector3 || _0 instanceof Vector4 || _0 instanceof Array)
         {
-            super([_0, _1 ?? _0]);
-        }
-        else if (_0 !== undefined)
-        {
-            super(_0);
+            super([_0[0], _0[1]]);
         }
         else
         {
-            super(Vector2.SIZE)
+            super(_0, _1, Vector2.SIZE);
         }
     }
 
@@ -209,28 +209,6 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
         );
     }
 
-    DistanceSquared(x: number, y: number): number;
-    DistanceSquared(vector: Vector2): number;
-    DistanceSquared(array: NumberArray): number;
-    DistanceSquared(_0: Vector2 | NumberArray | number, _1?: number): number
-    {
-        let x: number;
-        let y: number;
-
-        if (typeof _0 === 'number')
-        {
-            x = this[0] - _0;
-            y = this[1] - (_1 as number);
-        }
-        else
-        {
-            x = this[0] - _0[0];
-            y = this[1] - _0[1];
-        }
-
-        return x * x + y * y;
-    }
-
     Distance(x: number, y: number): number;
     Distance(vector: Vector2): number;
     Distance(array: NumberArray): number;
@@ -251,6 +229,28 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
         }
 
         return Math.sqrt(x * x + y * y);
+    }
+
+    DistanceSquared(x: number, y: number): number;
+    DistanceSquared(vector: Vector2): number;
+    DistanceSquared(array: NumberArray): number;
+    DistanceSquared(_0: Vector2 | NumberArray | number, _1?: number): number
+    {
+        let x: number;
+        let y: number;
+
+        if (typeof _0 === 'number')
+        {
+            x = this[0] - _0;
+            y = this[1] - (_1 as number);
+        }
+        else
+        {
+            x = this[0] - _0[0];
+            y = this[1] - _0[1];
+        }
+
+        return x * x + y * y;
     }
 
     Normalize(): Vector2
@@ -313,7 +313,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Negate(vector: Vector2, out: Vector2): Vector2;
     static Negate(_0: Vector2, _1?: Vector2): Vector2
     {
-        const out = _1 !== undefined ? _1 : new Vector2();
+        const out = _1 || new Vector2();
 
         out[0] = -_0[0];
         out[1] = -_0[1];
@@ -329,7 +329,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Add(array1: NumberArray, array2: NumberArray, out: Vector2): Vector2;
     static Add(_0: Vector2 | NumberArray | number, _1: Vector2 | NumberArray | number, _2?: number | Vector2, _3?: number, _4?: Vector2): Vector2
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Vector2 ? _2 as Vector2 : new Vector2();
+        const out = _4 || (_2 instanceof Vector2 ? _2 : new Vector2());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -353,7 +353,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Subtract(array1: NumberArray, array2: NumberArray, out: Vector2): Vector2;
     static Subtract(_0: Vector2 | NumberArray | number, _1: Vector2 | NumberArray | number, _2?: number | Vector2, _3?: Vector2 | number, _4?: Vector2): Vector2
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Vector2 ? _2 as Vector2 : new Vector2();
+        const out = _4 || (_2 instanceof Vector2 ? _2 : new Vector2());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -377,7 +377,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Multiply(array1: NumberArray, array2: NumberArray, out: Vector2): Vector2;
     static Multiply(_0: Vector2 | NumberArray | number, _1: Vector2 | NumberArray | number, _2?: number | Vector2, _3?: Vector2 | number, _4?: Vector2): Vector2
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Vector2 ? _2 as Vector2 : new Vector2();
+        const out = _4 || (_2 instanceof Vector2 ? _2 : new Vector2());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -401,7 +401,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Divide(array1: NumberArray, array2: NumberArray, out: Vector2): Vector2;
     static Divide(_0: Vector2 | NumberArray | number, _1: Vector2 | NumberArray | number, _2?: number | Vector2, _3?: Vector2 | number, _4?: Vector2): Vector2
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Vector2 ? _2 as Vector2 : new Vector2();
+        const out = _4 || (_2 instanceof Vector2 ? _2 : new Vector2());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -421,7 +421,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Scale(vector: Vector2, scalar: number, out: Vector2): Vector2;
     static Scale(_0: Vector2, _1: number, _2?: Vector2): Vector2
     {
-        const out = _2 !== undefined ? _2 : new Vector2();
+        const out = _2 || new Vector2();
 
         out[0] = _0[0] * _1;
         out[1] = _0[1] * _1;
@@ -454,7 +454,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Rotate(vector: Vector2, degrees: number, out: Vector2): Vector2;
     static Rotate(_0: Vector2, _1: number, _2?: Vector2): Vector2
     {
-        const out = _2 !== undefined ? _2 : new Vector2();
+        const out = _2 || new Vector2();
         const theta = radian(_1);
 
         const cosTheta = Math.cos(theta);
@@ -476,8 +476,8 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
 
         if (typeof _0 === 'number')
         {
-            x = (_0 as number) - (_1 as number);
-            y = (_2 as number) - (_3 as number);
+            x = (_0 as number) - (_2 as number);
+            y = (_1 as number) - (_3 as number);
         }
         else
         {
@@ -500,8 +500,8 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
 
         if (typeof _0 === 'number')
         {
-            x = (_0 as number) - (_1 as number);
-            y = (_2 as number) - (_3 as number);
+            x = (_0 as number) - (_2 as number);
+            y = (_1 as number) - (_3 as number);
         }
         else
         {
@@ -518,15 +518,15 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     static Normalize(vector: Vector2, out: Vector2): Vector2;
     static Normalize(_0: Vector2, _1?: Vector2): Vector2
     {
-        const out = _1 !== undefined ? _1 : new Vector2();
+        const out = _1 || new Vector2();
 
         let length = _0.LengthSquared;
 
         if (length !== 0 && length !== 1)
         {
             length = Math.sqrt(length);
-            out[0] /= length;
-            out[1] /= length;
+            out[0] = _0[0] / length;
+            out[1] = _0[1] / length;
         }
 
         return out;

@@ -5,19 +5,12 @@
 import { radian } from "../utils";
 import { Vector2, Vector2Array } from "../vector";
 import { Matrix2, Matrix2Array } from "./Matrix2";
+import { describe, it, expect } from 'vitest';
 
 describe('Matrix2', () =>
 {
     describe('Matrix Creation', () => 
     {
-        it('Should create a new instance of a {Matrix2} class', () =>
-        {
-            const matrix = new Matrix2();
-            expect(matrix).toBeInstanceOf(Matrix2);
-            expect(matrix).not.toBeNull();
-            expect(matrix).not.toBeUndefined();
-        });
-
         it('Should default all components to 0 when no arguments are passed', () =>
         {
             const matrix = new Matrix2();

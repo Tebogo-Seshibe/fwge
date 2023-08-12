@@ -3,15 +3,15 @@ import { SharedComponent } from "../ecs/Component"
 type IScript =
 {
     start?: () => void
-    update?: (delta: number) => void
+    update?: (delta?: number) => void
     end?: () => void
 }
 
 export class Script extends SharedComponent
 {
-    Start: () => void
-    Update: (delta: number) => void
-    End: () => void
+    readonly Start: () => void
+    readonly Update: (delta?: number) => void
+    readonly End: () => void
 
     constructor()
     constructor(args: IScript)
@@ -19,8 +19,8 @@ export class Script extends SharedComponent
     {
         super()
 
-        this.Start = args.start ?? function(){}
-        this.Update = args.update ?? function(){}
-        this.End = args.end ?? function(){}
+        this.Start = args.start || function() { }
+        this.Update = args.update || function() { }
+        this.End = args.end || function() { }
     }
 }

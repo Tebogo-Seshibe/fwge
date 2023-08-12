@@ -20,33 +20,29 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     constructor();
     constructor(value: number);
     constructor(array: ScalarArray);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0?: ArrayBuffer | ScalarArray | number, _1?: number)
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | ScalarArray | number = 0, _1: number = 0)
     {
-        if (_0 instanceof ArrayBuffer)
-        {
-            super(_0, _1 ?? 0, Scalar.SIZE);
-        }
-        else if (typeof _0 === 'number')
+        if (typeof _0 === 'number')
         {
             super([_0]);
         }
-        else if (_0 !== undefined)
+        else if (_0 instanceof Array)
         {
-            super(_0);
+            super(_0[0]);
         }
         else
         {
-            super(Scalar.SIZE)
+            super(_0, _1, Scalar.SIZE);
         }
     }
 
     //#region Local Methods
     Set(value: number): Scalar;
     Set(scalar: Scalar): Scalar;
-    Set(array: NumberArray): Scalar;
-    Set(_0: Scalar | NumberArray | number): Scalar
+    Set(array: ScalarArray): Scalar;
+    Set(_0: Scalar | ScalarArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {

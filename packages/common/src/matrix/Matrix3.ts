@@ -157,44 +157,58 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     constructor(matrix: Matrix3);
     constructor(matrix: Matrix4);
     constructor(array: Matrix3Array);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Matrix4 | Matrix3 | Matrix2 | NumberArray | number = 0, _1?: number, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
+    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
+    constructor(_0: ArrayBuffer | SharedArrayBuffer | Matrix4 | Matrix3 | Matrix2 | number[] | number = 0, _1: number = 0, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number)
     {
-        if (_0 instanceof ArrayBuffer)
-        {
-            super(_0, _1 ?? 0, Matrix3.SIZE);
-        }
-        else if (_0 instanceof Matrix2)
+        if (typeof _2 === 'number')
         {
             super(
-                [
-                    _0.M11, _0.M12, 0,
-                    _0.M21, _0.M22, 0,
-                    0, 0, 0,
-                ]);
-        }
-        else if (_0 instanceof Matrix3 || _0 instanceof Matrix4)
-        {
-            super(
-                [
-                    _0.M11, _0.M12, _0.M13,
-                    _0.M21, _0.M22, _0.M23,
-                    _0.M31, _0.M32, _0.M33,
-                ]);
+            [
+                _0 as number, _1 as number, _2 as number,
+                _3 as number, _4 as number, _5 as number,
+                _6 as number, _7 as number, _8 as number,
+            ]);
         }
         else if (typeof _0 === 'number')
         {
             super(
-                [
-                    _0, _1 ?? 0, _2 ?? 0,
-                    _3 ?? 0, _4 ?? _0, _5 ?? 0,
-                    _6 ?? 0, _7 ?? 0, _8 ?? _0
-                ]);
+            [
+                _0,  0,  0,
+                 0, _0,  0,
+                 0,  0, _0,
+            ]);
+        }
+        else if (_0 instanceof Matrix2)
+        {
+            super(
+            [
+                _0.M11, _0.M12, 0,
+                _0.M21, _0.M22, 0,
+                0, 0, 0,
+            ]);
+        }
+        else if (_0 instanceof Matrix4 || _0 instanceof Matrix3)
+        {
+            super(
+            [
+                _0.M11, _0.M12, _0.M13,
+                _0.M21, _0.M22, _0.M23,
+                _0.M31, _0.M32, _0.M33,
+            ]);
+        }
+        else if (_0 instanceof Array)
+        {
+            super(
+            [
+                _0[0], _0[1], _0[2],
+                _0[3], _0[4], _0[5],
+                _0[6], _0[7], _0[8],
+            ]);
         }
         else
         {
-            super(_0);
+            super(_0, _1, Matrix3.SIZE);
         }
     }
 
@@ -477,7 +491,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
         _0: Matrix3 | NumberArray | number, _1: Matrix3 | NumberArray | number, _2?: Matrix3 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number,
         _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number, _16?: number, _17?: number, _18?: Matrix3): Matrix3
     {
-        const out = _18 !== undefined ? _18 : _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
+        const out = _18 || (_2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -521,7 +535,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
         _0: Matrix3 | NumberArray | number, _1: Matrix3 | NumberArray | number, _2?: Matrix3 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number,
         _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number, _16?: number, _17?: number, _18?: Matrix3): Matrix3
     {
-        const out = _18 !== undefined ? _18 : _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
+        const out = _18 || (_2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -565,7 +579,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
         _0: Matrix3 | NumberArray | number, _1: Matrix3 | NumberArray | number, _2?: Matrix3 | number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number,
         _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number, _16?: number, _17?: number, _18?: Matrix3): Matrix3
     {
-        const out = _18 !== undefined ? _18 : _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
+        const out = _18 || (_2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3());
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
@@ -605,7 +619,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static Scale(matrix: Matrix3, scalar: number, out: Matrix3): Matrix3;
     static Scale(_0: Matrix3, _1: number, _2?: Matrix3): Matrix3
     {
-        const out = _2 ?? new Matrix3();
+        const out = _2 || new Matrix3();
 
         out[0] = _0[0] * _1;
         out[1] = _0[1] * _1;
@@ -624,7 +638,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static Transpose(matrix: Matrix3, out: Matrix3): Matrix3;
     static Transpose(_0: Matrix3, _1?: Matrix3): Matrix3
     {
-        const out = _1 ?? new Matrix3();
+        const out = _1 || new Matrix3();
 
         return out.Set(
             _0[0], _0[3], _0[6],
@@ -637,7 +651,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static Inverse(matrix: Matrix3, out: Matrix3): Matrix3;
     static Inverse(_0: Matrix3, _1?: Matrix3): Matrix3
     {
-        const out = _1 ?? new Matrix3();
+        const out = _1 || new Matrix3();
         const det = _0.Determinant;
 
         if (det !== 0)
@@ -668,7 +682,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static MultiplyVector(matrix: Matrix3, array: NumberArray, out: Vector3): Vector3;
     static MultiplyVector(_0: Matrix3, _1: Vector3 | NumberArray | number, _2?: Vector3 | number, _3?: number, _4?: Vector3): Vector3
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Vector3 ? _2 as Vector3 : new Vector3();
+        const out = _4 || (_2 instanceof Vector3 ? _2 as Vector3 : new Vector3());
         const vec = typeof _1 === 'number'
             ? [_1, _2 as number, _3 as number]
             : _1;
@@ -688,7 +702,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static RotationMatrixAroundAxis(axis: Vector3, angle: number, out: Matrix3): Matrix3;
     static RotationMatrixAroundAxis(_0: Vector3 | Vector3Array | number, _1: number, _2?: Matrix3 | number, _3?: number, _4?: Matrix3): Matrix3
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3();
+        const out = _4 || (_2 instanceof Matrix3 ? _2 as Matrix3 : new Matrix3());
         const axis = (
             typeof _0 === 'number'
             ? [_0, _1 as number, _2 as number]
@@ -722,7 +736,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static RotationMatrix(xyz: Vector3Array, out: Matrix3): Matrix3;
     static RotationMatrix(_0: Vector3 | Vector3Array | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
     {
-        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
+        const out = _3 || (_1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3());
         const rotation = (
             typeof _0 === 'number'
             ? [_0, _1 as number ?? _0, _2 as number ?? _0]
@@ -763,7 +777,7 @@ export class Matrix3 extends Float32Array implements IsEquatable<Matrix3>
     static ScaleMatrix(xyz: NumberArray, out: Matrix3): Matrix3;
     static ScaleMatrix(_0: Vector3 | NumberArray | number, _1?: Matrix3 | number, _2?: number, _3?: Matrix3): Matrix3
     {
-        const out = _3 !== undefined ? _3 : _1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3();
+        const out = _3 || (_1 instanceof Matrix3 ? _1 as Matrix3 : new Matrix3());
         const scale = typeof _0 === 'number'
             ? [_0, _1 as number, _2 as number]
             : _0;

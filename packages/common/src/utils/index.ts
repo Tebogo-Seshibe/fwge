@@ -9,3 +9,8 @@ export * from './interfaces'
 export * from './LinkedList'
 export * from './Math'
 export * from './Model'
+
+export function instanceOf<T>(object: any, ...keys: (keyof T)[]): object is T
+{
+    return keys.reduce((curr, key) => curr && key in object, true)
+}
