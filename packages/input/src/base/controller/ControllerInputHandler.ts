@@ -1,127 +1,84 @@
-import { Vector2 } from "@fwge/common"
-import { ButtonState } from "../InputState"
-import { ControllerState } from "./ControllerState"
+import { FixedLengthArray } from "@fwge/common";
+import { ControllerState } from "./ControllerState";
 
 export class ControllerInputHandler
 {
-    static readonly LeftStickX: number = 0
-    static readonly LeftStickY: number = 1
-    static readonly LeftStickPress: number = 2
-
-    static readonly RightStickX: number = 3
-    static readonly RightStickY: number = 4
-    static readonly RightStickPress: number = 5
-
-    static readonly DPAD: number = 6
-    static readonly ABXY: number = 10
-    static readonly LeftBumper: number = 15
-    static readonly LeftTrigger: number = 16
-    static readonly RightBumper: number = 17
-    static readonly RightTrigger: number = 18
-    static readonly Buttons: number = 19
-
-    private _state: Array<Gamepad | null> = []
-
-    get State()
-    {
-        const state: ControllerState[] = []
-
-        for (let i = 0; i < this._state.length; ++i)
-        {
-            const gamepad = this._state[i]
-            if (gamepad)
-            {
-                state.push(new ControllerState(
-                    [
-                        new Vector2(gamepad.axes[0], -gamepad.axes[1]),
-                        gamepad.buttons[10].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                    ],
-                    [
-                        new Vector2(gamepad.axes[2], -gamepad.axes[3]),
-                        gamepad.buttons[11].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED
-                    ],
-                    [
-                        gamepad.buttons[12].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[13].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[14].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[15].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED
-                    ],
-                    [
-                        gamepad.buttons[0].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[1].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[2].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[3].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED
-                    ],
-                    [
-                        gamepad.buttons[4].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[5].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[6].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED,
-                        gamepad.buttons[7].pressed 
-                        ? ButtonState.PRESSED
-                        : ButtonState.RAISED
-                    ],
-                    gamepad.buttons.slice(16).map(x =>x.pressed ? ButtonState.PRESSED : ButtonState.RAISED)
-                ))
-            }
-        }
-
-        return state
-    }
+    private controllers: FixedLengthArray<Gamepad | null, 4> = [null, null, null, null];
+    public readonly State!: FixedLengthArray<ControllerState, 4>;
     
-    constructor(canvas: HTMLCanvasElement)
-    {
-        canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this._addController.bind(this))
-        
-    }
-
-    _addController(e: any)
-    {
-        
-    }
-
-    _removeController(e: any)
-    {
-        
+    constructor(
+        private readonly canvas: HTMLCanvasElement,
+        private readonly controllerAxes: Float32Array,
+        private readonly controllerButtons: Uint8ClampedArray
+    ) { 
+        this.State = [
+            new ControllerState(controllerAxes, 0,  controllerButtons, 0),
+            new ControllerState(controllerAxes, 4,  controllerButtons, 16),
+            new ControllerState(controllerAxes, 8,  controllerButtons, 32),
+            new ControllerState(controllerAxes, 12, controllerButtons, 48),
+        ];
     }
 
     Start(): void        
     {
-        
+        this.canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this.addController.bind(this))
     }
 
-    Update(_: number): void
+    Update(): void
     {
-        this._state = navigator.getGamepads()
+        const controllers = navigator.getGamepads() as FixedLengthArray<Gamepad | null, 4>;
+        let i = 0;
+        for (const controller of controllers)
+        {
+            if (!controller && this.State[i].Active)
+            {
+                this.State[i].Active = false;
+            }
+            else if (controller && !this.State[i].Active)
+            {
+                this.State[i].Active = true;
+            }
+            
+            if (!controller) continue;
+
+            this.controllerAxes[controller.index + 0] = controller.axes[0];
+            this.controllerAxes[controller.index + 1] = controller.axes[1];
+            this.controllerAxes[controller.index + 2] = controller.axes[2];
+            this.controllerAxes[controller.index + 2] = controller.axes[2];
+
+            this.controllerButtons[controller.index + 0] = controller.buttons[0].value;
+            this.controllerButtons[controller.index + 1] = controller.buttons[1].value;
+            this.controllerButtons[controller.index + 2] = controller.buttons[2].value;
+            this.controllerButtons[controller.index + 3] = controller.buttons[3].value;
+            this.controllerButtons[controller.index + 4] = controller.buttons[4].value;
+            this.controllerButtons[controller.index + 5] = controller.buttons[5].value;
+            this.controllerButtons[controller.index + 6] = controller.buttons[6].value;
+            this.controllerButtons[controller.index + 7] = controller.buttons[7].value;
+            this.controllerButtons[controller.index + 8] = controller.buttons[8].value;
+            this.controllerButtons[controller.index + 9] = controller.buttons[9].value;
+            this.controllerButtons[controller.index + 10] = controller.buttons[10].value;
+            this.controllerButtons[controller.index + 11] = controller.buttons[11].value;
+            this.controllerButtons[controller.index + 12] = controller.buttons[12].value;
+            this.controllerButtons[controller.index + 13] = controller.buttons[13].value;
+            this.controllerButtons[controller.index + 14] = controller.buttons[14].value;
+            this.controllerButtons[controller.index + 15] = controller.buttons[15].value;
+        }
     }
 
     Stop(): void        
     {
-        
+        this.canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this.removeController.bind(this))        
+    }
+
+    private addController(e: Event)
+    {
+        const controller = (e as GamepadEvent).gamepad;
+        this.controllers[controller.index] = controller;
+    }
+    
+    private removeController(e: Event)
+    {
+        const controller = (e as GamepadEvent).gamepad;   
+        this.controllers[controller.index] = null;
     }
 }

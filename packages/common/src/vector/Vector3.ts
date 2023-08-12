@@ -630,5 +630,59 @@ export class Vector3 extends Float32Array implements IsEquatable<Vector3>
 
         return out;
     }
+
+    static Min(vectors: Vector3[]): Vector3
+    static Min(vectors: Vector3[], out: Vector3): Vector3
+    static Min(_0: Vector3[], _1?: Vector3): Vector3
+    {
+        const out = _1 ?? new Vector3();
+        out.Set(_0[0]);
+
+        for (let i = 1; i < _0.length; ++i)
+        {
+            if (_0[i][0] < out[0])
+            {
+                out[0] = _0[i][0]; 
+            }
+
+            if (_0[i][1] < out[1])
+            {
+                out[1] = _0[i][1]; 
+            }
+
+            if (_0[i][2] < out[2])
+            {
+                out[2] = _0[i][2]; 
+            }
+        }
+        return out;
+    }
+    
+    static Max(vectors: Vector3[]): Vector3
+    static Max(vectors: Vector3[], out: Vector3): Vector3
+    static Max(_0: Vector3[], _1?: Vector3): Vector3
+    {
+        const out = _1 ?? new Vector3();
+        out.Set(_0[0]);
+        
+        for (let i = 1; i < _0.length; ++i)
+        {
+            if (_0[i][0] > out[0])
+            {
+                out[0] = _0[i][0]; 
+            }
+
+            if (_0[i][1] > out[1])
+            {
+                out[1] = _0[i][1]; 
+            }
+
+            if (_0[i][2] > out[2])
+            {
+                out[2] = _0[i][2]; 
+            }
+        }
+        return out;
+    }
     //#endregion
 }

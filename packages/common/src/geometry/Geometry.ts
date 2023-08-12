@@ -15,7 +15,6 @@ export abstract class Geometry<T extends Vector2 | Vector3, U extends Matrix3 | 
             const old = vertices[i]
             const offset = Float32Array.BYTES_PER_ELEMENT * i
             let vertex: Vector2 | Vector3
-            
 
             if (old instanceof Vector2)
             {

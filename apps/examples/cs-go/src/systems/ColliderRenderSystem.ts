@@ -1,5 +1,5 @@
 import { GL, radian } from "@fwge/common";
-import { Entity, Mesh, Scene, Shader, StaticMesh, System, Transform } from "@fwge/core";
+import { Entity, Mesh, Shader, StaticMesh, System, Transform } from "@fwge/core";
 import { Collider, CubeCollider, SphereCollider } from "@fwge/physics";
 
 export class ColliderRenderSystem extends System
@@ -8,11 +8,6 @@ export class ColliderRenderSystem extends System
     _cubeOutlineMesh!: Mesh
     _outlineShader!: Shader
     _colliderTypes: Map<string, number[]> = new Map()
-
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [ Transform, Collider ] })
-    }
 
     Init(): void
     {

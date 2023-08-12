@@ -17,6 +17,11 @@
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
+        "print-2": "node scripts/print",
+        "build-2": "node scripts/build",
+        "init-2": "node scripts/init",
+        "clean-2": "node scripts/clean",
+        "link-2": "node scripts/link",
         "test": "lerna run test",
         "build": "lerna run build",
         "link": "npx link",

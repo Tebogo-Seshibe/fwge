@@ -1,11 +1,12 @@
 import { Entity } from "./Entity";
-import { Class, ComponentId, createComponent, RegistryType, TypeId } from "./Registry";
+import { Class, ComponentId, Registry, TypeId } from "./Registry";
 
-export type ComponentRef = [TypeId, ComponentId];
-export type ComponentType<T extends Component = Component> = Class<T>;
-
-export abstract class Component extends RegistryType
+export abstract class Component
 {
+    readonly Id: ComponentId;
+    readonly TypeId: TypeId;
+    readonly Type: Class<Component>;
+
     abstract AddOwner(entity: Entity): void;
     abstract RemoveOwner(entity: Entity): void;
 
@@ -13,9 +14,14 @@ export abstract class Component extends RegistryType
     constructor(componentType: Class<Component>);
     constructor(type?: Class<Component>)
     {
-        super(type);
+        this.Type = type ?? new.target as Class<Component>;
+        this.TypeId = this.Type.TypeId!;
+        this.Id = Registry.createComponent(this);
+    }
 
-        createComponent(this);
+    Destroy(): void
+    {
+        Registry.deleteComponent(this);
     }
 }
 
@@ -40,9 +46,23 @@ export abstract class SharedComponent extends Component
 
         if (parentIndex !== -1)
         {
-            this._owners.swap(parentIndex, this._owners.length - 1);
+            if (this._owners.length > 1)
+            {
+                this._owners[parentIndex] = this._owners[this._owners.length - 1];
+            }
+            
             this._owners.pop();
         }
+    }
+
+    override Destroy(): void
+    {
+        for (let i= 0; i < this._owners.length; ++i)
+        {
+            this._owners[i].RemoveComponent(this.Type);
+        }
+
+        super.Destroy();
     }
 
     private _owners: Entity[] = [];
@@ -63,6 +83,12 @@ export abstract class UniqueComponent extends Component
     public RemoveOwner(_?: Entity): void
     {
         this._owner = undefined;
+    }
+
+    override Destroy(): void
+    {
+        this._owner?.RemoveComponent(this.Type);
+        super.Destroy();
     }
 
     private _owner?: Entity;

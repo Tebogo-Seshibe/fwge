@@ -1,7 +1,8 @@
-import { BasicLitMaterial, Material, Mesh, MeshRenderer, Renderer, RenderMode, RenderType, Shader } from "@fwge/core"
-import { IInputArgs, KeyState } from "@fwge/input"
-import { CubeCollider } from "@fwge/physics"
-import { GameObject } from "./GameObject"
+import { FixedLengthArray } from "@fwge/common";
+import { BasicLitMaterial, Material, Mesh, MeshRenderer, Renderer, RenderMode, RenderType, Shader } from "@fwge/core";
+import { ControllerState, KeyboardState, KeyState, MouseState } from "@fwge/input";
+import { CubeCollider } from "@fwge/physics";
+import { GameObject } from "./GameObject";
 
 export class Platform extends GameObject
 {
@@ -15,7 +16,7 @@ export class Platform extends GameObject
 
         this.material = new BasicLitMaterial(
         {
-            shader: this.Scene.Game.GetAsset('Basic Shader', Shader)!,
+            shader: this.Scene.Game.GetAsset('Basic Shader 2', Shader)!,
             colour: [231/255, 94/255, 98/255],
             alpha: 1.0,
             renderType: RenderType.OPAQUE,
@@ -36,7 +37,7 @@ export class Platform extends GameObject
         this.transform.Scale.Set(100, 1, 100)
     }
 
-    override OnInput({ Keyboard }: IInputArgs, delta: number): void
+    OnInput(delta: number, Keyboard: KeyboardState, _Mouse: MouseState, _Controllers: FixedLengthArray<ControllerState, 4>)
     {
         if (Keyboard.KeyUp !== KeyState.UP)
         {

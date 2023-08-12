@@ -1,87 +1,77 @@
-import { KeyboardState } from "./KeyboardState"
-import { KeyState } from "../InputState"
+import { KeyState } from "../InputState";
+import { KeyboardState } from "./KeyboardState";
+
+export const NUM_KEYBOARD_KEYS: number = 256;
 
 export class KeyboardInputHandler
 {
-    static readonly TOTAL_KEYS: number = 128
+    private readonly keyDelays: Float32Array = new Float32Array(NUM_KEYBOARD_KEYS);
+    public readonly State: KeyboardState;
 
-    private _keys: KeyState[] = []
-    private _keyDelays: KeyState[] = []
-    private _state: KeyboardState
-    private _keyDelay: number = 0.2
-    
-    public get State(): KeyboardState
-    {
-        return this._state
-    }
-
-    constructor(private canvas: HTMLCanvasElement)
-    {
-        for (var i = 0; i < KeyboardInputHandler.TOTAL_KEYS; ++i)
-        {
-            this._keys.push(KeyState.UP)
-        }
-
-        this._state = new KeyboardState(this._keys)
+    constructor(
+        private readonly canvas: HTMLCanvasElement,
+        private readonly keyDelay: number = 0.2,
+        private readonly keys: Uint8ClampedArray
+    ) {
+        this.State = new KeyboardState(keys);
     }
     
     Start(): void        
     {
-        this.canvas.ownerDocument.documentElement.addEventListener('keydown', this._keydown.bind(this))
-        this.canvas.ownerDocument.documentElement.addEventListener('keyup', this._keyup.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('keydown', this.keydown.bind(this));
+        this.canvas.ownerDocument.documentElement.addEventListener('keyup', this.keyup.bind(this));
     }
 
     Update(delta: number): void
     {
-        for (let i = 0 ; i < this._keys.length; ++i)
+        for (let i = 0 ; i < this.keys.length; ++i)
         {
-            if (this._keyDelays[i] <= 0)
+            if (this.keyDelays[i] <= 0)
             {
-                switch(this._keys[i])
+                switch(this.keys[i])
                 {
                     case KeyState.PRESSED:
                     case KeyState.DOUBLE_PRESSED:
-                        this._keys[i] = KeyState.DOWN
+                        this.keys[i] = KeyState.DOWN;
                         break
 
                     case KeyState.RELEASED:
-                        this._keys[i] = KeyState.UP
+                        this.keys[i] = KeyState.UP;
                         break
                 }
             }
             else
             {
-                this._keyDelays[i] -= delta
+                this.keyDelays[i] -= delta;
             }
         }
     }
 
     Stop(): void
     {
-        this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this._keydown.bind(this))
-        this.canvas.ownerDocument.documentElement.removeEventListener('keyup', this._keyup.bind(this))
+        this.canvas.ownerDocument.documentElement.removeEventListener('keydown', this.keydown.bind(this));
+        this.canvas.ownerDocument.documentElement.removeEventListener('keyup', this.keyup.bind(this));
     }
 
-    private _keydown(e: KeyboardEvent)
+    private keydown(e: KeyboardEvent)
     {
-        e.preventDefault()
+        e.preventDefault();
 
-        if (this._keys[e.which] === KeyState.UP)
+        if (this.keys[e.which] === KeyState.UP)
         {
-            this._keys[e.which] = KeyState.PRESSED
-            this._keyDelays[e.which] = this._keyDelay
+            this.keys[e.which] = KeyState.PRESSED;
+            this.keyDelays[e.which] = this.keyDelay;
         }
-        else if (this._keys[e.which] === KeyState.RELEASED)
+        else if (this.keys[e.which] === KeyState.RELEASED)
         {
-            this._keys[e.which] = KeyState.DOUBLE_PRESSED
-            this._keyDelays[e.which] = this._keyDelay
+            this.keys[e.which] = KeyState.DOUBLE_PRESSED;
+            this.keyDelays[e.which] = this.keyDelay;
         }
     }
 
-    private _keyup(e: KeyboardEvent)
+    private keyup(e: KeyboardEvent)
     {
-        e.preventDefault()
-
-        this._keys[e.which] = KeyState.RELEASED
+        e.preventDefault();
+        this.keys[e.which] = KeyState.RELEASED;
     }
 }

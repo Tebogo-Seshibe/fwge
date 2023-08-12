@@ -1,22 +1,47 @@
-import { Vector2 } from "@fwge/common"
-import { ButtonState, WheelState } from "../InputState"
+import { FixedLengthArray, Vector2 } from "@fwge/common";
+import { ButtonState, WheelState } from "../InputState";
 
 
 export class MouseState 
 {
-    public readonly Left: ButtonState
-    public readonly Middle: ButtonState
-    public readonly Right: ButtonState
+    public readonly Offset: Readonly<Vector2>;
+    public readonly RawPosition: Readonly<Vector2>;
+    public readonly ScreenPosition: Readonly<Vector2>;
+    public readonly Buttons: Readonly<[WheelState, ...FixedLengthArray<ButtonState, 5>]>;
 
-    constructor(
-        public readonly Offset: Readonly<Vector2>,
-        public readonly RawPosition: Readonly<Vector2>,
-        public readonly ScreenPosition: Readonly<Vector2>,
-        public readonly Wheel: WheelState,
-        public readonly Buttons: ButtonState[],
-    ) {
-        this.Left = Buttons[0]
-        this.Middle = Buttons[1]
-        this.Right = Buttons[2]
+    public get Wheel(): WheelState
+    {
+        return this.Buttons[0];
+    }
+    
+    public get Left(): ButtonState
+    {
+        return this.Buttons[1];
+    }
+    public get Middle(): ButtonState
+    {
+        return this.Buttons[2];
+    }
+    public get Right(): ButtonState
+    {
+        return this.Buttons[3];
+    }
+
+    public get Forward(): ButtonState
+    {
+        return this.Buttons[5];
+    }
+
+    public get Back(): ButtonState
+    {
+        return this.Buttons[4];
+    }
+    
+    constructor(mouseMovement: Float32Array, mouseButtons: Uint8ClampedArray)
+    {
+        this.Offset = new Vector2(mouseMovement.buffer, Float32Array.BYTES_PER_ELEMENT * 0);
+        this.RawPosition = new Vector2(mouseMovement.buffer, Float32Array.BYTES_PER_ELEMENT * 2);
+        this.ScreenPosition = new Vector2(mouseMovement.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
+        this.Buttons = mouseButtons as any as [WheelState, ...FixedLengthArray<ButtonState, 5>];
     }
 }

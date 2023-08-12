@@ -339,7 +339,6 @@ export class RenderTarget
     {
         GL.bindFramebuffer(GL.FRAMEBUFFER, this.Framebuffer)
         GL.viewport(0, 0, this.Width, this.Height)
-        GL.scissor(0, 0, this.Width, this.Height)
 
         let mask = 0
         if (this.ColourAttachments.length > 0)

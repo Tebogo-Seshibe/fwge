@@ -1,382 +1,374 @@
-import { UUID } from "@fwge/common";
-import { Asset, Scene } from "../base";
+import { FixedLengthArray } from "@fwge/common";
 import { Component } from "./Component";
-import { Entity } from "./Entity";
-import { System } from "./System";
 
-export type TypeId = number;
-export type SceneId = number;
-export type EntityId = number;
-export type ComponentId = number;
-export type AssetId = number;
-export type PrefabId = number;
 export type Head<T extends unknown[]> = T[0];
 export type Tail<T extends unknown[]> = T extends [Head<T>, ...infer TailType] ? TailType : never;
-export type TupleFromIndex<T extends unknown[], Index extends number = 0, Counter extends unknown[] = []> =
-    Counter['length'] extends Index
-    ? T
-    : TupleFromIndex<Tail<T>, Index, [...Counter, Head<T>]>;
 
-export type TypeAtIndex<T extends any[], Index extends number> = T[Index];
-
-export type Tuple<ChildTypes extends unknown[], IdentifiedTypes extends unknown[] = []> =
-    ChildTypes['length'] extends 0
-    ? IdentifiedTypes
-    : Tuple<TupleFromIndex<ChildTypes, IdentifiedTypes['length']>, [Head<ChildTypes>, ...IdentifiedTypes]>;
-
+export type ViewKey = string | symbol | number;
+export type GroupKey = string | symbol | number;
+export type TypeId = number;
+export type EntityId = number;
+export type ComponentId = number;
+export type ViewFilter<T extends any[] = any[]> = (...args: T) => boolean;
+export type View = EntityId[];
+export type ViewGroup<T extends any[] = any[]> = (...args: T) => ComponentId;
+export type ViewConfig = { componentTypes: Class<Component>[], rules: ViewFilter[] };
+export type Group<
+    Depth extends number,
+    Count extends unknown[] = FixedLengthArray<number, Depth>
+> = 
+    Count['length'] extends 0 
+    ? EntityId[]
+    : Map<ComponentId, Group<Depth, Tail<Count>>
+>;
 
 export type Class<T = {}> =
-    {
-        new(...args: any[]): T;
-        prototype: Partial<T>;
-    };
+{
+    new(...args: any[]): T;
+    prototype: Partial<T>;
+    TypeId?: TypeId;
+};
 
 export type Constructor<T, U extends ConstructorParameters<Class<T>>> =
+{
+    new(...args: U): T;
+    prototype: Partial<T>;
+    TypeId?: TypeId;
+};
+
+export class Registry
+{
+    private static readonly EMPTY_VIEW: View = [];
+    private static readonly EMPTY_GROUP: Group<1> = new Map();
+
+    private static entityIdIndex: EntityId = 0;
+    private static freeIds: number[] = [];
+
+    private static componentIds: ComponentId[] = [];
+    private static components: (Component | undefined)[][] = [];
+    private static componentInstances: (Component | undefined)[][] = [];
+    private static componentTypeIndex: number = 0;
+
+    private static readonly views: Map<ViewKey, View> = new Map();
+    private static readonly viewConfig: Map<ViewKey, ViewConfig> = new Map();
+    private static readonly mappedViews: Map<ComponentId, ViewKey[]> = new Map();
+
+    private static readonly groups: Map<ViewKey, Group<number>> = new Map();
+    private static readonly groupConfig: Map<ViewKey, ViewConfig> = new Map();
+    private static readonly mappedGroups: Map<ComponentId, GroupKey[]> = new Map();
+
+    static registerComponents(...componentTypes: Class<Component>[]): void
     {
-        new(...args: U): T;
-        prototype: Partial<T>;
-    };
-
-export const typeIdToType = new Map<number, Class<any>>();
-
-export class ListManager<T extends any = any, U extends number = number>
-{
-    private readonly main: (T | undefined)[] = [];
-    private readonly free: number[] = [];
-
-    create(item: T): U
-    {
-        let index = (this.free.length > 0)
-            ? this.free.pop()!
-            : this.main.length;
-
-        this.main[index] = item;
-
-        return index as U;
-    }
-
-    get(index: U): T
-    {
-        return this.main[index] as T;
-    }
-
-    remove(index: U): void
-    {
-        this.main[index] = undefined;
-        this.free.push(index);
-    }
-}
-
-export class RegistryType
-{
-    readonly Id: number;
-    readonly TypeId: number;
-
-    get Type(): Class<any>
-    {
-        return typeIdToType.get(this.TypeId)!;
-    }
-
-    constructor(type?: Class<any>)
-    {
-        type = type ?? new.target as Class<any>;
-
-        this.TypeId = getTypeId(type);
-        this.Id = nextId(type);
-    }
-}
-
-export function addScene(scene: Scene): SceneId
-{
-    const sceneId = Scenes.length;
-    Scenes.push(scene);
-    return sceneId;
-}
-
-export function getScene(sceneId: SceneId): Scene
-{
-    return Scenes[sceneId];
-}
-
-export function createEntity(): EntityId
-{
-    let entityId: number = EntityMap.findIndex(x => !x);
-    if (entityId === -1)
-    {
-        entityId = EntityMap.length;
-        EntityMap.push(true);
-    }
-    return entityId;
-}
-
-// export function getEntity(entityId): Entity
-// {
-
-// }
-
-export function deleteEntity(entityId: EntityId): void
-{
-    EntityMap[entityId] = false;
-
-    for (let i = 0; i < ComponentArray.length; ++i)
-    {
-        ComponentArray[0][entityId] = undefined;
-    }
-}
-
-export function createComponent(component: Component): void
-{
-    ComponentsArray[Math.log2(component.TypeId)][component.Id] = component;
-}
-
-export function addComponent(entityId: EntityId, component: Component): void
-{
-    const componentIndex = Math.log2(component.TypeId);
-    ComponentArray[componentIndex][entityId] = component;
-}
-
-export function removeComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T | undefined;
-export function removeComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined;
-export function removeComponent<T extends Component>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId): T | undefined
-{
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
-    const component = ComponentArray[componentIndex][entityId];
-    ComponentArray[componentIndex][entityId] = undefined;
-    return component as T;
-}
-
-export function getAComponent<T extends Component>(typeId: TypeId, entityId: EntityId): T;
-export function getAComponent<T extends Component>(typeId: Class<T>, entityId: EntityId): T;
-export function getAComponent<T extends Component>(type: TypeId | Class<T>, entityId: EntityId): T
-{
-    const typeIndex = Math.log2(typeof type === 'number' ? type : getTypeId(type));
-    return ComponentArray[typeIndex][entityId] as T;
-}
-
-export function hasComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): boolean;
-export function hasComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): boolean;
-export function hasComponent<T extends Component>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId): boolean
-{
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
-    return ComponentArray[componentIndex][entityId] !== undefined;
-}
-
-export function getComponentById<T extends Component>(componentType: Class<T>, componentId: EntityId): T | undefined;
-export function getComponentById<T extends Component>(componentTypeId: TypeId, componentId: EntityId): T | undefined;
-export function getComponentById<T extends Component>(componentTypeAndId: Class<T> | TypeId, componentId: EntityId): T | undefined
-{
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
-    return ComponentsArray[componentIndex][componentId] as T;
-}
-
-export function getComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T | undefined;
-export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentType: Class<T>, childType: Class<U>): U | undefined;
-export function getComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined;
-export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeId: TypeId, childType: Class<U>): U | undefined;
-export function getComponent<T extends Component, U extends T = T>(entityId: EntityId, componentTypeAndId: Class<T> | TypeId, _?: Class<U>): U | undefined
-{
-    const componentIndex = Math.log2(typeof componentTypeAndId === 'number' ? componentTypeAndId : getTypeId(componentTypeAndId));
-    return ComponentArray[componentIndex][entityId] as U;
-}
-
-export function getAllComponents(entityId: EntityId): Component[];
-export function getAllComponents(entityId: EntityId): Component[];
-export function getAllComponents(entityId: EntityId): Component[]
-{
-    const components: Component[] = [];
-
-    for (let i = 0; i < ComponentArray.length; ++i)
-    {
-        const component = ComponentArray[i][entityId];
-        if (component)
+        for (const componentType of componentTypes)
         {
-            components.push(component);
+            componentType.TypeId = this.componentTypeIndex;
+            this.componentIds.push(0);
+            this.components[this.componentTypeIndex] = [];
+            this.componentInstances[this.componentTypeIndex] = [];
+            this.componentTypeIndex++;
         }
     }
 
-    return components;
-}
-
-function nextId<T>(_class: Class<T>): EntityId
-{
-    const typeIndex = Math.log2(TypeIDs.get(_class)!);
-    const componentId = ComponentsArray[typeIndex].length;
-    ComponentsArray[typeIndex].push(undefined);
-    return componentId;
-}
-
-export function getTypeId<T>(_class: Class<T>): TypeId
-{
-    let componentTypeId = TypeIDs.get(_class);
-
-    if (componentTypeId === undefined)
+    static createEntity(): EntityId
     {
-        componentTypeId = typeId;
-        typeId = typeId << 1;
-        TypeIDs.set(_class, componentTypeId);
-        typeIdToType.set(componentTypeId, _class);
-        ComponentArray.push([]);
-        ComponentsArray.push([]);
-    }
-
-    return componentTypeId;
-}
-
-export type ViewFilter<T extends Component[] = Component[]> =
-{
-    name: string;
-    exec: (...args: T) => boolean;
-};
-
-const CustomView: Map<string, number[]> = new Map();
-
-export function view<T1 extends Component>(
-    types: [Class<T1>],
-    filter?: ViewFilter<[T1]>
-): EntityId[];
-export function view<T1 extends Component>(
-    types: [Class<T1>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component>(
-    types: [Class<T1>, Class<T2>],
-    filter?: ViewFilter<[T1, T2]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component>(
-    types: [Class<T1>, Class<T2>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>],
-    filter?: ViewFilter<[T1, T2, T3]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>],
-    name: ViewFilter<[T1, T2, T3, T4]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>],
-    name: ViewFilter<[T1, T2, T3, T4, T5]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>],
-    name: ViewFilter<[T1, T2, T3, T4, T5, T6]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>],
-    name: ViewFilter<[T1, T2, T3, T4, T5, T6, T7]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>],
-    name: ViewFilter<[T1, T2, T3, T4, T5, T6, T7, T8]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component, T9 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>, Class<T9>],
-    name: ViewFilter<[T1, T2, T3, T4, T5, T6, T7, T8, T9]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component, T9 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>, Class<T9>],
-    name: string
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component, T9 extends Component, T10 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>, Class<T9>, Class<T10>],
-    name: ViewFilter<[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]>
-): EntityId[];
-export function view<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component, T5 extends Component, T6 extends Component, T7 extends Component, T8 extends Component, T9 extends Component, T10 extends Component>(
-    types: [Class<T1>, Class<T2>, Class<T3>, Class<T4>, Class<T5>, Class<T6>, Class<T7>, Class<T8>, Class<T9>, Class<T10>],
-    name: string
-): EntityId[];
-export function view(
-    types: Class<Component>[],
-    filter: ViewFilter | string = ''
-): EntityId[]
-{
-    const viewId = types.map(getTypeId).reduce((prev, curr) => prev + curr, 0);
-    const viewIndexes = types.map(getTypeId).map(Math.log2);
-    const filterName = typeof filter === 'string' ? filter : filter?.name ?? '';
-    const viewName = viewId + filterName;
-    let viewResults: EntityId[] = [];
-
-    if (CustomView.has(viewName))
-    {
-        viewResults = CustomView.get(viewName)!;
-    }
-    else
-    {
-        for (let entityId = 0; entityId < EntityMap.length; ++entityId)
+        let entityId: EntityId;
+    
+        if (this.freeIds.length > 0)
         {
-            const components = viewIndexes.map((componentTypeId) => ComponentArray[componentTypeId][entityId]);
-            let valid = !components.any(component => component === undefined);
+            entityId = this.freeIds.pop()!;
+        }
+        else
+        {
+            entityId = this.entityIdIndex++;
+        }
 
-            if (!valid)
+        return entityId;
+    }
+
+    static removeEntity(entityId: EntityId): void
+    {
+        for (let i = 0; i < this.components.length; ++i)
+        {
+            this.components[i][entityId] = undefined;
+        }
+
+        this.freeIds.push(entityId);
+    }
+
+    static createComponent<T extends Component>(component: T): ComponentId
+    {
+        const componentId = this.componentIds[component.TypeId]++;
+        this.componentInstances[component.TypeId][componentId] = component;
+        
+        return componentId;
+    }
+
+    static deleteComponent<T extends Component>(component: T): void
+    {
+        this.componentInstances[component.TypeId][component.Id] = undefined;
+    }
+
+    static addComponent<T extends Component>(entityId: EntityId, component: T): void
+    {
+        this.components[component.TypeId][entityId] = component;
+
+        const views = this.mappedViews.get(component.TypeId) ?? [];
+        for (const key of views)
+        {
+            const view = this.views.get(key) ?? [];
+            if (view.includes(entityId))
+            {
+                continue;
+            }
+            
+            const config = this.viewConfig.get(key)!;
+            if (this.testValidViewEntity(entityId, config.componentTypes, config.rules))
+            {
+                view.push(entityId);
+            }
+        }
+
+
+        const groups = this.mappedGroups.get(component.TypeId) ?? [];
+        for (const key of groups)
+        {
+            const config = this.groupConfig.get(key)!
+            if (!this.testValidViewEntity(entityId, config.componentTypes, config.rules))
             {
                 continue;
             }
 
-            if (typeof filter === 'string' || filter.exec(...(components as Component[])))
+            let group = this.groups.get(key)! as any as Map<ComponentId, any>;
+            for (let i = 0; i < config.componentTypes.length - 1; ++i)
             {
-                viewResults.push(entityId);
+                const component = this.getComponent(entityId, config.componentTypes[i])!;
+
+                if (!group.has(component.Id))
+                {
+                    group.set(component.Id, new Map<ComponentId, any>());
+                }
+
+                group = group.get(component.Id)  as any as Map<ComponentId, any>;
+            }
+            const lastComponent = Registry.getComponent(entityId, config.componentTypes.last)!;
+            group.get(lastComponent.Id).push(entityId);
+            
+        }
+    }
+
+    static hasComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): boolean;
+    static hasComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): boolean;
+    static hasComponent<T extends Component>(entityId: EntityId, componentTypeOrTypeId: Class<T> | TypeId): boolean
+    {
+        const typeId = typeof componentTypeOrTypeId === 'number'
+            ? componentTypeOrTypeId
+            : componentTypeOrTypeId.TypeId!
+
+        return !!this.components[typeId][entityId];
+    }
+
+    static getComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T | undefined;
+    static getComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined;
+    static getComponent<T extends Component>(entityId: EntityId, componentTypeOrTypeId: Class<T> | TypeId): T | undefined
+    {
+        const typeId = typeof componentTypeOrTypeId === 'number'
+            ? componentTypeOrTypeId
+            : componentTypeOrTypeId.TypeId!
+
+        return this.components[typeId][entityId] as T | undefined;
+    }
+
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentType: Class<T>): T | undefined;
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentTypeId: TypeId): T | undefined;
+    static getComponentInstance<T extends Component>(componentId: ComponentId, componentTypeOrTypeId: Class<T> | TypeId): T | undefined
+    {
+        const typeId = typeof componentTypeOrTypeId === 'number'
+            ? componentTypeOrTypeId
+            : componentTypeOrTypeId.TypeId!
+
+        return this.componentInstances[typeId][componentId] as T | undefined;
+    }
+
+    static getAllComponents(entityId: EntityId): Component[]
+    {
+        const components: Component[] = [];
+
+        for (let i = 0; i < this.components.length; ++i)
+        {
+            if (this.components[i][entityId])
+            {
+                components.push(this.components[i][entityId]!);
             }
         }
 
-        CustomView.set(viewName, viewResults);
+        return components;
     }
 
-    return viewResults;
-}
-
-export function registerView()
-{
-
-}
-
-
-
-let typeId = 1;
-const TypeIDs: Map<Class<any>, number> = new Map();
-const EntityMap: boolean[] = [];
-const ComponentArray: (Component | undefined)[][] = [];
-const ComponentsArray: (Component | undefined)[][] = [];
-const Scenes: Scene[] = [];
-
-export const AssetList = new ListManager<ListManager<Asset, SceneId>>();
-export const ComponentList = new ListManager<ListManager<Component, SceneId>>();
-export const SceneManager = new ListManager<Scene, SceneId>();
-export const EntityManager = new ListManager<Entity, EntityId>();
-export const SystemManager = new ListManager<System>();
-
-export abstract class RegistryItem
-{
-    readonly UUID: UUID;
-    readonly ID: number;
-
-    constructor(manager: ListManager, uuid: UUID = UUID.Create())
+    static removeComponent<T extends Component>(entityId: EntityId, componentType: Class<T>): T;
+    static removeComponent<T extends Component>(entityId: EntityId, componentTypeId: TypeId): T;
+    static removeComponent<T extends Component>(entityId: EntityId, componentTypeOrTypeId: Class<T> | TypeId): T
     {
-        this.ID = manager.create(this);
-        this.UUID = uuid;
+        const typeId = typeof componentTypeOrTypeId === 'number'
+            ? componentTypeOrTypeId
+            : componentTypeOrTypeId.TypeId!
+
+        const component = this.components[typeId][entityId];
+        this.components[typeId][entityId] = undefined;
+        
+        const views = this.mappedViews.get(typeId) ?? [];
+        for (const key of views)
+        {
+            const view = this.views.get(key) ?? [];
+            if (!view.includes(entityId))
+            {
+                continue;
+            }
+            
+            const config = this.viewConfig.get(key)!;
+            if (this.testValidViewEntity(entityId, config.componentTypes, config.rules))
+            {
+                view.splice(view.indexOf(entityId), 1);
+            }
+        }
+
+        return component as T;
+    }
+
+    static registerView<T1 extends Component>(key: ViewKey, componentTypes: [Class<T1>]): void
+    static registerView<T1 extends Component>(key: ViewKey, componentTypes: [Class<T1>], rules: ViewFilter<[T1]>[]): void
+    static registerView<T1 extends Component, T2 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>]): void
+    static registerView<T1 extends Component, T2 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>], rules: ViewFilter<[T1, T2]>[]): void
+    static registerView<T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>]): void
+    static registerView<T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>], rules: ViewFilter<[T1, T2, T3]>[]): void
+    static registerView<T extends Component[]>(key: ViewKey, componentTypes: Class<T[number]>[], rules: ViewFilter<T[number][]>[] = []): void
+    {
+        const entityIds: EntityId[] = [];
+        for (const componentType of componentTypes)
+        {
+            if (!this.mappedViews.has(componentType.TypeId!))
+            {
+                this.mappedViews.set(componentType.TypeId!, []);
+            }
+            this.mappedViews.get(componentType.TypeId!)!.push(key);
+        }
+
+        const totalEntities = this.components.reduce((curr, arr) => arr.length > curr ? arr.length : curr, 0)
+        for (let entityId = 0; entityId < totalEntities; ++entityId)
+        {
+            if (this.testValidViewEntity(entityId, componentTypes, rules))
+            {
+                entityIds.push(entityId);
+            }
+        }
+        
+        this.views.set(key, entityIds);
+        this.viewConfig.set(key, { componentTypes, rules })
+    }
+
+    static getView(key: ViewKey): View
+    {
+        return this.views.get(key) ?? this.EMPTY_VIEW;
+    }
+
+    static registerGroup<T1 extends Component, T2 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>]): void
+    static registerGroup<T1 extends Component, T2 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>], rules: ViewFilter<[T1, T2]>[]): void
+    static registerGroup<T1 extends Component, T2 extends Component, T3 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>]): void
+    static registerGroup<T1 extends Component, T2 extends Component, T3 extends Component>(key: GroupKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>], rules: ViewFilter<[T1, T2, T3]>[]): void
+    static registerGroup<T extends Component[]>(key: GroupKey, componentTypes: Class<T[number]>[], rules: ViewFilter<T[number][]>[] = []): void
+    {
+        const entityIds: EntityId[] = [];
+        for (const componentType of componentTypes)
+        {
+            if (!this.mappedGroups.has(componentType.TypeId!))
+            {
+                this.mappedGroups.set(componentType.TypeId!, []);
+            }
+            this.mappedGroups.get(componentType.TypeId!)!.push(key);
+        }
+
+        const totalEntities = this.components.reduce((curr, arr) => arr.length > curr ? arr.length : curr, 0)
+        for (let entityId = 0; entityId < totalEntities; ++entityId)
+        {
+            if (this.testValidViewEntity(entityId, componentTypes, rules))
+            {
+                entityIds.push(entityId);
+            }
+        }
+        
+        this.groups.set(key, this.addGroup(componentTypes.first, entityIds, componentTypes.slice(1)));
+        this.groupConfig.set(key, { componentTypes, rules })
+    }
+
+    private static addGroup<Depth extends number>(baseComponent: Class<Component>, entities: EntityId[], children: Class<Component>[] = []): Group<Depth> | EntityId[]
+    {
+        const validEntities: EntityId[] = [];
+
+        if (children.length === 0)
+        {
+            for (let i = 0; i < entities.length; ++i)
+            {
+                if (this.hasComponent(entities[i], baseComponent))
+                {
+                    validEntities.push(entities[i]);
+                }
+            }
+            return validEntities;
+        }
+        else
+        {
+            const groupedEntities = new Map<ComponentId, EntityId[]>();
+            for (let i = 0; i < entities.length; ++i)
+            {
+                const component = this.getComponent(entities[i], baseComponent);
+                if (!component)
+                {
+                    continue;
+                }
+
+                if (!groupedEntities.has(component.Id))
+                {
+                    groupedEntities.set(component.Id, []);
+                }
+
+                groupedEntities.get(component.Id)!.push(entities[i]);
+            }
+            
+            const group = new Map();
+            for (const [componentId, entityIds] of groupedEntities)
+            {
+                group.set(componentId, this.addGroup(children.first, entityIds, children.slice(1)));
+            }
+            return group as any;
+        }
+    }
+
+    static getGroup<Depth extends number>(key: GroupKey): Group<Depth>
+    {
+        return this.groups.get(key) ?? this.EMPTY_GROUP as any;
+    }
+
+    private static testValidViewEntity(entityId: EntityId, componentTypes: Class<Component>[], rules: ViewFilter[]): boolean
+    {
+        const components: Component[] = [];
+
+        for (let i = 0; i < componentTypes.length; ++i)
+        {
+            if (!this.hasComponent(entityId, componentTypes[i].TypeId!))
+            {
+                return false
+            }
+            
+            components.push(this.getComponent(entityId, componentTypes[i].TypeId!)!);
+        }
+
+        for (let i = 0; i < rules.length; ++i)
+        {
+            if (!rules[i](...components))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
