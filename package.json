@@ -26,6 +26,8 @@
         "build": "lerna run build",
         "link": "npx link",
         "add": "npm i",
+        "editor:svelte": "cd apps/editor && npm run dev",
+        "editor:tauri": "cd apps/editor && npm run tauri dev",
         "build:watch": "lerna watch -- lerna run build --scope=@fwge/*",
         "link:watch": "lerna watch -- lerna run link --scope=@fwge/*",
         "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
@@ -56,5 +58,9 @@
     ],
     "devDependencies": {
         "lerna": "^6.4.1"
+    },
+    "dependencies": {
+        "@tauri-apps/api": "^1.3.0",
+        "@tauri-apps/cli": "^1.3.1"
     }
 }
