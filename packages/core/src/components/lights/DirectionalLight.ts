@@ -268,9 +268,38 @@ export class DirectionalLight extends Light
         shader.SetFloat('U_DirectionalLight.TexelCount', this._texelCount);
         shader.SetFloat('U_DirectionalLight.Bias', this._bias);
         shader.SetFloat('U_DirectionalLight.PCFLevel', this._pcfLevel);
-
         shader.SetMatrix('U_DirectionalLight.ShadowMatrix', this._shadowMatrix);
         // super.Bind(shader)
+    }
+    
+    BindBlock(shader: Shader): void
+    BindBlock(shader: Shader, block: string): void
+    BindBlock(shader: Shader, block: string, offset: number): void
+    BindBlock(shader: Shader, block: string, push: boolean): void
+    BindBlock(shader: Shader, block: string, push: boolean, offset: number): void
+    BindBlock(shader: Shader, block = 'DirectionalLight', push_offset: number | boolean = true, offset: number = 0): void
+    {
+        const push = typeof push_offset === 'number'
+            ? true
+            : push_offset
+        offset = typeof push_offset === 'number'
+            ? push_offset
+            : offset
+            
+        shader.SetBufferDataField(block, 'Colour', this.Colour, offset);
+        shader.SetBufferDataField(block, 'Intensity', this.Intensity, offset);
+        shader.SetBufferDataField(block, 'Direction', this.Direction, offset);
+        shader.SetBufferDataField(block, 'CastShadows', this.CastShadows ? 1 : 0, offset);
+        shader.SetBufferDataField(block, 'TexelSize', this._texelSize, offset);
+        shader.SetBufferDataField(block, 'TexelCount', this._texelCount, offset);
+        shader.SetBufferDataField(block, 'Bias', this.Bias, offset);
+        shader.SetBufferDataField(block, 'PCFLevel', this.PCFLevel, offset);
+        shader.SetBufferDataField(block, 'ShadowMatrix', this.ShadowMatrix, offset);
+
+        if (push)
+        {
+            shader.PushBufferData(block);
+        }
     }
 
     BindForShadows(offset: Vector3 | Vector3Array = [0, 0, 0])
@@ -285,7 +314,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ViewMatrix = Matrix4.OrthographicProjection(-10, -10, -10, 10, 10, 10, 90, 90);
+    readonly ViewMatrix = Matrix4.OrthographicProjection(-20, -20, -20, 20, 20, 20, 90, 90);
 
     get ModelMatrix(): Matrix4
     {
@@ -327,7 +356,6 @@ export class DirectionalLight extends Light
                 {
                     mat4 ModelView;
                     mat4 Shadow;
-                    mat4 Camera;
                 };
                 uniform Matrix U_Matrix;
                 

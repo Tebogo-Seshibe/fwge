@@ -1,42 +1,30 @@
-import { UUID } from '@fwge/common';
+import { CreateUUID, UUID } from '@fwge/common';
 import { Scene } from '../base/Scene';
 import { Component } from './Component';
-import { addComponent, Class, createEntity, deleteEntity, EntityId, EntityManager, getAllComponents, getComponent, getScene, hasComponent, RegistryItem, removeComponent, SceneId, SceneManager } from './Registry';
+import { Class, EntityId, Registry } from './Registry';
 
-export type EntityType<T extends Entity = Entity> = Class<T>;
-
-export class Entity extends RegistryItem
+export class Entity 
 {
-    public readonly Id: EntityId = createEntity();
+    public readonly Id: EntityId;
+    public readonly UUID: UUID;
 
-    private _sceneId: SceneId;
-    private _parentId: EntityId = -1;
+    private _parent: Entity | undefined;
+    private _scene: Scene;
     private _childrenIds: EntityId[] = [];
 
     public get Scene(): Scene
     {
-        return SceneManager.get(this._sceneId);
+        return this._scene;
     }
 
     public get Parent(): Entity | undefined
     {
-        return EntityManager.get(this._parentId);
+        return this._parent;
     }
 
-    public set Parent(parent: Entity | EntityId | undefined)
+    public set Parent(parent: Entity | undefined)
     {
-        if (parent === undefined)
-        {
-            this._parentId = -1;
-        }
-        else if (typeof parent === 'number')
-        {
-            this._parentId = parent;
-        }
-        else
-        {
-            this._parentId = parent.ID;
-        }
+        this._parent = parent;
     }
 
     public get Children(): Entity[]
@@ -49,25 +37,24 @@ export class Entity extends RegistryItem
         return entities;
     }
 
-    public get Components(): { [key: string]: Component; }
+    public get Components(): Record<string, Component>
     {
-        return getAllComponents(this.Id).reduce((prev, component) => ({ ...prev, [component.Type.name]: component }), {});
+        return Registry.getAllComponents(this.Id).reduce((prev, component) => ({ ...prev, [component.Type.name]: component }), {});
     }
     //#endregion
 
     constructor(scene: Scene, uuid?: UUID)
     {
-        super(EntityManager, uuid);
-
-        this._sceneId = scene.ID;
+        this._scene = scene;
+        this.Id = Registry.createEntity();
+        this.UUID = uuid ?? CreateUUID();
     }
 
     //#region Component Methods
     public AddComponent<T extends Component>(component: T): Entity
     {
+        Registry.addComponent(this.Id, component);
         component.AddOwner(this);
-        addComponent(this.Id, component);
-
         return this;
     }
 
@@ -75,24 +62,18 @@ export class Entity extends RegistryItem
     public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, childComponentType: Class<U>): U | undefined;
     public GetComponent<T extends Component, U extends T = T>(componentType: Class<T>, _?: Class<U>): U | undefined
     {
-        return getComponent(this.Id, componentType) as U;
+        return Registry.getComponent(this.Id, componentType) as U;
     }
 
     public HasComponent<T extends Component>(componentType: Class<T>): boolean
     {
-        return hasComponent(this.Id, componentType);
+        return Registry.hasComponent(this.Id, componentType);
     }
 
     public RemoveComponent<T extends Component>(componentType: Class<T>): Entity
     {
-        const component = removeComponent(this.Id, componentType);
-
-        if (component)
-        {
-            component.RemoveOwner(this);
-            this.Scene.OnEntity(this);
-        }
-
+        const component = Registry.removeComponent(this.Id, componentType);
+        component.RemoveOwner(this);        
         return this;
     }
     //#endregion
@@ -144,12 +125,13 @@ export class Entity extends RegistryItem
     //#region Lifecycle
     public Destroy()
     {
-        this._sceneId = undefined!;
-        this._parentId = undefined!;
+        this.OnDestroy();
+
+        this._scene = undefined!;
+        this._parent = undefined!;
         this._childrenIds = undefined!;
 
-        deleteEntity(this.Id);
-        EntityManager.remove(this.ID);
+        Registry.removeEntity(this.Id);
     }
 
     OnCreate(): void { }

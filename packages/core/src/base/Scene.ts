@@ -1,6 +1,6 @@
 import { UUID } from "@fwge/common";
 import { Entity } from "../ecs/Entity";
-import { addScene, Class, Constructor, EntityId, RegistryItem, SceneId, SceneManager } from "../ecs/Registry";
+import { Class, Constructor, EntityId, Registry} from "../ecs/Registry";
 import { System } from "../ecs/System";
 import { Game } from "./Game";
 import { Prefab } from "./Prefab";
@@ -8,7 +8,7 @@ import { DefaultWindow } from "./render/DefaultWindow";
 import { RenderWindow } from "./render/RenderWindow";
 
 export type SceneType<T extends Scene = Scene> = Class<T>;
-
+export type SceneId = number;
 export interface IScene
 {
     windows: Class<RenderWindow>[];
@@ -16,9 +16,11 @@ export interface IScene
     entities: (Class<Entity> | Prefab)[];
 }
 
-
-export class Scene extends RegistryItem
+export class Scene
 {
+    private static SceneId: SceneId = 0;
+
+    readonly Id: SceneId = Scene.SceneId++;
     readonly Game: Game;
     readonly Entities: Map<EntityId, Entity> = new Map();
     readonly Systems: System[] = [];
@@ -30,10 +32,7 @@ export class Scene extends RegistryItem
     constructor(game: Game, config: IScene);
     constructor(game: Game, config?: IScene, uuid?: UUID)
     {
-        super(SceneManager, uuid);
-
         this.Game = game;
-        addScene(this);
 
         config = {
             windows: config?.windows ?? [DefaultWindow],
@@ -67,14 +66,6 @@ export class Scene extends RegistryItem
 
     public Init(): void
     {
-        for (const [, entity] of this.Entities)
-        {
-            for (const system of this.Systems)
-            {
-                system.OnUpdateEntity(entity);
-            }
-        }
-
         for (const system of this.Systems)
         {
             system.Init();
@@ -108,7 +99,6 @@ export class Scene extends RegistryItem
             for (const system of this.Systems)
             {
                 system.onStop();
-                system.Reset();
             }
             this._running = false;
         }
@@ -127,7 +117,6 @@ export class Scene extends RegistryItem
         const entity = constructor ? new constructor(this, ...args) : new Entity(this);
         this.Entities.set(entity.Id, entity);
         entity.OnCreate();
-        this.OnEntity(entity);
 
         return entity as T;
     }
@@ -148,19 +137,7 @@ export class Scene extends RegistryItem
         if (entity && this.Entities.has(entity.Id))
         {
             this.Entities.delete(entity.Id);
-            this.OnEntity(entity);
             entity.OnDestroy();
-        }
-    }
-
-    public OnEntity(entity: Entity): void
-    {
-        if (this._running)
-        {
-            for (const system of this.Systems)
-            {
-                system.OnUpdateEntity(entity);
-            }
         }
     }
     //#endregion

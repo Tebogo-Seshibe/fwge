@@ -3,14 +3,19 @@
 precision highp float;
 precision highp sampler2D;
 
-in vec3 V_Position;
-in vec3 V_Normal;
-in vec2 V_UV;
-in vec3 V_Colour;
+layout (std140) uniform;
+layout(location = 0) out vec3 O_Position;
+layout(location = 1) out vec3 O_Normal;
+layout(location = 2) out vec4 O_DiffuseSpecular;
 
-layout(location = 0) out vec4 O_DiffuseSpecular;
-layout(location = 1) out vec3 O_Position;
-layout(location = 2) out vec3 O_Normal;
+struct Vertex
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 UV;
+    vec3 Colour;
+};
+in Vertex V_Vertex;
 
 struct Sampler
 {
@@ -19,9 +24,33 @@ struct Sampler
 };
 uniform Sampler U_Sampler;
 
+uniform BasicLitMaterial
+{
+    vec3 Colour;
+    float Shininess;
+    float Alpha;
+
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+
+    bool HasImageMap;
+    bool HasBumpMap;
+    bool ReceiveShadows;
+} basicLitMaterial;
+
+uniform DirectionalLights
+{
+    vec3 Colour;
+};
+
 void main(void)
 {
-    O_DiffuseSpecular = vec4(V_Colour, 1.0) * texture(U_Sampler.Image, V_UV);
-    O_Position = V_Position;
-    O_Normal = normalize(V_Normal * texture(U_Sampler.Bump, V_UV).xyz);
+    vec4 tex = texture(U_Sampler.Image, V_Vertex.UV);
+    vec3 albedo = basicLitMaterial.Colour * tex.rgb * V_Vertex.Colour;
+    float alpha = basicLitMaterial.Alpha * tex.a;
+
+    O_Position = V_Vertex.Position;
+    O_Normal = normalize(V_Vertex.Normal * texture(U_Sampler.Bump, V_Vertex.UV).xyz);
+    O_DiffuseSpecular = vec4(albedo, alpha);
 }

@@ -1,82 +1,179 @@
-import { Vector2 } from "@fwge/common"
+import { FixedLengthArray, Vector2 } from "@fwge/common"
 import { ButtonState } from "../InputState"
 
 export class ControllerState
 {
-    // <axis[0], axis[1]>
-    public readonly LeftStick: Vector2
+    public Active: boolean = false;
+    
+    public readonly LeftStick: Vector2;    
+    public readonly RightStick: Vector2;
+    
+    //#region Basic Buttons
+    public get DirectionalUp(): ButtonState
+    {
+        return this.Buttons[12];
+    }
 
-     // <axis[2], axis[3]>
-    public readonly RightStick: Vector2
+    public get DirectionalDown(): ButtonState
+    {
+        return this.Buttons[13];
+    }
 
-     // buttons[12] -> [ U ]
-    public readonly DirectionalUp: ButtonState
+    public get DirectionalLeft(): ButtonState
+    {
+        return this.Buttons[14];
+    }
 
-     // buttons[13] -> [ D ]
-    public readonly DirectionalDown: ButtonState
+    public get DirectionalRight(): ButtonState
+    {
+        return this.Buttons[15];
+    }
 
-     // buttons[14] -> [ L ]
-    public readonly DirectionalLeft: ButtonState
+    public get LeftStickButton(): ButtonState
+    {
+        return this.Buttons[10];
+    }
 
-     // buttons[15] -> [ R ]
-    public readonly DirectionalRight: ButtonState
+    public get RightStickButton(): ButtonState
+    {
+        return this.Buttons[11];
+    }
 
-     // buttons[10] -> [ A ]-> ( L3 )
-    public readonly LeftStickButton: ButtonState
+    public get Button1(): ButtonState
+    {
+        return this.Buttons[0];
+    }
 
-     // buttons[11] -> [ A ]-> ( R3 )
-    public readonly RightStickButton: ButtonState
+    public get Button2(): ButtonState
+    {
+        return this.Buttons[1];
+    }
 
-     // buttons[0] -> [ A ]-> ( X )
-    public readonly Button1: ButtonState
+    public get Button3(): ButtonState
+    {
+        return this.Buttons[2];
+    }
 
-     // buttons[1] -> [ B ]-> ( O )
-    public readonly Button2: ButtonState
+    public get Button4(): ButtonState
+    {
+        return this.Buttons[3];
+    }
 
-     // buttons[2] -> [ X ]-> ( [] )
-    public readonly Button3: ButtonState
+    public get LeftBumper(): ButtonState
+    {
+        return this.Buttons[4];
+    }
 
-     // buttons[3] -> [ Y ]-> ( /\ )
-    public readonly Button4: ButtonState
+    public get RightBumper(): ButtonState
+    {
+        return this.Buttons[5];
+    }
 
-    // buttons[4] -> [ LB ]-> ( L1 )
-    public readonly LeftBumper: ButtonState
+    public get LeftTrigger(): ButtonState
+    {
+        return this.Buttons[6];
+    }
 
-     // buttons[5] -> [ LB ]-> ( R1 )
-    public readonly RightBumper: ButtonState
+    public get RightTrigger(): ButtonState
+    {
+        return this.Buttons[7];
+    }
+    //#endregion
 
-     // buttons[6] -> [ RB ]-> ( L2 )
-    public readonly LeftTrigger: ButtonState
-
-     // buttons[7] -> [ RT ]-> ( R2 )    
-    public readonly RightTrigger: ButtonState
+    //#region PS4 Buttons
+    public get Cross(): ButtonState
+    {
+        return this.Buttons[0];
+    }
+    
+    public get Circle(): ButtonState
+    {
+        return this.Buttons[1];
+    }
+    
+    public get Square(): ButtonState
+    {
+        return this.Buttons[2];
+    }
+    
+    public get Triangle(): ButtonState
+    {
+        return this.Buttons[3];
+    }
+    
+    public get L1(): ButtonState
+    {
+        return this.Buttons[4];
+    }
+    
+    public get R1(): ButtonState
+    {
+        return this.Buttons[5];
+    }
+    
+    public get L2(): ButtonState
+    {
+        return this.Buttons[6];
+    }
+    
+    public get R2(): ButtonState
+    {
+        return this.Buttons[7];
+    }
+    //#endregion
+    
+    //#region XBOX Buttons
+    public get A(): ButtonState
+    {
+        return this.Buttons[0];
+    }
+    
+    public get B(): ButtonState
+    {
+        return this.Buttons[1];
+    }
+    
+    public get X(): ButtonState
+    {
+        return this.Buttons[2];
+    }
+    
+    public get Y(): ButtonState
+    {
+        return this.Buttons[3];
+    }
+    
+    public get LB(): ButtonState
+    {
+        return this.Buttons[4];
+    }
+    
+    public get RB(): ButtonState
+    {
+        return this.Buttons[5];
+    }
+    
+    public get LT(): ButtonState
+    {
+        return this.Buttons[6];
+    }
+      
+    public get RT(): ButtonState
+    {
+        return this.Buttons[7];
+    }
+    //#endregion
+    
+    public readonly Buttons: Readonly<FixedLengthArray<ButtonState, 16>>;
 
     constructor(
-        leftStick: [Vector2, ButtonState],
-        rightStick: [Vector2, ButtonState],
-        dpad: [ButtonState, ButtonState, ButtonState, ButtonState],
-        abxy: [ButtonState, ButtonState, ButtonState, ButtonState],
-        bumperTrigger: [ButtonState, ButtonState, ButtonState, ButtonState],
-        public readonly Buttons: ButtonState[],
-    ) { 
-        this.LeftStick = leftStick[0]
-        this.LeftStickButton = leftStick[1]
-        this.RightStick = rightStick[0]
-        this.RightStickButton = rightStick[1]
-
-        this.DirectionalUp = dpad[0]
-        this.DirectionalDown = dpad[1]
-        this.DirectionalLeft = dpad[2]
-        this.DirectionalRight = dpad[3]
-
-        this.Button1 = abxy[0]
-        this.Button2 = abxy[1]
-        this.Button3 = abxy[2]
-        this.Button4 = abxy[3]
-
-        this.LeftBumper = bumperTrigger[0]
-        this.RightBumper = bumperTrigger[1]
-        this.LeftTrigger = bumperTrigger[2]
-        this.RightTrigger = bumperTrigger[3]
+        controllerAxes: Float32Array,
+        controllerAxesOffset: number,
+        controllerButtons: Uint8ClampedArray,
+        controllerButtonsOffset: number,
+    ) {
+        this.LeftStick = new Vector2(controllerAxes.buffer, (0 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
+        this.RightStick = new Vector2(controllerAxes.buffer, (2 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
+        this.Buttons = new Uint8ClampedArray(controllerButtons, controllerButtonsOffset * Vector2.BYTES_PER_ELEMENT, 16) as any as FixedLengthArray<ButtonState, 16>;
     }
 }

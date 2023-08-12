@@ -1,11 +1,11 @@
-import { Matrix3, Matrix4, Vector3, Vector3Array } from '@fwge/common'
-import { UniqueComponent } from '../ecs/Component'
+import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
+import { UniqueComponent } from '../ecs/Component';
 
 export type ITransform = 
 {
-    position?: Vector3 | [number, number, number]
-    rotation?: Vector3 | [number, number, number]
-    scale?: Vector3 | [number, number, number]
+    position?: Vector3 | MinLengthArray<number, 3>
+    rotation?: Vector3 | MinLengthArray<number, 3>
+    scale?: Vector3 | MinLengthArray<number, 3>
 }
 
 export class Transform extends UniqueComponent
@@ -102,36 +102,36 @@ export class Transform extends UniqueComponent
     {
         super()
         
-        this._buffer = new Float32Array(9)
-        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT)
-        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT)
-        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT)
+        this._buffer = new Float32Array(9);
+        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
+        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
+        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
 
         if (args.position)
         {
-            this.Position.Set(args.position as Vector3Array)
+            this.Position.Set(args.position as Vector3Array);
         }
         else
         {
-            this.Position.Set(0, 0, 0)
+            this.Position.Set(0, 0, 0);
         }
 
         if (args.rotation)
         {
-            this.Rotation.Set(args.rotation as Vector3Array)
+            this.Rotation.Set(args.rotation as Vector3Array);
         }
         else
         {
-            this.Rotation.Set(0, 0, 0)
+            this.Rotation.Set(0, 0, 0);
         }
 
         if (args.scale)
         {
-            this.Scale.Set(args.scale as Vector3Array)
+            this.Scale.Set(args.scale as Vector3Array);
         }
         else
         {
-            this.Scale.Set(1, 1, 1)
+            this.Scale.Set(1, 1, 1);
         }
     }
 }

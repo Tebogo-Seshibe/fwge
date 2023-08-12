@@ -36,7 +36,7 @@
         "commander": "^9.4.0",
         "inquirer": "^9.1.0",
         "mustache": "^4.2.0",
-        "yaml": "^2.2.1"
+        "yaml": "^2.2.2"
     },
     "devDependencies": {
         "@types/jest": "^27.5.1",

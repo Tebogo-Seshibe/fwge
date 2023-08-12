@@ -1,55 +1,40 @@
-export class UUID
+export function CreateUUID(): UUID;
+export function CreateUUID(uuid: string): UUID;
+export function CreateUUID(uuid?: string): UUID
 {
-    private constructor(
-        private readonly _id: bigint
-    ) { }
-
-    Equals(other: UUID): boolean
+    if (!uuid)
     {
-        return this._id === other._id;
-    }
+        let date = Date.now() + '';
+        let rand = (Math.random() + '').substring(2);
+        uuid = '';
 
-    static Zero(): UUID
-    {
-        return new UUID(BigInt(0));
-    }
-
-    static Create(): UUID;
-    static Create(uuid: string): UUID;
-    static Create(uuid?: string): UUID
-    {
-        if (!uuid)
+        while (true)
         {
-            let date = Date.now() + '';
-            let rand = (Math.random() + '').substring(2);
-            uuid = '';
+            const useDate = Math.floor(Math.random() * 10) % 2 === 0;
+            let curr = useDate ? date : rand;
+            let other = !useDate ? date : rand;
 
-            while (true)
+            if (curr.length === 0)
             {
-                const useDate = Math.floor(Math.random() * 10) % 2 === 0;
-                let curr = useDate ? date : rand;
-                let other = !useDate ? date : rand;
-
-                if (curr.length === 0)
+                uuid += other;
+                break;
+            }
+            else
+            {
+                uuid += curr[0];
+                if (useDate)
                 {
-                    uuid += other;
-                    break;
+                    date = date.substring(1);
                 }
                 else
                 {
-                    uuid += curr[0];
-                    if (useDate)
-                    {
-                        date = date.substring(1);
-                    }
-                    else
-                    {
-                        rand = rand.substring(1);
-                    }
+                    rand = rand.substring(1);
                 }
             }
         }
-
-        return new UUID(BigInt(uuid));
     }
+
+    return BigInt(uuid);
 }
+
+export type UUID = bigint;
