@@ -1,7 +1,7 @@
-import { Component } from '../ecs/Component'
-import { Entity } from '../ecs/Entity'
-import { Class, Constructor, getTypeId, TypeId } from '../ecs/Registry'
-import { Scene } from './Scene'
+import { Component } from '../ecs/Component';
+import { Entity } from '../ecs/Entity';
+import { Class, Constructor, TypeId } from '../ecs/Registry';
+import { Scene } from './Scene';
 
 export class Prefab<K extends Entity = Entity>
 {
@@ -36,12 +36,12 @@ export class Prefab<K extends Entity = Entity>
 
     GetComponent<U extends Component>(componentType: Class<U>): U | undefined
     {
-        return this._components.get(getTypeId(componentType)) as U
+        return this._components.get(componentType.TypeId!) as U
     }
 
     RemoveComponent<U extends Component>(componentType: Class<U>): Prefab<K>
     {
-        this._components.delete(getTypeId(componentType))
+        this._components.delete(componentType.TypeId!)
         return this
     }
 

@@ -1,12 +1,13 @@
-import { Vector3, Vector3Array } from "@fwge/common"
-import { Entity, EntityId, getComponent, Scene, System, Transform, view } from "@fwge/core"
-import { Collider } from "../components"
-import { Test } from "./MeshMesh"
-import { SAT } from "./SAT"
-import { CollisionState, _Collision, _Collision_Id } from "./types"
+import { Vector3, Vector3Array } from "@fwge/common";
+import { Entity, EntityId, Registry, System, Transform } from "@fwge/core";
+import { Collider } from "../components";
+import { Test } from "./MeshMesh";
+import { CollisionState, _Collision, _Collision_Id } from "./types";
 
 export class PhysicsSystem extends System
 {
+    private readonly _physics = Symbol();
+
     private readonly _collisions: Map<_Collision_Id, _Collision> = new Map()
     
     private collisionStates: Map<string, CollisionState> = new Map()
@@ -14,21 +15,25 @@ export class PhysicsSystem extends System
     private offsetBuffer: Float32Array = new Float32Array()
     private offsetBufferIndex: Map<EntityId, number> = new Map()
     
-    Init(): void { 
-        this.entityIds.concat(view([ Transform, Collider ]));
+    Init(): void
+    {
+        Registry.registerView(this._physics, [Transform, Collider]);
     }
+
     Start(): void { console.log(this) }
     Stop(): void { }
 
     Update(_: number): void
     {
-        for (let i = 0; i < this.entityIds.length - 1; ++i)
-        {
-            const aEntity = this.Scene.GetEntity(this.entityIds[i])!
+        const entityIds = Registry.getView(this._physics);
 
-            for (let j = i + 1; j < this.entityIds.length; ++j)
+        for (let i = 0; i < entityIds.length - 1; ++i)
+        {
+            const aEntity = this.Scene.GetEntity(entityIds[i])!
+
+            for (let j = i + 1; j < entityIds.length; ++j)
             {
-                const bEntity = this.Scene.GetEntity(this.entityIds[j])!
+                const bEntity = this.Scene.GetEntity(entityIds[j])!
 
                 this.#detect(aEntity, bEntity)
             }
@@ -138,17 +143,5 @@ export class PhysicsSystem extends System
         }
 
         this.collisionStates.set(id, state)
-    }
-
-    override OnUpdateEntity(entity: Entity)
-    {
-        super.OnUpdateEntity(entity)
-
-        if (this.IsValidEntity(entity))
-        {
-            const offsetIndex = this.offsetBuffer.length
-            this.offsetBufferIndex.set(entity.Id, offsetIndex)
-            this.offsetBuffer = new Float32Array([...this.offsetBuffer, 0,0,0])
-        }
     }
 }

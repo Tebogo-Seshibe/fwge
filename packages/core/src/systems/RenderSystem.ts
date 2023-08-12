@@ -2,10 +2,18 @@ import { GL, Matrix3, Matrix4 } from "@fwge/common";
 import { Shader } from "../base";
 import { AreaLight, Camera, DirectionalLight, Material, PointLight, Renderer, RenderMode, RenderType, Transform } from "../components";
 import { Light } from "../components/lights/Light";
-import { EntityId, getComponent, getComponentById, System, view } from "../ecs";
+import { EntityId, Registry, System } from "../ecs";
 
 export class RenderSystem extends System
 {
+    private _transparentObjects = Symbol();
+    private _opaqueObjects = Symbol();
+    
+    private _allLights = Symbol();
+    private _pointLights = Symbol();
+    private _directionalLights = Symbol();
+    private _areaLights = Symbol();
+
     private _lights: Light[] = []
     private _transparentBatch: Map<number, Map<number, Set<number>>> = new Map()
     private _batch: Map<number, Map<number, Set<number>>> = new Map()
@@ -48,31 +56,36 @@ export class RenderSystem extends System
     
     Init(): void
     {
-        this._lights = view([Light]).map(entityId => getComponent(entityId, Light)!)
-        const opaque = view([Transform, Material, Renderer],
-        {
-            name: 'opaque',
-            exec: (_0, mat, _2) => mat.RenderType === RenderType.OPAQUE
-        })
-        const tranparent = view([Transform, Material, Renderer],
-        {
-            name: 'opaque',
-            exec: (_0, mat, _2) => mat.RenderType === RenderType.TRANSPARENT
-        })
-
-        this._batch = this._createBatch(opaque)
-        this._transparentBatch = this._createBatch(tranparent)
+        Registry.registerView(this._allLights, [Light]);
+        Registry.registerView(
+            this._opaqueObjects, 
+            [Transform, Material, Renderer],
+            [
+                (_0, mat, _2) => mat.RenderType === RenderType.OPAQUE
+            ]
+        );
+        Registry.registerView(
+            this._transparentObjects, 
+            [Transform, Material, Renderer],
+            [
+                (_0, mat, _2) => mat.RenderType === RenderType.TRANSPARENT
+            ]
+        );
+        
+        this._lights = Registry.getView(this._allLights).map(entityId => Registry.getComponent(entityId, Light)!);
+        this._batch = this._createBatch(Registry.getView(this._opaqueObjects))
+        this._transparentBatch = this._createBatch(Registry.getView(this._transparentObjects))
     }
 
-    private _createBatch(entities: EntityId[]): Map<number, Map<number, Set<number>>>
+    private _createBatch(entities: readonly EntityId[]): Map<number, Map<number, Set<number>>>
     {
         const map = new Map<number, Map<number, Set<number>>>()
 
         for (const entityId of entities)
         {
-            const material = getComponent(entityId, Material)!
-            const renderer = getComponent(entityId, Renderer)!
-            const transform = getComponent(entityId, Transform)!
+            const material = Registry.getComponent(entityId, Material)!
+            const renderer = Registry.getComponent(entityId, Renderer)!
+            const transform = Registry.getComponent(entityId, Transform)!
 
             const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>()
             const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>()
@@ -101,8 +114,8 @@ export class RenderSystem extends System
             this.createShadowMaps(window.Camera)
 
             window.MainPass.Output.Bind()
-            this.renderBatch(this._batch, window.Camera)
-            this.renderBatch(this._transparentBatch, window.Camera)
+            // this.renderBatch(this._batch, window.Camera)
+            // this.renderBatch(this._transparentBatch, window.Camera)
             // this.renderSkybox(window.Camera)
 
             for (const step of window.RenderPipeline)
@@ -185,8 +198,8 @@ export class RenderSystem extends System
                 }
                 
                 light.BindForShadows() //camera.Owner?.GetComponent(Transform)?.GlobalPosition())
-                this.renderBatchShadows(this._batch, DirectionalLight.ShadowShader)
-                this.renderBatchShadows(this._transparentBatch, DirectionalLight.ShadowShader)
+                // this.renderBatchShadows(this._batch, DirectionalLight.ShadowShader)
+                // this.renderBatchShadows(this._transparentBatch, DirectionalLight.ShadowShader)
                 light.UnbindForShadows()
             }
         }
@@ -231,184 +244,184 @@ export class RenderSystem extends System
         GL.cullFace(GL.BACK)
     }
     
-    renderBatch(batch: Map<number, Map<number, Set<number>>>, camera: Camera)
-    {
-        const projection = camera.ProjectionMatrix
-        const modelview = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+    // renderBatch(batch: Map<number, Map<number, Set<number>>>, camera: Camera)
+    // {
+    //     const projection = camera.ProjectionMatrix
+    //     const modelview = camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
 
-        for (const [materialId, renderers] of batch)
-        {
-            const material = getComponentById(Material, materialId)!
-            if (!material.Shader)
-            {
-                continue
-            }
+    //     for (const [materialId, renderers] of batch)
+    //     {
+    //         const material = getComponentById(Material, materialId)!
+    //         if (!material.Shader)
+    //         {
+    //             continue
+    //         }
 
-            material.Bind()
-            this._bindShader(material.Shader, projection, modelview, camera)
+    //         material.Bind()
+    //         this._bindShader(material.Shader, projection, modelview, camera)
 
-            for (const [rendererId, transforms] of renderers)
-            {
-                const renderer = getComponentById(Renderer, rendererId)!
-                const mesh = renderer.Asset!
-                let mode = -1
-                let count = 0
-                let buffer = null
+    //         for (const [rendererId, transforms] of renderers)
+    //         {
+    //             const renderer = getComponentById(Renderer, rendererId)!
+    //             const mesh = renderer.Asset!
+    //             let mode = -1
+    //             let count = 0
+    //             let buffer = null
                 
-                switch (renderer.RenderMode)
-                {
-                    case RenderMode.FACE:
-                    {
-                        mode = GL.TRIANGLES
-                        count = mesh.FaceCount
+    //             switch (renderer.RenderMode)
+    //             {
+    //                 case RenderMode.FACE:
+    //                 {
+    //                     mode = GL.TRIANGLES
+    //                     count = mesh.FaceCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.FaceBuffer
-                        }
-                    }
-                    break
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.FaceBuffer
+    //                     }
+    //                 }
+    //                 break
 
-                    case RenderMode.EDGE:
-                    {
-                        mode = GL.LINES
-                        count = mesh.EdgeCount
+    //                 case RenderMode.EDGE:
+    //                 {
+    //                     mode = GL.LINES
+    //                     count = mesh.EdgeCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.EdgeBuffer
-                            mode = GL.LINES
-                        }
-                    }
-                    break
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.EdgeBuffer
+    //                         mode = GL.LINES
+    //                     }
+    //                 }
+    //                 break
 
-                    case RenderMode.POINT:
-                    {
-                        mode = GL.POINTS
-                        count = mesh.PointCount
+    //                 case RenderMode.POINT:
+    //                 {
+    //                     mode = GL.POINTS
+    //                     count = mesh.PointCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.PointBuffer
-                        }
-                    }
-                    break
-                }
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.PointBuffer
+    //                     }
+    //                 }
+    //                 break
+    //             }
 
-                GL.bindVertexArray(mesh.VertexArrayBuffer)
-                for (const transformId of transforms)
-                {
-                    const transform = getComponentById(Transform, transformId)!
-                    const modelView = this._modelViewMatrices.get(transformId)!
-                    const normal = this._normalMatrices.get(transformId)!
+    //             GL.bindVertexArray(mesh.VertexArrayBuffer)
+    //             for (const transformId of transforms)
+    //             {
+    //                 const transform = getComponentById(Transform, transformId)!
+    //                 const modelView = this._modelViewMatrices.get(transformId)!
+    //                 const normal = this._normalMatrices.get(transformId)!
 
-                    transform.ModelViewMatrix(modelView)
-                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+    //                 transform.ModelViewMatrix(modelView)
+    //                 Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
                     
-                    material.Shader.SetMatrix('U_Matrix.ModelView', modelView, true)
-                    material.Shader.SetMatrix('U_Matrix.Normal', normal, true)
+    //                 material.Shader.SetMatrix('U_Matrix.ModelView', modelView, true)
+    //                 material.Shader.SetMatrix('U_Matrix.Normal', normal, true)
                     
-                    if (buffer)
-                    {
-                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
-                    }
-                    else
-                    {
-                        GL.drawArrays(mode, 0, count)
-                    }
-                }
-                GL.bindVertexArray(null)
-            }
-            material.UnBind()
-        }
-    }
+    //                 if (buffer)
+    //                 {
+    //                     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+    //                     GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+    //                 }
+    //                 else
+    //                 {
+    //                     GL.drawArrays(mode, 0, count)
+    //                 }
+    //             }
+    //             GL.bindVertexArray(null)
+    //         }
+    //         material.UnBind()
+    //     }
+    // }
 
-    renderBatchShadows(batch: Map<number, Map<number, Set<number>>>, shader: Shader)
-    {
-        for (const [materialId, renderers] of batch)
-        {
-            const material = getComponentById(Material, materialId)!
-            if (!material.ProjectsShadows)
-            {
-                continue
-            }
+    // renderBatchShadows(batch: Map<number, Map<number, Set<number>>>, shader: Shader)
+    // {
+    //     for (const [materialId, renderers] of batch)
+    //     {
+    //         const material = getComponentById(Material, materialId)!
+    //         if (!material.ProjectsShadows)
+    //         {
+    //             continue
+    //         }
             
-            for (const [rendererId, transforms] of renderers)
-            {
-                const renderer = getComponentById(Renderer, rendererId)!
-                const mesh = renderer.Asset!
-                let mode = -1
-                let count = 0
-                let buffer = null
+    //         for (const [rendererId, transforms] of renderers)
+    //         {
+    //             const renderer = getComponentById(Renderer, rendererId)!
+    //             const mesh = renderer.Asset!
+    //             let mode = -1
+    //             let count = 0
+    //             let buffer = null
                 
-                switch (renderer.RenderMode)
-                {
-                    case RenderMode.FACE:
-                    {
-                        mode = GL.TRIANGLES
-                        count = mesh.FaceCount
+    //             switch (renderer.RenderMode)
+    //             {
+    //                 case RenderMode.FACE:
+    //                 {
+    //                     mode = GL.TRIANGLES
+    //                     count = mesh.FaceCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.FaceBuffer
-                        }
-                    }
-                    break
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.FaceBuffer
+    //                     }
+    //                 }
+    //                 break
 
-                    case RenderMode.EDGE:
-                    {
-                        mode = GL.LINES
-                        count = mesh.EdgeCount
+    //                 case RenderMode.EDGE:
+    //                 {
+    //                     mode = GL.LINES
+    //                     count = mesh.EdgeCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.EdgeBuffer
-                            mode = GL.LINES
-                        }
-                    }
-                    break
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.EdgeBuffer
+    //                         mode = GL.LINES
+    //                     }
+    //                 }
+    //                 break
 
-                    case RenderMode.POINT:
-                    {
-                        mode = GL.POINTS
-                        count = mesh.PointCount
+    //                 case RenderMode.POINT:
+    //                 {
+    //                     mode = GL.POINTS
+    //                     count = mesh.PointCount
 
-                        if (mesh.IsIndexed)
-                        {
-                            buffer = mesh.PointBuffer
-                        }
-                    }
-                    break
-                }
+    //                     if (mesh.IsIndexed)
+    //                     {
+    //                         buffer = mesh.PointBuffer
+    //                     }
+    //                 }
+    //                 break
+    //             }
 
-                GL.bindVertexArray(mesh.VertexArrayBuffer)
-                for (const transformId of transforms)
-                {
-                    const transform = getComponentById(Transform, transformId)!
-                    const modelView = this._modelViewMatrices.get(transformId)!
-                    const normal = this._normalMatrices.get(transformId)!
+    //             GL.bindVertexArray(mesh.VertexArrayBuffer)
+    //             for (const transformId of transforms)
+    //             {
+    //                 const transform = getComponentById(Transform, transformId)!
+    //                 const modelView = this._modelViewMatrices.get(transformId)!
+    //                 const normal = this._normalMatrices.get(transformId)!
 
-                    transform.ModelViewMatrix(modelView)
-                    Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
+    //                 transform.ModelViewMatrix(modelView)
+    //                 Matrix3.Inverse(modelView.Matrix3.Transpose(), normal)
                     
-                    shader.SetMatrix('U_Matrix.ModelView', modelView, true)
-                    shader.SetMatrix('U_Matrix.Normal', normal, true)
+    //                 shader.SetMatrix('U_Matrix.ModelView', modelView, true)
+    //                 shader.SetMatrix('U_Matrix.Normal', normal, true)
                     
-                    if (buffer)
-                    {
-                        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
-                        GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
-                    }
-                    else
-                    {
-                        GL.drawArrays(mode, 0, count)
-                    }
-                }
-                GL.bindVertexArray(null)
-            }
-        }
-    }
+    //                 if (buffer)
+    //                 {
+    //                     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer)
+    //                     GL.drawElements(mode, count, GL.UNSIGNED_BYTE, 0)
+    //                 }
+    //                 else
+    //                 {
+    //                     GL.drawArrays(mode, 0, count)
+    //                 }
+    //             }
+    //             GL.bindVertexArray(null)
+    //         }
+    //     }
+    // }
 
     private _bindShader(shader: Shader, projection: Matrix4, modelview: Matrix4, camera: Camera, useLighting: boolean = true): void
     {

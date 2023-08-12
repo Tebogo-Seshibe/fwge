@@ -1,11 +1,14 @@
-import { Entity, Scene, System, view } from "@fwge/core"
-import { Animation, Keyframe } from "../base"
-import { AnimationPlayer } from "../components"
+import { Entity, Registry, System } from "@fwge/core";
+import { Animation, Keyframe } from "../base";
+import { AnimationPlayer } from "../components";
 
 export class AnimationSystem extends System
 {
-    Init(): void { 
-        this.entityIds.concat(view([ AnimationPlayer ]));
+    private readonly _animations = Symbol();
+
+    Init(): void
+    {
+        Registry.registerView(this._animations, [ AnimationPlayer ]);
     }
 
     Start(): void { }
@@ -13,7 +16,7 @@ export class AnimationSystem extends System
 
     Update(delta: number): void
     {
-        for (const entityId of this.entityIds)
+        for (const entityId of Registry.getView(this._animations))
         {
             const entity = this.Scene.GetEntity(entityId)!
             const animationPlayer = entity.GetComponent(AnimationPlayer)!

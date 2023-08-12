@@ -1,9 +1,9 @@
-import { Matrix3, Vector3 } from "@fwge/common"
-import { IInputArgs, KeyState } from "@fwge/input"
-import { Collider, SphereCollider } from "@fwge/physics"
-import { Camera, Material, PerspectiveCamera } from "@fwge/core"
-import { Cube } from "./Cube"
-import { GameObject } from "./GameObject"
+import { FixedLengthArray, Matrix3, Vector3 } from "@fwge/common";
+import { Camera, Material, PerspectiveCamera } from "@fwge/core";
+import { ControllerState, KeyState, KeyboardState, MouseState } from "@fwge/input";
+import { Collider, SphereCollider } from "@fwge/physics";
+import { Cube } from "./Cube";
+import { GameObject } from "./GameObject";
 
 export class Eye extends GameObject
 {
@@ -60,7 +60,7 @@ export class Eye extends GameObject
         this.transform.Position.Y = 1
     }
 
-    override OnInput({ Keyboard, Mouse }: IInputArgs, delta: number): void
+    OnInput(delta: number, Keyboard: KeyboardState, Mouse: MouseState, _Controllers: FixedLengthArray<ControllerState, 4>)
     {
         const wPressed = Keyboard.KeyW !== KeyState.RELEASED && Keyboard.KeyW !== KeyState.UP
         const aPressed = Keyboard.KeyA !== KeyState.RELEASED && Keyboard.KeyA !== KeyState.UP

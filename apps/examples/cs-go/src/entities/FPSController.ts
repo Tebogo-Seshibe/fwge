@@ -1,6 +1,6 @@
-import { clamp, Matrix3, Matrix4, Vector2, Vector3 } from "@fwge/common";
+import { clamp, FixedLengthArray, Matrix3, Matrix4, Vector2, Vector3 } from "@fwge/common";
 import { PerspectiveCamera, Transform } from "@fwge/core";
-import { ControllerState, IInputArgs, KeyboardState, KeyState, MouseState } from "@fwge/input";
+import { ControllerState, KeyboardState, KeyState, MouseState } from "@fwge/input";
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics";
 import { GameObject } from "./GameObject";
 
@@ -42,16 +42,16 @@ export class FPSController extends GameObject
         this.Scene.Windows.first.Camera = this.camera;
     }
 
-    override OnInput({ Keyboard, Controllers, Mouse }: IInputArgs, delta: number): void
+    OnInput(delta: number, keyboard: Readonly<KeyboardState>, mouse: Readonly<MouseState>, controllers: Readonly<FixedLengthArray<ControllerState, 4>>)
     {
-        const controller = Controllers.first;
-        if (controller)
+        const controller = controllers[0];
+        if (controller.Active)
         {
             this.handleControllerMovement(controller, delta);
         }
         else
         {
-            this.handleKeyboardMovement(Keyboard, Mouse, delta);
+            this.handleKeyboardMovement(keyboard, mouse, delta);
         }
     }
 
@@ -69,6 +69,7 @@ export class FPSController extends GameObject
             turn.Y = 0;
         }
 
+        // console.log(controller.LeftStick)
         Vector2.Scale(turn, this.turnSpeed * delta * 10, this.rotationDelta);
         this.transform.Rotation.Y += this.rotationDelta.Y;
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X - this.rotationDelta.X, -80, 80);

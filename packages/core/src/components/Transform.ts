@@ -1,29 +1,29 @@
-import { Matrix3, Matrix4, Vector3, Vector3Array } from '@fwge/common'
-import { UniqueComponent } from '../ecs/Component'
+import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
+import { UniqueComponent } from '../ecs/Component';
 
 export type ITransform = 
 {
-    position?: Vector3 | [number, number, number]
-    rotation?: Vector3 | [number, number, number]
-    scale?: Vector3 | [number, number, number]
+    position?: Vector3 | MinLengthArray<number, 3>
+    rotation?: Vector3 | MinLengthArray<number, 3>
+    scale?: Vector3 | MinLengthArray<number, 3>
 }
 
 export class Transform extends UniqueComponent
 {
-    private readonly _buffer: Float32Array
-    public readonly Position: Vector3
-    public readonly Rotation: Vector3
-    public readonly Scale: Vector3
+    private readonly _buffer: Float32Array;
+    public readonly Position: Vector3;
+    public readonly Rotation: Vector3;
+    public readonly Scale: Vector3;
     
     SetPosition(xyz: number): void
     SetPosition(x: number, y: number, z: number): void
-    SetPosition(array: [number, number, number]): void
+    SetPosition(array: MinLengthArray<number, 3>): void
     SetPosition(vector: Vector3): void
-    SetPosition(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    SetPosition(_0: Vector3 | MinLengthArray<number, 3> | number, _1?: number, _2?: number): void
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Position.Set(_0 as [number, number, number])
+            this.Position.Set(_0 as Vector3Array)
         }
         else
         {
@@ -33,13 +33,13 @@ export class Transform extends UniqueComponent
 
     SetRotation(xyz: number): void
     SetRotation(x: number, y: number, z: number): void
-    SetRotation(array: [number, number, number]): void
+    SetRotation(array: MinLengthArray<number, 3>): void
     SetRotation(vector: Vector3): void
-    SetRotation(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    SetRotation(_0: Vector3 | MinLengthArray<number, 3> | number, _1?: number, _2?: number): void
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Position.Set(_0 as [number, number, number])
+            this.Position.Set(_0 as Vector3Array)
         }
         else
         {            
@@ -49,13 +49,13 @@ export class Transform extends UniqueComponent
 
     SetScale(axis: number): void
     SetScale(axisX: number, axisY: number, axisZ: number): void
-    SetScale(axis: [number, number, number]): void
+    SetScale(axis: MinLengthArray<number, 3>): void
     SetScale(axis: Vector3): void
-    SetScale(_0: Vector3 | [number, number, number] | number, _1?: number, _2?: number): void
+    SetScale(_0: Vector3 | MinLengthArray<number, 3> | number, _1?: number, _2?: number): void
     {
         if (_1 === undefined || _2 === undefined)
         {
-            this.Scale.Set(_0 as [number, number, number])
+            this.Scale.Set(_0 as Vector3Array)
         }
         else
         {            
@@ -186,36 +186,36 @@ export class Transform extends UniqueComponent
     {
         super()
         
-        this._buffer = new Float32Array(9)
-        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT)
-        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT)
-        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT)
+        this._buffer = new Float32Array(9);
+        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
+        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
+        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
 
         if (args.position)
         {
-            this.Position.Set(args.position as Vector3Array)
+            this.Position.Set(args.position as Vector3Array);
         }
         else
         {
-            this.Position.Set(0, 0, 0)
+            this.Position.Set(0, 0, 0);
         }
 
         if (args.rotation)
         {
-            this.Rotation.Set(args.rotation as Vector3Array)
+            this.Rotation.Set(args.rotation as Vector3Array);
         }
         else
         {
-            this.Rotation.Set(0, 0, 0)
+            this.Rotation.Set(0, 0, 0);
         }
 
         if (args.scale)
         {
-            this.Scale.Set(args.scale as Vector3Array)
+            this.Scale.Set(args.scale as Vector3Array);
         }
         else
         {
-            this.Scale.Set(1, 1, 1)
+            this.Scale.Set(1, 1, 1);
         }
     }
 }

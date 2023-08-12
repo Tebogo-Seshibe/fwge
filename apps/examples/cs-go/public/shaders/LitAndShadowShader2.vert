@@ -1,32 +1,40 @@
 #version 300 es
 
+layout (std140) uniform;
+precision highp float;
+
 layout(location = 0) in vec3 A_Position;
 layout(location = 1) in vec3 A_Normal;
 layout(location = 2) in vec2 A_UV;
 layout(location = 3) in vec3 A_Colour;
 
-out vec3 V_Position;
-out vec3 V_Normal;
-out vec2 V_UV;
-out vec3 V_Colour;
-
-struct Matrix
+struct Vertex
 {
-    mat4 ModelView;
-    mat3 Normal;
-    mat4 View;
-    mat4 Projection;
+    vec3 Position;
+    vec3 Normal;
+    vec2 UV;
+    vec3 Colour;
 };
-uniform Matrix U_Matrix;
+out Vertex V_Vertex;
 
-uniform mat4 U_LightSpaceMatrix;
+uniform Object
+{
+    mat4 ModelViewMatrix;
+    mat3 NormalMatrix;
+} object;
+
+uniform Camera
+{
+    mat4 ViewMatrix;
+    mat4 ProjectionMatrix;
+} camera;
 
 void main(void)
 {
-    V_Position = (U_Matrix.ModelView * vec4(A_Position, 1.0)).xyz;
-    V_Normal = normalize(U_Matrix.Normal * A_Normal);
-    V_UV = A_UV;
-    V_Colour = A_Colour;
+    V_Vertex.Position = (object.ModelViewMatrix * vec4(A_Position, 1.0)).xyz;
+    V_Vertex.Normal = normalize(object.NormalMatrix * A_Normal);
+    V_Vertex.UV = A_UV;
+    V_Vertex.Colour = A_Colour;
 
-    gl_Position = U_Matrix.Projection * U_Matrix.View * vec4(V_Position, 1.0);
+    gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(V_Vertex.Position, 1.0);
 }

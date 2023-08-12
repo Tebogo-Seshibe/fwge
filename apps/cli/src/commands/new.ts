@@ -1,4 +1,5 @@
 import fs from 'fs';
+import inquirer from 'inquirer';
 import path from 'path';
 import { Name } from '../utils/Name';
 import { TemplateFileWriter } from '../utils/TemplateFileWriter';
@@ -7,7 +8,7 @@ import { TemplateFileWriter } from '../utils/TemplateFileWriter';
 export async function newProject(name: string): Promise<void>
 {
     const { kebab, pascal } = Name(name);
-
+    
     console.log('Creating folder structure');
     fs.mkdirSync(path.resolve('.', kebab));
     fs.mkdirSync(path.resolve('.', kebab, 'public'));
@@ -27,6 +28,10 @@ export async function newProject(name: string): Promise<void>
     // TemplateFileWriter('INDEX_CSS', path.resolve('.', name, 'src', `${name}.ts`), {});  
     // TemplateFileWriter('GAME', path.resolve('.', name, 'src', `${name}.ts`), {});
 
+    TemplateFileWriter(
+        path.resolve(__dirname, '..', 'templates', 'fwge.config.js.template'),
+        path.resolve('.', kebab, 'fwge.config.js')
+    );
     TemplateFileWriter(
         path.resolve(__dirname, '..', 'templates', 'gitignore.template'),
         path.resolve('.', kebab, '.gitignore')
