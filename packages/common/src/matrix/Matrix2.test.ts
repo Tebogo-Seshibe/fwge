@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { radian } from "../utils";
 import { Vector2, Vector2Array } from "../vector";
 import { Matrix2, Matrix2Array } from "./Matrix2";
