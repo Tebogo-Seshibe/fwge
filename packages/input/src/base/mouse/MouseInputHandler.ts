@@ -1,10 +1,13 @@
+import { Vector2 } from "@fwge/common";
 import { ButtonState, WheelState } from "../InputState";
 import { MouseState } from "./MouseState";
+
 
 export class MouseInputHandler
 {
     public static readonly TOTAL_KEYS = 12;
     private readonly dimensions: Uint8ClampedArray = new Uint8ClampedArray(4);
+    private readonly offset: Vector2 = new Vector2();
     
     public readonly State: MouseState
     constructor(
@@ -58,24 +61,22 @@ export class MouseInputHandler
         this.dimensions[1] = left;
         this.dimensions[2] = width;
         this.dimensions[3] = height;
+        this.offset.Set(left + (width / 2), top + (height / 2))
     }
 
     private _click(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
     }
     
     private _dblclick(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
     }
     
     private _mousedown(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
 
         this.mouseButtons[e.button + 1] = ButtonState.PRESSED
     }
@@ -83,7 +84,6 @@ export class MouseInputHandler
     private _mouseup(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
 
         this.mouseButtons[e.button + 1] = ButtonState.RAISED
     }
@@ -91,7 +91,6 @@ export class MouseInputHandler
     private _mousemove(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
         
         this.mouseMovement[0] = e.movementX
         this.mouseMovement[1] = e.movementY
@@ -99,18 +98,18 @@ export class MouseInputHandler
         this.mouseMovement[3] = e.clientY
         this.mouseMovement[4] = e.clientX - this.dimensions[1] - (this.dimensions[2] / 2)
         this.mouseMovement[5] = -e.clientY + this.dimensions[0] + (this.dimensions[3] / 2)
+        // this.mouseMovement[4] = e.clientX - this.offset.X
+        // this.mouseMovement[5] = -e.clientY + this.offset.Y
     }
     
     private _contextmenu(e: MouseEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
     }
     
     private _wheel(e: WheelEvent): void
     {
         e.preventDefault()
-        e.cancelBubble = true
 
         this.mouseButtons[0] = e.deltaY > 0
             ? WheelState.DOWN

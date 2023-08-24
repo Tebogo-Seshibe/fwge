@@ -1,12 +1,11 @@
 import { FixedLengthArray, Vector2 } from "@fwge/common";
 import { ButtonState, WheelState } from "../InputState";
 
-
 export class MouseState 
 {
-    public readonly Offset: Readonly<Vector2>;
-    public readonly RawPosition: Readonly<Vector2>;
-    public readonly ScreenPosition: Readonly<Vector2>;
+    public readonly Offset: Readonly<Pick<Vector2, 'X' | 'Y'>>;
+    public readonly RawPosition: Readonly<Pick<Vector2, 'X' | 'Y'>>;
+    public readonly ScreenPosition: Readonly<Pick<Vector2, 'X' | 'Y'>>;
     public readonly Buttons: Readonly<[WheelState, ...FixedLengthArray<ButtonState, 5>]>;
 
     public get Wheel(): WheelState

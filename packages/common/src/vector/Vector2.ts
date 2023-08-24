@@ -202,7 +202,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
         const theta = radian(degrees);
         const cosTheta = Math.cos(theta);
         const sinTheta = Math.sin(theta);
-
+        
         return this.Set(
             (cosTheta * this[0]) - (sinTheta * this[1]),
             (sinTheta * this[0]) + (cosTheta * this[1])

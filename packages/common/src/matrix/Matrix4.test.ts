@@ -1,8 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
-import { radian } from "../utils";
 import { Vector3, Vector3Array, Vector4, Vector4Array } from "../vector";
 import { Matrix2 } from "./Matrix2";
 import { Matrix3 } from "./Matrix3";

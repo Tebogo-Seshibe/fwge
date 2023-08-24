@@ -10,10 +10,12 @@
         "strict": true,
         "outDir": "./lib",
         "allowJs": false,
-        "watch": true
     },
     "compileOnSave": true,
     "include": [
         "./src",
+    ],
+    "exclude": [
+        "./src/**/*.spec.ts"
     ]
 }

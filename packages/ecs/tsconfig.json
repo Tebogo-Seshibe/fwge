@@ -6,6 +6,7 @@
     },
     "exclude": [
         "./lib",
-        "./**/*.test.ts"
+        "./**/*.test.ts",
+        "./vite.config.ts"
     ],
 }

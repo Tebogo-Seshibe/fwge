@@ -1,8 +1,9 @@
 import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addComponent } from "./component";
+import { describe, it, expect, vi } from 'vitest';
 
 describe('Adding a new component', () => {
-    const logSpy = jest.spyOn(console, 'log');
+    const logSpy = vi.spyOn(console, 'log');
 
     it('Should throw if a name is not provided', async () => {
         expect(addComponent).rejects.toThrowError(InvalidArgumentsException.ERROR_MESSAGE);

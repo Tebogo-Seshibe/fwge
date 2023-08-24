@@ -1,8 +1,9 @@
 import { AddSuccess, InvalidArgumentsException } from "../../utils";
 import { addEntity } from "./entity";
+import { describe, it, expect, vi } from 'vitest';
 
 describe('Adding a new entity', () => {
-    const logSpy = jest.spyOn(console, 'log');
+    const logSpy = vi.spyOn(console, 'log');
 
     it('Should throw if a name is not provided', async () => {
         expect(addEntity).rejects.toThrowError(InvalidArgumentsException.ERROR_MESSAGE);

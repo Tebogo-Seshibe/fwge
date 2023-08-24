@@ -1,7 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
+// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { root_2 } from "../constants";
 import { Vector2, Vector2Array } from "./Vector2";

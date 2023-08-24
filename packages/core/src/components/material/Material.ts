@@ -33,8 +33,8 @@ export class Material extends SharedComponent
     Shader: Shader
     RenderType: RenderType;
 
-    private readonly _alpha: Scalar;
-    private readonly _colour: Colour3;
+    private readonly alpha: Scalar;
+    private readonly colour: Colour3;
     
     readonly MaterialBuffer = GL.createBuffer()!
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
@@ -42,17 +42,17 @@ export class Material extends SharedComponent
 
     get Alpha()
     {
-        return this._alpha.Value
+        return this.alpha.Value
     }
 
     set Alpha(alpha: number)
     {
-        this._alpha.Value = alpha
+        this.alpha.Value = alpha
     }
 
     get Colour()
     {
-        return this._colour;
+        return this.colour;
     }
 
     constructor(
@@ -64,11 +64,11 @@ export class Material extends SharedComponent
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
-        this.Colour = new Colour3(1,1,1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
-        this.#alpha = new Scalar(1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
+        this.colour = new Colour3(1,1,1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0)
+        this.alpha = new Scalar(1)//this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3)
         
-        this.Colour.Set(0.3, 0.3, 0.3)
-        this.#alpha.Set(1.0)
+        this.colour.Set(0.3, 0.3, 0.3)
+        this.alpha.Set(1.0)
 
         if (!Material.Empty)
         {

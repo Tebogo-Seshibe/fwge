@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { Colour4, Colour4Array } from './Colour4';
 import { Colour3 } from './Colour3';
 import { describe, it, expect } from 'vitest';

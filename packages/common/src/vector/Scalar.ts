@@ -156,10 +156,9 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Negate(scalar: Scalar, out: Scalar): Scalar;
     static Negate(_0: Scalar, _1?: Scalar): Scalar
     {
-        const out = _1 !== undefined ? _1 : new Scalar();
+        const out = _1 || new Scalar();
 
         out[0] = -_0[0];
-        out[1] = -_0[1];
 
         return out;
     }
@@ -170,13 +169,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Add(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
     static Add(array1: NumberArray, array2: NumberArray): Scalar;
     static Add(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Add(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    static Add(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Scalar ? _2 as Scalar : new Scalar();
+        const out = _2 || new Scalar();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
-            out[0] = (_0 as number) + (_2 as number);
+            out[0] = (_0 as number) + (_1 as number);
         }
         else
         {
@@ -192,13 +191,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Subtract(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
     static Subtract(array1: NumberArray, array2: NumberArray): Scalar;
     static Subtract(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Subtract(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    static Subtract(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Scalar ? _2 as Scalar : new Scalar();
+        const out = _2 || new Scalar();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
-            out[0] = (_0 as number) - (_2 as number);
+            out[0] = (_0 as number) - (_1 as number);
         }
         else
         {
@@ -214,13 +213,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Multiply(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
     static Multiply(array1: NumberArray, array2: NumberArray): Scalar;
     static Multiply(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Multiply(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    static Multiply(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Scalar ? _2 as Scalar : new Scalar();
+        const out = _2 || new Scalar();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
-            out[0] = (_0 as number) * (_2 as number);
+            out[0] = (_0 as number) * (_1 as number);
         }
         else
         {
@@ -236,13 +235,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Divide(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
     static Divide(array1: NumberArray, array2: NumberArray): Scalar;
     static Divide(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Divide(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: number | Scalar, _3?: number, _4?: Scalar): Scalar
+    static Divide(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
-        const out = _4 !== undefined ? _4 : _2 instanceof Scalar ? _2 as Scalar : new Scalar();
+        const out = _2 || new Scalar();
 
         if (typeof _0 === 'number' || typeof _1 === 'number')
         {
-            out[0] = (_0 as number) / (_2 as number);
+            out[0] = (_0 as number) / (_1 as number);
         }
         else
         {
@@ -256,7 +255,7 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     static Scale(vector: Scalar, scalar: number, out: Scalar): Scalar;
     static Scale(_0: Scalar, _1: number, _2?: Scalar): Scalar
     {
-        const out = _2 !== undefined ? _2 : new Scalar();
+        const out = _2 || new Scalar();
 
         out[0] = _0[0] * _1;
 

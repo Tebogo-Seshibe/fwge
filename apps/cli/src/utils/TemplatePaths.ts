@@ -16,14 +16,14 @@ export const TemplatePath = {
 export type TemplatePathType = (typeof TemplatePath)[keyof (typeof TemplatePath)];
 
 export const TemplatePaths: Record<TemplatePathType, string> = {
-    [TemplatePath.GAME]:            path.resolve(__dirname, '..', 'templates', 'Game.ts.template'),
-    [TemplatePath.SCENE]:           path.resolve(__dirname, '..', 'templates', 'Scene.ts.template'),
-    [TemplatePath.SYSTEM]:          path.resolve(__dirname, '..', 'templates', 'System.ts.template'),
-    [TemplatePath.ENTITY]:          path.resolve(__dirname, '..', 'templates', 'Entity.ts.template'),
-    [TemplatePath.ASSET]:           path.resolve(__dirname, '..', 'templates', 'Asset.ts.template'),
-    [TemplatePath.GIT_IGNORE]:      path.resolve(__dirname, '..', 'templates', 'gitignore.template'),
-    [TemplatePath.PACKAGE_JSON]:    path.resolve(__dirname, '..', 'templates', 'package.json.template'),
-    [TemplatePath.TS_CONFIG]:       path.resolve(__dirname, '..', 'templates', 'tsconfig.json.template'),
-    [TemplatePath.INDEX_HTML]:      path.resolve(__dirname, '..', 'templates', 'index.html.template'),
-    [TemplatePath.INDEX_CSS]:       path.resolve(__dirname, '..', 'templates', 'index.css.template'),
+    [TemplatePath.GAME]:            path.resolve(__dirname, '..', '..', 'templates', 'Game.ts.mustache'),
+    [TemplatePath.SCENE]:           path.resolve(__dirname, '..', '..', 'templates', 'Scene.ts.mustache'),
+    [TemplatePath.SYSTEM]:          path.resolve(__dirname, '..', '..', 'templates', 'System.ts.mustache'),
+    [TemplatePath.ENTITY]:          path.resolve(__dirname, '..', '..', 'templates', 'Entity.ts.mustache'),
+    [TemplatePath.ASSET]:           path.resolve(__dirname, '..', '..', 'templates', 'Asset.ts.mustache'),
+    [TemplatePath.GIT_IGNORE]:      path.resolve(__dirname, '..', '..', 'templates', 'gitignore.mustache'),
+    [TemplatePath.PACKAGE_JSON]:    path.resolve(__dirname, '..', '..', 'templates', 'package.json.mustache'),
+    [TemplatePath.TS_CONFIG]:       path.resolve(__dirname, '..', '..', 'templates', 'tsconfig.json.mustache'),
+    [TemplatePath.INDEX_HTML]:      path.resolve(__dirname, '..', '..', 'templates', 'index.html.mustache'),
+    [TemplatePath.INDEX_CSS]:       path.resolve(__dirname, '..', '..', 'templates', 'index.css.mustache'),
 };

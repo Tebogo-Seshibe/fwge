@@ -6,15 +6,30 @@
     },
     "exclude": [
         "./lib",
-        "./**/*.test.ts"
+        "./**/*.test.ts",
+        "./vite.config.ts"
     ],
     "references": [
-        { "path": "../audio" },
-        { "path": "../common" },
-        { "path": "../core" },
-        { "path": "../input" },
-        { "path": "../physics" },
-        { "path": "../render" },
-        { "path": "../ui" }
+        {
+            "path": "../audio"
+        },
+        {
+            "path": "../common"
+        },
+        {
+            "path": "../core"
+        },
+        {
+            "path": "../input"
+        },
+        {
+            "path": "../physics"
+        },
+        {
+            "path": "../render"
+        },
+        {
+            "path": "../ui"
+        }
     ]
 }

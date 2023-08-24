@@ -4,7 +4,7 @@ export function CreateUUID(uuid?: string): UUID
 {
     if (!uuid)
     {
-        let date = Date.now() + '';
+        let date = Date.now().toString();
         let rand = (Math.random() + '').substring(2);
         uuid = '';
 

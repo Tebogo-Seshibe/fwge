@@ -1,5 +1,5 @@
 import { Matrix3, Matrix4 } from "./matrix"
-import { NumberArray } from "./types"
+import { FixedLengthArray, NumberArray } from "./types"
 import { Scalar, Vector3, Vector4 } from "./vector"
 
 export class Quaternion extends Float32Array
@@ -93,10 +93,10 @@ export class Quaternion extends Float32Array
     constructor(quaternion: Quaternion);
     constructor(vector: Vector4);
     constructor(vector: Vector3, w: number);
-    constructor(array: NumberArray);
+    constructor(array: FixedLengthArray<number, 4>);
     constructor(buffer: ArrayBuffer | SharedArrayBuffer);
     constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0?: Quaternion | Vector4 | Vector3 | NumberArray | ArrayBuffer | SharedArrayBuffer | number, _1?: number, _2?: number, _3?: number)
+    constructor(_0?: Quaternion | Vector4 | Vector3 | FixedLengthArray<number, 4> | ArrayBuffer | SharedArrayBuffer | number, _1?: number, _2?: number, _3?: number)
     {
         if (_0 instanceof Vector4 || _0 instanceof Quaternion)
         {

@@ -20,7 +20,8 @@
   "scripts": {
     "build": "tsc",
     "link": "npm link",
-    "test": "vitest --coverage"
+    "test": "vitest",
+    "coverage": "vitest --coverage"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",

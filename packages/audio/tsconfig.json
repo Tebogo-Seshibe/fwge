@@ -6,10 +6,15 @@
     },
     "exclude": [
         "./lib",
-        "./**/*.test.ts"
+        "./**/*.test.ts",
+        "./vite.config.ts"
     ],
     "references": [
-        { "path": "../common" },
-        { "path": "../core" }
+        {
+            "path": "../common"
+        },
+        {
+            "path": "../core"
+        }
     ],
 }

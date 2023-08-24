@@ -18,10 +18,10 @@
         "directory": "packages/cli"
     },
     "scripts": {
-        "build": "gulp",
+        "build": "tsc",
         "link": "npm link",
-        "test": "jest",
-        "coverage": "jest --coverage"
+        "test": "vitest",
+        "coverage": "vitest --coverage"
     },
     "bin": {
         "@tseshibe/fwge": "bin/fwge",

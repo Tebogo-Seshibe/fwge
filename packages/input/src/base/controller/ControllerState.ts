@@ -5,8 +5,8 @@ export class ControllerState
 {
     public Active: boolean = false;
     
-    public readonly LeftStick: Vector2;    
-    public readonly RightStick: Vector2;
+    public readonly LeftStick: Pick<Vector2, 'X' | 'Y'>;
+    public readonly RightStick: Pick<Vector2, 'X' | 'Y'>;
     
     //#region Basic Buttons
     public get DirectionalUp(): ButtonState

@@ -121,10 +121,14 @@ export const OBJLoader: ILoader<OBJ> = (src: string) =>
         
         for (const face of f)
         {
+            let offset = 0;
+            const view = new Float32Array(face.length * Colour4.SIZE);
+            view.fill(1);
+
             for (const indices of face)
             {
                 position.push(v[indices.v])
-                colour.push(new Colour4(1))
+                colour.push(new Colour4(view.buffer, offset * Float32Array.BYTES_PER_ELEMENT));
                 
                 if (indices.vn !== undefined && !Number.isNaN(indices.vn))
                 {
