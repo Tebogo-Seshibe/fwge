@@ -578,17 +578,20 @@ export class Shader extends Asset
                 uniformBlock.data[layout.offset + offset + 0] = data[0];
                 uniformBlock.data[layout.offset + offset + 1] = data[1];
                 break;
+
             case 3:
                 uniformBlock.data[layout.offset + offset + 0] = data[0];
                 uniformBlock.data[layout.offset + offset + 1] = data[1];
                 uniformBlock.data[layout.offset + offset + 2] = data[2];
                 break;
+
             case 4:
                 uniformBlock.data[layout.offset + offset + 0] = data[0];
                 uniformBlock.data[layout.offset + offset + 1] = data[1];
                 uniformBlock.data[layout.offset + offset + 2] = data[2];
                 uniformBlock.data[layout.offset + offset + 3] = data[3];
                 break;
+                
             case 8:
                 if (transpose) {
                     uniformBlock.data[layout.offset + offset + 0] = data[0];
@@ -604,6 +607,7 @@ export class Shader extends Asset
                     uniformBlock.data[layout.offset + offset + 5] = data[3];
                 }
                 break;
+
             case 12:
                 if (transpose) {
                     uniformBlock.data[layout.offset + offset +  0] = data[0];
@@ -631,6 +635,7 @@ export class Shader extends Asset
                     uniformBlock.data[layout.offset + offset + 10] = data[8];
                 }
                 break;
+                
             case 16:
                 if (transpose) {
                     uniformBlock.data[layout.offset + offset +  0] = data[ 0];
