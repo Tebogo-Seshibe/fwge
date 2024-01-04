@@ -7,10 +7,10 @@ export class SquareGeometry extends Geometry2D
     {
         super(
         [
-            new Vector2(-0.5, 0.5),
-            new Vector2(-0.5,-0.5),
-            new Vector2( 0.5,-0.5),
-            new Vector2( 0.5, 0.5)
+            [-0.5, 0.5],
+            [-0.5,-0.5],
+            [ 0.5,-0.5],
+            [ 0.5, 0.5]
         ])
     }
 }

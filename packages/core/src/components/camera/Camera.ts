@@ -5,14 +5,14 @@ import { Transform } from "../Transform";
 export class Camera extends UniqueComponent
 {
     private static Corners = new Geometry3D([
-        new Vector3(-1.0, 1.0, 1.0),
-        new Vector3(-1.0,-1.0, 1.0),
-        new Vector3( 1.0,-1.0, 1.0),
-        new Vector3( 1.0, 1.0, 1.0),
-        new Vector3(-1.0, 1.0,-1.0),
-        new Vector3(-1.0,-1.0,-1.0),
-        new Vector3( 1.0,-1.0,-1.0),
-        new Vector3( 1.0, 1.0,-1.0),
+        [-1.0, 1.0, 1.0],
+        [-1.0,-1.0, 1.0],
+        [ 1.0,-1.0, 1.0],
+        [ 1.0, 1.0, 1.0],
+        [-1.0, 1.0,-1.0],
+        [-1.0,-1.0,-1.0],
+        [ 1.0,-1.0,-1.0],
+        [ 1.0, 1.0,-1.0],
     ]);
     public static Main?: Camera
     public readonly ProjectionMatrix: Matrix4 = Matrix4.Identity

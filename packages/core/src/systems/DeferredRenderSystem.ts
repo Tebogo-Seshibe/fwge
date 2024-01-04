@@ -60,7 +60,7 @@ export class DeferredRenderSystem extends System
         {
             window.MainPass.Output.Bind();
             this.prepassRender(window.Camera);
-            this.shadowpassRender();
+            // this.shadowpassRender();
         }
         
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
@@ -219,7 +219,9 @@ export class DeferredRenderSystem extends System
 
             if (this.print)
             {
-                console.log(data)
+                console.log({ rotx, roty, rotz })
+                console.log({ data })
+                console.log({ light })
                 this.print = false;
             }
             // shader.SetBufferDataField('DirectionalLights', 'U_DirectionalLight', data);

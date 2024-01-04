@@ -1532,6 +1532,66 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         return out;
     }
 
+    static BasicOrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number): Matrix4;
+    static BasicOrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, out: Matrix4): Matrix4;
+    static BasicOrthographicProjection(min: Vector3, max: Vector3): Matrix4;
+    static BasicOrthographicProjection(min: Vector3, max: Vector3, out: Matrix4): Matrix4;
+    static BasicOrthographicProjection(min: Vector3Array, max: Vector3Array): Matrix4;
+    static BasicOrthographicProjection(min: Vector3Array, max: Vector3Array, out: Matrix4): Matrix4;
+    static BasicOrthographicProjection(_0: Vector3 | Vector3Array | number, _1: Vector3 | Vector3Array | number, _2?: Matrix4 | number, _3?: number, _4?: number, _5?: number, _6?: Matrix4): Matrix4
+    {
+        const out = _6 || (_2 instanceof Matrix4 ? _2 as Matrix4 : new Matrix4());
+        let left: number;
+        let right: number;
+        let top: number;
+        let bottom: number;
+        let near: number;
+        let far: number;
+
+        if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
+        {
+            left = _0 as number;
+            bottom = _1 as number;
+            near = _2 as number;
+            right = _3 as number;
+            top = _4 as number;
+            far = _5 as number;
+        }
+        else
+        {
+            left = _0[0];
+            bottom = _0[1];
+            near = _0[2];
+            right = _1[0];
+            top = _1[1];
+            far = _1[2];
+        }
+
+        const width = right - left;
+        const height = top - bottom;
+        const depth = far - near;
+
+        out[0] = 2 / width;
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = 0;
+        out[4] = 0;
+        out[5] = 2 / height;
+        out[6] = 0;
+        out[7] = 0;
+        out[8] = 0;
+        out[9] = 0;
+        out[10] = -2 / depth;
+        out[11] = 0;
+        out[12] = -(left + right) / width;
+        out[13] = -(top + bottom) / height;
+        out[14] = -(far + near) / depth;
+        out[15] = 1;
+
+        return out;
+    }
+
+
     static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number): Matrix4;
     static PerspectiveProjectionMatrix(nearClippingPlane: number, farClippingPlane: number, fieldOfView: number, aspectRatio: number, out: Matrix4): Matrix4;
     static PerspectiveProjectionMatrix(_0: number, _1: number, _2: number, _3: number, _4?: Matrix4): Matrix4

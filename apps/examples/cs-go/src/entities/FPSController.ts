@@ -120,7 +120,7 @@ export class FPSController extends GameObject
         this.transform.Rotation.Y += this.rotationDelta.X;
         this.cameraTransform.Rotation.X = clamp(this.cameraTransform.Rotation.X + this.rotationDelta.Y, -80, 80);
 
-        this.rotationMatrix.Set(Matrix4.RotationMatrix(this.transform.Rotation).Matrix3);
+        Matrix3.RotationMatrix(this.transform.Rotation, this.rotationMatrix);
         Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, -1, this.forward);
         Matrix3.MultiplyVector(this.rotationMatrix, 1, 0, 0, this.right);
 

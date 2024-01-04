@@ -9,7 +9,7 @@ export interface IBufferView
 
 export class CompositeDataView extends DataView
 {
-    private readonly _views: Record<string, TypedArray> = Object.create(null);
+    readonly #views: Record<string, TypedArray> = Object.create(null);
 
     constructor(views: IBufferView[])
     {
@@ -24,7 +24,7 @@ export class CompositeDataView extends DataView
         {
             const totalLength = type.BYTES_PER_ELEMENT * length;
             
-            this._views[name] = new type(this.buffer, offset, length);
+            this.#views[name] = new type(this.buffer, offset, length);
             
             offset += totalLength;
         }
@@ -32,6 +32,6 @@ export class CompositeDataView extends DataView
 
     View<T extends TypedArray>(name: string): T | undefined
     {
-        return this._views[name] as T;
+        return this.#views[name] as T;
     }
 }

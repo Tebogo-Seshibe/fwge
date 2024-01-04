@@ -1,8 +1,8 @@
 import { Matrix3 } from "../matrix";
-import { Vector2, Vector3 } from "../vector";
+import { Vector2, Vector2Array, Vector3 } from "../vector";
 import { Geometry } from "./Geometry";
 
-export class Geometry2D extends Geometry<Vector2, Matrix3>
+export class Geometry2D extends Geometry<Vector2, Matrix3, Vector2Array>
 {
     TransformedVertices(transformationMatrix: Matrix3): Vector2[]
     TransformedVertices(transformationMatrix: Matrix3, out: Vector2[]): Vector2[]

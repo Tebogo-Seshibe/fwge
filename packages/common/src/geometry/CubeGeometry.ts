@@ -11,27 +11,27 @@ export class CubeGeometry extends Geometry3D
         if (min && max)
         {
             super([
-                new Vector3(min[0], min[1], min[2]),
-                new Vector3(max[0], min[1], min[2]),
-                new Vector3(min[0], max[1], min[2]),
-                new Vector3(max[0], max[1], min[2]),
-                new Vector3(min[0], min[1], max[2]),
-                new Vector3(max[0], min[1], max[2]),
-                new Vector3(min[0], max[1], max[2]),
-                new Vector3(max[0], max[1], max[2])
+                [min[0], min[1], min[2]],
+                [max[0], min[1], min[2]],
+                [min[0], max[1], min[2]],
+                [max[0], max[1], min[2]],
+                [min[0], min[1], max[2]],
+                [max[0], min[1], max[2]],
+                [min[0], max[1], max[2]],
+                [max[0], max[1], max[2]]
             ]);
         }
         else
         {
             super([
-                new Vector3(-0.5, 0.5, 0.5),
-                new Vector3(-0.5,-0.5, 0.5),
-                new Vector3( 0.5,-0.5, 0.5),
-                new Vector3( 0.5, 0.5, 0.5),
-                new Vector3(-0.5, 0.5,-0.5),
-                new Vector3(-0.5,-0.5,-0.5),
-                new Vector3( 0.5,-0.5,-0.5),
-                new Vector3( 0.5, 0.5,-0.5),
+                [-0.5, 0.5, 0.5],
+                [-0.5,-0.5, 0.5],
+                [ 0.5,-0.5, 0.5],
+                [ 0.5, 0.5, 0.5],
+                [-0.5, 0.5,-0.5],
+                [-0.5,-0.5,-0.5],
+                [ 0.5,-0.5,-0.5],
+                [ 0.5, 0.5,-0.5],
             ]);
         }
     }

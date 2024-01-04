@@ -135,8 +135,8 @@ export class DirectionalLight extends Light
         {
             colour: [],
             depth: DepthType.INT24,
-            height: 2 ** 13,
-            width: 2 ** 13
+            height: 2 ** 10,
+            width: 2 ** 10
         });
     static readonly DefaultDirection: Vector3 = new Vector3(0, -1, 0);
 
@@ -314,7 +314,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ViewMatrix = Matrix4.OrthographicProjection(-20, -20, -20, 20, 20, 20, 90, 90);
+    readonly ViewMatrix = Matrix4.BasicOrthographicProjection(-20, -20, -20, 20, 20, 20);
 
     get ModelMatrix(): Matrix4
     {
@@ -371,7 +371,7 @@ export class DirectionalLight extends Light
                 void main(void)
                 {
                 }`
-                );
+            );
         }
 
         return DirectionalLight._shadowShader;
