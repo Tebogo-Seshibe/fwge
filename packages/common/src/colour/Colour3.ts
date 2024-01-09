@@ -39,10 +39,10 @@ export class Colour3 extends Float32Array implements IsEquatable<Colour3>
 
     get RGBA(): Colour4
     {
-        return new Colour4(this, 1);
+        return new Colour4(this[0], this[1], this[2], 1);
     }
     //#endregion
-
+    
     constructor();
     constructor(r: number, g: number, b: number);
     constructor(colour: Colour3);
@@ -88,7 +88,7 @@ export class Colour3 extends Float32Array implements IsEquatable<Colour3>
         return this;
     }
 
-    Clone()
+    Clone(): Colour3
     {
         return new Colour3(this);
     }

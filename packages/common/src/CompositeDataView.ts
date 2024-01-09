@@ -2,14 +2,14 @@ import { TypedArray, TypedArrayConstructor } from "./types";
 
 export interface IBufferView
 {
-    name: string;
+    name: string | symbol | number;
     type: TypedArrayConstructor;
     length: number;
 }
 
 export class CompositeDataView extends DataView
 {
-    readonly #views: Record<string, TypedArray> = Object.create(null);
+    readonly #views: Record<string | symbol | number, TypedArray> = {};
 
     constructor(views: IBufferView[])
     {
@@ -30,7 +30,7 @@ export class CompositeDataView extends DataView
         }
     }
 
-    View<T extends TypedArray>(name: string): T | undefined
+    View<T extends TypedArray>(name: string | symbol | number): T | undefined
     {
         return this.#views[name] as T;
     }
