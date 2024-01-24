@@ -65,13 +65,18 @@ export class Registry
         }
     }
 
-    public static GetComponent(entityId: EntityId, componentTypeId: TypeId): Component | undefined
+    public static GetComponent<T extends Component = Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined
+    public static GetComponent<T extends Component = Component>(entityId: EntityId, componentType: Class<T>): T | undefined
+    public static GetComponent<T extends Component = Component>(entityId: EntityId, componentTypeOrId: TypeId | Class<T>): T | undefined
     {
+        const typeId = typeof componentTypeOrId === 'number'
+            ? componentTypeOrId
+            : componentTypeOrId.TypeId
         const entityList = this._entityComponentList.Get(entityId);
 
         if (entityList)
         {
-            return entityList[componentTypeId];
+            return entityList[typeId] as T;
         }
 
         return undefined;

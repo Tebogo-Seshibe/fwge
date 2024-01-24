@@ -1,6 +1,6 @@
-import { SharedComponent } from '@fwge/core';
-import { ControllerState, KeyboardState, MouseState } from '..';
 import { FixedLengthArray } from '@fwge/common';
+import { Component } from '@fwge/ecs';
+import { ControllerState, KeyboardState, MouseState } from '..';
 
 export interface IInputArgs
 {
@@ -8,16 +8,17 @@ export interface IInputArgs
     Mouse: MouseState
     Controllers: ControllerState[]
 }
-interface IInput
+
+interface InputArgs
 {
     onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
 }
 
-export class Input extends SharedComponent
+export class Input extends Component
 {
     OnInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
     
-    constructor(args: IInput)
+    constructor(args: InputArgs)
     {
         super()
 

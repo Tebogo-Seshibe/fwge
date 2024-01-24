@@ -1,5 +1,5 @@
 import { CompositeDataView, GL } from "@fwge/common";
-import { Registry, System } from "@fwge/core";
+import { Registry, System } from "@fwge/ecs";
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler";
 import { KeyboardInputHandler, NUM_KEYBOARD_KEYS } from "../base/keyboard/KeyboardInputHandler";
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler";
@@ -57,7 +57,7 @@ export class InputSystem extends System
 
     Init(): void
     {
-        Registry.registerView(this._input, [Input]);
+        Registry.RegisterView(this._input, [Input]);
     }
     
     Start(): void
@@ -73,10 +73,10 @@ export class InputSystem extends System
         this.mouse.Update();
         this.controllers.Update();
 
-        for (const entityId of Registry.getView(this._input))
+        for (const entityId of Registry.GetView(this._input))
         {
             const entity = this.Scene.GetEntity(entityId)!;
-            const input = Registry.getComponent(entityId, Input)!;
+            const input = Registry.GetComponent(entityId, Input)!;
             input.OnInput.call(entity, delta, this.keyboard.State, this.mouse.State, this.controllers.State);
         }
 

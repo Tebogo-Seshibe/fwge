@@ -98,8 +98,6 @@ export class MouseInputHandler
         this.mouseMovement[3] = e.clientY
         this.mouseMovement[4] = e.clientX - this.dimensions[1] - (this.dimensions[2] / 2)
         this.mouseMovement[5] = -e.clientY + this.dimensions[0] + (this.dimensions[3] / 2)
-        // this.mouseMovement[4] = e.clientX - this.offset.X
-        // this.mouseMovement[5] = -e.clientY + this.offset.Y
     }
     
     private _contextmenu(e: MouseEvent): void
