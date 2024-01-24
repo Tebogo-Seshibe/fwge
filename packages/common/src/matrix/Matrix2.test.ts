@@ -275,7 +275,7 @@ describe('Matrix2', () =>
         });
     });
 
-    describe('Local Methods', () =>
+    describe('Instance Methods', () =>
     {
         describe('Set', () => 
         {

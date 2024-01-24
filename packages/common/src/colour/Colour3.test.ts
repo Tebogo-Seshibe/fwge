@@ -1,4 +1,4 @@
-import { Colour3, Colour3Array } from './Colour3';
+import { Colour3, type Colour3Array } from './Colour3';
 import { Colour4 } from './Colour4';
 import { describe, it, expect } from 'vitest';
 
@@ -20,6 +20,14 @@ describe('Colour3', () =>
             expect(colour[0]).toBe(0);
             expect(colour[1]).toBe(0);
             expect(colour[2]).toBe(0);
+        });
+
+        it('Should assign component-wise when values are passed', () =>
+        {
+            const colour = new Colour3(0.5, 0.6, 0.7);
+            expect(colour[0]).toBeCloseTo(0.5);
+            expect(colour[1]).toBeCloseTo(0.6);
+            expect(colour[2]).toBeCloseTo(0.7);
         });
 
         it('Should assign component-wise when another colour is passed', () =>
@@ -111,7 +119,7 @@ describe('Colour3', () =>
 
         describe('RGBA', () =>
         {
-            it('Should create a new Colour4 with the values from the current colour-', () =>
+            it('Should create a new Colour4 with the values from the current colour', () =>
             {
                 const other = new Colour3(0.1, 0.2, 0.3);
                 const colour = other.RGBA;
@@ -125,7 +133,7 @@ describe('Colour3', () =>
     });
 
 
-    describe('Local Methods', () =>
+    describe('Instance Methods', () =>
     {
         describe('Set', () => 
         {
@@ -174,7 +182,7 @@ describe('Colour3', () =>
 
         describe('Equals', () => 
         {
-            it('Should succeed when two matrices have the same values', () =>
+            it('Should succeed when two colours have the same values', () =>
             {
                 const matrix = new Colour3(0.1, 0.2, 0.3);
                 const other = new Colour3(0.1, 0.2, 0.3);
@@ -182,7 +190,7 @@ describe('Colour3', () =>
                 expect(equals).toBeTruthy();
             });
 
-            it('Should succeed not when two matrices have the different values', () =>
+            it('Should fail when two colours have different values', () =>
             {
                 const matrix = new Colour3(0.1, 0.2, 0.3);
                 const other = new Colour3(0.1, 0.2, 0.4);

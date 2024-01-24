@@ -122,7 +122,7 @@ describe('Vector2', () =>
         });
     });
 
-    describe('Local Methods', () =>
+    describe('Instance Methods', () =>
     {
         describe('Set', () =>
         {
