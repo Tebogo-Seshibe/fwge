@@ -1,6 +1,6 @@
-import { UniqueComponent } from '@fwge/core'
+import { Component } from '@fwge/ecs'
 
-export class UI extends UniqueComponent
+export class UI extends Component
 {
     constructor()
     {

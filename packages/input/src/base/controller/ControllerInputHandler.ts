@@ -3,8 +3,8 @@ import { ControllerState } from "./ControllerState";
 
 export class ControllerInputHandler
 {
-    private controllers: FixedLengthArray<Gamepad | null, 4> = [null, null, null, null];
-    public readonly State!: FixedLengthArray<ControllerState, 4>;
+    private readonly _controllers: FixedLengthArray<Gamepad | null, 4> = [null, null, null, null];
+    public readonly State: FixedLengthArray<ControllerState, 4>;
     
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -19,12 +19,13 @@ export class ControllerInputHandler
         ];
     }
 
-    Start(): void        
+    public Start(): void        
     {
         this.canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this.addController.bind(this))
+        this.canvas.ownerDocument.documentElement.addEventListener('gamepaddisconnected', this.removeController.bind(this))
     }
 
-    Update(): void
+    public Update(): void
     {
         const controllers = navigator.getGamepads() as FixedLengthArray<Gamepad | null, 4>;
         let i = 0;
@@ -44,18 +45,18 @@ export class ControllerInputHandler
             this.controllerAxes[controller.index + 0] = controller.axes[0];
             this.controllerAxes[controller.index + 1] = controller.axes[1];
             this.controllerAxes[controller.index + 2] = controller.axes[2];
-            this.controllerAxes[controller.index + 2] = controller.axes[2];
+            this.controllerAxes[controller.index + 3] = controller.axes[3];
 
-            this.controllerButtons[controller.index + 0] = controller.buttons[0].value;
-            this.controllerButtons[controller.index + 1] = controller.buttons[1].value;
-            this.controllerButtons[controller.index + 2] = controller.buttons[2].value;
-            this.controllerButtons[controller.index + 3] = controller.buttons[3].value;
-            this.controllerButtons[controller.index + 4] = controller.buttons[4].value;
-            this.controllerButtons[controller.index + 5] = controller.buttons[5].value;
-            this.controllerButtons[controller.index + 6] = controller.buttons[6].value;
-            this.controllerButtons[controller.index + 7] = controller.buttons[7].value;
-            this.controllerButtons[controller.index + 8] = controller.buttons[8].value;
-            this.controllerButtons[controller.index + 9] = controller.buttons[9].value;
+            this.controllerButtons[controller.index +  0] = controller.buttons[ 0].value;
+            this.controllerButtons[controller.index +  1] = controller.buttons[ 1].value;
+            this.controllerButtons[controller.index +  2] = controller.buttons[ 2].value;
+            this.controllerButtons[controller.index +  3] = controller.buttons[ 3].value;
+            this.controllerButtons[controller.index +  4] = controller.buttons[ 4].value;
+            this.controllerButtons[controller.index +  5] = controller.buttons[ 5].value;
+            this.controllerButtons[controller.index +  6] = controller.buttons[ 6].value;
+            this.controllerButtons[controller.index +  7] = controller.buttons[ 7].value;
+            this.controllerButtons[controller.index +  8] = controller.buttons[ 8].value;
+            this.controllerButtons[controller.index +  9] = controller.buttons[ 9].value;
             this.controllerButtons[controller.index + 10] = controller.buttons[10].value;
             this.controllerButtons[controller.index + 11] = controller.buttons[11].value;
             this.controllerButtons[controller.index + 12] = controller.buttons[12].value;
@@ -65,20 +66,21 @@ export class ControllerInputHandler
         }
     }
 
-    Stop(): void        
+    public Stop(): void        
     {
-        this.canvas.ownerDocument.documentElement.addEventListener('gamepadconnected', this.removeController.bind(this))        
+        this.canvas.ownerDocument.documentElement.removeEventListener('gamepadconnected', this.removeController.bind(this)) 
+        this.canvas.ownerDocument.documentElement.removeEventListener('gamepaddisconnected', this.removeController.bind(this))       
     }
 
     private addController(e: Event)
     {
         const controller = (e as GamepadEvent).gamepad;
-        this.controllers[controller.index] = controller;
+        this._controllers[controller.index] = controller;
     }
     
     private removeController(e: Event)
     {
-        const controller = (e as GamepadEvent).gamepad;   
-        this.controllers[controller.index] = null;
+        const controller = (e as GamepadEvent).gamepad;
+        this._controllers[controller.index] = null;
     }
 }

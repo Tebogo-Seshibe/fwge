@@ -39,6 +39,7 @@
     ],
     "workspaces": [
         "packages/common",
+        "packages/ecs",
         "packages/core",
         "packages/render",
         "packages/audio",
