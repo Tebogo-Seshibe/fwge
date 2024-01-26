@@ -6,8 +6,8 @@ export type EntityId = number;
 
 export abstract class Entity
 {
-    readonly Id: EntityId = Registry.CreateEntity();
-    
+    public readonly Id: EntityId = Registry.CreateEntity(this);
+
     public Destroy(): void
     {
         Registry.DestroyEntity(this.Id);
@@ -18,6 +18,45 @@ export abstract class Entity
         return this as unknown as T;
     }
 
+    //#region Children
+    public AddChild(entityId: EntityId): Entity
+    public AddChild(entity: Entity): Entity
+    public AddChild(entity: Entity | EntityId): Entity
+    {
+        const entityId = typeof entity === 'number'
+            ? entity
+            : entity.Id;
+
+        Registry.AddChild(this.Id, entityId);
+
+        return this;
+    }
+    
+    public GetChild<T extends Entity = Entity>(childId: EntityId): T
+    {
+        return Registry.GetChild(this.Id, childId) as T;
+    }
+    
+    public GetChildren(): readonly Entity[]
+    {
+        return Registry.GetChildren(this.Id);
+    }
+
+    public RemoveChild(entityId: EntityId): Entity
+    public RemoveChild(entity: Entity): Entity
+    public RemoveChild(entity: Entity | EntityId): Entity
+    {
+        const entityId = typeof entity === 'number'
+            ? entity
+            : entity.Id;
+
+        Registry.AddChild(this.Id, entityId);
+
+        return this;
+    }
+    //#endregion
+
+    //#region Component
     public AddComponent<T extends Component>(component: T): Entity
     {
         Registry.AddComponent(this.Id, component);
@@ -25,7 +64,7 @@ export abstract class Entity
         return this;
     }
 
-    public AddComponents(components: Component[]): Entity
+    public AddComponents(components: readonly Component[]): Entity
     {
         for (let i = 0; i < components.length; ++i)
         {
@@ -46,9 +85,9 @@ export abstract class Entity
         return Registry.GetComponent(this.Id, componentTypeId) as T;
     }
     
-    public GetComponents(componentTypes: Class<Component>[]): Record<string, Component | undefined>
-    public GetComponents(typeIds: TypeId[]): Record<string, Component | undefined>
-    public GetComponents(componentTypesOrIds: Class<Component>[] | TypeId[]): Record<string, Component | undefined>
+    public GetComponents(componentTypes: readonly Class<Component>[]): Record<string, Component | undefined>
+    public GetComponents(typeIds: readonly TypeId[]): Record<string, Component | undefined>
+    public GetComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Record<string, Component | undefined>
     {
         const components: Record<string, Component | undefined> = {};
 
@@ -94,9 +133,9 @@ export abstract class Entity
         return Registry.HasComponent(this.Id, componentTypeId);
     }
 
-    public HasComponents(componentTypes: Class<Component>[]): boolean;
-    public HasComponents(typeIds: TypeId[]): boolean;
-    public HasComponents(componentTypesOrIds: Class<Component>[] | TypeId[]): boolean
+    public HasComponents(componentTypes: readonly Class<Component>[]): boolean;
+    public HasComponents(typeIds: readonly TypeId[]): boolean;
+    public HasComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): boolean
     {
         for (let i = 0; i < componentTypesOrIds.length; ++i)
         {
@@ -121,9 +160,9 @@ export abstract class Entity
         return this;
     }
 
-    public RemoveComponents(componentTypes: Class<Component>[]): Entity
-    public RemoveComponents(typeIds: TypeId[]): Entity
-    public RemoveComponents(componentTypesOrIds: Class<Component>[] | TypeId[]): Entity
+    public RemoveComponents(componentTypes: readonly Class<Component>[]): Entity
+    public RemoveComponents(typeIds: readonly TypeId[]): Entity
+    public RemoveComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Entity
     {
         for (let i = 0; i < componentTypesOrIds.length; ++i)
         {
@@ -149,4 +188,5 @@ export abstract class Entity
 
         return this;
     }
+    //#endregion
 }

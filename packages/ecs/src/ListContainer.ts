@@ -3,11 +3,16 @@ export class ListContainer<T>
     private list: (T | undefined)[] = [];
     private free: number[] = [];
 
+    public get Items(): readonly (T | undefined)[]
+    {
+        return this.list;
+    }
+
     constructor(
         private offset: number = 0
     ) { }
 
-    Add(item: T): number
+    public Add(item: T): number
     {
         let index: number;
 
@@ -24,17 +29,17 @@ export class ListContainer<T>
         return index + this.offset;
     }
     
-    Get(index: number): T | undefined
+    public Get(index: number): T | undefined
     {
         return this.list[index - this.offset];
     }
-
-    All(): (T | undefined)[]
+    
+    public Set(index: number, item: T | undefined): void
     {
-        return this.list.map(x => x);
+        this.list[index - this.offset] = item;
     }
     
-    Remove(index: number): void
+    public Remove(index: number): void
     {
         index -= this.offset;
         this.list[index] = undefined;

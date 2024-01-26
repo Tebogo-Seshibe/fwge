@@ -1,32 +1,143 @@
 import { type Component, type ComponentId, type TypeId } from "./Component";
-import { type EntityId } from "./Entity";
+import { type Entity, type EntityId } from "./Entity";
 import { ListContainer } from "./ListContainer";
 import { type Class } from "./types";
 
 export type View = EntityId[];
-export type ViewKey = string | symbol | number;
-export type ViewFilter<T extends any[] = any[]> = (...args: T) => boolean;
-export type ViewConfig = { componentTypes: Class<Component>[], rules: ViewFilter[] };
+export type ViewKey = number;
+export type ViewFilter<T extends readonly any[] = readonly any[]> = (...args: T) => boolean;
+export type ViewConfig = { componentTypes: readonly Class<Component>[], filter: ViewFilter };
+
+export type EntityEntry =
+{
+    entity: Entity;
+    parent: EntityId;
+    children: EntityId[];
+}
 
 export class Registry
 {
+    //#region Properties
+    private static readonly _entityGraph: (EntityEntry | undefined)[] = [];
     private static readonly _componentTypes: Class<Component>[] = [];
     private static readonly _componentListContainers: ListContainer<Component>[] = [];
     private static readonly _entityComponentList: ListContainer<(Component | undefined)[]> = new ListContainer<(Component | undefined)[]>(1);
 
-    private static readonly _views: Map<ViewKey, View> = new Map<ViewKey, View>();
-    private static readonly _viewConfig: Map<ViewKey, ViewConfig> = new Map<ViewKey, ViewConfig>();
-    private static readonly _mappedViews: Map<ComponentId, ViewKey[]> = new Map<ComponentId, ViewKey[]>();
+    private static readonly _views: ListContainer<View> = new ListContainer<View>();
+    private static readonly _viewConfig: ViewConfig[] = [];
+    private static readonly _mappedViews: number[][] = [];
+    //#endregion
 
     //#region Entity
-    public static CreateEntity(): EntityId
+    public static CreateEntity<T extends Entity = Entity>(entity: T): EntityId
     {
-        return this._entityComponentList.Add([]);
+        const entityId = this._entityComponentList.Add([]);
+
+        this._entityGraph[entityId] = {
+            entity: entity,
+            children: [],
+            parent: -1,
+        };
+
+        return entityId;
+    }
+
+    public static GetEntity<T extends Entity = Entity>(entityId: EntityId): T | undefined
+    {
+        return this._entityGraph[entityId]?.entity as T;
+    }
+
+    public static AddChild(parentId: EntityId, childId: EntityId): void
+    {
+        const parent = this._entityGraph[parentId];
+        const child = this._entityGraph[childId];
+
+        if (!parent || !child)
+        {
+            return;
+        }
+
+        if (!parent.children.includes(childId))
+        {
+            parent.children.push(childId)
+        }
+
+        child.parent = parentId;
+    }
+    
+    public static GetChild(parentId: EntityId, childId: EntityId): Entity
+    {
+        const childrenList = this._entityGraph[parentId]?.children ?? [];
+
+        return this._entityGraph[childrenList[childId]]!.entity!;
+    }
+    
+    public static GetChildren(entityId: EntityId): readonly Entity[]
+    {
+        const children: Entity[] = [];
+        const childrenList = this._entityGraph[entityId]?.children ?? [];
+
+        for (let i = 0; i < childrenList.length; ++i)
+        {
+            children.push(this._entityGraph[childrenList[i]]!.entity!);
+        }
+        
+        return children;
+    }
+
+    public static GetChildrenIds(entityId: EntityId): readonly EntityId[]
+    {
+        const children: EntityId[] = [];
+        const childrenList = this._entityGraph[entityId]?.children ?? [];
+
+        for (let i = 0; i < childrenList.length; ++i)
+        {
+            children.push(childrenList[i]);
+        }
+        
+        return children;
+    }
+
+    public static RemoveChild(parentId: EntityId, childId: EntityId): void
+    {
+        const parent = this._entityGraph[parentId];
+        const child = this._entityGraph[childId];
+
+        if (!parent || !child)
+        {
+            return;
+        }
+
+        const childIndex = parent.children.indexOf(childId);
+
+        if (childIndex !== -1)
+        {
+            parent.children[childIndex] = parent.children[parent.children.length - 1];
+            parent.children.pop();
+        }
+
+        child.parent = -1;
     }
 
     public static DestroyEntity(entityId: EntityId): void
     {
-        this._entityComponentList.Remove(entityId);
+        const entity = this._entityGraph[entityId];
+        this._entityGraph[entityId] = undefined;
+
+        if (!entity)
+        {
+            return;
+        }
+
+        for (let i = 0; i < entity.children.length; ++i)
+        {
+            const child = this._entityGraph[entity.children[i]];
+
+            if (child)
+            {
+                child.parent = -1;
+            }
+        }
     }
     //#endregion
 
@@ -47,22 +158,23 @@ export class Registry
 
         entityList[component.TypeId] = component;
 
-        const possibleViews = this._mappedViews.get(component.TypeId) ?? [];
+        const possibleViews = this._mappedViews[component.TypeId] ?? [];
         for (let i = 0; i < possibleViews.length; ++i)
         {
-            const view = this._views.get(possibleViews[i])!;
-            const config = this._viewConfig.get(possibleViews[i])!;
+            const view = this._views.Get(possibleViews[i])!;
+            const config = this._viewConfig[possibleViews[i]];
             
             if (view.includes(entityId))
             {
                 continue;
             }
 
-            if (this.testValidViewEntity(entityId, config.componentTypes, config.rules))
+            if (this.testValidViewEntity(entityId, config.componentTypes, config.filter))
             {
                 view.push(entityId)
             }
         }
+        this._mappedViews[component.TypeId] = possibleViews;
     }
 
     public static GetComponent<T extends Component = Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined
@@ -105,10 +217,10 @@ export class Registry
             entityList[componentTypeId] = undefined;
         }
 
-        const possibleViews = this._mappedViews.get(componentTypeId) ?? [];
+        const possibleViews = this._mappedViews[componentTypeId] ?? [];
         for (let i = 0; i < possibleViews.length; ++i)
         {
-            const view = this._views.get(possibleViews[i])!;
+            const view = this._views.Get(possibleViews[i])!;
             const index = view.indexOf(entityId);
 
             if (index === -1)
@@ -119,13 +231,14 @@ export class Registry
             view[index] = view[view.length - 1];
             view.pop();
         }
+        this._mappedViews[componentTypeId] = possibleViews;
     }
     //#endregion
 
     //#region Component Type
     public static RegisterComponentType(componentType: Class<Component>): void
     {
-        componentType.TypeId = this._componentTypes.length;
+        (componentType as any).TypeId = this._componentTypes.length;
         this._componentListContainers[componentType.TypeId] = new ListContainer(1);
         this._componentTypes.push(componentType);
     }
@@ -135,33 +248,25 @@ export class Registry
         return this._componentTypes[componentTypeId];
     }
 
-    public static GetRegisteredComponentTypes(): Class<Component>[]
+    public static GetRegisteredComponentTypes(): readonly Class<Component>[]
     {
         return this._componentTypes;
     }
     //#endregion
 
     //#region View    
-    public static RegisterView<T1 extends Component>(key: ViewKey, componentTypes: [Class<T1>]): void
-    public static RegisterView<T1 extends Component>(key: ViewKey, componentTypes: [Class<T1>], rules: ViewFilter<[T1]>[]): void
-    public static RegisterView<T1 extends Component, T2 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>]): void
-    public static RegisterView<T1 extends Component, T2 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>], rules: ViewFilter<[T1, T2]>[]): void
-    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>]): void
-    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: [Class<T1>, Class<T2>, Class<T3>], rules: ViewFilter<[T1, T2, T3]>[]): void
-    public static RegisterView<T extends Component[]>(key: ViewKey, componentTypes: Class<T[number]>[], rules: ViewFilter<T[number][]>[] = []): void
+    public static RegisterView<T1 extends Component>(componentTypes: readonly [Class<T1>]): ViewKey
+    public static RegisterView<T1 extends Component>(componentTypes: readonly [Class<T1>], filter: ViewFilter<[T1]>): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>]): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>], filter: ViewFilter<[T1, T2]>): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>]): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>], filter: ViewFilter<[T1, T2, T3]>): ViewKey
+    public static RegisterView<T extends Component[]>(componentTypes: readonly Class<T[number]>[], filter: ViewFilter<T[number][]> = () => true): ViewKey
     {
         const entityIds: View = [];
-        for (const componentType of componentTypes)
-        {
-            if (!this._mappedViews.has(componentType.TypeId))
-            {
-                this._mappedViews.set(componentType.TypeId, []);
-            }
-            this._mappedViews.get(componentType.TypeId)!.push(key);
-        }
-
         const currentEntityIds: View = [];
-        const entities = this._entityComponentList.All();
+        const entities = this._entityComponentList.Items;
+
         for (let i = 0; i < entities.length; ++i)
         {
             if (entities[i] !== undefined)
@@ -172,24 +277,35 @@ export class Registry
 
         for (let i = 0; i < currentEntityIds.length; ++i)
         {
-            if (this.testValidViewEntity(currentEntityIds[i], componentTypes, rules))
+            if (this.testValidViewEntity(currentEntityIds[i], componentTypes, filter))
             {
                 entityIds.push(currentEntityIds[i]);
             }
         }
         
-        this._views.set(key, entityIds);
-        this._viewConfig.set(key, { componentTypes, rules })
+        const key = this._views.Add(entityIds);
+        this._viewConfig[key] = { componentTypes, filter };
+
+        for (const componentType of componentTypes)
+        {
+            if (!this._mappedViews[componentType.TypeId])
+            {
+                this._mappedViews[componentType.TypeId] = [];
+            }
+            this._mappedViews[componentType.TypeId].push(key);
+        }
+
+        return key;
     }
 
-    public static GetView(key: ViewKey): View
+    public static GetView(key: ViewKey): readonly EntityId[]
     {
-        return this._views.get(key) ?? [];
+        return this._views.Get(key) ?? [];
     }
     //#endregion
 
     //#region Utils
-    private static testValidViewEntity(entityId: EntityId, componentTypes: Class<Component>[], rules: ViewFilter[]): boolean
+    private static testValidViewEntity(entityId: EntityId, componentTypes: readonly Class<Component>[], filter: ViewFilter): boolean
     {
         const components: Component[] = [];
 
@@ -203,15 +319,7 @@ export class Registry
             components.push(this.GetComponent(entityId, componentTypes[i].TypeId!)!);
         }
 
-        for (let i = 0; i < rules.length; ++i)
-        {
-            if (!rules[i](...components))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return filter.call(undefined, components);
     }
     //#endregion
 }
