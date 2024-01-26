@@ -11,12 +11,12 @@ export interface IInputArgs
 
 interface InputArgs
 {
-    onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
+    onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) => void
 }
 
 export class Input extends Component
 {
-    OnInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) => void
+    OnInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) => void
     
     constructor(args: InputArgs)
     {

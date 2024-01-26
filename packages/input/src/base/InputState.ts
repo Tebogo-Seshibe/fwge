@@ -5,17 +5,17 @@ export enum KeyState
     DOWN,
     RELEASED,
     DOUBLE_PRESSED,
-}
+};
 
 export enum ButtonState
 {
     RAISED,
     PRESSED
-}
+};
 
 export enum WheelState
 {
     CENTERED,
     UP,
     DOWN
-}
+};

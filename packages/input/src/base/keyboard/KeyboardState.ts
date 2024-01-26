@@ -1,7 +1,7 @@
 import { FixedLengthArray } from "@fwge/common";
 import { KeyState } from "../InputState";
 
-export class  KeyboardState
+export class KeyboardState
 {
     get KeyTilde(): KeyState
     {

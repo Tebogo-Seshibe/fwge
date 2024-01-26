@@ -7,9 +7,9 @@ import { Input } from "../components";
 
 export class InputSystem extends System
 {
-    private readonly _input = Symbol();
+    private readonly inputView = Registry.RegisterView([Input]);
 
-    private readonly inputView = new CompositeDataView([
+    private readonly inputDataView = new CompositeDataView([
         {
             name: 'keyboard',
             type: Uint8ClampedArray,
@@ -40,25 +40,22 @@ export class InputSystem extends System
     private readonly keyboard: KeyboardInputHandler = new KeyboardInputHandler(
         GL.canvas as HTMLCanvasElement,
         0.2,
-        this.inputView.View('keyboard')!
+        this.inputDataView.View('keyboard')!
     );
 
     private readonly mouse: MouseInputHandler = new MouseInputHandler(
         GL.canvas as HTMLCanvasElement,
-        this.inputView.View('mouseMovement')!,
-        this.inputView.View('mouseButtons')!
+        this.inputDataView.View('mouseMovement')!,
+        this.inputDataView.View('mouseButtons')!
     );
     
     private readonly controllers: ControllerInputHandler = new ControllerInputHandler(
         GL.canvas as HTMLCanvasElement,
-        this.inputView.View('controllerAxes')!,
-        this.inputView.View('controllerButtons')!
+        this.inputDataView.View('controllerAxes')!,
+        this.inputDataView.View('controllerButtons')!
     );
 
-    Init(): void
-    {
-        Registry.RegisterView(this._input, [Input]);
-    }
+    Init(): void { }
     
     Start(): void
     {
@@ -69,15 +66,14 @@ export class InputSystem extends System
 
     Update(delta: number): void
     {
-        this.keyboard.Update(delta);
+        this.keyboard.Update(delta!);
         this.mouse.Update();
         this.controllers.Update();
 
-        for (const entityId of Registry.GetView(this._input))
+        for (const entityId of Registry.GetView(this.inputView))
         {
-            const entity = this.Scene.GetEntity(entityId)!;
             const input = Registry.GetComponent(entityId, Input)!;
-            input.OnInput.call(entity, delta, this.keyboard.State, this.mouse.State, this.controllers.State);
+            input.OnInput(delta, this.keyboard.State, this.mouse.State, this.controllers.State);
         }
 
         this.mouse.Reset();
