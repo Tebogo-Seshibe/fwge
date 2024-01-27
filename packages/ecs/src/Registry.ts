@@ -8,6 +8,16 @@ export type ViewKey = number;
 export type ViewFilter<T extends readonly any[] = readonly any[]> = (...args: T) => boolean;
 export type ViewConfig = { componentTypes: readonly Class<Component>[], filter: ViewFilter };
 
+// export type ViewGroup<T extends any[] = any[]> = (...args: T) => ComponentId;
+// export type Group<
+//     Depth extends number,
+//     Count extends unknown[] = FixedLengthArray<number, Depth>
+// > = 
+//     Count['length'] extends 0 
+//     ? EntityId[]
+//     : Map<ComponentId, Group<Depth, Tail<Count>>
+// >;
+
 export type EntityEntry =
 {
     entity: Entity;
@@ -21,7 +31,7 @@ export class Registry
     private static readonly _entityGraph: (EntityEntry | undefined)[] = [];
     private static readonly _componentTypes: Class<Component>[] = [];
     private static readonly _componentListContainers: ListContainer<Component>[] = [];
-    private static readonly _entityComponentList: ListContainer<(Component | undefined)[]> = new ListContainer<(Component | undefined)[]>(1);
+    private static readonly _entityComponentList: ListContainer<(Component | undefined)[]> = new ListContainer<(Component | undefined)[]>();
 
     private static readonly _views: ListContainer<View> = new ListContainer<View>();
     private static readonly _viewConfig: ViewConfig[] = [];
@@ -70,6 +80,16 @@ export class Registry
         const childrenList = this._entityGraph[parentId]?.children ?? [];
 
         return this._entityGraph[childrenList[childId]]!.entity!;
+    }
+    
+    public static GetParent(childId: EntityId): Entity | undefined
+    {
+        return this._entityGraph[this._entityGraph[childId]!.parent]!.entity;
+    }
+    
+    public static GetParentId(childId: EntityId): EntityId
+    {
+        return this._entityGraph[childId]?.parent ?? -1;
     }
     
     public static GetChildren(entityId: EntityId): readonly Entity[]

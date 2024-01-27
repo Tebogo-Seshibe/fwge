@@ -1,5 +1,6 @@
 import { GL, radian } from "@fwge/common";
-import { Entity, Mesh, Shader, StaticMesh, System, Transform } from "@fwge/core";
+import { Entity, Mesh, Shader, StaticMesh, Transform } from "@fwge/core";
+import { System } from "@fwge/ecs";
 import { Collider, CubeCollider, SphereCollider } from "@fwge/physics";
 
 export class ColliderRenderSystem extends System
@@ -188,26 +189,26 @@ export class ColliderRenderSystem extends System
         )
     }
 
-    override OnUpdateEntity(entity: Entity): void
-    {
-        super.OnUpdateEntity(entity)
+    // override OnUpdateEntity(entity: Entity): void
+    // {
+    //     super.OnUpdateEntity(entity)
 
-        const collider = entity.GetComponent(Collider)
-        const transform = entity.GetComponent(Transform)!
-        if (collider)
-        {
-            let name = ''
-            if (collider instanceof CubeCollider)
-            {
-                name = CubeCollider.name
-            }
-            else if (collider instanceof SphereCollider)
-            {
-                name = SphereCollider.name
-            }
+    //     const collider = entity.GetComponent(Collider)
+    //     const transform = entity.GetComponent(Transform)!
+    //     if (collider)
+    //     {
+    //         let name = ''
+    //         if (collider instanceof CubeCollider)
+    //         {
+    //             name = CubeCollider.name
+    //         }
+    //         else if (collider instanceof SphereCollider)
+    //         {
+    //             name = SphereCollider.name
+    //         }
 
-            const colliderList = this._colliderTypes.get(name) ?? []
-            this._colliderTypes.set(name, [transform.Id, ...colliderList])
-        }
-    }
+    //         const colliderList = this._colliderTypes.get(name) ?? []
+    //         this._colliderTypes.set(name, [transform.Id, ...colliderList])
+    //     }
+    // }
 }

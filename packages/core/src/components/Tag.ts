@@ -1,15 +1,8 @@
-import { SharedComponent } from '../ecs/Component'
+import { Component } from "@fwge/ecs"
 
-export class Tag extends SharedComponent
+export class Tag extends Component
 {
-    public readonly Name: string
-
-    constructor()
-    constructor(name: string)
-    constructor(name: string = 'Default')
-    {
-        super()
-
-        this.Name = name
-    }
+    constructor(
+        public readonly Name: string = 'Default'
+    ) { super(); }
 }

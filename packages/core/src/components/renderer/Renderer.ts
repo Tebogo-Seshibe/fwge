@@ -18,7 +18,7 @@ export enum RenderMode
 
 export class Renderer<T extends Mesh> extends SharedComponent
 {
-    constructor(public Asset: T, public RenderMode: RenderMode, instances?: Transform[])
+    constructor(public Asset: T, public RenderMode: RenderMode, instances?: readonly Transform[])
     {
         super(Renderer)
     }

@@ -1457,6 +1457,18 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
             .Multiply(Matrix4.RotationMatrix(_1 as Vector3Array))
             .Multiply(Matrix4.ScaleMatrix(_2 as Vector3Array));
     }
+    
+    static FullTransformationMatrix(translation: Vector3, rotation: Vector3, scale: Vector3): Matrix4;
+    static FullTransformationMatrix(translation: Vector3, rotation: Vector3, scale: Vector3, out: Matrix4): Matrix4;
+    static FullTransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array): Matrix4;
+    static FullTransformationMatrix(translation: Vector3Array, rotation: Vector3Array, scale: Vector3Array, out: Matrix4): Matrix4;
+    static FullTransformationMatrix(_0: Vector3 | Vector3Array, _1: Vector3 | Vector3Array, _2: Vector3 | Vector3Array, _3?: Matrix4): Matrix4
+    {
+        const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
+
+        
+        return out;
+    }
 
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number): Matrix4;
     static OrthographicProjection(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, tiltX: number, tiltY: number, out: Matrix4): Matrix4;

@@ -1,5 +1,5 @@
 import { clamp, FixedLengthArray, Matrix3, Matrix4, Vector2, Vector3 } from "@fwge/common";
-import { PerspectiveCamera, Transform } from "@fwge/core";
+import { PerspectiveCamera, Scene, Transform } from "@fwge/core";
 import { ControllerState, KeyboardState, KeyState, MouseState } from "@fwge/input";
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics";
 import { GameObject } from "./GameObject";
@@ -24,8 +24,10 @@ export class FPSController extends GameObject
     rigidbody!: RigidBody;
     collider!: Collider;
 
-    override OnCreate(): void
+    constructor(scene:Scene)
     {
+        super(scene);
+
         this.transform.Position.Set(0, 1.5, 15);
         this.rigidbody = new RigidBody({ mass: 5 });
         this.collider = new CubeCollider();

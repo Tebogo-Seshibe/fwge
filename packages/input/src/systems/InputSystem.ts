@@ -73,7 +73,12 @@ export class InputSystem extends System
         for (const entityId of Registry.GetView(this.inputView))
         {
             const input = Registry.GetComponent(entityId, Input)!;
-            input.OnInput(delta, this.keyboard.State, this.mouse.State, this.controllers.State);
+            input.OnInput(
+                delta, 
+                this.keyboard.State, 
+                this.mouse.State, 
+                this.controllers.State
+            );
         }
 
         this.mouse.Reset();
@@ -81,8 +86,8 @@ export class InputSystem extends System
 
     Stop(): void        
     {
-        this.keyboard.Stop()
-        this.mouse.Stop()
-        this.controllers.Stop()
+        this.keyboard.Stop();
+        this.mouse.Stop();
+        this.controllers.Stop();
     }
 }

@@ -1,40 +1,41 @@
+import { Registry, System } from "@fwge/ecs";
 import { Script } from "../components/Script";
-import { Registry } from "../ecs";
-import { System } from "../ecs/System";
 
 export class ScriptSystem extends System
 {
-    private allScripts = Symbol();
+    private allScripts = Registry.RegisterView([Script]);
     
     Init(): void
     {
-        Registry.registerView(this.allScripts,[Script])
     }
     
     Start(): void
     {
-        for (const entityId of Registry.getView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            const script = Registry.getComponent(entityId, Script)!
-            script.Start.call(this.Scene.GetEntity(entityId)!)
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
+            script.Start.call(entity);
         }
     }
 
     Update(delta: number): void
     {
-        for (const entityId of Registry.getView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            const script = Registry.getComponent(entityId, Script)!
-            script.Update.call(this.Scene.GetEntity(entityId)!, delta)
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
+            script.Update.call(entity, delta);
         }
     }
 
     Stop(): void
     {
-        for (const entityId of Registry.getView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            const script = Registry.getComponent(entityId, Script)!
-            script.End.call(this.Scene.GetEntity(entityId)!)
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
+            script.End.call(entity);
         }
     }
 }

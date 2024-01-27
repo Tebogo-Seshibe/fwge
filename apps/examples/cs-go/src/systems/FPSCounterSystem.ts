@@ -1,8 +1,11 @@
-import { System } from "@fwge/core";
+import { System } from "@fwge/ecs";
 
 export class FPSCounterSystem extends System
 {
     fpsCounter!: HTMLDivElement
+    
+    Start(): void {}
+    Stop(): void {}
 
     Init(): void
     {

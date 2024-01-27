@@ -1,5 +1,5 @@
 import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
-import { UniqueComponent } from '../ecs/Component';
+import { Component, EntityId, Registry } from '@fwge/ecs';
 
 export type ITransform = 
 {
@@ -8,56 +8,115 @@ export type ITransform =
     scale?: Vector3 | MinLengthArray<number, 3>
 }
 
-export class Transform extends UniqueComponent
+export class Transform extends Component
 {
-    private readonly _buffer: Float32Array
-    public readonly Position: Vector3
-    public readonly Rotation: Vector3
-    public readonly Scale: Vector3
+    public readonly Position: Vector3;
+    public readonly Rotation: Vector3;
+    public readonly Scale: Vector3;
 
-    GlobalPosition(): Vector3
-    GlobalPosition(position: Vector3): Vector3
-    GlobalPosition(position: Vector3 = Vector3.Zero): Vector3
+    GlobalPosition(): Readonly<Vector3>
+    GlobalPosition(ownerId: EntityId): Readonly<Vector3>
+    GlobalPosition(ownerId: EntityId = -1): Readonly<Vector3>
     {
-        let transform: Transform | undefined = this
+        const position = this.Position.Clone();
 
-        while (transform)
+        while (ownerId !== -1)
         {
-            position.Add(transform.Position)
-            transform = transform.Owner?.Parent?.GetComponent(Transform)
+            const transform = Registry.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                position.Add(transform.Position);
+            }
+
+            ownerId = Registry.GetParentId(ownerId);
         }
 
-        return position
+        return position;
     }
 
-    GlobalRotation(): Vector3
-    GlobalRotation(rotation: Vector3): Vector3
-    GlobalRotation(rotation: Vector3 = Vector3.Zero): Vector3
+    GlobalRotation(): Readonly<Vector3>
+    GlobalRotation(ownerId: EntityId): Readonly<Vector3>
+    GlobalRotation(ownerId: EntityId = -1): Readonly<Vector3>
     {
-        let transform: Transform | undefined = this
-
-        while (transform)
+        const position = this.Position.Clone();
+        
+        while (ownerId !== -1)
         {
-            rotation.Add(transform.Rotation)
-            transform = transform.Owner?.Parent?.GetComponent(Transform)
+            const transform = Registry.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                position.Add(transform.Position);
+            }
+
+            ownerId = Registry.GetParentId(ownerId);
         }
 
-        return rotation
+        return position;
     }
 
-    GlobalScale(): Vector3
-    GlobalScale(scale: Vector3): Vector3
-    GlobalScale(scale: Vector3 = Vector3.Zero): Vector3
+    GlobalScale(): Readonly<Vector3>
+    GlobalScale(ownerId: EntityId): Readonly<Vector3>
+    GlobalScale(ownerId: EntityId = -1): Readonly<Vector3>
     {
-        let transform: Transform | undefined = this
-
-        while (transform)
+        const position = this.Position.Clone();
+        
+        while (ownerId !== -1)
         {
-            scale.Add(transform.Scale)
-            transform = transform.Owner?.Parent?.GetComponent(Transform)
+            const transform = Registry.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                position.Add(transform.Position);
+            }
+
+            ownerId = Registry.GetParentId(ownerId);
         }
 
-        return scale
+        return position;
+    }
+    
+    GlobalModelViewMatrix(): Readonly<Matrix4>
+    GlobalModelViewMatrix(out: Matrix4): Readonly<Matrix4>
+    GlobalModelViewMatrix(ownerId: EntityId): Readonly<Matrix4>
+    GlobalModelViewMatrix(ownerId: EntityId, out: Matrix4): Readonly<Matrix4>
+    GlobalModelViewMatrix(_0?: Matrix4 | EntityId, _1?: Matrix4): Readonly<Matrix4>
+    {
+        const modelViewMatrix = _1 ?? (_0 instanceof Matrix4
+            ? _0
+            : Matrix4.Identity
+        );
+        
+        let parentId = typeof _0 === 'number'
+            ? _0
+            : -1;
+            
+        Matrix4.TransformationMatrix(
+            this.Position, 
+            this.Rotation, 
+            this.Scale,
+            modelViewMatrix
+        );
+        
+        while (parentId !== -1)
+        {
+            const transform = Registry.GetComponent(parentId, Transform);
+
+            if (transform)
+            {
+                Matrix4.TransformationMatrix(
+                    transform.Position, 
+                    transform.Rotation, 
+                    transform.Scale, 
+                    modelViewMatrix
+                );
+            }
+
+            parentId = Registry.GetParentId(parentId);
+        }
+
+        return modelViewMatrix;
     }
     
     LocalModelViewMatrix(): Matrix4
@@ -72,40 +131,16 @@ export class Transform extends UniqueComponent
         )
     }
 
-    ModelViewMatrix(): Matrix4
-    ModelViewMatrix(out: Matrix4): Matrix4
-    ModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
-    {
-        this.LocalModelViewMatrix(_0)
-        let transform: Transform | undefined = this.Owner?.Parent?.GetComponent(Transform)
-
-        while (transform)
-        {
-            Matrix4.Multiply(
-                Matrix4.TransformationMatrix(
-                    transform.Position,
-                    transform.Rotation,
-                    transform.Scale
-                ),
-                _0,
-                _0
-            )
-            transform = transform.Owner?.Parent?.GetComponent(Transform)
-        }
-
-        return _0
-    }
-
     constructor()
     constructor(transform: ITransform)
     constructor(args: ITransform = { })
     {
         super()
         
-        this._buffer = new Float32Array(9);
-        this.Position = new Vector3(this._buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
-        this.Rotation = new Vector3(this._buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
-        this.Scale = new Vector3(this._buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
+        const buffer = new Float32Array(9);
+        this.Position = new Vector3(buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
+        this.Rotation = new Vector3(buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
+        this.Scale = new Vector3(buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
 
         if (args.position)
         {

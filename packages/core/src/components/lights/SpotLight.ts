@@ -38,7 +38,7 @@ export class SpotLight extends Light
     {
         this.BufferData.set(this.Colour, 0)
         this.BufferData[3] = this.Intensity
-        this.BufferData.set(this.Owner!.GetComponent(Transform)!.GlobalPosition(), 4)
+        // this.BufferData.set(this.Owner!.GetComponent(Transform)!.GlobalPosition(), 4)
         this.BufferData[7] = this.Radius
         this.BufferData.set(this.Direction, 8)
         this.BufferData[11] = this.Angle

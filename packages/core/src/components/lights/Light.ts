@@ -1,6 +1,6 @@
 import { Colour3, Colour3Array, FixedLengthArray, GL, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
 import { Shader } from "../../base";
-import { UniqueComponent } from "../../ecs";
+import { Component } from "@fwge/ecs";
 
 export interface ILight
 {
@@ -8,7 +8,7 @@ export interface ILight
     intensity?: number;
 }
 
-export class Light extends UniqueComponent implements IsBindable<Float32Array>
+export class Light extends Component implements IsBindable<Float32Array>
 {
     static BlockIndex = new Map<string, any>();
     static BindingPoint = new Map<string, number>();

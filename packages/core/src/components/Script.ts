@@ -1,4 +1,4 @@
-import { SharedComponent } from "../ecs/Component"
+import { Component } from "@fwge/ecs"
 
 type IScript =
 {
@@ -7,10 +7,10 @@ type IScript =
     end?: () => void
 }
 
-export class Script extends SharedComponent
+export class Script extends Component
 {
     readonly Start: () => void
-    readonly Update: (delta?: number) => void
+    readonly Update: (delta: number) => void
     readonly End: () => void
 
     constructor()

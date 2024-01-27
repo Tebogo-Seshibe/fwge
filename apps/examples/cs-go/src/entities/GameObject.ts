@@ -1,19 +1,20 @@
 import { FixedLengthArray } from "@fwge/common";
-import { Entity, Scene, Script, Transform } from "@fwge/core";
+import { Scene, Script, Transform } from "@fwge/core";
+import { Entity } from "@fwge/ecs";
 import { ControllerState, Input, KeyboardState, MouseState } from "@fwge/input";
 
 export class GameObject extends Entity
 {
     public readonly transform: Transform
 
-    constructor(scene: Scene)
+    constructor(public scene: Scene)
     {
-        super(scene)
+        super();
         
         this.AddComponent(new Transform())
         this.AddComponent(new Input(
         {
-            onInput(this: GameObject, delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>)
+            onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) =>
             {
                 this.OnInput(delta, keyboard, mouse, controllers);
             }
@@ -42,5 +43,5 @@ export class GameObject extends Entity
     OnUpdate(delta: number): void { }
     OnStop(): void { }
     // @ts-ignore
-    OnInput(delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: FixedLengthArray<ControllerState, 4>) { }
+    OnInput(delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) { }
 }
