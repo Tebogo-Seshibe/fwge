@@ -1,17 +1,15 @@
 import { UUID } from "@fwge/common";
-import { Entity } from "../ecs/Entity";
-import { Class, Constructor, EntityId, Registry} from "../ecs/Registry";
-import { System } from "../ecs/System";
 import { Game } from "./Game";
 import { Prefab } from "./Prefab";
 import { DefaultWindow } from "./render/DefaultWindow";
 import { RenderWindow } from "./render/RenderWindow";
+import { Class, Constructor, Entity, EntityId, System } from "@fwge/ecs";
 
 export type SceneType<T extends Scene = Scene> = Class<T>;
 export type SceneId = number;
 export interface IScene
 {
-    windows: Class<RenderWindow>[];
+    windows: RenderWindow[];
     systems: Class<System>[];
     entities: (Class<Entity> | Prefab)[];
 }
@@ -35,7 +33,7 @@ export class Scene
         this.Game = game;
 
         config = {
-            windows: config?.windows ?? [DefaultWindow],
+            windows: config?.windows ?? [new DefaultWindow()],
             entities: config?.entities ?? [],
             systems: config?.systems ?? [],
             ...config,

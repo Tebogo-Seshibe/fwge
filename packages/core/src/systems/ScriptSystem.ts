@@ -5,9 +5,7 @@ export class ScriptSystem extends System
 {
     private allScripts = Registry.RegisterView([Script]);
     
-    Init(): void
-    {
-    }
+    Init(): void { }
     
     Start(): void
     {

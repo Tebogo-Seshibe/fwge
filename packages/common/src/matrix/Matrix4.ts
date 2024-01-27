@@ -1466,6 +1466,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     {
         const out = _3 || (_1 instanceof Matrix4 ? _1 as Matrix4 : new Matrix4());
 
+        //TODO: Do the whole matrix thingy here
         
         return out;
     }

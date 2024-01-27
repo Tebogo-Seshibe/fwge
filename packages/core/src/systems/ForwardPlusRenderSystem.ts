@@ -1,99 +1,96 @@
-import { GL, Matrix3, Matrix4 } from "@fwge/common";
-import { RenderWindow, Shader } from "../base";
-import { Transform } from "../components";
-import { System } from "../ecs";
+import { System } from "@fwge/ecs";
 
 export class ForwardPlusRenderSystem extends System
 {
-    private _modelViewMatrices = new Map<number, Matrix4>();
-    private _normalMatrices = new Map<number, Matrix3>();
-    private _screenShader = new Shader(
-        `#version 300 es
-        #pragma vscode_glsllint_stage: vert
+    // private _modelViewMatrices = new Map<number, Matrix4>();
+    // private _normalMatrices = new Map<number, Matrix3>();
+    // private _screenShader = new Shader(
+    //     `#version 300 es
+    //     #pragma vscode_glsllint_stage: vert
 
-        layout(location = 0) in vec2 A_Position;
+    //     layout(location = 0) in vec2 A_Position;
 
-        uniform vec2 U_PanelOffset;
-        uniform vec2 U_PanelScale;
+    //     uniform vec2 U_PanelOffset;
+    //     uniform vec2 U_PanelScale;
         
-        out vec2 V_UV;
+    //     out vec2 V_UV;
 
-        void main(void)
-        {
-            V_UV = A_Position * 0.5 + 0.5;
-            gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
-        }`,
+    //     void main(void)
+    //     {
+    //         V_UV = A_Position * 0.5 + 0.5;
+    //         gl_Position = vec4((A_Position * U_PanelScale) + U_PanelOffset, 0.0, 1.0);
+    //     }`,
 
-        `#version 300 es
-        #pragma vscode_glsllint_stage: frag
+    //     `#version 300 es
+    //     #pragma vscode_glsllint_stage: frag
 
-        precision highp float;
+    //     precision highp float;
 
-        in vec2 V_UV;
-        layout(location = 0) out vec4 O_FragColour;
+    //     in vec2 V_UV;
+    //     layout(location = 0) out vec4 O_FragColour;
 
-        uniform sampler2D U_RenderImage;
+    //     uniform sampler2D U_RenderImage;
 
-        void main(void)
-        {
-            O_FragColour = texture(U_RenderImage, V_UV);
-        }`
-    );
+    //     void main(void)
+    //     {
+    //         O_FragColour = texture(U_RenderImage, V_UV);
+    //     }`
+    // );
 
-    private _defaultShader = new Shader(
-        `#version 300 es
+    // private _defaultShader = new Shader(
+    //     `#version 300 es
         
-        layout(location = 0) in vec3 A_Position;
-        layout(location = 1) in vec3 A_Normal;
-        layout(location = 2) in vec2 A_UV;
-        layout(location = 3) in vec3 A_Colour;
+    //     layout(location = 0) in vec3 A_Position;
+    //     layout(location = 1) in vec3 A_Normal;
+    //     layout(location = 2) in vec2 A_UV;
+    //     layout(location = 3) in vec3 A_Colour;
         
-        out vec3 V_Position;
-        out vec3 V_Normal;
-        out vec2 V_UV;
-        out vec3 V_Colour;
+    //     out vec3 V_Position;
+    //     out vec3 V_Normal;
+    //     out vec2 V_UV;
+    //     out vec3 V_Colour;
         
-        struct Matrix
-        {
-            mat4 ModelView;
-            mat3 Normal;
-            mat4 View;
-            mat4 Projection;
-        };
-        uniform Matrix U_Matrix;
+    //     struct Matrix
+    //     {
+    //         mat4 ModelView;
+    //         mat3 Normal;
+    //         mat4 View;
+    //         mat4 Projection;
+    //     };
+    //     uniform Matrix U_Matrix;
         
-        void main(void)
-        {
-            vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
-            V_Position = position.xyz;
-            V_Normal = normalize(U_Matrix.Normal * A_Normal);
-            V_UV = A_UV;
-            V_Colour = A_Colour;
+    //     void main(void)
+    //     {
+    //         vec4 position = U_Matrix.ModelView * vec4(A_Position, 1.0);
+    //         V_Position = position.xyz;
+    //         V_Normal = normalize(U_Matrix.Normal * A_Normal);
+    //         V_UV = A_UV;
+    //         V_Colour = A_Colour;
         
-            gl_Position = position; //vec4(vec3(0.0),1.0);
-            gl_PointSize = 50.0;
-        }`,
-        `#version 300 es
+    //         gl_Position = position; //vec4(vec3(0.0),1.0);
+    //         gl_PointSize = 50.0;
+    //     }`,
+    //     `#version 300 es
 
-        precision mediump float;
+    //     precision mediump float;
         
-        in vec3 V_Position;
-        in vec3 V_Normal;
-        in vec2 V_UV;
-        in vec3 V_Colour;
+    //     in vec3 V_Position;
+    //     in vec3 V_Normal;
+    //     in vec2 V_UV;
+    //     in vec3 V_Colour;
         
-        layout (location = 0) out vec4 O_FragColour;
+    //     layout (location = 0) out vec4 O_FragColour;
         
-        void main(void)
-        {        
-            O_FragColour = vec4(1.0,1.0,1.0,1.0);
-        }
-        `
-    );
+    //     void main(void)
+    //     {        
+    //         O_FragColour = vec4(1.0,1.0,1.0,1.0);
+    //     }
+    //     `
+    // );
 
     public Init(): void
     {   
-        console.log(this);
+        // console.log(this);
         // view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
         // view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
         // view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
@@ -105,18 +102,18 @@ export class ForwardPlusRenderSystem extends System
     
     public Update(_: number): void
     {
-        GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-        GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-        // GL.scissor(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-        GL.clearColor(1, 0, 0, 0);
-        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+        // // GL.scissor(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+        // GL.clearColor(1, 0, 0, 0);
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
-        this._defaultShader.Bind();
-        for (const window of this.Scene.Windows)
-        {
-            this.drawSceneWindow(window);
-        }
-        this._defaultShader.UnBind();        
+        // this._defaultShader.Bind();
+        // for (const window of this.Scene.Windows)
+        // {
+        //     this.drawSceneWindow(window);
+        // }
+        // this._defaultShader.UnBind();        
 
         // this._screenShader.Bind();
         // for (const window of this.Scene.Windows)
@@ -126,19 +123,19 @@ export class ForwardPlusRenderSystem extends System
         // this._screenShader.UnBind();
     }
 
-    debug = false;
-    private drawSceneWindow(window: RenderWindow): void
-    {
+    // debug = false;
+    // private drawSceneWindow(window: RenderWindow): void
+    // {
         // const modelview = window.Camera.ProjectionMatrix;
         // const projection = window.Camera.ViewMatrix;
         
-        const projection = window.Camera.ProjectionMatrix
-        const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
+        // const projection = window.Camera.ProjectionMatrix
+        // const modelview = window.Camera.Owner?.GetComponent(Transform)?.ModelViewMatrix().Inverse() ?? Matrix4.Identity
 
-        modelview.Identity();
+        // modelview.Identity();
         // window.MainPass.Output.Bind();
-        this._defaultShader.SetMatrix('U_Matrix.Projection', projection, true)
-        this._defaultShader.SetMatrix('U_Matrix.View', modelview, true)
+        // this._defaultShader.SetMatrix('U_Matrix.Projection', projection, true)
+        // this._defaultShader.SetMatrix('U_Matrix.View', modelview, true)
 
         // for (const entityId of view([Transform, Material, Renderer]))
         // {
@@ -221,17 +218,17 @@ export class ForwardPlusRenderSystem extends System
         //     }
         //     GL.bindVertexArray(null);
         // }
-    }
+    // }
 
-    private drawWindowToScreen(window: RenderWindow): void
-    {
-        this._screenShader.Reset();
-        this._screenShader.SetFloatVector('U_PanelOffset', window.Offset);
-        this._screenShader.SetFloatVector('U_PanelScale', window.Scale);
+    // private drawWindowToScreen(window: RenderWindow): void
+    // {
+    //     this._screenShader.Reset();
+    //     this._screenShader.SetFloatVector('U_PanelOffset', window.Offset);
+    //     this._screenShader.SetFloatVector('U_PanelScale', window.Scale);
 
-        GL.bindVertexArray(window.Panel.VertexArrayBuffer);
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer);
-        GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0);
-        GL.bindVertexArray(null);
-    }
+    //     GL.bindVertexArray(window.Panel.VertexArrayBuffer);
+    //     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, window.Panel.FaceBuffer);
+    //     GL.drawElements(GL.TRIANGLES, window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0);
+    //     GL.bindVertexArray(null);
+    // }
 }

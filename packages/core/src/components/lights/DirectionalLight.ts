@@ -237,20 +237,20 @@ export class DirectionalLight extends Light
 
     override Bind(shader: Shader)
     {
-        let transform = this.Owner?.GetComponent(Transform);
-        if (transform)
-        {
-            this._direction.Set(
-                // Matrix3.MultiplyVector(
-                //     this.ViewMatrix.Matrix3,
-                DirectionalLight.DefaultDirection
-                // )
-            );
-        }
-        else
-        {
-            this._direction.Set(DirectionalLight.DefaultDirection);
-        }
+        // let transform = this.Owner?.GetComponent(Transform);
+        // if (transform)
+        // {
+        //     this._direction.Set(
+        //         // Matrix3.MultiplyVector(
+        //         //     this.ViewMatrix.Matrix3,
+        //         DirectionalLight.DefaultDirection
+        //         // )
+        //     );
+        // }
+        // else
+        // {
+        //     this._direction.Set(DirectionalLight.DefaultDirection);
+        // }
 
         this._shadowMatrix.Set(this.ShadowMatrix);
         if (this.CastShadows)
@@ -318,12 +318,13 @@ export class DirectionalLight extends Light
 
     get ModelMatrix(): Matrix4
     {
-        const transform = this.Owner?.GetComponent(Transform);
-        const rotx = transform?.GlobalRotation().X ?? 0;
-        const roty = transform?.GlobalRotation().Y ?? 0;
-        const rotz = transform?.GlobalRotation().Z ?? 0;
+        return Matrix4.Identity;
+        // const transform = this.Owner?.GetComponent(Transform);
+        // const rotx = transform?.GlobalRotation().X ?? 0;
+        // const roty = transform?.GlobalRotation().Y ?? 0;
+        // const rotz = transform?.GlobalRotation().Z ?? 0;
 
-        return Matrix4.RotationMatrix(rotx - 90, roty, rotz);
+        // return Matrix4.RotationMatrix(rotx - 90, roty, rotz);
         // const rot = Matrix4.RotationMatrix(rotx + 90, roty, rotz)
         // const pos = Matrix4.TranslationMatrix(1, 0, 0)
         // return Matrix4.Multiply(rot, pos).Inverse()

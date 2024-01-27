@@ -1,7 +1,7 @@
 import { Colour3, GL, isPowerOf2, Scalar } from "@fwge/common";
 import { ImageTexture } from "../../base";
 import { Shader } from "../../base/Shader";
-import { SharedComponent } from "../../ecs";
+import { Component } from "@fwge/ecs";
 
 export enum BlendMode
 {
@@ -24,7 +24,7 @@ export interface IMaterial
     renderType?: RenderType
 }
 
-export class Material extends SharedComponent
+export class Material extends Component
 {
     static Empty: WebGLTexture;
     

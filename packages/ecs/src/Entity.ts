@@ -8,6 +8,7 @@ export abstract class Entity
 {
     public readonly Id: EntityId = Registry.CreateEntity(this);
 
+    public abstract Init(): void;
     public Destroy(): void
     {
         Registry.DestroyEntity(this.Id);
