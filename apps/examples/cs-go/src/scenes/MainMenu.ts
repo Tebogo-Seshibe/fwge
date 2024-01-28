@@ -1,24 +1,14 @@
-import { AnimationSystem } from "@fwge/animation"
-import { DefaultWindow, Game, RenderSystem, Scene } from "@fwge/core"
-import { InputSystem } from "@fwge/input"
-import { FullScreen } from "../entities/FullScreen"
+import { DefaultWindow, Game, Scene } from "@fwge/core";
 
 export class MainMenu extends Scene
 {
     constructor(game: Game)
     {
-        super(game, {
-            windows: [
-                DefaultWindow
-            ],
-            entities: [
-                FullScreen
-            ],
-            systems: [
-                InputSystem,
-                RenderSystem,
-                AnimationSystem,
-            ]
+        super(game,
+        {
+            windows: [ new DefaultWindow() ],
+            systems: [],
+            entities: [],
         })
     }
 }

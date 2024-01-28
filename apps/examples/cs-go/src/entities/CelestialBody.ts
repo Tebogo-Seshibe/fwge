@@ -20,7 +20,7 @@ export class CelestialBody extends GameObject
         this.transform.Rotation.Set(tilt)
     }
 
-    override OnCreate()
+    override Init()
     {
         this.renderer = new MeshRenderer(
         {
@@ -30,7 +30,7 @@ export class CelestialBody extends GameObject
         this.AddComponent(this.renderer)
     }
     
-    override OnUpdate(delta: number)
+    override Update(delta: number)
     {
         // if (this.parent)
         // {

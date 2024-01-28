@@ -1,5 +1,5 @@
 import { Registry } from "./Registry";
-import { type Class } from "./types";
+import { type Type, type Class } from "./Class";
 
 export type ComponentId = number;
 export type TypeId = number;
@@ -12,15 +12,17 @@ export abstract class Component
     static readonly TypeId: TypeId;
 
     constructor();
-    constructor(componentType: Class<Component>);
-    constructor(componentType: Class<Component> = new.target as Class<Component>)
+    constructor(componentType: Type<Component>);
+    constructor(componentType: Type<Component> = new.target as any)
     {
-        if (componentType.TypeId === undefined)
+        const _class = componentType = componentType as Class<Component>;
+        console.log({ _class })
+        if (_class.TypeId === undefined)
         {
-            Registry.RegisterComponentType(componentType);
+            Registry.RegisterComponentType(_class);
         }
 
-        this.TypeId = componentType.TypeId;
-        this.Id = Registry.CreateComponent(componentType.TypeId, this);
+        this.TypeId = _class.TypeId;
+        this.Id = Registry.CreateComponent(_class.TypeId, this);
     }
 }

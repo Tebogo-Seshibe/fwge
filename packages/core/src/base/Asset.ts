@@ -1,16 +1,14 @@
-import { Class } from "../ecs";
-
-export type AssetType<T extends Asset = Asset> = Class<T>;
+import { Class, Type } from "@fwge/ecs";
 
 export class Asset
 {
-    public readonly Type: AssetType
+    public readonly Type: Class<Asset>;
 
     constructor()
-    constructor(assetType: AssetType)
-    constructor(type?: AssetType)
+    constructor(assetType: Type<Asset>)
+    constructor(assetType: Type<Asset> = new.target)
     {
-        this.Type = type ?? new.target
+        this.Type = assetType as Class<Asset>;
     }
 
     Load(...sources: string[]): void { }

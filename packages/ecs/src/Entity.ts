@@ -1,6 +1,6 @@
 import { type Component, type TypeId } from './Component';
 import { Registry } from './Registry';
-import { type Class } from './types';
+import { type Class } from './Class';
 
 export type EntityId = number;
 

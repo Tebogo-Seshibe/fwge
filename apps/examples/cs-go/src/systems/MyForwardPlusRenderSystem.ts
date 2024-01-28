@@ -1,13 +1,14 @@
 import { Colour3, GL, Matrix3, Matrix4 } from "@fwge/common";
-import { AreaLight, DirectionalLight, Light, Material, PointLight, Registry, RenderMode, RenderWindow, Renderer, Shader, System, Transform } from "@fwge/core";
+import { AreaLight, DirectionalLight, Light, Material, PointLight, RenderWindow, Renderer, Shader, Transform } from "@fwge/core";
+import { Registry, System } from "@fwge/ecs";
 
 
 export class MyForwardPlusRenderSystem extends System
 {
-    private readonly _pointLights = Symbol();
-    private readonly _directionalLights = Symbol();
-    private readonly _areaLights = Symbol();
-    private readonly _renderables = Symbol();
+    private readonly _pointLights = Registry.RegisterView([Light], light => light instanceof AreaLight);
+    private readonly _directionalLights = Registry.RegisterView([Light], light => light instanceof DirectionalLight);
+    private readonly _areaLights = Registry.RegisterView([Light], light => light instanceof PointLight);
+    private readonly _renderables = Registry.RegisterView([Transform, Material, Renderer]);
 
     private renderables = new Map<number, Map<number, number[]>>();
     private _modelViewMatrices = new Map<number, Matrix4>();
@@ -100,21 +101,12 @@ export class MyForwardPlusRenderSystem extends System
 
     public Init(): void
     {
-        Registry.registerView(this._areaLights, [Light], [ light => light instanceof AreaLight]);
-        Registry.registerView(this._directionalLights, [Light], [ light => light instanceof DirectionalLight]);
-        Registry.registerView(this._pointLights, [Light], [ light => light instanceof PointLight]);
-        Registry.registerView(this._renderables, [Transform, Material, Renderer]);
 
-        // view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
-        // view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
-        // view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
-        // view([Transform, Material, Renderer]);
-
-        for (const renderable of Registry.getView(this._renderables))
+        for (const renderable of Registry.GetView(this._renderables))
         {
-            const material = Registry.getComponent(renderable, Material)!;
-            const renderer = Registry.getComponent(renderable, Renderer)!;
-            const transform = Registry.getComponent(renderable, Transform)!;
+            const material = Registry.GetComponent(renderable, Material)!;
+            const renderer = Registry.GetComponent(renderable, Renderer)!;
+            const transform = Registry.GetComponent(renderable, Transform)!;
 
             if (!this.renderables.has(material.Id))
             {
@@ -285,19 +277,19 @@ export class MyForwardPlusRenderSystem extends System
     private _bindLights(shader: Shader)
     {
         let index = 0;
-        for (const entityId of Registry.getView(this._pointLights))
+        for (const entityId of Registry.GetView(this._pointLights))
         {
-            const light = Registry.getComponent(entityId, PointLight)!;
+            const light = Registry.GetComponent(entityId, PointLight)!;
             light.Bind(shader, index++);
         }
-        for (const entityId of Registry.getView(this._directionalLights))
+        for (const entityId of Registry.GetView(this._directionalLights))
         {
-            const light = Registry.getComponent(entityId, DirectionalLight)!;
+            const light = Registry.GetComponent(entityId, DirectionalLight)!;
             light.Bind(shader);
         }
-        for (const entityId of Registry.getView(this._areaLights))
+        for (const entityId of Registry.GetView(this._areaLights))
         {
-            const light = Registry.getComponent(entityId, AreaLight)!;
+            const light = Registry.GetComponent(entityId, AreaLight)!;
             light.Bind(shader);
         }
     }

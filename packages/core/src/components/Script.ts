@@ -3,7 +3,7 @@ import { Component } from "@fwge/ecs"
 type IScript =
 {
     start?: () => void
-    update?: (delta?: number) => void
+    update?: (delta: number) => void
     end?: () => void
 }
 

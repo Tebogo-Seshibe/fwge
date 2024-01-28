@@ -1,7 +1,7 @@
 import { type Component, type ComponentId, type TypeId } from "./Component";
 import { type Entity, type EntityId } from "./Entity";
 import { ListContainer } from "./ListContainer";
-import { type Class } from "./types";
+import { type Class } from "./Class";
 
 export type View = EntityId[];
 export type ViewKey = number;

@@ -1,6 +1,5 @@
 import { Vector2, Vector2Array } from "@fwge/common";
 import { Camera, PerspectiveCamera, StaticMesh } from "../../components";
-import { Scene } from "../Scene";
 import { RenderPipelineMode } from "./RenderPipelineMode";
 import { RenderPipelineStep } from "./RenderPipelineStep";
 import { ColourType, DepthType, RenderTarget } from "./RenderTarget";
@@ -67,9 +66,9 @@ export class RenderWindow
         }
     }
 
-    constructor(scene: Scene);
-    constructor(scene: Scene, window: IRenderWindow);
-    constructor(_scene: Scene, window: IRenderWindow = {})
+    constructor();
+    constructor(window: IRenderWindow);
+    constructor(window: IRenderWindow = {})
     {
         this.Camera = window.camera ?? new PerspectiveCamera();
         this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080]);

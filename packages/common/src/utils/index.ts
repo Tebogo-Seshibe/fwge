@@ -10,7 +10,17 @@ export * from './LinkedList'
 export * from './Math'
 export * from './Model'
 
-export function instanceOf<T>(object: any, ...keys: (keyof T)[]): object is T
+export function instanceOf<T>(object: any, ...keys: (keyof T & string)[]): object is T
 {
-    return keys.reduce((curr, key) => curr && key in object, true)
+    const validKeys = Object.getOwnPropertyNames(object);
+
+    for (let i = 0; i < keys.length; ++i)
+    {
+        if (!validKeys.includes(keys[i]))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -176,7 +176,7 @@ export const createPrincipledBSDFMaterial = () => new (class PrincipledBSDFMater
 
     Bind(): void
     {
-        super.Bind()
+        // super.Bind()
         const shader = this.Shader
         
         if (this.Textures[0])

@@ -17,8 +17,6 @@
     "@fwge/common": "file:../../../packages/common",
     "@fwge/core": "file:../../../packages/core",
     "@fwge/ecs": "file:../../../packages/ecs",
-    "@fwge/input": "file:../../../packages/input",
-    "@fwge/physics": "file:../../../packages/physics",
-    "@fwge/render": "file:../../../packages/render"
+    "@fwge/input": "file:../../../packages/input"
   }
 }

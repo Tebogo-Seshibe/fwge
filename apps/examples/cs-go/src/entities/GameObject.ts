@@ -10,38 +10,41 @@ export class GameObject extends Entity
     constructor(public scene: Scene)
     {
         super();
-        
+        const self = this;
+
         this.AddComponent(new Transform())
         this.AddComponent(new Input(
         {
             onInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) =>
             {
-                this.OnInput(delta, keyboard, mouse, controllers);
+                self.OnInput(delta, keyboard, mouse, controllers);
             }
         }));
         this.AddComponent(new Script(
         {
-            start(this: GameObject)
+            start: () =>
             {
-                this.OnStart()
+                self.Start();
             },
-            update(this: GameObject, delta: number)
+            update: (delta: number) =>
             {
-                this.OnUpdate(delta)
+                self.Update(delta!);
             },
-            end(this: GameObject)
+            end: () =>
             {
-                this.OnStop()
+                self.Stop();
             }
         }));
 
         this.transform = this.GetComponent(Transform)!
     }
 
-    OnStart(): void { }
+    Init(): void {}
+
+    Start(): void { }
     // @ts-ignore
-    OnUpdate(delta: number): void { }
-    OnStop(): void { }
+    Update(delta: number): void { }
+    Stop(): void { }
     // @ts-ignore
     OnInput(delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) { }
 }

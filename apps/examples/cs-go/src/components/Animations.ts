@@ -1,6 +1,7 @@
-import { Animation, AnimationPlayer, Keyframe, lerpColour3, lerpVector3 } from "@fwge/animation"
-import { Colour3, LinkedList, Vector3 } from "@fwge/common"
-import { Entity, Material, Transform } from "@fwge/core"
+import { Animation, AnimationPlayer, Keyframe, lerpColour3, lerpVector3 } from "@fwge/animation";
+import { Colour3, LinkedList, Vector3 } from "@fwge/common";
+import { Material, Transform } from "@fwge/core";
+import { Entity } from "@fwge/ecs";
 export const basicAnimation = () =>
 { 
     const animationPlayer = new AnimationPlayer()

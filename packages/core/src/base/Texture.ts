@@ -50,6 +50,7 @@ export class Texture extends Asset
     {
         return this._depth
     }
+    
     constructor(width: number, height: number, textureFormat: TextureFormat)
     {
         super(Texture)

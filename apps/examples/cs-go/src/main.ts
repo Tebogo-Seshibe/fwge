@@ -1,7 +1,7 @@
 import { Vector3, Matrix3, clean, Matrix4, GL, CompositeDataView } from '@fwge/common'
 import { CSGO } from './game'
 import './style.css'
-import { Registry } from '@fwge/core';
+import { Registry } from '@fwge/ecs';
 
 console.log({ Registry });
 const game = new CSGO();

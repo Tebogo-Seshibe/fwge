@@ -32,7 +32,7 @@ export class FPSController extends GameObject
         this.rigidbody = new RigidBody({ mass: 5 });
         this.collider = new CubeCollider();
 
-        this.AddComponent(this.collider);
+        // this.AddComponent(this.collider);
         this.AddComponent(this.rigidbody);
         this.AddChild(
             this.Scene
