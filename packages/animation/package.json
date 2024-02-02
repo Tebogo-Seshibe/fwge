@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "@fwge/common": "*",
-    "@fwge/core": "*"
+    "@fwge/core": "*",
+    "@fwge/ecs": "*"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",

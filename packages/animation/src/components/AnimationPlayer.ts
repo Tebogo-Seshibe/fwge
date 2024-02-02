@@ -1,8 +1,8 @@
 import { CalcuateDelay, IDelay } from "@fwge/common"
-import { SharedComponent } from "@fwge/core"
+import { Component } from "@fwge/ecs"
 import { Animation } from "../base"
 
-export class AnimationPlayer extends SharedComponent
+export class AnimationPlayer extends Component
 {
     activeAnimation?: Animation
     animations: Map<string, Animation> = new Map()

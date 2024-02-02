@@ -2,27 +2,24 @@ import { Transform } from "@fwge/core";
 import { Registry, System } from "@fwge/ecs";
 import { ActionInput } from "../components/ActionInput";
 
+const NoOp = (..._args: any[]) => void  0;
+
 export class ActionInputMovementSystem extends System
 {
-    view = Registry.RegisterView([Transform, ActionInput]);
+    private view!: number;
+    private iterations: number = 100;
 
     Init(): void
     {
-        console.log('init')
-    }
-    Start(): void
-    {
-        console.log('start')
-        console.log({ Registry })
-    }
-    Update(): void
-    {
-        // console.log(Registry.GetView(this.view).length)
-        
-    }
-    Stop(): void
-    {
-        console.log('stop')
+        this.view = Registry.RegisterView([Transform, ActionInput]);
     }
 
+    Start = NoOp;
+
+    Update(delta: number): void
+    {
+        
+    }
+
+    Stop = NoOp;
 }

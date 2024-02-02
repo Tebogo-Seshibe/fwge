@@ -1,4 +1,4 @@
-import { Camera, OrthographicCamera, Transform } from "@fwge/core";
+import { Camera, PerspectiveCamera, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { ActionInput } from "../components/ActionInput";
 
@@ -8,7 +8,9 @@ export class Player extends Entity
 
     override Init()
     {
-        this.AddComponent(new Transform())
+        // this.AddComponent(new OrthographicCamera());
+        this.AddComponent(new PerspectiveCamera());
+        this.AddComponent(new Transform({ position: [0,0,5]}));
         this.AddComponent(new ActionInput(
         [
             { 
@@ -21,7 +23,6 @@ export class Player extends Entity
                     controller: ['DirectionalRight']
                 }
             }
-        ]))
-        this.AddComponent(new OrthographicCamera())
+        ]));
     }
 }

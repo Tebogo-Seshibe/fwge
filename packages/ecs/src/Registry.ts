@@ -7,6 +7,8 @@ export type View = EntityId[];
 export type ViewKey = number;
 export type ViewFilter<T extends readonly any[] = readonly any[]> = (...args: T) => boolean;
 export type ViewConfig = { componentTypes: readonly Class<Component>[], filter: ViewFilter };
+export type ViewIteratorValue<E extends Entity, T extends Component[]> = { done: false, value: [E, ...T] } | { done: true, value: undefined };
+export type ViewIterator<E extends Entity, T extends Component[]> = { [Symbol.iterator](): { next(): ViewIteratorValue<E, T> } };
 
 // export type ViewGroup<T extends any[] = any[]> = (...args: T) => ComponentId;
 // export type Group<
@@ -321,6 +323,37 @@ export class Registry
     public static GetView(key: ViewKey): readonly EntityId[]
     {
         return this._views.Get(key) ?? [];
+    }
+    
+    public static GetViewIterator<E extends Entity, T1 extends Component>(key: ViewKey, componentTypes: readonly [Class<T1>]): ViewIterator<E, [T1]>
+    public static GetViewIterator<E extends Entity, T1 extends Component, T2 extends Component>(key: ViewKey, componentTypes: readonly [Class<T1>, Class<T2>]): ViewIterator<E, [T1, T2]>
+    public static GetViewIterator<E extends Entity, T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>]): ViewIterator<E, [T1, T2, T3]>
+    public static GetViewIterator<E extends Entity, T extends Component[]>(key: ViewKey, componentTypes: readonly Class<T[number]>[]): ViewIterator<E, T>
+    {
+        return {
+            [Symbol.iterator]: function() {
+                const view = Registry.GetView(key);
+                let index = 0;
+                
+                return {
+                    next: (): ViewIteratorValue<E, T> => {
+                        if (index >= view.length)
+                        {
+                            return { done: true, value: undefined };
+                        }
+
+                        const elements: [Entity, ...Component[]] = [Registry.GetEntity<E>(view[index])!];
+                        for (let i = 0; i < componentTypes.length; ++i)
+                        {
+                            elements.push(Registry.GetComponent(view[index], componentTypes[i].TypeId)!);
+                        }
+
+                        index++;
+                        return { done: false, value: elements as [E, ...T] };
+                    }
+                }
+            }
+        }
     }
     //#endregion
 

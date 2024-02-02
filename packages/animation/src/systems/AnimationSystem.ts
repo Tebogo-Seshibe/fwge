@@ -1,24 +1,20 @@
-import { Entity, Registry, System } from "@fwge/core";
+import { Entity, Registry, System } from "@fwge/ecs";
 import { Animation, Keyframe } from "../base";
 import { AnimationPlayer } from "../components";
 
 export class AnimationSystem extends System
 {
-    private readonly _animations = Symbol();
+    private readonly _animations = Registry.RegisterView([ AnimationPlayer ]);
 
-    Init(): void
-    {
-        Registry.registerView(this._animations, [ AnimationPlayer ]);
-    }
-
+    Init(): void { }
     Start(): void { }
     Stop(): void { }
 
     Update(delta: number): void
     {
-        for (const entityId of Registry.getView(this._animations))
+        for (const entityId of Registry.GetView(this._animations))
         {
-            const entity = this.Scene.GetEntity(entityId)!
+            const entity = Registry.GetEntity(entityId)!
             const animationPlayer = entity.GetComponent(AnimationPlayer)!
             const animation = animationPlayer.CurrentAnimation
 
@@ -78,5 +74,3 @@ export class AnimationSystem extends System
         next.forEach((keyframe, name) => animation.CurrentKeyFrame.set(name, keyframe))
     }
 }
-
-let check = false

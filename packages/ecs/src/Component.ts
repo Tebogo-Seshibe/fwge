@@ -16,7 +16,6 @@ export abstract class Component
     constructor(componentType: Type<Component> = new.target as any)
     {
         const _class = componentType = componentType as Class<Component>;
-        console.log({ _class })
         if (_class.TypeId === undefined)
         {
             Registry.RegisterComponentType(_class);

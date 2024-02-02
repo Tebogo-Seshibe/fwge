@@ -13,9 +13,9 @@ export class Test extends Scene
     {
         super(game,
         {
-            windows: [ new DefaultWindow() ],
+            windows: [ DefaultWindow ],
             systems: [
-                new class extends System {
+                class extends System {
                     hmm = Registry.RegisterView([PlayerTag])
                     Init(): void
                     {
@@ -42,7 +42,7 @@ export class Test extends Scene
                 }
             ],
             entities: [
-                new class extends Entity {
+                class extends Entity {
                     Init(): void
                     {
                         console.log('new Entity')

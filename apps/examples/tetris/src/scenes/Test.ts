@@ -1,5 +1,5 @@
 import { DefaultWindow, Game, Scene } from "@fwge/core";
-import { ActionInputMovementSystem } from "../systems/ActionInputMovementSystem";
+import { ActionInputMovementSystem, RenderSystem } from "../systems";
 import { Player } from "../entities";
 
 export class Test extends Scene
@@ -9,8 +9,13 @@ export class Test extends Scene
         super(game,
         {
             windows: [ DefaultWindow ],
-            systems: [ ActionInputMovementSystem ],
-            entities: [ Player ],
+            systems: [ 
+                ActionInputMovementSystem,
+                RenderSystem
+            ],
+            entities: [ 
+                Player,
+            ],
         });
     }
 }
