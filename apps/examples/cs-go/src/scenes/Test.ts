@@ -16,9 +16,10 @@ export class Test extends Scene
             windows: [ DefaultWindow ],
             systems: [
                 class extends System {
-                    hmm = Registry.RegisterView([PlayerTag])
+                    hmm!: number;
                     Init(): void
                     {
+                        this.hmm = Registry.RegisterView([PlayerTag])
                         console.log('init')
                         console.log(this.hmm, Registry.GetView(this.hmm))
                     }
