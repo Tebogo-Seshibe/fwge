@@ -6,10 +6,10 @@ export type TypeId = number;
 
 export abstract class Component
 {
-    readonly Id: ComponentId;
-    readonly TypeId: TypeId;
+    public readonly Id: ComponentId;
+    public readonly TypeId: TypeId;
     
-    static readonly TypeId: TypeId;
+    public static readonly TypeId: TypeId;
 
     constructor();
     constructor(componentType: Type<Component>);

@@ -6,9 +6,26 @@ import { type Class } from "./Class";
 export type View = EntityId[];
 export type ViewKey = number;
 export type ViewFilter<T extends readonly any[] = readonly any[]> = (...args: T) => boolean;
-export type ViewConfig = { componentTypes: readonly Class<Component>[], filter: ViewFilter };
-export type ViewIteratorValue<E extends Entity, T extends Component[]> = { done: false, value: [E, ...T] } | { done: true, value: undefined };
-export type ViewIterator<E extends Entity, T extends Component[]> = { [Symbol.iterator](): { next(): ViewIteratorValue<E, T> } };
+export type ViewConfig =
+{ 
+    componentTypes: readonly Class<Component>[],
+    filter: ViewFilter 
+};
+export type ViewIteratorValue<E extends Entity, T extends Component[]> = 
+{
+    done: false,
+    value: [E, ...T]
+} | {
+    done: true,
+    value: undefined
+};
+export type ViewIterator<E extends Entity, T extends Component[]> = 
+{
+    [Symbol.iterator]():
+    {
+        next(): ViewIteratorValue<E, T>
+    }
+};
 
 // export type ViewGroup<T extends any[] = any[]> = (...args: T) => ComponentId;
 // export type Group<
@@ -30,22 +47,22 @@ export type EntityEntry =
 export class Registry
 {
     //#region Properties
-    private static readonly _entityGraph: (EntityEntry | undefined)[] = [];
-    private static readonly _componentTypes: Class<Component>[] = [];
-    private static readonly _componentListContainers: ListContainer<Component>[] = [];
-    private static readonly _entityComponentList: ListContainer<(Component | undefined)[]> = new ListContainer<(Component | undefined)[]>();
+    private static readonly entityGraph: (EntityEntry | undefined)[] = [];
+    private static readonly componentTypes: Class<Component>[] = [];
+    private static readonly componentListContainers: ListContainer<Component>[] = [];
+    private static readonly entityComponentList: ListContainer<(Component | undefined)[]> = new ListContainer<(Component | undefined)[]>();
 
-    private static readonly _views: ListContainer<View> = new ListContainer<View>();
-    private static readonly _viewConfig: ViewConfig[] = [];
-    private static readonly _mappedViews: number[][] = [];
+    private static readonly views: ListContainer<View> = new ListContainer<View>();
+    private static readonly viewConfig: ViewConfig[] = [];
+    private static readonly mappedViews: number[][] = [];
     //#endregion
 
     //#region Entity
     public static CreateEntity<T extends Entity = Entity>(entity: T): EntityId
     {
-        const entityId = this._entityComponentList.Add([]);
+        const entityId = this.entityComponentList.Add([]);
 
-        this._entityGraph[entityId] = {
+        this.entityGraph[entityId] = {
             entity: entity,
             children: [],
             parent: -1,
@@ -56,13 +73,13 @@ export class Registry
 
     public static GetEntity<T extends Entity = Entity>(entityId: EntityId): T | undefined
     {
-        return this._entityGraph[entityId]?.entity as T;
+        return this.entityGraph[entityId]?.entity as T;
     }
 
     public static AddChild(parentId: EntityId, childId: EntityId): void
     {
-        const parent = this._entityGraph[parentId];
-        const child = this._entityGraph[childId];
+        const parent = this.entityGraph[parentId];
+        const child = this.entityGraph[childId];
 
         if (!parent || !child)
         {
@@ -79,29 +96,29 @@ export class Registry
     
     public static GetChild(parentId: EntityId, childId: EntityId): Entity
     {
-        const childrenList = this._entityGraph[parentId]?.children ?? [];
+        const childrenList = this.entityGraph[parentId]?.children ?? [];
 
-        return this._entityGraph[childrenList[childId]]!.entity!;
+        return this.entityGraph[childrenList[childId]]!.entity!;
     }
     
     public static GetParent(childId: EntityId): Entity | undefined
     {
-        return this._entityGraph[this._entityGraph[childId]!.parent]!.entity;
+        return this.entityGraph[this.entityGraph[childId]!.parent]!.entity;
     }
     
     public static GetParentId(childId: EntityId): EntityId
     {
-        return this._entityGraph[childId]?.parent ?? -1;
+        return this.entityGraph[childId]?.parent ?? -1;
     }
     
     public static GetChildren(entityId: EntityId): readonly Entity[]
     {
         const children: Entity[] = [];
-        const childrenList = this._entityGraph[entityId]?.children ?? [];
+        const childrenList = this.entityGraph[entityId]?.children ?? [];
 
         for (let i = 0; i < childrenList.length; ++i)
         {
-            children.push(this._entityGraph[childrenList[i]]!.entity!);
+            children.push(this.entityGraph[childrenList[i]]!.entity!);
         }
         
         return children;
@@ -110,7 +127,7 @@ export class Registry
     public static GetChildrenIds(entityId: EntityId): readonly EntityId[]
     {
         const children: EntityId[] = [];
-        const childrenList = this._entityGraph[entityId]?.children ?? [];
+        const childrenList = this.entityGraph[entityId]?.children ?? [];
 
         for (let i = 0; i < childrenList.length; ++i)
         {
@@ -122,8 +139,8 @@ export class Registry
 
     public static RemoveChild(parentId: EntityId, childId: EntityId): void
     {
-        const parent = this._entityGraph[parentId];
-        const child = this._entityGraph[childId];
+        const parent = this.entityGraph[parentId];
+        const child = this.entityGraph[childId];
 
         if (!parent || !child)
         {
@@ -143,8 +160,8 @@ export class Registry
 
     public static DestroyEntity(entityId: EntityId): void
     {
-        const entity = this._entityGraph[entityId];
-        this._entityGraph[entityId] = undefined;
+        const entity = this.entityGraph[entityId];
+        this.entityGraph[entityId] = undefined;
 
         if (!entity)
         {
@@ -153,7 +170,7 @@ export class Registry
 
         for (let i = 0; i < entity.children.length; ++i)
         {
-            const child = this._entityGraph[entity.children[i]];
+            const child = this.entityGraph[entity.children[i]];
 
             if (child)
             {
@@ -166,25 +183,25 @@ export class Registry
     //#region Component
     public static CreateComponent(componentTypeId: TypeId, component: Component): ComponentId
     {
-        return this._componentListContainers[componentTypeId].Add(component);
+        return this.componentListContainers[componentTypeId].Add(component);
     }
 
     public static AddComponent(entityId: EntityId, component: Component): void
     {
-        const entityList = this._entityComponentList.Get(entityId);
-
+        const entityList = this.entityComponentList.Get(entityId);
+        
         if (!entityList)
         {
             throw new Error('Attempted to add component to invalid entity id');
         }
-
+        
         entityList[component.TypeId] = component;
-
-        const possibleViews = this._mappedViews[component.TypeId] ?? [];
+        
+        const possibleViews = this.mappedViews[component.TypeId] ?? [];
         for (let i = 0; i < possibleViews.length; ++i)
         {
-            const view = this._views.Get(possibleViews[i])!;
-            const config = this._viewConfig[possibleViews[i]];
+            const view = this.views.Get(possibleViews[i])!;
+            const config = this.viewConfig[possibleViews[i]];
             
             if (view.includes(entityId))
             {
@@ -193,10 +210,15 @@ export class Registry
 
             if (this.testValidViewEntity(entityId, config.componentTypes, config.filter))
             {
+                console.log('Check succes')
                 view.push(entityId)
             }
+            else 
+            {
+                console.log('Check failed')
+            }
         }
-        this._mappedViews[component.TypeId] = possibleViews;
+        this.mappedViews[component.TypeId] = possibleViews;
     }
 
     public static GetComponent<T extends Component = Component>(entityId: EntityId, componentTypeId: TypeId): T | undefined
@@ -206,7 +228,7 @@ export class Registry
         const typeId = typeof componentTypeOrId === 'number'
             ? componentTypeOrId
             : componentTypeOrId.TypeId
-        const entityList = this._entityComponentList.Get(entityId);
+        const entityList = this.entityComponentList.Get(entityId);
 
         if (entityList)
         {
@@ -219,7 +241,7 @@ export class Registry
 
     public static HasComponent(entityId: EntityId, componentTypeId: TypeId): boolean
     {
-        const entityList = this._entityComponentList.Get(entityId);
+        const entityList = this.entityComponentList.Get(entityId);
 
         if (entityList)
         {
@@ -232,17 +254,17 @@ export class Registry
 
     public static RemoveComponent(entityId: EntityId, componentTypeId: TypeId): void
     {
-        const entityList = this._entityComponentList.Get(entityId);
+        const entityList = this.entityComponentList.Get(entityId);
         
         if (entityList)
         {
             entityList[componentTypeId] = undefined;
         }
 
-        const possibleViews = this._mappedViews[componentTypeId] ?? [];
+        const possibleViews = this.mappedViews[componentTypeId] ?? [];
         for (let i = 0; i < possibleViews.length; ++i)
         {
-            const view = this._views.Get(possibleViews[i])!;
+            const view = this.views.Get(possibleViews[i])!;
             const index = view.indexOf(entityId);
 
             if (index === -1)
@@ -253,26 +275,26 @@ export class Registry
             view[index] = view[view.length - 1];
             view.pop();
         }
-        this._mappedViews[componentTypeId] = possibleViews;
+        this.mappedViews[componentTypeId] = possibleViews;
     }
     //#endregion
 
     //#region Component Type
     public static RegisterComponentType(componentType: Class<Component>): void
     {
-        (componentType as any).TypeId = this._componentTypes.length;
-        this._componentListContainers[componentType.TypeId] = new ListContainer(1);
-        this._componentTypes.push(componentType);
+        (componentType as any).TypeId = this.componentTypes.length;
+        this.componentListContainers[componentType.TypeId] = new ListContainer(1);
+        this.componentTypes.push(componentType);
     }
 
     public static GetRegisteredComponentType(componentTypeId: TypeId): Class<Component>
     {
-        return this._componentTypes[componentTypeId];
+        return this.componentTypes[componentTypeId];
     }
 
     public static GetRegisteredComponentTypes(): readonly Class<Component>[]
     {
-        return this._componentTypes;
+        return this.componentTypes;
     }
     //#endregion
 
@@ -287,7 +309,7 @@ export class Registry
     {
         const entityIds: View = [];
         const currentEntityIds: View = [];
-        const entities = this._entityComponentList.Items;
+        const entities = this.entityComponentList.Items;
 
         for (let i = 0; i < entities.length; ++i)
         {
@@ -305,16 +327,21 @@ export class Registry
             }
         }
         
-        const key = this._views.Add(entityIds);
-        this._viewConfig[key] = { componentTypes, filter };
+        const key = this.views.Add(entityIds);
+        this.viewConfig[key] = { componentTypes, filter };
 
         for (const componentType of componentTypes)
         {
-            if (!this._mappedViews[componentType.TypeId])
+            if (componentType.TypeId === undefined)
             {
-                this._mappedViews[componentType.TypeId] = [];
+                this.RegisterComponentType(componentType);
             }
-            this._mappedViews[componentType.TypeId].push(key);
+            
+            if (!this.mappedViews[componentType.TypeId])
+            {
+                this.mappedViews[componentType.TypeId] = [];
+            }
+            this.mappedViews[componentType.TypeId].push(key);
         }
 
         return key;
@@ -322,7 +349,7 @@ export class Registry
 
     public static GetView(key: ViewKey): readonly EntityId[]
     {
-        return this._views.Get(key) ?? [];
+        return this.views.Get(key) ?? [];
     }
     
     public static GetViewIterator<E extends Entity, T1 extends Component>(key: ViewKey, componentTypes: readonly [Class<T1>]): ViewIterator<E, [T1]>

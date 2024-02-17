@@ -7,40 +7,41 @@ import { Input } from "../components";
 
 export class InputSystem extends System
 {
-    private readonly inputView = Registry.RegisterView([Input]);
+    private inputView!: number;;
 
-    private readonly inputDataView = new CompositeDataView([
+    private readonly inputDataView = new CompositeDataView(
+    {
+        keyboard:
         {
-            name: 'keyboard',
             type: Uint8ClampedArray,
             length: NUM_KEYBOARD_KEYS
         },
+        mouseMovement:
         {
-            name: 'mouseMovement',
             type: Float32Array,
             length: 6
         },
+        mouseButtons:
         {
-            name: 'mouseButtons',
             type: Uint8ClampedArray,
             length: 6
         },
+        controllerAxes:
         {
-            name: 'controllerAxes',
             type: Float32Array,
             length: 16
         },
+        controllerButtons:
         {
-            name: 'controllerButtons',
             type: Uint8ClampedArray,
             length: 64
         }
-    ]);
+    });
     
     private readonly keyboard: KeyboardInputHandler = new KeyboardInputHandler(
         GL.canvas as HTMLCanvasElement,
         0.2,
-        this.inputDataView.View('keyboard')!
+        this.inputDataView.View('keyboard')
     );
 
     private readonly mouse: MouseInputHandler = new MouseInputHandler(
@@ -55,7 +56,10 @@ export class InputSystem extends System
         this.inputDataView.View('controllerButtons')!
     );
 
-    Init(): void { }
+    Init(): void
+    {
+        this.inputView = Registry.RegisterView([Input]);
+    }
     
     Start(): void
     {

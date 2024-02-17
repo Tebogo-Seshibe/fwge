@@ -14,15 +14,96 @@ export interface IOrthographicCamera
 }
 
 export class OrthographicCamera extends Camera
-{    
-    Near: number
-    Far: number
-    Left: number
-    Right: number
-    Top: number
-    Bottom: number
-    HorizontalTilt: number
-    VerticalTilt: number
+{
+    private readonly Data: Float32Array;
+
+    get Near(): number
+    {
+        return this.Data[0];
+    }
+    
+    set Near(near: number)
+    {
+        this.Data[0] = near;
+        this.UpdateProjection();
+    }
+
+    get Far(): number
+    {
+        return this.Data[1];
+    }
+
+    set Far(far: number)
+    {
+        this.Data[1] = far;
+        this.UpdateProjection();
+    }
+
+    get Left(): number
+    {
+        return this.Data[2];
+    }
+    
+    set Left(left: number)
+    {
+        this.Data[2] = left;
+        this.UpdateProjection();
+    }
+
+    get Right(): number
+    {
+        return this.Data[3];
+    }
+
+    set Right(right: number)
+    {
+        this.Data[3] = right;
+        this.UpdateProjection();
+    }
+    
+    get Top(): number
+    {
+        return this.Data[4];
+    }
+
+    set Top(top: number)
+    {
+        this.Data[4] = top;
+        this.UpdateProjection();
+    }
+
+    get Bottom(): number
+    {
+        return this.Data[5];
+    }
+
+    set Bottom(bottom: number)
+    {
+        this.Data[5] = bottom;
+        this.UpdateProjection();
+    }
+
+    get HorizontalTilt(): number
+    {
+        return this.Data[6];
+    }
+
+    set HorizontalTilt(horizontalTilt: number)
+    {
+        this.Data[6] = horizontalTilt;
+        this.UpdateProjection();
+    }
+
+    get VerticalTilt(): number
+    {
+        return this.Data[7];
+    }
+
+    set VerticalTilt(verticalTilt: number)
+    {
+        this.Data[7] = verticalTilt;
+        this.UpdateProjection();
+    }
 
     constructor()
     constructor(camera: IOrthographicCamera)
@@ -30,22 +111,29 @@ export class OrthographicCamera extends Camera
     {
         super()
 
-        this.Near = camera.near ?? 0.1
-        this.Far = camera.far ?? 900
-        this.Left = camera.left ?? -10
-        this.Right = camera.right ?? 10
-        this.Top = camera.top ?? 10
-        this.Bottom = camera.bottom ?? -10
-        this.HorizontalTilt = camera.horizontalTilt ?? 90
-        this.VerticalTilt = camera.vericalTilt ?? 90
+        this.Data = new Float32Array(
+        [
+            camera.near             ?? 0.1,
+            camera.far              ?? 900,
+            camera.left             ?? -10,
+            camera.right            ?? 10,
+            camera.top              ?? 10,
+            camera.bottom           ?? -10,
+            camera.horizontalTilt   ?? 90,
+            camera.vericalTilt      ?? 90,
+        ]);
         this.UpdateProjection()
     }
     
     override UpdateProjection(): void
     {
         Matrix4.OrthographicProjection(
-            this.Left, this.Bottom, this.Near,
-            this.Right, this.Top, this.Far,
+            this.Left,
+            this.Bottom,
+            this.Near,
+            this.Right,
+            this.Top,
+            this.Far,
             this.VerticalTilt,
             this.HorizontalTilt, 
             this.ProjectionMatrix

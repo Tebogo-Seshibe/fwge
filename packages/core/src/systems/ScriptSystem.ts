@@ -3,9 +3,12 @@ import { Script } from "../components/Script";
 
 export class ScriptSystem extends System
 {
-    private allScripts = Registry.RegisterView([Script]);
+    private allScripts!: number;
     
-    Init(): void { }
+    Init(): void
+    { 
+        this.allScripts = Registry.RegisterView([Script]);
+    }
     
     Start(): void
     {

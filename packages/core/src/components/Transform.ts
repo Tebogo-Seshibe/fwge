@@ -135,7 +135,7 @@ export class Transform extends Component
     constructor(transform: ITransform)
     constructor(args: ITransform = { })
     {
-        super()
+        super(Transform)
         
         const buffer = new Float32Array(9);
         this.Position = new Vector3(buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);

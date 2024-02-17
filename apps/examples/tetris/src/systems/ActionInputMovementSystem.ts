@@ -2,8 +2,6 @@ import { Transform } from "@fwge/core";
 import { Registry, System } from "@fwge/ecs";
 import { ActionInput } from "../components/ActionInput";
 
-const NoOp = (..._args: any[]) => void  0;
-
 export class ActionInputMovementSystem extends System
 {
     private view!: number;
@@ -14,12 +12,12 @@ export class ActionInputMovementSystem extends System
         this.view = Registry.RegisterView([Transform, ActionInput]);
     }
 
-    Start = NoOp;
+    Start(): void { }
 
     Update(delta: number): void
     {
         
     }
 
-    Stop = NoOp;
+    Stop(): void { }
 }

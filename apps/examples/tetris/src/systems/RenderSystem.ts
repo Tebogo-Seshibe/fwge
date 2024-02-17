@@ -17,24 +17,22 @@ export class RenderSystem extends System
     
     Start(): void { }
 
-    Update(): void
+    log = 0;
+    Update(delta: number): void
     {
+        this.log += delta;
+
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-        GL.clearColor(0,0,0,1);
+        GL.clearColor(0, 0, 0, 1);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-        GL.enable(GL.CULL_FACE);
-        GL.cullFace(GL.BACK);
-        
-        // this.shader.Bind()
+        // GL.enable(GL.CULL_FACE);
+        // GL.cullFace(GL.BACK);
+        GL.disable(GL.CULL_FACE);
         
         const cameraEntityId = Registry.GetView(this.cameras)[0];
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
-        const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;
-        
-
-        // this.shader.SetMatrix('U_ViewMatrix', cameraTransform.GlobalModelViewMatrix());
-        // this.shader.SetMatrix('U_ProjectionMatrix', cameraCamera.ProjectionMatrix);
+        const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;        
 
         for (const entityId of Registry.GetView(this.renderables))
         {
@@ -45,9 +43,14 @@ export class RenderSystem extends System
             const shader = material.Shader!;
 
             shader.Bind();
-            shader.SetMatrix('U_ViewMatrix', cameraTransform.GlobalModelViewMatrix());
-            shader.SetMatrix('U_ProjectionMatrix', cameraCamera.ProjectionMatrix);
+            
+            shader.SetBufferDataField('Camera', 'ViewMatrix', cameraTransform.GlobalModelViewMatrix().Inverse(), true);
+            shader.SetBufferDataField('Camera', 'ProjectionMatrix', cameraCamera.ProjectionMatrix, true);
+            shader.PushBufferData('Camera');
 
+            shader.SetBufferDataField('BasicLitMaterial', 'Colour', material.Colour);
+            shader.PushBufferData('BasicLitMaterial');
+            
             let renderMode: number;
             let renderCount: number;
             let buffer: WebGLBuffer | null;
@@ -79,12 +82,14 @@ export class RenderSystem extends System
                 break;
             }
 
+            
             GL.bindVertexArray(mesh.VertexArrayBuffer);
             const modelViewMatrix = transform.GlobalModelViewMatrix();
-            const normalMatrix = Matrix3.Inverse(modelViewMatrix.Matrix3.Transpose());
+            
 
-            shader.SetMatrix('U_ModelViewMatrix', modelViewMatrix);
-            shader.SetMatrix('U_NormalMatrix', normalMatrix);
+            shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
+            shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
+            shader.PushBufferData('Object')
 
             if (buffer)
             {
@@ -144,6 +149,7 @@ in vec3 V_Position;
 in vec3 V_Normal;
 in vec3 V_UV;
 in vec3 V_Colour;
+
 layout(location = 0) out vec4 O_FragColour;
 
 uniform vec3 U_Colour;

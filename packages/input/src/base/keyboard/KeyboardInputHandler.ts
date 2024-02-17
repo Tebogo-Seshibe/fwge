@@ -5,12 +5,12 @@ export const NUM_KEYBOARD_KEYS: number = 256;
 
 export class KeyboardInputHandler
 {
-    private readonly keyDelays: Float32Array = new Float32Array(NUM_KEYBOARD_KEYS);
+    private readonly keyTicks: Uint8Array = new Uint8Array(NUM_KEYBOARD_KEYS);
     public readonly State: KeyboardState;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
-        private readonly keyDelay: number = 0.2,
+        private readonly keyDelay: number = 0.0,
         private readonly keys: Uint8ClampedArray
     ) {
         this.State = new KeyboardState(keys);
@@ -26,7 +26,7 @@ export class KeyboardInputHandler
     {
         for (let i = 0 ; i < this.keys.length; ++i)
         {
-            if (this.keyDelays[i] <= 0)
+            if (this.keyTicks[i] === 0)
             {
                 switch(this.keys[i])
                 {
@@ -42,7 +42,7 @@ export class KeyboardInputHandler
             }
             else
             {
-                this.keyDelays[i] -= delta;
+                this.keyTicks[i] = 0;
             }
         }
     }
@@ -60,12 +60,12 @@ export class KeyboardInputHandler
         if (this.keys[e.which] === KeyState.UP)
         {
             this.keys[e.which] = KeyState.PRESSED;
-            this.keyDelays[e.which] = this.keyDelay;
+            this.keyTicks[e.which] = 1;
         }
         else if (this.keys[e.which] === KeyState.RELEASED)
         {
             this.keys[e.which] = KeyState.DOUBLE_PRESSED;
-            this.keyDelays[e.which] = this.keyDelay;
+            this.keyTicks[e.which] = 1;
         }
     }
 

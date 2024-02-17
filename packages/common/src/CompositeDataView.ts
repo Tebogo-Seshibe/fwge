@@ -1,37 +1,54 @@
-import { TypedArray, TypedArrayConstructor } from "./types";
+import { TypedArrayConstructor } from "./types";
 
-export interface IBufferView
-{
-    name: string | symbol | number;
-    type: TypedArrayConstructor;
-    length: number;
+export type SubDataView =
+{ 
+    [viewKey: string]:
+    {
+        type: TypedArrayConstructor;
+        length: number;
+    }
 }
 
-export class CompositeDataView extends DataView
+export type MappedSubDataView<T extends SubDataView> =
 {
-    readonly #views: Record<string | symbol | number, TypedArray> = {};
+    [Key in keyof T]: T[Key]['type']['prototype']
+}
 
-    constructor(views: IBufferView[])
+export class CompositeDataView<T extends SubDataView> extends DataView
+{
+    #views: MappedSubDataView<T> = Object.create(null);
+
+    constructor(views: T)
     {
-        super(new ArrayBuffer(views
-            .sort((a, b) => b.type.BYTES_PER_ELEMENT - a.type.BYTES_PER_ELEMENT)
-            .map(x => x.length * x.type.BYTES_PER_ELEMENT)
-            .reduce((t, c) => t + c, 0)));
+        super(
+            new ArrayBuffer(
+                Object.keys(views)
+                    .map(view => views[view].length * views[view].type.BYTES_PER_ELEMENT)
+                    .reduce((total, current) => total + current, 0)
+            )
+        );
 
         let offset = 0;
-
-        for (const { name, type, length } of views)
-        {
-            const totalLength = type.BYTES_PER_ELEMENT * length;
-            
-            this.#views[name] = new type(this.buffer, offset, length);
-            
-            offset += totalLength;
-        }
+        Object.keys(views)
+            .map(view => (
+            {
+                view: view,
+                type: views[view].type,
+                length: views[view].length,
+            }))
+            .sort((a, b) => b.type.BYTES_PER_ELEMENT - a.type.BYTES_PER_ELEMENT)
+            .forEach(({ view, type, length }) =>
+            {
+                const totalLength = type.BYTES_PER_ELEMENT * length;
+                
+                this.#views[view as keyof T] = new type(this.buffer, offset, length);
+                
+                offset += totalLength;
+            });
     }
 
-    View<T extends TypedArray>(name: string | symbol | number): T | undefined
+    View<Key extends keyof MappedSubDataView<T>>(key: Key): MappedSubDataView<T>[Key]
     {
-        return this.#views[name] as T;
+        return this.#views[key];
     }
 }

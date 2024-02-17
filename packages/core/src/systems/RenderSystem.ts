@@ -1,7 +1,6 @@
 import { System } from "@fwge/ecs";
 
-export class RenderSystem extends System
-{
+export class RenderSystem extends System {
     Init(): void {
         throw new Error("Method not implemented.");
     }

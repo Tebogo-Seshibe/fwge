@@ -65,7 +65,7 @@ export abstract class Entity
         return this;
     }
 
-    public AddComponents(components: readonly Component[]): Entity
+    public AddComponents(...components: readonly Component[]): Entity
     {
         for (let i = 0; i < components.length; ++i)
         {
@@ -86,9 +86,9 @@ export abstract class Entity
         return Registry.GetComponent(this.Id, componentTypeId) as T;
     }
     
-    public GetComponents(componentTypes: readonly Class<Component>[]): Record<string, Component | undefined>
-    public GetComponents(typeIds: readonly TypeId[]): Record<string, Component | undefined>
-    public GetComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Record<string, Component | undefined>
+    public GetComponents(...componentTypes: readonly Class<Component>[]): Record<string, Component | undefined>
+    public GetComponents(...typeIds: readonly TypeId[]): Record<string, Component | undefined>
+    public GetComponents(...componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Record<string, Component | undefined>
     {
         const components: Record<string, Component | undefined> = {};
 
@@ -134,9 +134,9 @@ export abstract class Entity
         return Registry.HasComponent(this.Id, componentTypeId);
     }
 
-    public HasComponents(componentTypes: readonly Class<Component>[]): boolean;
-    public HasComponents(typeIds: readonly TypeId[]): boolean;
-    public HasComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): boolean
+    public HasComponents(...componentTypes: readonly Class<Component>[]): boolean;
+    public HasComponents(...typeIds: readonly TypeId[]): boolean;
+    public HasComponents(...componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): boolean
     {
         for (let i = 0; i < componentTypesOrIds.length; ++i)
         {
@@ -161,9 +161,9 @@ export abstract class Entity
         return this;
     }
 
-    public RemoveComponents(componentTypes: readonly Class<Component>[]): Entity
-    public RemoveComponents(typeIds: readonly TypeId[]): Entity
-    public RemoveComponents(componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Entity
+    public RemoveComponents(...componentTypes: readonly Class<Component>[]): Entity
+    public RemoveComponents(...typeIds: readonly TypeId[]): Entity
+    public RemoveComponents(...componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Entity
     {
         for (let i = 0; i < componentTypesOrIds.length; ++i)
         {

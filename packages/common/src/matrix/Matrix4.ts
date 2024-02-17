@@ -1491,8 +1491,8 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
 
         if (typeof _0 === 'number' || typeof _1 === 'number' || typeof _2 === 'number')
         {
-            theta = cot(radian(0));
-            phi = cot(radian(0));
+            theta = cot(radian(90));
+            phi = cot(radian(90));
 
             left = _0 as number;
             bottom = _1 as number;
@@ -1503,8 +1503,8 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         }
         else
         {
-            theta = cot(radian(_2[0] ?? 0));
-            phi = cot(radian(_2[1] ?? 0));
+            theta = cot(radian(_2[0] ?? 90));
+            phi = cot(radian(_2[1] ?? 90));
 
             left = _0[0];
             bottom = _0[1];

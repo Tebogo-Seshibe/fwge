@@ -11,7 +11,7 @@ export interface IPerspectiveCamera
 
 export class PerspectiveCamera extends Camera
 {
-    private readonly Data = new Float32Array(4)
+    private readonly Data: Float32Array;
 
     get FieldOfView(): number
     {
@@ -60,10 +60,13 @@ export class PerspectiveCamera extends Camera
     {
         super()
 
-        this.FieldOfView = camera.fieldOfView ?? 50
-        this.AspectRatio = camera.aspectRatio ?? 16 / 9
-        this.NearClipping = camera.nearClipping ?? 0.1
-        this.FarClipping = camera.farClipping ?? 900
+        this.Data = new Float32Array(
+        [
+            camera.fieldOfView  ?? 50,
+            camera.aspectRatio  ?? 16 / 9,
+            camera.nearClipping ?? 0.1,
+            camera.farClipping  ?? 900,
+        ]);
         this.UpdateProjection()
     }
     

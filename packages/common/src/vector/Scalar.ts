@@ -6,12 +6,12 @@ export type ScalarArray = FixedLengthArray<number, 1>;
 export class Scalar extends Float32Array implements IsEquatable<Scalar>
 {
     //#region Local Properties
-    get Value(): number
+    public get Value(): number
     {
         return this[0];
     }
 
-    set Value(value: number)
+    public set Value(value: number)
     {
         this[0] = value;
     }
@@ -39,10 +39,10 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
     }
 
     //#region Local Methods
-    Set(value: number): Scalar;
-    Set(scalar: Scalar): Scalar;
-    Set(array: ScalarArray): Scalar;
-    Set(_0: Scalar | ScalarArray | number): Scalar
+    public Set(value: number): Scalar;
+    public Set(scalar: Scalar): Scalar;
+    public Set(array: ScalarArray): Scalar;
+    public Set(_0: Scalar | ScalarArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {
@@ -56,17 +56,17 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return this;
     }
 
-    Negate(): Scalar
+    public Negate(): Scalar
     {
         this[0] = -this[0];
 
         return this;
     }
 
-    Add(value: number): Scalar;
-    Add(scalar: Scalar): Scalar;
-    Add(array: NumberArray): Scalar;
-    Add(_0: Scalar | NumberArray | number): Scalar
+    public Add(value: number): Scalar;
+    public Add(scalar: Scalar): Scalar;
+    public Add(array: NumberArray): Scalar;
+    public Add(_0: Scalar | NumberArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {
@@ -80,10 +80,10 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return this;
     }
 
-    Subtract(value: number): Scalar;
-    Subtract(scalar: Scalar): Scalar;
-    Subtract(array: NumberArray): Scalar;
-    Subtract(_0: Scalar | NumberArray | number): Scalar
+    public Subtract(value: number): Scalar;
+    public Subtract(scalar: Scalar): Scalar;
+    public Subtract(array: NumberArray): Scalar;
+    public Subtract(_0: Scalar | NumberArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {
@@ -97,10 +97,10 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return this;
     }
 
-    Multiply(value: number): Scalar;
-    Multiply(scalar: Scalar): Scalar;
-    Multiply(array: NumberArray): Scalar;
-    Multiply(_0: Scalar | NumberArray | number): Scalar
+    public Multiply(value: number): Scalar;
+    public Multiply(scalar: Scalar): Scalar;
+    public Multiply(array: NumberArray): Scalar;
+    public Multiply(_0: Scalar | NumberArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {
@@ -114,10 +114,10 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return this;
     }
 
-    Divide(value: number): Scalar;
-    Divide(scalar: Scalar): Scalar;
-    Divide(array: NumberArray): Scalar;
-    Divide(_0: Scalar | NumberArray | number): Scalar
+    public Divide(value: number): Scalar;
+    public Divide(scalar: Scalar): Scalar;
+    public Divide(array: NumberArray): Scalar;
+    public Divide(_0: Scalar | NumberArray | number): Scalar
     {
         if (typeof _0 === 'number')
         {
@@ -131,19 +131,19 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return this;
     }
 
-    Scale(scalar: number): Scalar
+    public Scale(scalar: number): Scalar
     {
         this[0] *= scalar;
 
         return this;
     }
 
-    Clone(): Scalar
+    public Clone(): Scalar
     {
         return new Scalar(this);
     }
 
-    Equals(other: Scalar): boolean
+    public Equals(other: Scalar): boolean
     {
         return this[0] === other[0];
     }
@@ -151,10 +151,10 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
 
     public static readonly SIZE: number = 1;
 
-    //#region Static Methods
-    static Negate(scalar: Scalar): Scalar;
-    static Negate(scalar: Scalar, out: Scalar): Scalar;
-    static Negate(_0: Scalar, _1?: Scalar): Scalar
+    //#region public static Methods
+    public static Negate(scalar: Scalar): Scalar;
+    public static Negate(scalar: Scalar, out: Scalar): Scalar;
+    public static Negate(_0: Scalar, _1?: Scalar): Scalar
     {
         const out = _1 || new Scalar();
 
@@ -163,13 +163,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return out;
     }
 
-    static Add(value1: number, value2: number): Scalar;
-    static Add(value1: number, value2: number, out: Scalar): Scalar;
-    static Add(scalar1: Scalar, scalar2: Scalar): Scalar;
-    static Add(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
-    static Add(array1: NumberArray, array2: NumberArray): Scalar;
-    static Add(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Add(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
+    public static Add(value1: number, value2: number): Scalar;
+    public static Add(value1: number, value2: number, out: Scalar): Scalar;
+    public static Add(scalar1: Scalar, scalar2: Scalar): Scalar;
+    public static Add(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
+    public static Add(array1: NumberArray, array2: NumberArray): Scalar;
+    public static Add(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
+    public static Add(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
         const out = _2 || new Scalar();
 
@@ -185,13 +185,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return out;
     }
 
-    static Subtract(value1: number, value2: number): Scalar;
-    static Subtract(value1: number, value2: number, out: Scalar): Scalar;
-    static Subtract(scalar1: Scalar, scalar2: Scalar): Scalar;
-    static Subtract(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
-    static Subtract(array1: NumberArray, array2: NumberArray): Scalar;
-    static Subtract(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Subtract(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
+    public static Subtract(value1: number, value2: number): Scalar;
+    public static Subtract(value1: number, value2: number, out: Scalar): Scalar;
+    public static Subtract(scalar1: Scalar, scalar2: Scalar): Scalar;
+    public static Subtract(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
+    public static Subtract(array1: NumberArray, array2: NumberArray): Scalar;
+    public static Subtract(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
+    public static Subtract(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
         const out = _2 || new Scalar();
 
@@ -207,13 +207,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return out;
     }
 
-    static Multiply(value1: number, value2: number): Scalar;
-    static Multiply(value1: number, value2: number, out: Scalar): Scalar;
-    static Multiply(scalar1: Scalar, scalar2: Scalar): Scalar;
-    static Multiply(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
-    static Multiply(array1: NumberArray, array2: NumberArray): Scalar;
-    static Multiply(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Multiply(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
+    public static Multiply(value1: number, value2: number): Scalar;
+    public static Multiply(value1: number, value2: number, out: Scalar): Scalar;
+    public static Multiply(scalar1: Scalar, scalar2: Scalar): Scalar;
+    public static Multiply(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
+    public static Multiply(array1: NumberArray, array2: NumberArray): Scalar;
+    public static Multiply(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
+    public static Multiply(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
         const out = _2 || new Scalar();
 
@@ -229,13 +229,13 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return out;
     }
 
-    static Divide(value1: number, value2: number): Scalar;
-    static Divide(value1: number, value2: number, out: Scalar): Scalar;
-    static Divide(scalar1: Scalar, scalar2: Scalar): Scalar;
-    static Divide(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
-    static Divide(array1: NumberArray, array2: NumberArray): Scalar;
-    static Divide(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
-    static Divide(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
+    public static Divide(value1: number, value2: number): Scalar;
+    public static Divide(value1: number, value2: number, out: Scalar): Scalar;
+    public static Divide(scalar1: Scalar, scalar2: Scalar): Scalar;
+    public static Divide(scalar1: Scalar, scalar2: Scalar, out: Scalar): Scalar;
+    public static Divide(array1: NumberArray, array2: NumberArray): Scalar;
+    public static Divide(array1: NumberArray, array2: NumberArray, out: Scalar): Scalar;
+    public static Divide(_0: Scalar | NumberArray | number, _1: Scalar | NumberArray | number, _2?: Scalar): Scalar
     {
         const out = _2 || new Scalar();
 
@@ -251,9 +251,9 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         return out;
     }
 
-    static Scale(value: Scalar, scalar: number): Scalar;
-    static Scale(vector: Scalar, scalar: number, out: Scalar): Scalar;
-    static Scale(_0: Scalar, _1: number, _2?: Scalar): Scalar
+    public static Scale(value: Scalar, scalar: number): Scalar;
+    public static Scale(vector: Scalar, scalar: number, out: Scalar): Scalar;
+    public static Scale(_0: Scalar, _1: number, _2?: Scalar): Scalar
     {
         const out = _2 || new Scalar();
 
