@@ -1,6 +1,5 @@
 import { randBetween } from "@fwge/common";
 import { BasicLitMaterial, DefaultWindow, Game, MeshRenderer, RenderMode, RenderType, Scene, Script, ScriptSystem, Shader, StaticMesh, Transform } from "@fwge/core";
-import { Registry } from "@fwge/ecs";
 import { Input, InputSystem, KeyState } from "@fwge/input";
 import { tetrominoI, tetrominoJ, tetrominoL, tetrominoO, tetrominoS, tetrominoT, tetrominoZ } from "../assets/TetrominoMesh";
 import { tetrominoShaderFrag, tetrominoShaderVert } from "../assets/TetrominoShader";
