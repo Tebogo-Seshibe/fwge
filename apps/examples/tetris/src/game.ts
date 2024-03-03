@@ -1,5 +1,5 @@
 import { Game } from '@fwge/core';
-import { Level, MainMenu, Test } from './scenes';
+import { Level, MainMenu } from './scenes';
 
 export class Tetris extends Game
 {
@@ -11,7 +11,7 @@ export class Tetris extends Game
             height: 720,
             width: 1280,
             startupScene: 0,
-            scenes: [ Test, MainMenu, Level ],
+            scenes: [ Level, MainMenu,  ],
             assets: [],
             prefabs: []
         });

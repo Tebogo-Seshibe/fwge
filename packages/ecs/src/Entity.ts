@@ -4,11 +4,11 @@ import { type Class } from './Class';
 
 export type EntityId = number;
 
-export abstract class Entity
+export class Entity
 {
     public readonly Id: EntityId = Registry.CreateEntity(this);
 
-    public abstract Init(): void;
+    public Init(): void {}
     public Destroy(): void
     {
         Registry.DestroyEntity(this.Id);

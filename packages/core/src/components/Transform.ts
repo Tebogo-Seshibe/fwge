@@ -1,11 +1,23 @@
 import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
 import { Component, EntityId, Registry } from '@fwge/ecs';
 
-export type ITransform = 
+export interface ITransform
 {
     position?: Vector3 | MinLengthArray<number, 3>
     rotation?: Vector3 | MinLengthArray<number, 3>
     scale?: Vector3 | MinLengthArray<number, 3>
+}
+
+export interface ISimpleTransform extends ITransform 
+{
+}
+
+export interface ITransformBuffered extends ITransform
+{
+    buffer: ArrayBuffer
+    positionOffset: number
+    rotationOffset: number
+    scaleOffset: number
 }
 
 export class Transform extends Component
@@ -132,15 +144,25 @@ export class Transform extends Component
     }
 
     constructor()
-    constructor(transform: ITransform)
-    constructor(args: ITransform = { })
+    constructor(transform: ISimpleTransform)
+    constructor(transform: ITransformBuffered)
+    constructor(args: ISimpleTransform | ITransformBuffered = { })
     {
         super(Transform)
         
-        const buffer = new Float32Array(9);
-        this.Position = new Vector3(buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
-        this.Rotation = new Vector3(buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
-        this.Scale = new Vector3(buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
+        if ('buffer' in args)
+        {
+            this.Position = new Vector3(args.buffer, args.positionOffset);
+            this.Rotation = new Vector3(args.buffer, args.rotationOffset);
+            this.Scale = new Vector3(args.buffer, args.scaleOffset);
+        }
+        else
+        {
+            const buffer = new Float32Array(9);
+            this.Position = new Vector3(buffer.buffer, 0 * Float32Array.BYTES_PER_ELEMENT);
+            this.Rotation = new Vector3(buffer.buffer, 3 * Float32Array.BYTES_PER_ELEMENT);
+            this.Scale = new Vector3(buffer.buffer, 6 * Float32Array.BYTES_PER_ELEMENT);
+        }
 
         if (args.position)
         {

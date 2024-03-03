@@ -3,6 +3,7 @@ import { Asset } from "../../base"
 
 export interface IMesh
 {
+    name?: string
     position: Vector3[] | [number, number, number][]
     normal?: Vector3[] | [number, number, number][]
     uv?: Vector2[] | [number, number][]
@@ -24,9 +25,9 @@ export class Mesh extends Asset
     readonly FaceCount: number
     readonly IsIndexed: boolean = false
 
-    constructor(vertexCount: number, indices: number[] | undefined)
+    constructor(vertexCount: number, indices: number[] | undefined, name: string)
     {
-        super(Mesh)
+        super(name, Mesh)
 
         this.FaceCount = indices?.length ?? vertexCount
         this.EdgeCount = indices ? (indices.length * 2) : vertexCount

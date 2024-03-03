@@ -6,7 +6,7 @@ export class StaticMesh extends Mesh
 {
     constructor(args: IMesh)
     {
-        super(args.position.length, args.index)
+        super(args.position.length, args.index, args.name ?? 'Static Mesh')
     
         const vertexSizeInBytes =
               POSITION_SIZE

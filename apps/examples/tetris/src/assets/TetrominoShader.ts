@@ -9,6 +9,8 @@ layout(location = 1) in vec3 A_Normal;
 layout(location = 2) in vec2 A_UV;
 layout(location = 3) in vec3 A_Colour;
 
+layout(location = 4) in mat4 A_ModelViewMatrix;
+
 struct Vertex
 {
     vec3 Position;

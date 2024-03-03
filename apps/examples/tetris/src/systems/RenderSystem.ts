@@ -1,5 +1,5 @@
 import { GL, Matrix3 } from "@fwge/common";
-import { Camera, Material, RenderMode, Renderer, Shader, Transform } from "@fwge/core";
+import { Camera, InstanceMesh, Material, Mesh, RenderMode, Renderer, Shader, Transform } from "@fwge/core";
 import { Registry, System } from "@fwge/ecs";
 
 export class RenderSystem extends System
@@ -82,31 +82,69 @@ export class RenderSystem extends System
                 break;
             }
 
-            
-            GL.bindVertexArray(mesh.VertexArrayBuffer);
-            const modelViewMatrix = transform.GlobalModelViewMatrix();
-            
-
-            shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
-            shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
-            shader.PushBufferData('Object')
-
-            if (buffer)
+            if (mesh instanceof InstanceMesh)
             {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-                GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+                this.drawInstanceMesh(mesh, transform, shader, buffer, renderMode, renderCount);
             }
             else
             {
-                GL.drawArrays(renderMode, 0, renderCount);
+                this.drawMesh(mesh, transform, shader, buffer, renderMode, renderCount);
             }
-            
-            GL.bindVertexArray(null);
+
             shader.UnBind()
         }
+
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
     }
     
+    private drawInstanceMesh(mesh: InstanceMesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
+    {
+        GL.bindVertexArray(mesh.VertexArrayBuffer);
+        const modelViewMatrix = transform.GlobalModelViewMatrix();
+
+
+        shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
+        shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader.PushBufferData('Object');
+
+        if (buffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+            GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
+        }
+
+        else
+        {
+            GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);
+        }
+
+        GL.bindVertexArray(null);
+    }
+    
+    private drawMesh(mesh: Mesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
+    {
+        GL.bindVertexArray(mesh.VertexArrayBuffer);
+        const modelViewMatrix = transform.GlobalModelViewMatrix();
+
+
+        shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
+        shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader.PushBufferData('Object');
+
+        if (buffer)
+        {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+            GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
+        }
+
+        else
+        {
+            GL.drawArrays(renderMode, 0, renderCount);
+        }
+
+        GL.bindVertexArray(null);
+    }
+
     Stop(): void { }
 }
 

@@ -2,6 +2,8 @@ import { IMesh } from "@fwge/core";
 
 export const tetrominoO: IMesh =
 {
+    name: 'O',
+
     position:
     [
 
@@ -35,6 +37,8 @@ export const tetrominoO: IMesh =
 
 export const tetrominoT: IMesh =
 {
+    name: 'T',
+    
     position:
     [
 
@@ -70,6 +74,8 @@ export const tetrominoT: IMesh =
 
 export const tetrominoZ: IMesh =
 {
+    name: 'Z',
+    
     position:
     [
 
@@ -105,6 +111,8 @@ export const tetrominoZ: IMesh =
 
 export const tetrominoS: IMesh =
 {
+    name: 'S',
+    
     position:
     [
 
@@ -140,6 +148,8 @@ export const tetrominoS: IMesh =
 
 export const tetrominoJ: IMesh =
 {
+    name: 'J',
+    
     position:
     [
 
@@ -174,6 +184,8 @@ export const tetrominoJ: IMesh =
 
 export const tetrominoL: IMesh =
 {
+    name: 'L',
+    
     position:
     [
         [-1.0,  2.0,  0.0],
@@ -207,6 +219,8 @@ export const tetrominoL: IMesh =
 
 export const tetrominoI: IMesh =
 {
+    name: 'I',
+    
     position:
     [
         [ 0.0,  2.0,  0.0],

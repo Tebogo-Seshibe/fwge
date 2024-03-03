@@ -8,6 +8,7 @@ const COLOUR_INDEX: number      = 3
 
 export interface IMesh
 {
+    name?: string
     position?: Vector3[] | number[]
     normal?: Vector3[] | number[]
     colour?: Vector4[] | Colour4[] | number[]
@@ -198,7 +199,8 @@ export class DynamicMesh extends Mesh
     {
         super(
             args.position?.length ?? 0 * Vector3.SIZE,
-            args.index,
+            args.index, 
+            args.name ?? 'Dynamic Mesh'
             // args.wireframe?.length ?? -1
         )
         

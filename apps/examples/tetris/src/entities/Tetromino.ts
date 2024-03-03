@@ -1,3 +1,3 @@
 import { Entity } from "@fwge/ecs";
 
-export class Tetromino extends Entity { Init(): void {} }
+export class Tetromino extends Entity {  }

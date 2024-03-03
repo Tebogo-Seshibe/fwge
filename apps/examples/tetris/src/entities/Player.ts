@@ -7,10 +7,10 @@ export class Player extends Entity
     {
         this.AddComponent(new OrthographicCamera(
         {
-            left: -16,
-            right: 16,
-            top: 9,
-            bottom: -9,
+            left: -35,
+            right: 35,
+            top: 20,
+            bottom: -20,
             near: 0,
             far: -2,
         }));

@@ -142,20 +142,21 @@ export class Registry
         const parent = this.entityGraph[parentId];
         const child = this.entityGraph[childId];
 
-        if (!parent || !child)
-        {
-            return;
+        if (parent)
+        {   
+            const childIndex = parent.children.indexOf(childId);
+            
+            if (childIndex !== -1)
+            {
+                parent.children[childIndex] = parent.children[parent.children.length - 1];
+                parent.children.pop();
+            }
         }
 
-        const childIndex = parent.children.indexOf(childId);
-
-        if (childIndex !== -1)
+        if (child)
         {
-            parent.children[childIndex] = parent.children[parent.children.length - 1];
-            parent.children.pop();
+            child.parent = -1;
         }
-
-        child.parent = -1;
     }
 
     public static DestroyEntity(entityId: EntityId): void
@@ -357,10 +358,12 @@ export class Registry
     public static GetViewIterator<E extends Entity, T1 extends Component, T2 extends Component, T3 extends Component>(key: ViewKey, componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>]): ViewIterator<E, [T1, T2, T3]>
     public static GetViewIterator<E extends Entity, T extends Component[]>(key: ViewKey, componentTypes: readonly Class<T[number]>[]): ViewIterator<E, T>
     {
+        const elements: [Entity, ...Component[]] = new Array(componentTypes.length + 1) as [E, ...T];
+        const view = Registry.GetView(key);
+        let index = 0;
+        
         return {
             [Symbol.iterator]: function() {
-                const view = Registry.GetView(key);
-                let index = 0;
                 
                 return {
                     next: (): ViewIteratorValue<E, T> => {
@@ -369,10 +372,10 @@ export class Registry
                             return { done: true, value: undefined };
                         }
 
-                        const elements: [Entity, ...Component[]] = [Registry.GetEntity<E>(view[index])!];
+                        elements[0] = Registry.GetEntity<E>(view[index])!;
                         for (let i = 0; i < componentTypes.length; ++i)
                         {
-                            elements.push(Registry.GetComponent(view[index], componentTypes[i].TypeId)!);
+                            elements[i + 1] = Registry.GetComponent(view[index], componentTypes[i].TypeId)!;
                         }
 
                         index++;

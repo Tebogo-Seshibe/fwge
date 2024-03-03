@@ -2,13 +2,22 @@ import { Class, Type } from "@fwge/ecs";
 
 export class Asset
 {
-    public readonly Type: Class<Asset>;
+    public readonly Name: string;
+    public readonly Type: Type<Asset>;
 
     constructor()
+    constructor(name: string)
     constructor(assetType: Type<Asset>)
-    constructor(assetType: Type<Asset> = new.target)
+    constructor(name: string, assetType: Type<Asset>)
+    constructor(name: Type<Asset> | string = 'Asset', assetType: Type<Asset> = new.target)
     {
-        this.Type = assetType as Class<Asset>;
+        this.Type = typeof name === 'string'
+            ? assetType
+            : name;
+
+        this.Name = typeof name === 'string'
+            ? name
+            : 'Asset';
     }
 
     Load(...sources: string[]): void { }
