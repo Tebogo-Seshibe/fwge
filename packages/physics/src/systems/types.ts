@@ -1,8 +1,7 @@
 import { Vector3 } from "@fwge/common"
-import { Entity, EntityId, Transform } from "@fwge/core"
-import { Collider, CubeCollider, MeshCollider, SphereCollider } from "../components"
-import { SAT } from "./SAT"
-import { SphereSphere } from "./SphereSphere"
+import { Transform } from "@fwge/core"
+import { Entity, EntityId } from "@fwge/ecs"
+import { Collider } from "../components"
 
 export type _Collision_Id = `${EntityId}-${EntityId}`
 

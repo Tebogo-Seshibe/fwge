@@ -1,4 +1,4 @@
-import { Component, Entity, System } from "@fwge/core"
+import { Component, Entity, System } from "@fwge/ecs"
 
 export type ISerializer<T> = (item: T) => string
 export type IComponentSerializer<T extends Component> = ISerializer<T>

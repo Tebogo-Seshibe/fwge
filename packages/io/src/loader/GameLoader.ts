@@ -1,4 +1,5 @@
-import { AreaLight, Camera, Class, Component, DirectionalLight, Entity, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, System, Tag, Transform } from "@fwge/core"
+import { AreaLight, Camera, DirectionalLight, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, Tag, Transform } from "@fwge/core"
+import { Class, Component, Constructor, Entity, System, Type } from "@fwge/ecs"
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { ParticleSpawner } from "@fwge/render"
@@ -44,7 +45,7 @@ interface Indexer
     index: number   
 }
 
-export const TypeMappers: Map<string, Class<any>> = new Map()
+export const TypeMappers: Map<string, Type<any>> = new Map()
 
 //#region Systems
 TypeMappers.set('InputSystem', InputSystem)
@@ -121,7 +122,7 @@ export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
     
     for (const entityConfig of newGame.entities)
     {
-        const constructor = TypeMappers.get(entityConfig.type)
+        const constructor = TypeMappers.get(entityConfig.type)! as Constructor<any>
         if (constructor)
         {
             const newEntity = new Prefab(constructor)

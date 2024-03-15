@@ -1,12 +1,13 @@
 import { Vector3, Vector3Array } from "@fwge/common";
-import { Entity, EntityId, Registry, System, Transform } from "@fwge/core";
+import { Transform } from "@fwge/core";
 import { Collider } from "../components";
 import { Test } from "./MeshMesh";
 import { CollisionState, _Collision, _Collision_Id } from "./types";
+import { Entity, EntityId, Registry, System } from "@fwge/ecs";
 
 export class PhysicsSystem extends System
 {
-    private readonly _physics = Symbol();
+    private _physics!: number;
 
     private readonly _collisions: Map<_Collision_Id, _Collision> = new Map()
     
@@ -17,7 +18,7 @@ export class PhysicsSystem extends System
     
     Init(): void
     {
-        Registry.registerView(this._physics, [Transform, Collider]);
+        this._physics = Registry.RegisterView([Transform, Collider]);
     }
 
     Start(): void { console.log(this) }
@@ -25,15 +26,15 @@ export class PhysicsSystem extends System
 
     Update(_: number): void
     {
-        const entityIds = Registry.getView(this._physics);
+        const entityIds = Registry.GetView(this._physics);
 
         for (let i = 0; i < entityIds.length - 1; ++i)
         {
-            const aEntity = this.Scene.GetEntity(entityIds[i])!
+            const aEntity = Registry.GetEntity(entityIds[i])!
 
             for (let j = i + 1; j < entityIds.length; ++j)
             {
-                const bEntity = this.Scene.GetEntity(entityIds[j])!
+                const bEntity = Registry.GetEntity(entityIds[j])!
 
                 this.#detect(aEntity, bEntity)
             }
@@ -41,7 +42,7 @@ export class PhysicsSystem extends System
 
         for (const [entityId, offset] of this.offsets)
         {
-            const entity = this.Scene.GetEntity(entityId)!
+            const entity = Registry.GetEntity(entityId)!
             const transform = entity.GetComponent(Transform)!
             transform.Position.Add(offset)
             offset.Set(0, 0, 0)
@@ -58,7 +59,7 @@ export class PhysicsSystem extends System
                 continue
             }
             
-            const entity = this.Scene.GetEntity(entityId)!
+            const entity = Registry.GetEntity(entityId)!
             const transform = entity.GetComponent(Transform)!
             transform.Position.Add(offset)
             

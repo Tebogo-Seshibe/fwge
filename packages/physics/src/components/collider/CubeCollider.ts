@@ -1,5 +1,5 @@
-import { CubeGeometry, Matrix4, Polygon3D, Vector3, Vector3Array, Vector4 } from "@fwge/common"
-import { Entity, Transform } from "@fwge/core"
+import { CubeGeometry, Vector3 } from "@fwge/common"
+import { Entity } from "@fwge/ecs"
 import { Collider } from "./Collider"
 
 interface ICubeCollider

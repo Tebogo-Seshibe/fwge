@@ -1,5 +1,3 @@
-import { Component } from "@fwge/core";
-
 export type OBJKey = 'mtllib' | 'o' | 'g' | 'v' | 'vn' | 'vt' | 'vp' | 'f' | 'usemtl'
 
 export interface OBJObject

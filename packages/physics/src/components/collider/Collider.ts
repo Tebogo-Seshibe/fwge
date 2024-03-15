@@ -1,7 +1,8 @@
 import { Matrix4, Polygon3D, Vector3 } from "@fwge/common"
-import { Entity, SharedComponent, Transform } from "@fwge/core"
+import { Transform } from "@fwge/core"
+import { Component, Entity } from "@fwge/ecs"
 
-export class Collider extends SharedComponent
+export class Collider extends Component
 {    
     protected readonly Scale: Vector3 = Vector3.One
 
@@ -10,7 +11,7 @@ export class Collider extends SharedComponent
         const mv = Matrix4.Multiply(
             Matrix4.ScaleMatrix(this.Scale),
             Matrix4.TranslationMatrix(this.Position)
-        ).Multiply(transform.ModelViewMatrix())
+        ).Multiply(transform.GlobalModelViewMatrix())
 
         return this.Polygon.TransformedVertices(mv)
     }

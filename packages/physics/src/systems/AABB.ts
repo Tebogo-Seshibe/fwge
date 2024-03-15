@@ -1,6 +1,7 @@
 import { Vector3 } from "@fwge/common"
-import { Entity, Transform } from "@fwge/core"
-import { Collider, CubeCollider } from "../components"
+import { Transform } from "@fwge/core"
+import { Entity } from "@fwge/ecs"
+import { CubeCollider } from "../components"
 
 export function AABB(aPosition: Vector3, aCollider: CubeCollider, bPosition: Vector3, bCollider: CubeCollider): boolean
 {

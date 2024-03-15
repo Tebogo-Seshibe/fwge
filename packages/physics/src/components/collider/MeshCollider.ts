@@ -1,5 +1,5 @@
-import { GL, Matrix2, Matrix4, Polygon3D, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { Entity, Transform } from "@fwge/core"
+import { Polygon3D, Vector3 } from "@fwge/common"
+import { Entity } from "@fwge/ecs"
 import { Collider } from "./Collider"
 
 interface ISphereCollider

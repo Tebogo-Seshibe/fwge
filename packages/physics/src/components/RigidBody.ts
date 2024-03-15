@@ -1,5 +1,5 @@
 import { Vector3 } from "@fwge/common"
-import { UniqueComponent } from "@fwge/core"
+import { Component } from "@fwge/ecs"
 
 interface IRigidBody
 {
@@ -7,7 +7,7 @@ interface IRigidBody
     velocity?: Vector3
 }
 
-export class RigidBody extends UniqueComponent
+export class RigidBody extends Component
 {
     Velocity: Vector3 = Vector3.Zero
     Mass: number

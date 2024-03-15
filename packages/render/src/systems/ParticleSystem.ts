@@ -1,10 +1,11 @@
 import { GL } from "@fwge/common";
-import { Camera, Material, Registry, Shader, System, Transform } from "@fwge/core";
+import { Camera, Material, Shader, Transform } from "@fwge/core";
 import { Particle, ParticleSpawner } from "../components";
+import { Registry, System } from "@fwge/ecs";
 
 export class ParticleSystem extends System
 {
-    private readonly _particles = Symbol();
+    private _particles!: number;
 
     private particleShader!: Shader
     private _time: number = 0
@@ -13,7 +14,7 @@ export class ParticleSystem extends System
 
     Init(): void
     {
-        Registry.registerView(this._particles, [Transform, ParticleSpawner]);
+        this._particles = Registry.RegisterView([Transform, ParticleSpawner]);
         
         this.particleShader = new Shader(particleShaderArgs.vertexShader.source, particleShaderArgs.fragmentShader.source)
         this._timeLoc = GL.getUniformLocation(this.particleShader.Program!, 'Time')!

@@ -1,5 +1,5 @@
 import { Polygon3D, Vector3 } from "@fwge/common"
-import { Entity } from "@fwge/core"
+import { Entity } from "@fwge/ecs"
 import { Collider } from "./Collider"
 
 interface ISphereCollider

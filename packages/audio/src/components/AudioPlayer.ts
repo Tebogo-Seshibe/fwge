@@ -1,12 +1,12 @@
 import { CalcuateDelay, IDelay } from "@fwge/common"
-import { SharedComponent } from "@fwge/core"
+import { Component } from "@fwge/ecs";
 
 interface IAudioPlayer
 {
     source: string
 }
 
-export class AudioPlayer extends SharedComponent
+export class AudioPlayer extends Component
 {
     private _audio?: HTMLAudioElement = new Audio();
 
