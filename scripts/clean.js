@@ -1,5 +1,5 @@
 const { rmSync } = require('fs');
-const { getWorkspaces } = require('./get-workspaces');
+const { getWorkspaces } = require('./utils');
 
 getWorkspaces().forEach(package => {
     try

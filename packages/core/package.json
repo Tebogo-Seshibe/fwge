@@ -18,13 +18,14 @@
     "directory": "packages/core"
   },
   "scripts": {
-    "build": "tsc -w",
+    "build": "tsc",
     "link": "npm link",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
     "@fwge/common": "1.0.0",
+    "@fwge/ecs": "1.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

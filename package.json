@@ -21,6 +21,7 @@
         "init": "node scripts/init",
         "clean": "node scripts/clean",
         "build": "node scripts/build",
+        "dev": "node scripts/dev",
         "test": "vitest",
         "link": "npx link",
         "exec": "node scripts",

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 const { execSync } = require('child_process');
 const { readFileSync, rmSync } = require('fs');
 const { resolve } = require('path');

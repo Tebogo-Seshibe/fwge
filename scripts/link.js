@@ -1,12 +1,12 @@
 const { execSync } = require('child_process');
-const { getWorkspaces } = require('./get-workspaces');
+const { getWorkspaces } = require('./utils');
 
 getWorkspaces().forEach(package => {
     try
     {
         process.chdir(package);
         console.log('Installing dependencies for "' + package + '"');
-        const buffer = execSync(`npm install && npm run build && npm link`);
+        const buffer = execSync(`npm unlink`);
         if (buffer.length > 0)
         {
             console.log(buffer.toString());

@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { getWorkspaces } = require('./get-workspaces');
+const { getWorkspaces } = require('./utils');
 
 getWorkspaces().forEach(package => {
     try
