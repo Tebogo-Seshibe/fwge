@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@fwge/common": "*",
-    "@fwge/core": "*",
     "@fwge/ecs": "*"
   },
   "devDependencies": {

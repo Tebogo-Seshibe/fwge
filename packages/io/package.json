@@ -27,6 +27,7 @@
     "@fwge/audio": "*",
     "@fwge/common": "*",
     "@fwge/core": "*",
+    "@fwge/ecs": "*",
     "@fwge/input": "*",
     "@fwge/physics": "*",
     "@fwge/render": "*",

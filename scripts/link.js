@@ -14,7 +14,7 @@ getWorkspaces().forEach(package => {
     }    
     catch (e)
     {
-        console.error(e.stderr.toString());
+        console.error(e);
         process.exit(1);
     }
     finally

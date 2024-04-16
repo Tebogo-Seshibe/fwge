@@ -15,5 +15,8 @@ module.exports = {
         });
         const object = JSON.parse(packageJSON);
         return (object.workspaces ?? []).filter(x => x.includes('@fwge').substring(6));
+    },
+    getPackageName(package) {
+        return '@fwge' + package.substring(8)
     }
 }

@@ -18,12 +18,11 @@
     },
     "scripts": {
         "lint": "eslint ./packages/**/* --fix",
-        "init": "node scripts/init",
         "clean": "node scripts/clean",
-        "build": "node scripts/build",
-        "dev": "node scripts/dev",
+        "init": "node scripts/init",
+        "link": "node scripts/link",
+        "print": "node scripts/print",
         "test": "vitest",
-        "link": "npx link",
         "exec": "node scripts",
         "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
     },

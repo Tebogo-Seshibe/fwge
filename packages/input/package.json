@@ -24,8 +24,8 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@fwge/core": "*",
     "@fwge/common": "*",
+    "@fwge/core": "*",
     "@fwge/ecs": "*"
   },
   "devDependencies": {

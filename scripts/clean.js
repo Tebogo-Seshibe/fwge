@@ -1,18 +1,31 @@
+const { execSync } = require('child_process');
 const { rmSync } = require('fs');
-const { getWorkspaces } = require('./utils');
+const { getWorkspaces, getPackageName } = require('./utils');
 
 getWorkspaces().forEach(package => {
     try
     {  
+        process.chdir(package);
+
         console.log('Cleaning "' + package + '"')
-        rmSync(`${package}/lib`, { recursive: true, force: true })
-        rmSync(`${package}/package-lock.json`, { recursive: true, force: true })
-        rmSync(`${package}/tsconfig.tsbuildinfo`, { recursive: true, force: true })
+        const packageName = getPackageName(package)
+        const buffer = execSync(`npm unlink "${packageName}"`);
+        
+        rmSync('lib', { recursive: true, force: true })
+        rmSync('package-lock.json', { recursive: true, force: true })
+        rmSync('tsconfig.tsbuildinfo', { recursive: true, force: true })
+        
+        if (buffer.length > 0)
+        {
+            console.log(buffer.toString());
+        }
     }    
     catch (e)
     {
-        if (e.stdout) console.log(e.stdout.toString());
-        if (e.stderr) console.error(e.stderr.toString());
-        process.exit(1);
+        console.error(e);
+    }
+    finally
+    {
+        process.chdir('../../');
     }
 });

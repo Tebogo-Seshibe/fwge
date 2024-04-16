@@ -24,8 +24,8 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@fwge/common": "1.0.0",
-    "@fwge/ecs": "1.0.0"
+    "@fwge/common": "*",
+    "@fwge/ecs": "*"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",
