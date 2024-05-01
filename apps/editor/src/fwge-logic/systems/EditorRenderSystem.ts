@@ -1,7 +1,8 @@
 import { Matrix4, Matrix3, GL, Vector3 } from "@fwge/common";
-import { System, Shader, view, Light, PointLight, DirectionalLight, AreaLight, Transform, Material, Renderer, getComponent, getComponentById, RenderMode, type Camera } from "@fwge/core";
+import { Shader, Light, PointLight, DirectionalLight, AreaLight, Transform, Material, Renderer, RenderMode, type Camera } from "@fwge/core";
+import { Registry, type System } from "@fwge/ecs";
 
-export class EditorRenderSystem extends System
+export class EditorRenderSystem implements System
 {
     static BlockIndex = new Map<string, any>();
     static BindingPoint = new Map<string, number>();
@@ -19,16 +20,22 @@ export class EditorRenderSystem extends System
     _nBuffer!: Float32Array;
     _lightBuffer!: Float32Array;
 
+    _pointLights!: number;
+    _directionalLights!: number;
+    _areaLights!: number;
+    _entities!: number;
+
     Init()
     {
         this._prepassShader = new Shader(prepassVert, prepassFrag);
         this._lightPassShader = new Shader(mainPassVert, mainPassFrag);
 
-        view([Light], { name: PointLight.name, exec: light => light instanceof PointLight });
-        view([Light], { name: DirectionalLight.name, exec: light => light instanceof DirectionalLight });
-        view([Light], { name: AreaLight.name, exec: light => light instanceof AreaLight });
+        this._pointLights = Registry.RegisterView([Light, Transform], light => light instanceof PointLight);
+        this._directionalLights = Registry.RegisterView([Light, Transform], light => light instanceof DirectionalLight);
+        this._areaLights = Registry.RegisterView([Light], light => light instanceof AreaLight);
+        this._entities = Registry.RegisterView([Transform, Material, Renderer]);
 
-        const entities = view([Transform, Material, Renderer]).length
+        const entities = Registry.GetView(this._entities).length
         this._mvBuffer = new Float32Array(entities * Matrix4.SIZE);
         this._nBuffer = new Float32Array(entities * Matrix3.SIZE);
         this._createBatch();
@@ -39,11 +46,11 @@ export class EditorRenderSystem extends System
         const map = new Map<number, Map<number, Set<number>>>();
         let offset = 0;
 
-        for (const entityId of view([Transform, Material, Renderer]))
+        for (const entityId of Registry.GetView(this._entities))
         {
-            const material = getComponent(entityId, Material)!;
-            const renderer = getComponent(entityId, Renderer)!;
-            const transform = getComponent(entityId, Transform)!;
+            const material = Registry.GetComponent(entityId, Material)!;
+            const renderer = Registry.GetComponent(entityId, Renderer)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
 
             const rendererMap = map.get(material.Id) ?? new Map<number, Set<number>>();
             const transformSet = rendererMap.get(renderer.Id) ?? new Set<number>();
@@ -131,9 +138,9 @@ export class EditorRenderSystem extends System
         let p = 0;
         const shader = this._lightPassShader;
 
-        for (const entityId of view([Light], AreaLight.name))
+        for (const entityId of Registry.GetView(this._areaLights))
         {
-            const light = getComponent(entityId, Light)! as AreaLight;
+            const light = Registry.GetComponent(entityId, AreaLight)!;
 
             shader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour);
             shader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity);
@@ -141,10 +148,10 @@ export class EditorRenderSystem extends System
             a++;
         }
 
-        for (const entityId of view([Light], DirectionalLight.name))
+        for (const entityId of Registry.GetView(this._directionalLights))
         {
-            const light = getComponent(entityId, Light)! as DirectionalLight;
-            const transform = getComponent(entityId, Transform);
+            const light = Registry.GetComponent(entityId, DirectionalLight)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
             const rotx = transform?.GlobalRotation().X ?? 0;
             const roty = transform?.GlobalRotation().Y ?? 0;
             const rotz = transform?.GlobalRotation().Z ?? 0;
@@ -169,10 +176,11 @@ export class EditorRenderSystem extends System
             d++;
         }
 
-        for (const entityId of view([Light], PointLight.name))
+        for (const entityId of Registry.GetView(this._pointLights))
         {
-            const light = getComponent(entityId, Light, PointLight)!
-            const position = light.Owner?.GetComponent(Transform)?.GlobalPosition() ?? Vector3.Zero
+            const light = Registry.GetComponent(entityId, PointLight)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
+            const position = transform.GlobalPosition() ?? Vector3.Zero
 
             shader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour)
             shader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity)
@@ -182,14 +190,19 @@ export class EditorRenderSystem extends System
 
             p++
         }
+
+        Registry.RegisterGroup(
+            [Transform, t => t.Id === 0]
+        )
     }
 
     private shdaowpassRender()
     {
         GL.disable(GL.CULL_FACE);
-        for (const lightEntityId of view([Light], DirectionalLight.name))
+        for (const entityId of Registry.GetView(this._directionalLights))
         {
-            const light = getComponent(lightEntityId, Light)! as DirectionalLight;
+            const light = Registry.GetComponent(entityId, DirectionalLight)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
             if (!light.CastShadows)
             {
                 continue;

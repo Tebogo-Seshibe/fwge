@@ -55,6 +55,8 @@ export class Registry
     private static readonly views: ListContainer<View> = new ListContainer<View>();
     private static readonly viewConfig: ViewConfig[] = [];
     private static readonly mappedViews: number[][] = [];
+
+    public static readonly ExistFilter: ViewFilter<[Component]> = () => true;
     //#endregion
 
     //#region Entity
@@ -299,7 +301,7 @@ export class Registry
     }
     //#endregion
 
-    //#region View    
+    //#region View
     public static RegisterView<T1 extends Component>(componentTypes: readonly [Class<T1>]): ViewKey
     public static RegisterView<T1 extends Component>(componentTypes: readonly [Class<T1>], filter: ViewFilter<[T1]>): ViewKey
     public static RegisterView<T1 extends Component, T2 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>]): ViewKey
@@ -385,6 +387,34 @@ export class Registry
             }
         }
     }
+    //#endregion
+
+    //#region Group
+    public static RegisterGroup<T1 extends Component, T2 extends Component>(
+        components: readonly [Class<T1>, Class<T2>]
+    ): ViewKey
+    public static RegisterGroup<T1 extends Component, T2 extends Component>(
+        components: readonly [Class<T1>, Class<T2>],
+        filter1: ViewFilter<[T1]>,
+        filter2: ViewFilter<[T2]>
+    ): ViewKey
+    
+    public static RegisterGroup<T1 extends Component, T2 extends Component, T3 extends Component>(
+        components: readonly [Class<T1>, Class<T2>, Class<T3>]
+    ): ViewKey
+    public static RegisterGroup<T1 extends Component, T2 extends Component, T3 extends Component>(
+        components: readonly [Class<T1>, Class<T2>, Class<T3>],
+        filter1: ViewFilter<[T1]>,
+        filter2: ViewFilter<[T2]>,
+        filter3: ViewFilter<[T3]>
+    ): ViewKey
+
+    public static RegisterGroup<T extends Component[]>(...args:any[]): ViewKey
+    {        
+        const key = this.views.Add([]);
+
+        return key;
+    }    
     //#endregion
 
     //#region Utils

@@ -3,6 +3,7 @@ import { PerspectiveCamera, Transform } from "@fwge/core";
 import { ControllerState, KeyboardState, KeyState, MouseState, type IInputArgs } from "@fwge/input";
 import { Collider, CubeCollider, RigidBody } from "@fwge/physics";
 import { GameObject } from "./GameObject";
+import { Entity } from "@fwge/ecs";
 
 export class FPSController extends GameObject
 {
@@ -32,9 +33,7 @@ export class FPSController extends GameObject
 
         this.AddComponent(this.collider);
         this.AddComponent(this.rigidbody);
-        this.AddChild(
-            this.Scene
-                .CreateEntity()
+        this.AddChild(new Entity()
                 .AddComponent(this.cameraTransform)
                 .AddComponent(this.camera)
         );

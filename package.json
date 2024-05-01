@@ -23,8 +23,8 @@
         "link": "node scripts/link",
         "print": "node scripts/print",
         "test": "vitest",
-        "exec": "node scripts",
-        "play:cs-go": "npm i && cd apps/examples/cs-go && npm i && npm run dev"
+        "play:cs-go": "cd apps/examples/cs-go && npm i && npm run dev",
+        "editor": "cd apps/editor && npm i && npm run tauri"
     },
     "license": "MIT",
     "keywords": [
@@ -39,8 +39,8 @@
         "3d"
     ],
     "workspaces": [
-        "packages/common",
         "packages/ecs",
+        "packages/common",
         "packages/core",
         "packages/render",
         "packages/audio",

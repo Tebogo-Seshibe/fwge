@@ -1,13 +1,11 @@
-import { Scene, System } from "@fwge/core"
+import type { System } from "@fwge/ecs";
 
-export class FPSCounterSystem extends System
+export class FPSCounterSystem implements System
 {
-    fpsCounter!: HTMLDivElement
+    Start(): void { }
+    Stop(): void { }
 
-    constructor(scene: Scene)
-    {
-        super(scene, { requiredComponents: [] })
-    }
+    fpsCounter!: HTMLDivElement
 
     Init(): void
     {

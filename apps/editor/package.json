@@ -31,12 +31,14 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@fwge/animation": "file:../../packages/animation",
-		"@fwge/common": "file:../../packages/common",
-		"@fwge/core": "file:../../packages/core",
-		"@fwge/input": "file:../../packages/input",
-		"@fwge/physics": "file:../../packages/physics",
-		"@fwge/render": "file:../../packages/render",
+        "@fwge/audio": "file:../../packages/audio",
+        "@fwge/common": "file:../../packages/common",
+        "@fwge/core": "file:../../packages/core",
+        "@fwge/ecs": "file:../../packages/ecs",
+        "@fwge/input": "file:../../packages/input",
+        "@fwge/physics": "file:../../packages/physics",
+        "@fwge/render": "file:../../packages/render",
+        "@fwge/ui": "file:../../packages/ui",
 		"@tauri-apps/api": "^1.4.0"
 	}
 }

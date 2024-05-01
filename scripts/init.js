@@ -19,8 +19,27 @@ getWorkspaces().forEach(package => {
             console.log(buildBuffer.toString());
         }
         
+        
         console.log('Linking "' + package + '"');
-        const linkBuffer = execSync(`npm link ${getPackageName(package)}`);
+        const linkBuffer = execSync(`npm link "${getPackageName(package)}"`);
+        
+        console.log('Linking required packages:')
+        getFWGEDependencies(package).forEach(fwgePackage => {
+            try 
+            {
+                console.log('Linking "' + fwgePackage + '"');
+                const subLinkBuffer = execSync(`npm link "${fwgePackage}"`);
+                if (subLinkBuffer.length > 0)
+                {
+                    console.log(subLinkBuffer.toString());
+                }
+            }
+            catch (ex)
+            {
+                console.error(ex);
+            }
+        })
+
         if (linkBuffer.length > 0)
         {
             console.log(linkBuffer.toString());
@@ -28,7 +47,7 @@ getWorkspaces().forEach(package => {
     }    
     catch (e)
     {
-        console.error(e.stderr.toString());
+        console.error(e);
         process.exit(1);
     }
     finally

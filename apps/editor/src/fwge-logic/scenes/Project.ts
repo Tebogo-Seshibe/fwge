@@ -1,6 +1,6 @@
-import { Game, Scene } from "@fwge/core";
+import { DefaultWindow, Game, Scene } from "@fwge/core";
+import { InputSystem } from "@fwge/input";
 import { EditorWindow } from "../EditorWindow";
-import { EditorRenderSystem } from "../systems";
 import { FPSController } from "../entities";
 
 export class ProjectScene extends Scene
@@ -8,12 +8,13 @@ export class ProjectScene extends Scene
     constructor(game: Game)
     {
         super(game, {
-            windows: [ EditorWindow ],
+            windows: [ DefaultWindow ],
             entities: [
                 FPSController
             ],    
             systems: [
-                EditorRenderSystem,
+                InputSystem
+                // EditorRenderSystem,
             ]
         })
     }

@@ -10,7 +10,7 @@ export class Project extends Game
                 EditorScene,
                 ProjectScene
             ],
-            startupScene: EditorScene
+            startupScene: 0
         })
     }
 }

@@ -14,7 +14,8 @@ module.exports = {
             encoding: 'utf-8'
         });
         const object = JSON.parse(packageJSON);
-        return (object.workspaces ?? []).filter(x => x.includes('@fwge').substring(6));
+        const dependencies = (object.dependencies ?? { dependencies: [] });
+        return Object.keys(dependencies).filter(x => x.includes('@fwge'));
     },
     getPackageName(package) {
         return '@fwge' + package.substring(8)

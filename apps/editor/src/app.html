@@ -1,12 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <!-- <link rel="icon" href="%sveltekit.assets%/favicon.png" /> -->
+        <meta name="viewport" content="width=device-width" />
+        %sveltekit.head%
+        <style>
+            :root {
+                font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                line-height: 24px;
+                font-weight: 400;
+
+                font-synthesis: none;
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                -webkit-text-size-adjust: 100%;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+
+    <body data-sveltekit-preload-data="hover">
+        %sveltekit.body%
+    </body>
 </html>

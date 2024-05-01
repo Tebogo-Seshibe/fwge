@@ -1,6 +1,6 @@
 import { Game, Scene } from "@fwge/core";
+import { InputSystem } from "@fwge/input";
 import { EditorWindow } from "../EditorWindow";
-import { EditorRenderSystem } from "../systems";
 
 export class EditorScene extends Scene
 {
@@ -12,7 +12,8 @@ export class EditorScene extends Scene
 
             ],
             systems: [
-                EditorRenderSystem
+                InputSystem
+                // EditorRenderSystem
             ]
         })
     }

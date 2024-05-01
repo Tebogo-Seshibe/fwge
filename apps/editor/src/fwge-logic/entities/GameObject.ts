@@ -1,20 +1,20 @@
-import { Entity, Scene, Script, Transform } from "@fwge/core"
+import { Scene, Script, Transform } from "@fwge/core"
+import { Entity } from "@fwge/ecs";
 import { Input, type IInputArgs } from "@fwge/input"
 
 export class GameObject extends Entity
 {
     public readonly transform: Transform
 
-    constructor(scene: Scene)
+    constructor(protected Scene: Scene)
     {
-        super(scene)
+        super()
         
         this.AddComponent(new Transform())
         this.AddComponent(new Input(
         {
-            onInput(this: GameObject, input: IInputArgs, delta: number)
-            {
-                this.OnInput(input, delta)
+            onInput: (delta, keyboard, mouse, controllers) => {
+                this.OnInput({ Controllers: controllers as any, Keyboard: keyboard, Mouse: mouse }, delta)
             }
         }))
         this.AddComponent(new Script(
@@ -36,6 +36,7 @@ export class GameObject extends Entity
         this.transform = this.GetComponent(Transform)!
     }
 
+    OnCreate(): void { }
     OnStart(): void { }
     OnUpdate(_delta: number): void { }
     OnStop(): void { }
