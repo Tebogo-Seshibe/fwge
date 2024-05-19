@@ -23,7 +23,7 @@
                 "removeDir": false,
                 "removeFile": false,
                 "renameFile": false,
-                "scope": [],
+                "scope": ["**"],
                 "writeFile": true
             },
             "shell": {
@@ -37,6 +37,9 @@
                 "message": true,
                 "open": true,
                 "save": true
+            },
+            "path": {
+                "all": true
             },
             "window": {
                 "all": false,

@@ -1,8 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+
 use tauri::{api::dialog, CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
 // use fwge::launcher::{greetName};
+
+mod fwgeproject;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -23,8 +26,14 @@ fn redo() -> Result<(), String> {
 }
 
 #[tauri::command]
-fn open() -> Result<(), String> {
+fn open(projectPath: &str) -> Result<(), String> {
     //TODO: Redo logic
+    Ok(())
+}
+
+#[tauri::command]
+fn create(projectName: &str, rootDir: &str) -> Result<(), String> {
+    
     Ok(())
 }
 
@@ -114,15 +123,15 @@ fn main() {
             .build()
             .expect("to build");
 
-            let win = window.clone();
-            window.on_menu_event(move |event| {
-                match event.menu_item_id() {
-                    "exit" => {
-                        win.close().unwrap();
-                    },
-                    _ => {}
-                }
-            });
+            // let win = window.clone();
+            // window.on_menu_event(move |event| {
+            //     match event.menu_item_id() {
+            //         "exit" => {
+            //             win.close().unwrap();
+            //         },
+            //         _ => {}
+            //     }
+            // });
 
             Ok(())
         })

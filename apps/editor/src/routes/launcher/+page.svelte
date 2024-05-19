@@ -1,15 +1,16 @@
 <script lang="ts">
     import { dialog, window } from "@tauri-apps/api";
-    import { onMount } from "svelte";
+    import { createNewOpen } from "../../utils/project.utils";
+	import { onMount } from "svelte";
     type CurrentPage = 'home' | 'create' | 'open';
 
     let isNewProject: boolean = false;
     let currentPage: CurrentPage = 'home';
-
-    onMount(() => {
-        console.log(window.getAll().map(async x => x.isVisible()))
-    })
   
+    onMount(() => {
+        console.log(window.getAll())
+    })
+    
     async function back()
     {
         currentPage = 'home';
@@ -17,13 +18,21 @@
     
     async function createProject()
     {
-        dialog.open({
+        currentPage = 'create';
+ 
+        const dirName = await dialog.open({
             directory: true,
             multiple: false,
             recursive: false,
             title: 'New Project'
         });
-        currentPage = 'create';
+
+        console.log(dirName)
+
+        if (typeof dirName === 'string') {
+            await createNewOpen('example', dirName);
+            await openEditor();
+        }
     }
 
     async function openProject()
@@ -40,8 +49,8 @@
             title: 'Open Project',
             filters: [
                 {
-                    extensions: ['yaml', 'yml'],
-                    name: 'FWGE Project YAML File'
+                    extensions: ['json'],
+                    name: 'FWGE Project JSON File'
                 }
             ]
         });
@@ -51,6 +60,7 @@
 
     async function openEditor(): Promise<void> 
     {
+        console.log(window.getAll())
         const nextWindow = window.getAll().filter(x => x.label === 'editor').at(0)!;
         await nextWindow.show();
         await window.getCurrent().close();
