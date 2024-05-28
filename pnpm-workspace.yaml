@@ -1,0 +1,15 @@
+packages:
+  - "packages/ecs"
+  - "packages/common"
+  - "packages/core"
+  - "packages/render"
+  - "packages/audio"
+  - "packages/input"
+  - "packages/physics"
+  - "packages/animation"
+  - "packages/ui"
+  - "packages/io"
+
+  - "apps/editor"
+  - "apps/cli"
+  - "apps/examples"

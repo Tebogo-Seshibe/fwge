@@ -1,4 +1,4 @@
-import { randBetween } from "@fwge/common";
+import { DECIMAL_PLACES, DECIMAL_PLACES_2, randBetween } from "@fwge/common";
 import { BasicLitMaterial, DefaultWindow, Game, MeshRenderer, RenderMode, RenderType, Renderer, Scene, Script, ScriptSystem, Shader, StaticMesh, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { Input, InputSystem, KeyState } from "@fwge/input";

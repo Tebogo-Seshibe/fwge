@@ -1,11 +1,11 @@
-use serde::{Deserialize,Serialize};
+// use serde::{Deserialize,Serialize};
 
-#[derive(Deserialize)]
-pub struct FWGEProject {
-    project: &Project,
-    scenes: &Vec<Scene>,
-    entities: &Vec<Entity>,
-    components: &Vec<Component>
+// #[derive(Deserialize,)]
+pub struct FWGEProject<'a> {
+    project: &'a Project,
+    scenes: &'a Vec<Scene>,
+    entities: &'a Vec<Entity>,
+    components: &'a Vec<Component>
 }
 
 pub struct Project {
@@ -20,7 +20,7 @@ pub struct Entity {
 pub struct Component {
 }
 
-impl FWGEProject {
+impl FWGEProject<'_> {
     pub fn project(&self) -> &Project {
         &self.project
     }

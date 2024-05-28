@@ -1,19 +1,17 @@
-import { Game, Scene } from "@fwge/core";
-import { InputSystem } from "@fwge/input";
-import { EditorWindow } from "../EditorWindow";
+import { DefaultWindow, Game, Scene } from "@fwge/core";
+import { EditorRenderSystem } from "../systems";
 
 export class EditorScene extends Scene
 {
     constructor(game: Game)
     {
         super(game, {
-            windows: [ EditorWindow ],
+            windows: [ DefaultWindow ],
             entities: [
 
             ],
             systems: [
-                InputSystem
-                // EditorRenderSystem
+                EditorRenderSystem
             ]
         })
     }

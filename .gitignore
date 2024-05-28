@@ -1,6 +1,11 @@
+.turbo
 .vscode
-lib
+
 node_modules
-tsconfig.tsbuildinfo
-glslang-master-windows-x64-Release
+lib
+
 coverage
+glslang-master-windows-x64-Release
+
+tsconfig.tsbuildinfo
+

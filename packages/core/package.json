@@ -18,14 +18,14 @@
     "directory": "packages/core"
   },
   "scripts": {
-    "build": "tsc",
-    "link": "npm link",
+    "build:lib": "tsc",
+    "dev": "tsc -w",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@fwge/common": "*",
-    "@fwge/ecs": "*",
+    "@fwge/common": "workspace:*",
+    "@fwge/ecs": "workspace:*",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

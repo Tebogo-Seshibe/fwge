@@ -4,6 +4,7 @@ export type Type<T extends any = {}> =
 {
     new(...args: any[]): T;
     prototype?: Partial<T>;
+    readonly name: string;
 };
 
 export type Class<T extends any = {}> =

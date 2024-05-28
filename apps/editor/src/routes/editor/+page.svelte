@@ -1,41 +1,55 @@
 <script lang="ts">
-	import { window } from '@tauri-apps/api';
-	import { onMount } from 'svelte';
-	import { Project } from '../../fwge-logic/Project';
+	import Actions from '../../components/Actions.svelte';
+	import Browser from '../../components/Browser.svelte';
+	import Console from '../../components/Console.svelte';
+	import Hierarchy from '../../components/Hierarchy.svelte';
+	import Inspector from '../../components/Inspector.svelte';
+	import Render from '../../components/Render.svelte';
 
-	let height: number = 1080;
-	let width: number = 1920;
-	let canvas: HTMLCanvasElement;
-	let project: Project;
-
-	onMount(async () => {
-        window.getCurrent().once('', event => {
-            
-        })
-        console.log(window.getAll().map(async x => x.isVisible()))
-		project = new Project({
-			canvas,
-			height,
-			width,
-			prefabs: [],
-			assets: []
-		});
-		project.Start({ seconds: 5 });
-		project.Stop({ seconds: 10 });
-
-		console.log({ project, canvas });
-	});
 </script>
 
-<canvas bind:this={canvas} {height} {width} id="canvas" />
+<div id="editor">
+    <Actions name="Actions"/>
+    <Browser name="Browser"/>
+    <Console name="Console"/>
+    <Hierarchy name="Hierarchy"/>
+    <Inspector name="Inspector"/>
+    <Render name="Render"/>
+</div>
 
 <style>
-	#canvas {
-		display: block;
-		position: relative;
-		top: 0;
-		left: 0;
-		height: 100%;
-		width: 100%;
+    #editor {
+        display: grid;
+        grid-template-columns: 350px 1fr 350px;
+        grid-template-rows: 120px 1fr 200px;
+        grid-template-areas: 
+            "actions actions actions"
+            "hierachy render inspector"
+            "browser console inspector";
+        height: 100dvh;
+        width: 100dvw;
+    }
+    :global(#actions) {
+        grid-area: actions;
+    }
+    :global(#console) {
+        grid-area: console;
+    }
+    :global(#inspector) {
+        grid-area: inspector;
+    }
+    :global(#browser) {
+        grid-area: browser;
+    }
+    :global(#hierachy) {
+        grid-area: hierachy;
+    }
+    :global(#render) {
+        grid-area: render;
+    }
+	:global(#canvas) {
+        position: absolute;
+        height: 100%;
+        width: 100%;
 	}
 </style>

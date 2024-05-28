@@ -18,8 +18,8 @@
         "directory": "packages/cli"
     },
     "scripts": {
-        "build": "tsc",
-        "link": "npm link",
+        "build:app": "tsc",
+        "dev": "tsc -w",
         "test": "vitest",
         "coverage": "vitest --coverage"
     },

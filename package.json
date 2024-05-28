@@ -8,16 +8,16 @@
         "name": "Tebogo Christopher Seshibe",
         "email": "tseshibe@gmail.com"
     },
-    "engines": {
-        "node": ">=14.0.0",
-        "npm": ">=7.0.0"
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/Tebogo-Seshibe/fwge.git"
     },
     "scripts": {
-        "lint": "eslint ./packages/**/* --fix",
+        "build:libs": "turbo run build:lib",
+        "build:apps": "turbo run build:app",
+        "dev": "turbo run dev",
+        "lint": "turbo run lint",
+        "format": "prettier --write .",
         "clean": "node scripts/clean",
         "init": "node scripts/init",
         "link": "node scripts/link",
@@ -54,6 +54,11 @@
         "@tauri-apps/cli": "^1.4.0",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
-        "eslint": "^8.44.0"
+        "eslint": "^8.44.0",
+        "turbo": "latest"
+    },
+    "packageManager": "pnpm@9.1.1",
+    "engines": {
+      "node": ">=18"
     }
 }

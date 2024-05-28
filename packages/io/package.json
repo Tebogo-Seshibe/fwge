@@ -18,20 +18,20 @@
     "directory": "packages/io"
   },
   "scripts": {
-    "build": "tsc",
-    "link": "npm link",
+    "build:lib": "tsc",
+    "dev": "tsc -w",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@fwge/audio": "*",
-    "@fwge/common": "*",
-    "@fwge/core": "*",
-    "@fwge/ecs": "*",
-    "@fwge/input": "*",
-    "@fwge/physics": "*",
-    "@fwge/render": "*",
-    "@fwge/ui": "*"
+    "@fwge/audio": "workspace:*",
+    "@fwge/common": "workspace:*",
+    "@fwge/core": "workspace:*",
+    "@fwge/ecs": "workspace:*",
+    "@fwge/input": "workspace:*",
+    "@fwge/physics": "workspace:*",
+    "@fwge/render": "workspace:*",
+    "@fwge/ui": "workspace:*"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",

@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "lint": "tsc",
+    "preview": "vite preview",
+    "build:app": "vite build"
   },
   "devDependencies": {
     "typescript": "^4.9.3",

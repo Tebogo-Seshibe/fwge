@@ -1,4 +1,5 @@
 export const DECIMAL_PLACES: number = 6;
+export const DECIMAL_PLACES_2: number = 5;
 export const SIGNIFICANT_FIGURES: number = Math.pow(10, DECIMAL_PLACES);
 
 export class Maths

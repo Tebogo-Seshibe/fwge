@@ -1,6 +1,5 @@
 import { DefaultWindow, Game, Scene } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
-import { FPSController } from "../entities";
 
 export class ProjectScene extends Scene
 {
@@ -9,11 +8,9 @@ export class ProjectScene extends Scene
         super(game, {
             windows: [ DefaultWindow ],
             entities: [
-                FPSController
             ],    
             systems: [
                 InputSystem
-                // EditorRenderSystem,
             ]
         })
     }
