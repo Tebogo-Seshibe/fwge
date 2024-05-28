@@ -1,6 +1,9 @@
 import { DefaultWindow, Game, Scene } from "@fwge/core";
 import { EditorRenderSystem } from "../systems";
+import { Grid } from "../entities/Grid";
+import { EditorViewer } from "../entities/EditorViewer";
 
+export const EditorSceneId = 0;
 export class EditorScene extends Scene
 {
     constructor(game: Game)
@@ -8,7 +11,8 @@ export class EditorScene extends Scene
         super(game, {
             windows: [ DefaultWindow ],
             entities: [
-
+                EditorViewer,
+                Grid,
             ],
             systems: [
                 EditorRenderSystem

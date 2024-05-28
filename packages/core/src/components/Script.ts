@@ -17,7 +17,7 @@ export class Script extends Component
     constructor(args: IScript)
     constructor(args: IScript = { })
     {
-        super()
+        super(Script)
 
         this.Start = args.start || function() { }
         this.Update = args.update || function() { }

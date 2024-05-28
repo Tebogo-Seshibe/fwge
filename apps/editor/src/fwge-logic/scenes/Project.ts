@@ -1,6 +1,8 @@
 import { DefaultWindow, Game, Scene } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
+import { ProjectRenderSystem } from "../systems";
 
+export const ProjectSceneId = 1;
 export class ProjectScene extends Scene
 {
     constructor(game: Game)
@@ -10,7 +12,8 @@ export class ProjectScene extends Scene
             entities: [
             ],    
             systems: [
-                InputSystem
+                InputSystem,
+                ProjectRenderSystem
             ]
         })
     }

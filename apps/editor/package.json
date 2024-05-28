@@ -30,15 +30,17 @@
 		"vite": "^4.3.6"
 	},
 	"type": "module",
+	"packageManager": "pnpm@9.1.3",
 	"dependencies": {
-        "@fwge/audio": "workspace:*",
-        "@fwge/common": "workspace:*",
-        "@fwge/core": "workspace:*",
-        "@fwge/ecs": "workspace:*",
-        "@fwge/input": "workspace:*",
-        "@fwge/physics": "workspace:*",
-        "@fwge/render": "workspace:*",
-        "@fwge/ui": "workspace:*",
-		"@tauri-apps/api": "^1.4.0"
+		"@fwge/audio": "workspace:*",
+		"@fwge/common": "workspace:*",
+		"@fwge/core": "workspace:*",
+		"@fwge/ecs": "workspace:*",
+		"@fwge/input": "workspace:*",
+		"@fwge/physics": "workspace:*",
+		"@fwge/render": "workspace:*",
+		"@fwge/ui": "workspace:*",
+		"@tauri-apps/api": "^1.4.0",
+		"svelte-material-icons": "^3.0.5"
 	}
 }

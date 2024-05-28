@@ -308,6 +308,8 @@ export class Registry
     public static RegisterView<T1 extends Component, T2 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>], filter: ViewFilter<[T1, T2]>): ViewKey
     public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>]): ViewKey
     public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>], filter: ViewFilter<[T1, T2, T3]>): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>, Class<T4>]): ViewKey
+    public static RegisterView<T1 extends Component, T2 extends Component, T3 extends Component, T4 extends Component>(componentTypes: readonly [Class<T1>, Class<T2>, Class<T3>, Class<T4>], filter: ViewFilter<[T1, T2, T3, T4]>): ViewKey
     public static RegisterView<T extends Component[]>(componentTypes: readonly Class<T[number]>[], filter: ViewFilter<T[number][]> = () => true): ViewKey
     {
         const entityIds: View = [];
@@ -432,7 +434,7 @@ export class Registry
             components.push(this.GetComponent(entityId, componentTypes[i].TypeId!)!);
         }
 
-        return filter.call(undefined, components);
+        return filter.apply(undefined, components);
     }
     //#endregion
 }

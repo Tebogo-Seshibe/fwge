@@ -7,8 +7,8 @@
     export let name: string;
 
 	let canvas: HTMLCanvasElement;
-	let height: number = 360;
-	let width: number = 480;
+	let height: number = 1080;
+	let width: number = 1920;
 
 	onMount(async () => {
 		const project = new Project({
@@ -25,10 +25,13 @@
 </script>
 
 <Panel {name}>
-    
     <canvas bind:this={canvas} id="canvas" />
 </Panel>
 
 <style>
-
+	canvas {
+		position: relative;
+		width: 100%;
+		height: calc(100% - 28px);
+	}
 </style>

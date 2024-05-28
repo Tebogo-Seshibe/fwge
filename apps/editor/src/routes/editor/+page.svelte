@@ -20,36 +20,34 @@
 <style>
     #editor {
         display: grid;
-        grid-template-columns: 350px 1fr 350px;
-        grid-template-rows: 120px 1fr 200px;
+        grid-template-columns: 250px 1fr 250px;
+        grid-template-rows: 50px 1fr 1fr 1fr 120px;
         grid-template-areas: 
             "actions actions actions"
-            "hierachy render inspector"
+            "hierarchy render inspector"
+            "hierarchy render inspector"
+            "browser render inspector"
             "browser console inspector";
         height: 100dvh;
         width: 100dvw;
     }
-    :global(#actions) {
+    :global(#Actions) {
         grid-area: actions;
     }
-    :global(#console) {
+    :global(#Console) {
         grid-area: console;
     }
-    :global(#inspector) {
+    :global(#Inspector) {
         grid-area: inspector;
     }
-    :global(#browser) {
+    :global(#Browser) {
         grid-area: browser;
     }
-    :global(#hierachy) {
-        grid-area: hierachy;
+    :global(#Hierarchy) {
+        grid-area: hierarchy;
     }
-    :global(#render) {
+    :global(#Render) {
+        position: relative;
         grid-area: render;
     }
-	:global(#canvas) {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-	}
 </style>

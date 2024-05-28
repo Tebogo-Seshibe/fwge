@@ -2,6 +2,8 @@
 	import { onMount } from "svelte";
 
     export let name: string;
+    export let withHeader: boolean = true;
+
     let containerDiv: HTMLDivElement;
 
     onMount(() => {
@@ -9,8 +11,10 @@
     })
 </script>
 
-<div bind:this={containerDiv} class="panel">
-    <div class="panel-header">{name}</div>
+<div bind:this={containerDiv}  class="panel">
+    {#if withHeader}
+        <div class="panel-header">{name}</div>
+    {/if}
 
     <div class="panel-content">
         <slot></slot>
@@ -22,20 +26,21 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    background: #272727EE;
+    background: #272727F8;
     color: whitesmoke;
+    outline: solid 1px gray;
 }
 
 .panel-header {
     display: flex;
     flex: 0;
-    height: 39px;
-    width: 100px;
+    height: 19px;
     align-items: center;
     justify-content: flex-start;
-    padding: 16px;
+    padding: 4px 8px;
     background: #272727FF;
     border-bottom: solid 1px aqua;
+    font-size: 12px;
     font-weight: 600;
 }
 
@@ -43,5 +48,6 @@
     flex: 1;
     height: auto;
     width: 100%;
+    height: 100%;
 }
 </style>

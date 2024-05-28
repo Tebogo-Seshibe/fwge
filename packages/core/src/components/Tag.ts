@@ -4,5 +4,5 @@ export class Tag extends Component
 {
     constructor(
         public readonly Name: string = 'Default'
-    ) { super(); }
+    ) { super(Tag); }
 }
