@@ -25,7 +25,7 @@
 </script>
 
 <Panel {name}>
-    <canvas bind:this={canvas} id="canvas" />
+    <canvas bind:this={canvas} id="canvas" on:contextmenu|preventDefault={() => void 0 } on:click|preventDefault={() => void 0} />
 </Panel>
 
 <style>

@@ -1,4 +1,4 @@
-import { GL, Matrix3 } from "@fwge/common";
+import { GL, Matrix3, Vector3, Vector4 } from "@fwge/common";
 import { BasicLitMaterial, Camera, InstanceMesh, Material, Mesh, MeshRenderer, RenderMode, Renderer, Shader, Tag, Transform } from "@fwge/core";
 import { Registry, type System } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
@@ -19,6 +19,9 @@ export class EditorRenderSystem implements System
             [Tag, Material, Renderer, Transform], 
             tag => tag instanceof EditorTag
         );
+
+        (window as any).Vector3 = Vector3;
+        (window as any).Vector4 = Vector4;
     }
 
     Start(): void 
@@ -50,7 +53,6 @@ export class EditorRenderSystem implements System
         
         for (const entityId of Registry.GetView(this.renderableView))
         {
-            console.log(entityId)
             const transform = Registry.GetComponent(entityId, Transform)!
             const material = Registry.GetComponent(entityId, BasicLitMaterial)!
             const renderer = Registry.GetComponent(entityId, MeshRenderer)!

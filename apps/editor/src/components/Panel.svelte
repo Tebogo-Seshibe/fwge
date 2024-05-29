@@ -6,12 +6,12 @@
 
     let containerDiv: HTMLDivElement;
 
-    onMount(() => {
+    onMount((): void => {
         containerDiv.id = name;
     })
 </script>
 
-<div bind:this={containerDiv}  class="panel">
+<div bind:this={containerDiv} class="panel {withHeader ? 'header' : 'no-header'}">
     {#if withHeader}
         <div class="panel-header">{name}</div>
     {/if}
