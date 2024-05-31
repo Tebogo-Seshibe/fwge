@@ -1,4 +1,4 @@
-import { GL, Matrix3, Matrix4, Vector3 } from "@fwge/common";
+import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
 import { PerspectiveCamera, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
@@ -6,9 +6,6 @@ import { EditorTag } from "../components/EditorTag";
 
 export class EditorViewer extends Entity
 {
-    private theta: number = 0;
-    private phi: number = 15;
-    private radius: number = 10;
     
     private readonly target: Vector3 = Vector3.Zero;
     private readonly up: Vector3 = Vector3.Zero;
@@ -18,7 +15,7 @@ export class EditorViewer extends Entity
     private readonly rotationMatrix: Matrix3 = Matrix3.Zero;
 
     private readonly zoomSpeed: number = 50;
-    private readonly rotationSpeed: number = 100;
+    private readonly rotationSpeed: number = 50;
     private readonly panSpeed: number = 1;
 
     private transform!: Transform;
@@ -31,13 +28,13 @@ export class EditorViewer extends Entity
             new PerspectiveCamera(),
             new Transform(
             {
-                position:  new Vector3(0,1,10).Normalize(),
+                position:  new Vector3(0,1,10),
                 rotation: [ 0, 0, 0 ],
                 scale: [ 1, 1, 1]
             }),
             new Input(
             {
-                onInput: (delta, keyboard, mouse, controllers): void =>
+                onInput: (delta, keyboard, mouse): void =>
                 {
                     if (mouse.Wheel !== WheelState.CENTERED)
                     {
@@ -59,7 +56,15 @@ export class EditorViewer extends Entity
                     
                     if (mouse.Right === ButtonState.PRESSED)
                     {
-                        this.Rotate(mouse.Offset.X * delta * this.rotationSpeed, mouse.Offset.Y * delta * this.rotationSpeed);
+                        (GL.canvas as HTMLCanvasElement).style.cursor = 'none';
+                        this.Rotate(
+                            mouse.Offset.X * delta * this.rotationSpeed,
+                            mouse.Offset.Y * delta * this.rotationSpeed
+                        );
+                    }
+                    else
+                    {
+                        (GL.canvas as HTMLCanvasElement).style.cursor = 'default';
                     }
                 },
             })
@@ -84,32 +89,19 @@ export class EditorViewer extends Entity
 
     private Rotate(deltaTheta: number, deltaPhi: number): void
     {
-        // const view = this.transform.Position.Clone();
-        // const length = view.Length;
-        // const xy = new Vector3(view.X, view.Y, 0).Normalize();
-        // const xz = new Vector3(view.X, 0, view.Z).Normalize();
-        // const yz = new Vector3(0, view.Y, view.Z).Normalize();
-
-        // const theta = this.degrees(xz.Dot(Vector3.UnitX));
-        // const phi = this.degrees(yz.Dot(Vector3.UnitZ));
+        const rotX = Matrix3.RotationMatrixAroundAxis(0, 1, 0, deltaTheta);
+        const rotY = Matrix3.RotationMatrixAroundAxis(1, 0, 0, deltaPhi);
         
-        // this.transform.RotateAround(this.parent.transform, [0,1,0], this.orbit * delta * 10)
-        // const matX = Matrix3.RotationMatrixAroundAxis(this.target.X, 0, 0, theta);
-        // const matY = Matrix3.RotationMatrixAroundAxis(0, this.target.Y, 0, this.transform.Rotation.Y)
-        // const mat = Matrix3.Multiply(matX, matY);
-        // Matrix3.MultiplyVector(mat, this.transform.Position, this.transform.Position)
-        // this.transform.Position.Set(
-        //     length * Math.sin(theta) * Math.cos(phi),
-        //     length * Math.sin(phi) * Math.sin(theta),
-        //     length * Math.cos(theta)
-        // )
-        // this.transform.Rotation.Set(phi, theta, 0);
+        Matrix3.MultiplyVector(rotX, this.transform.Position, this.transform.Position);
+        Matrix3.MultiplyVector(rotY, this.transform.Position, this.transform.Position);
 
-        this.RotateAroundAxis(
-            0, this.target.Y, 0,
-            deltaTheta
-        )
-        
+        this.transform.Rotation.Set(
+            Maths.clamp(this.transform.Rotation.X - deltaPhi, -80, 80),
+            this.transform.Rotation.Y - deltaTheta,
+            0
+        );
+
+        console.log(this.transform.Position.toString(), Vector3.DistanceSquared(this.transform.Position, this.target))
     }
 
     private Zoom(delta: number): void
@@ -168,31 +160,6 @@ export class EditorViewer extends Entity
         }
 
         this.transform.Position.Add(this.movement).Add(this.up);
+        this.target.Add(this.movement).Add(this.up);
     }
-
-    private RotateAroundAxis(xyz: number, angle: number): void
-    private RotateAroundAxis(x: number, y: number, z: number, angle: number): void
-    private RotateAroundAxis(array: [number, number, number], angle: number): void
-    private RotateAroundAxis(vector: Vector3, angle: number): void
-    private RotateAroundAxis(_0: Vector3 | [number, number, number] | number, _1: number, _2?: number, _3?: number): void
-    {
-        let mat: Matrix3
-        if (typeof _0 === 'number')
-        {
-            if (_2 === undefined || _3 === undefined)
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _0, _0, _1)
-            }
-            else
-            {
-                mat = Matrix3.RotationMatrixAroundAxis(_0, _1, _2 as number, _3 as number)
-            }
-        }
-        else 
-        {
-            mat = Matrix3.RotationMatrixAroundAxis(_0 as [number, number, number], _1)
-        }
-        Matrix3.MultiplyVector(mat, this.transform.Position, this.transform.Position)
-    }
-
 }

@@ -25,13 +25,20 @@
 </script>
 
 <Panel {name}>
-    <canvas bind:this={canvas} id="canvas" on:contextmenu|preventDefault={() => void 0 } on:click|preventDefault={() => void 0} />
+    <canvas 
+		id="canvas"
+		bind:this={canvas} 
+		on:click|preventDefault={() => void 0} 
+		on:contextmenu|preventDefault={() => void 0 } 
+	/>
 </Panel>
 
 <style>
 	canvas {
+		/* display: none; */
 		position: relative;
 		width: 100%;
 		height: calc(100% - 28px);
+		height: 100%;
 	}
 </style>
