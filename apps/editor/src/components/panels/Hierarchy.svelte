@@ -2,6 +2,7 @@
 	import type { Scene, SceneId } from '@fwge/core';
 	import { Registry, System, type Entity } from '@fwge/ecs';
 	import { TabItem, Tabs } from 'flowbite-svelte';
+	import { CogSolid, DrawSquareSolid } from 'flowbite-svelte-icons';
 	import { currentSceneStore, projectStore } from '../../stores/project.store';
 	import TreeNode from '../tree/TreeNode.svelte';
 	import Panel from './Panel.svelte';
@@ -38,8 +39,13 @@
 <Panel {name}>
 	{scene.Name}
 
-	<Tabs>
-		<TabItem open title="Profile">
+	<Tabs tabStyle='pill' defaultClass="flex justify-self-center">
+		<TabItem open>
+            <div slot="title" class="flex items-center gap-2">
+                <DrawSquareSolid size="md" />
+                Entities
+            </div>
+
             <Accordion flush>
                 {#each entities as entity}
                     <TreeNode node={entity} />
@@ -47,7 +53,12 @@
             </Accordion>
 		</TabItem>
 
-		<TabItem title="System">
+		<TabItem>
+            <div slot="title" class="flex items-center gap-2">
+                <CogSolid size="md" />
+                Systems
+            </div>
+
             {#each systems as system}
                 <TreeNode node={system} />
             {/each}

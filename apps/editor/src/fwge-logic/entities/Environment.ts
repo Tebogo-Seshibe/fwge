@@ -7,10 +7,7 @@ export class Environment extends Entity
 {
     Init(): void
     {
-        const cubeShader = new Shader(
-            cubeShaderVert, 
-            cubeShaderFrag
-        );
+        const cubeShader = new Shader(cubeShaderVert, cubeShaderFrag);
         const cubeMeshRender = new MeshRenderer(
         {
             asset: new StaticMesh(cubeMesh)

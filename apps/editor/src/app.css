@@ -2313,6 +2313,10 @@ input[type="range"].range-lg::-moz-range-thumb {
   align-self: center;
 }
 
+.justify-self-center {
+  justify-self: center;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
