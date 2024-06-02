@@ -1,0 +1,59 @@
+<script lang="ts">
+	import type { Scene, SceneId } from '@fwge/core';
+	import { Registry, System, type Entity } from '@fwge/ecs';
+	import { TabItem, Tabs } from 'flowbite-svelte';
+	import { currentSceneStore, projectStore } from '../../stores/project.store';
+	import TreeNode from '../tree/TreeNode.svelte';
+	import Panel from './Panel.svelte';
+    import { AccordionItem, Accordion } from 'flowbite-svelte';
+
+	export let name: string;
+
+	let sceneId: SceneId = -1;
+	let scene: Partial<Scene> = {};
+	let entities: Entity[] = [];
+	let systems: System[] = [];
+
+	currentSceneStore.subscribe((currentSceneId) => {
+		sceneId = currentSceneId;
+	});
+
+	projectStore.subscribe((project) => {
+		if (!project || sceneId < 1) {
+			return;
+		}
+
+		scene = project.GetScene(sceneId)!;
+		entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
+		systems = scene.Systems!.filter(Boolean);
+
+        console.log({
+            scene,
+            entities,
+            systems
+        })
+	});
+</script>
+
+<Panel {name}>
+	{scene.Name}
+
+	<Tabs>
+		<TabItem open title="Profile">
+            <Accordion flush>
+                {#each entities as entity}
+                    <TreeNode node={entity} />
+                {/each}
+            </Accordion>
+		</TabItem>
+
+		<TabItem title="System">
+            {#each systems as system}
+                <TreeNode node={system} />
+            {/each}
+		</TabItem>
+	</Tabs>
+</Panel>
+
+<style>
+</style>

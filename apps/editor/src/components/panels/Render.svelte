@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { Project } from "../fwge-logic/Project";
-	import { projectStore } from "../stores/project.store";
+	import { Project } from "../../fwge-logic/Project";
+	import { projectStore } from "../../stores/project.store";
 	import Panel from "./Panel.svelte";
 
     export let name: string;
@@ -11,6 +11,7 @@
 	let width: number = 1920;
 
 	onMount(async () => {
+        console.log(canvas)
 		const project = new Project({
 			canvas,
 			height,
@@ -28,8 +29,8 @@
     <canvas 
 		id="canvas"
 		bind:this={canvas} 
-		on:click|preventDefault={() => void 0} 
-		on:contextmenu|preventDefault={() => void 0 } 
+		on:click|preventDefault={() => void 0}
+		on:contextmenu|preventDefault={() => void 0}
 	/>
 </Panel>
 

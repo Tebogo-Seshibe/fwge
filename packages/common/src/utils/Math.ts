@@ -1,5 +1,4 @@
 export const DECIMAL_PLACES: number = 6;
-export const DECIMAL_PLACES_2: number = 5;
 export const SIGNIFICANT_FIGURES: number = Math.pow(10, DECIMAL_PLACES);
 
 export class Maths
@@ -52,6 +51,11 @@ export class Maths
     static radian: (degree: number) => number = (degree: number) =>
     {
         return Math.PI / 180 * degree;
+    }
+    
+    static degree: (radian: number) => number = (radian: number) =>
+    {
+        return radian * 180 / Math.PI
     }
 
     static cot: (radian: number) => number = (radian: number) =>
@@ -225,6 +229,11 @@ export class Maths
 export function radian(degree: number): number
 {
     return Math.PI / 180 * degree
+}
+
+export function degree(radian: number): number
+{
+    return radian * 180 / Math.PI
 }
 
 export function cot(radian: number): number

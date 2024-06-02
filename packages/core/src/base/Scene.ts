@@ -17,6 +17,7 @@ export class Scene
     private static SceneId: SceneId = 0;
 
     readonly Id: SceneId = Scene.SceneId++;
+    readonly Name: string;
     readonly Game: Game;
     readonly Entities: EntityId[] = [];
     readonly Systems: System[] = [];
@@ -27,6 +28,7 @@ export class Scene
     constructor(game: Game, config: IScene = { windows: [ DefaultWindow ], entities: [], systems: [] })
     {
         this.Game = game;
+        this.Name = new.target.name;
 
         for (const renderWindow of config.windows)
         {

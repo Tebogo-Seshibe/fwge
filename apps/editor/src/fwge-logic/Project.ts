@@ -1,5 +1,5 @@
 import { Game, type GameConfig } from "@fwge/core";
-import { EditorScene, ProjectScene } from "./scenes";
+import { EditorScene, Scene1 } from "./scenes";
 
 export class Project extends Game
 {
@@ -8,7 +8,7 @@ export class Project extends Game
             ...config,
             scenes: [
                 EditorScene,
-                ProjectScene
+                Scene1
             ],
             startupScene: 0
         })

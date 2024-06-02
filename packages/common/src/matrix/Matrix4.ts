@@ -1667,6 +1667,14 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         const xAxis = Vector3.Cross(up, zAxis).Normalize();
         const yAxis = Vector3.Cross(zAxis, xAxis).Normalize();
 
+        xAxis.Set(clean(xAxis[0]), clean(xAxis[1]), clean(xAxis[2]));
+        yAxis.Set(clean(yAxis[0]), clean(yAxis[1]), clean(yAxis[2]));
+        zAxis.Set(clean(zAxis[0]), clean(zAxis[1]), clean(zAxis[2]));
+
+        console.log(xAxis.toString())
+        console.log(yAxis.toString())
+        console.log(zAxis.toString())
+
         out[0] = xAxis[0];
         out[1] = xAxis[1];
         out[2] = xAxis[2];

@@ -2,12 +2,17 @@
     import Panel from "./Panel.svelte";
     import Play from 'svelte-material-icons/Play.svelte';
     import Stop from 'svelte-material-icons/Stop.svelte';
-	import type { Project } from "../fwge-logic/Project";
-	import { projectStore } from "../stores/project.store";
-	import { EditorSceneId, ProjectSceneId } from "../fwge-logic/scenes";
+	import type { Project } from "../../fwge-logic/Project";
+	import { currentSceneStore, projectStore } from "../../stores/project.store";
+	import { EditorSceneId } from "../../fwge-logic/scenes";
     export let name: string;
 
     let project: Project | undefined;
+    let currentScene = -1;
+
+    currentSceneStore.subscribe(currentSceneId => {
+        currentScene = currentSceneId;
+    });
 
     projectStore.subscribe(p => {
         project = p;
@@ -15,7 +20,7 @@
 
     function play(): void {
         if (project) {
-            project.SetScene(ProjectSceneId);
+            project.SetScene(currentScene);
         }
     }
     

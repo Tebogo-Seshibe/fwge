@@ -62,6 +62,11 @@ export class Game
         GL.canvas.width = width;
     }  
 
+    public get Scenes(): readonly Scene[]
+    {
+        return Object.keys(this._scenes).map(sceneId => this.GetScene(+sceneId)) as readonly Scene[];
+    }
+
     constructor(config: GameConfig)
     {
         config = {

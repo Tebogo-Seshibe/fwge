@@ -1,9 +1,9 @@
 import { GL, Matrix3, Vector3, Vector4 } from "@fwge/common";
 import { BasicLitMaterial, Camera, InstanceMesh, Material, Mesh, MeshRenderer, RenderMode, Renderer, Shader, Tag, Transform } from "@fwge/core";
-import { Registry, type System } from "@fwge/ecs";
+import { Registry, System } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
 
-export class EditorRenderSystem implements System
+export class EditorRenderSystem extends System
 {
     cameraView!: number;
     renderableView!: number;

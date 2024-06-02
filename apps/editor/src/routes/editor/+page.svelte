@@ -1,14 +1,15 @@
 <script lang="ts">
-	import Actions from '../../components/Actions.svelte';
-	import Browser from '../../components/Browser.svelte';
-	import Console from '../../components/Console.svelte';
-	import Hierarchy from '../../components/Hierarchy.svelte';
-	import Inspector from '../../components/Inspector.svelte';
-	import Render from '../../components/Render.svelte';
+	import Actions from '../../components/panels/Actions.svelte';
+	import Browser from '../../components/panels/Browser.svelte';
+	import Console from '../../components/panels/Console.svelte';
+	import Hierarchy from '../../components/panels/Hierarchy.svelte';
+	import Inspector from '../../components/panels/Inspector.svelte';
+	import Render from '../../components/panels/Render.svelte';
 
 </script>
 
 <div id="editor">
+    <input id="hmmm"/>
     <Actions name="Actions"/>
     <Browser name="Browser"/>
     <Console name="Console"/>
@@ -23,13 +24,16 @@
         grid-template-columns: 250px 1fr 250px;
         grid-template-rows: 50px 1fr 1fr 1fr 120px;
         grid-template-areas: 
-            "actions actions actions"
+            "hmmm actions actions"
             "hierarchy render inspector"
             "hierarchy render inspector"
             "browser render inspector"
             "browser console inspector";
         height: 100dvh;
         width: 100dvw;
+    }
+    :global(#hmmm) {
+        grid-area: hmmm;
     }
     :global(#Actions) {
         grid-area: actions;

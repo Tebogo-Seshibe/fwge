@@ -6,7 +6,14 @@ export type EntityId = number;
 
 export class Entity
 {
-    public readonly Id: EntityId = Registry.CreateEntity(this);
+    public readonly Id: EntityId;
+    public Name: string;
+
+    constructor()
+    {
+        this.Id = Registry.CreateEntity(this);
+        this.Name = new.target.name;
+    }
 
     public Init(): void {}
     public Destroy(): void
