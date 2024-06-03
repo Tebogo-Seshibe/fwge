@@ -2,6 +2,8 @@
 	import type { Vector3 } from "@fwge/common";
 	import type { Transform } from "@fwge/core";
 	import type { Entity } from "@fwge/ecs";
+	import { Input } from "flowbite-svelte";
+	import { onMount } from "svelte";
     import CodeBraces from 'svelte-material-icons/CodeBraces.svelte';
     import CodeJson from 'svelte-material-icons/CodeJson.svelte';
 
@@ -9,6 +11,10 @@
 
     let collapsed: boolean = true;
     let step: number = 0.1;
+
+    onMount(() => {
+        component.Position.Z = 5;
+    })
     
     function scroll(input: 'position' | 'rotation' | 'scale', axis: 'x' | 'y' | 'z', up: boolean): void
     {
@@ -57,5 +63,7 @@
     <!-- on:wheel|stopPropagation={event => scroll('position', 'x', event.deltaY < 0)} -->
     <!-- class="input-axis" -->
     <!-- name="position-x"  -->
-    <input type="number" />
+    <Input label="X" name="position-x" type="number" bind:value={component.Position.X} />
+    <Input label="Y" name="position-y" type="number" bind:value={component.Position.Y} />
+    <Input label="Z" name="position-z" type="number" bind:value={component.Position.Z} />
 </div>

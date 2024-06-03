@@ -42,6 +42,7 @@ export class ProjectRenderSystem extends System
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
         const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;        
 
+        console.log(Registry.GetView(this.renderableView))
         
         for (const entityId of Registry.GetView(this.renderableView))
         {

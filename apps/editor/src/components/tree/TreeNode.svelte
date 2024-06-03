@@ -10,12 +10,6 @@
     const system = node as System;
     const children = isSystem ? [] : entity.GetChildren();
 
-    console.log({
-        isSystem,
-        entity,
-        system
-    })
-
     function setActiveEntity(): void
     {
         currentEntityStore.set(entity);
@@ -41,7 +35,7 @@
             {/each}
         </AccordionItem>
         {:else} 
-            <p class="mb-2 text-gray-500 dark:text-gray-400">{entity.Name}</p>
+            <p on:click|stopPropagation={setActiveEntity} class="mb-2 text-gray-500 dark:text-gray-400">{entity.Name}</p>
         {/if}
     </div>
 {/if}

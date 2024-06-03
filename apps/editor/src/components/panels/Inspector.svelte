@@ -12,7 +12,6 @@
     currentEntityStore.subscribe(currentEntity => {
         entity = currentEntity;
         transform = currentEntity?.GetComponent(Transform);
-        console.log(currentEntity)
     })
 
 </script>

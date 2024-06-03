@@ -27,12 +27,6 @@
 		scene = project.GetScene(sceneId)!;
 		entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
 		systems = scene.Systems!.filter(Boolean);
-
-        console.log({
-            scene,
-            entities,
-            systems
-        })
 	});
 </script>
 

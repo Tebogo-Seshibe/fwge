@@ -213,12 +213,7 @@ export class Registry
 
             if (this.testValidViewEntity(entityId, config.componentTypes, config.filter))
             {
-                console.log('Check succes')
-                view.push(entityId)
-            }
-            else 
-            {
-                console.log('Check failed')
+                view.push(entityId);
             }
         }
         this.mappedViews[component.TypeId] = possibleViews;

@@ -1,26 +1,35 @@
 <script lang="ts">
+    import type { Scene } from "@fwge/core";
+    import { Label, Navbar, Select, Toolbar, ToolbarButton, ToolbarGroup, type SelectOptionType } from 'flowbite-svelte';
+    import { PlaySolid, StopSolid } from 'flowbite-svelte-icons';
+    import type { Project } from "../../fwge-logic/Project";
+    import { EditorSceneId } from "../../fwge-logic/scenes";
+    import { currentSceneStore, projectStore } from "../../stores/project.store";
     import Panel from "./Panel.svelte";
-    import Play from 'svelte-material-icons/Play.svelte';
-    import Stop from 'svelte-material-icons/Stop.svelte';
-	import type { Project } from "../../fwge-logic/Project";
-	import { currentSceneStore, projectStore } from "../../stores/project.store";
-	import { EditorSceneId } from "../../fwge-logic/scenes";
     export let name: string;
 
     let project: Project | undefined;
-    let currentScene = -1;
+    let currentScene: Scene | undefined;
+    let scenes: SelectOptionType<Scene>[] = [];
 
     currentSceneStore.subscribe(currentSceneId => {
-        currentScene = currentSceneId;
+        currentScene = project?.GetScene(currentSceneId);
     });
 
     projectStore.subscribe(p => {
         project = p;
+
+        if (project) {
+            scenes = p.Scenes
+                .filter(x => x.Id !== EditorSceneId)
+                .map(x => ({ name: x.Name, value: x }));
+            currentScene = p.Scenes.find(x => x.Id === scenes[0].value.Id);
+        }
     });
 
     function play(): void {
-        if (project) {
-            project.SetScene(currentScene);
+        if (project && currentScene) {
+            project.SetScene(currentScene.Id);
         }
     }
     
@@ -32,10 +41,19 @@
 </script>
 
 <Panel {name} withHeader={false}>
-    <div class="buttons">
-        <button class='icon' on:click|stopPropagation={play}><Play/></button>
-        <button class='icon' on:click|stopPropagation={stop}><Stop/></button>
-    </div>
+    <Navbar color="dark" class="">
+        <ToolbarGroup>
+            <Label>
+                Scene
+                <Select size="sm" items={scenes} bind:value={currentScene} />
+            </Label>
+        </ToolbarGroup>
+        
+        <ToolbarGroup>
+            <ToolbarButton on:click={play} color="dark"><PlaySolid/></ToolbarButton>
+            <ToolbarButton on:click={stop} color="dark"><StopSolid/></ToolbarButton>
+        </ToolbarGroup>
+    </Navbar>
 </Panel>
 
 <style>

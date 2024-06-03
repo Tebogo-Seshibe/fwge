@@ -92,8 +92,6 @@ export class Environment extends Entity
         cube4.Name = 'Cube 4';
 
         this.AddComponent(new Transform());
-
-        [cube1, cube2, cube3, cube4].forEach(e => console.log(e.GetComponent(BasicLitMaterial)!.Colour))
         this.AddChild(floor)
             .AddChild(cube1)
             .AddChild(cube2)

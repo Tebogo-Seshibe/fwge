@@ -1,12 +1,11 @@
 import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { PerspectiveCamera, Script, Transform } from "@fwge/core";
+import { PerspectiveCamera, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
 import { EditorTag } from "../components/EditorTag";
 
 export class EditorViewer extends Entity
-{
-    
+{    
     private readonly target: Vector3 = Vector3.Zero;
     private readonly up: Vector3 = Vector3.Zero;
     private readonly right: Vector3 = Vector3.Zero;
@@ -58,11 +57,6 @@ export class EditorViewer extends Entity
                         (GL.canvas as HTMLCanvasElement).style.cursor = 'default';
                     }
                 },
-            }),
-            new Script({
-                update: (delta) =>
-                {
-                }
             })
         );
 

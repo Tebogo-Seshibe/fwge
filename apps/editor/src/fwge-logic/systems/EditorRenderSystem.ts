@@ -49,7 +49,6 @@ export class EditorRenderSystem extends System
         const cameraEntityId = Registry.GetView(this.cameraView)[0];
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
         const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;        
-
         
         for (const entityId of Registry.GetView(this.renderableView))
         {

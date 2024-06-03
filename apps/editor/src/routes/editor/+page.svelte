@@ -9,7 +9,6 @@
 </script>
 
 <div id="editor">
-    <input id="hmmm"/>
     <Actions name="Actions"/>
     <Browser name="Browser"/>
     <Console name="Console"/>
@@ -22,18 +21,15 @@
     #editor {
         display: grid;
         grid-template-columns: 250px 1fr 250px;
-        grid-template-rows: 50px 1fr 1fr 1fr 120px;
+        grid-template-rows: 75px 1fr 1fr 1fr 120px;
         grid-template-areas: 
-            "hmmm actions actions"
+            "actions actions actions"
             "hierarchy render inspector"
             "hierarchy render inspector"
             "browser render inspector"
             "browser console inspector";
         height: 100dvh;
         width: 100dvw;
-    }
-    :global(#hmmm) {
-        grid-area: hmmm;
     }
     :global(#Actions) {
         grid-area: actions;
