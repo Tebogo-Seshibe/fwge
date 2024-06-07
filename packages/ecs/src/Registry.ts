@@ -78,6 +78,11 @@ export class Registry
         return this.entityGraph[entityId]?.entity as T;
     }
 
+    public static IsEntityActive(entityId: EntityId): boolean
+    {
+        return this.GetEntity(entityId)?.Active ?? false;
+    }
+
     public static AddChild(parentId: EntityId, childId: EntityId): void
     {
         const parent = this.entityGraph[parentId];

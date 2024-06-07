@@ -36,6 +36,11 @@ export class RenderSystem extends System
 
         for (const entityId of Registry.GetView(this.renderables))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const material = Registry.GetComponent(entityId, Material)!;
             const transform = Registry.GetComponent(entityId, Transform)!;
             const renderer = Registry.GetComponent(entityId, Renderer)!;

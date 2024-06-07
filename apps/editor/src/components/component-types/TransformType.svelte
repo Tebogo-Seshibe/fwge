@@ -1,69 +1,169 @@
 <script lang="ts">
-	import type { Vector3 } from "@fwge/common";
-	import type { Transform } from "@fwge/core";
-	import type { Entity } from "@fwge/ecs";
-	import { Input } from "flowbite-svelte";
-	import { onMount } from "svelte";
-    import CodeBraces from 'svelte-material-icons/CodeBraces.svelte';
-    import CodeJson from 'svelte-material-icons/CodeJson.svelte';
+	import type { Vector3 } from '@fwge/common';
+	import type { Transform } from '@fwge/core';
+	import { ButtonGroup, InputAddon, Label, NumberInput } from 'flowbite-svelte';
 
-    export let component: Transform;
+	export let component: Transform;
 
-    let collapsed: boolean = true;
-    let step: number = 0.1;
+	type TransformProperty = 'position' | 'rotation' | 'scale';
+	type TransformAxis = 'x' | 'y' | 'z';
+	let step: number = 0;
 
-    onMount(() => {
-        component.Position.Z = 5;
-    })
+	function enableScrolling(event: MouseEvent): void {
+        const input = (event.target as HTMLInputElement)!;
+
+        input.focus({ preventScroll: true });
+		input.addEventListener('wheel', scroll);
+
+        window.addEventListener('keydown', setScrollStep);
+        window.addEventListener('keyup', resetScrollStep);
+        
+        step = 1;
+	}
     
-    function scroll(input: 'position' | 'rotation' | 'scale', axis: 'x' | 'y' | 'z', up: boolean): void
-    {
-        let property: Vector3;
+	function disableScrolling(event: MouseEvent): void {
+        const input = (event.target as HTMLInputElement)!;
 
-        switch (input)
-        {
-            case "position": 
-                property = component.Position;
-            break;
+        input.blur();
+        input.removeEventListener('wheel', scroll);
 
-            case "rotation": 
-                property = component.Rotation;
-            break;
+        window.removeEventListener('keydown', setScrollStep);
+        window.removeEventListener('keyup', resetScrollStep);
+        
+        step = 0;
+	}
 
-            case "scale": 
-                property = component.Scale;
-            break;
+	function setScrollStep(event: KeyboardEvent): void {
+        if (event.ctrlKey) {
+            step = 10;
+        } else if (event.shiftKey) {
+            step = 0.1;
         }
+	}
 
-        switch (axis)
-        {
-            case "x":
-                property.X += up ? step : -step;
-            break;
+	function resetScrollStep(): void {
+        step = 1;
+	}
 
-            case "y":
-                property.Y += up ? step : -step;
-            break;
+	function scroll(event: Event): void {
+		const [propertyName, axis] = (event.target as any).name.split('-') as [
+			TransformProperty,
+			TransformAxis
+		];
+		const up = (event as WheelEvent).deltaY < 0;
 
-            case "z":
-                property.Z += up ? step : -step;
-            break;
-        }
+		let property: Vector3;
 
-        console.log(property)
-    }
+		switch (propertyName) {
+			case 'position':
+				property = component.Position;
+				break;
 
-    setTimeout(() => console.log(component), 2000)
+			case 'rotation':
+				property = component.Rotation;
+				break;
+
+			case 'scale':
+				property = component.Scale;
+				break;
+		}
+
+		switch (axis) {
+			case 'x':
+				property.X += up ? step : -step;
+				(event.target! as HTMLInputElement).value = property.X + '';
+				break;
+
+			case 'y':
+				property.Y += up ? step : -step;
+				(event.target! as HTMLInputElement).value = property.Y + '';
+				break;
+
+			case 'z':
+				property.Z += up ? step : -step;
+				(event.target! as HTMLInputElement).value = property.Z + '';
+				break;
+		}
+	}
 </script>
 
 <div>
-    <!-- on:input={event => component.Position.X = +event.currentTarget.value} -->
-    <!-- bind:value={component.Position.X} -->
-    <!-- step={step}  -->
-    <!-- on:wheel|stopPropagation={event => scroll('position', 'x', event.deltaY < 0)} -->
-    <!-- class="input-axis" -->
-    <!-- name="position-x"  -->
-    <Input label="X" name="position-x" type="number" bind:value={component.Position.X} />
-    <Input label="Y" name="position-y" type="number" bind:value={component.Position.Y} />
-    <Input label="Z" name="position-z" type="number" bind:value={component.Position.Z} />
+	<Label>
+		<span>Transform</span>
+
+		<ButtonGroup size="sm">
+			<InputAddon class="w-16">Position</InputAddon>
+			<NumberInput
+				label="X"
+				name="position-x"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Position.X}
+			/>
+			<NumberInput
+				label="Y"
+				name="position-y"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Position.Y}
+			/>
+			<NumberInput
+				label="Z"
+				name="position-z"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Position.Z}
+			/>
+		</ButtonGroup>
+
+		<ButtonGroup size="sm">
+			<InputAddon class="w-16">Rotation</InputAddon>
+			<NumberInput
+				label="X"
+				name="rotation-x"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Rotation.X}
+			/>
+			<NumberInput
+				label="Y"
+				name="rotation-y"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Rotation.Y}
+			/>
+			<NumberInput
+				label="Z"
+				name="rotation-z"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Rotation.Z}
+			/>
+		</ButtonGroup>
+
+		<ButtonGroup size="sm">
+			<InputAddon class="w-16">Scale</InputAddon>
+			<NumberInput
+				label="X"
+				name="scale-x"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Scale.X}
+			/>
+			<NumberInput
+				label="Y"
+				name="scale-y"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Scale.Y}
+			/>
+			<NumberInput
+				label="Z"
+				name="scale-z"
+				on:mouseenter={enableScrolling}
+				on:mouseleave={disableScrolling}
+				bind:value={component.Scale.Z}
+			/>
+		</ButtonGroup>
+	</Label>
 </div>

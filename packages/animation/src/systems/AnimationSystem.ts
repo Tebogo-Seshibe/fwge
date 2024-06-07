@@ -14,6 +14,11 @@ export class AnimationSystem extends System
     {
         for (const entityId of Registry.GetView(this._animations))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const entity = Registry.GetEntity(entityId)!
             const animationPlayer = entity.GetComponent(AnimationPlayer)!
             const animation = animationPlayer.CurrentAnimation

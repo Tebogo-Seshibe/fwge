@@ -20,7 +20,7 @@
 <style>
     #editor {
         display: grid;
-        grid-template-columns: 250px 1fr 250px;
+        grid-template-columns: 300px 1fr 350px;
         grid-template-rows: 75px 1fr 1fr 1fr 120px;
         grid-template-areas: 
             "actions actions actions"

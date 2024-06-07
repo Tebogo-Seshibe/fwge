@@ -4,6 +4,7 @@
 	import { currentEntityStore } from "../../stores/project.store";
 	import TransformType from "../component-types/TransformType.svelte";
 	import Panel from "./Panel.svelte";
+	import { Label } from "flowbite-svelte";
     export let name: string;
 
     let entity: Entity | undefined = undefined;
@@ -17,12 +18,19 @@
 </script>
 
 <Panel {name}>
-    {#if entity && transform}
-        <TransformType component={transform}/>
+    {#if entity}
+        <div id="hierarchy-container">
+            <Label>{entity.Name}</Label>
+            
+            {#if entity && transform}
+                <TransformType component={transform}/>
+            {/if}
+        </div>
     {/if}
-    
 </Panel>
 
 <style>
-
+#hierarchy-container {
+    padding: 8px;   
+}
 </style>

@@ -1,10 +1,10 @@
 import { invoke } from "@tauri-apps/api";
 
-export async function createNewOpen(projectName: string, rootDir: string): Promise<void>
+export async function createNewOpen(projectName: string, projectPath: string): Promise<void>
 {
     try
     {
-        await invoke('create', { projectName, rootDir });
+        await invoke('create', { projectName, projectPath });
     }
     catch(e: any)
     {

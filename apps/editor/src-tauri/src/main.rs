@@ -2,6 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
+use std::process::Command;
+
 use tauri::{api::dialog, CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
 // use fwge::launcher::{greetName};
 
@@ -14,9 +16,13 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn undo() -> Result<(), String> {
-    //TODO: Undo logic
-    Ok(())
+fn create(projectName: &str, projectPath: &str) {
+    Command::new("fwge")
+        .arg("new")
+        .arg(projectName)
+        .arg(projectPath)
+        .output()
+        .expect("Failed to run \"fwge new\"");
 }
 
 #[tauri::command]
@@ -32,7 +38,7 @@ fn open(projectPath: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn create(projectName: &str, rootDir: &str) -> Result<(), String> {
+fn undo() -> Result<(), String> {
     
     Ok(())
 }
@@ -117,7 +123,7 @@ fn main() {
             )
             .menu(menu)
             .title("FWGE: Editor")
-            .inner_size(800.0, 600.0)
+            .inner_size(1280.0, 720.0)
             .resizable(true)
             .visible(false)
             .build()

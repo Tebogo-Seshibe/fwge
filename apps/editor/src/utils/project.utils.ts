@@ -1,9 +1,7 @@
 import { fs, path } from "@tauri-apps/api";
 
-export async function createNewOpen(projectName: string, rootDir: string): Promise<void>
+export async function createNewProjectStrucure(projectName: string, rootDir: string): Promise<void>
 {
-    console.log(rootDir)
-    console.log(projectName)
     try
     {
         await fs.createDir(await path.resolve(rootDir, projectName));
@@ -11,7 +9,7 @@ export async function createNewOpen(projectName: string, rootDir: string): Promi
             await path.resolve(rootDir, projectName, projectName + '.json'),
             `{
                 "project": {
-                  "name": "projectName"
+                  "name": "${projectName}"
                 },
                 "scenes": [
                 ],
@@ -63,18 +61,6 @@ export async function createNewOpen(projectName: string, rootDir: string): Promi
         
         await fs.createDir(await path.resolve(rootDir, projectName, 'src', 'systems'));
         await fs.writeTextFile(await path.resolve(rootDir, projectName, 'src', 'systems', 'index.ts'), '');
-    }
-    catch(e: any)
-    {
-        console.log(e);
-    }
-}
-
-export async function openProject(projectName: string): Promise<void>
-{
-    try
-    {
-        await fs.createDir(projectName);
     }
     catch(e: any)
     {

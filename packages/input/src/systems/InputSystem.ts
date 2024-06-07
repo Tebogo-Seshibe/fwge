@@ -7,7 +7,7 @@ import { Input } from "../components";
 
 export class InputSystem extends System
 {
-    private inputView!: number;;
+    private inputView!: number;
 
     private readonly inputDataView = new CompositeDataView(
     {
@@ -76,6 +76,11 @@ export class InputSystem extends System
 
         for (const entityId of Registry.GetView(this.inputView))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const input = Registry.GetComponent(entityId, Input)!;
             input.OnInput(
                 delta, 

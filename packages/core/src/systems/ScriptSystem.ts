@@ -24,6 +24,11 @@ export class ScriptSystem extends System
     {
         for (const entityId of Registry.GetView(this.allScripts))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const script = Registry.GetComponent(entityId, Script)!;
             const entity = Registry.GetEntity(entityId)!;
             script.Update.call(entity, delta);

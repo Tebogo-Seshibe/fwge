@@ -16,7 +16,7 @@ export class Scene1 extends Scene
             ],
             systems: [
                 InputSystem,
-                ProjectRenderSystem,
+                // ProjectRenderSystem,
             ]
         })
     }

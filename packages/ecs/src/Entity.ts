@@ -8,6 +8,7 @@ export class Entity
 {
     public readonly Id: EntityId;
     public Name: string;
+    public Active: boolean = true;
 
     constructor()
     {

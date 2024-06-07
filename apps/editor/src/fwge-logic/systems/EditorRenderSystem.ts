@@ -52,6 +52,11 @@ export class EditorRenderSystem extends System
         
         for (const entityId of Registry.GetView(this.renderableView))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const transform = Registry.GetComponent(entityId, Transform)!
             const material = Registry.GetComponent(entityId, BasicLitMaterial)!
             const renderer = Registry.GetComponent(entityId, MeshRenderer)!

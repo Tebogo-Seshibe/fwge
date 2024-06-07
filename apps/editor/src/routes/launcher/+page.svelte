@@ -1,177 +1,202 @@
 <script lang="ts">
-    import { dialog, window } from "@tauri-apps/api";
-    import { createNewOpen } from "../../utils/project.utils";
-	import { onMount } from "svelte";
-    type CurrentPage = 'home' | 'create' | 'open';
+    import { dialog, fs, window } from "@tauri-apps/api";
+    import { Button, ButtonGroup, Checkbox, Img, Input, Label } from "flowbite-svelte";
+    import { AngleUpOutline, ArrowRightOutline, FolderOpenOutline, FolderOpenSolid, GridPlusOutline } from "flowbite-svelte-icons";
+    import { createNewOpen } from "../../commands/project";
+    import type { FWGEProjectFile } from "../../utils/types.utils";
 
+    type CurrentPage = 'home' | 'create' | 'open';
+	
     let isNewProject: boolean = false;
     let currentPage: CurrentPage = 'home';
-  
-    onMount(() => {
-        console.log(window.getAll())
-    })
-    
-    async function back()
-    {
-        currentPage = 'home';
-    }
-    
-    async function createProject()
-    {
-        currentPage = 'create';
- 
-        const dirName = await dialog.open({
-            directory: true,
-            multiple: false,
-            recursive: false,
-            title: 'New Project'
-        });
+	let projectName: string | undefined;
+	let projectPath: string | undefined;
+	let fullProjectPath: string | undefined;
+	let projectThumbnailPath: string | undefined;
 
-        console.log(dirName)
-
-        if (typeof dirName === 'string') {
-            await createNewOpen('example', dirName);
-            await openEditor();
-        }
-    }
-
-    async function openProject()
-    {
-        currentPage = 'open';
-    }
-
-    async function openProjectDialog(params: any) {
-        
-        await dialog.open({
+    async function openProjectDialog(): Promise<void>
+	{       
+        const file = await dialog.open(
+		{
             directory: false,
             multiple: false,
             recursive: false,
             title: 'Open Project',
-            filters: [
+            filters: 
+			[
                 {
                     extensions: ['json'],
                     name: 'FWGE Project JSON File'
                 }
             ]
-        });
+        }) as string | null;
 
-        await openEditor();
+		if (!file) {
+			return;
+		}
+
+		const json = await fs.readTextFile(file);
+		try
+		{
+			const projectDef = JSON.parse(json) as FWGEProjectFile;
+			const path = file.replaceAll('\\', '/').split('/');
+			path.pop();
+			fullProjectPath = file;
+			projectThumbnailPath = path.join('/') + projectDef.project.thumbnail;
+		}
+		catch
+		{
+			dialog.message('Invalid FWGE Project File');
+		}
+    }
+	
+    async function newProjectDialog(): Promise<void>
+	{
+        const folder = await dialog.open(
+		{
+            directory: true,
+            multiple: false,
+            recursive: false,
+            title: 'New Project'
+        }) as string | null;
+		
+		projectPath = folder ? folder : undefined;
     }
 
     async function openEditor(): Promise<void> 
     {
-        console.log(window.getAll())
         const nextWindow = window.getAll().filter(x => x.label === 'editor').at(0)!;
         await nextWindow.show();
         await window.getCurrent().close();
     }
+
+	function createForm(): void
+	{
+		currentPage = 'create';
+	}
+
+	function openForm(): void
+	{
+		currentPage = 'open';
+	}
+
+	function back(): void
+	{
+		currentPage = 'home';
+	}
+
+	async function openNewProject(): Promise<void>
+	{
+		await createNewOpen(projectName!, projectPath!);
+		await openEditor();
+	}
 </script>
 
-<div class={'launcher ' + currentPage}>
-	<div class="launcher-create">
-		<div class="create-container" />
-		<button class="back" on:click|preventDefault={back}>BACK</button>
-	</div>
-
-	<div class="launcher-home">
-		<div class="home-buttons">
-			<button on:click|preventDefault={createProject}>CREATE </button>
-			<button on:click|preventDefault={openProject}>OPEN</button>
+<div class={'launcher flex flex-col ' + currentPage}>
+	<span class='title text-center text-orange-500'>FWGE</span>
+	
+	<div class='content'>
+	{#if currentPage === 'home'}
+		<div class="home-actions w-80 flex flex-row justify-between">
+			<Button class='w-32 flex flex-row bg-orange-500 justify-around' on:click={createForm}><GridPlusOutline/>New</Button>
+			<Button class='w-32 flex flex-row bg-orange-500 justify-around' on:click={openForm}><FolderOpenOutline/>Open</Button>
 		</div>
-	</div>
+	{:else if currentPage === 'create'}	
+		<Label class='modules text-white'>
+			Included Modules
+			<Checkbox class='text-white mt-1' checked>Common</Checkbox>
+			<Checkbox class='text-white mt-1' checked>ECS</Checkbox>
+			<Checkbox class='text-white mt-1' checked>Core</Checkbox>
+			<Checkbox class='text-white mt-1'>Input</Checkbox>
+			<Checkbox class='text-white mt-1'>Render</Checkbox>
+			<Checkbox class='text-white mt-1'>Physics</Checkbox>
+			<Checkbox class='text-white mt-1'>Animation</Checkbox>
+			<Checkbox class='text-white mt-1'>UI</Checkbox>
+			<Checkbox class='text-white mt-1'>Audio</Checkbox>
+		</Label>
+		
+		<div class="flex flex-col">
+			<Label class='text-white mb-1'>
+				Name
+			</Label>
+			<Input bind:value={projectName} class='mb-3' size='sm' id='projectName' placeholder='Example Project'/>
 
-	<div class="launcher-open">
-		<button class="back" on:click|preventDefault={back}>BACK</button>
-		<div class="open-container">
-			<button on:click|preventDefault={openProjectDialog}>do open</button>
+			<Label class='text-white mb-1'>
+				Project Location
+			</Label>
+			<ButtonGroup class='mb-5'>
+				<Button on:click={newProjectDialog}><FolderOpenSolid/></Button>
+				<Input bind:value={projectPath} size='sm' id='projectName' placeholder='Path to project folder'/>
+			</ButtonGroup>
+			
+			<Button on:click={openNewProject} disabled={!projectName || !projectPath} class='mt-4 w-32 flex flex-row justify-between align-self-end'>Start <ArrowRightOutline/></Button>
 		</div>
-	</div>
+	{:else if currentPage === 'open'}
+		<Img src={projectThumbnailPath} alt="sample 1" size="max-w-lg" class="rounded-lg" />
+
+		<div class="flex flex-col align-center">
+			<Label class='text-white mb-1'>
+				Project Location
+			</Label>
+			<ButtonGroup class='mb-5'>
+				<Button on:click={openProjectDialog}><FolderOpenSolid/></Button>
+				<Input bind:value={fullProjectPath} size='sm' id='projectName' placeholder='Path to project folder'/>
+			</ButtonGroup>
+			
+			<div class='mb-4'></div>
+			
+			<Button on:click={openEditor} disabled={!fullProjectPath} class='mt-4 w-32 flex flex-row justify-between align-self-end'>Start <ArrowRightOutline/></Button>
+		</div>
+	{/if}
+</div>
+
+{#if currentPage !== 'home'}
+	<Button class='back mt-4 -mb-2 !p-2 absolute' outline={true} on:click={back}>
+		<AngleUpOutline/>
+	</Button>
+{/if}
 </div>
 
 <style>
 	.launcher {
-		display: flex;
-		position: absolute;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		top: 0;
-		left: 0;
-		height: 100%;
-		width: 300%;
-		transition: left ease-in-out 0.25s;
-		background-color: #272727;
-	}
+		background: #272727;
 
-	.launcher.create {
-		left: 0;
-	}
+		height: 400px;
+		width: 600px;
+		padding: 16px;
+	}	
 	.launcher.home {
-		left: -100%;
-	}
-	.launcher.open {
-		left: -200%;
+		grid-template-rows: 3fr 1fr;
 	}
 
-	.launcher-open,
-	.launcher-home,
-	.launcher-create {
+	.title {
 		display: grid;
-		position: relative;
-		height: 100%;
-		width: 100%;
-		flex-direction: row;
+		place-content: center;
+		font-size: 32px;
+		height: calc(100px - 32px);
+		transition: 
+			height 150ms cubic-bezier(0.215, 0.610, 0.355, 1),
+			font-size 150ms cubic-bezier(0.215, 0.610, 0.355, 1);
+	}
+	.home .title {
+		font-size: 72px;
+		height: calc(300px - 32px);
 	}
 
-	.launcher-create {
-		display: flex;
-		flex-direction: row;
-		height: 100%;
-		width: 100%;
-	}
-	.launcher-home {
-		grid-template-areas:
-			'. . .'
-			'. buttons .'
-			'. . .';
-	}
-	.launcher-open {
-		display: flex;
-		flex-direction: row;
-		height: 100%;
-		width: 100%;
+	.content {
+		display: grid;
+		place-content: center;
+		height: calc(100px - 32px);
+		padding: 16px;
+		transition: 
+			height 150ms cubic-bezier(0.215, 0.610, 0.355, 1);
 	}
 
-	.back {
-		display: inline-flex;
-		height: 100%;
-		width: 50px;
-		align-items: center;
-		justify-content: center;
-	}
-	.create-container {
+	.launcher.create .content,
+	.launcher.open .content {
 		display: grid;
-		flex: 1;
-		height: 100%;
-		width: auto;
-	}
-	.open-container {
-		display: grid;
-		flex: 1;
-		height: 100%;
-		width: auto;
-	}
-	.home-buttons {
-		display: flex;
-		height: 100%;
-		width: 100%;
-		align-items: center;
-		justify-content: space-evenly;
-		grid-area: buttons;
-	}
-	.home-buttons button {
-		display: inline-block;
-		height: 50%;
-		width: 50%;
+		grid-template-columns: 1fr 2fr;
+		gap: 32px;
+		height: calc(300px - 32px);
 	}
 </style>

@@ -55,7 +55,7 @@ export class KeyboardInputHandler
 
     private keydown(e: KeyboardEvent)
     {
-        e.preventDefault();
+        // e.preventDefault();
 
         if (this.keys[e.which] === KeyState.UP)
         {
@@ -71,7 +71,7 @@ export class KeyboardInputHandler
 
     private keyup(e: KeyboardEvent)
     {
-        e.preventDefault();
+        // e.preventDefault();
         this.keys[e.which] = KeyState.RELEASED;
     }
 }

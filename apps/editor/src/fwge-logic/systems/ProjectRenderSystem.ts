@@ -42,10 +42,15 @@ export class ProjectRenderSystem extends System
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
         const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;        
 
-        console.log(Registry.GetView(this.renderableView))
+        // console.log(Registry.GetView(this.renderableView))
         
         for (const entityId of Registry.GetView(this.renderableView))
         {
+            if (!Registry.IsEntityActive(entityId))
+            {
+                continue;   
+            }
+
             const tag = Registry.GetComponent(entityId, Tag);
             if (tag instanceof EditorTag)
             {
