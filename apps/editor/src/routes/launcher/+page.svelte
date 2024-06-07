@@ -1,18 +1,23 @@
 <script lang="ts">
     import { dialog, fs, window } from "@tauri-apps/api";
-    import { Button, ButtonGroup, Checkbox, Img, Input, Label } from "flowbite-svelte";
+    import { Button, ButtonGroup, Checkbox, ImagePlaceholder, Input, Label, List } from "flowbite-svelte";
     import { AngleUpOutline, ArrowRightOutline, FolderOpenOutline, FolderOpenSolid, GridPlusOutline } from "flowbite-svelte-icons";
     import { createNewOpen } from "../../commands/project";
     import type { FWGEProjectFile } from "../../utils/types.utils";
 
     type CurrentPage = 'home' | 'create' | 'open';
 	
-    let isNewProject: boolean = false;
+	let imageRef: HTMLImageElement;
     let currentPage: CurrentPage = 'home';
 	let projectName: string | undefined;
 	let projectPath: string | undefined;
 	let fullProjectPath: string | undefined;
 	let projectThumbnailPath: string | undefined;
+	let previousProjects: string[] =
+	[
+		'Unbreak My Heart',
+		"Example Project"
+	];
 
     async function openProjectDialog(): Promise<void>
 	{       
@@ -42,7 +47,7 @@
 			const path = file.replaceAll('\\', '/').split('/');
 			path.pop();
 			fullProjectPath = file;
-			projectThumbnailPath = path.join('/') + projectDef.project.thumbnail;
+			projectThumbnailPath = projectDef.project.thumbnail;
 		}
 		catch
 		{
@@ -67,7 +72,7 @@
     {
         const nextWindow = window.getAll().filter(x => x.label === 'editor').at(0)!;
         await nextWindow.show();
-        // await window.getCurrent().close();
+        await window.getCurrent().close();
     }
 
 	function createForm(): void
@@ -88,7 +93,7 @@
 	async function openNewProject(): Promise<void>
 	{
 		await createNewOpen(projectName!, projectPath!);
-		// await openEditor();
+		await openEditor();
 	}
 </script>
 
@@ -103,7 +108,7 @@
 		</div>
 	{:else if currentPage === 'create'}	
 		<Label class='modules text-white'>
-			Included Modules
+			<Label class="text-white font-bold text-base">Included Modules</Label>
 			<Checkbox class='text-white mt-1' checked>Common</Checkbox>
 			<Checkbox class='text-white mt-1' checked>ECS</Checkbox>
 			<Checkbox class='text-white mt-1' checked>Core</Checkbox>
@@ -116,14 +121,10 @@
 		</Label>
 		
 		<div class="flex flex-col">
-			<Label class='text-white mb-1'>
-				Name
-			</Label>
+			<Label class='text-white font-bold text-base mb-1'> Name </Label>
 			<Input bind:value={projectName} class='mb-3' size='sm' id='projectName' placeholder='Example Project'/>
 
-			<Label class='text-white mb-1'>
-				Project Location
-			</Label>
+			<Label class='text-white font-bold text-base mb-1'>Project Location </Label>
 			<ButtonGroup class='mb-5'>
 				<Button on:click={newProjectDialog}><FolderOpenSolid/></Button>
 				<Input bind:value={projectPath} size='sm' id='projectName' placeholder='Path to project folder'/>
@@ -132,21 +133,31 @@
 			<Button on:click={openNewProject} disabled={!projectName || !projectPath} class='mt-4 w-32 flex flex-row justify-between align-self-end'>Start <ArrowRightOutline/></Button>
 		</div>
 	{:else if currentPage === 'open'}
-		<Img src={projectThumbnailPath} alt="sample 1" size="max-w-lg" class="rounded-lg" />
+	<div>
+		<Label class='text-white font-bold text-base mb-2'>Previously Opened</Label>
+		
+		<List>
+			{#each previousProjects as previousProject}
+				<Label class='text-white mb-2'>{previousProject}</Label>
+			{/each}
+		</List>
+	</div>
 
-		<div class="flex flex-col align-center">
-			<Label class='text-white mb-1'>
-				Project Location
-			</Label>
-			<ButtonGroup class='mb-5'>
-				<Button on:click={openProjectDialog}><FolderOpenSolid/></Button>
-				<Input bind:value={fullProjectPath} size='sm' id='projectName' placeholder='Path to project folder'/>
-			</ButtonGroup>
+	<div class="flex flex-col align-center">
+		<Label class='text-white font-bold text-base mb-1'> Project Location </Label>
+		<ButtonGroup class='mb-5'>
+			<Button on:click={openProjectDialog}><FolderOpenSolid/></Button>
+			<Input bind:value={fullProjectPath} size='sm' id='projectName' placeholder='Path to project folder'/>
+		</ButtonGroup>
+
+		{#if projectThumbnailPath}
+		<img bind:this={imageRef} src={projectThumbnailPath} alt="sample 1" class="rounded-lg h-24 mb-2 object-contain"/>
+		{:else}
+		<ImagePlaceholder imgHeight={'24'} imgOnly={true} class="rounded-lg h-24 mb-2 object-contain"/>
+		{/if}
 			
-			<div class='mb-4'></div>
-			
-			<Button on:click={openEditor} disabled={!fullProjectPath} class='mt-4 w-32 flex flex-row justify-between align-self-end'>Start <ArrowRightOutline/></Button>
-		</div>
+		<Button on:click={openEditor} disabled={!fullProjectPath} class='mt-4 w-32 flex flex-row justify-between align-self-end'>Start <ArrowRightOutline/></Button>
+	</div>
 	{/if}
 </div>
 
