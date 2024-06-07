@@ -1,13 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
-use std::process::Command;
-
-use tauri::{api::dialog, CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
-// use fwge::launcher::{greetName};
-
-mod fwgeproject;
+use std::{process::Command, str};
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -16,32 +11,17 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn create(projectName: &str, projectPath: &str) {
-    Command::new("fwge")
+fn create(project_name: &str, project_path: &str) -> Result<(), String> {
+    Command::new("node")
+        .arg("C:\\Users\\tebogo.seshibe\\Documents\\Personal\\fwge\\apps\\cli\\bin\\fwge")
         .arg("new")
-        .arg(projectName)
-        .arg(projectPath)
+        .arg(project_name)
+        .arg(project_path)
         .output()
         .expect("Failed to run \"fwge new\"");
-}
 
-#[tauri::command]
-fn redo() -> Result<(), String> {
-    //TODO: Redo logic
     Ok(())
-}
-
-#[tauri::command]
-fn open(projectPath: &str) -> Result<(), String> {
-    //TODO: Redo logic
-    Ok(())
-}
-
-#[tauri::command]
-fn undo() -> Result<(), String> {
-    
-    Ok(())
-}
+} 
 
 fn main() {
     let file_sub_menu = Submenu::new(
@@ -116,7 +96,7 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            let window = WindowBuilder::new(
+            WindowBuilder::new(
                 app,
                 "editor",
                 tauri::WindowUrl::App("editor".into()),
@@ -141,7 +121,7 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, undo, redo])
+        .invoke_handler(tauri::generate_handler![greet, create])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

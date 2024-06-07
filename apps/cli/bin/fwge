@@ -20,6 +20,7 @@ program.version('1.0.0');
 program.command('new')
     .description('Creates a new project')
     .argument('<project-name>')
+    .argument('<project-path>')
     .action(newProject);
 
 program.command('load')

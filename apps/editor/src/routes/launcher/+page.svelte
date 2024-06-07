@@ -67,7 +67,7 @@
     {
         const nextWindow = window.getAll().filter(x => x.label === 'editor').at(0)!;
         await nextWindow.show();
-        await window.getCurrent().close();
+        // await window.getCurrent().close();
     }
 
 	function createForm(): void
@@ -88,7 +88,7 @@
 	async function openNewProject(): Promise<void>
 	{
 		await createNewOpen(projectName!, projectPath!);
-		await openEditor();
+		// await openEditor();
 	}
 </script>
 

@@ -18,7 +18,7 @@
         "directory": "packages/cli"
     },
     "scripts": {
-        "build:app": "tsc",
+        "build:app": "tsc && gulp",
         "dev": "tsc -w",
         "test": "vitest",
         "coverage": "vitest --coverage"
