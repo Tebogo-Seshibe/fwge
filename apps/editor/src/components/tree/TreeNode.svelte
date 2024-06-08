@@ -35,7 +35,7 @@
             {/each}
         </AccordionItem>
         {:else} 
-            <p on:click|stopPropagation={setActiveEntity} class="mb-2 text-gray-500 dark:text-gray-400">{entity.Name}</p>
+            <button on:click={setActiveEntity} class="mb-2 text-gray-500 dark:text-gray-400">{entity.Name}</button>
         {/if}
     </div>
 {/if}

@@ -6,7 +6,7 @@
 	import { currentSceneStore, projectStore } from '../../stores/project.store';
 	import TreeNode from '../tree/TreeNode.svelte';
 	import Panel from './Panel.svelte';
-    import { AccordionItem, Accordion } from 'flowbite-svelte';
+    import { Accordion } from 'flowbite-svelte';
 
 	export let name: string;
 
@@ -59,6 +59,3 @@
 		</TabItem>
 	</Tabs>
 </Panel>
-
-<style>
-</style>

@@ -4,7 +4,7 @@ export async function createNewOpen(projectName: string, projectPath: string): P
 {
     try
     {
-        console.log(await invoke('create', { project_name: projectName, project_path: projectPath }));
+        console.log(await invoke('create', { projectName, projectPath }));
     }
     catch(e: any)
     {

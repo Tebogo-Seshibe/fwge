@@ -1,27 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{process::Command, str};
+mod commands;
+mod menu;
+mod utils;
+
+use menu::{build, config, open, open_recent, save, save_as, settings};
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    return format!("Hello, {}! You've been greeted from Rust!\n\r", name);
-}
-
-#[tauri::command]
-fn create(project_name: &str, project_path: &str) -> Result<(), String> {
-    Command::new("node")
-        .arg("C:\\Users\\tebogo.seshibe\\Documents\\Personal\\fwge\\apps\\cli\\bin\\fwge")
-        .arg("new")
-        .arg(project_name)
-        .arg(project_path)
-        .output()
-        .expect("Failed to run \"fwge new\"");
-
-    Ok(())
-} 
 
 fn main() {
     let file_sub_menu = Submenu::new(
@@ -65,26 +52,14 @@ fn main() {
                 .accelerator("CmdOrCtrl+,")
                 .into()
             )
-            .add_item(
-                CustomMenuItem::new("exit".to_string(), "Exit")
-                .accelerator("CmdOrCtrl+Q")
-                .into()
-            )
+            .add_native_item(MenuItem::Quit)
     );
 
     let edit_sub_menu = Submenu::new(
         "Edit", 
         Menu::new()
-            .add_item(
-                CustomMenuItem::new("undo".to_string(), "Undo")
-                .accelerator("CmdOrCtrl+Z")
-                .into()
-            )
-            .add_item(
-                CustomMenuItem::new("redo".to_string(), "Redo")
-                .accelerator("CmdOrCtrl+Y")
-                .into()
-            )
+            .add_native_item(MenuItem::Undo)
+            .add_native_item(MenuItem::Redo)
             .add_native_item(MenuItem::Separator)
             .add_native_item(MenuItem::Cut)
             .add_native_item(MenuItem::Copy)
@@ -96,7 +71,7 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            WindowBuilder::new(
+            let window = WindowBuilder::new(
                 app,
                 "editor",
                 tauri::WindowUrl::App("editor".into()),
@@ -109,19 +84,23 @@ fn main() {
             .build()
             .expect("to build");
 
-            // let win = window.clone();
-            // window.on_menu_event(move |event| {
-            //     match event.menu_item_id() {
-            //         "exit" => {
-            //             win.close().unwrap();
-            //         },
-            //         _ => {}
-            //     }
-            // });
+            let win = window.clone();
+            window.on_menu_event(move |event| {
+                let _ = match event.menu_item_id() {
+                    "open" => open(&win),
+                    "open_recent" => open_recent(&win),
+                    "save" => save(&win),
+                    "save_as" => save_as(&win),
+                    "build" => build(&win),
+                    "config" => config(&win),
+                    "settings" => settings(&win),
+                    &_ => todo!()
+                };
+            });
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, create])
+        .invoke_handler(tauri::generate_handler![commands::greet, commands::create])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -55,20 +55,3 @@
         </ToolbarGroup>
     </Navbar>
 </Panel>
-
-<style>
-    .buttons {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        width: fit-content;
-        margin: 0 auto;
-    }
-    .icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-</style>
