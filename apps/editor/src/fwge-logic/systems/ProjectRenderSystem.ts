@@ -1,6 +1,6 @@
 import { GL, Matrix3, Vector3, Vector4 } from "@fwge/common";
 import { Tag, Camera, Transform, Material, Renderer, BasicLitMaterial, MeshRenderer, RenderMode, InstanceMesh, type Shader, type Mesh } from "@fwge/core";
-import { Registry, System } from "@fwge/ecs";
+import { Registry, System, type EntityId } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
 
 export class ProjectRenderSystem extends System
@@ -16,9 +16,6 @@ export class ProjectRenderSystem extends System
         this.renderableView = Registry.RegisterView(
             [Material, Renderer, Transform]
         );
-
-        (window as any).Vector3 = Vector3;
-        (window as any).Vector4 = Vector4;
     }
 
     Start(): void 
@@ -41,9 +38,10 @@ export class ProjectRenderSystem extends System
         const cameraEntityId = Registry.GetView(this.cameraView)[0];
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
         const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;        
-
-        // console.log(Registry.GetView(this.renderableView))
         
+        const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId)
+        const cameraMVInverse = cameraMV.Inverse();
+
         for (const entityId of Registry.GetView(this.renderableView))
         {
             if (!Registry.IsEntityActive(entityId))
@@ -66,7 +64,7 @@ export class ProjectRenderSystem extends System
 
             shader.Bind();
 
-            shader.SetBufferDataField('Camera', 'ViewMatrix', cameraTransform.GlobalModelViewMatrix().Inverse(), true)
+            shader.SetBufferDataField('Camera', 'ViewMatrix', cameraMVInverse, true)
             shader.SetBufferDataField('Camera', 'ProjectionMatrix', cameraCamera.ProjectionMatrix, true)
             shader.PushBufferData('Camera')
 
@@ -107,21 +105,21 @@ export class ProjectRenderSystem extends System
 
             if (mesh instanceof InstanceMesh)
             {
-                this.drawInstanceMesh(mesh, transform, shader, buffer, renderMode, renderCount);
+                this.drawInstanceMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
             }
             else
             {
-                this.drawMesh(mesh, transform, shader, buffer, renderMode, renderCount);
+                this.drawMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
             }
 
             shader.UnBind();
         }
     }
     
-    private drawInstanceMesh(mesh: InstanceMesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
+    private drawInstanceMesh(entityId: EntityId, mesh: InstanceMesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer);
-        const modelViewMatrix = transform.GlobalModelViewMatrix();
+        const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
         shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
@@ -142,10 +140,10 @@ export class ProjectRenderSystem extends System
         GL.bindVertexArray(null);
     }
     
-    private drawMesh(mesh: Mesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
+    private drawMesh(entityId: EntityId, mesh: Mesh, transform: Transform, shader: Shader, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer);
-        const modelViewMatrix = transform.GlobalModelViewMatrix();
+        const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
         shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);

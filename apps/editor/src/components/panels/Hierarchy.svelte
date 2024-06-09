@@ -1,24 +1,71 @@
 <script lang="ts">
 	import type { Scene, SceneId } from '@fwge/core';
-	import { Registry, System, type Entity } from '@fwge/ecs';
-	import { TabItem, Tabs } from 'flowbite-svelte';
-	import { CogSolid, DrawSquareSolid } from 'flowbite-svelte-icons';
+	import { Entity, Registry, System, type Class, type Component } from '@fwge/ecs';
+	import {
+		Button,
+		ButtonGroup,
+		Dropdown,
+		DropdownItem,
+		Input,
+		InputAddon,
+		List
+	} from 'flowbite-svelte';
+	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
+	import { writable } from 'svelte/store';
 	import { currentSceneStore, projectStore } from '../../stores/project.store';
 	import TreeNode from '../tree/TreeNode.svelte';
 	import Panel from './Panel.svelte';
-    import { Accordion } from 'flowbite-svelte';
 
-	export let name: string;
+	export let id: string;
 
 	let sceneId: SceneId = -1;
 	let scene: Partial<Scene> = {};
 	let entities: Entity[] = [];
 	let systems: System[] = [];
+	let tab: 'entities' | 'systems' = 'entities';
+
+	let filteredEntites: Entity[] = [];
+	let filteredSystems: System[] = [];
+	let filters = writable({
+		components: [] as Class<Component>[],
+		systems: [] as Class<System>[],
+		name: ''
+	});
+	filters.subscribe((f) => {
+		const name = f.name.toLocaleLowerCase().trim();
+
+		filteredEntites = entities
+			.filter((entity) => entity.HasComponents(...f.components))
+			.filter((entity) => {
+				return (
+					name.length === 0 ||
+					entity.Name.toLocaleLowerCase().includes(name) ||
+					(entity as Object).constructor.name.toLocaleLowerCase().includes(name)
+				);
+			});
+	});
 
 	currentSceneStore.subscribe((currentSceneId) => {
 		sceneId = currentSceneId;
 	});
 
+	function updateNameFilters(event: Event): void {
+		filters.update((x) => {
+			return {
+				...x,
+				name: (event.target as HTMLInputElement).value
+			};
+		});
+	}
+
+	function updateEntityFilters(event: Event, insert: boolean): void {
+		filters.update((x) => {
+			return {
+				...x,
+				name: (event.target as HTMLInputElement).value
+			};
+		});
+	}
 	projectStore.subscribe((project) => {
 		if (!project || sceneId < 1) {
 			return;
@@ -27,35 +74,51 @@
 		scene = project.GetScene(sceneId)!;
 		entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
 		systems = scene.Systems!.filter(Boolean);
+		filters.set({
+			components: [] as Class<Component>[],
+			systems: [] as Class<System>[],
+			name: ''
+		});
 	});
 </script>
 
-<Panel {name}>
-	{scene.Name}
+<Panel {id}>
+	<div class="p-2 grid grid-rows-[min-content_min-content_1fr] h-full gap-2">
+		<ButtonGroup divClass="w-full grid grid-cols-2">
+			<Button on:click={() => (tab = 'entities')}><DrawSquareSolid size="md" /> Entities</Button>
+			<Button on:click={() => (tab = 'systems')}><CogSolid size="md" /> Systems</Button>
+		</ButtonGroup>
 
-	<Tabs tabStyle='pill' defaultClass="flex justify-self-center">
-		<TabItem open>
-            <div slot="title" class="flex items-center gap-2">
-                <DrawSquareSolid size="md" />
-                Entities
-            </div>
+		<ButtonGroup>
+			<InputAddon><SearchOutline /></InputAddon>
+			<Input on:input={updateNameFilters} />
 
-            <Accordion flush>
-                {#each entities as entity}
-                    <TreeNode node={entity} />
-                {/each}
-            </Accordion>
-		</TabItem>
+			<Button class="!p-2"
+				><FilterOutline class="w-6 h-6" />
+				<Dropdown>
+					{#each Registry.GetRegisteredComponentTypes() as componentType}
+						<DropdownItem>
+							{componentType.name}
+						</DropdownItem>
+					{/each}
+				</Dropdown>
+			</Button>
+		</ButtonGroup>
 
-		<TabItem>
-            <div slot="title" class="flex items-center gap-2">
-                <CogSolid size="md" />
-                Systems
-            </div>
-
-            {#each systems as system}
-                <TreeNode node={system} />
-            {/each}
-		</TabItem>
-	</Tabs>
+		<div class="overflow-y-scroll">
+			{#if tab === 'entities'}
+				<List tag="ul" list="none">
+					{#each filteredEntites as entity}
+						<TreeNode node={entity} />
+					{/each}
+				</List>
+			{:else}
+				<List tag="ul" list="none">
+					{#each systems as system}
+						<TreeNode node={system} />
+					{/each}
+				</List>
+			{/if}
+		</div>
+	</div>
 </Panel>

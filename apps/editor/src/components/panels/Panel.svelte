@@ -1,53 +1,14 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { Label } from "flowbite-svelte";
 
-    export let name: string;
-    export let withHeader: boolean = true;
-
-    let containerDiv: HTMLDivElement;
-
-    onMount((): void => {
-        containerDiv.id = name;
-    })
+    export let id: string;
+    export let classes: string = '';
 </script>
 
-<div bind:this={containerDiv} class="panel {withHeader ? 'header' : 'no-header'}">
-    {#if withHeader}
-        <div class="panel-header">{name}</div>
-    {/if}
+<div {id} class="flex flex-col bg-[#171717] {classes}">
+    <Label class="h-10 text-white text-lg border-b bg-gradient-to-r from-[#272727] to-[#2c2c2c]">
+        <span class="flex w-32 h-full bg-[#444444] py-2 px-4 rounded-t-lg">{id}</span>
+    </Label>
 
-    <div class="panel-content">
-        <slot></slot>
-    </div>
+    <slot></slot>
 </div>
-
-<style>
-.panel {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background: #272727F8;
-    color: whitesmoke;
-    outline: solid 1px gray;
-}
-
-.panel-header {
-    display: flex;
-    flex: 0;
-    height: 19px;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 4px 8px;
-    background: #272727FF;
-    border-bottom: solid 1px aqua;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.panel-content {
-    flex: 1;
-    height: auto;
-    width: 100%;
-    height: 100%;
-}
-</style>

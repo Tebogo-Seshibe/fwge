@@ -51,28 +51,28 @@ export class Transform extends Component
     GlobalRotation(ownerId: EntityId): Readonly<Vector3>
     GlobalRotation(ownerId: EntityId = -1): Readonly<Vector3>
     {
-        const position = this.Position.Clone();
+        const rotation = this.Rotation.Clone();
         
         while (ownerId !== -1)
         {
             const transform = Registry.GetComponent(ownerId, Transform);
-
             if (transform)
             {
-                position.Add(transform.Position);
+                rotation.Add(transform.Rotation);
             }
-
+            console.log(rotation.X)
+                
             ownerId = Registry.GetParentId(ownerId);
         }
 
-        return position;
+        return rotation;
     }
 
     GlobalScale(): Readonly<Vector3>
     GlobalScale(ownerId: EntityId): Readonly<Vector3>
     GlobalScale(ownerId: EntityId = -1): Readonly<Vector3>
     {
-        const position = this.Position.Clone();
+        const scale = this.Scale.Clone();
         
         while (ownerId !== -1)
         {
@@ -80,13 +80,13 @@ export class Transform extends Component
 
             if (transform)
             {
-                position.Add(transform.Position);
+                scale.Add(transform.Scale);
             }
 
             ownerId = Registry.GetParentId(ownerId);
         }
 
-        return position;
+        return scale;
     }
     
     GlobalModelViewMatrix(): Readonly<Matrix4>
@@ -95,14 +95,8 @@ export class Transform extends Component
     GlobalModelViewMatrix(ownerId: EntityId, out: Matrix4): Readonly<Matrix4>
     GlobalModelViewMatrix(_0?: Matrix4 | EntityId, _1?: Matrix4): Readonly<Matrix4>
     {
-        const modelViewMatrix = _1 ?? (_0 instanceof Matrix4
-            ? _0
-            : Matrix4.Identity
-        );
-        
-        let parentId = typeof _0 === 'number'
-            ? _0
-            : -1;
+        const modelViewMatrix = _1 ?? (_0 instanceof Matrix4 ? _0 : Matrix4.Identity);
+        let ownerId = typeof _0 === 'number' ? _0 : -1;
             
         Matrix4.TransformationMatrix(
             this.Position, 
@@ -111,9 +105,9 @@ export class Transform extends Component
             modelViewMatrix
         );
         
-        while (parentId !== -1)
+        while (ownerId !== -1)
         {
-            const transform = Registry.GetComponent(parentId, Transform);
+            const transform = Registry.GetComponent(ownerId, Transform);
 
             if (transform)
             {
@@ -125,7 +119,7 @@ export class Transform extends Component
                 );
             }
 
-            parentId = Registry.GetParentId(parentId);
+            ownerId = Registry.GetParentId(ownerId);
         }
 
         return modelViewMatrix;

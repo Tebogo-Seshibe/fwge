@@ -5,7 +5,7 @@
 	import TransformType from "../component-types/TransformType.svelte";
 	import Panel from "./Panel.svelte";
 	import { Label } from "flowbite-svelte";
-    export let name: string;
+    export let id: string;
 
     let entity: Entity | undefined = undefined;
     let transform: Transform | undefined = undefined;
@@ -17,16 +17,18 @@
 
 </script>
 
-<Panel {name}>
-    {#if entity}
-        <div id="hierarchy-container">
-            <Label>{entity.Name}</Label>
-            
-            {#if entity && transform}
-                <TransformType component={transform}/>
-            {/if}
-        </div>
-    {/if}
+<Panel {id}>
+    <div class='p-2'>
+        {#if entity}
+            <div id="hierarchy-container">
+                <Label>{entity.Name}</Label>
+                
+                {#if entity && transform}
+                    <TransformType component={transform}/>
+                {/if}
+            </div>
+        {/if}
+    </div>
 </Panel>
 
 <style>

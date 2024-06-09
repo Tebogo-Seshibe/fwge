@@ -5,18 +5,17 @@
 	import Panel from "./Panel.svelte";
 	import { GL } from "@fwge/common";
 
-    export let name: string;
+    export let id: string;
 
 	let project: Project;
+    let containerDiv: HTMLDivElement;
 	let canvas: HTMLCanvasElement;
-	let height: number = 1080;
-	let width: number = 1920;
 
 	onMount(async () => {
 		project = new Project({
 			canvas,
-			height,
-			width,
+			height: containerDiv.clientHeight,
+			width: containerDiv.clientWidth,
 			prefabs: [],
 			assets: []
 		});
@@ -24,6 +23,7 @@
 
         projectStore.set(project);
 		window.addEventListener('resize', resize)
+        // resize()
 	});
 
 	onDestroy(() => {
@@ -37,27 +37,18 @@
 			return;
 		}
 
-		// console.log((GL.canvas as HTMLCanvasElement).getBoundingClientRect())
-		// project.Width = (GL.canvas as HTMLCanvasElement).getBoundingClientRect().width;
-		// project.Height = (GL.canvas as HTMLCanvasElement).getBoundingClientRect().height;
-		project.Width = 1920; //(GL.canvas as HTMLCanvasElement).getBoundingClientRect().width;
-		project.Height = 1080; //(GL.canvas as HTMLCanvasElement).getBoundingClientRect().height;
+        canvas.height = containerDiv.clientHeight;
+        canvas.width = containerDiv.clientWidth;
 	}
 </script>
 
-<Panel {name}>
-    <canvas 
-		id="canvas"
-		bind:this={canvas}
-		on:click|preventDefault={() => void 0}
-		on:contextmenu|preventDefault={() => void 0}
-	/>
+<Panel {id}>
+    <div bind:this={containerDiv} class='h-full w-full' on:resize={resize}>
+        <canvas 
+            id="canvas"
+            bind:this={canvas}
+            on:click|preventDefault={() => void 0}
+            on:contextmenu|preventDefault={() => void 0}
+        />
+</div>
 </Panel>
-
-<style>
-	canvas {
-		position: relative;
-		width: 100%;
-		height: 100%;
-	}
-</style>
