@@ -1,4 +1,4 @@
-import { GL, Matrix3, Vector3, Vector4 } from "@fwge/common";
+import { GL, Matrix3 } from "@fwge/common";
 import { BasicLitMaterial, Camera, InstanceMesh, Material, Mesh, MeshRenderer, RenderMode, Renderer, Shader, Tag, Transform } from "@fwge/core";
 import { Registry, System, type EntityId } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
@@ -12,12 +12,12 @@ export class EditorRenderSystem extends System
     {
         this.cameraView = Registry.RegisterView(
             [Tag, Camera, Transform], 
-            tag => tag instanceof EditorTag
+            (_, tag) => tag instanceof EditorTag
         );
 
         this.renderableView = Registry.RegisterView(
             [Tag, Material, Renderer, Transform], 
-            tag => tag instanceof EditorTag
+            (_, tag) => tag instanceof EditorTag
         );
     }
 

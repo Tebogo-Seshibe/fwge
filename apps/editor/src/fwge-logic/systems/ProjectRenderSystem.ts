@@ -1,5 +1,5 @@
-import { GL, Matrix3, Vector3, Vector4 } from "@fwge/common";
-import { Tag, Camera, Transform, Material, Renderer, BasicLitMaterial, MeshRenderer, RenderMode, InstanceMesh, type Shader, type Mesh } from "@fwge/core";
+import { GL, Matrix3 } from "@fwge/common";
+import { BasicLitMaterial, Camera, InstanceMesh, Material, MeshRenderer, RenderMode, Renderer, Tag, Transform, type Mesh, type Shader } from "@fwge/core";
 import { Registry, System, type EntityId } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
 
@@ -11,10 +11,13 @@ export class ProjectRenderSystem extends System
     Init(): void 
     {
         this.cameraView = Registry.RegisterView(
-            [Camera, Transform]);
+            [Camera, Transform],
+            // entity => !entity.HasComponent(EditorTag)
+        );
 
         this.renderableView = Registry.RegisterView(
-            [Material, Renderer, Transform]
+            [Material, Renderer, Transform],
+            entity => !entity.HasComponent(EditorTag)
         );
     }
 
@@ -131,7 +134,6 @@ export class ProjectRenderSystem extends System
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
             GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
         }
-
         else
         {
             GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);

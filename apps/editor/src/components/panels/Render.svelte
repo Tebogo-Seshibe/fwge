@@ -3,7 +3,6 @@
 	import { Project } from "../../fwge-logic/Project";
 	import { projectStore } from "../../stores/project.store";
 	import Panel from "./Panel.svelte";
-	import { GL } from "@fwge/common";
 
     export let id: string;
 
@@ -23,7 +22,7 @@
 
         projectStore.set(project);
 		window.addEventListener('resize', resize)
-        // resize()
+        resize()
 	});
 
 	onDestroy(() => {

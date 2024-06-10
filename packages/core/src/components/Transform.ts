@@ -111,10 +111,13 @@ export class Transform extends Component
 
             if (transform)
             {
-                Matrix4.TransformationMatrix(
-                    transform.Position, 
-                    transform.Rotation, 
-                    transform.Scale, 
+                Matrix4.Multiply(
+                    Matrix4.TransformationMatrix(
+                        transform.Position, 
+                        transform.Rotation, 
+                        transform.Scale,
+                    ),
+                    modelViewMatrix,
                     modelViewMatrix
                 );
             }

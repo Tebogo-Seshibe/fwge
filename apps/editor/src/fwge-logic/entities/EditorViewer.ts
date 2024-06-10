@@ -1,6 +1,6 @@
 import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { Camera, PerspectiveCamera, Transform } from "@fwge/core";
-import { Entity, Registry } from "@fwge/ecs";
+import { PerspectiveCamera, Transform } from "@fwge/core";
+import { Entity } from "@fwge/ecs";
 import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
 import { EditorTag } from "../components/EditorTag";
 
@@ -20,10 +20,12 @@ export class EditorViewer extends Entity
     private transform!: Transform;
     private cameraTransform!: Transform;
     private camera!: PerspectiveCamera;
-    private locked: boolean = false;
+    private locked = false;
 
-    override Init(): void
+    constructor()
     {
+        super();
+        
         this.camera = new PerspectiveCamera();
         this.cameraTransform = new Transform({ position: [0, 1, 0] });
         this.transform = new Transform({ position: [0, 1, 10] });
@@ -83,8 +85,8 @@ export class EditorViewer extends Entity
     
     private Rotate(deltaTheta: number, deltaPhi: number): void
     {
-        this.transform.Rotation.Y += deltaTheta;
         this.cameraTransform.Rotation.X = Maths.clamp(this.cameraTransform.Rotation.X + deltaPhi, -80, 80);
+        this.transform.Rotation.Y += deltaTheta;
     }
 
     private Zoom(delta: number): void

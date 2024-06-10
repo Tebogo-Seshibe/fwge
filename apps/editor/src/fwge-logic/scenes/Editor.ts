@@ -13,16 +13,18 @@ export class EditorScene extends Scene
         super(game, {
             windows: [ DefaultWindow ],
             entities: [
-                EditorViewer,
-                Grid,
-                Environment
+                Grid
+            ],
+            sharedEntities: [
+                { type: EditorViewer, name: 'EditorViewer' },
+                { type: Environment, name: 'Environment' }
             ],
             systems: [
                 InputSystem,
                 ScriptSystem,
                 EditorRenderSystem,
                 ProjectRenderSystem,
-            ]
+            ],
         })
     }
 }

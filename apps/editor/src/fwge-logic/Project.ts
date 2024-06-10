@@ -8,7 +8,7 @@ export class Project extends Game
             ...config,
             scenes: [
                 EditorScene,
-                Scene1
+                Scene1,
             ],
             startupScene: 0
         })

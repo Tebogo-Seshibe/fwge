@@ -1,11 +1,11 @@
 import { type Component, type ComponentId, type TypeId } from "./Component";
 import { type Entity, type EntityId } from "./Entity";
 import { ListContainer } from "./ListContainer";
-import { type Class } from "./Class";
+import { Type, type Class } from "./Class";
 
 export type View = EntityId[];
 export type ViewKey = number;
-export type ViewFilter<T extends readonly any[] = readonly any[]> = (...args: T) => boolean;
+export type ViewFilter<T extends readonly any[] = readonly any[]> = (enity: Entity, ...args: T) => boolean;
 export type ViewConfig =
 { 
     componentTypes: readonly Class<Component>[],
@@ -76,6 +76,22 @@ export class Registry
     public static GetEntity<T extends Entity = Entity>(entityId: EntityId): T | undefined
     {
         return this.entityGraph[entityId]?.entity as T;
+    }
+
+    public static GetEntities<T extends Entity = Entity>(entityType: Type<T>): readonly T[]
+    {
+        const entities: T[] = [];
+
+        for (let i = 0; i < this.entityGraph.length; ++i)
+        {
+            if (this.entityGraph[i]?.entity instanceof entityType)
+            {
+                entities.push(this.entityGraph[i]!.entity as T);
+            }
+        }
+        
+        return entities;
+
     }
 
     public static IsEntityActive(entityId: EntityId): boolean
@@ -434,7 +450,7 @@ export class Registry
             components.push(this.GetComponent(entityId, componentTypes[i].TypeId!)!);
         }
 
-        return filter.apply(undefined, components);
+        return filter.apply(undefined, [this.GetEntity(entityId), ...components]);
     }
     //#endregion
 }

@@ -85,8 +85,8 @@
 <Panel {id}>
 	<div class="p-2 grid grid-rows-[min-content_min-content_1fr] h-full gap-2">
 		<ButtonGroup divClass="w-full grid grid-cols-2">
-			<Button on:click={() => (tab = 'entities')}><DrawSquareSolid size="md" /> Entities</Button>
-			<Button on:click={() => (tab = 'systems')}><CogSolid size="md" /> Systems</Button>
+			<Button on:click={() => tab = 'entities'}><DrawSquareSolid size="md" /> Entities</Button>
+			<Button on:click={() => tab = 'systems'}><CogSolid size="md" /> Systems</Button>
 		</ButtonGroup>
 
 		<ButtonGroup>

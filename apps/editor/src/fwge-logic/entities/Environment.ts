@@ -6,8 +6,10 @@ import type { Colour3Array } from "@fwge/common";
 
 export class Environment extends Entity
 {
-    Init(): void
+    constructor()
     {
+        super();
+
         const cubeShader = new Shader(cubeShaderVert, cubeShaderFrag);
         const cubeMeshRender = new MeshRenderer(
         {
@@ -106,7 +108,7 @@ export class Environment extends Entity
         cube2.Name = 'Cube 2';
         cube3.Name = 'Cube 3';
         cube4.Name = 'Cube 4';
-        cube4.Name = 'Cube 5';
+        cube5.Name = 'Cube 5';
 
         this.AddComponent(new Transform());
         this.AddChild(floor)

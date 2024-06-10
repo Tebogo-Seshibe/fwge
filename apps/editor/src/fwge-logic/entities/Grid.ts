@@ -6,8 +6,10 @@ import { EditorTag } from "../components/EditorTag";
 
 export class Grid extends Entity
 {
-    override Init(): void
+    constructor()
     {
+        super();
+        
         this.AddComponents(
             new EditorTag(),
             new Transform(),

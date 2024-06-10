@@ -10,6 +10,7 @@ export interface IScene
     windows: readonly [Type<RenderWindow>, ...Type<RenderWindow>[]];
     systems: readonly Type<System>[];
     entities: readonly Type<Entity>[];
+    sharedEntities: readonly ({ type: Type<Entity>, name: string })[];
 }
 
 export class Scene
@@ -25,7 +26,7 @@ export class Scene
 
     constructor(game: Game);
     constructor(game: Game, config: IScene);
-    constructor(game: Game, config: IScene = { windows: [ DefaultWindow ], entities: [], systems: [] })
+    constructor(game: Game, config: IScene = { windows: [ DefaultWindow ], entities: [], systems: [], sharedEntities: [] })
     {
         this.Game = game;
         this.Name = new.target.name;
@@ -43,6 +44,22 @@ export class Scene
         for (const entity of config.entities)
         {
             this.Entities.push((new entity).Id);
+        }
+
+        for (const entity of config.sharedEntities)
+        {
+            const potentials = Registry.GetEntities(entity.type);
+            if (potentials.length === 0)
+            {
+                const yes = new entity.type;
+                yes.Name = entity.name;
+                this.Entities.push(yes.Id);
+            }
+            else
+            {
+                const yes = potentials.find(x => x.Name === entity.name)!;
+                this.Entities.push(yes.Id);
+            }
         }
     }
 

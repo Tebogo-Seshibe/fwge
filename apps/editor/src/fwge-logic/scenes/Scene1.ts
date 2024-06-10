@@ -1,8 +1,8 @@
 import { DefaultWindow, Game, Scene } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
-import { ProjectRenderSystem } from "../systems";
-import { Camera } from "../entities/Camera";
+import { EditorViewer } from "../entities/EditorViewer";
 import { Environment } from "../entities/Environment";
+import { ProjectRenderSystem } from "../systems";
 
 export class Scene1 extends Scene
 {
@@ -11,13 +11,15 @@ export class Scene1 extends Scene
         super(game, {
             windows: [ DefaultWindow ],
             entities: [
-                Camera,
-                Environment
+            ],
+            sharedEntities: [
+                { type: EditorViewer, name: 'EditorViewer' },
+                { type: Environment, name: 'Environment' }
             ],
             systems: [
                 InputSystem,
-                // ProjectRenderSystem,
-            ]
+                ProjectRenderSystem,
+            ],
         })
     }
 }
