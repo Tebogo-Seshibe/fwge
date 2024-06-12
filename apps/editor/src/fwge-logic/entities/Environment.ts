@@ -28,6 +28,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [51/255, 12/255, 47/255]
                 })
             );
@@ -43,6 +45,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [123/255, 40/255, 125/255]
                 })
             );
@@ -58,6 +62,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [112/255, 103/255, 207/255]
                 })
             );
@@ -73,6 +79,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [183/255, 192/255, 238/255]
                 })
             );
@@ -88,6 +96,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [203/255, 243/255, 210/255]
                 })
             );
@@ -104,6 +114,8 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
+                    projectShadows: true,
+                    receiveShadows: true,
                     colour: [203/255, 243/255, 210/255].map(x => x * 0.5) as Colour3Array
                 })
             );

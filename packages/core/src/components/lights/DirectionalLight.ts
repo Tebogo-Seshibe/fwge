@@ -2,6 +2,7 @@ import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3A
 import { ColourType, DepthType, RenderTarget, Shader } from "../../base";
 import { Transform } from "../Transform";
 import { ILight, Light } from "./Light";
+import { Registry } from "@fwge/ecs";
 
 export type PCFLevelType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface IDirectionalLight extends ILight
@@ -132,12 +133,12 @@ export class ShadowCascade
 export class DirectionalLight extends Light
 {
     readonly RenderTarget: RenderTarget = new RenderTarget(
-        {
-            colour: [],
-            depth: DepthType.INT24,
-            height: 2 ** 10,
-            width: 2 ** 10
-        });
+    {
+        colour: [],
+        depth: DepthType.INT24,
+        height: 2 ** 10,
+        width: 2 ** 10
+    });
     static readonly DefaultDirection: Vector3 = new Vector3(0, -1, 0);
 
     readonly ShadowCascades: [ShadowCascade, ShadowCascade, ShadowCascade];
@@ -229,7 +230,7 @@ export class DirectionalLight extends Light
             {
                 dimensions: [50, 50, 50],
                 resolution: [1024, 1024],
-                near: 25,
+                near: 0,
                 far: 50,
             }
         ]).map(config => new ShadowCascade(config)) as [ShadowCascade, ShadowCascade, ShadowCascade];
@@ -302,11 +303,16 @@ export class DirectionalLight extends Light
         }
     }
 
-    BindForShadows(offset: Vector3 | Vector3Array = [0, 0, 0])
+    BindForShadows(parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
     {
+        const matrix = Registry.GetEntity(parentId)?.GetComponent(Transform)?.GlobalModelViewMatrix() ?? Matrix4.Identity;
         this.RenderTarget.Bind();
         DirectionalLight.ShadowShader.Bind();
-        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix);
+        // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix);
+        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', Matrix4.Multiply(this.ViewMatrix, matrix));
+        // console.log(Matrix4.Multiply(this.ViewMatrix, matrix).toString())
+        // console.log(this.ViewMatrix.toString())
+        // console.log(matrix.toString())
     }
 
     UnbindForShadows()
@@ -314,7 +320,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ViewMatrix = Matrix4.BasicOrthographicProjection(-20, -20, -20, 20, 20, 20);
+    readonly ViewMatrix = Matrix4.BasicOrthographicProjection(-30, -30, -30, 30, 30, 30);
 
     get ModelMatrix(): Matrix4
     {

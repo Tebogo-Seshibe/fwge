@@ -37,7 +37,7 @@ void main(void)
     V_Vertex.Normal = normalize(object.NormalMatrix * A_Normal);
     V_Vertex.UV = A_UV;
     V_Vertex.Colour = A_Colour.rgb;
-
+    
     gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(V_Vertex.Position, 1.0);
 }
 `;
@@ -122,6 +122,7 @@ uniform sampler2D U_Position;
 uniform sampler2D U_Normal;
 uniform sampler2D U_Albedo_Alpha;
 uniform sampler2D U_Depth;
+uniform sampler2D U_Dir_Tex;
 
 struct Fragment
 {
@@ -131,21 +132,114 @@ struct Fragment
     float Alpha;
     float Depth;
 } fragment;
+
+
+
+// Area Lighting ---------------------------------------
+struct AreaLight
+{
+    vec3 Colour;
+    float Intensity;
+};
+uniform AreaLight[1] U_AreaLight;
+
+vec3 CalcAreaLight(AreaLight light)
+{
+    return light.Colour * light.Intensity;
+}
+// Area Lighting ---------------------------------------
+
+
+
+// Directional Lighting --------------------------------
+struct DirectionalLight
+{
+    vec3 Colour;
+    float Intensity;
+
+    vec3 Direction;
+    bool CastShadows;
+
+    float TexelSize;
+    float TexelCount;
+    float Bias;
+    float PCFLevel;
+
+    mat4 ShadowMatrix;
+};
+uniform DirectionalLight[8] U_DirectionalLight;
+
+float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D shadowSampler, mat4 shadowMatrix)
+{
+    vec4 shadowPosition = shadowMatrix * vec4(fragment.Position, 1.0);
+    float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
+    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    vec2 fragUV = lightPosition.xy;
+    float fragmentDepth = lightPosition.z;
+
+    if (fragmentDepth > 1.0)
+    {
+        fragmentDepth = 1.0;
+    }
+
+    float total = 0.0;
+    for (float x = -dir.PCFLevel; x <= dir.PCFLevel; ++x)
+    {
+        for (float y = -dir.PCFLevel; y <= dir.PCFLevel; ++y)
+        {
+            vec2 offset = vec2(x, y) * dir.TexelSize;
+            vec2 uv = fragUV + offset;
+            if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0)
+            {
+                continue;
+            }
+
+            float shadowDepth = texture(shadowSampler, fragUV).r + bias;
+            if (shadowDepth < fragmentDepth)
+            {
+                total += 1.0;
+            }
+        }
+    }
+
+    return total / dir.TexelCount;
+}
+
+vec3 CalcDirectionalLight(DirectionalLight light)
+{
+    float val = dot(fragment.Normal, light.Direction);
+    float diffuse = max(val, 0.0);
+    float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, light.ShadowMatrix); //U_OtherMatrix[0]);
+    float shadow = 1.0 - cascade;
+
+    return light.Colour * diffuse * light.Intensity * shadow;
+}
+// Directional Lighting --------------------------------
+
 void main(void)
 {
-    fragment = Fragment(
-        texture(U_Position, V_UV).rgb,
-        texture(U_Normal, V_UV).rgb,
-        texture(U_Albedo_Alpha, V_UV).rgb,
-        texture(U_Albedo_Alpha, V_UV).a,
-        texture(U_Depth, V_UV).r
-    );
+    // fragment = Fragment(
+    //     texture(U_Position, V_UV).rgb,
+    //     texture(U_Normal, V_UV).rgb,
+    //     texture(U_Albedo_Alpha, V_UV).rgb,
+    //     texture(U_Albedo_Alpha, V_UV).a,
+    //     texture(U_Depth, V_UV).r
+    // );
 
-    // O_FragColour = vec4(fragment.Position, 1.0);
-    // O_FragColour = vec4(fragment.Normal, 1.0);
-    // O_FragColour = vec4(fragment.Diffuse, 1.0);
-    O_FragColour = vec4(fragment.Diffuse, fragment.Alpha);
-    // O_FragColour = vec4(vec3(fragment.Alpha), 1.0);
-    // O_FragColour = vec4(fragment.Depth);
+    // vec3 light = vec3(0.0);
+
+    // for (int i = 0; i < U_AreaLight.length(); ++i)
+    // {
+    //     light += CalcAreaLight(U_AreaLight[i]);
+    // }
+        
+    // for (int i = 0; i < U_DirectionalLight.length(); ++i)
+    // {
+    //     light += CalcDirectionalLight(U_DirectionalLight[i]);
+    // }
+
+    // O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
+    // O_FragColour = vec4(vec3(float(U_DirectionalLight.length()() / 16)), 1.0);
+    O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
 }
 `

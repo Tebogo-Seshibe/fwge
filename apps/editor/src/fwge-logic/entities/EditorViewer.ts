@@ -26,7 +26,7 @@ export class EditorViewer extends Entity
     {
         super();
         
-        this.camera = new PerspectiveCamera();
+        this.camera = new PerspectiveCamera({farClipping: 100});
         this.cameraTransform = new Transform({ position: [0, 1, 0] });
         this.transform = new Transform({ position: [0, 1, 10] });
 

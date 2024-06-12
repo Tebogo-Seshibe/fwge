@@ -74,7 +74,7 @@ export class RenderWindow
         this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080]);
         this.Offset = new Vector2(window.offset as Vector2Array ?? [0, 0]);
         this.Scale = new Vector2(window.scale as Vector2Array ?? [1, 1]);
-        this.RenderPipelineMode = window.renderPipelineMode ?? RenderPipelineMode.FORWARD;
+        this.RenderPipelineMode = window.renderPipelineMode ?? RenderPipelineMode.DEFERRED;
         this.RenderPipeline = window.pipeline ?? [];
         this.RenderPipelineMap = new Map([[RenderWindow.MainPassName, -1]]);
         this.RenderPipeline.forEach((step, index) => this.RenderPipelineMap.set(step.Name, index));
@@ -96,7 +96,7 @@ export class RenderWindow
                                     colour: [
                                         ColourType.FLOAT_RGB, // [Position.X, Position.Y, Position.Z]
                                         ColourType.FLOAT_RGB, // [Normal.X, Normal.Y, Normal.Z]
-                                        ColourType.BYTE_RGBA, // [Colour.R, Colour.G, Colour.B, Specular]
+                                        ColourType.BYTE_RGBA, // [Colour.R, Colour.G, Colour.B, Alpha]
                                     ],
                                     depth: DepthType.FLOAT32,
                                     height: this.Resolution[1] * this.Scale[1],

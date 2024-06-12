@@ -200,18 +200,11 @@ export class BasicLitMaterial extends Material
         }
     }
 
-    print = true
     BindBlock(): void
     BindBlock(shader: Shader): void
     BindBlock(shader: Shader, block: string, push: boolean): void
     BindBlock(shader: Shader = this.Shader, block = 'BasicLitMaterial', push: boolean = true): void
     {
-        if (this.print)
-        {
-            console.log(this)
-            console.log(shader)
-            this.print = false
-        }
         shader.SetBufferDataField(block, 'Colour', this.Colour);
         shader.SetBufferDataField(block, 'Shininess', this.Shininess);
         shader.SetBufferDataField(block, 'Alpha', this.Alpha);
