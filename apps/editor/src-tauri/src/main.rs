@@ -3,7 +3,6 @@
 
 mod commands;
 mod menu;
-mod utils;
 
 use menu::{build, config, open, open_recent, save, save_as, settings};
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};

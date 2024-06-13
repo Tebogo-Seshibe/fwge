@@ -12,7 +12,7 @@ export class Sun extends Entity {
             new DirectionalLight({
                 castShadows: true,
                 colour: [1,1,1],
-                intensity: 1
+                intensity: 0.5
             })
         )
     }

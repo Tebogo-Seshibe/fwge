@@ -133,7 +133,7 @@ export type UniformVariableRegexMatch = {
     type: string;
     name: string;
 };
-export const UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]+)(?<name>\w+)(?:[\n\s]*;)/g;
+export const UniformVariable = /(?:uniform[\n\s]+)(?<type>\w+)(?:[\n\s]?)(?:\[\d\][\n\s]?)?(?<name>\w+)(?:[\n\s]*;)/g;
 
 export type ShaderProp = {
     name: string;

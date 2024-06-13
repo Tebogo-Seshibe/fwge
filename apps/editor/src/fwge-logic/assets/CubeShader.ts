@@ -1,4 +1,4 @@
-export const cubeShaderVert = 
+export const cubeShaderVert =
 `#version 300 es
 #pragma vscode_glsllint_stage: vert
 
@@ -42,7 +42,8 @@ void main(void)
 }
 `;
 
-export const cubeShaderFrag = `#version 300 es
+export const cubeShaderFrag =
+`#version 300 es
 #pragma vscode_glsllint_stage: frag
 
 precision highp float;
@@ -96,7 +97,8 @@ void main(void)
 }
 `;
 
-export const finalPassShaderVert = `#version 300 es
+export const finalPassShaderVert =
+`#version 300 es
 #pragma vscode_glsllint_stage: vert
 
 layout(location = 0) in vec2 A_Position;
@@ -109,7 +111,8 @@ void main(void)
 }
 `
 
-export const finalPassShaderFrag = `#version 300 es
+export const finalPassShaderFrag =
+`#version 300 es
 #pragma vscode_glsllint_stage: frag
 
 precision highp float;
@@ -117,12 +120,6 @@ layout (std140) uniform;
 
 in vec2 V_UV;
 layout(location = 0) out vec4 O_FragColour;
-
-uniform sampler2D U_Position;
-uniform sampler2D U_Normal;
-uniform sampler2D U_Albedo_Alpha;
-uniform sampler2D U_Depth;
-uniform sampler2D U_Dir_Tex;
 
 struct Fragment
 {
@@ -132,8 +129,11 @@ struct Fragment
     float Alpha;
     float Depth;
 } fragment;
-
-
+uniform sampler2D U_Position;
+uniform sampler2D U_Normal;
+uniform sampler2D U_Albedo_Alpha;
+uniform sampler2D U_Depth;
+uniform sampler2D U_Dir_Tex;
 
 // Area Lighting ---------------------------------------
 struct AreaLight
@@ -148,8 +148,6 @@ vec3 CalcAreaLight(AreaLight light)
     return light.Colour * light.Intensity;
 }
 // Area Lighting ---------------------------------------
-
-
 
 // Directional Lighting --------------------------------
 struct DirectionalLight
@@ -167,7 +165,7 @@ struct DirectionalLight
 
     mat4 ShadowMatrix;
 };
-uniform DirectionalLight[8] U_DirectionalLight;
+uniform DirectionalLight[1] U_DirectionalLight;
 
 float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D shadowSampler, mat4 shadowMatrix)
 {
@@ -210,36 +208,39 @@ vec3 CalcDirectionalLight(DirectionalLight light)
     float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
     float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, light.ShadowMatrix); //U_OtherMatrix[0]);
-    float shadow = 1.0 - cascade;
+    float shadow = 1.0 ; // - cascade;
 
     return light.Colour * diffuse * light.Intensity * shadow;
 }
 // Directional Lighting --------------------------------
 
+
 void main(void)
 {
-    // fragment = Fragment(
-    //     texture(U_Position, V_UV).rgb,
-    //     texture(U_Normal, V_UV).rgb,
-    //     texture(U_Albedo_Alpha, V_UV).rgb,
-    //     texture(U_Albedo_Alpha, V_UV).a,
-    //     texture(U_Depth, V_UV).r
-    // );
+    fragment = Fragment(
+        texture(U_Position, V_UV).rgb,
+        texture(U_Normal, V_UV).rgb,
+        texture(U_Albedo_Alpha, V_UV).rgb,
+        texture(U_Albedo_Alpha, V_UV).a,
+        texture(U_Depth, V_UV).r
+    );
 
-    // vec3 light = vec3(0.0);
+    vec3 light = vec3(0.0);
 
-    // for (int i = 0; i < U_AreaLight.length(); ++i)
-    // {
-    //     light += CalcAreaLight(U_AreaLight[i]);
-    // }
+    for (int i = 0; i < U_AreaLight.length(); ++i)
+    {
+        light += CalcAreaLight(U_AreaLight[i]);
+    }
         
-    // for (int i = 0; i < U_DirectionalLight.length(); ++i)
-    // {
-    //     light += CalcDirectionalLight(U_DirectionalLight[i]);
-    // }
+    for (int i = 0; i < U_DirectionalLight.length(); ++i)
+    {
+        light += CalcDirectionalLight(U_DirectionalLight[i]);
+    }
 
-    // O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
+    O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
     // O_FragColour = vec4(vec3(float(U_DirectionalLight.length()() / 16)), 1.0);
-    O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
+    // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
+    // O_FragColour = vec4(U_AreaLight[0].Colour, 1.0);
+    // O_FragColour = vec4(vec3(U_DirectionalLight[0].CastShadows), 1.0);
 }
 `

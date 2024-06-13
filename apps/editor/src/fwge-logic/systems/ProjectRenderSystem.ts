@@ -40,6 +40,8 @@ export class ProjectRenderSystem extends System
             finalPassShaderFrag
         );
 
+        console.log(this.finalPassShader)
+
         this.window = new DefaultWindow()
         // new RenderWindow({
         //     renderPipelineMode: RenderPipelineMode.DEFERRED,
@@ -101,13 +103,16 @@ export class ProjectRenderSystem extends System
         this.finalPassShader.SetTexture('U_Depth', this.window.FinalComposite.DepthAttachment!)
         this.finalPassShader.SetTexture(`U_Dir_Tex`, Registry.GetComponent(Registry.GetView(this.directionalLightView)[0]!, DirectionalLight)!.RenderTarget.DepthAttachment!);
 
-        let i = 0;
+        let a = 0;
         for (var entityId of Registry.GetView(this.areaLightView))
         {
-            this.finalPassShader.SetFloatVector(`U_AreaLight[${i}].Colour`, Registry.GetComponent(entityId, AreaLight)!.Colour)
-            this.finalPassShader.SetFloat(`U_AreaLight[${i}].Intensity`, Registry.GetComponent(entityId, AreaLight)!.Intensity)
+            const light = Registry.GetComponent(entityId, AreaLight)!;
+            this.finalPassShader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour);
+            this.finalPassShader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity);
+            a++
         }
-        i = 0;
+
+        let d = 0;
         for (var entityId of Registry.GetView(this.directionalLightView))
         {
             const light = Registry.GetComponent(entityId, DirectionalLight)!;
@@ -121,18 +126,21 @@ export class ProjectRenderSystem extends System
                 0,0,1
             ).Normalize()
 
-            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${i}].Colour`, light.Colour);
-            this.finalPassShader.SetFloat(`U_DirectionalLight[${i}].Intensity`, light.Intensity);
+            // light.BindBlock(this.finalPassShader, `U_DirectionalLight[${d}]`)
+            
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${i}].Direction`, direction);
-            this.finalPassShader.SetBool(`U_DirectionalLight[${i}].CastShadows`, light.CastShadows);
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction);
+            this.finalPassShader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
-            this.finalPassShader.SetFloat(`U_DirectionalLight[${i}].TexelSize`, 1 / light.RenderTarget.Width);
-            this.finalPassShader.SetFloat(`U_DirectionalLight[${i}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
-            this.finalPassShader.SetFloat(`U_DirectionalLight[${i}].Bias`, light.Bias);
-            this.finalPassShader.SetFloat(`U_DirectionalLight[${i}].PCFLevel`, light.PCFLevel);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
 
-            this.finalPassShader.SetMatrix(`U_DirectionalLight[${i}].ShadowMatrix`, light.ShadowMatrix);
+            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix);
+            d++
         }
         
         GL.bindVertexArray(this.window.Panel.VertexArrayBuffer);

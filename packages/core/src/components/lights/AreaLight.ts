@@ -123,4 +123,27 @@ export class AreaLight extends Light
         shader.SetFloatVector('U_AreaLight.Colour', this.Colour)
         shader.SetFloat('U_AreaLight.Intensity', this.Intensity)
     }
+    
+    BindBlock(shader: Shader): void
+    BindBlock(shader: Shader, block: string): void
+    BindBlock(shader: Shader, block: string, offset: number): void
+    BindBlock(shader: Shader, block: string, push: boolean): void
+    BindBlock(shader: Shader, block: string, push: boolean, offset: number): void
+    BindBlock(shader: Shader, block = 'AreaLight', push_offset: number | boolean = true, offset: number = 0): void
+    {
+        const push = typeof push_offset === 'number'
+            ? true
+            : push_offset
+        offset = typeof push_offset === 'number'
+            ? push_offset
+            : offset
+            
+        shader.SetBufferDataField(block, 'Colour', this.Colour, offset);
+        shader.SetBufferDataField(block, 'Intensity', this.Intensity, offset);
+
+        if (push)
+        {
+            shader.PushBufferData(block);
+        }
+    }
 }

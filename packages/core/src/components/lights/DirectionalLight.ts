@@ -159,11 +159,11 @@ export class DirectionalLight extends Light
 
     get CastShadows()
     {
-        return this._castShadows.Value === 0;
+        return this._castShadows.Value === 1;
     }
     set CastShadows(castShadows: boolean)
     {
-        this._castShadows.Value = castShadows ? 0 : 1;
+        this._castShadows.Value = castShadows ? 1 : 0;
     }
 
     get Bias()
@@ -191,7 +191,7 @@ export class DirectionalLight extends Light
     constructor(light: IDirectionalLight = {})
     {
         super(light.colour, light.intensity, new Float32Array(28));
-
+        
         this._direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
         this._castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
         this._texelSize = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8);
@@ -201,7 +201,7 @@ export class DirectionalLight extends Light
         this._shadowMatrix = new Matrix4(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12);
 
         this._direction.Set(DirectionalLight.DefaultDirection);
-        this.CastShadows = light.castShadows ?? true;
+        this.CastShadows = light.castShadows ?? false;
         this.Bias = light.bias ?? 0.025;
         this.PCFLevel = light.pcfLevel ?? 2;
         this._shadowMatrix.Identity();
@@ -308,8 +308,9 @@ export class DirectionalLight extends Light
         const matrix = Registry.GetEntity(parentId)?.GetComponent(Transform)?.GlobalModelViewMatrix() ?? Matrix4.Identity;
         this.RenderTarget.Bind();
         DirectionalLight.ShadowShader.Bind();
+        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ViewMatrix);
         // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix);
-        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', Matrix4.Multiply(this.ViewMatrix, matrix));
+        // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', Matrix4.Multiply(this.ViewMatrix.Transpose(), matrix));
         // console.log(Matrix4.Multiply(this.ViewMatrix, matrix).toString())
         // console.log(this.ViewMatrix.toString())
         // console.log(matrix.toString())
@@ -352,8 +353,8 @@ export class DirectionalLight extends Light
         if (!DirectionalLight._shadowShader)
         {
             DirectionalLight._shadowShader = new Shader
-                (
-                    `#version 300 es
+            (
+                `#version 300 es
                 #pragma vscode_glsllint_stage: vert
                 precision highp float;
 
@@ -371,7 +372,7 @@ export class DirectionalLight extends Light
                     gl_Position = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
                 }`,
 
-                    `#version 300 es
+                `#version 300 es
                 #pragma vscode_glsllint_stage: frag
                 precision highp float;
 
