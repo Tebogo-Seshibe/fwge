@@ -7,7 +7,7 @@ export class Sun extends Entity {
 
         this.AddComponents(
             new Transform({
-                rotation: [30,0,0]
+                rotation: [0,0,0]
             }),
             new DirectionalLight({
                 castShadows: true,

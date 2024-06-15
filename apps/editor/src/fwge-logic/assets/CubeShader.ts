@@ -19,26 +19,26 @@ struct Vertex
 };
 out Vertex V_Vertex;
 
-uniform Object
+uniform Transform
 {
-    mat4 ModelViewMatrix;
-    mat3 NormalMatrix;
-} object;
+    mat4 Model;
+    mat3 Normal;
+} transform;
 
 uniform Camera
 {
-    mat4 ViewMatrix;
-    mat4 ProjectionMatrix;
+    mat4 View;
+    mat4 Projection;
 } camera;
 
 void main(void)
 {
-    V_Vertex.Position = (object.ModelViewMatrix * vec4(A_Position, 1.0)).xyz;    
-    V_Vertex.Normal = normalize(object.NormalMatrix * A_Normal);
+    V_Vertex.Position = (transform.Model * vec4(A_Position, 1.0)).xyz;    
+    V_Vertex.Normal = normalize(transform.Normal * A_Normal);
     V_Vertex.UV = A_UV;
     V_Vertex.Colour = A_Colour.rgb;
     
-    gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(V_Vertex.Position, 1.0);
+    gl_Position = camera.Projection * camera.View * vec4(V_Vertex.Position, 1.0);
 }
 `;
 
@@ -163,7 +163,8 @@ struct DirectionalLight
     float Bias;
     float PCFLevel;
 
-    mat4 ShadowMatrix;
+    mat4 ProjectionMatrix;
+    mat4 ViewMatrix;
 };
 uniform DirectionalLight[1] U_DirectionalLight;
 
@@ -205,10 +206,11 @@ float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D 
 
 vec3 CalcDirectionalLight(DirectionalLight light)
 {
+    mat4 shadowMatrix = light.ProjectionMatrix * light.ViewMatrix;
     float val = dot(fragment.Normal, light.Direction);
     float diffuse = max(val, 0.0);
-    float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, light.ShadowMatrix); //U_OtherMatrix[0]);
-    float shadow = 1.0 ; // - cascade;
+    float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, shadowMatrix); //U_OtherMatrix[0]);
+    float shadow = 1.0 - cascade;
 
     return light.Colour * diffuse * light.Intensity * shadow;
 }
@@ -226,20 +228,27 @@ void main(void)
     );
 
     vec3 light = vec3(0.0);
+    vec3 area = vec3(0.0);
+    vec3 dir = vec3(0.0);
 
     for (int i = 0; i < U_AreaLight.length(); ++i)
     {
-        light += CalcAreaLight(U_AreaLight[i]);
+        area += CalcAreaLight(U_AreaLight[i]);
     }
         
     for (int i = 0; i < U_DirectionalLight.length(); ++i)
     {
-        light += CalcDirectionalLight(U_DirectionalLight[i]);
+        dir += CalcDirectionalLight(U_DirectionalLight[i]);
     }
 
+    light = area + dir;
+    
     O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
-    // O_FragColour = vec4(vec3(float(U_DirectionalLight.length()() / 16)), 1.0);
-    // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
+    O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
+    // O_FragColour = vec4(area, 1.0);
+    // O_FragColour = vec4(dir, 1.0);
+    // O_FragColour = vec4(light, 1.0);
+    // O_FragColour = vec4(vec3(float(U_DirectionalLight.length() / 16)), 1.0);
     // O_FragColour = vec4(U_AreaLight[0].Colour, 1.0);
     // O_FragColour = vec4(vec3(U_DirectionalLight[0].CastShadows), 1.0);
 }

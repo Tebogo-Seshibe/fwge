@@ -238,8 +238,10 @@ export class Shader extends Asset
     }
 
     constructor(vertexShader: string, fragmentShader: string)
+    constructor(vertexShader: string, fragmentShader: string, name: string)
+    constructor(vertexShader: string, fragmentShader: string, name: string = 'Shader')
     {
-        super(Shader);
+        super(name, Shader);
 
         this._rawVertexSource = vertexShader;
         this._rawFragmentSource = fragmentShader;
@@ -568,7 +570,7 @@ export class Shader extends Asset
         }
 
         const layout = uniformBlock.layout.fields[field]!;
-
+        
         switch (layout.size) {
             case 1:
                 uniformBlock.data[layout.offset + offset + 0] = data[0];

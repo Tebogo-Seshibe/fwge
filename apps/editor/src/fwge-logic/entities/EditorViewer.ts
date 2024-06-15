@@ -1,5 +1,5 @@
 import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { PerspectiveCamera, Transform } from "@fwge/core";
+import { type Camera, OrthographicCamera, PerspectiveCamera, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
 import { EditorTag } from "../components/EditorTag";
@@ -26,9 +26,9 @@ export class EditorViewer extends Entity
     {
         super();
         
-        this.camera = new PerspectiveCamera({farClipping: 100});
+        this.camera = new PerspectiveCamera({ farClipping: 100 });
         this.cameraTransform = new Transform({ position: [0, 1, 0] });
-        this.transform = new Transform({ position: [0, 1, 10] });
+        this.transform = new Transform({ position: [0, 0, 10] });
 
         this.AddChild(
             new Entity()

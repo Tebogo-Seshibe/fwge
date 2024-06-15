@@ -56,11 +56,11 @@ export class Transform extends Component
         while (ownerId !== -1)
         {
             const transform = Registry.GetComponent(ownerId, Transform);
+            
             if (transform)
             {
                 rotation.Add(transform.Rotation);
             }
-            console.log(rotation.X)
                 
             ownerId = Registry.GetParentId(ownerId);
         }

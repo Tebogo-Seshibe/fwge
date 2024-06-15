@@ -303,17 +303,21 @@ export class DirectionalLight extends Light
         }
     }
 
+    i = 0
     BindForShadows(parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
     {
-        const matrix = Registry.GetEntity(parentId)?.GetComponent(Transform)?.GlobalModelViewMatrix() ?? Matrix4.Identity;
+        const matrix = Matrix4.Identity;
+        const transform = Registry.GetEntity(parentId)?.GetComponent(Transform);
+        if (transform)
+        {
+            const rotation = transform.GlobalRotation(parentId)
+            Matrix4.RotationMatrix(rotation.X - 90, rotation.Y, rotation.Z, matrix).Inverse();
+        }
+
         this.RenderTarget.Bind();
         DirectionalLight.ShadowShader.Bind();
-        DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ViewMatrix);
-        // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', this.ShadowMatrix);
-        // DirectionalLight.ShadowShader.SetMatrix('U_Matrix.Shadow', Matrix4.Multiply(this.ViewMatrix.Transpose(), matrix));
-        // console.log(Matrix4.Multiply(this.ViewMatrix, matrix).toString())
-        // console.log(this.ViewMatrix.toString())
-        // console.log(matrix.toString())
+        DirectionalLight.ShadowShader.SetMatrix('U_Shadow.Projection', this.ProjectionMatrix, true);
+        DirectionalLight.ShadowShader.SetMatrix('U_Shadow.View', matrix, true);
     }
 
     UnbindForShadows()
@@ -321,7 +325,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ViewMatrix = Matrix4.BasicOrthographicProjection(-30, -30, -30, 30, 30, 30);
+    readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-50, -50, -50, 50, 50, 50);
 
     get ModelMatrix(): Matrix4
     {
@@ -344,7 +348,7 @@ export class DirectionalLight extends Light
 
     get ShadowMatrix(): Matrix4
     {
-        return Matrix4.Multiply(this.ViewMatrix, this.ModelMatrix);
+        return Matrix4.Multiply(this.ProjectionMatrix, this.ModelMatrix);
     }
 
     static _shadowShader: Shader;
@@ -360,16 +364,22 @@ export class DirectionalLight extends Light
 
                 layout(location = 0) in vec3 A_Position;
 
-                struct Matrix
+                struct Transform
                 {
                     mat4 ModelView;
-                    mat4 Shadow;
                 };
-                uniform Matrix U_Matrix;
+                uniform Transform U_Transform;
+
+                struct Shadow
+                {
+                    mat4 View;
+                    mat4 Projection;
+                };
+                uniform Shadow U_Shadow;
                 
                 void main(void)
                 {
-                    gl_Position = U_Matrix.Shadow * U_Matrix.ModelView * vec4(A_Position, 1.0);
+                    gl_Position = U_Shadow.Projection * U_Shadow.View * U_Transform.ModelView * vec4(A_Position, 1.0);
                 }`,
 
                 `#version 300 es

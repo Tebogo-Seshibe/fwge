@@ -127,15 +127,15 @@ export class OrthographicCamera extends Camera
     
     override UpdateProjection(): void
     {
-        Matrix4.OrthographicProjection(
+        Matrix4.BasicOrthographicProjection(
             this.Left,
             this.Bottom,
             this.Near,
             this.Right,
             this.Top,
             this.Far,
-            this.VerticalTilt,
-            this.HorizontalTilt, 
+            // this.VerticalTilt,
+            // this.HorizontalTilt, 
             this.ProjectionMatrix
         )
     }

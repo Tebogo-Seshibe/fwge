@@ -1,4 +1,4 @@
-import { GL, Matrix3 } from "@fwge/common";
+import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
 import { AreaLight, BasicLitMaterial, Camera, ColourType, DefaultWindow, DepthType, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderPipelineMode, RenderPipelineStep, RenderTarget, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
 import { Registry, System, type EntityId } from "@fwge/ecs";
 import { EditorTag } from "../components/EditorTag";
@@ -80,16 +80,16 @@ export class ProjectRenderSystem extends System
     {
         GL.enable(GL.DEPTH_TEST);
         GL.enable(GL.CULL_FACE);
-        GL.cullFace(GL.BACK);
         GL.depthMask(true);
-
+        
+        GL.cullFace(GL.FRONT);
         for (var entityId of Registry.GetView(this.directionalLightView))
         {
             this.renderShadows(entityId, Registry.GetComponent(entityId, DirectionalLight)!); 
         }
+        GL.cullFace(GL.BACK);
             
-        this.window.MainPass.Output.Bind()
-        this.renderScene(); 
+        this.renderScene(this.window);
         
         GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
@@ -117,21 +117,18 @@ export class ProjectRenderSystem extends System
         {
             const light = Registry.GetComponent(entityId, DirectionalLight)!;
             const transform = Registry.GetComponent(entityId, Transform)!;
-            const rotx = transform?.GlobalRotation().X ?? 0;
-            const roty = transform?.GlobalRotation().Y ?? 0;
-            const rotz = transform?.GlobalRotation().Z ?? 0;
-
-            const direction = Matrix3.MultiplyVector(
-                Matrix3.RotationMatrix(-rotx + 90, -roty, rotz),
-                0,0,1
-            ).Normalize()
-
-            // light.BindBlock(this.finalPassShader, `U_DirectionalLight[${d}]`)
+            const rotation = transform.GlobalPosition(entityId);
+            const rotationMatrix = Matrix4.RotationMatrix(rotation.X - 90, rotation.Y, rotation.Z);
+            const direction = Matrix4.MultiplyVector(
+                rotationMatrix,
+                [...DirectionalLight.DefaultDirection, 1] as Vector4Array
+            );
+            console.log(direction.toString())
             
             this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction);
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.XYZ.Negate());
             this.finalPassShader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
@@ -139,7 +136,8 @@ export class ProjectRenderSystem extends System
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
 
-            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ShadowMatrix`, light.ShadowMatrix);
+            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ProjectionMatrix`, light.ProjectionMatrix, true);
+            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ViewMatrix`, rotationMatrix, true);
             d++
         }
         
@@ -152,7 +150,6 @@ export class ProjectRenderSystem extends System
 
     private renderShadows(parentId: number, light: DirectionalLight)
     {
-        // console.log(light)
         light.BindForShadows(parentId);
 
         
@@ -187,30 +184,32 @@ export class ProjectRenderSystem extends System
             switch (renderer.RenderMode)
             {
                 case RenderMode.FACE:
-                    {
-                        renderMode = GL.TRIANGLES;
-                        renderCount = mesh.FaceCount;
-                        buffer = mesh.IsIndexed ? mesh.FaceBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.TRIANGLES;
+                    renderCount = mesh.FaceCount;
+                    buffer = mesh.IsIndexed ? mesh.FaceBuffer : null;
+                }
+                break;
 
                 case RenderMode.EDGE:
-                    {
-                        renderMode = GL.LINES;
-                        renderCount = mesh.EdgeCount;
-                        buffer = mesh.IsIndexed ? mesh.EdgeBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.LINES;
+                    renderCount = mesh.EdgeCount;
+                    buffer = mesh.IsIndexed ? mesh.EdgeBuffer : null;
+                }
+                break;
 
                 case RenderMode.POINT:
-                    {
-                        renderMode = GL.POINTS;
-                        renderCount = mesh.PointCount;
-                        buffer = mesh.IsIndexed ? mesh.PointBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.POINTS;
+                    renderCount = mesh.PointCount;
+                    buffer = mesh.IsIndexed ? mesh.PointBuffer : null;
+                }
+                break;
             }
-
+            
+            DirectionalLight.ShadowShader.SetMatrix('U_Transform.ModelView', transform.GlobalModelViewMatrix(), true)
+            
             if (mesh instanceof InstanceMesh)
             {
                 this.drawInstanceMesh(entityId, mesh, transform, null, buffer, renderMode, renderCount);
@@ -224,14 +223,14 @@ export class ProjectRenderSystem extends System
         light.UnbindForShadows();
     }
 
-    private renderScene()
+    private renderScene(window: RenderWindow)
     {
+        window.MainPass.Output.Bind()
+        
         const cameraEntityId = Registry.GetView(this.cameraView)[0];
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
         const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;
-
-        const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId);
-        const cameraMVInverse = cameraMV.Inverse();
+        const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId).Inverse();
 
         for (const entityId of Registry.GetView(this.renderableView))
         {
@@ -255,8 +254,8 @@ export class ProjectRenderSystem extends System
 
             shader.Bind();
 
-            shader.SetBufferDataField('Camera', 'ViewMatrix', cameraMVInverse, true);
-            shader.SetBufferDataField('Camera', 'ProjectionMatrix', cameraCamera.ProjectionMatrix, true);
+            shader.SetBufferDataField('Camera', 'View', cameraMV, true);
+            shader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
             shader.PushBufferData('Camera');
 
             material.BindBlock(shader)
@@ -268,28 +267,28 @@ export class ProjectRenderSystem extends System
             switch (renderer.RenderMode)
             {
                 case RenderMode.FACE:
-                    {
-                        renderMode = GL.TRIANGLES;
-                        renderCount = mesh.FaceCount;
-                        buffer = mesh.IsIndexed ? mesh.FaceBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.TRIANGLES;
+                    renderCount = mesh.FaceCount;
+                    buffer = mesh.IsIndexed ? mesh.FaceBuffer : null;
+                }
+                break;
 
                 case RenderMode.EDGE:
-                    {
-                        renderMode = GL.LINES;
-                        renderCount = mesh.EdgeCount;
-                        buffer = mesh.IsIndexed ? mesh.EdgeBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.LINES;
+                    renderCount = mesh.EdgeCount;
+                    buffer = mesh.IsIndexed ? mesh.EdgeBuffer : null;
+                }
+                break;
 
                 case RenderMode.POINT:
-                    {
-                        renderMode = GL.POINTS;
-                        renderCount = mesh.PointCount;
-                        buffer = mesh.IsIndexed ? mesh.PointBuffer : null;
-                    }
-                    break;
+                {
+                    renderMode = GL.POINTS;
+                    renderCount = mesh.PointCount;
+                    buffer = mesh.IsIndexed ? mesh.PointBuffer : null;
+                }
+                break;
             }
 
             if (mesh instanceof InstanceMesh)
@@ -312,9 +311,9 @@ export class ProjectRenderSystem extends System
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
-        shader?.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
-        shader?.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader?.PushBufferData('Object');
+        shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader?.PushBufferData('Transform');
 
         if (buffer)
         {
@@ -335,9 +334,9 @@ export class ProjectRenderSystem extends System
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
-        shader?.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
-        shader?.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader?.PushBufferData('Object');
+        shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader?.PushBufferData('Transform');
 
         if (buffer)
         {
