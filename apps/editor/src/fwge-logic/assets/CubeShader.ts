@@ -2,6 +2,8 @@ export const cubeShaderVert =
 `#version 300 es
 #pragma vscode_glsllint_stage: vert
 
+//#include its_a_potato
+
 layout (std140) uniform;
 precision highp float;
 

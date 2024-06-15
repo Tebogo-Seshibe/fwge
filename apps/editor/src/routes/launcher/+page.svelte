@@ -16,7 +16,7 @@
 		FolderOpenSolid,
 		GridPlusOutline
 	} from 'flowbite-svelte-icons';
-	import { createNewOpen } from '../../commands/project';
+	import { createNewOpen, openProject } from '../../commands/project';
 	import type { FWGEProjectFile } from '../../utils/types.utils';
 
 	type CurrentPage = 'home' | 'create' | 'open';
@@ -37,8 +37,8 @@
 			title: 'Open Project',
 			filters: [
 				{
-					extensions: ['json'],
-					name: 'FWGE Project JSON File'
+					extensions: ['yml', 'yaml'],
+					name: 'FWGE Project YAML File'
 				}
 			]
 		})) as string | null;
@@ -47,15 +47,16 @@
 			return;
 		}
 
-		const json = await fs.readTextFile(file);
-		try {
-			const projectDef = JSON.parse(json) as FWGEProjectFile;
+        fullProjectPath = 'file';
+        await openProject(file)
+		// const json = await fs.readTextFile(file);
+		// try {
+		// 	const projectDef = JSON.parse(json) as FWGEProjectFile;
 
-			fullProjectPath = file;
-			projectThumbnailPath = projectDef.project.thumbnail;
-		} catch {
-			dialog.message('Invalid FWGE Project File');
-		}
+		// 	// projectThumbnailPath = projectDef.project.thumbnail;
+		// } catch {
+		// 	dialog.message('Invalid FWGE Project File');
+		// }
 	}
 
 	async function newProjectDialog(): Promise<void> {

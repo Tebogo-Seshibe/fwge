@@ -1,10 +1,7 @@
-use crate::utils::cli;
+use std::{borrow::Borrow, fs, str::FromStr};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-pub fn greet(name: &str) -> String {
-    return format!("Hello, {}! You've been greeted from Rust!\n\r", name);
-}
+use crate::{fwge::{parseFWGEProject, Build, FWGEProject, General, Libraries, Library, Scripts, Target}, utils::cli};
+use yaml_rust2::YamlLoader;
 
 #[tauri::command]
 pub fn create(project_name: &str, project_path: &str) -> String {
@@ -12,4 +9,15 @@ pub fn create(project_name: &str, project_path: &str) -> String {
     println!("{}", message);
 
     message
+} 
+
+
+#[tauri::command]
+pub fn open(file_path: &str) -> Result<FWGEProject, String> {
+    let string = fs::read_to_string(file_path).unwrap();
+
+    match parseFWGEProject(string) {
+        Ok(fwge) => fwge,
+        Err() => "Failed to parse file".to_string()
+    }
 } 

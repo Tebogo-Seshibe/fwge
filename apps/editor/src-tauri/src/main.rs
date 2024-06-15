@@ -3,6 +3,8 @@
 
 mod commands;
 mod menu;
+mod utils;
+mod fwge;
 
 use menu::{build, config, open, open_recent, save, save_as, settings};
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
@@ -99,7 +101,7 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::greet, commands::create])
+        .invoke_handler(tauri::generate_handler![commands::create, commands::open])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

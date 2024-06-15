@@ -742,8 +742,12 @@ export class Shader extends Asset
     }
 
     SetInt(name: string, int: number): void
+    SetInt(name: string, int: Scalar): void
+    SetInt(name: string, int: [number]): void
     SetInt(name: string, int: number, unsigned: boolean): void
-    SetInt(name: string, int: number, unsigned: boolean = false): void
+    SetInt(name: string, int: [number], unsigned: boolean): void
+    SetInt(name: string, int: Scalar, unsigned: boolean): void
+    SetInt(name: string, int: Scalar | [number] | number, unsigned: boolean = false): void
     {
         const location = this._getLocation(name);
         if (!location)
@@ -751,13 +755,27 @@ export class Shader extends Asset
             return;
         }
 
-        if (unsigned)
+        if (typeof int === 'number')
         {
-            GL.uniform1ui(location, int);
+            if (unsigned)
+            {
+                GL.uniform1ui(location, int);
+            }
+            else
+            {
+                GL.uniform1i(location, int);
+            }
         }
         else
         {
-            GL.uniform1i(location, int);
+            if (unsigned)
+            {
+                GL.uniform1uiv(location, int as [number]);
+            }
+            else
+            {
+                GL.uniform1iv(location, int as [number]);
+            }
         }
     }
 

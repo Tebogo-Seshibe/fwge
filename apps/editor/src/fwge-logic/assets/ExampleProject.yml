@@ -1,0 +1,49 @@
+# FWGE YAML Project File
+
+file-version: '0.0.1'
+
+general:
+  name: FWGE Example Project
+  author: Tebogo Christopher Seshibe
+
+libraries:
+  internal:
+    - display-name: common 
+      name: '@fwge/common'
+      version: '0.0.1'
+      source: npm
+    - display-name: core
+      name: '@fwge/core'
+      version: '0.0.1'
+      source: npm
+    - display-name: ecs
+      name: '@fwge/ecs'
+      version: '0.0.1'
+      source: npm
+  external:
+
+build:
+  scripts:
+    debug: dev
+    production: build:app
+    
+  targets:
+    - platform: web
+      height: 1080
+      width: 1920
+    - platform: pwa
+      height: 1080
+      width: 1920
+    - platform: desktop
+      height: 1080
+      width: 1920
+    
+scenes:
+  - name: Scene1
+#     entites:
+#       - 
+
+# shared:
+#   - 
+
+# data:

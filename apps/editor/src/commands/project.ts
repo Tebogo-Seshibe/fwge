@@ -12,11 +12,11 @@ export async function createNewOpen(projectName: string, projectPath: string): P
     }
 }
 
-export async function openProject(projectPath: string): Promise<void>
+export async function openProject(filePath: string): Promise<void>
 {
     try
     {
-        await invoke('open', { projectPath });
+        console.log(await invoke('open', { filePath }));
     }
     catch(e: any)
     {
