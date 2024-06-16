@@ -9,8 +9,6 @@ mod fwge;
 use menu::{build, config, open, open_recent, save, save_as, settings};
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-
 fn main() {
     let file_sub_menu = Submenu::new(
         "File", 

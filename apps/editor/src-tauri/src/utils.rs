@@ -7,7 +7,7 @@ pub fn cli(command: Vec<&str>) -> String {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
-        .expect("failed to execute process");
+        .expect("Failed to execute command");
 
     let output = match result.status.success() {
         true => result.stdout,
@@ -16,6 +16,6 @@ pub fn cli(command: Vec<&str>) -> String {
 
     match String::from_utf8(output) {
         Ok(s) => s,
-        Err(_) => String::from("failed to parse command output"),
+        Err(_) => String::from("Failed to parse command output"),
     }
 }

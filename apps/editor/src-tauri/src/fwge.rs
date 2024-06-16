@@ -1,6 +1,5 @@
 use serde::{ser::SerializeStruct, Serialize};
 use yaml_rust2::YamlLoader;
-
 pub struct FWGEProject {
     pub file_version: String,
     pub general: General,
