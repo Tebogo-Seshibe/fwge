@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialog, fs, window } from '@tauri-apps/api';
+	import { dialog, window } from '@tauri-apps/api';
 	import {
 		Button,
 		ButtonGroup,
@@ -16,10 +16,14 @@
 		FolderOpenSolid,
 		GridPlusOutline
 	} from 'flowbite-svelte-icons';
-	import { createNewOpen, openProject } from '../../commands/project';
-	import type { FWGEProjectFile } from '../../utils/types.utils';
+	import { FwgeDbContext } from 'stores/fwgeDbContext';
+	import type { Project } from 'stores/project.model';
+	import { onMount } from 'svelte';
+	import { createNewOpen, openProject } from 'utils/project.commands';
 
 	type CurrentPage = 'home' | 'create' | 'open';
+
+	let db: FwgeDbContext;
 
 	let imageRef: HTMLImageElement;
 	let currentPage: CurrentPage = 'home';
@@ -27,7 +31,17 @@
 	let projectPath: string | undefined;
 	let fullProjectPath: string | undefined;
 	let projectThumbnailPath: string | undefined;
-	let previousProjects: string[] = ['Unbreak My Heart', 'Example Project'];
+	let previousProjects: Project[] = [];
+
+	onMount(async () => {
+		db = new FwgeDbContext();
+		try {
+			await db.connect();
+			previousProjects = await db.projects.getAll();
+		} catch (e) {
+			console.error(e);
+		}
+	});
 
 	async function openProjectDialog(): Promise<void> {
 		const file = (await dialog.open({
@@ -47,13 +61,30 @@
 			return;
 		}
 
-        const fwge = await openProject(file);
-        if (typeof fwge === 'string') {
-            dialog.message(fwge);
-        } else {
-            fullProjectPath = file;
-            projectName = fwge.general.name;
-        }
+		const fwge = await openProject(file);
+		if (typeof fwge === 'string') {
+			dialog.message(fwge);
+		} else {
+			fullProjectPath = file;
+			projectName = fwge.general.name;
+
+			await db.projects.create({
+				name: fwge.general.name,
+				filePath: file,
+				lastModfied: new Date().toUTCString()
+			});
+		}
+	}
+
+	async function setProject(project: Project): Promise<void> {
+		console.log(project);
+		const fwge = await openProject(project.filePath);
+		if (typeof fwge === 'string') {
+			dialog.message(fwge);
+		} else {
+			fullProjectPath = project.filePath;
+			projectName = fwge.general.name;
+		}
 	}
 
 	async function newProjectDialog(): Promise<void> {
@@ -155,7 +186,14 @@
 
 				<List>
 					{#each previousProjects as previousProject}
-						<Label class="text-white mb-2">{previousProject}</Label>
+						<Label class="text-white mb-2">
+							<span
+								tabindex="0"
+								role="button"
+								on:keypress={() => setProject(previousProject)}
+								on:click={() => setProject(previousProject)}
+                            >{previousProject.name}</span>
+						</Label>
 					{/each}
 				</List>
 			</div>
@@ -171,7 +209,7 @@
 						placeholder="Path to project folder"
 					/>
 				</ButtonGroup>
-                
+
 				<Label class="text-white font-bold text-base mb-1">{projectName ?? ''}</Label>
 
 				{#if projectThumbnailPath}
