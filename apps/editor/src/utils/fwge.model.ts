@@ -1,39 +1,39 @@
 export interface FWGEProject {
-    file_version: string,
-    general: General,
-    libraries: Libraries,
+    file_version: string
+    general: General
+    libraries: Libraries
     build: Build
 }
 
 export interface General {
-    name: string,
+    name: string
     author: string
 }
 
 export interface Libraries {
-    internal: Array<Library>,
-    external: Array<Library>
+    internal: Library[]
+    external: Library[]
 }
 
 export interface Library {
-    display_name: string,
-    name: string,
-    version: string,
+    display_name: string
+    name: string
+    version: string
     source: string
 }
 
 export interface Build {
-    scripts: Scripts,
-    targets: Array<Target>
+    scripts: Scripts
+    targets: Target[]
 }
 
 export interface Scripts {
-    debug: string,
+    debug: string
     production: string
 }
 
 export interface Target {
-    platform: string,
-    height: number,
+    platform: string
+    height: number
     width: number
 }

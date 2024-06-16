@@ -55,7 +55,7 @@ export class DbContext
         });
     }
 
-    createDbSet(name: string, id: string, indexes: {field: string, unique: boolean}[]): void
+    private createDbSet(name: string, id: string, indexes: {field: string, unique: boolean}[]): void
     {
         const store = this.database?.createObjectStore(name, { keyPath: id, autoIncrement: true });
         

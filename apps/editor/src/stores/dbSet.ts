@@ -39,7 +39,23 @@ export class DbSet<T>
             request.addEventListener('success', () => {
                 resolve();
             });
-            transaction.commit();
+        });
+    }
+    
+    getById(id: number): Promise<T>
+    {
+        return new Promise<T>((resolve, reject) =>
+        {
+            const transaction = this.dbContext.Database!.transaction(this.config.name, 'readwrite');
+            const store = transaction.objectStore(this.config.name);
+    
+            var request = store.get(id);
+            request.addEventListener('error', () => {
+                reject(request.error!.message);
+            });
+            request.addEventListener('success', () => {
+                resolve(request.result);
+            });
         });
     }
 
@@ -57,8 +73,40 @@ export class DbSet<T>
             request.addEventListener('success', () => {
                 resolve(request.result);
             });
+        });
+    }
     
-            transaction.commit();
+    update(id: number): Promise<void>
+    {
+        return new Promise<void>((resolve, reject) =>
+        {
+            const transaction = this.dbContext.Database!.transaction(this.config.name, 'readwrite');
+            const store = transaction.objectStore(this.config.name);
+    
+            var request = store.put(id);
+            request.addEventListener('error', () => {
+                reject(request.error!.message);
+            });
+            request.addEventListener('success', () => {
+                resolve();
+            });
+        });
+    }
+    
+    delete(id: number): Promise<void>
+    {
+        return new Promise<void>((resolve, reject) =>
+        {
+            const transaction = this.dbContext.Database!.transaction(this.config.name, 'readwrite');
+            const store = transaction.objectStore(this.config.name);
+    
+            var request = store.delete(id);
+            request.addEventListener('error', () => {
+                reject(request.error!.message);
+            });
+            request.addEventListener('success', () => {
+                resolve();
+            });
         });
     }
 }

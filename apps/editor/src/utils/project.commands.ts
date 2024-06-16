@@ -9,7 +9,7 @@ export async function createNewOpen(projectName: string, projectPath: string): P
     }
     catch(e: any)
     {
-        console.log(e);
+        console.error(e);
     }
 }
 

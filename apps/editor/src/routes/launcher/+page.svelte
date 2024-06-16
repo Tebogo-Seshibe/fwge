@@ -16,10 +16,10 @@
 		FolderOpenSolid,
 		GridPlusOutline
 	} from 'flowbite-svelte-icons';
-	import { FwgeDbContext } from 'stores/fwgeDbContext';
-	import type { Project } from 'stores/project.model';
+	import { FwgeDbContext } from '../../stores/fwgeDbContext';
+	import type { Project } from '../../stores/project.model';
 	import { onMount } from 'svelte';
-	import { createNewOpen, openProject } from 'utils/project.commands';
+	import { createNewOpen, openProject } from '../../utils/project.commands';
 
 	type CurrentPage = 'home' | 'create' | 'open';
 

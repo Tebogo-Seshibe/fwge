@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import type { Project } from "../fwge-logic/Project";
+import type { Project } from "../engine/Project";
 import type { SceneId } from "@fwge/core";
 import type { Entity } from "@fwge/ecs";
 
