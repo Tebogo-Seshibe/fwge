@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Actions from '../../components/panels/Actions.svelte';
-	import Browser from '../../components/panels/Browser.svelte';
-	import Console from '../../components/panels/Console.svelte';
-	import Hierarchy from '../../components/panels/Hierarchy.svelte';
-	import Inspector from '../../components/panels/Inspector.svelte';
-	import Render from '../../components/panels/Render.svelte';
+	import Actions from 'lib/panels/Actions.svelte';
+	import Browser from 'lib/panels/Browser.svelte';
+	import Console from 'lib/panels/Console.svelte';
+	import Hierarchy from 'lib/panels/Hierarchy.svelte';
+	import Inspector from 'lib/panels/Inspector.svelte';
+	import Render from 'lib/panels/Render.svelte';
 
 </script>
 

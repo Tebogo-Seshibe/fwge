@@ -245,8 +245,8 @@ void main(void)
 
     light = area + dir;
     
+    // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
     O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
-    O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
     // O_FragColour = vec4(area, 1.0);
     // O_FragColour = vec4(dir, 1.0);
     // O_FragColour = vec4(light, 1.0);

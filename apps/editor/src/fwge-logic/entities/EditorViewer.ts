@@ -60,7 +60,6 @@ export class EditorViewer extends Entity
                         {
                             this.locked = true;
                             (GL.canvas as HTMLCanvasElement).requestPointerLock(); 
-                            (GL.canvas as HTMLCanvasElement).style.cursor = 'none';
                         }
 
                         this.Rotate(
@@ -75,7 +74,6 @@ export class EditorViewer extends Entity
                         {
                             this.locked = false;
                             document.exitPointerLock(); 
-                            (GL.canvas as HTMLCanvasElement).style.cursor = 'default';
                         }
                     }
                 },
