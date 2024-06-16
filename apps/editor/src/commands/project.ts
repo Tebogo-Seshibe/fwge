@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api";
+import type { FWGEProject } from "./fwge";
 
 export async function createNewOpen(projectName: string, projectPath: string): Promise<void>
 {
@@ -12,14 +13,7 @@ export async function createNewOpen(projectName: string, projectPath: string): P
     }
 }
 
-export async function openProject(filePath: string): Promise<void>
+export async function openProject(filePath: string): Promise<FWGEProject | string>
 {
-    try
-    {
-        console.log(await invoke('open', { filePath }));
-    }
-    catch(e: any)
-    {
-        console.log(e);
-    }
+    return await invoke<FWGEProject | string>('open', { filePath });
 }

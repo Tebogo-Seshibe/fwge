@@ -1,7 +1,6 @@
-use std::{borrow::Borrow, fs, str::FromStr};
+use std::fs;
 
-use crate::{fwge::{parseFWGEProject, Build, FWGEProject, General, Libraries, Library, Scripts, Target}, utils::cli};
-use yaml_rust2::YamlLoader;
+use crate::{fwge::{parse_fwgeproject, FWGEProject}, utils::cli};
 
 #[tauri::command]
 pub fn create(project_name: &str, project_path: &str) -> String {
@@ -14,10 +13,10 @@ pub fn create(project_name: &str, project_path: &str) -> String {
 
 #[tauri::command]
 pub fn open(file_path: &str) -> Result<FWGEProject, String> {
-    let string = fs::read_to_string(file_path).unwrap();
+    let contents = match fs::read_to_string(file_path) {
+        Ok(string) => string,
+        Err(_) => return Err("Faild to read file".to_string()),
+    }; 
 
-    match parseFWGEProject(string) {
-        Ok(fwge) => fwge,
-        Err() => "Failed to parse file".to_string()
-    }
+    parse_fwgeproject(contents)
 } 

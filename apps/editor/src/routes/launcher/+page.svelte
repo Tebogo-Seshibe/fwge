@@ -47,16 +47,13 @@
 			return;
 		}
 
-        fullProjectPath = 'file';
-        await openProject(file)
-		// const json = await fs.readTextFile(file);
-		// try {
-		// 	const projectDef = JSON.parse(json) as FWGEProjectFile;
-
-		// 	// projectThumbnailPath = projectDef.project.thumbnail;
-		// } catch {
-		// 	dialog.message('Invalid FWGE Project File');
-		// }
+        const fwge = await openProject(file);
+        if (typeof fwge === 'string') {
+            dialog.message(fwge);
+        } else {
+            fullProjectPath = file;
+            projectName = fwge.general.name;
+        }
 	}
 
 	async function newProjectDialog(): Promise<void> {
@@ -174,6 +171,8 @@
 						placeholder="Path to project folder"
 					/>
 				</ButtonGroup>
+                
+				<Label class="text-white font-bold text-base mb-1">{projectName ?? ''}</Label>
 
 				{#if projectThumbnailPath}
 					<img
