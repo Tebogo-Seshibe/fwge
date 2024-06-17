@@ -228,12 +228,12 @@ export class Maths
 
 export function radian(degree: number): number
 {
-    return Math.PI / 180 * degree
+    return degree * Math.PI / 180; 
 }
 
 export function degree(radian: number): number
 {
-    return radian * 180 / Math.PI
+    return radian * 180 / Math.PI;
 }
 
 export function cot(radian: number): number

@@ -2,7 +2,7 @@ use std::process::Stdio;
 
 pub fn cli(command: Vec<&str>) -> String {
     let result = std::process::Command::new("node")
-        .arg("../../cli/bin/fwge")
+        .arg("../node_modules/@fwge/cli/bin/fwge")
         .args(command)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

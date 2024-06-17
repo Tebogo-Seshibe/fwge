@@ -18,24 +18,56 @@
 	} from 'flowbite-svelte-icons';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { Project } from '../../stores/project.model';
-	import { onMount } from 'svelte';
-	import { createNewOpen, openProject } from '../../utils/project.commands';
+	import { onMount, onDestroy } from 'svelte';
+	import { createNewProject, openProject } from '../../utils/project.commands';
+    import '../../app.css';
 
-	type CurrentPage = 'home' | 'create' | 'open';
-
+    //#region Shared
 	let db: FwgeDbContext;
+	let previousProjects: Project[] = [];
+	let currentPage: 'home' | 'create' | 'open' = 'home';
 
-	let imageRef: HTMLImageElement;
-	let currentPage: CurrentPage = 'home';
 	let projectName: string | undefined;
 	let projectPath: string | undefined;
-	let fullProjectPath: string | undefined;
-	let projectThumbnailPath: string | undefined;
-	let previousProjects: Project[] = [];
 
+    async function updateRecentProjects(): Promise<void> {
+        if (!db.IsValid) {
+            return;
+        }
+
+        db.projects.update({
+            name: projectName,
+            filePath: projectPath,
+            lastModfied: new Date().toUTCString()
+        });
+    }
+    
+	async function loadProjectInformation(path: string): Promise<void> {
+        console.log(path)
+		const fwge = await openProject(path);
+		if (typeof fwge === 'string') {
+			dialog.message(fwge);
+		} else {
+            console.log(fwge)
+			projectPath = fwge.general.location;
+			projectName = fwge.general.name;
+		}
+	}
+
+    async function openEditor(): Promise<void> {
+        const nextWindow = window
+            .getAll()
+            .filter((x) => x.label === 'editor')
+            .at(0)!;
+        await nextWindow.show();
+        await window.getCurrent().close();
+    }
+    //#endregion
+
+    //#region Lifetime
 	onMount(async () => {
-		db = new FwgeDbContext();
-		try {
+        try {
+            db = new FwgeDbContext();
 			await db.connect();
 			previousProjects = await db.projects.getAll();
 		} catch (e) {
@@ -43,86 +75,53 @@
 		}
 	});
 
+    onDestroy(async () => {
+        await db.disconnect();
+    });
+    //#endregion
+
+    //#region New Project
+	async function newProjectDialog(): Promise<void> {
+		const folder = await dialog.open({
+			directory: true,
+			multiple: false,
+			recursive: false,
+			title: 'New Project'
+		});
+
+		projectPath = folder ? folder as string : undefined;
+	}
+    
+	async function startNewProject(): Promise<void> {
+		await createNewProject(projectName!, projectPath!);
+        await updateRecentProjects();
+		await openEditor();
+	}
+    //#endregion
+
+    //#region Old Project
+	let projectThumbnailPath: string = '';
+
 	async function openProjectDialog(): Promise<void> {
-		const file = (await dialog.open({
+		const file = await dialog.open({
 			directory: false,
 			multiple: false,
 			recursive: false,
 			title: 'Open Project',
-			filters: [
-				{
-					extensions: ['yml', 'yaml'],
-					name: 'FWGE Project YAML File'
-				}
-			]
-		})) as string | null;
+			filters: [{
+                extensions: ['yml', 'yaml'],
+                name: 'FWGE Project YAML File'
+            }]
+		});
 
 		if (!file) {
 			return;
 		}
 
-		const fwge = await openProject(file);
-		if (typeof fwge === 'string') {
-			dialog.message(fwge);
-		} else {
-			fullProjectPath = file;
-			projectName = fwge.general.name;
-
-			await db.projects.create({
-				name: fwge.general.name,
-				filePath: file,
-				lastModfied: new Date().toUTCString()
-			});
-		}
+        await loadProjectInformation(file as string);
 	}
+    //#endregion
 
-	async function setProject(project: Project): Promise<void> {
-		console.log(project);
-		const fwge = await openProject(project.filePath);
-		if (typeof fwge === 'string') {
-			dialog.message(fwge);
-		} else {
-			fullProjectPath = project.filePath;
-			projectName = fwge.general.name;
-		}
-	}
-
-	async function newProjectDialog(): Promise<void> {
-		const folder = (await dialog.open({
-			directory: true,
-			multiple: false,
-			recursive: false,
-			title: 'New Project'
-		})) as string | null;
-
-		projectPath = folder ? folder : undefined;
-	}
-
-	async function openEditor(): Promise<void> {
-		const nextWindow = window
-			.getAll()
-			.filter((x) => x.label === 'editor')
-			.at(0)!;
-		await nextWindow.show();
-		await window.getCurrent().close();
-	}
-
-	function createForm(): void {
-		currentPage = 'create';
-	}
-
-	function openForm(): void {
-		currentPage = 'open';
-	}
-
-	function back(): void {
-		currentPage = 'home';
-	}
-
-	async function openNewProject(): Promise<void> {
-		await createNewOpen(projectName!, projectPath!);
-		await openEditor();
-	}
 </script>
 
 <div class={'launcher flex flex-col ' + currentPage}>
@@ -131,12 +130,12 @@
 	<div class="content">
 		{#if currentPage === 'home'}
 			<div class="home-actions w-80 flex flex-row justify-between">
-				<Button class="w-32 flex flex-row bg-orange-500 justify-around" on:click={createForm}
-					><GridPlusOutline />New</Button
-				>
-				<Button class="w-32 flex flex-row bg-orange-500 justify-around" on:click={openForm}
-					><FolderOpenOutline />Open</Button
-				>
+				<Button class="w-32 flex flex-row bg-orange-500 justify-around" on:click={() => currentPage = 'create'}>
+                    <GridPlusOutline />New
+                </Button>
+				<Button class="w-32 flex flex-row bg-orange-500 justify-around" on:click={() => currentPage = 'open'}>
+                    <FolderOpenOutline />Open
+                </Button>
 			</div>
 		{:else if currentPage === 'create'}
 			<Label class="modules text-white">
@@ -174,7 +173,7 @@
 				</ButtonGroup>
 
 				<Button
-					on:click={openNewProject}
+					on:click={startNewProject}
 					disabled={!projectName || !projectPath}
 					class="mt-4 w-32 flex flex-row justify-between align-self-end"
 					>Start <ArrowRightOutline /></Button
@@ -190,8 +189,8 @@
 							<span
 								tabindex="0"
 								role="button"
-								on:keypress={() => setProject(previousProject)}
-								on:click={() => setProject(previousProject)}
+								on:keypress={() => loadProjectInformation(previousProject.filePath)}
+								on:click={() => loadProjectInformation(previousProject.filePath)}
                             >{previousProject.name}</span>
 						</Label>
 					{/each}
@@ -203,9 +202,9 @@
 				<ButtonGroup class="mb-5">
 					<Button on:click={openProjectDialog}><FolderOpenSolid /></Button>
 					<Input
-						bind:value={fullProjectPath}
+						bind:value={projectPath}
 						size="sm"
-						id="projectName"
+						id="projectPath"
 						placeholder="Path to project folder"
 					/>
 				</ButtonGroup>
@@ -214,7 +213,6 @@
 
 				{#if projectThumbnailPath}
 					<img
-						bind:this={imageRef}
 						src={projectThumbnailPath}
 						alt="sample 1"
 						class="rounded-lg h-24 mb-2 object-contain"
@@ -229,16 +227,17 @@
 
 				<Button
 					on:click={openEditor}
-					disabled={!fullProjectPath}
+					disabled={!projectName || !projectPath}
 					class="mt-4 w-32 flex flex-row justify-between align-self-end"
-					>Start <ArrowRightOutline /></Button
-				>
+                >
+                    Start <ArrowRightOutline />
+                </Button>
 			</div>
 		{/if}
 	</div>
 
 	{#if currentPage !== 'home'}
-		<Button class="back mt-4 -mb-2 !p-2 absolute" outline={true} on:click={back}>
+		<Button class="back mt-4 -mb-2 !p-2 absolute" outline={true} on:click={() => currentPage = 'home'}>
 			<AngleUpOutline />
 		</Button>
 	{/if}

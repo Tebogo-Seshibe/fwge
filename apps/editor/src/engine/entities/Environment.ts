@@ -2,18 +2,34 @@ import { BasicLitMaterial, MeshRenderer, Shader, StaticMesh, Transform } from "@
 import { Entity } from "@fwge/ecs";
 import { cubeMesh } from "../assets/CubeMesh";
 import { cubeShaderFrag, cubeShaderVert } from "../assets/CubeShader";
-import type { Colour3Array } from "@fwge/common";
+import type { Colour3Array, Vector3Array } from "@fwge/common";
 import { EditorTag } from "../components/EditorTag";
+import { EditorEntity } from "../decorators/Class.decorator";
+import { EditorComponent } from "../decorators/Component.decorator";
 
+class MyTransform extends Transform
+{
+    constructor(position: Vector3Array, rotation: Vector3Array, scale: Vector3Array)
+    {
+        super({
+            position, 
+            rotation,
+            scale
+        })
+    }
+}
+@EditorEntity()
 export class Environment extends Entity
 {
+    @EditorComponent(MyTransform, [0,0,0], [0,0,0], [1,1,1])
+    transform!: Transform;
+
     constructor()
     {
         super();
 
         const ignore = new EditorTag();
         const cubeShader = new Shader(cubeShaderVert, cubeShaderFrag, 'Cube Shader');
-        console.log(cubeShader)
         const cubeMeshRender = new MeshRenderer(
         {
             asset: new StaticMesh(cubeMesh)
@@ -31,7 +47,7 @@ export class Environment extends Entity
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
-                    projectShadows: true,
+                    projectShadows: false,
                     receiveShadows: true,
                     colour: [51/255, 12/255, 47/255]
                 })
@@ -55,7 +71,6 @@ export class Environment extends Entity
             );
         const cube2 = new Entity()
             .AddComponents(
-                ignore,
                 new Transform(
                 { 
                     position:   [ -2, 1, 0 ],
@@ -73,7 +88,6 @@ export class Environment extends Entity
             );
         const cube3 = new Entity()
             .AddComponents(
-                ignore,
                 new Transform(
                 { 
                     position:   [ 2, 1, 0 ],
@@ -91,7 +105,6 @@ export class Environment extends Entity
             );
         const cube4 = new Entity()
             .AddComponents(
-                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, -2 ],
@@ -109,7 +122,6 @@ export class Environment extends Entity
             );            
         const cube5 = new Entity()
             .AddComponents(
-                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 2.5, -2 ],
@@ -127,7 +139,6 @@ export class Environment extends Entity
             );
         const cube6 = new Entity()
             .AddComponents(
-                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, -5 ],
@@ -153,7 +164,6 @@ export class Environment extends Entity
         cube5.Name = 'Cube 5';
         cube6.Name = 'Cube 6';
 
-        this.AddComponent(new Transform());
         this.AddChild(floor)
             .AddChild(cube1)
             .AddChild(cube2)

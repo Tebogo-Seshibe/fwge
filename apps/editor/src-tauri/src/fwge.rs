@@ -22,16 +22,18 @@ impl Serialize for FWGEProject {
 
 pub struct General {
     pub name: String,
-    pub author: String
+    pub author: String,
+    pub location: String
 }
 
 impl Serialize for General {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
-            let mut s = serializer.serialize_struct("General", 2)?;
+            let mut s = serializer.serialize_struct("General", 3)?;
             s.serialize_field("name", &self.name)?;
             s.serialize_field("author", &self.author)?;
+            s.serialize_field("location", &self.location)?;
             s.end()
     }
 }
@@ -131,7 +133,8 @@ pub fn parse_fwgeproject(contents: String) -> Result<FWGEProject, String> {
     let file_version = doc["file-version"].as_str().unwrap_or_default().to_string();
     let general = General { 
         name: doc["general"]["name"].as_str().unwrap_or_default().to_string(),
-        author: doc["general"]["author"].as_str().unwrap_or_default().to_string()
+        author: doc["general"]["author"].as_str().unwrap_or_default().to_string(),
+        location: doc["general"]["location"].as_str().unwrap_or_default().to_string()
     };
     let internal: Vec<Library> = doc["libraries"]["internal"]
         .as_vec()

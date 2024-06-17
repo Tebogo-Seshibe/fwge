@@ -5,8 +5,7 @@
 	import Hierarchy from "../../components/panels/Hierarchy.svelte";
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
-
-
+    import '../../app.css';
 </script>
 
 <div id="editor">

@@ -76,14 +76,14 @@ export class DbSet<T>
         });
     }
     
-    update(id: number): Promise<void>
+    update(entity: Partial<T>): Promise<void>
     {
         return new Promise<void>((resolve, reject) =>
         {
             const transaction = this.dbContext.Database!.transaction(this.config.name, 'readwrite');
             const store = transaction.objectStore(this.config.name);
     
-            var request = store.put(id);
+            var request = store.put(entity);
             request.addEventListener('error', () => {
                 reject(request.error!.message);
             });

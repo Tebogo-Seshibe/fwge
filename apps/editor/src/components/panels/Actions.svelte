@@ -14,27 +14,40 @@
 	import type { Project } from '../../engine/Project';
 	import { currentSceneStore, projectStore } from '../../stores/project.store';
 	import { EditorSceneId } from '../../engine/scenes';
+	import { onDestroy, onMount } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
 	export let id: string;
 
 	let project: Project | undefined;
 	let currentScene: Scene | undefined;
 	let scenes: SelectOptionType<Scene>[] = [];
 
-	currentSceneStore.subscribe((currentSceneId) => {
-		currentScene = project?.GetScene(currentSceneId);
-	});
+    let currentSceneUnsubcriber: Unsubscriber;
+    let projectUnsubcriber: Unsubscriber;
 
-	projectStore.subscribe((p) => {
-		project = p;
+    onMount(() => {
+        projectUnsubcriber = projectStore.subscribe((p) => {
+            project = p;
 
-		if (project) {
-			scenes = p.Scenes.filter((x) => x.Id !== EditorSceneId).map((x) => ({
-				name: x.Name,
-				value: x
-			}));
-			currentScene = p.Scenes.find((x) => x.Id === scenes[0].value.Id);
-		}
-	});
+            if (project) {
+                scenes = p.Scenes.map((x) => ({
+                    name: x.Name,
+                    value: x
+                }));
+                currentScene = p.Scenes.find((x) => x.Id === scenes[0].value.Id);
+            }
+        });
+        
+        currentSceneUnsubcriber = currentSceneStore.subscribe((currentSceneId) => {
+            currentScene = project?.GetScene(currentSceneId);
+        });
+    })
+
+    onDestroy(() => {
+        currentSceneUnsubcriber();
+        projectUnsubcriber();
+    });
+
 
 	function play(): void {
 		if (project && currentScene) {

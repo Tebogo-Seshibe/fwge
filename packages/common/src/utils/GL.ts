@@ -5,15 +5,16 @@ export let GL: WebGL2RenderingContext | GLWrapper
 let mainGL: WebGL2RenderingContext
 
 export let GLCall: Function
-// export function setContext(gl: WebGL2RenderingContext)
-// {
-//     GL = gl
-//     GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
-// }
 
 export function createContext(canvas: HTMLCanvasElement, debug: boolean = true): void
 {
-    const context = canvas.getContext('webgl2')
+    const context = canvas.getContext('webgl2',
+    {
+        alpha: true,
+        antialias: true,
+        depth: true,
+        stencil: true
+    });
 
     if (!context)
     {
@@ -25,59 +26,6 @@ export function createContext(canvas: HTMLCanvasElement, debug: boolean = true):
     context.getExtension('OES_texture_float_linear')
 
     GL = debug ? new GLWrapper(context) : context
-
-    // if (debug)
-    // {
-    //     wrapperGL = Object.create(null)
-        
-    //     const ignore = [
-    //         'canvas',
-    //         'getError',
-    //         'pixelStorei',
-    //         'drawingBufferColorSpace',
-    //         'drawingBufferHeight',
-    //         'drawingBufferWidth',
-    //         'unpackColorSpace',
-    //     ]
-    //     const prototype = Object.getPrototypeOf(mainGL)
-    //     const keys = Object.keys(prototype) as (keyof WebGL2RenderingContext)[]
-
-    //     for (const key of keys)
-    //     {
-    //         const props = Object.getOwnPropertyDescriptor(prototype, key)
-    //         // debugger
-    //         if (!props) continue
-
-    //         (wrapperGL as any)[key] = (...args:any[]) => typeof mainGL[key] === 'number' ?  mainGL[key] : prototype[key](...args);
-
-    //         // if (ignore.includes(key) || typeof prototype[key] !== 'function')
-    //         // {
-    //         //     Object.defineProperty(wrapperGL, key, props)
-    //         // }
-    //         // else
-    //         // {
-    //         //     Object.defineProperty(wrapperGL, key,
-    //         //     {
-    //         //         value: (...args: any[]) =>
-    //         //         {    
-    //         //             glClearErrors();
-    //         //             const func = (mainGL as any)[key];
-    //         //             const result = func.call(mainGL, ...args);
-    //         //             assert(glCheckError(key, ...args));
-    //         //             return result;
-    //         //         }
-    //         //     })
-    //         // }
-    //     }
-        
-    //     GL = wrapperGL
-    // }
-    // else
-    // {
-    //     GL = mainGL
-    // }
-    
-    // console.log(GL)
     GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true)
 }
 

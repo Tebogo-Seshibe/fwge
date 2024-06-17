@@ -1,5 +1,5 @@
 import { CalcuateDelay, GL, type IDelay, Vector2, createContext } from "@fwge/common";
-import { Type, type Class } from "@fwge/ecs";
+import { Registry, Type, type Class } from "@fwge/ecs";
 import { type Asset } from "./Asset";
 import { type Prefab } from "./Prefab";
 import { type Scene, type SceneId } from "./Scene";
@@ -16,7 +16,6 @@ export interface GameConfig
 
     height: number;
     width: number;
-    canvas: HTMLCanvasElement;
     scenes: Type<Scene>[];
     startupScene: SceneId;
 
@@ -38,6 +37,7 @@ export class Game
     private _tickId: number | undefined = undefined;
     private _delayId: number | undefined = undefined;
     private _running: boolean = false;
+    private _canvas: HTMLCanvasElement = document.createElement('canvas');
     //#endregion
 
     public get Height(): number
@@ -48,7 +48,7 @@ export class Game
     public set Height(height: number)
     {
         this._dimensions[1] = height;
-        GL.canvas.height = height;
+        this._canvas.height = height;
     }
 
     public get Width(): number
@@ -59,8 +59,13 @@ export class Game
     public set Width(width: number)
     {
         this._dimensions[0] = width;
-        GL.canvas.width = width;
+        this._canvas.width = width;
     }  
+
+    public get Canvas(): HTMLCanvasElement
+    {
+        return this._canvas;
+    }
 
     public get Scenes(): readonly Scene[]
     {
@@ -75,12 +80,7 @@ export class Game
             prefabs: config.prefabs ?? []
         };
 
-        if (!config.canvas)
-        {
-            throw new Error('No canvas element found');
-        }
-
-        this.ResetContext(config.canvas, config.debug);
+        this.ResetContext(config.debug);
 
 
         this.Width = config.width;
@@ -112,9 +112,9 @@ export class Game
         this.SetScene(config.startupScene);
     }
 
-    public ResetContext(canvas: HTMLCanvasElement, debug: boolean = false): void
+    public ResetContext(debug: boolean = false): void
     {
-        createContext(canvas, debug);
+        createContext(this._canvas, debug);
     }
 
     public Start(): void;

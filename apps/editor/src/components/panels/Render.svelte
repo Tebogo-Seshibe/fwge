@@ -3,29 +3,42 @@
 	import { Project } from "../../engine/Project";
 	import { projectStore } from "../../stores/project.store";
 	import Panel from "../Panel.svelte";
+	import { Registry } from "@fwge/ecs";
+	import type { Unsubscriber } from "svelte/store";
+	import { GL } from "@fwge/common";
 
     export let id: string;
 
 	let project: Project;
     let containerDiv: HTMLDivElement;
 	let canvas: HTMLCanvasElement;
+    let projectUnsubcriber: Unsubscriber;
 
 	onMount(async () => {
-		project = new Project({
-			canvas,
-			height: containerDiv.clientHeight,
-			width: containerDiv.clientWidth,
-			prefabs: [],
-			assets: []
-		});
+        projectUnsubcriber = projectStore.subscribe(currentProject => {
+            if (currentProject) {
+                project = currentProject;
+            } else {
+                projectStore.set(new Project({
+                    height: containerDiv.clientHeight,
+                    width: containerDiv.clientWidth,
+                    prefabs: [],
+                    assets: []
+                }));
+                project.Canvas.id = "canvas";
+                project.Canvas.classList.add('cursor-crosshair')
+            }        
+        });
+        
+        containerDiv.appendChild(project.Canvas)
 		project.Start();
 
-        projectStore.set(project);
 		window.addEventListener('resize', resize)
         resize()
 	});
 
 	onDestroy(() => {
+        projectUnsubcriber();
 		window.removeEventListener('resize', resize)
 	});
 
@@ -36,19 +49,15 @@
 			return;
 		}
 
-        canvas.height = containerDiv.clientHeight;
-        canvas.width = containerDiv.clientWidth;
+        project.Canvas.height = containerDiv.clientHeight;
+        project.Canvas.width = containerDiv.clientWidth;
 	}
 </script>
 
 <Panel {id}>
-    <div bind:this={containerDiv} class='h-full w-full' on:resize={resize}>
-        <canvas 
-            id="canvas"
-            class='cursor-crosshair'
-            bind:this={canvas}
-            on:click|preventDefault={() => void 0}
-            on:contextmenu|preventDefault={() => void 0}
-        />
-</div>
+    <div 
+        bind:this={containerDiv} 
+        class='h-full w-full' 
+        on:resize={resize}
+    ></div>
 </Panel>

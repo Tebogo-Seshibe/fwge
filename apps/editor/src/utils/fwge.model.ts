@@ -8,6 +8,7 @@ export interface FWGEProject {
 export interface General {
     name: string
     author: string
+    location: string
 }
 
 export interface Libraries {

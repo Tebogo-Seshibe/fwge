@@ -40,8 +40,6 @@ export class ProjectRenderSystem extends System
             finalPassShaderFrag
         );
 
-        console.log(this.finalPassShader)
-
         this.window = new DefaultWindow()
         // new RenderWindow({
         //     renderPipelineMode: RenderPipelineMode.DEFERRED,
@@ -62,8 +60,6 @@ export class ProjectRenderSystem extends System
         //         })
         //     })
         // })
-        
-        console.log(Registry.GetComponent(Registry.GetView(this.directionalLightView)[0], DirectionalLight)!);
     }
 
     Start(): void 
@@ -117,18 +113,17 @@ export class ProjectRenderSystem extends System
         {
             const light = Registry.GetComponent(entityId, DirectionalLight)!;
             const transform = Registry.GetComponent(entityId, Transform)!;
-            const rotation = transform.GlobalPosition(entityId);
-            const rotationMatrix = Matrix4.RotationMatrix(rotation.X - 90, rotation.Y, rotation.Z);
-            const direction = Matrix4.MultiplyVector(
+            const rotation = transform.GlobalRotation(entityId);
+            const rotationMatrix = Matrix3.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z);
+            const direction = Matrix3.MultiplyVector(
                 rotationMatrix,
-                [...DirectionalLight.DefaultDirection, 1] as Vector4Array
+                DirectionalLight.DefaultDirection
             );
-            console.log(direction.toString())
             
             this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.XYZ.Negate());
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.Negate());
             this.finalPassShader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
@@ -140,6 +135,16 @@ export class ProjectRenderSystem extends System
             this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ViewMatrix`, rotationMatrix, true);
             d++
         }
+        
+        const cameraEntityId = Registry.GetView(this.cameraView)[0];
+        const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
+        const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;
+        const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId).Inverse();
+
+        
+        this.finalPassShader.SetBufferDataField('Camera', 'View', cameraMV, true);
+        this.finalPassShader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
+        this.finalPassShader.PushBufferData('Camera');
         
         GL.bindVertexArray(this.window.Panel.VertexArrayBuffer);
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.window.Panel.FaceBuffer);

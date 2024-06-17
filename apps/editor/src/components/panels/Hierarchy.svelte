@@ -11,10 +11,11 @@
 		List
 	} from 'flowbite-svelte';
 	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
-	import { writable } from 'svelte/store';
+	import { writable, type Unsubscriber } from 'svelte/store';
 	import { currentSceneStore, projectStore } from '../../stores/project.store';
 	import TreeNode from '../TreeNode.svelte';
 	import Panel from '../Panel.svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let id: string;
 
@@ -23,6 +24,9 @@
 	let entities: Entity[] = [];
 	let systems: System[] = [];
 	let tab: 'entities' | 'systems' = 'entities';
+    
+    let currentSceneUnsubcriber: Unsubscriber;
+    let projectUnsubcriber: Unsubscriber;
 
 	let filteredEntites: Entity[] = [];
 	let filteredSystems: System[] = [];
@@ -45,10 +49,32 @@
 			});
 	});
 
-	currentSceneStore.subscribe((currentSceneId) => {
-		sceneId = currentSceneId;
-	});
-
+    onMount(() => {
+        currentSceneUnsubcriber = currentSceneStore.subscribe((currentSceneId) => {
+            sceneId = currentSceneId;
+        });
+        
+        projectUnsubcriber = projectStore.subscribe((project) => {
+            if (!project) {
+                return;
+            }
+            
+            scene = project.GetScene(sceneId)!;
+            entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
+            systems = scene.Systems!.filter(Boolean);
+            filters.set({
+                components: [] as Class<Component>[],
+                systems: [] as Class<System>[],
+                name: ''
+            });
+        });
+    });
+    
+    onDestroy(() => {
+        currentSceneUnsubcriber();
+        projectUnsubcriber();
+    });
+    
 	function updateNameFilters(event: Event): void {
 		filters.update((x) => {
 			return {
@@ -66,20 +92,6 @@
 			};
 		});
 	}
-	projectStore.subscribe((project) => {
-		if (!project || sceneId < 1) {
-			return;
-		}
-
-		scene = project.GetScene(sceneId)!;
-		entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
-		systems = scene.Systems!.filter(Boolean);
-		filters.set({
-			components: [] as Class<Component>[],
-			systems: [] as Class<System>[],
-			name: ''
-		});
-	});
 </script>
 
 <Panel {id}>

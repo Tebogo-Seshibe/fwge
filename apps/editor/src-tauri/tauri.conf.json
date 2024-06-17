@@ -1,7 +1,7 @@
 {
     "build": {
-        "beforeDevCommand": "npm run dev",
-        "beforeBuildCommand": "npm run build",
+        "beforeDevCommand": "pnpm run dev",
+        "beforeBuildCommand": "pnpm run build",
         "devPath": "http://localhost:5173",
         "distDir": "../build",
         "withGlobalTauri": false
@@ -81,7 +81,7 @@
         "bundle": {
             "active": true,
             "targets": "all",
-            "identifier": "com.tauri.dev",
+            "identifier": "fwge",
             "icon": [
                 "icons/32x32.png",
                 "icons/128x128.png",

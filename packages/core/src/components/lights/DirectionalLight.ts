@@ -29,13 +29,13 @@ export class ShadowCascade
     private _resolution: Vector2 = Vector2.Zero;
     private _projection: Matrix4 = Matrix4.Identity;
     private _renderTarget: RenderTarget = new RenderTarget(
-        {
-            colour: [ColourType.FLOAT_RGB],
-            depth: DepthType.INT24,
-            height: 2 ** 13,
-            width: 2 ** 13,
-            clear: [1, 1, 1, 1]
-        });
+    {
+        colour: [ColourType.FLOAT_RGB],
+        depth: DepthType.INT24,
+        height: 2 ** 13,
+        width: 2 ** 13,
+        clear: [1, 1, 1, 1]
+    });
 
     get Width(): number
     {
@@ -75,12 +75,12 @@ export class ShadowCascade
     {
         this._resolution[0] = x;
         this._renderTarget = new RenderTarget(
-            {
-                colour: [],
-                depth: DepthType.INT24,
-                width: x,
-                height: this._resolution[1],
-            });
+        {
+            colour: [],
+            depth: DepthType.INT24,
+            width: x,
+            height: this._resolution[1],
+        });
     }
 
     get ResolutionY(): number
@@ -139,7 +139,7 @@ export class DirectionalLight extends Light
         height: 2 ** 10,
         width: 2 ** 10
     });
-    static readonly DefaultDirection: Vector3 = new Vector3(0, -1, 0);
+    static readonly DefaultDirection: Vector3 = new Vector3(0, 0, -1);
 
     readonly ShadowCascades: [ShadowCascade, ShadowCascade, ShadowCascade];
 
@@ -311,7 +311,7 @@ export class DirectionalLight extends Light
         if (transform)
         {
             const rotation = transform.GlobalRotation(parentId)
-            Matrix4.RotationMatrix(rotation.X - 90, rotation.Y, rotation.Z, matrix).Inverse();
+            Matrix4.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z, matrix);
         }
 
         this.RenderTarget.Bind();
@@ -325,7 +325,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-50, -50, -50, 50, 50, 50);
+    readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-5, -5, -50, 5, 5, 50);
 
     get ModelMatrix(): Matrix4
     {

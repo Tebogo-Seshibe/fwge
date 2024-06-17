@@ -17,6 +17,11 @@ export class DbContext
         return this.database;
     }
 
+    public get IsValid()
+    {
+        return this.database !== undefined;
+    }
+
     constructor(
         private readonly databaseName: string,
         private readonly databaseVersion: number,
@@ -52,6 +57,24 @@ export class DbContext
                 this.database = request.result;
                 resolve();
             });
+        });
+    }
+    
+    
+    async disconnect(): Promise<void>
+    {
+        return new Promise<void>((resolve, reject) =>
+        {
+            if (!this.database)
+            {
+                return;
+            }
+
+            this.database.addEventListener('close', () => { 
+                resolve();
+            });
+
+            this.database.close();
         });
     }
 

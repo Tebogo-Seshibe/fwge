@@ -5,7 +5,6 @@ use crate::{fwge::{parse_fwgeproject, FWGEProject}, utils::cli};
 #[tauri::command]
 pub fn create(project_name: &str, project_path: &str) -> String {
     let message = cli(vec!["new", project_name, project_path]);
-    println!("{}", message);
 
     message
 } 
@@ -19,4 +18,4 @@ pub fn open(file_path: &str) -> Result<FWGEProject, String> {
     }; 
 
     parse_fwgeproject(contents)
-} 
+}

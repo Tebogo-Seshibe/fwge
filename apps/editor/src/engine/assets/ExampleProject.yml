@@ -5,6 +5,7 @@ file-version: '0.0.1'
 general:
   name: FWGE Example Project
   author: Tebogo Christopher Seshibe
+  location: D:\Projects\Personal\@fwge\apps\editor\src\engine\assets\ExampleProject.yml
 
 libraries:
   internal:
@@ -40,8 +41,16 @@ build:
     
 scenes:
   - name: Scene1
-#     entites:
-#       - 
+    entites:
+      - 
+
+entites:
+  - 
+
+components:
+  - Transform:
+    - id: 1
+      data: 0
 
 # shared:
 #   - 

@@ -2,6 +2,8 @@ import type { IMesh } from "@fwge/core";
 
 export const cubeMesh: IMesh =
 {
+    name: 'Cube Mesh',
+
     position:
     [
         [-0.5,  0.5,  0.5],

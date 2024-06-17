@@ -31,11 +31,12 @@ uniform Camera
 {
     mat4 View;
     mat4 Projection;
+    vec3 Position;
 } camera;
 
 void main(void)
 {
-    V_Vertex.Position = (transform.Model * vec4(A_Position, 1.0)).xyz;    
+    V_Vertex.Position = (transform.Model * vec4(A_Position, 1.0)).xyz;
     V_Vertex.Normal = normalize(transform.Normal * A_Normal);
     V_Vertex.UV = A_UV;
     V_Vertex.Colour = A_Colour.rgb;
@@ -123,6 +124,13 @@ layout (std140) uniform;
 in vec2 V_UV;
 layout(location = 0) out vec4 O_FragColour;
 
+uniform Camera
+{
+    mat4 View;
+    mat4 Projection;
+    vec3 Position;
+} camera;
+
 struct Fragment
 {
     vec3 Position;
@@ -170,11 +178,22 @@ struct DirectionalLight
 };
 uniform DirectionalLight[1] U_DirectionalLight;
 
-float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D shadowSampler, mat4 shadowMatrix)
+float BasicShadowWeightDirectional(DirectionalLight dir, float diffuseDot, float specularDot, sampler2D shadowSampler, mat4 shadowMatrix)
 {
     vec4 shadowPosition = shadowMatrix * vec4(fragment.Position, 1.0);
-    float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
     vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    vec2 fragUV = lightPosition.xy;
+    float shadowDepth = texture(shadowSampler, fragUV).r;
+
+    return 1.0;
+}
+
+float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, float specularDot, sampler2D shadowSampler, mat4 shadowMatrix)
+{
+    vec4 shadowPosition = shadowMatrix * vec4(fragment.Position, 1.0);
+    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    
+    float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
     vec2 fragUV = lightPosition.xy;
     float fragmentDepth = lightPosition.z;
 
@@ -203,18 +222,25 @@ float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, sampler2D 
         }
     }
 
-    return total / dir.TexelCount;
+    // return 1.0;
+    return 1.0 - (total / dir.TexelCount);
 }
 
 vec3 CalcDirectionalLight(DirectionalLight light)
 {
     mat4 shadowMatrix = light.ProjectionMatrix * light.ViewMatrix;
-    float val = dot(fragment.Normal, light.Direction);
-    float diffuse = max(val, 0.0);
-    float cascade = ShadowWeightDirectional(light, val, U_Dir_Tex, shadowMatrix); //U_OtherMatrix[0]);
-    float shadow = 1.0 - cascade;
 
-    return light.Colour * diffuse * light.Intensity * shadow;
+    float diffuseinfluence = max(dot(fragment.Normal, light.Direction), 0.0);
+    vec3 diffuse = light.Colour * diffuseinfluence * light.Intensity;
+
+    vec4 viewPosition = inverse(camera.Projection) * vec4(fragment.Position, 1.0);
+    vec3 halfway = normalize(light.Direction - viewPosition.xyz);
+    float specularInfluence = pow(max(dot(fragment.Normal, halfway), 0.0), 64.0);
+    vec3 specular = light.Colour * specularInfluence * light.Intensity;
+
+    float shadow = BasicShadowWeightDirectional(light, diffuseinfluence, specularInfluence, U_Dir_Tex, shadowMatrix);
+
+    return (diffuse) * shadow;
 }
 // Directional Lighting --------------------------------
 
@@ -246,11 +272,12 @@ void main(void)
     light = area + dir;
     
     // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
-    O_FragColour = vec4(fragment.Diffuse + light, fragment.Alpha);
+    O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
     // O_FragColour = vec4(area, 1.0);
     // O_FragColour = vec4(dir, 1.0);
     // O_FragColour = vec4(light, 1.0);
     // O_FragColour = vec4(vec3(float(U_DirectionalLight.length() / 16)), 1.0);
+    O_FragColour = vec4(vec3(fragment.Depth), 1.0);
     // O_FragColour = vec4(U_AreaLight[0].Colour, 1.0);
     // O_FragColour = vec4(vec3(U_DirectionalLight[0].CastShadows), 1.0);
 }
