@@ -114,16 +114,16 @@ export class ProjectRenderSystem extends System
             const light = Registry.GetComponent(entityId, DirectionalLight)!;
             const transform = Registry.GetComponent(entityId, Transform)!;
             const rotation = transform.GlobalRotation(entityId);
-            const rotationMatrix = Matrix3.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z);
-            const direction = Matrix3.MultiplyVector(
+            const rotationMatrix = Matrix4.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z);
+            const direction = Matrix4.MultiplyVector(
                 rotationMatrix,
-                DirectionalLight.DefaultDirection
+                [...DirectionalLight.DefaultDirection, 1.0] as Vector4Array
             );
             
             this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.Negate());
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.XYZ.Negate());
             this.finalPassShader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
             this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
@@ -213,7 +213,7 @@ export class ProjectRenderSystem extends System
                 break;
             }
             
-            DirectionalLight.ShadowShader.SetMatrix('U_Transform.ModelView', transform.GlobalModelViewMatrix(), true)
+            DirectionalLight.ShadowShader.SetMatrix('U_Transform.ModelView', transform.GlobalModelViewMatrix(entityId), true)
             
             if (mesh instanceof InstanceMesh)
             {

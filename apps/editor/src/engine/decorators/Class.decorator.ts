@@ -8,13 +8,13 @@ export function EditorEntity<EntityType extends Entity>(): ClassDecorator
 {
     return function<Constructor extends Function>(base: Constructor): Constructor
     {
-        let constructor = base as any as (new (...args: any[]) => EntityType);
+        const constructor = base as unknown as (new (...args: unknown[]) => EntityType);
         return new Proxy(base, {
             construct(_, argArray) {
                 const entity = new constructor(...argArray);
                 const components = Reflect.getMetadata(classComponent, constructor) as Map<string, ComponentMetadata>;
                 
-                for (const [ _, { propertyKey, component } ] of components.entries())
+                for (const [ , { propertyKey, component } ] of components.entries())
                 {
                     entity.AddComponent(component);
                     (entity as any)[propertyKey] = component;

@@ -3,7 +3,7 @@ import { classComponent, type ComponentMetadata } from "./Class.decorator";
 
 export function EditorComponent<T extends new (...args: any[]) => Component>(type: T, ...args: ConstructorParameters<T>): PropertyDecorator
 {
-    return function(target: Object, propertyKey: string | symbol): void
+    return function(target: object, propertyKey: string | symbol): void
     {
         const component = new type(...args);
         const components: Map<string, ComponentMetadata> = Reflect.getMetadata(classComponent, target.constructor) ?? new Map();

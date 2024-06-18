@@ -191,7 +191,7 @@ float BasicShadowWeightDirectional(DirectionalLight dir, float diffuseDot, float
 float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, float specularDot, sampler2D shadowSampler, mat4 shadowMatrix)
 {
     vec4 shadowPosition = shadowMatrix * vec4(fragment.Position, 1.0);
-    vec3 lightPosition = (shadowPosition.xyz / shadowPosition.w) * 0.5 + 0.5;
+    vec3 lightPosition = shadowPosition.xyz * 0.5 + 0.5;
     
     float bias = max(dir.Bias * (1.0 - diffuseDot), 0.0005);
     vec2 fragUV = lightPosition.xy;
@@ -223,24 +223,24 @@ float ShadowWeightDirectional(DirectionalLight dir, float diffuseDot, float spec
     }
 
     // return 1.0;
-    return 1.0 - (total / dir.TexelCount);
+    return total / dir.TexelCount;
 }
 
 vec3 CalcDirectionalLight(DirectionalLight light)
 {
     mat4 shadowMatrix = light.ProjectionMatrix * light.ViewMatrix;
 
-    float diffuseinfluence = max(dot(fragment.Normal, light.Direction), 0.0);
-    vec3 diffuse = light.Colour * diffuseinfluence * light.Intensity;
+    float diffuseInfluence = max(dot(fragment.Normal, light.Direction), 0.0);
+    vec3 diffuse = light.Colour * diffuseInfluence * light.Intensity;
 
-    vec4 viewPosition = inverse(camera.Projection) * vec4(fragment.Position, 1.0);
-    vec3 halfway = normalize(light.Direction - viewPosition.xyz);
-    float specularInfluence = pow(max(dot(fragment.Normal, halfway), 0.0), 64.0);
-    vec3 specular = light.Colour * specularInfluence * light.Intensity;
+    // vec4 viewPosition = inverse(camera.Projection) * vec4(fragment.Position, 1.0);
+    // vec3 halfway = normalize(light.Direction - viewPosition.xyz);
+    // float specularInfluence = pow(max(dot(fragment.Normal, halfway), 0.0), 64.0);
+    // vec3 specular = light.Colour * specularInfluence * light.Intensity;
 
-    float shadow = BasicShadowWeightDirectional(light, diffuseinfluence, specularInfluence, U_Dir_Tex, shadowMatrix);
+    float shadow = ShadowWeightDirectional(light, diffuseInfluence, 1.0, U_Dir_Tex, shadowMatrix);
 
-    return (diffuse) * shadow;
+    return (diffuse) * (1.0 - shadow);
 }
 // Directional Lighting --------------------------------
 
@@ -271,14 +271,9 @@ void main(void)
 
     light = area + dir;
     
-    // O_FragColour = vec4(texture(U_Dir_Tex, V_UV).r);
+    // O_FragColour = vec4(fragment.Diffuse, fragment.Alpha);
+    // O_FragColour = vec4(light, fragment.Alpha);
+    // O_FragColour = vec4(vec3(texture(U_Dir_Tex, V_UV).r), fragment.Alpha);
     O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
-    // O_FragColour = vec4(area, 1.0);
-    // O_FragColour = vec4(dir, 1.0);
-    // O_FragColour = vec4(light, 1.0);
-    // O_FragColour = vec4(vec3(float(U_DirectionalLight.length() / 16)), 1.0);
-    O_FragColour = vec4(vec3(fragment.Depth), 1.0);
-    // O_FragColour = vec4(U_AreaLight[0].Colour, 1.0);
-    // O_FragColour = vec4(vec3(U_DirectionalLight[0].CastShadows), 1.0);
 }
 `

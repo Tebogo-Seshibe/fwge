@@ -8,7 +8,7 @@ export class GeneralAreaLight extends Entity{
         this.AddComponents(
             new AreaLight({
                 colour: [1, 1, 1],
-                intensity: 0.25
+                intensity: 0.5
             })
         )
     }

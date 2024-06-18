@@ -39,21 +39,22 @@ export class Environment extends Entity
             .AddComponents(
                 new Transform(
                 { 
-                    position:   [  0, -0.5,  0 ],
+                    position:   [  0, 0,  0 ],
                     rotation:   [  0,  0,  0 ],
-                    scale:      [ 10,  1, 10 ]
+                    scale:      [ 2,  2, 2 ]
                 }),
                 cubeMeshRender,
                 new BasicLitMaterial({
                     shader: cubeShader,
                     alpha: 1.0,
-                    projectShadows: false,
+                    projectShadows: true,
                     receiveShadows: true,
                     colour: [51/255, 12/255, 47/255]
                 })
             );
         const cube1 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, 0 ],
@@ -71,6 +72,7 @@ export class Environment extends Entity
             );
         const cube2 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
                     position:   [ -2, 1, 0 ],
@@ -88,6 +90,7 @@ export class Environment extends Entity
             );
         const cube3 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
                     position:   [ 2, 1, 0 ],
@@ -105,6 +108,7 @@ export class Environment extends Entity
             );
         const cube4 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, -2 ],
@@ -122,6 +126,7 @@ export class Environment extends Entity
             );            
         const cube5 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
                     position:   [ 0, 2.5, -2 ],
@@ -139,9 +144,10 @@ export class Environment extends Entity
             );
         const cube6 = new Entity()
             .AddComponents(
+                ignore,
                 new Transform(
                 { 
-                    position:   [ 0, 0.5, -5 ],
+                    position:   [ 0, 2, -5 ],
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 5, 5, 1 ]
                 }),

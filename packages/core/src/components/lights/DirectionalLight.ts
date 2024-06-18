@@ -325,7 +325,7 @@ export class DirectionalLight extends Light
         DirectionalLight.ShadowShader.UnBind();
     }
 
-    readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-5, -5, -50, 5, 5, 50);
+    readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-15, -15, -50, 15, 15, 50);
 
     get ModelMatrix(): Matrix4
     {
