@@ -1,4 +1,6 @@
-use std::fs;
+use std::{fs, sync::Mutex};
+
+use tauri::State;
 
 use crate::{fwge::{parse_fwgeproject, FWGEProject}, utils::cli};
 
@@ -11,11 +13,25 @@ pub fn create(project_name: &str, project_path: &str) -> String {
 
 
 #[tauri::command]
-pub fn open(file_path: &str) -> Result<FWGEProject, String> {
+pub async fn open(state: State<'_, Mutex<FWGEProject>>, file_path: &str) -> Result<FWGEProject, String> {
     let contents = match fs::read_to_string(file_path) {
         Ok(string) => string,
         Err(_) => return Err("Faild to read file".to_string()),
     }; 
+    
+    let fwge: FWGEProject = parse_fwgeproject(contents).unwrap();
+    let mut mut_state = state.lock().unwrap();
+    *mut_state = fwge.clone();
 
-    parse_fwgeproject(contents)
+    // num.0 = 5;
+    // s.0 = "Christoper".to_string();
+
+    Ok(fwge)
 }
+
+
+#[tauri::command]
+pub async fn get(state: State<'_, Mutex<FWGEProject>>) -> Result<FWGEProject, String> {
+    Ok(state.lock().unwrap().clone())
+}
+

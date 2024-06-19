@@ -1,5 +1,7 @@
 use serde::{ser::SerializeStruct, Serialize};
 use yaml_rust2::YamlLoader;
+
+#[derive(Default, Clone, Serialize)]
 pub struct FWGEProject {
     pub file_version: String,
     pub general: General,
@@ -7,7 +9,25 @@ pub struct FWGEProject {
     pub build: Build
 }
 
-impl Serialize for FWGEProject {
+impl FWGEProject {
+    fn default() -> Self {
+        Self { 
+            file_version: Default::default(),
+            general: Default::default(),
+            libraries: Default::default(),
+            build: Default::default()
+        }
+    }
+    
+    fn clone(&self) -> Self {
+        Self { 
+            file_version: self.file_version.clone(), 
+            general: self.general.clone(), 
+            libraries: self.libraries.clone(), 
+            build: self.build.clone() 
+        }
+    }
+    
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -20,13 +40,30 @@ impl Serialize for FWGEProject {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct General {
     pub name: String,
     pub author: String,
     pub location: String
 }
 
-impl Serialize for General {
+impl General {
+    fn default() -> Self {
+        Self { 
+            name: Default::default(), 
+            author: Default::default(), 
+            location: Default::default() 
+        }
+    }
+    
+    fn clone(&self) -> Self {
+        Self { 
+            name: self.name.clone(), 
+            author: self.author.clone(), 
+            location: self.location.clone() 
+        }
+    }
+    
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -38,12 +75,27 @@ impl Serialize for General {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct Libraries {
     pub internal: Vec<Library>,
     pub external: Vec<Library>
 }
 
-impl Serialize for Libraries {
+impl Libraries {
+    fn default() -> Self {
+        Self { 
+            internal: Default::default(),
+            external: Default::default(),
+        }
+    }
+
+    fn clone(&self) -> Self {
+        Self { 
+            internal: self.internal.clone(), 
+            external: self.external.clone() 
+        }
+    }
+    
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -54,6 +106,7 @@ impl Serialize for Libraries {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct Library {
     pub display_name: String,
     pub name: String,
@@ -61,7 +114,25 @@ pub struct Library {
     pub source: String
 }
 
-impl Serialize for Library {
+impl Library {
+    fn default() -> Self {
+        Self { 
+            display_name: Default::default(),
+            name: Default::default(),
+            version: Default::default(),
+            source: Default::default()
+        }
+    }
+
+    fn clone(&self) -> Self {
+        Self { 
+            display_name: self.display_name.clone(), 
+            name: self.name.clone(), 
+            version: self.version.clone(), 
+            source: self.source.clone() 
+        }
+    }
+
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -74,12 +145,20 @@ impl Serialize for Library {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct Build {
     pub scripts: Scripts,
     pub targets: Vec<Target>
 }
 
-impl Serialize for Build {
+impl Build {
+    fn clone(&self) -> Self {
+        Self { 
+            scripts: self.scripts.clone(), 
+            targets: self.targets.clone() 
+        }
+    }
+    
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -90,12 +169,27 @@ impl Serialize for Build {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct Scripts {
     pub debug: String,
     pub production: String
 }
 
-impl Serialize for Scripts {
+impl Scripts {
+    fn default() -> Self {
+        Self { 
+            debug: Default::default(),
+            production: Default::default(),
+        }
+    }
+
+    fn clone(&self) -> Self {
+        Self { 
+            debug: self.debug.clone(), 
+            production: self.production.clone() 
+        }
+    }
+    
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {
@@ -106,13 +200,30 @@ impl Serialize for Scripts {
     }
 }
 
+#[derive(Default, Clone, Serialize)]
 pub struct Target {
     pub platform: String,
     pub height: i64,
     pub width: i64
 }
 
-impl Serialize for Target {
+impl Target {
+    fn default() -> Self {
+        Self { 
+            platform: Default::default(),
+            height: Default::default(),
+            width: Default::default(),
+        }
+    }
+
+    fn clone(&self) -> Self {
+        Self { 
+            platform: self.platform.clone(), 
+            height: self.height.clone(), 
+            width: self.width.clone() 
+        }
+    }
+
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer {

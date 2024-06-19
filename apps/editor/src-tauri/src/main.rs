@@ -6,8 +6,10 @@ mod menu;
 mod utils;
 mod fwge;
 
+use fwge::FWGEProject;
 use menu::{build, config, open, open_recent, save, save_as, settings};
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder};
+use std::sync::Mutex;
+use tauri::{CustomMenuItem, Manager, Menu, MenuItem, Submenu, WindowBuilder};
 
 fn main() {
     let file_sub_menu = Submenu::new(
@@ -69,6 +71,7 @@ fn main() {
         .add_submenu(edit_sub_menu);
 
     tauri::Builder::default()
+        .manage(Mutex::new(FWGEProject::default()))
         .setup(|app| {
             let window = WindowBuilder::new(
                 app,
@@ -99,7 +102,11 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::create, commands::open])
+        .invoke_handler(tauri::generate_handler![
+            commands::create, 
+            commands::open,
+            commands::get
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

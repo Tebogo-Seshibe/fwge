@@ -19,7 +19,7 @@
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { Project } from '../../stores/project.model';
 	import { onMount, onDestroy } from 'svelte';
-	import { createNewProject, openProject } from '../../utils/project.commands';
+	import { createNewProject, getProject, openProject } from '../../utils/project.commands';
     import '../../app.css';
 
     //#region Shared
@@ -43,12 +43,10 @@
     }
     
 	async function loadProjectInformation(path: string): Promise<void> {
-        console.log(path)
 		const fwge = await openProject(path);
 		if (typeof fwge === 'string') {
 			dialog.message(fwge);
 		} else {
-            console.log(fwge)
 			projectPath = fwge.general.location;
 			projectName = fwge.general.name;
 		}
@@ -61,6 +59,8 @@
             .at(0)!;
         await nextWindow.show();
         await window.getCurrent().close();
+
+        // await getProject();
     }
     //#endregion
 

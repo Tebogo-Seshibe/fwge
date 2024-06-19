@@ -1,4 +1,4 @@
-import { BasicLitMaterial, MeshRenderer, RenderMode, Shader, StaticMesh, Transform } from "@fwge/core";
+import { BasicLitMaterial, MeshRenderer, RenderMode, Script, Shader, StaticMesh, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { gridMesh } from "../assets/GridMesh";
 import { gridShaderFrag, gridShaderVert } from "../assets/GridShader";
@@ -23,6 +23,10 @@ export class Grid extends Entity
     })
     MeshRenderer!: MeshRenderer;
     
+
+    @EditorComponent(Script, {})
+    script!: Script;
+
     constructor()
     {
         super();

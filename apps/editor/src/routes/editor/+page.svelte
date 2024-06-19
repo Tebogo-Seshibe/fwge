@@ -6,6 +6,12 @@
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
     import '../../app.css';
+	import { onMount } from "svelte";
+	import { getProject } from "../../utils/project.commands";
+
+    onMount(async () => {
+        await getProject();
+    })
 </script>
 
 <div id="editor">

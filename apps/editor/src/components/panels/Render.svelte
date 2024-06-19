@@ -28,6 +28,8 @@
                 project.Canvas.id = "canvas";
                 project.Canvas.classList.add('cursor-crosshair')
             }        
+
+            console.log(project)
         });
         
         containerDiv.appendChild(project.Canvas)

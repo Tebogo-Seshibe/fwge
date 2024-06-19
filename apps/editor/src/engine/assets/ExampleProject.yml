@@ -39,20 +39,64 @@ build:
       height: 1080
       width: 1920
     
+game:
+  - height: 1080
+    width: 1920
+    startupScene: 0
+    scenes:
+      - Scene1
+    assets:
+    prefabs:
+
 scenes:
   - name: Scene1
+    windows:
+      - DefaultWindow
     entites:
-      - 
+      - Scene1
+    sharedEntites:
+      - type: GeneralAreaLight
+        name: GeneralAreaLight
+      - type: EditorViewer
+        name: EditorViewer
+      - type: Sun
+        name: Sun
+      - type: Environment
+        name: Environment
+    systems:
+      - ScriptSystem
+      - InputSystem
+      - ProjectRenderSystem
 
 entites:
-  - 
+  - Camera:
+    - Name: 
+    - Transform: 1
+    - PerspectiveCamera: 1
+  - Camera:
+    - Name: 
+    - Transform: 1
+    - PerspectiveCamera: 1
+  - Camera:
+    - Name: 
+    - Transform: 1
+    - PerspectiveCamera: 1
+  - Camera:
+    - Name: 
+    - Transform: 1
+    - PerspectiveCamera: 1
+  - Sun:
+    - Name: 
+    - Transform: 1
+    - PerspectiveCamera: 1
 
 components:
   - Transform:
     - id: 1
       data: 0
 
-# shared:
-#   - 
-
-# data:
+data: !!binary |
+  R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5
+  OTk6enp56enmlpaWNjY6Ojo4SEhP/++f/++f/++f/++f/++f/++f/++f/++f/+
+  +f/++f/++f/++f/++f/++SH+Dk1hZGUgd2l0aCBHSU1QACwAAAAADAAMAAAFLC
+  AgjoEwnuNAFOhpEMTRiggcz4BNJHrv/zCFcLiwMWYNG84BwwEeECcgggoBADs=
