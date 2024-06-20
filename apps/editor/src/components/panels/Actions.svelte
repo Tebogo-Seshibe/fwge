@@ -16,7 +16,7 @@
 	import { EditorSceneId } from '../../engine/scenes';
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
-	import { getProject } from '../../utils/project.commands';
+	import { getProject } from '../../utils/fwge/commands';
 	export let id: string;
 
 	let project: Project | undefined;
@@ -51,7 +51,7 @@
 
 
 	async function play(): Promise<void> {
-        await getProject();
+        console.log(await getProject());
 		// if (project && currentScene) {
 		// 	project.SetScene(currentScene.Id);
 		// }

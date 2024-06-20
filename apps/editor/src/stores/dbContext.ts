@@ -7,18 +7,15 @@ const indexedDbInstance: IDBFactory =
     (window as any).msIndexedDB ||
     (window as any).shimIndexedDB;
 
-export class DbContext
-{
+export class DbContext {
     private database: IDBDatabase | undefined;
     public readonly dbSets: DbSet<any>[] = [];
 
-    public get Database()
-    {
+    public get Database() {
         return this.database;
     }
 
-    public get IsValid()
-    {
+    public get IsValid() {
         return this.database !== undefined;
     }
 
@@ -27,10 +24,8 @@ export class DbContext
         private readonly databaseVersion: number,
     ) { }
 
-    async connect(): Promise<void>
-    {
-        return new Promise<void>((resolve, reject) =>
-        {
+    async connect(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
             let upgraded = false;
             let request: IDBOpenDBRequest = indexedDbInstance.open(this.databaseName, this.databaseVersion);
             
@@ -41,8 +36,7 @@ export class DbContext
             request.addEventListener('upgradeneeded', () => { 
                 this.database = request.result;
                 
-                for (const dbSet of this.dbSets)
-                {
+                for (const dbSet of this.dbSets) {
                     this.createDbSet(dbSet.config.name, dbSet.config.id, dbSet.config.indexes);
                 }
 
@@ -63,10 +57,8 @@ export class DbContext
     
     async disconnect(): Promise<void>
     {
-        return new Promise<void>((resolve, reject) =>
-        {
-            if (!this.database)
-            {
+        return new Promise<void>((resolve) => {
+            if (!this.database) {
                 return;
             }
 
@@ -78,12 +70,10 @@ export class DbContext
         });
     }
 
-    private createDbSet(name: string, id: string, indexes: {field: string, unique: boolean}[]): void
-    {
+    private createDbSet(name: string, id: string, indexes: { field: string, unique: boolean }[]): void {
         const store = this.database?.createObjectStore(name, { keyPath: id, autoIncrement: true });
         
-        for (const { field, unique } of indexes)
-        {
+        for (const { field, unique } of indexes) {
             store?.createIndex(`${name}_${field}`, field, { unique });
         }
     }

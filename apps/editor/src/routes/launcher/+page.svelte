@@ -21,7 +21,7 @@
 	import '../../app.css';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { Project } from '../../stores/project.model';
-	import { createNewProject, getProject, openProject } from '../../utils/project.commands';
+	import { createNewProject, getProject, openProject } from '../../utils/fwge/commands';
 
     //#region Shared
 	let db: FwgeDbContext;
@@ -50,7 +50,7 @@
 		} else {
 			projectPath = fwge.general.location;
 			projectName = fwge.general.name;
-			await getProject();
+			console.log(await getProject());
 		}
 	}
 

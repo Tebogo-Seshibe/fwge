@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
 	import '../../app.css';
 	import Actions from "../../components/panels/Actions.svelte";
 	import Browser from "../../components/panels/Browser.svelte";
@@ -6,6 +7,24 @@
 	import Hierarchy from "../../components/panels/Hierarchy.svelte";
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
+	import { registerListeners } from '../../utils/menu/events';
+	import type { UnlistenFn } from '@tauri-apps/api/event';
+
+    let unlistens: UnlistenFn[] = [];
+
+    onMount(async () => {
+        unlistens = await registerListeners();
+    });
+
+    onDestroy(() => {
+        if (unlistens.length === 0) {
+            return;
+        }
+
+        for (const unlisten of unlistens) {
+            unlisten();
+        }
+    });
 </script>
 
 <div id="editor">

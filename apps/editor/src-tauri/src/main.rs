@@ -1,14 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod commands;
 mod menu;
-mod utils;
 mod fwge;
 
-use fwge::FWGEProject;
-use menu::{build, config, open, open_recent, save, save_as, settings};
-use std::sync::Mutex;
 use tauri::{CustomMenuItem, Manager, Menu, MenuItem, Submenu, WindowBuilder};
 
 fn main() {
@@ -71,7 +66,7 @@ fn main() {
         .add_submenu(edit_sub_menu);
 
     tauri::Builder::default()
-        .manage(Mutex::new(FWGEProject::default()))
+        .manage(std::sync::Mutex::new(fwge::models::FWGEProject::default()))
         .setup(|app| {
             let launcher_window = WindowBuilder::new(
                 app,
@@ -104,13 +99,13 @@ fn main() {
             let window = editor_window.clone();
             editor_window.on_menu_event(move |event| {
                 let _ = match event.menu_item_id() {
-                    "open" => window.emit("onOpen", {}).unwrap(),
-                    "open_recent" => window.emit("onOpenRecent", {}).unwrap(),
-                    "save" => window.emit("onSave", {}).unwrap(),
-                    "save_as" => window.emit("onSaveAs", {}).unwrap(),
-                    "build" => window.emit("onBuild", {}).unwrap(),
-                    "config" => window.emit("onConfig", {}).unwrap(),
-                    "settings" => window.emit("onSettings", {}).unwrap(),
+                    "open" => menu::events::open(&window, &event),
+                    "open_recent" => menu::events::open_recent(&window, &event),
+                    "save" => menu::events::save(&window, &event),
+                    "save_as" => menu::events::save_as(&window, &event),
+                    "build" => menu::events::build(&window, &event),
+                    "config" => menu::events::config(&window, &event),
+                    "settings" => menu::events::settings(&window, &event),
                     &_ => todo!()
                 };
             });
@@ -123,9 +118,9 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            commands::create, 
-            commands::open,
-            commands::get
+            fwge::commands::create, 
+            fwge::commands::open,
+            fwge::commands::get
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
