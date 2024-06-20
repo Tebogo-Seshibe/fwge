@@ -32,6 +32,8 @@ pub async fn open(state: State<'_, Mutex<FWGEProject>>, file_path: &str) -> Resu
 
 #[tauri::command]
 pub async fn get(state: State<'_, Mutex<FWGEProject>>) -> Result<FWGEProject, String> {
-    Ok(state.lock().unwrap().clone())
+    let fwge = state.lock().unwrap().clone();
+    println!("Author: {}", fwge.general.author);
+    Ok(fwge)
 }
 

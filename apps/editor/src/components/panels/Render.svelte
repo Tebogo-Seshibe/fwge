@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
+	import type { Unsubscriber } from "svelte/store";
 	import { Project } from "../../engine/Project";
 	import { projectStore } from "../../stores/project.store";
 	import Panel from "../Panel.svelte";
-	import { Registry } from "@fwge/ecs";
-	import type { Unsubscriber } from "svelte/store";
-	import { GL } from "@fwge/common";
 
     export let id: string;
 
@@ -27,9 +25,7 @@
                 }));
                 project.Canvas.id = "canvas";
                 project.Canvas.classList.add('cursor-crosshair')
-            }        
-
-            console.log(project)
+            }
         });
         
         containerDiv.appendChild(project.Canvas)
@@ -40,7 +36,8 @@
 	});
 
 	onDestroy(() => {
-        projectUnsubcriber();
+        if (projectUnsubcriber)
+            projectUnsubcriber();
 		window.removeEventListener('resize', resize)
 	});
 

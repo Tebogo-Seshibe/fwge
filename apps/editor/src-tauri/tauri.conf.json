@@ -92,18 +92,6 @@
         },
         "security": {
             "csp": null
-        },
-        "windows": [
-            {
-                "label": "launcher",
-                "fullscreen": false,
-                "resizable": false,
-                "title": "FWGE: Launcher",
-                "width": 600,
-                "height": 400,
-                "url": "launcher",
-                "center": true
-            }
-        ]
+        }
     }
 }

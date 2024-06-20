@@ -16,6 +16,7 @@
 	import { EditorSceneId } from '../../engine/scenes';
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { getProject } from '../../utils/project.commands';
 	export let id: string;
 
 	let project: Project | undefined;
@@ -49,10 +50,11 @@
     });
 
 
-	function play(): void {
-		if (project && currentScene) {
-			project.SetScene(currentScene.Id);
-		}
+	async function play(): Promise<void> {
+        await getProject();
+		// if (project && currentScene) {
+		// 	project.SetScene(currentScene.Id);
+		// }
 	}
 
 	function stop(): void {

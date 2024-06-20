@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { dialog, window } from '@tauri-apps/api';
+	import { dialog } from '@tauri-apps/api';
+	import { emit } from '@tauri-apps/api/event';
 	import {
 		Button,
 		ButtonGroup,
@@ -16,11 +17,11 @@
 		FolderOpenSolid,
 		GridPlusOutline
 	} from 'flowbite-svelte-icons';
+	import { onDestroy, onMount } from 'svelte';
+	import '../../app.css';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { Project } from '../../stores/project.model';
-	import { onMount, onDestroy } from 'svelte';
 	import { createNewProject, getProject, openProject } from '../../utils/project.commands';
-    import '../../app.css';
 
     //#region Shared
 	let db: FwgeDbContext;
@@ -49,18 +50,12 @@
 		} else {
 			projectPath = fwge.general.location;
 			projectName = fwge.general.name;
+			await getProject();
 		}
 	}
 
     async function openEditor(): Promise<void> {
-        const nextWindow = window
-            .getAll()
-            .filter((x) => x.label === 'editor')
-            .at(0)!;
-        await nextWindow.show();
-        await window.getCurrent().close();
-
-        // await getProject();
+		await emit('open_editor');
     }
     //#endregion
 

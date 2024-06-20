@@ -21,10 +21,10 @@ class MyTransform extends Transform
 @EditorEntity()
 export class Environment extends Entity
 {
-    @EditorComponent(MyTransform, [0,0,0], [0,0,0], [1,1,1])
+    @EditorComponent(Transform, { })
     transform!: Transform;
 
-    constructor()
+    constructor(private transform2: string = '')
     {
         super();
 
@@ -177,5 +177,7 @@ export class Environment extends Entity
             .AddChild(cube6);
         cube3.AddChild(cube4)
             .AddChild(cube5);
+
+            console.log(this)
     }
 }

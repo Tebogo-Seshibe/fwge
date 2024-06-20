@@ -73,7 +73,21 @@ fn main() {
     tauri::Builder::default()
         .manage(Mutex::new(FWGEProject::default()))
         .setup(|app| {
-            let window = WindowBuilder::new(
+            let launcher_window = WindowBuilder::new(
+                app,
+                "launcher",
+                tauri::WindowUrl::App("launcher".into())
+            )
+            .title("FWGE: Launcher")
+            .inner_size(600.0, 400.0)
+            .center()
+            .fullscreen(false)
+            .resizable(false)
+            .visible(true)
+            .build()
+            .unwrap();
+
+            let editor_window: tauri::Window = WindowBuilder::new(
                 app,
                 "editor",
                 tauri::WindowUrl::App("editor".into()),
@@ -81,25 +95,31 @@ fn main() {
             .menu(menu)
             .title("FWGE: Editor")
             .inner_size(1280.0, 720.0)
+            .center()
             .resizable(true)
             .visible(false)
             .build()
-            .expect("to build");
+            .unwrap();
 
-            let win = window.clone();
-            window.on_menu_event(move |event| {
+            let window = editor_window.clone();
+            editor_window.on_menu_event(move |event| {
                 let _ = match event.menu_item_id() {
-                    "open" => open(&win),
-                    "open_recent" => open_recent(&win),
-                    "save" => save(&win),
-                    "save_as" => save_as(&win),
-                    "build" => build(&win),
-                    "config" => config(&win),
-                    "settings" => settings(&win),
+                    "open" => window.emit("onOpen", {}).unwrap(),
+                    "open_recent" => window.emit("onOpenRecent", {}).unwrap(),
+                    "save" => window.emit("onSave", {}).unwrap(),
+                    "save_as" => window.emit("onSaveAs", {}).unwrap(),
+                    "build" => window.emit("onBuild", {}).unwrap(),
+                    "config" => window.emit("onConfig", {}).unwrap(),
+                    "settings" => window.emit("onSettings", {}).unwrap(),
                     &_ => todo!()
                 };
             });
 
+            app.listen_global("open_editor", move |_| {
+                editor_window.show().unwrap();
+                launcher_window.hide().unwrap();
+            });
+            
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

@@ -1,17 +1,11 @@
 <script lang="ts">
+	import '../../app.css';
 	import Actions from "../../components/panels/Actions.svelte";
 	import Browser from "../../components/panels/Browser.svelte";
 	import Console from "../../components/panels/Console.svelte";
 	import Hierarchy from "../../components/panels/Hierarchy.svelte";
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
-    import '../../app.css';
-	import { onMount } from "svelte";
-	import { getProject } from "../../utils/project.commands";
-
-    onMount(async () => {
-        await getProject();
-    })
 </script>
 
 <div id="editor">
