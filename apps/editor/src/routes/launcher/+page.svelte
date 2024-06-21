@@ -20,42 +20,50 @@
 	import { onDestroy, onMount } from 'svelte';
 	import '../../app.css';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
-	import type { Project } from '../../stores/project.model';
+	import type { ProjectHistory } from '../../stores/project.model';
 	import { createNewProject, getProject, openProject } from '../../utils/fwge/commands';
+	import { currentProjectStore } from '../../stores/project.store';
 
     //#region Shared
 	let db: FwgeDbContext;
-	let previousProjects: Project[] = [];
+	let previousProjects: ProjectHistory[] = [];
 	let currentPage: 'home' | 'create' | 'open' = 'home';
 
 	let projectName: string | undefined;
 	let projectPath: string | undefined;
 
     async function updateRecentProjects(): Promise<void> {
-        if (!db.IsValid) {
-            return;
-        }
-
-        db.projects.update({
-            name: projectName,
-            filePath: projectPath,
-            lastModfied: new Date().toUTCString()
-        });
+		try {	
+			currentProjectStore.set(await getProject());
+			
+			await db.projectHistory.update({
+				name: projectName,
+				filePath: projectPath,
+				lastModfied: new Date()
+			});
+		} catch (e: any) {
+			dialog.message(e);
+		}
     }
     
 	async function loadProjectInformation(path: string): Promise<void> {
-		const fwge = await openProject(path);
-		if (typeof fwge === 'string') {
-			dialog.message(fwge);
-		} else {
-			projectPath = fwge.general.location;
-			projectName = fwge.general.name;
-			console.log(await getProject());
+		try {
+			const { file_path, project_name, project_thumbnail } = await openProject(path);
+
+			projectPath = file_path;
+			projectName = project_name;
+			projectThumbnailPath = project_thumbnail;
+		} catch (e: any) {
+			dialog.message(e);
 		}
 	}
 
     async function openEditor(): Promise<void> {
-		await emit('open_editor');
+		try {
+			await emit('open_editor');
+		} catch (e: any) {
+			dialog.message(e);
+		}
     }
     //#endregion
 
@@ -64,7 +72,7 @@
         try {
             db = new FwgeDbContext();
 			await db.connect();
-			previousProjects = await db.projects.getAll();
+			previousProjects = await db.projectHistory.getAll();
 		} catch (e) {
 			console.error(e);
 		}

@@ -1,6 +1,13 @@
 use yaml_rust2::YamlLoader;
 
 #[derive(Clone, Default, serde::Serialize)]
+pub struct FWGEProjectInfo {
+    pub file_path: String,
+    pub project_name: String,
+    pub project_thumbnail: String
+}
+
+#[derive(Clone, Default, serde::Serialize)]
 pub struct FWGEProject {
     pub file_version: String,
     pub general: General,

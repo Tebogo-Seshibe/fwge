@@ -1,3 +1,9 @@
+export interface FWGEProjectInfo {
+    project_name: string,
+    file_path: string,
+    project_thumbnail: string,
+}
+
 export interface FWGEProject {
     file_version: string
     general: General

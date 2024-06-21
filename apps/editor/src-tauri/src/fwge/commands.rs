@@ -2,7 +2,7 @@ use std::{fs, sync::Mutex};
 
 use tauri::State;
 
-use super::models::{parse_fwgeproject, FWGEProject};
+use super::models::{parse_fwgeproject, FWGEProject, FWGEProjectInfo};
 
 #[tauri::command]
 pub fn create(_project_name: &str, _project_path: &str) -> String {
@@ -11,13 +11,17 @@ pub fn create(_project_name: &str, _project_path: &str) -> String {
 } 
 
 #[tauri::command]
-pub fn open(state: State<'_, Mutex<FWGEProject>>, file_path: &str) -> Result<FWGEProject, String> {
+pub fn open(state: State<'_, Mutex<FWGEProject>>, file_path: &str) -> Result<FWGEProjectInfo, String> {
     let contents = fs::read_to_string(file_path).unwrap();    
     let fwge: FWGEProject = parse_fwgeproject(contents).unwrap();
 
     *state.lock().unwrap() = fwge.clone();
 
-    Ok(fwge)
+    Ok(FWGEProjectInfo {
+        project_name: fwge.general.name,
+        file_path: fwge.general.location,
+        project_thumbnail: "".to_string()
+    })
 }
 
 #[tauri::command]

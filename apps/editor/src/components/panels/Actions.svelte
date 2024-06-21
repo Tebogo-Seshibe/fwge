@@ -12,7 +12,7 @@
 	} from 'flowbite-svelte';
 	import { PlaySolid, StopSolid } from 'flowbite-svelte-icons';
 	import type { Project } from '../../engine/Project';
-	import { currentSceneStore, projectStore } from '../../stores/project.store';
+	import { currentSceneIdStore, currentProjectStore } from '../../stores/project.store';
 	import { EditorSceneId } from '../../engine/scenes';
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
@@ -27,7 +27,7 @@
     let projectUnsubcriber: Unsubscriber;
 
     onMount(() => {
-        projectUnsubcriber = projectStore.subscribe((p) => {
+        projectUnsubcriber = currentProjectStore.subscribe((p) => {
             project = p;
 
             if (project) {
@@ -39,7 +39,7 @@
             }
         });
         
-        currentSceneUnsubcriber = currentSceneStore.subscribe((currentSceneId) => {
+        currentSceneUnsubcriber = currentSceneIdStore.subscribe((currentSceneId) => {
             currentScene = project?.GetScene(currentSceneId);
         });
     })

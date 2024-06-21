@@ -1,28 +1,14 @@
 import { invoke } from "@tauri-apps/api";
-import type { FWGEProject } from "./models";
+import type { FWGEProject, FWGEProjectInfo } from "./models";
 
 export async function createNewProject(projectName: string, projectPath: string): Promise<void> {
-    try {
-        await invoke<void>('create', { projectName, projectPath });
-    } catch(e: any) {
-        console.error(e);
-    }
+    await invoke<void>('create', { projectName, projectPath });
 }
 
-export async function openProject(filePath: string): Promise<FWGEProject | string> {
-    try {
-        return await invoke<FWGEProject | string>('open', { filePath });
-    } catch (e: any) {
-        console.error(e)
-        return e as string
-    }
+export async function openProject(filePath: string): Promise<FWGEProjectInfo> {
+    return await invoke<FWGEProjectInfo>('open', { filePath });
 }
 
-export async function getProject(): Promise<FWGEProject | string> {
-    try {        
-        return await invoke<FWGEProject | string>('get');
-    } catch (e: any) {
-        console.error(e)
-        return e as string
-    }
+export async function getProject(): Promise<FWGEProject> {
+    return await invoke<FWGEProject>('get');
 }

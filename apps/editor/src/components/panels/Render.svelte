@@ -1,35 +1,39 @@
 <script lang="ts">
+	import { Game, Scene } from "@fwge/core";
+	import type { Type } from "@fwge/ecs";
 	import { onDestroy, onMount } from "svelte";
 	import type { Unsubscriber } from "svelte/store";
-	import { Project } from "../../engine/Project";
-	import { projectStore } from "../../stores/project.store";
+	import { currentProjectStore } from "../../stores/project.store";
 	import Panel from "../Panel.svelte";
 
     export let id: string;
 
-	let project: Project;
+	let project: Game;
     let containerDiv: HTMLDivElement;
-	let canvas: HTMLCanvasElement;
     let projectUnsubcriber: Unsubscriber;
 
 	onMount(async () => {
-        projectUnsubcriber = projectStore.subscribe(currentProject => {
-            if (currentProject) {
-                project = currentProject;
-            } else {
-                projectStore.set(new Project({
-                    height: containerDiv.clientHeight,
-                    width: containerDiv.clientWidth,
-                    prefabs: [],
-                    assets: []
-                }));
-                project.Canvas.id = "canvas";
-                project.Canvas.classList.add('cursor-crosshair')
+        projectUnsubcriber = currentProjectStore.subscribe(currentProject => {
+            console.log(currentProject)
+            if (!currentProject) {
+                return;
             }
+            
+            const scenes: Type<Scene>[] = [];
+
+            project = new Game({
+                height: currentProject.build?.targets[0]?.height ?? 1080,
+                width: currentProject.build?.targets[0]?.width ?? 1920,
+                scenes,
+                startupScene: 0,
+            });
+            console.log(project);
+            project.Canvas.id = "canvas";
+            project.Canvas.classList.add('cursor-crosshair');
+            
+            containerDiv.appendChild(project.Canvas)
+            project.Start();
         });
-        
-        containerDiv.appendChild(project.Canvas)
-		project.Start();
 
 		window.addEventListener('resize', resize)
         resize()

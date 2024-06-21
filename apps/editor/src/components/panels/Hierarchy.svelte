@@ -12,7 +12,7 @@
 	} from 'flowbite-svelte';
 	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
 	import { writable, type Unsubscriber } from 'svelte/store';
-	import { currentSceneStore, projectStore } from '../../stores/project.store';
+	import { currentSceneIdStore, currentProjectStore } from '../../stores/project.store';
 	import TreeNode from '../TreeNode.svelte';
 	import Panel from '../Panel.svelte';
 	import { onDestroy, onMount } from 'svelte';
@@ -50,11 +50,11 @@
 	});
 
     onMount(() => {
-        currentSceneUnsubcriber = currentSceneStore.subscribe((currentSceneId) => {
+        currentSceneUnsubcriber = currentSceneIdStore.subscribe((currentSceneId) => {
             sceneId = currentSceneId;
         });
         
-        projectUnsubcriber = projectStore.subscribe((project) => {
+        projectUnsubcriber = currentProjectStore.subscribe((project) => {
             if (!project) {
                 return;
             }

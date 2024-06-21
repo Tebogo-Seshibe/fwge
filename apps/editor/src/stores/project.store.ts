@@ -1,8 +1,12 @@
+import type { Asset, Scene, SceneId } from "@fwge/core";
+import type { Entity, System } from "@fwge/ecs";
 import { writable } from "svelte/store";
-import type { Project } from "../engine/Project";
-import type { SceneId } from "@fwge/core";
-import type { Entity } from "@fwge/ecs";
+import type { FWGEProject } from "../utils/fwge/models";
 
-export const projectStore = writable<Project>();
-export const currentSceneStore = writable<SceneId>(1);
+export const currentSceneIdStore = writable<SceneId>(1);
+
+export const currentProjectStore = writable<FWGEProject>();
+export const currentSceneStore = writable<Scene | undefined>(undefined);
 export const currentEntityStore = writable<Entity | undefined>(undefined);
+export const currentSystemStore = writable<System | undefined>(undefined);
+export const currentAssetStore = writable<Asset | undefined>(undefined);

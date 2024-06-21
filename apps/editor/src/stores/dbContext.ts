@@ -11,11 +11,11 @@ export class DbContext {
     private database: IDBDatabase | undefined;
     public readonly dbSets: DbSet<any>[] = [];
 
-    public get Database() {
+    public get Database(): Readonly<IDBDatabase> | undefined {
         return this.database;
     }
 
-    public get IsValid() {
+    public get IsValid(): boolean {
         return this.database !== undefined;
     }
 
@@ -26,25 +26,24 @@ export class DbContext {
 
     async connect(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let upgraded = false;
-            let request: IDBOpenDBRequest = indexedDbInstance.open(this.databaseName, this.databaseVersion);
+            const request: IDBOpenDBRequest = indexedDbInstance.open(this.databaseName, this.databaseVersion);
             
             request.addEventListener('error', () => {
-                reject(request.error!.message);
+                reject(request.error?.message);
             });
 
             request.addEventListener('upgradeneeded', () => { 
                 this.database = request.result;
                 
                 for (const dbSet of this.dbSets) {
-                    this.createDbSet(dbSet.config.name, dbSet.config.id, dbSet.config.indexes);
+                    this.createDbSet(dbSet.config.name, dbSet.config.id as string, dbSet.config.indexes);
                 }
 
                 resolve();
             });
 
             request.addEventListener('success', () => { 
-                if (upgraded) {
+                if (this.database) {
                     return;
                 }
 
@@ -54,9 +53,7 @@ export class DbContext {
         });
     }
     
-    
-    async disconnect(): Promise<void>
-    {
+    async disconnect(): Promise<void> {
         return new Promise<void>((resolve) => {
             if (!this.database) {
                 return;

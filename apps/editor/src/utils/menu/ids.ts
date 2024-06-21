@@ -1,7 +1,7 @@
-export const OPEN: string = 'fwge://open';
-export const OPEN_RECENT: string = 'fwge://open_recent';
-export const SAVE: string = 'fwge://save';
-export const SAVE_AS: string = 'fwge://save_as';
-export const BUILD: string = 'fwge://build';
-export const CONFIG: string = 'fwge://config';
-export const SETTINGS: string = 'fwge://settings';
+export const OPEN = 'fwge://open';
+export const OPEN_RECENT = 'fwge://open_recent';
+export const SAVE = 'fwge://save';
+export const SAVE_AS = 'fwge://save_as';
+export const BUILD = 'fwge://build';
+export const CONFIG = 'fwge://config';
+export const SETTINGS = 'fwge://settings';
