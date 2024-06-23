@@ -6,7 +6,7 @@ getWorkspaces().forEach(package => {
     {
         process.chdir(package);
         console.log('Installing dependencies for "' + package + '"');
-        const buffer = execSync(`npm unlink`);
+        const buffer = execSync(`npm link`);
         if (buffer.length > 0)
         {
             console.log(buffer.toString());

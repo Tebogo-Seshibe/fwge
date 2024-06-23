@@ -1,34 +1,34 @@
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { BUILD, CONFIG, OPEN, OPEN_RECENT, SAVE, SAVE_AS, SETTINGS } from "./ids";
-import type { OpenPayload, OpenRecentPayload, SavePayload, SaveAsPayload, BuildPayload, ConfigPayload, SettingsPayload } from "./models";
+import { MENU__BUILD, MENU__CONFIG, MENU__OPEN, MENU__OPEN_RECENT, MENU__SAVE, MENU__SAVE_AS, MENU__SETTINGS } from "./ids";
+import type { MenuOpenPayload, MenuOpenRecentPayload, MenuSavePayload, MenuSaveAsPayload, MenuBuildPayload, MenuConfigPayload, MenuSettingsPayload } from "./models";
 
-export async function registerListeners() : Promise<UnlistenFn[]> {
-    const unlistenOpen = await listen<OpenPayload>(OPEN, payload => {
-        alert(OPEN);
+export async function registerMenuListeners() : Promise<UnlistenFn[]> {
+    const unlistenOpen = await listen<MenuOpenPayload>(MENU__OPEN, payload => {
+        alert(MENU__OPEN);
     });
 
-    const unlistenOpenRecent = await listen<OpenRecentPayload>(OPEN_RECENT, payload => {
-        alert(OPEN_RECENT);
+    const unlistenOpenRecent = await listen<MenuOpenRecentPayload>(MENU__OPEN_RECENT, payload => {
+        alert(MENU__OPEN_RECENT);
     });
 
-    const unlistenSave = await listen<SavePayload>(SAVE, payload => {
-        alert(SAVE);
+    const unlistenSave = await listen<MenuSavePayload>(MENU__SAVE, payload => {
+        alert(MENU__SAVE);
     });
 
-    const unlistenSaveAs = await listen<SaveAsPayload>(SAVE_AS, payload => {
-        alert(SAVE_AS);
+    const unlistenSaveAs = await listen<MenuSaveAsPayload>(MENU__SAVE_AS, payload => {
+        alert(MENU__SAVE_AS);
     });
 
-    const unlistenBuild = await listen<BuildPayload>(BUILD, payload => {
-        alert(BUILD);
+    const unlistenBuild = await listen<MenuBuildPayload>(MENU__BUILD, payload => {
+        alert(MENU__BUILD);
     });
 
-    const unlistenConfig = await listen<ConfigPayload>(CONFIG, payload => {
-        alert(CONFIG);
+    const unlistenConfig = await listen<MenuConfigPayload>(MENU__CONFIG, payload => {
+        alert(MENU__CONFIG);
     });
 
-    const unlistenSettings = await listen<SettingsPayload>(SETTINGS, payload => {
-        alert(SETTINGS);
+    const unlistenSettings = await listen<MenuSettingsPayload>(MENU__SETTINGS, payload => {
+        alert(MENU__SETTINGS);
     });
 
     return [

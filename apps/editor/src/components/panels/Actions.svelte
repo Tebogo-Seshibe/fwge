@@ -1,65 +1,76 @@
 <script lang="ts">
-	import type { Scene } from '@fwge/core';
-	import {
-		Label,
-		NavBrand,
-		Navbar,
-		Select,
-		Toolbar,
-		ToolbarButton,
-		ToolbarGroup,
-		type SelectOptionType
-	} from 'flowbite-svelte';
+	import type { Game, Scene } from '@fwge/core';
+	import
+		{
+			Label,
+			NavBrand,
+			Navbar,
+			Select,
+			Toolbar,
+			ToolbarButton,
+			ToolbarGroup,
+			type SelectOptionType
+		} from 'flowbite-svelte';
 	import { PlaySolid, StopSolid } from 'flowbite-svelte-icons';
-	import type { Project } from '../../engine/Project';
-	import { currentSceneIdStore, currentProjectStore } from '../../stores/project.store';
-	import { EditorSceneId } from '../../engine/scenes';
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
-	import { getProject } from '../../utils/fwge/commands';
+	import { FwgeDbContext } from '../../stores/fwgeDbContext';
+	import { currentProjectStore, currentSceneIdStore } from '../../stores/project.store';
+	import { Entity } from '@fwge/ecs';
 	export let id: string;
 
-	let project: Project | undefined;
+	let db: FwgeDbContext;
+	let game: Game | undefined;
 	let currentScene: Scene | undefined;
 	let scenes: SelectOptionType<Scene>[] = [];
 
     let currentSceneUnsubcriber: Unsubscriber;
     let projectUnsubcriber: Unsubscriber;
 
-    onMount(() => {
-        projectUnsubcriber = currentProjectStore.subscribe((p) => {
-            project = p;
+    onMount(async () => {
+        try {
+            db = new FwgeDbContext();
+			await db.connect();
+		} catch (e) {
+			console.error(e);
+		}
 
-            if (project) {
-                scenes = p.Scenes.map((x) => ({
-                    name: x.Name,
-                    value: x
-                }));
-                currentScene = p.Scenes.find((x) => x.Id === scenes[0].value.Id);
-            }
+        console.log(new Entity())
+        console.log(Entity)
+        
+        projectUnsubcriber = currentProjectStore.subscribe(p => {
+            // game = g;
+
+            // if (game) {
+            //     scenes = g.Scenes.map((x) => ({
+            //         name: x.Name,
+            //         value: x
+            //     }));
+            // }
+            console.log(p)
         });
         
-        currentSceneUnsubcriber = currentSceneIdStore.subscribe((currentSceneId) => {
-            currentScene = project?.GetScene(currentSceneId);
+        currentSceneUnsubcriber = currentSceneIdStore.subscribe(currentSceneId => {
+            currentScene = game?.GetScene(currentSceneId);
         });
     })
 
     onDestroy(() => {
+        db.disconnect();
         currentSceneUnsubcriber();
         projectUnsubcriber();
     });
 
 
 	async function play(): Promise<void> {
-        console.log(await getProject());
 		// if (project && currentScene) {
 		// 	project.SetScene(currentScene.Id);
 		// }
 	}
 
 	function stop(): void {
-		if (project) {
-			project.SetScene(EditorSceneId);
+		if (game) {
+            game.Stop();   
 		}
 	}
 </script>

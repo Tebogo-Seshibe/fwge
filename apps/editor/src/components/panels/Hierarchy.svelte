@@ -55,18 +55,19 @@
         });
         
         projectUnsubcriber = currentProjectStore.subscribe((project) => {
+            console.log(project)
             if (!project) {
                 return;
             }
             
-            scene = project.GetScene(sceneId)!;
-            entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
-            systems = scene.Systems!.filter(Boolean);
-            filters.set({
-                components: [] as Class<Component>[],
-                systems: [] as Class<System>[],
-                name: ''
-            });
+            // scene = project.GetScene(sceneId)!;
+            // entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
+            // systems = scene.Systems!.filter(Boolean);
+            // filters.set({
+            //     components: [] as Class<Component>[],
+            //     systems: [] as Class<System>[],
+            //     name: ''
+            // });
         });
     });
     

@@ -13,6 +13,7 @@ export interface LibraryEntry<T>
 export interface GameConfig
 {
     debug?: boolean;
+    canvas?: HTMLCanvasElement | (() => HTMLCanvasElement);
 
     height: number;
     width: number;
@@ -37,7 +38,7 @@ export class Game
     private _tickId: number | undefined = undefined;
     private _delayId: number | undefined = undefined;
     private _running: boolean = false;
-    private _canvas: HTMLCanvasElement = document.createElement('canvas');
+    private _canvas: HTMLCanvasElement;
     //#endregion
 
     public get Height(): number
@@ -80,6 +81,12 @@ export class Game
             prefabs: config.prefabs ?? []
         };
 
+        this._canvas = config.canvas
+            ? typeof config.canvas === 'function'
+                ? config.canvas()
+                : config.canvas
+            : document.createElement('canvas')
+            
         this.ResetContext(config.debug);
 
 

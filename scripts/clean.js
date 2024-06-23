@@ -8,21 +8,16 @@ getWorkspaces().forEach(package => {
         process.chdir(package);
 
         console.log('Cleaning "' + package + '"')
-        const packageName = getPackageName(package)
-        const buffer = execSync(`npm unlink "${packageName}"`);
         
+        rmSync('.turbo', { recursive: true, force: true })
         rmSync('lib', { recursive: true, force: true })
+        rmSync('node_modules', { recursive: true, force: true })
         rmSync('package-lock.json', { recursive: true, force: true })
         rmSync('tsconfig.tsbuildinfo', { recursive: true, force: true })
-        
-        if (buffer.length > 0)
-        {
-            console.log(buffer.toString());
-        }
     }    
     catch (e)
     {
-        console.error(e);
+        console.error(e.toString());
     }
     finally
     {

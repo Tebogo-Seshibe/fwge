@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-export interface OpenPayload { }
+export interface MenuOpenPayload { }
 
-export interface OpenRecentPayload { }
+export interface MenuOpenRecentPayload { }
 
-export interface SavePayload { }
+export interface MenuSavePayload { }
 
-export interface SaveAsPayload { }
+export interface MenuSaveAsPayload { }
 
-export interface BuildPayload { }
+export interface MenuBuildPayload { }
 
-export interface ConfigPayload { }
+export interface MenuConfigPayload { }
 
-export interface SettingsPayload { }
+export interface MenuSettingsPayload { }

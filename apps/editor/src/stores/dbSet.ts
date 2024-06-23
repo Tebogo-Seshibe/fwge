@@ -2,12 +2,12 @@ import type { Type } from "@fwge/ecs";
 import type { DbContext } from "./dbContext";
 
 export interface IDbSet<T> {
-    id: keyof T & string
-    name?: string
+    id: keyof T & string;
+    name?: string;
     indexes?: {
-        field: keyof T & string,
-        unique: boolean
-    }[]
+        field: keyof T & string;
+        unique: boolean;
+    }[];
 }
 
 export class DbSet<T> {
@@ -37,7 +37,7 @@ export class DbSet<T> {
         });
     }
     
-    getById(id: number): Promise<T> {
+    getById(id: number | string): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             const transaction = this.dbContext.Database?.transaction(this.config.name, 'readwrite');
             const store = transaction?.objectStore(this.config.name);

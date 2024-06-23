@@ -8,8 +8,10 @@ export class ProjectRenderSystem extends System
 {
     cameraView!: number;
     renderableView!: number;
+    renderableShadowView!: number;
     areaLightView!: number;
     directionalLightView!: number;
+    
     finalPassShader!: Shader;
     window!: RenderWindow;
 
@@ -23,6 +25,11 @@ export class ProjectRenderSystem extends System
         this.renderableView = Registry.RegisterView(
             [Material, Renderer, Transform],
             entity => !entity.HasComponent(EditorTag)
+        );
+        
+        this.renderableShadowView = Registry.RegisterView(
+            [Material, Renderer, Transform],
+            (_, material) => material.ProjectsShadows
         );
 
         this.areaLightView = Registry.RegisterView(

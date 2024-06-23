@@ -3,9 +3,10 @@
 file-version: '0.0.1'
 
 general:
+  uuid: 2e7016af-1893-4503-a9ea-b0a0c3773cba
   name: FWGE Example Project
   author: Tebogo Christopher Seshibe
-  location: D:\Projects\Personal\@fwge\apps\editor\src\engine\assets\ExampleProject.yml
+  version: '1.0.0'
 
 libraries:
   internal:
@@ -94,6 +95,40 @@ components:
   - Transform:
     - id: 1
       data: 0
+
+sources:
+  - path: Project.ts
+    type: game
+  - path: assets/CubeMesh.ts
+    type: asset
+  - path: assets/CubeShader.ts
+    type: asset
+  - path: assets/GridMesh.ts
+    type: asset
+  - path: assets/GridShader.ts
+    type: asset
+  - path: component/EditorTag.ts
+    type: component
+  - path: entities/Camera.ts
+    type: entity
+  - path: entities/EditorViewer.ts
+    type: entity
+  - path: entities/Environment.ts
+    type: entity
+  - path: entities/GeneralAreaLight.ts
+    type: entity
+  - path: entities/Grid.ts
+    type: entity
+  - path: entities/Sun.ts
+    type: entity
+  - path: scenes/Editor.ts
+    type: entity
+  - path: scenes/Scene1.ts
+    type: entity
+  - path: systems/EditorRenderSystem.ts
+    type: system
+  - path: systems/ProjectRenderSystem.ts
+    type: system
 
 data: !!binary |
   R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5

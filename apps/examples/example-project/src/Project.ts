@@ -3,14 +3,15 @@ import { EditorScene, Scene1 } from "./scenes";
 
 export class Project extends Game
 {
-    constructor(config: Omit<GameConfig, 'scenes' | 'startupScene'>) {
+    constructor() {
         super({
-            ...config,
             scenes: [
                 EditorScene,
                 Scene1,
             ],
-            startupScene: 0
+            startupScene: 0,
+            height: 1080,
+            width: 1920,
         })
     }
 }

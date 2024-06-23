@@ -1,4 +1,5 @@
-<script lang="ts">
+    <script lang="ts">
+	import type { UnlistenFn } from '@tauri-apps/api/event';
 	import { onDestroy, onMount } from 'svelte';
 	import '../../app.css';
 	import Actions from "../../components/panels/Actions.svelte";
@@ -7,13 +8,28 @@
 	import Hierarchy from "../../components/panels/Hierarchy.svelte";
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
-	import { registerListeners } from '../../utils/menu/events';
-	import type { UnlistenFn } from '@tauri-apps/api/event';
+	import { FwgeDbContext } from '../../stores/fwgeDbContext';
+	import { registerEditorListeners } from '../../utils/editor/events';
+	import { getDefinitions } from '../../utils/fwge/commands';
+	import { registerMenuListeners } from '../../utils/menu/events';
 
+    let db: FwgeDbContext;
     let unlistens: UnlistenFn[] = [];
 
     onMount(async () => {
-        unlistens = await registerListeners();
+        try {
+            db = new FwgeDbContext();
+            db.connect();
+        } catch (e) {
+            console.error(e);
+        }
+        
+        await getDefinitions()
+
+        unlistens = [
+            ...await registerMenuListeners(),
+            ...await registerEditorListeners()
+        ];
     });
 
     onDestroy(() => {

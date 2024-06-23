@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialog } from '@tauri-apps/api';
+	import { dialog, window } from '@tauri-apps/api';
 	import { emit } from '@tauri-apps/api/event';
 	import {
 		Button,
@@ -22,36 +22,45 @@
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { ProjectHistory } from '../../stores/project.model';
 	import { createNewProject, getProject, openProject } from '../../utils/fwge/commands';
-	import { currentProjectStore } from '../../stores/project.store';
 
     //#region Shared
 	let db: FwgeDbContext;
 	let previousProjects: ProjectHistory[] = [];
 	let currentPage: 'home' | 'create' | 'open' = 'home';
 
+	let projectUUID: string;
 	let projectName: string | undefined;
 	let projectPath: string | undefined;
 
-    async function updateRecentProjects(): Promise<void> {
+	let projectThumbnailPath: string = '';
+
+    async function updateRecentProjects(): Promise<string | undefined> {
 		try {	
-			currentProjectStore.set(await getProject());
+            const currentGame = await getProject();
 			
+            await db.projects.update({
+                uuid: currentGame.general.uuid,
+                config: currentGame
+            });
+            
 			await db.projectHistory.update({
+                uuid: projectUUID,
 				name: projectName,
 				filePath: projectPath,
 				lastModfied: new Date()
 			});
 		} catch (e: any) {
-			dialog.message(e);
+            return e as string;
 		}
     }
     
 	async function loadProjectInformation(path: string): Promise<void> {
 		try {
-			const { file_path, project_name, project_thumbnail } = await openProject(path);
+			const { file_path, project_name, project_thumbnail, project_uuid } = await openProject(path);
 
 			projectPath = file_path;
 			projectName = project_name;
+			projectUUID = project_uuid;
 			projectThumbnailPath = project_thumbnail;
 		} catch (e: any) {
 			dialog.message(e);
@@ -72,7 +81,7 @@
         try {
             db = new FwgeDbContext();
 			await db.connect();
-			previousProjects = await db.projectHistory.getAll();
+			previousProjects = (await db.projectHistory.getAll()).sort((a, b) => a.lastModfied.getTime() > b.lastModfied.getTime() ? 1 : -1);
 		} catch (e) {
 			console.error(e);
 		}
@@ -103,8 +112,6 @@
     //#endregion
 
     //#region Old Project
-	let projectThumbnailPath: string = '';
-
 	async function openProjectDialog(): Promise<void> {
 		const file = await dialog.open({
 			directory: false,
@@ -123,6 +130,16 @@
 
         await loadProjectInformation(file as string);
 	}
+
+    async function startLoadProject(): Promise<void> {
+        const err = await updateRecentProjects();
+        
+        if (err) {
+			dialog.message(err);
+        } else {
+            await openEditor();
+        }
+    }
     //#endregion
 
 </script>
@@ -229,7 +246,7 @@
 				{/if}
 
 				<Button
-					on:click={openEditor}
+					on:click={startLoadProject}
 					disabled={!projectName || !projectPath}
 					class="mt-4 w-32 flex flex-row justify-between align-self-end"
                 >

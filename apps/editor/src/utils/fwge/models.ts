@@ -1,4 +1,10 @@
+export interface ClassDefinition {
+    name: string,
+    code: string
+}
+
 export interface FWGEProjectInfo {
+    project_uuid: string,
     project_name: string,
     file_path: string,
     project_thumbnail: string,
@@ -12,9 +18,10 @@ export interface FWGEProject {
 }
 
 export interface General {
+    uuid: string
     name: string
     author: string
-    location: string
+    version: string
 }
 
 export interface Libraries {

@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod editor;
 mod menu;
 mod fwge;
 
@@ -96,6 +97,8 @@ fn main() {
             .build()
             .unwrap();
 
+            
+
             let window = editor_window.clone();
             editor_window.on_menu_event(move |event| {
                 let _ = match event.menu_item_id() {
@@ -113,6 +116,7 @@ fn main() {
             app.listen_global("open_editor", move |_| {
                 editor_window.show().unwrap();
                 launcher_window.hide().unwrap();
+                editor::events::open(&editor_window).unwrap();
             });
             
             Ok(())
@@ -120,7 +124,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             fwge::commands::create, 
             fwge::commands::open,
-            fwge::commands::get
+            fwge::commands::get,
+            fwge::commands::get_definitions
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

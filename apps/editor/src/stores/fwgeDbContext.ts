@@ -1,15 +1,10 @@
 import { DbContext } from "./dbContext";
 import { DbSet } from "./dbSet";
-import { ProjectHistory } from "./project.model";
+import { CurrentProject, ProjectHistory } from "./project.model";
 
 export class FwgeDbContext extends DbContext {
-    readonly projectHistory = new DbSet(this,
-        ProjectHistory, {
-            id: 'projectId',
-            indexes: [
-                { field: 'lastModfied', unique: false }
-            ]
-        });
+    readonly projectHistory = new DbSet(this, ProjectHistory, { id: 'uuid', });
+    readonly projects = new DbSet(this, CurrentProject, { id: 'uuid'});
         
     readonly assets = new DbSet(this,
         class ProjectAsset{ assetId!: number; data!: Uint8Array; }, {
@@ -18,6 +13,6 @@ export class FwgeDbContext extends DbContext {
     );
 
     constructor() {
-        super('fwge', 2);
+        super('fwge', 1);
     }
 }

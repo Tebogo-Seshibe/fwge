@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "rootDir": "./src",
+    "outDir": "./build",
+    "paths": {
+      "@fwge/common": ["./node_modules/@fwge/common/lib"], // Adjust the path according to your project structure
+      "@fwge/core": ["./node_modules/@fwge/core/lib"], // Adjust the path according to your project structure
+      "@fwge/ecs": ["./node_modules/@fwge/ecs/lib"], // Adjust the path according to your project structure
+      "@fwge/input": ["./node_modules/@fwge/input/lib"]  // Adjust the path according to your project structure
+    }
+  }
+}

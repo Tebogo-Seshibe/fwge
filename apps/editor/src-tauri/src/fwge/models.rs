@@ -2,6 +2,7 @@ use yaml_rust2::YamlLoader;
 
 #[derive(Clone, Default, serde::Serialize)]
 pub struct FWGEProjectInfo {
+    pub project_uuid: String,
     pub file_path: String,
     pub project_name: String,
     pub project_thumbnail: String
@@ -17,9 +18,10 @@ pub struct FWGEProject {
 
 #[derive(Clone, Default, serde::Serialize)]
 pub struct General {
+    pub uuid: String,
     pub name: String,
     pub author: String,
-    pub location: String
+    pub version: String
 }
 
 #[derive(Clone, Default, serde::Serialize)]
@@ -63,9 +65,10 @@ pub fn parse_fwgeproject(contents: String) -> Result<FWGEProject, String> {
 
     let file_version = doc["file-version"].as_str().unwrap_or_default().to_string();
     let general = General { 
+        uuid: doc["general"]["uuid"].as_str().unwrap_or_default().to_string(),
         name: doc["general"]["name"].as_str().unwrap_or_default().to_string(),
         author: doc["general"]["author"].as_str().unwrap_or_default().to_string(),
-        location: doc["general"]["location"].as_str().unwrap_or_default().to_string()
+        version: doc["general"]["version"].as_str().unwrap_or_default().to_string()
     };
     let internal: Vec<Library> = doc["libraries"]["internal"]
         .as_vec()

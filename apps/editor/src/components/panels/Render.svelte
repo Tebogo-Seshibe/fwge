@@ -1,42 +1,34 @@
 <script lang="ts">
-	import { Game, Scene } from "@fwge/core";
-	import type { Type } from "@fwge/ecs";
+	import type { Game } from "@fwge/core";
 	import { onDestroy, onMount } from "svelte";
 	import type { Unsubscriber } from "svelte/store";
-	import { currentProjectStore } from "../../stores/project.store";
+	import { currentGameStore } from "../../stores/project.store";
 	import Panel from "../Panel.svelte";
 
     export let id: string;
 
-	let project: Game;
+	let game: Game;
     let containerDiv: HTMLDivElement;
     let projectUnsubcriber: Unsubscriber;
 
 	onMount(async () => {
-        projectUnsubcriber = currentProjectStore.subscribe(currentProject => {
-            console.log(currentProject)
-            if (!currentProject) {
+        projectUnsubcriber = currentGameStore.subscribe(currentGame => {
+            if (!currentGame) {
                 return;
             }
-            
-            const scenes: Type<Scene>[] = [];
 
-            project = new Game({
-                height: currentProject.build?.targets[0]?.height ?? 1080,
-                width: currentProject.build?.targets[0]?.width ?? 1920,
-                scenes,
-                startupScene: 0,
-            });
-            console.log(project);
-            project.Canvas.id = "canvas";
-            project.Canvas.classList.add('cursor-crosshair');
+            game = currentGame;
+            currentGame.Canvas.id = "canvas";
+            currentGame.Canvas.classList.add('cursor-crosshair');
             
-            containerDiv.appendChild(project.Canvas)
-            project.Start();
+            containerDiv.appendChild(game.Canvas)
+            resize();
+
+            game.Start();
+            game.Scenes[0]
         });
 
 		window.addEventListener('resize', resize)
-        resize()
 	});
 
 	onDestroy(() => {
@@ -45,15 +37,13 @@
 		window.removeEventListener('resize', resize)
 	});
 
-	function resize(): void
-	{
-		if (!project)
-		{
+	function resize(): void {
+		if (!game) {
 			return;
 		}
 
-        project.Canvas.height = containerDiv.clientHeight;
-        project.Canvas.width = containerDiv.clientWidth;
+        game.Canvas.height = containerDiv.clientHeight;
+        game.Canvas.width = containerDiv.clientWidth;
 	}
 </script>
 

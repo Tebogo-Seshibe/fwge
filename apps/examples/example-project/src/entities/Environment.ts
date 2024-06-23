@@ -1,38 +1,21 @@
-import { BasicLitMaterial, MeshRenderer, Shader, StaticMesh, Transform } from "@fwge/core";
+import type { Colour3Array } from "@fwge/common";
+import { BasicLitMaterial, MeshRenderer, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
-import { cubeMesh } from "../assets/CubeMesh";
-import { cubeShaderFrag, cubeShaderVert } from "../assets/CubeShader";
-import type { Colour3Array, Vector3Array } from "@fwge/common";
+import { CubeMesh } from "../assets/CubeMesh";
+import { CubeShader } from "../assets/CubeShader";
 import { EditorTag } from "../components/EditorTag";
-import { EditorEntity } from "../decorators/Class.decorator";
-import { EditorComponent } from "../decorators/Component.decorator";
 
-class MyTransform extends Transform
-{
-    constructor(position: Vector3Array, rotation: Vector3Array, scale: Vector3Array)
-    {
-        super({
-            position, 
-            rotation,
-            scale
-        })
-    }
-}
-@EditorEntity()
 export class Environment extends Entity
 {
-    @EditorComponent(Transform, { })
-    transform!: Transform;
-
-    constructor(private transform2: string = '')
+    constructor()
     {
         super();
 
         const ignore = new EditorTag();
-        const cubeShader = new Shader(cubeShaderVert, cubeShaderFrag, 'Cube Shader');
+        const cubeShader = new CubeShader();
         const cubeMeshRender = new MeshRenderer(
         {
-            asset: new StaticMesh(cubeMesh)
+            asset: new CubeMesh()
         });
 
         const floor = new Entity()
