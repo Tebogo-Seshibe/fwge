@@ -1,26 +1,25 @@
 <script lang="ts">
 	import type { Scene, SceneId } from '@fwge/core';
 	import { Entity, Registry, System, type Class, type Component } from '@fwge/ecs';
-	import {
-		Button,
-		ButtonGroup,
-		Dropdown,
-		DropdownItem,
-		Input,
-		InputAddon,
-		List
-	} from 'flowbite-svelte';
+	import
+		{
+			Button,
+			ButtonGroup,
+			Dropdown,
+			DropdownItem,
+			Input,
+			InputAddon,
+			List
+		} from 'flowbite-svelte';
 	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
-	import { writable, type Unsubscriber } from 'svelte/store';
-	import { currentSceneIdStore, currentProjectStore } from '../../stores/project.store';
-	import TreeNode from '../TreeNode.svelte';
-	import Panel from '../Panel.svelte';
 	import { onDestroy, onMount } from 'svelte';
+	import { writable, type Unsubscriber } from 'svelte/store';
+	import { currentGameStore } from '../../stores/project.store';
+	import Panel from '../Panel.svelte';
+	import TreeNode from '../TreeNode.svelte';
 
 	export let id: string;
 
-	let sceneId: SceneId = -1;
-	let scene: Partial<Scene> = {};
 	let entities: Entity[] = [];
 	let systems: System[] = [];
 	let tab: 'entities' | 'systems' = 'entities';
@@ -29,7 +28,6 @@
     let projectUnsubcriber: Unsubscriber;
 
 	let filteredEntites: Entity[] = [];
-	let filteredSystems: System[] = [];
 	let filters = writable({
 		components: [] as Class<Component>[],
 		systems: [] as Class<System>[],
@@ -50,12 +48,7 @@
 	});
 
     onMount(() => {
-        currentSceneUnsubcriber = currentSceneIdStore.subscribe((currentSceneId) => {
-            sceneId = currentSceneId;
-        });
-        
-        projectUnsubcriber = currentProjectStore.subscribe((project) => {
-            console.log(project)
+        projectUnsubcriber = currentGameStore.subscribe((project) => {
             if (!project) {
                 return;
             }

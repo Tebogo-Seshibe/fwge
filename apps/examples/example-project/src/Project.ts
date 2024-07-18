@@ -1,4 +1,4 @@
-import { Game, type GameConfig } from "@fwge/core";
+import { Game } from "@fwge/core";
 import { EditorScene, Scene1 } from "./scenes";
 
 export class Project extends Game

@@ -58,7 +58,7 @@ export class RenderWindow
     {
         if (this.RenderPipeline.any())
         {
-            return this.RenderPipeline.last.Output;
+            return this.RenderPipeline.last().Output;
         }
         else
         {

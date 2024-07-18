@@ -3,7 +3,7 @@
 
 mod editor;
 mod menu;
-mod fwge;
+mod project;
 
 use tauri::{CustomMenuItem, Manager, Menu, MenuItem, Submenu, WindowBuilder};
 
@@ -62,12 +62,13 @@ fn main() {
             .add_native_item(MenuItem::Copy)
             .add_native_item(MenuItem::Paste)
     );
+
     let menu = Menu::new()
         .add_submenu(file_sub_menu)
         .add_submenu(edit_sub_menu);
 
     tauri::Builder::default()
-        .manage(std::sync::Mutex::new(fwge::models::FWGEProject::default()))
+        .manage(std::sync::Mutex::new(project::models::project::Project::default()))
         .setup(|app| {
             let launcher_window = WindowBuilder::new(
                 app,
@@ -97,7 +98,6 @@ fn main() {
             .build()
             .unwrap();
 
-            
 
             let window = editor_window.clone();
             editor_window.on_menu_event(move |event| {
@@ -109,7 +109,7 @@ fn main() {
                     "build" => menu::events::build(&window, &event),
                     "config" => menu::events::config(&window, &event),
                     "settings" => menu::events::settings(&window, &event),
-                    &_ => todo!()
+                    &_ => panic!()
                 };
             });
 
@@ -122,10 +122,10 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            fwge::commands::create, 
-            fwge::commands::open,
-            fwge::commands::get,
-            fwge::commands::get_definitions
+            project::commands::create_project, 
+            project::commands::open_project,
+            project::commands::build_project,
+            project::commands::get_project,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

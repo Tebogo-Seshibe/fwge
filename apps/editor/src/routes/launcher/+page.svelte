@@ -1,27 +1,29 @@
 <script lang="ts">
-	import { dialog, window } from '@tauri-apps/api';
+	import { dialog } from '@tauri-apps/api';
 	import { emit } from '@tauri-apps/api/event';
-	import {
-		Button,
-		ButtonGroup,
-		Checkbox,
-		ImagePlaceholder,
-		Input,
-		Label,
-		List
-	} from 'flowbite-svelte';
-	import {
-		AngleUpOutline,
-		ArrowRightOutline,
-		FolderOpenOutline,
-		FolderOpenSolid,
-		GridPlusOutline
-	} from 'flowbite-svelte-icons';
+	import
+		{
+			Button,
+			ButtonGroup,
+			Checkbox,
+			ImagePlaceholder,
+			Input,
+			Label,
+			List
+		} from 'flowbite-svelte';
+	import
+		{
+			AngleUpOutline,
+			ArrowRightOutline,
+			FolderOpenOutline,
+			FolderOpenSolid,
+			GridPlusOutline
+		} from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import '../../app.css';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { ProjectHistory } from '../../stores/project.model';
-	import { createNewProject, getProject, openProject } from '../../utils/fwge/commands';
+	import { createProject, getProject, openProject } from '../../utils/project/commands';
 
     //#region Shared
 	let db: FwgeDbContext;
@@ -36,11 +38,11 @@
 
     async function updateRecentProjects(): Promise<string | undefined> {
 		try {	
-            const currentGame = await getProject();
+            const currentProject = await getProject();
 			
             await db.projects.update({
-                uuid: currentGame.general.uuid,
-                config: currentGame
+                uuid: currentProject.info.general.uuid,
+                config: currentProject
             });
             
 			await db.projectHistory.update({
@@ -56,12 +58,12 @@
     
 	async function loadProjectInformation(path: string): Promise<void> {
 		try {
-			const { file_path, project_name, project_thumbnail, project_uuid } = await openProject(path);
+			const project = await openProject(path);
 
-			projectPath = file_path;
-			projectName = project_name;
-			projectUUID = project_uuid;
-			projectThumbnailPath = project_thumbnail;
+			projectPath = project.info.general.base_path;
+			projectName = project.info.general.name;
+			projectUUID = project.info.general.uuid;
+			projectThumbnailPath = project.info.meta.thumbnail;
 		} catch (e: any) {
 			dialog.message(e);
 		}
@@ -105,7 +107,7 @@
 	}
     
 	async function startNewProject(): Promise<void> {
-		await createNewProject(projectName!, projectPath!);
+		await createProject(projectName!, projectPath!, false);
         await updateRecentProjects();
 		await openEditor();
 	}

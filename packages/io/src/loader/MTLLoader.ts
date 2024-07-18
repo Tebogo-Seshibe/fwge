@@ -79,7 +79,7 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
 
             case 'map_bump':
             case 'bump':
-                matMap.get(newmtl)!.normalmap = values.last.trim()
+                matMap.get(newmtl)!.normalmap = values.last().trim()
                 break
         }
     }

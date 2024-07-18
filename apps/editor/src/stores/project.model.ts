@@ -1,4 +1,4 @@
-import type { FWGEProject } from "../utils/fwge/models";
+import type { Project } from "../utils/project/models";
 
 export class ProjectHistory {
     constructor(
@@ -12,6 +12,6 @@ export class ProjectHistory {
 export class CurrentProject {
     constructor(
         public uuid: string,
-        public config: FWGEProject,
+        public config: Project,
     ) { }
 }

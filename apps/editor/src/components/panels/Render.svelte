@@ -9,10 +9,10 @@
 
 	let game: Game;
     let containerDiv: HTMLDivElement;
-    let projectUnsubcriber: Unsubscriber;
+    let gameUnsubcriber: Unsubscriber;
 
 	onMount(async () => {
-        projectUnsubcriber = currentGameStore.subscribe(currentGame => {
+        gameUnsubcriber = currentGameStore.subscribe(currentGame => {
             if (!currentGame) {
                 return;
             }
@@ -25,16 +25,16 @@
             resize();
 
             game.Start();
-            game.Scenes[0]
         });
 
 		window.addEventListener('resize', resize)
 	});
 
 	onDestroy(() => {
-        if (projectUnsubcriber)
-            projectUnsubcriber();
+        if (gameUnsubcriber)
+            gameUnsubcriber();
 		window.removeEventListener('resize', resize)
+        containerDiv.removeChild(game.Canvas)
 	});
 
 	function resize(): void {

@@ -10,7 +10,6 @@
 	import Render from "../../components/panels/Render.svelte";
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import { registerEditorListeners } from '../../utils/editor/events';
-	import { getDefinitions } from '../../utils/fwge/commands';
 	import { registerMenuListeners } from '../../utils/menu/events';
 
     let db: FwgeDbContext;
@@ -19,12 +18,10 @@
     onMount(async () => {
         try {
             db = new FwgeDbContext();
-            db.connect();
+            await db.connect();
         } catch (e) {
             console.error(e);
         }
-        
-        await getDefinitions()
 
         unlistens = [
             ...await registerMenuListeners(),

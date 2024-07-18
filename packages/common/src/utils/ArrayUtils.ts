@@ -2,29 +2,23 @@ declare global
 {
     interface Array<T>
     {
-        get first():  T;
-        get last(): T;
+        first():  T;
+        last(): T;
         swap: (firstIndex: number, secondIndex: number) => void;
         empty: () => void;
         any: (predicate?: (item: T, index: number, arr: Array<T>) => boolean) => boolean;
     }
 }
 
-Object.defineProperty(Array.prototype, 'first',
+Array.prototype.first = function ()
 {
-    get()
-    {
-        return this[0];
-    }
-})
+    return this[0];
+}
 
-Object.defineProperty(Array.prototype, 'last',
+Array.prototype.last = function ()
 {
-    get()
-    {
-        return this[this.length - 1];
-    }
-})
+    return this[this.length - 1];
+}
 
 Array.prototype.swap = function (firstIndex: number, secondIndex: number)
 {

@@ -2,17 +2,17 @@ use std::sync::Mutex;
 
 use tauri::{Error, Manager, Window};
 
-use crate::fwge::models::FWGEProject;
+use crate::project::models::project::Project;
 
 use super::models::OpenPayload;
 use super::ids::OPEN;
 
 pub fn open(window: &Window) -> Result<(), Error> {
-    window.emit_to(window.label(), OPEN, OpenPayload {
-        uuid: window.state::<Mutex<FWGEProject>>()
+    window.emit(OPEN, OpenPayload {
+        uuid: window.state::<Mutex<Project>>()
             .lock()
             .unwrap()
-            .general.uuid.clone()
+            .info.general.uuid.clone()
     }).unwrap();
 
     Ok(())

@@ -44,16 +44,6 @@ export type EntityEntry =
     children: EntityId[];
 }
 
-class Transform extends Component {}    // TypeId: 0
-class Tag extends Component {}          // TypeId: 1
-class Material extends Component {}     // TypeId: 2
-class RigidBody extends Component {}    // TypeId: 3
-
-new Entity()
-[undefined, undefined, undefined, undefined]
-[1, undefined, undefined, undefined]
-[1, undefined, undefined, undefined]
-
 export class Registry
 {
     //#region Properties

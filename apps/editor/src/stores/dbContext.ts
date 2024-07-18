@@ -38,8 +38,6 @@ export class DbContext {
                 for (const dbSet of this.dbSets) {
                     this.createDbSet(dbSet.config.name, dbSet.config.id as string, dbSet.config.indexes);
                 }
-
-                resolve();
             });
 
             request.addEventListener('success', () => { 

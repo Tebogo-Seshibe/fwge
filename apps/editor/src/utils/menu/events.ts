@@ -1,6 +1,6 @@
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { MENU__BUILD, MENU__CONFIG, MENU__OPEN, MENU__OPEN_RECENT, MENU__SAVE, MENU__SAVE_AS, MENU__SETTINGS } from "./ids";
-import type { MenuOpenPayload, MenuOpenRecentPayload, MenuSavePayload, MenuSaveAsPayload, MenuBuildPayload, MenuConfigPayload, MenuSettingsPayload } from "./models";
+import type { MenuBuildPayload, MenuConfigPayload, MenuOpenPayload, MenuOpenRecentPayload, MenuSaveAsPayload, MenuSavePayload, MenuSettingsPayload } from "./models";
 
 export async function registerMenuListeners() : Promise<UnlistenFn[]> {
     const unlistenOpen = await listen<MenuOpenPayload>(MENU__OPEN, payload => {

@@ -1,137 +1,118 @@
 # FWGE YAML Project File
 
-file-version: '0.0.1'
+info:
+  file_version: '0.0.1'
 
-general:
-  uuid: 2e7016af-1893-4503-a9ea-b0a0c3773cba
-  name: FWGE Example Project
-  author: Tebogo Christopher Seshibe
-  version: '1.0.0'
+  general:
+    uuid: '2e7016af-1893-4503-a9ea-b0a0c3773cba'
+    name: 'FWGE Example Project'
+    version: '1.0.0'
+    author: 'Tebogo Christopher Seshibe'
+    base_path: 'D:\Projects\Personal\@fwge\apps\examples\example-project'
 
-libraries:
-  internal:
-    - display-name: common 
-      name: '@fwge/common'
-      version: '0.0.1'
-      source: npm
-    - display-name: core
-      name: '@fwge/core'
-      version: '0.0.1'
-      source: npm
-    - display-name: ecs
-      name: '@fwge/ecs'
-      version: '0.0.1'
-      source: npm
-  external:
+  meta:
+    date_modified: 2024/07/07 10:28
+    thumbnail: !!binary |
+      R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5
+      OTk6enp56enmlpaWNjY6Ojo4SEhP/++f/++f/++f/++f/++f/++f/++f/++f/+
+      +f/++f/++f/++f/++f/++SH+Dk1hZGUgd2l0aCBHSU1QACwAAAAADAAMAAAFLC
+      AgjoEwnuNAFOhpEMTRiggcz4BNJHrv/zCFcLiwMWYNG84BwwEeECcgggoBADs=
 
-build:
+config:
+  height: 1080
+  width: 1920
+  startup_scene: 0
+
   scripts:
-    debug: dev
-    production: build:app
+    debug: 'dev'
+    build: 'build:app'
     
   targets:
-    - platform: web
-      height: 1080
-      width: 1920
-    - platform: pwa
-      height: 1080
-      width: 1920
-    - platform: desktop
-      height: 1080
-      width: 1920
-    
-game:
-  - height: 1080
-    width: 1920
-    startupScene: 0
-    scenes:
-      - Scene1
-    assets:
-    prefabs:
+    - 'web'
+    - 'pwa'
+    - 'desktop'
 
-scenes:
-  - name: Scene1
-    windows:
-      - DefaultWindow
-    entites:
-      - Scene1
-    sharedEntites:
-      - type: GeneralAreaLight
-        name: GeneralAreaLight
-      - type: EditorViewer
-        name: EditorViewer
-      - type: Sun
-        name: Sun
-      - type: Environment
-        name: Environment
-    systems:
-      - ScriptSystem
-      - InputSystem
-      - ProjectRenderSystem
+resources:
+  libraries:
+    internal:
+      - display_name: common
+        name: '@fwge/common'
+        version: '0.0.1'
+        source: npm
+      - display_name: core
+        name: '@fwge/core'
+        version: '0.0.1'
+        source: npm
+      - display_name: ecs
+        name: '@fwge/ecs'
+        version: '0.0.1'
+        source: npm
+    external:
 
-entites:
-  - Camera:
-    - Name: 
-    - Transform: 1
-    - PerspectiveCamera: 1
-  - Camera:
-    - Name: 
-    - Transform: 1
-    - PerspectiveCamera: 1
-  - Camera:
-    - Name: 
-    - Transform: 1
-    - PerspectiveCamera: 1
-  - Camera:
-    - Name: 
-    - Transform: 1
-    - PerspectiveCamera: 1
-  - Sun:
-    - Name: 
-    - Transform: 1
-    - PerspectiveCamera: 1
 
-components:
-  - Transform:
-    - id: 1
-      data: 0
-
-sources:
-  - path: Project.ts
-    type: game
-  - path: assets/CubeMesh.ts
-    type: asset
-  - path: assets/CubeShader.ts
-    type: asset
-  - path: assets/GridMesh.ts
-    type: asset
-  - path: assets/GridShader.ts
-    type: asset
-  - path: component/EditorTag.ts
-    type: component
-  - path: entities/Camera.ts
-    type: entity
-  - path: entities/EditorViewer.ts
-    type: entity
-  - path: entities/Environment.ts
-    type: entity
-  - path: entities/GeneralAreaLight.ts
-    type: entity
-  - path: entities/Grid.ts
-    type: entity
-  - path: entities/Sun.ts
-    type: entity
-  - path: scenes/Editor.ts
-    type: entity
-  - path: scenes/Scene1.ts
-    type: entity
-  - path: systems/EditorRenderSystem.ts
-    type: system
-  - path: systems/ProjectRenderSystem.ts
-    type: system
-
-data: !!binary |
-  R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5
-  OTk6enp56enmlpaWNjY6Ojo4SEhP/++f/++f/++f/++f/++f/++f/++f/++f/+
-  +f/++f/++f/++f/++f/++SH+Dk1hZGUgd2l0aCBHSU1QACwAAAAADAAMAAAFLC
-  AgjoEwnuNAFOhpEMTRiggcz4BNJHrv/zCFcLiwMWYNG84BwwEeECcgggoBADs=
+  sources:
+    - name: Project
+      path: Project.ts
+      type: game
+      uuid: 00000000-0000-0000-0000-000000000001
+    - name: CubeMesh
+      path: assets/CubeMesh.ts
+      type: asset
+      uuid: 00000000-0000-0000-0000-000000000002
+    - name: CubeShader
+      path: assets/CubeShader.ts
+      type: asset
+      uuid: 00000000-0000-0000-0000-000000000003
+    - name: GridMesh
+      path: assets/GridMesh.ts
+      type: asset
+      uuid: 00000000-0000-0000-0000-000000000004
+    - name: GridShader
+      path: assets/GridShader.ts
+      type: asset
+      uuid: 00000000-0000-0000-0000-000000000005
+    - name: EditorTag
+      path: component/EditorTag.ts
+      type: component
+      uuid: 00000000-0000-0000-0000-000000000006
+    - name: Camera
+      path: entities/Camera.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-000000000007
+    - name: EditorViewer
+      path: entities/EditorViewer.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-000000000008
+    - name: Environment
+      path: entities/Environment.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-000000000009
+    - name: GeneralAreaLight
+      path: entities/GeneralAreaLight.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-00000000000a
+    - name: Grid
+      path: entities/Grid.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-00000000000b
+    - name: Sun
+      path: entities/Sun.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-00000000000c
+    - name: Editor
+      path: scenes/Editor.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-00000000000d
+    - name: Scene1
+      path: scenes/Scene1.ts
+      type: entity
+      uuid: 00000000-0000-0000-0000-00000000000e
+    - name: EditorRenderSystem
+      path: systems/EditorRenderSystem.ts
+      type: system
+      uuid: 00000000-0000-0000-0000-00000000000f
+    - name: ProjectRenderSystem
+      path: systems/ProjectRenderSystem.ts
+      type: system
+      uuid: 00000000-0000-0000-0000-000000000010
+      

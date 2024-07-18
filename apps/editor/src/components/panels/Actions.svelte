@@ -15,8 +15,6 @@
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	import { FwgeDbContext } from '../../stores/fwgeDbContext';
-	import { currentProjectStore, currentSceneIdStore } from '../../stores/project.store';
-	import { Entity } from '@fwge/ecs';
 	export let id: string;
 
 	let db: FwgeDbContext;
@@ -34,25 +32,6 @@
 		} catch (e) {
 			console.error(e);
 		}
-
-        console.log(new Entity())
-        console.log(Entity)
-        
-        projectUnsubcriber = currentProjectStore.subscribe(p => {
-            // game = g;
-
-            // if (game) {
-            //     scenes = g.Scenes.map((x) => ({
-            //         name: x.Name,
-            //         value: x
-            //     }));
-            // }
-            console.log(p)
-        });
-        
-        currentSceneUnsubcriber = currentSceneIdStore.subscribe(currentSceneId => {
-            currentScene = game?.GetScene(currentSceneId);
-        });
     })
 
     onDestroy(() => {
