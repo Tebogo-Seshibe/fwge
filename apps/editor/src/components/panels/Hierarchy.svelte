@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Scene, SceneId } from '@fwge/core';
+	import { type DecoratorManager, type Scene, type SceneId } from '@fwge/core';
 	import { Entity, Registry, System, type Class, type Component } from '@fwge/ecs';
 	import
 		{
@@ -22,6 +22,7 @@
 
 	let entities: Entity[] = [];
 	let systems: System[] = [];
+    let decoratorManager: DecoratorManager;
 	let tab: 'entities' | 'systems' = 'entities';
     
     let currentSceneUnsubcriber: Unsubscriber;
@@ -52,15 +53,8 @@
             if (!project) {
                 return;
             }
-            
-            // scene = project.GetScene(sceneId)!;
-            // entities = scene.Entities!.map((entityId) => Registry.GetEntity(entityId)!);
-            // systems = scene.Systems!.filter(Boolean);
-            // filters.set({
-            //     components: [] as Class<Component>[],
-            //     systems: [] as Class<System>[],
-            //     name: ''
-            // });
+            decoratorManager = (window as any).DecoratorManager as DecoratorManager;
+            console.log({ decoratorManager })
         });
     });
     

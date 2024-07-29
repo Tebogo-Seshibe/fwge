@@ -6,7 +6,7 @@ let mainGL: WebGL2RenderingContext
 
 export let GLCall: Function
 
-export function createContext(canvas: HTMLCanvasElement, debug: boolean = true): void
+export function createContext(canvas: HTMLCanvasElement, debug: boolean = true): WebGL2RenderingContext
 {
     const context = canvas.getContext('webgl2',
     {
@@ -26,7 +26,9 @@ export function createContext(canvas: HTMLCanvasElement, debug: boolean = true):
     context.getExtension('OES_texture_float_linear')
 
     GL = debug ? new GLWrapper(context) : context
-    GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true)
+    GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+
+    return context;
 }
 
 export function glClearErrors(): void

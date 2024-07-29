@@ -63,27 +63,25 @@ pub fn get_project(state: State<'_, Mutex<Project>>) -> Result<Project, String> 
 
 #[tauri::command]
 pub fn build_project(state: State<'_, Mutex<Project>>, handle: tauri::AppHandle) -> Result<(), String> {
-    let project_state = match state.lock() {
+    let project = match state.lock() {
         Ok(result) => result,
         Err(err) => return Err(String::from("Failed to get current project state\n\r").add(&err.to_string()))
     };
 
-    let message = match npm(vec!["run", "debug"], &project_state.info.general.base_path) {
+    let message = match npm(vec![&project.config.scripts.debug], &project.info.general.base_path) {
         Ok(result) => result,
         Err(err) => return Err(String::from("Failed to build project.\n\r").add(err.as_str()))
     };
     println!("{}", message);
 
-    let src = project_state.info.general.base_path.clone()
+    let src = project.info.general.base_path.clone()
         .add("\\dist\\")
-        .add(&project_state.info.general.name)
+        .add(&project.info.general.name)
         .add(".js");
     let dst = String::from(handle.path_resolver().resource_dir().unwrap().as_path().to_str().unwrap())
         .add("\\")
-        .add(&project_state.info.general.name)
+        .add(&project.info.general.name)
         .add(".js");
-    println!("{}", src);
-    println!("{}", dst);
     
     match fs::copy(src, dst) {
         Ok(..) => Ok(()),

@@ -5,7 +5,9 @@ export class Tetris extends Game
 {
     constructor()
     {
-        super(
+        super();
+        
+        this.Init(
         {
             canvas: document.querySelector<HTMLCanvasElement>('#canvas')!,
             height: 720,

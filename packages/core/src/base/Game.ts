@@ -13,7 +13,6 @@ export interface LibraryEntry<T>
 export interface GameConfig
 {
     debug?: boolean;
-    canvas?: HTMLCanvasElement | (() => HTMLCanvasElement);
 
     height: number;
     width: number;
@@ -38,7 +37,8 @@ export class Game
     private _tickId: number | undefined = undefined;
     private _delayId: number | undefined = undefined;
     private _running: boolean = false;
-    private _canvas: HTMLCanvasElement;
+    private _canvas!: HTMLCanvasElement;
+    private _gl!: WebGL2RenderingContext;
     //#endregion
 
     public get Height(): number
@@ -68,12 +68,22 @@ export class Game
         return this._canvas;
     }
 
+    public get GL(): WebGL2RenderingContext
+    {
+        return this._gl;
+    }
+
     public get Scenes(): readonly Scene[]
     {
         return Object.keys(this._scenes).map(sceneId => this.GetScene(+sceneId)) as readonly Scene[];
     }
 
-    constructor(config: GameConfig)
+    constructor() {
+        this._canvas = document.createElement('canvas');
+        this.ResetContext();
+    }
+
+    Init(config: GameConfig)
     {
         config = {
             ...config,
@@ -81,14 +91,9 @@ export class Game
             prefabs: config.prefabs ?? []
         };
 
-        this._canvas = config.canvas
-            ? typeof config.canvas === 'function'
-                ? config.canvas()
-                : config.canvas
-            : document.createElement('canvas')
-            
-        this.ResetContext(config.debug);
-
+        if (config.debug) {
+            this.ResetContext(true);
+        }
 
         this.Width = config.width;
         this.Height = config.height;
@@ -121,7 +126,7 @@ export class Game
 
     public ResetContext(debug: boolean = false): void
     {
-        createContext(this._canvas, debug);
+        this._gl = createContext(this._canvas, debug);
     }
 
     public Start(): void;

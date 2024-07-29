@@ -69,6 +69,7 @@ pub fn npm(args: Vec<&str>, working_dir: &str) -> Result<String, String> {
     
     let result = command
         .current_dir(working_dir)
+        .arg("run")
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
