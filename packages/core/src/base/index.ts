@@ -1,4 +1,4 @@
-export * from './Asset'
+export * from './assets'
 export * from './Game'
 export * from './image'
 export * from './Prefab'

@@ -1,5 +1,5 @@
 import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, TypedArray, Vector2, Vector3, Vector4 } from "@fwge/common";
-import { Asset } from "./Asset";
+import { Asset } from "./assets/Asset";
 import { STD140 } from "./std140";
 
 export type ShaderVariableType = 

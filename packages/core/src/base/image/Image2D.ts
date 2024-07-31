@@ -1,62 +1,68 @@
 import { GL, isPowerOf2 } from "@fwge/common"
-import { ImageTexture, TextureFilter, WrapMode } from "./ImageTexture"
+import { ImageAsset, TextureFilter, WrapMode } from "./ImageAsset"
 
 export interface IImage2D
 {
-    source?: string
+    source: string
     filtering?: TextureFilter
     wrapMode?: WrapMode
 }
-export class Image2D extends ImageTexture
+export class Image2D extends ImageAsset
 {
-    constructor()
+    private imageUrl: string;
+    private image: HTMLImageElement | undefined;
+
     constructor(config: IImage2D)
-    constructor(config: IImage2D = {})
     {
         super(config.filtering, config.wrapMode)
         
-        if (config.source)
-        {
-            this.Load(config.source)
-        }
-        else
-        {
-            GL.bindTexture(GL.TEXTURE_2D, this.Texture)
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
+        this.imageUrl = config.source;
+        this.BindDefaultImageData();
     }
 
-    Load(source: string): void
+    override Load(): void
     {
-        const img = new Image()
-        img.onload = () => this.applyImage(img)
-        img.src = source 
+        this.image = new Image();
+        this.image.addEventListener('load', this.BindLoadedImageData.bind(this));
     }
 
-    protected applyImage(image: HTMLImageElement): void
+    override Unload(): void
     {
-        GL.bindTexture(GL.TEXTURE_2D, this.Texture)
-        // GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image.buffer())
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, image.width, image.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, image.buffer())
+        this.image!.src = undefined!;
+        this.image = undefined!
+    }
+
+    private BindDefaultImageData(): void
+    {        
+        GL.bindTexture(GL.TEXTURE_2D, this.Texture);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+        GL.bindTexture(GL.TEXTURE_2D, null);
+    }
+
+    private BindLoadedImageData(): void
+    {
+        this.image!.removeEventListener('load', this.BindLoadedImageData.bind(this));
+        
+        GL.bindTexture(GL.TEXTURE_2D, this.Texture);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.image!.width, this.image!.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, this.image!.buffer());
     
-        if (isPowerOf2(image.width) && isPowerOf2(image.height))
+        if (isPowerOf2(this.image!.width) && isPowerOf2(this.image!.height))
         {
-            GL.generateMipmap(GL.TEXTURE_2D)
+            GL.generateMipmap(GL.TEXTURE_2D);
 
             switch (this.Filtering)
             {
                 case TextureFilter.LINEAR:
-                    // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+                    // GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
                     break
                     
                 case TextureFilter.NEAREST:
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
-                    break
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+                    break;
             }
         }
         else
@@ -64,35 +70,35 @@ export class Image2D extends ImageTexture
             switch (this.Filtering)
             {
                 case TextureFilter.LINEAR:
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-                    break
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+                    break;
             
                 case TextureFilter.NEAREST:
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
-                    break
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+                    break;
             }
         }
         
         switch (this.WrapMode)
         {
             case WrapMode.REPEAT:
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT)
-                break
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+                break;
 
             case WrapMode.MIRRORD_REPEAT:
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.MIRRORED_REPEAT)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.MIRRORED_REPEAT)
-                break
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.MIRRORED_REPEAT);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.MIRRORED_REPEAT);
+                break;
 
             case WrapMode.EDGE_CLAMP:
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                break
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+                GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+                break;
         }
 
-        GL.bindTexture(GL.TEXTURE_2D, null)
+        GL.bindTexture(GL.TEXTURE_2D, null);
     }
 }

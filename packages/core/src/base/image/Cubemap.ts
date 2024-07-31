@@ -1,12 +1,12 @@
 import { GL } from "@fwge/common"
-import { ImageTexture } from "./ImageTexture"
+import { ImageAsset } from "./ImageAsset"
 
 export interface ICubemap
 {
     source: string
 }
 
-export class Cubemap extends ImageTexture
+export class Cubemap extends ImageAsset
 {
     constructor(config: ICubemap)
     {

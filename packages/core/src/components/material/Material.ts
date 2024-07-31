@@ -1,5 +1,5 @@
 import { Colour3, GL, isPowerOf2, Scalar } from "@fwge/common";
-import { ImageTexture } from "../../base";
+import { ImageAsset } from "../../base";
 import { Shader } from "../../base/Shader";
 import { Component } from "@fwge/ecs";
 
@@ -38,7 +38,7 @@ export class Material extends Component
     
     readonly MaterialBuffer = GL.createBuffer()!
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
-    readonly ImageTextures: Array<ImageTexture | null> = new Array(8).fill(null)
+    readonly ImageTextures: Array<ImageAsset | null> = new Array(8).fill(null)
 
     get Alpha()
     {

@@ -1,6 +1,6 @@
 import { CalcuateDelay, GL, type IDelay, Vector2, createContext } from "@fwge/common";
 import { Registry, Type, type Class } from "@fwge/ecs";
-import { type Asset } from "./Asset";
+import { type Asset } from "./assets/Asset";
 import { type Prefab } from "./Prefab";
 import { type Scene, type SceneId } from "./Scene";
 
