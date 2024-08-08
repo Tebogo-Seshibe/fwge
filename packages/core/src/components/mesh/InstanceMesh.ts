@@ -34,7 +34,11 @@ export class InstanceMesh extends Mesh
 
     constructor(args: IInstanceMesh)
     {
-        super(args.position.length, args.index, args.name ?? 'Instance Mesh')
+        super(POSITION_SIZE
+            + (args.normal ? NORMAL_SIZE : 0)
+            + (args.uv     ? UV_SIZE     : 0)
+            + (args.colour ? COLOUR_SIZE : 0),
+            args.position.length, args.index, args.name ?? 'Instance Mesh')
 
         const vertexSizeInBytes =
               POSITION_SIZE

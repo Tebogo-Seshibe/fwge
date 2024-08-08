@@ -14,7 +14,7 @@ export function FWGEGame<T extends Game>(config: GameConfig): <TConstructor exte
             construct(constructor, _1, _2)
             {
                 const game = new constructor();
-                game.Init(config);
+                // game.Init(config);
                 return game;
             },
         });

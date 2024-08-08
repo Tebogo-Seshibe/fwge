@@ -15,6 +15,6 @@ export class Player extends Entity
                 far: -2,
             }
         ));
-        this.AddComponent(new Transform({ position: [0,5,0]}));
+        this.AddComponent(new Transform(this.Game, { position: [0,5,0]}));
     }
 }

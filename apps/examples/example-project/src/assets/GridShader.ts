@@ -28,8 +28,8 @@ export class GridShader extends Shader
 
             uniform Camera
             {
-                mat4 ViewMatrix;
-                mat4 ProjectionMatrix;
+                mat4 View;
+                mat4 Projection;
             } camera;
 
             void main(void)
@@ -37,7 +37,7 @@ export class GridShader extends Shader
                 V_Vertex.Position = (object.ModelViewMatrix * vec4(A_Position, 1.0)).xyz;    
                 V_Vertex.Colour = A_Colour.rgb;
 
-                gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(V_Vertex.Position, 1.0);
+                gl_Position = camera.Projection * camera.View * vec4(V_Vertex.Position, 1.0);
                 gl_PointSize = 10.0f;
             }`,
             `#version 300 es

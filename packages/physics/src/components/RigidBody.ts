@@ -1,5 +1,5 @@
 import { Vector3 } from "@fwge/common"
-import { Component } from "@fwge/ecs"
+import { Component, Game } from "@fwge/core";
 
 interface IRigidBody
 {
@@ -12,11 +12,11 @@ export class RigidBody extends Component
     Velocity: Vector3 = Vector3.Zero
     Mass: number
 
-    constructor()
-    constructor(rigidbody: IRigidBody)
-    constructor(rigidbody: IRigidBody = {})
+    constructor(game: Game)
+    constructor(game: Game, rigidbody: IRigidBody)
+    constructor(game: Game, rigidbody: IRigidBody = {})
     {
-        super()
+        super(game, RigidBody)
 
         this.Mass = rigidbody.mass ?? 1.0
         this.Velocity = rigidbody.velocity ?? Vector3.Zero

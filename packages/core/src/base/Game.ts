@@ -1,12 +1,7 @@
 import { CalcuateDelay, Vector2, createContext, type IDelay } from "@fwge/common";
-import { Type } from "@fwge/ecs";
-import { Transform } from "../components";
-import { Class, Component, ComponentId, Constructor, Entity, EntityId, ListContainer, System, TypeId } from "../ecs";
+import { Class, Component, ComponentId, Constructor, Entity, EntityId, ListContainer, System, Type, TypeId } from "../ecs";
 import { Asset } from "./Asset";
-import { Image2D } from "./image";
-import { type Prefab } from "./Prefab";
 import { type Scene, type SceneId } from "./Scene";
-import { ShaderAsset } from "./ShaderAsset";
 
 export type Head<T extends any[]> = T extends [infer U, ...infer _]
     ? U
@@ -34,6 +29,7 @@ export interface GameConfig
     canvas?: HTMLCanvasElement | (() => HTMLCanvasElement);
     height: number;
     width: number;
+    scenes: Type<Scene>[];
 }
 
 export class Game
@@ -47,8 +43,9 @@ export class Game
     private _delayId: number | undefined = undefined;
     private _running: boolean = false;
     private _debug: boolean = false;
-    private _canvas: HTMLCanvasElement = new HTMLCanvasElement();
+    private _canvas: HTMLCanvasElement;
     private _gl!: WebGL2RenderingContext;
+    private _scenes: Constructor<Scene, [Game]>[];
     //#endregion
 
     public get Height(): number
@@ -102,15 +99,17 @@ export class Game
                 ? config.canvas()
                 : config?.canvas instanceof HTMLCanvasElement 
                     ? config.canvas
-                    : this._canvas,
+                    : document.createElement('canvas'),
             height: config?.height ?? 1080,
             width: config?.width ?? 1920,
+            scenes: config?.scenes ?? []
         }
         
         this._canvas = config.canvas as HTMLCanvasElement;
         this._dimensions[0] = config.width;
         this._dimensions[1] = config.height;
         this._debug = config.debug as boolean;
+        this._scenes = config.scenes as Constructor<Scene, [Game]>[];
         
         this.ResetContext(this._debug);
     }
@@ -118,6 +117,14 @@ export class Game
     public ResetContext(debug: boolean = false): void
     {
         this._gl = createContext(this._canvas, debug);
+    }
+
+    Init(): void
+    {
+        for (const scene of this._scenes)
+        {
+            this.AddScene(new scene(this));
+        }
     }
 
     public Start(): void;
@@ -254,7 +261,7 @@ export class Game
         return this.entityGraph[entityId]?.entity as T;
     }
 
-    public GetEntities<T extends Entity = Entity>(entityType: Type<T>): readonly T[]
+    public GetEntities<T extends Entity = Entity>(entityType: Class<T>): readonly T[]
     {
         const entities: T[] = [];
 
@@ -654,6 +661,7 @@ export class Game
         if (newScene && this._currentScene?.Id !== newScene.Id)
         {
             this._currentScene = newScene;
+            newScene.Init();
         }
 
         return this;

@@ -5,13 +5,15 @@ export class Project extends Game
 {
     constructor() {
         super({
-            scenes: [
-                EditorScene,
-                Scene1,
-            ],
-            startupScene: 0,
             height: 1080,
             width: 1920,
+            canvas() {
+                return document.getElementsByTagName('canvas')[0];
+            },
+            scenes: [
+                EditorScene,
+                Scene1
+            ]
         })
     }
 }

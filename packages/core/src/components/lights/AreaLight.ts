@@ -108,28 +108,28 @@ export class AreaLight extends Light
 
     override Bind(shader: Shader, index: number = 0): void
     {
-        shader.SetBufferData('AreaLight', this.BufferData, index * this.BufferData.length)
+        shader.SetBufferData(this.Game.GL, 'AreaLight', this.BufferData, index * this.BufferData.length)
 
         if (this.Skybox)
         {
-            shader.SetBool('HasAmbientEnvironmentMap', true)
-            shader.SetTexture('AmbientEnvironmentMap', this.Skybox.Texture, false, true)
+            shader.SetBool(this.Game.GL, 'HasAmbientEnvironmentMap', true)
+            shader.SetTexture(this.Game.GL, 'AmbientEnvironmentMap', this.Skybox.Texture, false, true)
         }
         else
         {
-            shader.SetBool('HasAmbientEnvironmentMap', false)
+            shader.SetBool(this.Game.GL, 'HasAmbientEnvironmentMap', false)
         }
 
-        shader.SetFloatVector('U_AreaLight.Colour', this.Colour)
-        shader.SetFloat('U_AreaLight.Intensity', this.Intensity)
+        shader.SetFloatVector(this.Game.GL, 'U_AreaLight.Colour', this.Colour)
+        shader.SetFloat(this.Game.GL, 'U_AreaLight.Intensity', this.Intensity)
     }
     
-    BindBlock(shader: Shader): void
-    BindBlock(shader: Shader, block: string): void
-    BindBlock(shader: Shader, block: string, offset: number): void
-    BindBlock(shader: Shader, block: string, push: boolean): void
-    BindBlock(shader: Shader, block: string, push: boolean, offset: number): void
-    BindBlock(shader: Shader, block = 'AreaLight', push_offset: number | boolean = true, offset: number = 0): void
+    BindBlock(game: Game, shader: Shader): void
+    BindBlock(game: Game, shader: Shader, block: string): void
+    BindBlock(game: Game, shader: Shader, block: string, offset: number): void
+    BindBlock(game: Game, shader: Shader, block: string, push: boolean): void
+    BindBlock(game: Game, shader: Shader, block: string, push: boolean, offset: number): void
+    BindBlock(game: Game, shader: Shader, block = 'AreaLight', push_offset: number | boolean = true, offset: number = 0): void
     {
         const push = typeof push_offset === 'number'
             ? true
@@ -138,12 +138,12 @@ export class AreaLight extends Light
             ? push_offset
             : offset
             
-        shader.SetBufferDataField(block, 'Colour', this.Colour, offset);
-        shader.SetBufferDataField(block, 'Intensity', this.Intensity, offset);
+        shader.SetBufferDataField(this.Game.GL, block, 'Colour', this.Colour, offset);
+        shader.SetBufferDataField(this.Game.GL, block, 'Intensity', this.Intensity, offset);
 
         if (push)
         {
-            shader.PushBufferData(block);
+            shader.PushBufferData(this.Game.GL, block);
         }
     }
 }

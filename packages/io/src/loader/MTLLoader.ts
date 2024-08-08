@@ -1,6 +1,6 @@
-import { Colour4 } from "@fwge/common"
-import { BasicLitMaterial, Material, RenderType, Shader } from "@fwge/core"
-import { ILoader } from "./ILoader"
+import { Colour4 } from "@fwge/common";
+import { BasicLitMaterial, Game, RenderType, Shader } from "@fwge/core";
+import { ILoader } from "./ILoader";
 
 export type MTLKey = 'newmtl' 
     | 'ka' | 'kd' | 'ks' | 'ns' | 'd' | 'tr' | 'illum' 
@@ -8,8 +8,8 @@ export type MTLKey = 'newmtl'
     | 'map_disp' | 'map_bump' | 'bump'
     | 'map_ks'
 
-export type MTL = { [name: string]: Material }
-export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
+export type MTL = { [name: string]: BasicLitMaterial }
+export const MTLLoader: ILoader<MTL> =  (game: Game, src: string, defaultShader: Shader) =>
 {
     const materials: MTL = { }
     const mtlLines = src.trim().split('\n').map(x => x.trim())
@@ -96,7 +96,7 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
         material.shader = defaultShader
         material.renderType = src.includes('.png') || src.includes('.tga') ? RenderType.TRANSPARENT : RenderType.OPAQUE
         // console.log(material)
-        materials[key!] = new BasicLitMaterial(material)
+        materials[key!] = new BasicLitMaterial(game, material)
     }
 
     return materials

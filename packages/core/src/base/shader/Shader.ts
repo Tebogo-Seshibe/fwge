@@ -1,6 +1,5 @@
-import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, TypedArray, Vector2, Vector3, Vector4 } from "@fwge/common";
-import { Asset } from "./Asset";
-import { STD140 } from "./std140";
+import { Colour3, Colour4, Matrix2, Matrix3, Matrix4, Scalar, TypedArray, Vector2, Vector3, Vector4 } from "@fwge/common";
+import { STD140 } from "../std140";
 
 export type ShaderVariableType = 
     'bool'
@@ -168,7 +167,7 @@ export class Shader
     private _buffer: WebGLBuffer | null = null;
 
     private _samplerIndex: number = 0;
-    private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    private _maxSamplerIndex: number = 0;
 
     private readonly _inputs: { [key: string]: WebGLUniformLocation | undefined; } = {};
     private readonly _ignore: Set<string> = new Set();
@@ -251,14 +250,15 @@ export class Shader
         this._vertexSource = this._addIncludes(vertexShader);
         this._fragmentSource = this._addIncludes(fragmentShader);
 
-        this._addUniformStructs();        
-        this._addUniformVariables();
-        this._indexUniformBlocks();
+        this._addUniformStructs();     
     }
-
+    
     Init(gl: WebGL2RenderingContext): void
     {
-        this._compileShaders(gl);
+        this._maxSamplerIndex = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+        this._compileShaders(gl);   
+        this._addUniformVariables(gl);
+        this._indexUniformBlocks(gl);
     }
 
     _addUniformStructs(): void
@@ -335,7 +335,7 @@ export class Shader
         }
     }
 
-    private _addUniformVariables(): void
+    private _addUniformVariables(GL: WebGL2RenderingContext): void
     {
         const source = this._vertexSource + "\n" + this._fragmentSource;
         const uniforms = source.matchAll(UniformVariable);
@@ -346,7 +346,7 @@ export class Shader
 
             if (ShaderVariableTypeSet.has(type as ShaderVariableType))
             {
-                this._getLocation(name);
+                this._getLocation(GL, name);
             }
             else
             {
@@ -358,13 +358,13 @@ export class Shader
                 
                 for (const field of struct.keys())
                 {
-                    this._getLocation(`${name}.${field}`);
+                    this._getLocation(GL, `${name}.${field}`);
                 }
             }
         }
     }
     
-    private _indexUniformBlocks(): void
+    private _indexUniformBlocks(GL: WebGL2RenderingContext): void
     {
         for (const [uniform, layout] of this._uniformBlocksProps)
         {
@@ -483,7 +483,7 @@ export class Shader
         return source;
     }
 
-    private _getLocation(name: string): WebGLUniformLocation | undefined
+    private _getLocation(GL: WebGL2RenderingContext, name: string): WebGLUniformLocation | undefined
     {
         if (this._ignore.has(name))
         {
@@ -509,9 +509,9 @@ export class Shader
         return location!;
     }
 
-    Bind(): void
-    Bind(samplerIndex: number): void
-    Bind(samplerIndex: number = 0): void
+    Bind(GL: WebGL2RenderingContext): void
+    Bind(GL: WebGL2RenderingContext, samplerIndex: number): void
+    Bind(GL: WebGL2RenderingContext, samplerIndex: number = 0): void
     {
         GL.useProgram(this.Program);
         this._samplerIndex = samplerIndex;
@@ -522,14 +522,14 @@ export class Shader
         this._samplerIndex = 0;
     }
 
-    UnBind(): void
+    UnBind(GL: WebGL2RenderingContext): void
     {
         GL.useProgram(null);
     }
 
-    SetBufferData(name: string, bufferData: Float32Array): void;
-    SetBufferData(name: string, bufferData: Float32Array, offset: number): void;
-    SetBufferData(name: string, bufferData: Float32Array, offset: number = 0): void
+    SetBufferData(GL: WebGL2RenderingContext, name: string,  bufferData: Float32Array): void;
+    SetBufferData(GL: WebGL2RenderingContext, name: string,  bufferData: Float32Array, offset: number): void;
+    SetBufferData(GL: WebGL2RenderingContext, name: string,  bufferData: Float32Array, offset: number = 0): void
     {
         const uniformBlock = this._uniformBlocks[name];
         if (!uniformBlock)
@@ -540,7 +540,7 @@ export class Shader
         uniformBlock.data.set(bufferData, offset);
     }
 
-    SetBufferDataBlock(name: string, data: TypedArray, offset: number = 0): void
+    SetBufferDataBlock(GL: WebGL2RenderingContext, name: string,  data: TypedArray, offset: number = 0): void
     {
         const uniformBlock = this._uniformBlocks[name];
         if (!uniformBlock)
@@ -551,11 +551,11 @@ export class Shader
         uniformBlock.data.set(data, offset);
     }
 
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4): void
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose: boolean): void
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number): void
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number, transpose: boolean): void
-    SetBufferDataField(name: string, field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose_offset: number | boolean = 0, transpose: boolean = false): void
+    SetBufferDataField(GL: WebGL2RenderingContext, name: string,  field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4): void
+    SetBufferDataField(GL: WebGL2RenderingContext, name: string,  field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose: boolean): void
+    SetBufferDataField(GL: WebGL2RenderingContext, name: string,  field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number): void
+    SetBufferDataField(GL: WebGL2RenderingContext, name: string,  field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, offset: number, transpose: boolean): void
+    SetBufferDataField(GL: WebGL2RenderingContext, name: string,  field: string, data: TypedArray | number | Scalar | Vector2 | Vector3 | Vector4 | Matrix2 | Matrix3 | Matrix4, transpose_offset: number | boolean = 0, transpose: boolean = false): void
     {
         const offset = typeof transpose_offset === 'number'
             ? transpose_offset
@@ -690,7 +690,7 @@ export class Shader
         }
     }
 
-    PushBufferData(name: string): void
+    PushBufferData(GL: WebGL2RenderingContext, name: string): void
     {        
         const uniformBlock = this._uniformBlocks[name];
         if (!uniformBlock)
@@ -705,9 +705,9 @@ export class Shader
         }
     }
 
-    SetTexture(name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
+    SetTexture(GL: WebGL2RenderingContext, name: string, texture: WebGLTexture, is3D: boolean = false, isCube: boolean = false): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -736,9 +736,9 @@ export class Shader
     }
 
     //#region Set uniform variables
-    SetBool(name: string, bool: boolean): void
+    SetBool(GL: WebGL2RenderingContext, name: string,  bool: boolean): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -747,15 +747,15 @@ export class Shader
         GL.uniform1i(location, bool ? 1 : 0);
     }
 
-    SetInt(name: string, int: number): void
-    SetInt(name: string, int: Scalar): void
-    SetInt(name: string, int: [number]): void
-    SetInt(name: string, int: number, unsigned: boolean): void
-    SetInt(name: string, int: [number], unsigned: boolean): void
-    SetInt(name: string, int: Scalar, unsigned: boolean): void
-    SetInt(name: string, int: Scalar | [number] | number, unsigned: boolean = false): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: number): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: Scalar): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: [number]): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: number, unsigned: boolean): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: [number], unsigned: boolean): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: Scalar, unsigned: boolean): void
+    SetInt(GL: WebGL2RenderingContext, name: string,  int: Scalar | [number] | number, unsigned: boolean = false): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -785,12 +785,12 @@ export class Shader
         }
     }
 
-    SetFloat(name: string, float: number): void;
-    SetFloat(name: string, float: Scalar): void;
-    SetFloat(name: string, float: [number]): void;
-    SetFloat(name: string, float: number | Scalar | [number]): void
+    SetFloat(GL: WebGL2RenderingContext, name: string,  float: number): void;
+    SetFloat(GL: WebGL2RenderingContext, name: string,  float: Scalar): void;
+    SetFloat(GL: WebGL2RenderingContext, name: string,  float: [number]): void;
+    SetFloat(GL: WebGL2RenderingContext, name: string,  float: number | Scalar | [number]): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -806,27 +806,27 @@ export class Shader
         }
     }
 
-    SetIntVector(name: string, vector: Vector2): void;
-    SetIntVector(name: string, vector: Vector2, unsigned: boolean): void;
-    SetIntVector(name: string, vector: [number, number]): void;
-    SetIntVector(name: string, vector: [number, number], unsigned: boolean): void;
-    SetIntVector(name: string, x: number, y: number): void;
-    SetIntVector(name: string, x: number, y: number, unsigned: boolean): void;
-    SetIntVector(name: string, vector: Vector3): void;
-    SetIntVector(name: string, vector: Vector3, unsigned: boolean): void;
-    SetIntVector(name: string, vector: [number, number, number]): void;
-    SetIntVector(name: string, vector: [number, number, number], unsigned: boolean): void;
-    SetIntVector(name: string, x: number, y: number, z: number): void;
-    SetIntVector(name: string, x: number, y: number, z: number, unsigned: boolean): void;
-    SetIntVector(name: string, vector: Vector4): void;
-    SetIntVector(name: string, vector: Vector4, unsigned: boolean): void;
-    SetIntVector(name: string, vector: [number, number, number, number]): void;
-    SetIntVector(name: string, vector: [number, number, number, number], unsigned: boolean): void;
-    SetIntVector(name: string, x: number, y: number, z: number, w: number): void;
-    SetIntVector(name: string, x: number, y: number, z: number, w: number, unsigned: boolean): void;
-    SetIntVector(name: string, _1: Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector2): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector2, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number]): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number], unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector3): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector3, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number]): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number], unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector4): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: Vector4, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number, number]): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number, number], unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number, w: number): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number, w: number, unsigned: boolean): void;
+    SetIntVector(GL: WebGL2RenderingContext, name: string,  _1: Vector2 | Vector3 | Vector4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number | boolean, _3?: number | boolean, _4?: number | boolean, _5?: boolean): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -911,18 +911,18 @@ export class Shader
         }
     }
 
-    SetFloatVector(name: string, vector: Vector2): void;
-    SetFloatVector(name: string, vector: [number, number]): void;
-    SetFloatVector(name: string, x: number, y: number): void;
-    SetFloatVector(name: string, vector: Vector3 | Colour3): void;
-    SetFloatVector(name: string, vector: [number, number, number]): void;
-    SetFloatVector(name: string, x: number, y: number, z: number): void;
-    SetFloatVector(name: string, vector: Vector4 | Colour4): void;
-    SetFloatVector(name: string, vector: [number, number, number, number]): void;
-    SetFloatVector(name: string, x: number, y: number, z: number, w: number): void;
-    SetFloatVector(name: string, _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: Vector2): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number]): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: Vector3 | Colour3): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number]): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: Vector4 | Colour4): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  vector: [number, number, number, number]): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  x: number, y: number, z: number, w: number): void;
+    SetFloatVector(GL: WebGL2RenderingContext, name: string,  _1: Vector2 | Vector3 | Vector4 | Colour3 | Colour4 | [number, number] | [number, number, number] | [number, number, number, number] | number, _2?: number, _3?: number, _4?: number): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;
@@ -960,21 +960,21 @@ export class Shader
         }
     }
 
-    SetMatrix(name: string, matrix: Matrix2): void;
-    SetMatrix(name: string, matrix: Matrix2, transpose: boolean): void;
-    SetMatrix(name: string, matrix: [number, number, number, number]): void;
-    SetMatrix(name: string, matrix: [number, number, number, number], transpose: boolean): void;
-    SetMatrix(name: string, matrix: Matrix3): void;
-    SetMatrix(name: string, matrix: Matrix3, transpose: boolean): void;
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number]): void;
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number], transpose: boolean): void;
-    SetMatrix(name: string, matrix: Matrix4): void;
-    SetMatrix(name: string, matrix: Matrix4, transpose: boolean): void;
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void;
-    SetMatrix(name: string, matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void;
-    SetMatrix(name: string, matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean = false): void
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix2): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix2, transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number]): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number], transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix3): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix3, transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number, number, number, number, number, number]): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number, number, number, number, number, number], transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix4): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix4, transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean): void;
+    SetMatrix(GL: WebGL2RenderingContext, name: string,  matrix: Matrix2 | Matrix3 | Matrix4 | [number, number, number, number] | [number, number, number, number, number, number, number, number, number] | [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], transpose: boolean = false): void
     {
-        const location = this._getLocation(name);
+        const location = this._getLocation(GL, name);
         if (!location)
         {
             return;

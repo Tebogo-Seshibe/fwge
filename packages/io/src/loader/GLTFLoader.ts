@@ -1,10 +1,10 @@
-import { BasicLitMaterial, Camera, IBasicLitMaterial, Image2D, Material, Mesh, MeshRenderer, Prefab, RenderType, Shader, StaticMesh, Transform } from "@fwge/core"
+import { BasicLitMaterial, Camera, Game, IBasicLitMaterial, Image2D, Material, Mesh, MeshRenderer, Prefab, RenderType, Shader, StaticMesh, Transform } from "@fwge/core"
 import { AccessorDataType, GLTF, GLTFAccessor, GLTFAccessorTypedArray, GLTFAttributeTypeLength, GLTFBuffer, GLTFBufferView, GLTFPrimitive } from "../models/GLTF"
 import { ILoader } from "./ILoader"
 
 export const buffer_prefix = 'data:application/octet-stream;base64,'
 
-export const GLTFLoader: ILoader<Prefab<any>> = (srcGLTF: string, shader: Shader): Prefab<any> =>
+export const GLTFLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string, shader: Shader): Prefab<any> =>
 {
     const gltf = JSON.parse(srcGLTF) as GLTF
     const buffers: Uint8Array[] = []
@@ -23,10 +23,10 @@ export const GLTFLoader: ILoader<Prefab<any>> = (srcGLTF: string, shader: Shader
         buffers.push(bin)
     }
     
-    return createPrefab(gltf, buffers, shader)
+    return createPrefab(game, gltf, buffers, shader)
 }
 
-export const GLTFBinLoader: ILoader<Prefab<any>> = (srcGLTF: string, srcBin: string, shader: Shader) =>
+export const GLTFBinLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string, srcBin: string, shader: Shader) =>
 {
     const gltf = JSON.parse(srcGLTF) as GLTF
     const bin = new Uint8Array(gltf.buffers[0].byteLength)
@@ -36,10 +36,10 @@ export const GLTFBinLoader: ILoader<Prefab<any>> = (srcGLTF: string, srcBin: str
         bin[byte] = srcBin.charCodeAt(byte)
     }
 
-    return createPrefab(gltf, [bin], shader)
+    return createPrefab(game, gltf, [bin], shader)
 }
 
-export const GLTBLoader: ILoader<Prefab<any>> = (srcGLB: string, shader: Shader) =>
+export const GLTBLoader: ILoader<Prefab<any>> = (game: Game, srcGLB: string, shader: Shader) =>
 {
     let start = -1
     let end = -1
@@ -89,10 +89,10 @@ export const GLTBLoader: ILoader<Prefab<any>> = (srcGLB: string, shader: Shader)
         offset += buffer.byteLength
     }
 
-    return createPrefab(gltf, buffers, shader)
+    return createPrefab(game, gltf, buffers, shader)
 }
 
-function parsePrimitive(primitive: GLTFPrimitive, gltf: GLTF, buffers: Uint8Array[]): [Mesh, Material]
+function parsePrimitive(game: Game, primitive: GLTFPrimitive, gltf: GLTF, buffers: Uint8Array[]): [Mesh, Material]
 {
     const positionAccessor = gltf.accessors[primitive.attributes.POSITION]
     const normalAccessor = gltf.accessors[primitive.attributes.NORMAL]
@@ -115,12 +115,12 @@ function parsePrimitive(primitive: GLTFPrimitive, gltf: GLTF, buffers: Uint8Arra
     }
     // meshes.push(new StaticMesh(args))
 
-    const meshRenderer = new MeshRenderer({ asset: new StaticMesh(mesh_args) })
+    const meshRenderer = new MeshRenderer(game, { asset: new StaticMesh(mesh_args) })
 
     return [null!,null!]
 }
 
-function createPrefab(gltf: GLTF, buffers: Uint8Array[], shader: Shader)
+function createPrefab(game: Game, gltf: GLTF, buffers: Uint8Array[], shader: Shader)
 {
     const prefab = new Prefab()
 
@@ -174,13 +174,14 @@ function createPrefab(gltf: GLTF, buffers: Uint8Array[], shader: Shader)
             // meshes.push(new StaticMesh(args))
             const materialAccessor = gltf.accessors[primitive.material]
 
-            const meshRenderer = new MeshRenderer({ asset: new StaticMesh(mesh_args) })
+            const meshRenderer = new MeshRenderer(game, { asset: new StaticMesh(mesh_args) })
             meshRendererMap.set(0, meshRenderer)
-            prefab.AddComponent(new Transform())
+            prefab.AddComponent(new Transform(game))
             prefab.AddComponent(meshRenderer)
             // if (!materialAccessor)
             {
-                prefab.AddComponent(new BasicLitMaterial({
+                prefab.AddComponent(new BasicLitMaterial(game,
+                {
                     renderType: RenderType.OPAQUE,
                     shader: shader
                 }))

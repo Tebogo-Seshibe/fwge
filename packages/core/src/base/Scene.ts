@@ -1,6 +1,5 @@
-import { Entity, EntityId, System, Type } from "../ecs";
+import { Class, Entity, EntityId, System, Type } from "../ecs";
 import { Game } from "./Game";
-import { DefaultWindow } from "./render/DefaultWindow";
 import { RenderWindow } from "./render/RenderWindow";
 
 export type SceneId = number;
@@ -13,7 +12,7 @@ export interface IScene
     sharedEntities: readonly ({ type: Type<Entity>, name: string })[];
 }
 
-export class Scene
+export abstract class Scene
 {
     private static SceneId: SceneId = 0;
 
@@ -24,47 +23,53 @@ export class Scene
     readonly Systems: System[] = [];
     readonly Windows: RenderWindow[] = [];
 
-    constructor(game: Game);
-    constructor(game: Game, config: IScene);
-    constructor(game: Game, config: IScene = { windows: [ DefaultWindow ], entities: [], systems: [], sharedEntities: [] })
+    protected abstract UseWindows: Type<RenderWindow>[];
+    protected abstract UseEntites: Type<Entity>[];
+    protected abstract UseSystems: Type<System>[];
+
+    private _initialized: boolean = false;
+
+    constructor(game: Game)
     {
         this.Game = game;
         this.Name = new.target.name;
-
-        for (const renderWindow of config.windows)
-        {
-            this.Windows.push(new renderWindow(game));
-        }
-
-        for (const system of config.systems)
-        {
-            this.Systems.push(new system(game));
-        }
-
-        for (const entity of config.entities)
-        {
-            this.Entities.push((new entity(game)).Id);
-        }
-
-        for (const entity of config.sharedEntities)
-        {
-            const potentials = game.GetEntities(entity.type);
-            if (potentials.length === 0)
-            {
-                const yes = new entity.type(game);
-                yes.Name = entity.name;
-                this.Entities.push(yes.Id);
-            }
-            else
-            {
-                const yes = potentials.find(x => x.Name === entity.name)!;
-                this.Entities.push(yes.Id);
-            }
-        }
     }
 
     public Init(): void
     {
+        if (this._initialized)
+        {
+            return;
+        }
+
+        for (let i = 0; i < this.UseWindows.length; ++i)
+        {
+            this.Windows.push(new this.UseWindows[i](this.Game));
+        }
+            
+        for (let i = 0; i < this.UseEntites.length; ++i)
+        {
+            let entity: Entity;
+            const preExisting = this.Game.GetEntities(this.UseEntites[i] as Class<Entity>);
+            
+            if (preExisting.length !== 0)
+            {
+                entity = preExisting[0];
+            }
+            else
+            {
+                entity = new this.UseEntites[i](this.Game);
+            }
+            
+            entity.Init();
+            this.Entities.push(entity.Id);
+        }
+        
+        for (let i = 0; i < this.UseSystems.length; ++i)
+        {
+            this.Systems.push(new this.UseSystems[i](this.Game));
+        }
+
         for (let i = 0; i < this.Entities.length; ++i)
         {
             this.Game.GetEntity(this.Entities[i])!.Init();
@@ -74,6 +79,8 @@ export class Scene
         {
             this.Systems[i].Init();
         }
+
+        this._initialized = true;
     }
 
     public Start(): void
@@ -105,5 +112,6 @@ export class Scene
         this.Entities.empty();
         this.Systems.empty();
         this.Windows.empty();
+        this._initialized = false;
     }
 }

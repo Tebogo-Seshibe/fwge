@@ -1,5 +1,5 @@
 import { CalcuateDelay, IDelay } from "@fwge/common"
-import { Component } from "@fwge/ecs";
+import { Component, Game } from "@fwge/core";
 
 interface IAudioPlayer
 {
@@ -17,11 +17,11 @@ export class AudioPlayer extends Component
 
     }
 
-    constructor()
-    constructor(args: IAudioPlayer)
-    constructor(args?: IAudioPlayer)
+    constructor(game: Game)
+    constructor(game: Game, args: IAudioPlayer)
+    constructor(game: Game, args?: IAudioPlayer)
     {
-        super()
+        super(game, AudioPlayer)
 
         if (args)
         {       

@@ -1,4 +1,4 @@
-import { Shader } from "../Shader"
+import { Shader } from "../shader/Shader"
 import { RenderTarget } from "./RenderTarget"
 
 interface IRenderPipelineStep

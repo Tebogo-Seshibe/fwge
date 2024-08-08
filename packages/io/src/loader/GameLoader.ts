@@ -1,5 +1,4 @@
-import { AreaLight, Camera, DirectionalLight, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, Tag, Transform } from "@fwge/core"
-import { Class, Component, Constructor, Entity, System, Type } from "@fwge/ecs"
+import { AreaLight, Camera, Component, Constructor, DirectionalLight, Entity, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, System, Tag, Transform, Type } from "@fwge/core"
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { ParticleSpawner } from "@fwge/render"
@@ -88,7 +87,7 @@ TypeMappers.set('Material', Material)
 // TypeMappers.set('UIComponent', UIComponent)
 //#endregion
 
-export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
+export const GameLoader: ILoader<Scene[] | void> = (game: Game, src: string) =>
 {    
     const newGame: GameConfig = JSON.parse(src)
     const components: Component[] = []
@@ -114,8 +113,8 @@ export const GameLoader: ILoader<Scene[] | void> = (src: string, game: Game) =>
         if (constructor)
         {
             const newComponent = componentConfig.config instanceof Array
-                ? new constructor(...componentConfig.config)
-                : new constructor(componentConfig.config)
+                ? new constructor(game, ...componentConfig.config)
+                : new constructor(game, componentConfig.config)
             components.push(newComponent)
         }
     }

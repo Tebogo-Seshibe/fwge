@@ -1,5 +1,6 @@
 import { StaticMesh } from "@fwge/core";
 
+
 export class CubeMesh extends StaticMesh
 {
     constructor()

@@ -1,6 +1,5 @@
 import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
-import { type Camera, OrthographicCamera, PerspectiveCamera, Transform } from "@fwge/core";
-import { Entity } from "@fwge/ecs";
+import { Entity, PerspectiveCamera, Transform } from "@fwge/core";
 import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
 import { EditorTag } from "../components/EditorTag";
 
@@ -22,27 +21,25 @@ export class EditorViewer extends Entity
     private camera!: PerspectiveCamera;
     private locked = false;
 
-    constructor()
-    {
-        super();
-        
-        this.camera = new PerspectiveCamera({ farClipping: 100 });
-        this.cameraTransform = new Transform({ position: [0, 1, 0] });
-        this.transform = new Transform({ position: [0, 0, 10] });
+    Init()
+    {        
+        this.camera = new PerspectiveCamera(this.Game, { farClipping: 100 });
+        this.cameraTransform = new Transform(this.Game, { position: [0, 1, 0] });
+        this.transform = new Transform(this.Game, { position: [0, 0, 10] });
 
         this.AddChild(
-            new Entity()
+            new Entity(this.Game)
                 .AddComponents(
-                    new EditorTag(),
+                    new EditorTag(this.Game),
                     this.cameraTransform,
                     this.camera,
                 )
         );
 
         this.AddComponents(
-            new EditorTag(),
+            new EditorTag(this.Game),
             this.transform,
-            new Input(
+            new Input(this.Game,
             {
                 onInput: (delta, keyboard, mouse): void =>
                 {

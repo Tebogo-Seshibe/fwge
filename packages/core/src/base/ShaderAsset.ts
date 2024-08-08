@@ -1,6 +1,6 @@
 import { Asset } from "./Asset";
 import { Game } from "./Game";
-import { Shader } from "./Shader";
+import { Shader } from "./shader/Shader";
 
 export class ShaderAsset implements Asset
 {

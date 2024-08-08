@@ -1,15 +1,16 @@
-import { DirectionalLight, Transform } from "@fwge/core";
-import { Entity } from "@fwge/ecs";
+import { DirectionalLight, Entity, Transform } from "@fwge/core";
 
-export class Sun extends Entity {
-    constructor() {
-        super();
-
+export class Sun extends Entity
+{
+    Init(): void
+    {
         this.AddComponents(
-            new Transform({
+            new Transform(this.Game,
+            {
                 rotation: [0,0,0]
             }),
-            new DirectionalLight({
+            new DirectionalLight(this.Game,
+            {
                 castShadows: true,
                 colour: [1,1,1],
                 intensity: 0.5

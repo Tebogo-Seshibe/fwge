@@ -27,7 +27,6 @@
     "@fwge/audio": "workspace:*",
     "@fwge/common": "workspace:*",
     "@fwge/core": "workspace:*",
-    "@fwge/ecs": "workspace:*",
     "@fwge/input": "workspace:*",
     "@fwge/physics": "workspace:*",
     "@fwge/render": "workspace:*",

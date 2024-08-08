@@ -1,9 +1,9 @@
-import { Tag } from "@fwge/core";
+import { Game, Tag } from "@fwge/core";
 
 export class EditorTag extends Tag
 {
-    constructor()
+    constructor(game: Game)
     {
-        super("Editor")
+        super(game, "Editor")
     }
 }

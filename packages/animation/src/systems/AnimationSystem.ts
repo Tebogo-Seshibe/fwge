@@ -1,10 +1,10 @@
-import { Entity, Registry, System } from "@fwge/ecs";
+import { Entity, System } from "@fwge/core";
 import { Animation, Keyframe } from "../base";
 import { AnimationPlayer } from "../components";
 
 export class AnimationSystem extends System
 {
-    private readonly _animations = Registry.RegisterView([ AnimationPlayer ]);
+    private readonly _animations = this.Game.RegisterView([ AnimationPlayer ]);
 
     Init(): void { }
     Start(): void { }
@@ -12,14 +12,14 @@ export class AnimationSystem extends System
 
     Update(delta: number): void
     {
-        for (const entityId of Registry.GetView(this._animations))
+        for (const entityId of this.Game.GetView(this._animations))
         {
-            if (!Registry.IsEntityActive(entityId))
+            if (!this.Game.IsEntityActive(entityId))
             {
                 continue;   
             }
 
-            const entity = Registry.GetEntity(entityId)!
+            const entity = this.Game.GetEntity(entityId)!
             const animationPlayer = entity.GetComponent(AnimationPlayer)!
             const animation = animationPlayer.CurrentAnimation
 

@@ -1,6 +1,6 @@
 import { Colour3, isPowerOf2, Scalar } from "@fwge/common";
 import { Game, ImageAsset } from "../../base";
-import { Shader } from "../../base/Shader";
+import { Shader } from "../../base/shader/Shader";
 import { Component } from "../../ecs";
 
 export enum BlendMode

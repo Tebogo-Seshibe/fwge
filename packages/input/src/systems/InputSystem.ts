@@ -1,5 +1,5 @@
-import { CompositeDataView, GL } from "@fwge/common";
-import { Registry, System } from "@fwge/ecs";
+import { CompositeDataView } from "@fwge/common";
+import { System } from "@fwge/core";
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler";
 import { KeyboardInputHandler, NUM_KEYBOARD_KEYS } from "../base/keyboard/KeyboardInputHandler";
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler";
@@ -39,26 +39,26 @@ export class InputSystem extends System
     });
     
     private readonly keyboard: KeyboardInputHandler = new KeyboardInputHandler(
-        GL.canvas as HTMLCanvasElement,
+        this.Game.Canvas,
         0.2,
         this.inputDataView.View('keyboard')
     );
 
     private readonly mouse: MouseInputHandler = new MouseInputHandler(
-        GL.canvas as HTMLCanvasElement,
+        this.Game.Canvas,
         this.inputDataView.View('mouseMovement')!,
         this.inputDataView.View('mouseButtons')!
     );
     
     private readonly controllers: ControllerInputHandler = new ControllerInputHandler(
-        GL.canvas as HTMLCanvasElement,
+        this.Game.Canvas,
         this.inputDataView.View('controllerAxes')!,
         this.inputDataView.View('controllerButtons')!
     );
 
     Init(): void
     {
-        this.inputView = Registry.RegisterView([Input]);
+        this.inputView = this.Game.RegisterView([Input]);
     }
     
     Start(): void
@@ -74,14 +74,14 @@ export class InputSystem extends System
         this.mouse.Update();
         this.controllers.Update();
 
-        for (const entityId of Registry.GetView(this.inputView))
+        for (const entityId of this.Game.GetView(this.inputView))
         {
-            if (!Registry.IsEntityActive(entityId))
+            if (!this.Game.IsEntityActive(entityId))
             {
                 continue;   
             }
 
-            const input = Registry.GetComponent(entityId, Input)!;
+            const input = this.Game.GetComponent(entityId, Input)!;
             input.OnInput(
                 delta, 
                 this.keyboard.State, 

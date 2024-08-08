@@ -1,13 +1,12 @@
-import { PerspectiveCamera, Transform } from "@fwge/core";
-import { Entity } from "@fwge/ecs";
+import { Entity, PerspectiveCamera, Transform } from "@fwge/core";
 
 export class Camera extends Entity
 {
     Init(): void
     {
         this.AddComponents(
-            new Transform({ position: [ 0, 0, 10 ] }),
-            new PerspectiveCamera()
+            new Transform(this.Game, { position: [ 0, 0, 10 ] }),
+            new PerspectiveCamera(this.Game)
         )
     }
 }

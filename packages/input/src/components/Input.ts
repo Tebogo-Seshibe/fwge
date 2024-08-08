@@ -1,5 +1,5 @@
 import { FixedLengthArray } from '@fwge/common';
-import { Component } from '@fwge/ecs';
+import { Component, Game } from '@fwge/core';
 import { ControllerState, KeyboardState, MouseState } from '..';
 
 export interface IInputArgs
@@ -18,9 +18,9 @@ export class Input extends Component
 {
     OnInput: (delta: number, keyboard: KeyboardState, mouse: MouseState, controllers: Readonly<FixedLengthArray<ControllerState, 4>>) => void
     
-    constructor(args: InputArgs)
+    constructor(game: Game, args: InputArgs)
     {
-        super()
+        super(game, Input);
 
         this.OnInput = args.onInput
     }

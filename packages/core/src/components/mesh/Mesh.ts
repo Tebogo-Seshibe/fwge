@@ -66,7 +66,7 @@ export class Mesh implements Asset
 
     readonly MeshData: CompositeDataView<MeshData>;
 
-    constructor(vertexCount: number, indices: number[] | undefined, name: string)
+    constructor(size: number, vertexCount: number, indices: number[] | undefined, name: string)
     {
         this.FaceCount = indices?.length ?? vertexCount
         this.EdgeCount = indices ? (indices.length * 2) : vertexCount
@@ -79,7 +79,7 @@ export class Mesh implements Asset
         this.MeshData = new CompositeDataView({
             vertices: {
                 type: Float32Array,
-                length: vertexCount
+                length: vertexCount * size
             },
             faces: {
                 type: Uint8Array,
@@ -116,6 +116,7 @@ export class Mesh implements Asset
             this.IsIndexed = true
         }
     }
+
     Load(game: Game): void
     {
         const GL = game.GL;

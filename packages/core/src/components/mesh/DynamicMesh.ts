@@ -198,6 +198,7 @@ export class DynamicMesh extends Mesh
     constructor(args: IMesh = { })
     {
         super(
+            4,
             args.position?.length ?? 0 * Vector3.SIZE,
             args.index, 
             args.name ?? 'Dynamic Mesh'
