@@ -3,6 +3,7 @@ import { Camera, PerspectiveCamera, StaticMesh } from "../../components";
 import { RenderPipelineMode } from "./RenderPipelineMode";
 import { RenderPipelineStep } from "./RenderPipelineStep";
 import { ColourType, DepthType, RenderTarget } from "./RenderTarget";
+import { Game } from "../Game";
 
 export interface IRenderWindow
 {
@@ -66,11 +67,11 @@ export class RenderWindow
         }
     }
 
-    constructor();
-    constructor(window: IRenderWindow);
-    constructor(window: IRenderWindow = {})
+    constructor(game: Game);
+    constructor(game: Game, window: IRenderWindow);
+    constructor(game: Game, window: IRenderWindow = {})
     {
-        this.Camera = window.camera ?? new PerspectiveCamera();
+        this.Camera = window.camera ?? new PerspectiveCamera(game);
         this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080]);
         this.Offset = new Vector2(window.offset as Vector2Array ?? [0, 0]);
         this.Scale = new Vector2(window.scale as Vector2Array ?? [1, 1]);

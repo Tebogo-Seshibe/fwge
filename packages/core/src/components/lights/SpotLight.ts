@@ -1,7 +1,6 @@
-import { Colour3, Vector3, Vector3Array } from "@fwge/common"
-import { Shader } from "../../base"
-import { Transform } from "../Transform"
-import { ILight, Light } from "./Light"
+import { Colour3, Vector3, Vector3Array } from "@fwge/common";
+import { Game, Shader } from "../../base";
+import { ILight, Light } from "./Light";
 
 export interface ISpotLight extends ILight
 {
@@ -18,11 +17,12 @@ export class SpotLight extends Light
     readonly Direction: Vector3
     CastShadows: boolean
 
-    constructor()
-    constructor(light: ISpotLight)
-    constructor(light: ISpotLight = { })
+    constructor(game: Game)
+    constructor(game: Game, light: ISpotLight)
+    constructor(game: Game, light: ISpotLight = { })
     {
         super(
+            game,
             light.colour && new Colour3(light.colour as Vector3Array),
             light.intensity,
             new Float32Array(12)

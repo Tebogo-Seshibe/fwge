@@ -1,4 +1,4 @@
-import { Registry, Type, type Entity, type EntityId, type System } from "@fwge/ecs";
+import { Entity, EntityId, System, Type } from "../ecs";
 import { Game } from "./Game";
 import { DefaultWindow } from "./render/DefaultWindow";
 import { RenderWindow } from "./render/RenderWindow";
@@ -33,25 +33,25 @@ export class Scene
 
         for (const renderWindow of config.windows)
         {
-            this.Windows.push(new renderWindow);
+            this.Windows.push(new renderWindow(game));
         }
 
         for (const system of config.systems)
         {
-            this.Systems.push(new system);
+            this.Systems.push(new system(game));
         }
 
         for (const entity of config.entities)
         {
-            this.Entities.push((new entity).Id);
+            this.Entities.push((new entity(game)).Id);
         }
 
         for (const entity of config.sharedEntities)
         {
-            const potentials = Registry.GetEntities(entity.type);
+            const potentials = game.GetEntities(entity.type);
             if (potentials.length === 0)
             {
-                const yes = new entity.type;
+                const yes = new entity.type(game);
                 yes.Name = entity.name;
                 this.Entities.push(yes.Id);
             }
@@ -67,7 +67,7 @@ export class Scene
     {
         for (let i = 0; i < this.Entities.length; ++i)
         {
-            Registry.GetEntity(this.Entities[i])!.Init();
+            this.Game.GetEntity(this.Entities[i])!.Init();
         }
         
         for (let i = 0; i < this.Systems.length; ++i)
@@ -98,5 +98,12 @@ export class Scene
         {
             this.Systems[i].Stop();
         }
+    }
+
+    public Destroy(): void
+    {
+        this.Entities.empty();
+        this.Systems.empty();
+        this.Windows.empty();
     }
 }

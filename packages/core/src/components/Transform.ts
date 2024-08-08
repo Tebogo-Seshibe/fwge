@@ -1,5 +1,6 @@
 import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
-import { Component, EntityId, Registry } from '@fwge/ecs';
+import { Component, EntityId } from '../ecs';
+import { Game } from '../base';
 
 export interface ITransform
 {
@@ -26,127 +27,13 @@ export class Transform extends Component
     public readonly Rotation: Vector3;
     public readonly Scale: Vector3;
 
-    GlobalPosition(): Readonly<Vector3>
-    GlobalPosition(ownerId: EntityId): Readonly<Vector3>
-    GlobalPosition(ownerId: EntityId = -1): Readonly<Vector3>
+    constructor(game: Game)
+    constructor(game: Game, transform: ISimpleTransform)
+    constructor(game: Game, transform: ITransformBuffered)
+    constructor(game: Game, args: ISimpleTransform | ITransformBuffered = { })
     {
-        const position = this.Position.Clone();
+        super(game, Transform);
 
-        while (ownerId !== -1)
-        {
-            const transform = Registry.GetComponent(ownerId, Transform);
-
-            if (transform)
-            {
-                position.Add(transform.Position);
-            }
-
-            ownerId = Registry.GetParentId(ownerId);
-        }
-
-        return position;
-    }
-
-    GlobalRotation(): Readonly<Vector3>
-    GlobalRotation(ownerId: EntityId): Readonly<Vector3>
-    GlobalRotation(ownerId: EntityId = -1): Readonly<Vector3>
-    {
-        const rotation = this.Rotation.Clone();
-        
-        while (ownerId !== -1)
-        {
-            const transform = Registry.GetComponent(ownerId, Transform);
-            
-            if (transform)
-            {
-                rotation.Add(transform.Rotation);
-            }
-                
-            ownerId = Registry.GetParentId(ownerId);
-        }
-
-        return rotation;
-    }
-
-    GlobalScale(): Readonly<Vector3>
-    GlobalScale(ownerId: EntityId): Readonly<Vector3>
-    GlobalScale(ownerId: EntityId = -1): Readonly<Vector3>
-    {
-        const scale = this.Scale.Clone();
-        
-        while (ownerId !== -1)
-        {
-            const transform = Registry.GetComponent(ownerId, Transform);
-
-            if (transform)
-            {
-                scale.Add(transform.Scale);
-            }
-
-            ownerId = Registry.GetParentId(ownerId);
-        }
-
-        return scale;
-    }
-    
-    GlobalModelViewMatrix(): Readonly<Matrix4>
-    GlobalModelViewMatrix(out: Matrix4): Readonly<Matrix4>
-    GlobalModelViewMatrix(ownerId: EntityId): Readonly<Matrix4>
-    GlobalModelViewMatrix(ownerId: EntityId, out: Matrix4): Readonly<Matrix4>
-    GlobalModelViewMatrix(_0?: Matrix4 | EntityId, _1?: Matrix4): Readonly<Matrix4>
-    {
-        const modelViewMatrix = _1 ?? (_0 instanceof Matrix4 ? _0 : Matrix4.Identity);
-        let ownerId = typeof _0 === 'number' ? _0 : -1;
-            
-        Matrix4.TransformationMatrix(
-            this.Position, 
-            this.Rotation, 
-            this.Scale,
-            modelViewMatrix
-        );
-        
-        while (ownerId !== -1)
-        {
-            const transform = Registry.GetComponent(ownerId, Transform);
-
-            if (transform)
-            {
-                Matrix4.Multiply(
-                    Matrix4.TransformationMatrix(
-                        transform.Position, 
-                        transform.Rotation, 
-                        transform.Scale,
-                    ),
-                    modelViewMatrix,
-                    modelViewMatrix
-                );
-            }
-
-            ownerId = Registry.GetParentId(ownerId);
-        }
-
-        return modelViewMatrix;
-    }
-    
-    LocalModelViewMatrix(): Matrix4
-    LocalModelViewMatrix(out: Matrix4): Matrix4
-    LocalModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
-    {
-        return Matrix4.TransformationMatrix(
-            this.Position,
-            this.Rotation,
-            this.Scale,
-            _0
-        )
-    }
-
-    constructor()
-    constructor(transform: ISimpleTransform)
-    constructor(transform: ITransformBuffered)
-    constructor(args: ISimpleTransform | ITransformBuffered = { })
-    {
-        super(Transform)
-        
         if ('buffer' in args && args.buffer)
         {
             this.Position = new Vector3(args.buffer, args.positionOffset ?? 0);
@@ -187,5 +74,119 @@ export class Transform extends Component
         {
             this.Scale.Set(1, 1, 1);
         }
+    }
+
+    GlobalPosition(): Readonly<Vector3>
+    GlobalPosition(ownerId: EntityId): Readonly<Vector3>
+    GlobalPosition(ownerId: EntityId = -1): Readonly<Vector3>
+    {
+        const position = this.Position.Clone();
+
+        while (ownerId !== -1)
+        {
+            const transform = this.Game.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                position.Add(transform.Position);
+            }
+
+            ownerId = this.Game.GetParentId(ownerId);
+        }
+
+        return position;
+    }
+
+    GlobalRotation(): Readonly<Vector3>
+    GlobalRotation(ownerId: EntityId): Readonly<Vector3>
+    GlobalRotation(ownerId: EntityId = -1): Readonly<Vector3>
+    {
+        const rotation = this.Rotation.Clone();
+        
+        while (ownerId !== -1)
+        {
+            const transform = this.Game.GetComponent(ownerId, Transform);
+            
+            if (transform)
+            {
+                rotation.Add(transform.Rotation);
+            }
+                
+            ownerId = this.Game.GetParentId(ownerId);
+        }
+
+        return rotation;
+    }
+
+    GlobalScale(): Readonly<Vector3>
+    GlobalScale(ownerId: EntityId): Readonly<Vector3>
+    GlobalScale(ownerId: EntityId = -1): Readonly<Vector3>
+    {
+        const scale = this.Scale.Clone();
+        
+        while (ownerId !== -1)
+        {
+            const transform = this.Game.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                scale.Add(transform.Scale);
+            }
+
+            ownerId = this.Game.GetParentId(ownerId);
+        }
+
+        return scale;
+    }
+    
+    GlobalModelViewMatrix(): Readonly<Matrix4>
+    GlobalModelViewMatrix(out: Matrix4): Readonly<Matrix4>
+    GlobalModelViewMatrix(ownerId: EntityId): Readonly<Matrix4>
+    GlobalModelViewMatrix(ownerId: EntityId, out: Matrix4): Readonly<Matrix4>
+    GlobalModelViewMatrix(_0?: Matrix4 | EntityId, _1?: Matrix4): Readonly<Matrix4>
+    {
+        const modelViewMatrix = _1 ?? (_0 instanceof Matrix4 ? _0 : Matrix4.Identity);
+        let ownerId = typeof _0 === 'number' ? _0 : -1;
+            
+        Matrix4.TransformationMatrix(
+            this.Position, 
+            this.Rotation, 
+            this.Scale,
+            modelViewMatrix
+        );
+        
+        while (ownerId !== -1)
+        {
+            const transform = this.Game.GetComponent(ownerId, Transform);
+
+            if (transform)
+            {
+                Matrix4.Multiply(
+                    Matrix4.TransformationMatrix(
+                        transform.Position, 
+                        transform.Rotation, 
+                        transform.Scale,
+                    ),
+                    modelViewMatrix,
+                    modelViewMatrix
+                );
+            }
+
+            ownerId = this.Game.GetParentId(ownerId);
+        }
+
+        return modelViewMatrix;
+    }
+    
+    LocalModelViewMatrix(): Matrix4
+    LocalModelViewMatrix(out: Matrix4): Matrix4
+    LocalModelViewMatrix(_0: Matrix4 = Matrix4.Identity): Matrix4
+    {
+        return Matrix4.TransformationMatrix(
+            this.Position,
+            this.Rotation,
+            this.Scale,
+            _0
+        )
     }
 }

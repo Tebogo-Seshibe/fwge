@@ -1,4 +1,5 @@
 export * from './base'
+export * from './ecs'
 export * from './components'
 export * from './decorators'
 export * from './systems'

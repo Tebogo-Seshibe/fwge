@@ -1,6 +1,5 @@
-import { Colour3, GL, Vector3, Vector3Array } from "@fwge/common";
-import { Shader } from "../../base";
-import { Image2D } from "../../base/image";
+import { Colour3, Vector3, Vector3Array } from "@fwge/common";
+import { Game, Shader } from "../../base";
 import { IMaterial, Material } from "./Material";
 
 export interface IBasicLitMaterial extends IMaterial
@@ -46,70 +45,70 @@ export class BasicLitMaterial extends Material
     readonly Diffuse: Colour3 = new Colour3(0.75, 0.75, 0.75)
     readonly Specular: Colour3 = new Colour3(1.00, 1.00, 1.00)
 
-    AmbientTexture: Image2D = new Image2D()
+    // AmbientTexture: Image2D = new Image2D()
 
     get HasImageMap()
     {
         return this.Textures[0] !== null
     }
 
-    set ImageMap(src: string | null | WebGLTexture)
-    {
-        GL.deleteTexture(this.Textures[0])
+    // set ImageMap(src: string | null | WebGLTexture)
+    // {
+    //     GL.deleteTexture(this.Textures[0])
 
-        if (src instanceof WebGLTexture)
-        {
-            this.Textures[0] = src
-        }
-        else if (src)
-        {
-            this.Textures[0] = GL.createTexture()!
-            this.applyImage(this.Textures[0], src)
-            this.AmbientTexture.Load(src)
-        }
-        else 
-        {
-            this.Textures[0] = null
-        }
-    }
+    //     if (src instanceof WebGLTexture)
+    //     {
+    //         this.Textures[0] = src
+    //     }
+    //     else if (src)
+    //     {
+    //         this.Textures[0] = GL.createTexture()!
+    //         this.applyImage(this.Textures[0], src)
+    //         this.AmbientTexture.Load(src)
+    //     }
+    //     else 
+    //     {
+    //         this.Textures[0] = null
+    //     }
+    // }
 
-    set NormalMap(src: string | null | WebGLTexture)
-    {
-        GL.deleteTexture(this.Textures[1])
+    // set NormalMap(src: string | null | WebGLTexture)
+    // {
+    //     GL.deleteTexture(this.Textures[1])
         
-        if (src instanceof WebGLTexture)
-        {
-            this.Textures[1] = src
-        }
-        else if (src)
-        {
-            this.Textures[1] = GL.createTexture()!
-            this.applyImage(this.Textures[1], src)
-        }
-        else 
-        {
-            this.Textures[1] = null
-        }
-    }
+    //     if (src instanceof WebGLTexture)
+    //     {
+    //         this.Textures[1] = src
+    //     }
+    //     else if (src)
+    //     {
+    //         this.Textures[1] = GL.createTexture()!
+    //         this.applyImage(this.Textures[1], src)
+    //     }
+    //     else 
+    //     {
+    //         this.Textures[1] = null
+    //     }
+    // }
 
-    set SpecularMap(src: string | null | WebGLTexture)
-    {
-        GL.deleteTexture(this.Textures[2])
+    // set SpecularMap(src: string | null | WebGLTexture)
+    // {
+    //     GL.deleteTexture(this.Textures[2])
         
-        if (src instanceof WebGLTexture)
-        {
-            this.Textures[2] = src
-        }
-        else if (src)
-        {
-            this.Textures[2] = GL.createTexture()!
-            this.applyImage(this.Textures[2], src)
-        }
-        else 
-        {
-            this.Textures[2] = null
-        }
-    }
+    //     if (src instanceof WebGLTexture)
+    //     {
+    //         this.Textures[2] = src
+    //     }
+    //     else if (src)
+    //     {
+    //         this.Textures[2] = GL.createTexture()!
+    //         this.applyImage(this.Textures[2], src)
+    //     }
+    //     else 
+    //     {
+    //         this.Textures[2] = null
+    //     }
+    // }
 
     get ImageTexture(): WebGLTexture | null
     {
@@ -126,9 +125,9 @@ export class BasicLitMaterial extends Material
         return this.Textures[2]
     }
 
-    constructor(args: IBasicLitMaterial)
+    constructor(game: Game, args: IBasicLitMaterial)
     {
-        super(args.shader, args.renderType)
+        super(game, args.shader, args.renderType)
 
         if (args.ambient)
         {
@@ -152,9 +151,9 @@ export class BasicLitMaterial extends Material
 
         this.Alpha = args.alpha ?? 1.0
         this.Shininess = args.shininess ?? 32
-        this.ImageMap = args.imagemap ?? null
-        this.NormalMap = args.normalmap ?? null
-        this.SpecularMap = args.specularmap ?? null
+        // this.ImageMap = args.imagemap ?? null
+        // this.NormalMap = args.normalmap ?? null
+        // this.SpecularMap = args.specularmap ?? null
         this.ReceiveShadows = args.receiveShadows ?? true
         this.ProjectsShadows = args.projectShadows ?? true
     }
@@ -173,8 +172,8 @@ export class BasicLitMaterial extends Material
 
         if (this.Textures[0])
         {
-            // shader.SetTexture('U_Sampler.Image', this.Textures[0])
-            shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
+            shader.SetTexture('U_Sampler.Image', this.Textures[0])
+            // shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
         }
         else
         {
@@ -211,8 +210,8 @@ export class BasicLitMaterial extends Material
         shader.SetBufferDataField(block, 'Ambient', this.Ambient);
         shader.SetBufferDataField(block, 'Diffuse', this.Diffuse);
         shader.SetBufferDataField(block, 'Specular', this.Specular);
-        shader.SetBufferDataField(block, 'HasImageMap', this.ImageMap ? 1 : 0);
-        shader.SetBufferDataField(block, 'HasBumpMap', this.NormalMap ? 1 : 0);
+        // shader.SetBufferDataField(block, 'HasImageMap', this.ImageMap ? 1 : 0);
+        // shader.SetBufferDataField(block, 'HasBumpMap', this.NormalMap ? 1 : 0);
         shader.SetBufferDataField(block, 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
 
         if (push)
@@ -222,7 +221,7 @@ export class BasicLitMaterial extends Material
         
         if (this.Textures[0])
         {
-            shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture);
+            shader.SetTexture('U_Sampler.Image', this.Textures[0]);
         }
         else
         {

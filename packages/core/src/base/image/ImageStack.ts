@@ -1,3 +1,4 @@
+import { Game } from "../Game";
 import { IImage2D } from "./Image2D"
 import { ImageAsset } from "./ImageAsset"
 
@@ -7,6 +8,21 @@ export class ImageStack extends ImageAsset
 {
     constructor(config: IImageStack)
     {
-        super()
+        super([])
+    }
+    
+    public Load(game: Game): void
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public Unload(game: Game): void
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public Destroy(game: Game): void
+    {
+        throw new Error("Method not implemented.");
     }
 }

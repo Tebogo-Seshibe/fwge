@@ -1,8 +1,6 @@
-import { Colour3, Scalar, Vector3, Vector3Array } from "@fwge/common"
-import { DepthType, RenderTarget, Shader } from "../../base"
-import { Camera, PerspectiveCamera } from "../camera"
-import { Transform } from "../Transform"
-import { ILight, Light } from "./Light"
+import { Scalar } from "@fwge/common";
+import { Game, Shader } from "../../base";
+import { ILight, Light } from "./Light";
 
 export interface IPointLight extends ILight
 {
@@ -30,11 +28,11 @@ export class PointLight extends Light
     //   width: 1024  
     // })
 
-    constructor()
-    constructor(light: IPointLight)
-    constructor(light: IPointLight = { })
+    constructor(game: Game)
+    constructor(game: Game, light: IPointLight)
+    constructor(game: Game, light: IPointLight = { })
     {
-        super(light.colour, light.intensity, new Float32Array(8))
+        super(game, light.colour, light.intensity, new Float32Array(8))
         this.#radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
 
         this.Radius = light.radius ?? 5

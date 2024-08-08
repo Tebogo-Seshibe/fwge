@@ -1,8 +1,7 @@
 import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common";
-import { ColourType, DepthType, RenderTarget, Shader } from "../../base";
+import { ColourType, DepthType, Game, RenderTarget, Shader } from "../../base";
 import { Transform } from "../Transform";
 import { ILight, Light } from "./Light";
-import { Registry } from "@fwge/ecs";
 
 export type PCFLevelType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface IDirectionalLight extends ILight
@@ -186,11 +185,11 @@ export class DirectionalLight extends Light
         this._texelSize.Value = 1 / this.RenderTarget.Width;
     }
 
-    constructor();
-    constructor(light: IDirectionalLight);
-    constructor(light: IDirectionalLight = {})
+    constructor(game: Game, );
+    constructor(game: Game, light: IDirectionalLight);
+    constructor(game: Game, light: IDirectionalLight = {})
     {
-        super(light.colour, light.intensity, new Float32Array(28));
+        super(game, light.colour, light.intensity, new Float32Array(28));
         
         this._direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
         this._castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
@@ -304,10 +303,10 @@ export class DirectionalLight extends Light
     }
 
     i = 0
-    BindForShadows(parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
+    BindForShadows(game: Game, parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
     {
         const matrix = Matrix4.Identity;
-        const transform = Registry.GetEntity(parentId)?.GetComponent(Transform);
+        const transform = game.GetComponent(parentId, Transform);
         if (transform)
         {
             const rotation = transform.GlobalRotation(parentId)

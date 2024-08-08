@@ -1,4 +1,4 @@
-export abstract class System
+export class System
 {
     public readonly Name: string;
 
@@ -7,8 +7,8 @@ export abstract class System
         this.Name = new.target.name;
     }
     
-    public abstract Init(): void;
-    public abstract Start(): void;
-    public abstract Update(delta: number): void;
-    public abstract Stop(): void;
+    public Init(): void {}
+    public Start(): void {}
+    public Update(delta: number): void {}
+    public Stop(): void {}
 }

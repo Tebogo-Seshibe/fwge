@@ -1,5 +1,5 @@
 import { Colour3, Colour4, GL, Matrix2, Matrix3, Matrix4, Scalar, TypedArray, Vector2, Vector3, Vector4 } from "@fwge/common";
-import { Asset } from "./assets/Asset";
+import { Asset } from "./Asset";
 import { STD140 } from "./std140";
 
 export type ShaderVariableType = 
@@ -142,7 +142,7 @@ export type ShaderProp = {
     
 };
 
-export class Shader extends Asset
+export class Shader
 {
     private static CurrentBlockIndex = 0;
     private static readonly Includes: Map<string, string> = new Map();
@@ -165,6 +165,7 @@ export class Shader extends Asset
     private _rawFragmentSource: string | null = null;
     private _vertexSource: string | null = null;
     private _fragmentSource: string | null = null;
+    private _buffer: WebGLBuffer | null = null;
 
     private _samplerIndex: number = 0;
     private _maxSamplerIndex: number = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
@@ -179,7 +180,11 @@ export class Shader extends Asset
     private readonly _uniformBlocksProps: Map<string, Layout140> = new Map();
     private readonly _uniformBlocks: {[key: string]: UniformBlock} = {};
 
-    private readonly Buffer: WebGLBuffer = GL.createBuffer()!;
+    private get Buffer(): WebGLBuffer
+    {
+        return this._buffer!;
+    }
+
     private readonly BufferData: Float32Array = new Float32Array();
 
     get Program(): WebGLProgram | null
@@ -197,20 +202,20 @@ export class Shader extends Asset
         return this._vertexSource;
     }
 
-    set VertexSource(vertexSource: string | null)
-    {
-        if (vertexSource)
-        {
-            this._rawVertexSource = vertexSource;
-            this._vertexSource = this._addIncludes(vertexSource);
-        }
-        else
-        {
-            this._rawVertexSource = null;
-            this._vertexSource = null;
-        }
-        this._compileShaders();
-    }
+    // set VertexSource(vertexSource: string | null)
+    // {
+    //     if (vertexSource)
+    //     {
+    //         this._rawVertexSource = vertexSource;
+    //         this._vertexSource = this._addIncludes(vertexSource);
+    //     }
+    //     else
+    //     {
+    //         this._rawVertexSource = null;
+    //         this._vertexSource = null;
+    //     }
+    //     this._compileShaders();
+    // }
 
     get FragmentSource(): string | null
     {
@@ -222,37 +227,38 @@ export class Shader extends Asset
         return this._rawFragmentSource ? this._addIncludes(this._rawFragmentSource) : null;
     }
 
-    set FragmentSource(fragmentSource: string | null)
-    {
-        if (fragmentSource)
-        {
-            this._rawFragmentSource = fragmentSource;
-            this._fragmentSource = this._addIncludes(fragmentSource);
-        }
-        else
-        {
-            this._rawFragmentSource = null;
-            this._fragmentSource = null;
-        }
-        this._compileShaders();
-    }
+    // set FragmentSource(fragmentSource: string | null)
+    // {
+    //     if (fragmentSource)
+    //     {
+    //         this._rawFragmentSource = fragmentSource;
+    //         this._fragmentSource = this._addIncludes(fragmentSource);
+    //     }
+    //     else
+    //     {
+    //         this._rawFragmentSource = null;
+    //         this._fragmentSource = null;
+    //     }
+    //     this._compileShaders();
+    // }
 
     constructor(vertexShader: string, fragmentShader: string)
     constructor(vertexShader: string, fragmentShader: string, name: string)
     constructor(vertexShader: string, fragmentShader: string, name: string = 'Shader')
     {
-        super(name, Shader);
-
         this._rawVertexSource = vertexShader;
         this._rawFragmentSource = fragmentShader;
         this._vertexSource = this._addIncludes(vertexShader);
         this._fragmentSource = this._addIncludes(fragmentShader);
 
-        this._addUniformStructs();
-        this._compileShaders();
-        
+        this._addUniformStructs();        
         this._addUniformVariables();
         this._indexUniformBlocks();
+    }
+
+    Init(gl: WebGL2RenderingContext): void
+    {
+        this._compileShaders(gl);
     }
 
     _addUniformStructs(): void
@@ -384,7 +390,7 @@ export class Shader extends Asset
         }
     }
 
-    _compileShaders(): void
+    _compileShaders(GL: WebGL2RenderingContext): void
     {
         if (this._vertexSource === null || this._fragmentSource === null)
         {

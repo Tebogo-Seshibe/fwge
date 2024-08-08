@@ -1,5 +1,6 @@
-import { GL, isPowerOf2 } from "@fwge/common"
-import { ImageAsset, TextureFilter, WrapMode } from "./ImageAsset"
+import { isPowerOf2 } from "@fwge/common";
+import { Game } from "../Game";
+import { ImageAsset, TextureFilter, WrapMode } from "./ImageAsset";
 
 export interface IImage2D
 {
@@ -9,39 +10,40 @@ export interface IImage2D
 }
 export class Image2D extends ImageAsset
 {
-    private imageUrl: string;
     private image: HTMLImageElement | undefined;
 
     constructor(config: IImage2D)
     {
-        super(config.filtering, config.wrapMode)
-        
-        this.imageUrl = config.source;
-        this.BindDefaultImageData();
+        super([config.source], config.filtering, config.wrapMode)
+        // this.BindDefaultImageData();
     }
 
-    override Load(): void
+    public SetFileSource(source: string): void
+    {
+        this.Sources[0] = source;
+    }
+
+    public Load(game: Game): void
     {
         this.image = new Image();
-        this.image.addEventListener('load', this.BindLoadedImageData.bind(this));
+        this.image.addEventListener('load', this.BindLoadedImageData.bind(this, game.GL));
+        this.image.src = this.Sources[0];
     }
 
-    override Unload(): void
+    public Unload(_game: Game): void
     {
         this.image!.src = undefined!;
         this.image = undefined!
     }
 
-    private BindDefaultImageData(): void
-    {        
-        GL.bindTexture(GL.TEXTURE_2D, this.Texture);
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
-        GL.bindTexture(GL.TEXTURE_2D, null);
+    public Destroy(_game: Game): void
+    {
+        
     }
 
-    private BindLoadedImageData(): void
+    private BindLoadedImageData(GL: WebGL2RenderingContext): void
     {
-        this.image!.removeEventListener('load', this.BindLoadedImageData.bind(this));
+        this.image!.removeEventListener('load', this.BindLoadedImageData.bind(this, GL));
         
         GL.bindTexture(GL.TEXTURE_2D, this.Texture);
         GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.image!.width, this.image!.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, this.image!.buffer());

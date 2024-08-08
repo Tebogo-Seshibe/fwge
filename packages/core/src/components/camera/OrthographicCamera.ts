@@ -1,5 +1,6 @@
 import { Matrix4 } from '@fwge/common'
 import { Camera } from './Camera'
+import { Game } from '../../base';
 
 export interface IOrthographicCamera
 {
@@ -105,11 +106,11 @@ export class OrthographicCamera extends Camera
         this.UpdateProjection();
     }
 
-    constructor()
-    constructor(camera: IOrthographicCamera)
-    constructor(camera: IOrthographicCamera = { })
+    constructor(game: Game)
+    constructor(game: Game, camera: IOrthographicCamera)
+    constructor(game: Game, camera: IOrthographicCamera = { })
     {
-        super()
+        super(game)
 
         this.Data = new Float32Array(
         [

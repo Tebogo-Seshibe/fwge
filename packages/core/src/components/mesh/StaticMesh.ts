@@ -96,6 +96,7 @@ export class StaticMesh extends Mesh
                 offset += Colour4.SIZE
             }
         }
+        this.MeshData.View('vertices').set(buffer)
         //#endregion
 
         //#region VAO Setup

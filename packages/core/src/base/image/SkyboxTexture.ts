@@ -1,5 +1,5 @@
-import { GL } from "@fwge/common"
-import { ImageAsset } from "./ImageAsset"
+import { Game } from "../Game";
+import { ImageAsset } from "./ImageAsset";
 
 export interface ISkyboxTexture
 {
@@ -10,32 +10,28 @@ export class SkyboxTexture extends ImageAsset
 {
     constructor(config: ISkyboxTexture)
     {
-        super()
-
-        if (config.source)
-        {
-            this.Load(config.source)
-        }
-        else
-        {
-            GL.bindTexture(GL.TEXTURE_2D, this.Texture)
-            for (let i = 0; i < 6; ++i)
-            {
-                GL.texImage2D(GL.TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]))
-            }
-            GL.bindTexture(GL.TEXTURE_2D, null)
-        }
-
+        super([config.source])
+        // this.BindDefaultImageData();
     }
 
-    Load(source: string): void
+    public Load(game: Game): void
     {
         const image = new Image()
-        image.onload = () => this.applyImage(image)
-        image.src = source
+        image.onload = () => this.applyImage(image, game.GL)
+        image.src = this.Sources[0]
     }
 
-    protected applyImage(image: HTMLImageElement): void
+    public Unload(_game: Game): void
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public Destroy(_game: Game): void
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    protected applyImage(image: HTMLImageElement, GL: WebGL2RenderingContext): void
     {
         const size = image.height / 3
 

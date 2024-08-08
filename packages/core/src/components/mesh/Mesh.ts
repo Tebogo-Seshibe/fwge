@@ -1,5 +1,5 @@
-import { Colour4, GL, Vector2, Vector3, Vector4 } from "@fwge/common"
-import { Asset } from "../../base"
+import { Colour4, CompositeDataView, GL, SubDataView, Vector2, Vector3, Vector4 } from "@fwge/common"
+import { Asset, Game } from "../../base"
 
 export interface IMesh
 {
@@ -11,24 +11,63 @@ export interface IMesh
     index?: number[]
 }
 
-export class Mesh extends Asset
+export interface MeshData extends SubDataView
+{
+    vertices:
+    {
+        type: Float32ArrayConstructor;
+        length: number;
+    };
+    faces:
+    {
+        type: Uint8ArrayConstructor;
+        length: number;
+    };
+    edges:
+    {
+        type: Uint8ArrayConstructor;
+        length: number;
+    };
+    points:
+    {
+        type: Uint8ArrayConstructor;
+        length: number;
+    };
+}
+
+export class Mesh implements Asset
 {
     readonly VertexArrayBuffer: WebGLVertexArrayObject = GL.createVertexArray()!
     readonly VertexBuffer: WebGLBuffer = GL.createBuffer()!
     
-    readonly FaceBuffer: WebGLBuffer | null = null
-    readonly EdgeBuffer: WebGLBuffer | null = null
-    readonly PointBuffer: WebGLBuffer | null = null
+    private _faceBuffer: WebGLBuffer | null = null
+    get FaceBuffer(): WebGLBuffer | null
+    {
+        return this._faceBuffer;
+    }
+
+    private _edgeBuffer: WebGLBuffer | null = null
+    get EdgeBuffer(): WebGLBuffer | null
+    {
+        return this._edgeBuffer;
+    }
+
+    private _pointBuffer: WebGLBuffer | null = null
+    get PointBuffer(): WebGLBuffer | null
+    {
+        return this._pointBuffer;
+    }
+
     
     readonly PointCount: number
     readonly EdgeCount: number
     readonly FaceCount: number
     readonly IsIndexed: boolean = false
 
+    readonly MeshData: CompositeDataView<MeshData>;
+
     constructor(vertexCount: number, indices: number[] | undefined, name: string)
     {
-        super(name, Mesh)
-
         this.FaceCount = indices?.length ?? vertexCount
         this.EdgeCount = indices ? (indices.length * 2) : vertexCount
         this.PointCount = vertexCount
@@ -36,6 +75,25 @@ export class Mesh extends Asset
         const faces: number[] = []
         const edges: number[] = []
         const points: number[] = []
+
+        this.MeshData = new CompositeDataView({
+            vertices: {
+                type: Float32Array,
+                length: vertexCount
+            },
+            faces: {
+                type: Uint8Array,
+                length: this.FaceCount
+            },
+            edges: {
+                type: Uint8Array,
+                length: this.EdgeCount
+            },
+            points: {
+                type: Uint8Array,
+                length: this.PointCount
+            }
+        })
 
         if (indices)
         {
@@ -49,21 +107,40 @@ export class Mesh extends Asset
                 )
             }
             points.push(...new Set(indices))
+            
 
-            this.FaceBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(faces), GL.STATIC_DRAW)
+            this.MeshData.View('faces').set(faces)
+            this.MeshData.View('edges').set(edges)
+            this.MeshData.View('points').set(points)
             
-            this.EdgeBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(edges), GL.STATIC_DRAW)
-            
-            this.PointBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint8Array(points), GL.STATIC_DRAW)
-            
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
             this.IsIndexed = true
         }
     }
+    Load(game: Game): void
+    {
+        const GL = game.GL;
+
+        this._faceBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('faces'), GL.STATIC_DRAW)
+        
+        this._edgeBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('edges'), GL.STATIC_DRAW)
+        
+        this._pointBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('points'), GL.STATIC_DRAW)
+        
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+    }
+
+    Unload(game: Game): void { }
+
+    Destroy(game: Game): void
+    {
+        game.GL.deleteBuffer(this._faceBuffer);   
+        game.GL.deleteBuffer(this._edgeBuffer);   
+        game.GL.deleteBuffer(this._pointBuffer);   
+    }    
 }

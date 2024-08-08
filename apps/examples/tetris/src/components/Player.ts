@@ -1,3 +1,3 @@
-import { Component } from "@fwge/ecs";
+import { Component } from "@fwge/core";
 
 export class Player extends Component {}

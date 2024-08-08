@@ -1,6 +1,5 @@
-import { Scalar, Vector2 } from "@fwge/common";
-import { Component, Entity } from "@fwge/ecs";
-import { ButtonState, ControllerState, KeyState, KeyboardState, MouseState, WheelState } from "@fwge/input";
+import { Component, Game } from "@fwge/core";
+import { ControllerState, KeyboardState } from "@fwge/input";
 
 type Action = { [actionName: string]: ActionMapping }
 
@@ -49,9 +48,9 @@ export class ActionInput<T extends Action> extends Component
 
     readonly Config: T;
 
-    constructor(args: T)
+    constructor(game: Game, args: T)
     {
-        super();
+        super(game);
         this.Config = args;
     }
 
@@ -62,11 +61,3 @@ export class ActionInput<T extends Action> extends Component
 
     }
 }
-
-const a = new ActionInput({
-    movement: {
-        type: 'boolean',
-    }
-})
-
-a.GetInput('movement')

@@ -152,7 +152,7 @@ export class ParticleSpawner extends Component {
         }
 
         if (!ParticleSpawner._defaultMaterial) {
-            ParticleSpawner._defaultMaterial = new Material(null!)
+            ParticleSpawner._defaultMaterial = new Material(null!, null!)
         }
 
         return ParticleSpawner._defaultMaterial

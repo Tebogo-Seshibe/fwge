@@ -1,4 +1,4 @@
-import { Class, Constructor } from "@fwge/ecs";
+import { Constructor } from "@fwge/ecs";
 import { Asset } from "../base";
 import { DecoratorManager } from "./DecoratorManager";
 

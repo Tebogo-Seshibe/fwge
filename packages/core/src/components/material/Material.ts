@@ -1,7 +1,7 @@
-import { Colour3, GL, isPowerOf2, Scalar } from "@fwge/common";
-import { ImageAsset } from "../../base";
+import { Colour3, isPowerOf2, Scalar } from "@fwge/common";
+import { Game, ImageAsset } from "../../base";
 import { Shader } from "../../base/Shader";
-import { Component } from "@fwge/ecs";
+import { Component } from "../../ecs";
 
 export enum BlendMode
 {
@@ -36,9 +36,10 @@ export class Material extends Component
     private readonly alpha: Scalar;
     private readonly colour: Colour3;
     
-    readonly MaterialBuffer = GL.createBuffer()!
+    // readonly MaterialBuffer = GL.createBuffer()!
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
     readonly ImageTextures: Array<ImageAsset | null> = new Array(8).fill(null)
+
 
     get Alpha()
     {
@@ -56,11 +57,12 @@ export class Material extends Component
     }
 
     constructor(
+        game: Game,
         shader: Shader,
         renderType?: RenderType,
         readonly BufferData: Float32Array = new Float32Array([1, 1, 1, 1])
     ) {
-        super(Material)
+        super(game, Material)
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE
@@ -70,51 +72,51 @@ export class Material extends Component
         this.colour.Set(0.3, 0.3, 0.3)
         this.alpha.Set(1.0)
 
-        if (!Material.Empty)
-        {
-            Material.Empty = GL.createTexture()!
-            GL.bindTexture(GL.TEXTURE_2D, Material.Empty)
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
-            GL.generateMipmap(GL.TEXTURE_2D)
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
-            GL.bindTexture(GL.TEXTURE_2D, null)            
-        }
+        // if (!Material.Empty)
+        // {
+        //     Material.Empty = GL.createTexture()!
+        //     GL.bindTexture(GL.TEXTURE_2D, Material.Empty)
+        //     GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+        //     GL.generateMipmap(GL.TEXTURE_2D)
+        //     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
+        //     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+        //     GL.bindTexture(GL.TEXTURE_2D, null)            
+        // }
     }
     
-    protected applyImage(texture: WebGLTexture, src: string): void
-    {    
-        GL.bindTexture(GL.TEXTURE_2D, texture)
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+    // protected applyImage(texture: WebGLTexture, src: string): void
+    // {    
+    //     GL.bindTexture(GL.TEXTURE_2D, texture)
+    //     GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
     
-        const img: HTMLImageElement = new Image()
-        img.onload = () =>
-        {
-            setTimeout(() =>
-            {
-                GL.bindTexture(GL.TEXTURE_2D, texture)
-                GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
+    //     const img: HTMLImageElement = new Image()
+    //     img.onload = () =>
+    //     {
+    //         setTimeout(() =>
+    //         {
+    //             GL.bindTexture(GL.TEXTURE_2D, texture)
+    //             GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img)
         
-                if (isPowerOf2(img.width) && isPowerOf2(img.height))
-                {
-                    GL.generateMipmap(GL.TEXTURE_2D)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-                }
-                else
-                {
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
-                    GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
-                }
+    //             if (isPowerOf2(img.width) && isPowerOf2(img.height))
+    //             {
+    //                 GL.generateMipmap(GL.TEXTURE_2D)
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST)
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+    //             }
+    //             else
+    //             {
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+    //                 GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+    //             }
         
-                GL.bindTexture(GL.TEXTURE_2D, null)
-            })
-        }
+    //             GL.bindTexture(GL.TEXTURE_2D, null)
+    //         })
+    //     }
     
-        img.src = src
-    }
+    //     img.src = src
+    // }
 
     // Bind(): void
     // Bind(shader: Shader): void
@@ -136,16 +138,16 @@ export class Material extends Component
     //     }
     // }
 
-    UnBind(): void
-    {
-        for (let i = 0; i < this.Textures.length; ++i)
-        {
-            const texture = this.Textures[i]
-            if (texture)
-            {
-                GL.activeTexture(GL.TEXTURE0 + i)
-                GL.bindTexture(GL.TEXTURE_2D, null)
-            }
-        }
-    }
+    // UnBind(): void
+    // {
+    //     for (let i = 0; i < this.Textures.length; ++i)
+    //     {
+    //         const texture = this.Textures[i]
+    //         if (texture)
+    //         {
+    //             GL.activeTexture(GL.TEXTURE0 + i)
+    //             GL.bindTexture(GL.TEXTURE_2D, null)
+    //         }
+    //     }
+    // }
 }
