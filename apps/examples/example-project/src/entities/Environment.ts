@@ -12,7 +12,7 @@ export class Environment extends Entity
         const cubeShader = new CubeShader();
         const cubeMeshRender = new MeshRenderer(this.Game,
         {
-            asset: new CubeMesh()
+            asset: this.Game.GetAsset(CubeMesh)!
         });
 
         const floor = new Entity(this.Game)

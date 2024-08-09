@@ -29,11 +29,13 @@ export interface GameConfig
     canvas?: HTMLCanvasElement | (() => HTMLCanvasElement);
     height: number;
     width: number;
-    scenes: Type<Scene>[];
 }
 
-export class Game
+export abstract class Game
 {
+    abstract UseAssets: Type<Asset>[];
+    abstract UseScenes: Type<Scene>[];
+
     //#region Private Fields
     private readonly _dimensions: Vector2 = new Vector2();
     private _currentScene: Scene | undefined = undefined;
@@ -45,7 +47,6 @@ export class Game
     private _debug: boolean = false;
     private _canvas: HTMLCanvasElement;
     private _gl!: WebGL2RenderingContext;
-    private _scenes: Constructor<Scene, [Game]>[];
     //#endregion
 
     public get Height(): number
@@ -101,15 +102,13 @@ export class Game
                     ? config.canvas
                     : document.createElement('canvas'),
             height: config?.height ?? 1080,
-            width: config?.width ?? 1920,
-            scenes: config?.scenes ?? []
+            width: config?.width ?? 1920
         }
         
         this._canvas = config.canvas as HTMLCanvasElement;
         this._dimensions[0] = config.width;
         this._dimensions[1] = config.height;
         this._debug = config.debug as boolean;
-        this._scenes = config.scenes as Constructor<Scene, [Game]>[];
         
         this.ResetContext(this._debug);
     }
@@ -121,7 +120,13 @@ export class Game
 
     Init(): void
     {
-        for (const scene of this._scenes)
+        for (const asset of this.UseAssets)
+        {
+            this.RegisterAsset(asset, new asset());
+            this.LoadAsset(asset);
+        }
+
+        for (const scene of this.UseScenes)
         {
             this.AddScene(new scene(this));
         }
@@ -679,22 +684,22 @@ export class Game
     //#region Asset Management
     private readonly assets: Map<string, Asset> = new Map();
     
-    public RegisterAsset<T extends Asset>(name: string, asset: T): Game
+    public RegisterAsset<T extends Asset>(assetType: Type<T>, asset: T): Game
     {
-        if (this.assets.has(name))
+        if (this.assets.has(assetType.name))
         {
-            throw new AssetNameExists(name);
+            throw new AssetNameExists(assetType.name);
         }
 
-        this.assets.set(name, asset);
+        this.assets.set(assetType.name, asset);
 
         return this;
     }
 
     
-    public LoadAsset(name: string): boolean
+    public LoadAsset<T extends Asset>(assetType: Type<T>): boolean
     {
-        const asset = this.assets.get(name);
+        const asset = this.assets.get(assetType.name);
 
         if (!asset)
         {
@@ -705,14 +710,14 @@ export class Game
         return true;
     }
 
-    public GetAsset<T extends Asset = Asset>(name: string): T | undefined
+    public GetAsset<T extends Asset>(assetType: Type<T>): T | undefined
     {
-        return this.assets.get(name) as T;
+        return this.assets.get(assetType.name) as T;
     }
 
-    public UnloadAsset(name: string): void
+    public UnloadAsset<T extends Asset>(assetType: Type<T>): void
     {
-        const asset = this.assets.get(name);
+        const asset = this.assets.get(assetType.name);
 
         if (asset)
         {
@@ -720,14 +725,14 @@ export class Game
         }
     }
 
-    public DestroyAsset(name: string): void
+    public DestroyAsset<T extends Asset>(assetType: Type<T>): void
     {
-        const asset = this.assets.get(name);
+        const asset = this.assets.get(assetType.name);
 
         if (asset)
         {
             asset.Destroy(this);
-            this.assets.delete(name);
+            this.assets.delete(assetType.name);
         }
     }
     //#endregion

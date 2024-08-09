@@ -257,8 +257,10 @@ export class Shader
     {
         this._maxSamplerIndex = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         this._compileShaders(gl);   
+        gl.useProgram(this._program);
         this._addUniformVariables(gl);
         this._indexUniformBlocks(gl);
+        gl.useProgram(null);
     }
 
     _addUniformStructs(): void
@@ -513,7 +515,7 @@ export class Shader
     Bind(GL: WebGL2RenderingContext, samplerIndex: number): void
     Bind(GL: WebGL2RenderingContext, samplerIndex: number = 0): void
     {
-        GL.useProgram(this.Program);
+        GL.useProgram(this._program);
         this._samplerIndex = samplerIndex;
     }
 

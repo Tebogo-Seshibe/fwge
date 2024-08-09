@@ -1,7 +1,7 @@
 import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, Camera, DefaultWindow, DirectionalLight, EntityId, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, System, Tag, Transform, type Mesh } from "@fwge/core";
-import { EditorTag } from "../components/EditorTag";
+import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, EntityId, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, System, Tag, Transform, type Mesh } from "@fwge/core";
 import { FinalPassShader } from "../assets/FinalPassShader";
+import { EditorTag } from "../components/EditorTag";
 
 export class ProjectRenderSystem extends System
 {
@@ -44,26 +44,8 @@ export class ProjectRenderSystem extends System
         this.finalPassShader = new FinalPassShader();
         this.finalPassShader.Init(this.Game.GL);
 
-        this.window = new DefaultWindow(this.Game)
-        // new RenderWindow({
-        //     renderPipelineMode: RenderPipelineMode.DEFERRED,
-        //     camera: this.Game.GetComponent(this.Game.GetView(this.cameraView)[0], Camera)!,
-        //     offset: [0,0],
-        //     scale: [1,1],
-        //     resolution: [1920,1080],
-        //     pipeline: undefined,
-        //     mainPass: new RenderPipelineStep({
-        //         name: 'MAIN_PASS',
-        //         shader: null!,
-        //         output: new RenderTarget({
-        //             colour: [ColourType.FLOAT_RGB, ColourType.FLOAT_RGB, ColourType.FLOAT_RGB],
-        //             depth: DepthType.FLOAT32,
-        //             height: 1920,
-        //             width: 1080,
-        //             clear: [0,0,0,0]
-        //         })
-        //     })
-        // })
+        this.window = this.Game.CurrentScene!.Windows[0];
+        this.window.Panel.Load(this.Game);
     }
 
     Start(): void 
@@ -85,7 +67,7 @@ export class ProjectRenderSystem extends System
         GL.cullFace(GL.FRONT);
         for (var entityId of this.Game.GetView(this.directionalLightView))
         {
-            // this.renderShadows(entityId, this.Game.GetComponent(entityId, DirectionalLight)!); 
+            this.renderShadows(entityId, this.Game.GetComponent(entityId, DirectionalLight)!); 
         }
         GL.cullFace(GL.BACK);
             
@@ -159,7 +141,7 @@ export class ProjectRenderSystem extends System
 
     private renderShadows(parentId: number, light: DirectionalLight)
     {
-        light.BindForShadows(this.Game, parentId);
+        light.BindForShadows(parentId);
 
         
         for (const entityId of this.Game.GetView(this.renderableView))
@@ -310,13 +292,13 @@ export class ProjectRenderSystem extends System
                 this.drawMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
             }
 
-            shader.UnBind(this.Game.GL, );
+            shader.UnBind(this.Game.GL);
         }
     }
 
     private drawInstanceMesh(entityId: EntityId, mesh: InstanceMesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
     {
-        GL.bindVertexArray(mesh.VertexArrayBuffer);
+        this.Game.GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
@@ -326,15 +308,15 @@ export class ProjectRenderSystem extends System
 
         if (buffer)
         {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-            GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
+            this.Game.GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+            this.Game.GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
         }
         else
         {
-            GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);
+            this.Game.GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);
         }
 
-        GL.bindVertexArray(null);
+        this.Game.GL.bindVertexArray(null);
     }
     
     private drawMesh(entityId: EntityId, mesh: Mesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)

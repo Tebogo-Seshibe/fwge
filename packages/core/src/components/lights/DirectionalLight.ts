@@ -303,10 +303,10 @@ export class DirectionalLight extends Light
     }
 
     i = 0
-    BindForShadows(game: Game, parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
+    BindForShadows(parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
     {
         const matrix = Matrix4.Identity;
-        const transform = game.GetComponent(parentId, Transform);
+        const transform = this.Game.GetComponent(parentId, Transform);
         if (transform)
         {
             const rotation = transform.GlobalRotation(parentId)
@@ -317,6 +317,7 @@ export class DirectionalLight extends Light
         if (!DirectionalLight._initialized)
         {
             DirectionalLight.ShadowShader.Init(this.Game.GL);
+            DirectionalLight._initialized = true;
         }
         DirectionalLight.ShadowShader.Bind(this.Game.GL);
         DirectionalLight.ShadowShader.SetMatrix(this.Game.GL, 'U_Shadow.Projection', this.ProjectionMatrix, true);

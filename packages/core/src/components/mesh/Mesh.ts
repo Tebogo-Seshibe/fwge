@@ -37,8 +37,18 @@ export interface MeshData extends SubDataView
 
 export class Mesh implements Asset
 {
-    readonly VertexArrayBuffer: WebGLVertexArrayObject = GL.createVertexArray()!
-    readonly VertexBuffer: WebGLBuffer = GL.createBuffer()!
+    private _initialized: boolean = false;
+
+    private _vertexArrayBuffer: WebGLVertexArrayObject | null = null;
+    get VertexArrayBuffer(): WebGLVertexArrayObject | null
+    {
+        return this._vertexArrayBuffer;   
+    }
+    private _vertexBuffer: WebGLBuffer | null = null;
+    get VertexBuffer(): WebGLBuffer | null
+    {
+        return this._vertexBuffer;   
+    }
     
     private _faceBuffer: WebGLBuffer | null = null
     get FaceBuffer(): WebGLBuffer | null
@@ -119,21 +129,29 @@ export class Mesh implements Asset
 
     Load(game: Game): void
     {
-        const GL = game.GL;
+        if (this._initialized)
+        {
+            return;
+        }
+        
+        this._initialized = true;
 
-        this._faceBuffer = GL.createBuffer()!
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('faces'), GL.STATIC_DRAW)
+        this._vertexArrayBuffer = game.GL.createVertexArray()!
+        this._vertexBuffer = game.GL.createBuffer()!
         
-        this._edgeBuffer = GL.createBuffer()!
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('edges'), GL.STATIC_DRAW)
+        this._faceBuffer = game.GL.createBuffer()!
+        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
+        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('faces'), GL.STATIC_DRAW)
         
-        this._pointBuffer = GL.createBuffer()!
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('points'), GL.STATIC_DRAW)
+        this._edgeBuffer = game.GL.createBuffer()!
+        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
+        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('edges'), GL.STATIC_DRAW)
         
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+        this._pointBuffer = game.GL.createBuffer()!
+        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
+        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('points'), GL.STATIC_DRAW)
+        
+        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, null)
     }
 
     Unload(game: Game): void { }

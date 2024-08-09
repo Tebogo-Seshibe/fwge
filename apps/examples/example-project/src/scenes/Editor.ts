@@ -7,7 +7,6 @@ import { Grid } from "../entities/Grid";
 import { Sun } from "../entities/Sun";
 import { ProjectRenderSystem } from "../systems";
 
-export const EditorSceneId = 0;
 export class EditorScene extends Scene
 {
     UseWindows = [
@@ -18,12 +17,12 @@ export class EditorScene extends Scene
         GeneralAreaLight,
         Sun,
         EditorViewer,
-        Environment        
+        Environment
     ];
     UseSystems = [
         InputSystem,
         ScriptSystem,
         // EditorRenderSystem,
-        ProjectRenderSystem,      
+        ProjectRenderSystem,
     ];
 }

@@ -124,12 +124,12 @@ export class AreaLight extends Light
         shader.SetFloat(this.Game.GL, 'U_AreaLight.Intensity', this.Intensity)
     }
     
-    BindBlock(game: Game, shader: Shader): void
-    BindBlock(game: Game, shader: Shader, block: string): void
-    BindBlock(game: Game, shader: Shader, block: string, offset: number): void
-    BindBlock(game: Game, shader: Shader, block: string, push: boolean): void
-    BindBlock(game: Game, shader: Shader, block: string, push: boolean, offset: number): void
-    BindBlock(game: Game, shader: Shader, block = 'AreaLight', push_offset: number | boolean = true, offset: number = 0): void
+    BindBlock(shader: Shader): void
+    BindBlock(shader: Shader, block: string): void
+    BindBlock(shader: Shader, block: string, offset: number): void
+    BindBlock(shader: Shader, block: string, push: boolean): void
+    BindBlock(shader: Shader, block: string, push: boolean, offset: number): void
+    BindBlock(shader: Shader, block = 'AreaLight', push_offset: number | boolean = true, offset: number = 0): void
     {
         const push = typeof push_offset === 'number'
             ? true

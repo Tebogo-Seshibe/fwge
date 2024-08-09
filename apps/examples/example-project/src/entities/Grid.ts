@@ -6,6 +6,8 @@ export class Grid extends Entity
 {
     Init(): void
     {        
+        const gridMesh = this.Game.GetAsset(GridMesh)!;
+
         this.AddComponents(
             new Transform(this.Game),
             new BasicLitMaterial(this.Game,
@@ -16,7 +18,7 @@ export class Grid extends Entity
             new MeshRenderer(this.Game,
             {
                 renderMode: RenderMode.EDGE,
-                asset: new GridMesh() // assets should be names to index from asset manager
+                asset: gridMesh // assets should be names to index from asset manager
             }),
             new Script(this.Game)
         );
