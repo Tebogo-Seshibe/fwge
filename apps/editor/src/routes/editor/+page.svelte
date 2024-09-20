@@ -8,21 +8,12 @@
 	import Hierarchy from "../../components/panels/Hierarchy.svelte";
 	import Inspector from "../../components/panels/Inspector.svelte";
 	import Render from "../../components/panels/Render.svelte";
-	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import { registerEditorListeners } from '../../utils/editor/events';
 	import { registerMenuListeners } from '../../utils/menu/events';
 
-    let db: FwgeDbContext;
     let unlistens: UnlistenFn[] = [];
 
     onMount(async () => {
-        try {
-            db = new FwgeDbContext();
-            await db.connect();
-        } catch (e) {
-            console.error(e);
-        }
-
         unlistens = [
             ...await registerMenuListeners(),
             ...await registerEditorListeners()
@@ -30,10 +21,6 @@
     });
 
     onDestroy(() => {
-        if (unlistens.length === 0) {
-            return;
-        }
-
         for (const unlisten of unlistens) {
             unlisten();
         }

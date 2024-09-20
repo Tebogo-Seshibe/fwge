@@ -14,7 +14,7 @@ export interface IScene
 
 export abstract class Scene
 {
-    private static SceneId: SceneId = 0;
+    public static SceneId: SceneId = 0;
 
     readonly Id: SceneId = Scene.SceneId++;
     readonly Name: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Game, Scene, SceneId } from '@fwge/core';
+	import type { Game, SceneId } from '@fwge/core';
 	import
 		{
 			Label,
@@ -19,7 +19,7 @@
     export let id: string;
 
 	let game: Game | undefined;
-	let currentScene: Scene | undefined;
+	let currentScene: string | undefined;
 	let scenes: SelectOptionType<SceneId>[] = [];
 
     let gameUnsubcriber: Unsubscriber;
@@ -27,15 +27,20 @@
     //#region Lifetime
     onMount(() => {
         gameUnsubcriber = currentGameStore.subscribe(currentGame => {
-            if (!currentGame) {
+            game = currentGame;
+
+            if (!game) {
+                scenes = [];
+                currentScene = undefined;
                 return;
             }
 
-            game = currentGame;
             scenes = game.Scenes.map(scene => ({
                 name: scene.Name,
                 value: scene.Id
             }));
+            console.log(game)
+            console.log(scenes)
         })        
     })
 
@@ -47,12 +52,15 @@
     //#endregion
 
     //#region Events
-    function changeScene(sceneId: SceneId) {
+    function changeScene(event: Event) {
+        const sceneId = +(event.target as HTMLSelectElement).value;
         if (game) {
             game.Stop();
             game.SetScene(sceneId);
-            currentScene = game.GetScene(sceneId)
-            currentSceneStore.set(currentScene);
+            
+            const nextScene = game.GetScene(sceneId);
+            currentScene = nextScene?.Name;
+            currentSceneStore.set(nextScene);
         }
     }
 
@@ -83,7 +91,14 @@
 		<ToolbarGroup>
 			<Label>
 				Scene
-				<Select size="sm" items={scenes} bind:value={currentScene} on:change={e => changeScene(+e.target.value)}/>
+                <select on:change={changeScene}>
+                    <option value="-1">Select a scene...</option>
+                    {#if scenes && scenes.length > 0}
+                    {#each scenes as scene}
+                    <option value={scene.value}>{scene.name}</option>
+                    {/each}
+                    {/if}
+                </select>
 			</Label>
 		</ToolbarGroup>
 

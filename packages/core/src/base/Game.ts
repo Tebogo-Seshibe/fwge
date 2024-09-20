@@ -1,7 +1,8 @@
 import { CalcuateDelay, Vector2, createContext, type IDelay } from "@fwge/common";
-import { Class, Component, ComponentId, Constructor, Entity, EntityId, ListContainer, System, Type, TypeId } from "../ecs";
+import { Class, Component, ComponentId, Entity, EntityId, ListContainer, System, Type, TypeId } from "../ecs";
 import { Asset } from "./Asset";
-import { type Scene, type SceneId } from "./Scene";
+import { Scene, type SceneId } from "./Scene";
+import { Shader } from "./shader/Shader";
 
 export type Head<T extends any[]> = T extends [infer U, ...infer _]
     ? U
@@ -112,9 +113,16 @@ export abstract class Game
         this._dimensions[1] = config.height;
         this._debug = config.debug as boolean;
         
+        this.Reset()
         this.ResetContext(this._debug);
     }
 
+    public Reset(): void
+    {
+        Shader.CurrentBlockIndex = 0;
+        Scene.SceneId = 0;
+    }
+    
     public ResetContext(debug: boolean = false): void
     {
         this._gl = createContext(this._canvas, debug);

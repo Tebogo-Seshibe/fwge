@@ -1,4 +1,4 @@
-import type { Type } from "@fwge/ecs";
+import type { Type } from "@fwge/core";
 import type { DbContext } from "./dbContext";
 
 export interface IDbSet<T> {

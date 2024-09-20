@@ -1,11 +1,13 @@
-import { type Constructor, Game } from "@fwge/core";
+import type { Constructor, Game } from "@fwge/core";
 import { dialog, fs, path } from "@tauri-apps/api";
-import { currentGameStore } from "../../stores/project.store";
+import { resetStore } from "../helpers";
 import { buildProject } from "./commands";
+import { currentGameStore } from "../../stores/project.store";
 
 export async function rebuildProject(): Promise<void> {
     try {
         await buildProject();
+        resetStore();
 
         const filePath = await path.resolveResource('braids.js')
         const fileContents = await fs.readTextFile(filePath);
@@ -14,7 +16,7 @@ export async function rebuildProject(): Promise<void> {
         script.innerHTML = fileContents;
         
         const projectConstructor = (window as any).ProjectConstructor as Constructor<Game>;
-        const game = new projectConstructor(); 
+        const game = new projectConstructor();
         game.Protocol(async (uri: string) => {
             const fullUri = await path.resolveResource(uri);
             const bytes = await fs.readBinaryFile(fullUri);

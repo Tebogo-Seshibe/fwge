@@ -20,7 +20,8 @@
             entity = currentEntity;
             
             if (!entity) {
-                return
+                transform = undefined;
+                return;
             }
 
             transform = entity.GetComponent(Transform);

@@ -21,12 +21,11 @@
 		} from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import '../../app.css';
-	import { FwgeDbContext } from '../../stores/fwgeDbContext';
 	import type { ProjectHistory } from '../../stores/project.model';
-	import { createProject, getProject, openProject } from '../../utils/project/commands';
+	import { getProjectHistory, updateProjectHistory } from '../../utils/helpers';
+	import { createProject, openProject } from '../../utils/project/commands';
 
     //#region Shared
-	let db: FwgeDbContext;
 	let previousProjects: ProjectHistory[] = [];
 	let currentPage: 'home' | 'create' | 'open' = 'home';
 
@@ -35,26 +34,6 @@
 	let projectPath: string | undefined;
 
 	let projectThumbnailPath: string = '';
-
-    async function updateRecentProjects(): Promise<string | undefined> {
-		try {	
-            const currentProject = await getProject();
-			
-            await db.projects.update({
-                uuid: currentProject.info.general.uuid,
-                config: currentProject
-            });
-            
-			await db.projectHistory.update({
-                uuid: projectUUID,
-				name: projectName,
-				filePath: projectPath,
-				lastModfied: new Date()
-			});
-		} catch (e: any) {
-            return e as string;
-		}
-    }
     
 	async function loadProjectInformation(path: string): Promise<void> {
 		try {
@@ -81,16 +60,13 @@
     //#region Lifetime
 	onMount(async () => {
         try {
-            db = new FwgeDbContext();
-			await db.connect();
-			previousProjects = (await db.projectHistory.getAll()).sort((a, b) => a.lastModfied.getTime() > b.lastModfied.getTime() ? 1 : -1);
-		} catch (e) {
-			console.error(e);
+			previousProjects = await getProjectHistory();
+		} catch (e: any) {
+			dialog.message(e);
 		}
 	});
 
     onDestroy(async () => {
-        await db.disconnect();
     });
     //#endregion
 
@@ -108,7 +84,7 @@
     
 	async function startNewProject(): Promise<void> {
 		await createProject(projectName!, projectPath!, false);
-        await updateRecentProjects();
+        await updateProjectHistory();
 		await openEditor();
 	}
     //#endregion
@@ -134,12 +110,11 @@
 	}
 
     async function startLoadProject(): Promise<void> {
-        const err = await updateRecentProjects();
-        
-        if (err) {
-			dialog.message(err);
-        } else {
+        try {
+            await updateProjectHistory();
             await openEditor();
+        } catch (err) {
+            dialog.message(err as string);
         }
     }
     //#endregion

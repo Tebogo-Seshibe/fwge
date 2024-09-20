@@ -143,7 +143,7 @@ export type ShaderProp = {
 
 export class Shader
 {
-    private static CurrentBlockIndex = 0;
+    public static CurrentBlockIndex = 0;
     private static readonly Includes: Map<string, string> = new Map();
     private static readonly BlockIndex: Map<string, number> = new Map();
     private static readonly BlockOffset: Map<string, number> = new Map();

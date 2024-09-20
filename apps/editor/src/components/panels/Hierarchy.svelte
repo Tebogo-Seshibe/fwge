@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Class, Component, Entity, Game, System, type DecoratorManager, type Scene, type SceneId } from '@fwge/core';
+	import { Component, Entity, Game, System, type Class, type Scene } from '@fwge/core';
 	import
 		{
 			Button,
@@ -10,13 +10,12 @@
 			InputAddon,
 			List
 		} from 'flowbite-svelte';
-	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
+	import { CogSolid, DrawSquareSolid, FilterOutline } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	import { currentGameStore, currentSceneStore } from '../../stores/project.store';
 	import Panel from '../Panel.svelte';
 	import TreeNode from '../TreeNode.svelte';
-	import Console from './Console.svelte';
 
 	export let id: string;
 
@@ -43,6 +42,9 @@
             game = currentGame;
 
             if (!game) {
+                scene = undefined;
+                entities = [];
+                filters.set({ components: [], systems: [], name: '' });
                 return;
             }
             
@@ -119,7 +121,7 @@
 		</ButtonGroup>
 
 		<ButtonGroup>
-			<InputAddon><SearchOutline /></InputAddon>
+			<InputAddon>🔎︎</InputAddon>
 			<Input on:input={updateNameFilters} />
 
 			<Button class="!p-2"

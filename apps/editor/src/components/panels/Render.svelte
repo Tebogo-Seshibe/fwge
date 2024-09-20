@@ -18,9 +18,11 @@
             game = currentGame;
 
             if (!game) {
+                emptyContainer();
                 return;
             }
-
+            
+            emptyContainer();
             game.Canvas.id = "canvas";
             game.Canvas.classList.add('cursor-crosshair');
             
@@ -37,11 +39,8 @@
         if (gameUnsubcriber) {
             gameUnsubcriber();
         }
-
-        if (game) {
-            containerDiv.removeChild(game.Canvas)
-        }
-
+        
+        emptyContainer();
         window.removeEventListener('resize', resize)
 	});
     //#endregion
@@ -55,6 +54,15 @@
         game.Canvas.height = containerDiv.clientHeight;
         game.Canvas.width = containerDiv.clientWidth;
 	}
+    //#endregion
+
+    //#region Helpers
+    function emptyContainer() {
+        const children = [...containerDiv.children];
+        for (const child of children) {
+            containerDiv.removeChild(child);
+        }
+    }
     //#endregion
 </script>
 
