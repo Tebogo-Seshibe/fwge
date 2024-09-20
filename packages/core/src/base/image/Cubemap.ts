@@ -14,19 +14,19 @@ export class Cubemap extends ImageAsset
         // this.BindDefaultImageData();
     }
 
-    public Load(game: Game): void
+    public async Load(game: Game): Promise<void>
     {
         const image = new Image()
         image.onload = () => this.applyImage(image, game.GL)
         image.src = this.Sources[0]
     }
     
-    public Unload(): void
+    public async Unload(): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public Destroy(): void
+    public async Destroy(): Promise<void>
     {
         throw new Error("Method not implemented.");
     }

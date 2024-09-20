@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { System, type Entity } from '@fwge/ecs';
+	import { System, type Entity } from '@fwge/core';
 	import { Li, List } from 'flowbite-svelte';
 	import { CaretDownSolid, CaretRightSolid } from 'flowbite-svelte-icons';
 	import { currentEntityStore } from '../stores/project.store';

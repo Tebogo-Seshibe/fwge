@@ -1,4 +1,4 @@
-use std::{fs, ops::Add, sync::Mutex};
+use std::{fs, ops::Add, os::windows::fs::{symlink_dir, symlink_file}, sync::Mutex};
 
 use tauri::State;
 
@@ -82,9 +82,15 @@ pub fn build_project(state: State<'_, Mutex<Project>>, handle: tauri::AppHandle)
         .add("\\")
         .add(&project.info.general.name)
         .add(".js");
-    
-    match fs::copy(src, dst) {
-        Ok(..) => Ok(()),
-        Err(err) => Err(String::from("Failed to import compiled project file.\n\r").add(&err.to_string()))
-    }
+
+    symlink_file(src, dst).expect_err("Failed to import compiled project file.\n\r");
+
+    let src = project.info.general.base_path.clone()
+        .add("\\dist\\resources");
+    let dst = String::from(handle.path_resolver().resource_dir().unwrap().as_path().to_str().unwrap())
+        .add("\\resources");
+
+    symlink_dir(src, dst).expect_err("Failed to import project resources.\n\r");
+
+    Ok(())
 }

@@ -2,7 +2,7 @@ import { Matrix4 } from '@fwge/common'
 import { Camera } from './Camera'
 import { Game } from '../../base';
 
-export interface IPerspectiveCamera
+export interface PerspectiveCameraArgs
 {
     fieldOfView?: number
     aspectRatio?: number
@@ -56,8 +56,8 @@ export class PerspectiveCamera extends Camera
 
 
     constructor(game: Game)
-    constructor(game: Game, camera: IPerspectiveCamera)
-    constructor(game: Game, camera: IPerspectiveCamera = { })
+    constructor(game: Game, camera: PerspectiveCameraArgs)
+    constructor(game: Game, camera: PerspectiveCameraArgs = { })
     {
         super(game)
 

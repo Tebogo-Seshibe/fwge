@@ -1,8 +1,8 @@
 import { Scalar } from "@fwge/common";
 import { Game, Shader } from "../../base";
-import { ILight, Light } from "./Light";
+import { LightArgs, Light } from "./Light";
 
-export interface IPointLight extends ILight
+export interface PointLightArgs extends LightArgs
 {
     radius?: number
     castShadows?: boolean
@@ -29,8 +29,8 @@ export class PointLight extends Light
     // })
 
     constructor(game: Game)
-    constructor(game: Game, light: IPointLight)
-    constructor(game: Game, light: IPointLight = { })
+    constructor(game: Game, light: PointLightArgs)
+    constructor(game: Game, light: PointLightArgs = { })
     {
         super(game, light.colour, light.intensity, new Float32Array(8))
         this.#radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)

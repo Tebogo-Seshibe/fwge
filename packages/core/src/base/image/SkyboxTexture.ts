@@ -14,19 +14,19 @@ export class SkyboxTexture extends ImageAsset
         // this.BindDefaultImageData();
     }
 
-    public Load(game: Game): void
+    public async Load(game: Game): Promise<void>
     {
         const image = new Image()
         image.onload = () => this.applyImage(image, game.GL)
         image.src = this.Sources[0]
     }
 
-    public Unload(_game: Game): void
+    public async Unload(_game: Game): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public Destroy(_game: Game): void
+    public async Destroy(_game: Game): Promise<void>
     {
         throw new Error("Method not implemented.");
     }

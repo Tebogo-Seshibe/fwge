@@ -35,7 +35,7 @@ export interface MeshData extends SubDataView
     };
 }
 
-export class Mesh implements Asset
+export class Mesh extends Asset
 {
     private _initialized: boolean = false;
 
@@ -78,6 +78,8 @@ export class Mesh implements Asset
 
     constructor(size: number, vertexCount: number, indices: number[] | undefined, name: string)
     {
+        super(Mesh);
+        
         this.FaceCount = indices?.length ?? vertexCount
         this.EdgeCount = indices ? (indices.length * 2) : vertexCount
         this.PointCount = vertexCount
@@ -127,39 +129,51 @@ export class Mesh implements Asset
         }
     }
 
-    Load(game: Game): void
+    Load(game: Game): Promise<void>
     {
-        if (this._initialized)
-        {
-            return;
-        }
-        
-        this._initialized = true;
+        const mesh = this;
+        const GL = game.GL;
 
-        this._vertexArrayBuffer = game.GL.createVertexArray()!
-        this._vertexBuffer = game.GL.createBuffer()!
-        
-        this._faceBuffer = game.GL.createBuffer()!
-        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.FaceBuffer)
-        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('faces'), GL.STATIC_DRAW)
-        
-        this._edgeBuffer = game.GL.createBuffer()!
-        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.EdgeBuffer)
-        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('edges'), GL.STATIC_DRAW)
-        
-        this._pointBuffer = game.GL.createBuffer()!
-        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, this.PointBuffer)
-        game.GL.bufferData(game.GL.ELEMENT_ARRAY_BUFFER, this.MeshData.View('points'), GL.STATIC_DRAW)
-        
-        game.GL.bindBuffer(game.GL.ELEMENT_ARRAY_BUFFER, null)
+        return new Promise((resolve) => 
+        {
+            if (mesh._initialized)
+            {
+                return;
+            }
+            
+            mesh._initialized = true;
+    
+            mesh._vertexArrayBuffer = GL.createVertexArray()!
+            mesh._vertexBuffer = GL.createBuffer()!
+            
+            mesh._faceBuffer = GL.createBuffer()!
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.FaceBuffer)
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('faces'), GL.STATIC_DRAW)
+            
+            mesh._edgeBuffer = GL.createBuffer()!
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.EdgeBuffer)
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('edges'), GL.STATIC_DRAW)
+            
+            mesh._pointBuffer = GL.createBuffer()!
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.PointBuffer)
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('points'), GL.STATIC_DRAW)
+            
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+
+            resolve();
+        })
     }
 
-    Unload(game: Game): void { }
+    Unload(game: Game): Promise<void> { return Promise.resolve(); }
 
-    Destroy(game: Game): void
+    Destroy(game: Game): Promise<void>
     {
-        game.GL.deleteBuffer(this._faceBuffer);   
-        game.GL.deleteBuffer(this._edgeBuffer);   
-        game.GL.deleteBuffer(this._pointBuffer);   
+        return new Promise((resolve) => 
+        {
+            game.GL.deleteBuffer(this._faceBuffer);   
+            game.GL.deleteBuffer(this._edgeBuffer);   
+            game.GL.deleteBuffer(this._pointBuffer);
+        resolve();
+    })
     }    
 }

@@ -11,17 +11,17 @@ export class ImageStack extends ImageAsset
         super([])
     }
     
-    public Load(game: Game): void
+    public async Load(game: Game): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public Unload(game: Game): void
+    public async Unload(game: Game): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public Destroy(game: Game): void
+    public async Destroy(game: Game): Promise<void>
     {
         throw new Error("Method not implemented.");
     }

@@ -106,9 +106,9 @@ export class StaticMesh extends Mesh
         //#endregion
     }
 
-    override Load(game: Game): void
+    override async Load(game: Game): Promise<void>
     {
-        super.Load(game);
+        await super.Load(game);
         
         //#region VAO Setup
         game.GL.bindVertexArray(this.VertexArrayBuffer)

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { type DecoratorManager, type Scene, type SceneId } from '@fwge/core';
-	import { Entity, Registry, System, type Class, type Component } from '@fwge/ecs';
+	import { type Class, Component, Entity, Game, System, type DecoratorManager, type Scene, type SceneId } from '@fwge/core';
 	import
 		{
 			Button,
@@ -14,55 +13,68 @@
 	import { CogSolid, DrawSquareSolid, FilterOutline, SearchOutline } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import { writable, type Unsubscriber } from 'svelte/store';
-	import { currentGameStore } from '../../stores/project.store';
+	import { currentGameStore, currentSceneStore } from '../../stores/project.store';
 	import Panel from '../Panel.svelte';
 	import TreeNode from '../TreeNode.svelte';
+	import Console from './Console.svelte';
 
 	export let id: string;
 
-	let entities: Entity[] = [];
+    let game: Game | undefined;
+	let scene: Scene | undefined;
 	let systems: System[] = [];
-    let decoratorManager: DecoratorManager;
+	let entities: Entity[] = [];
+    let filteredEntites: Entity[] = [];
+    let componentTypes: readonly Class<Component>[] = [];
 	let tab: 'entities' | 'systems' = 'entities';
     
-    let currentSceneUnsubcriber: Unsubscriber;
-    let projectUnsubcriber: Unsubscriber;
-
-	let filteredEntites: Entity[] = [];
 	let filters = writable({
 		components: [] as Class<Component>[],
 		systems: [] as Class<System>[],
 		name: ''
 	});
-	filters.subscribe((f) => {
-		const name = f.name.toLocaleLowerCase().trim();
+    
+    let gameUnsubcriber: Unsubscriber;
+    let currentSceneUnsubcriber: Unsubscriber;
 
-		filteredEntites = entities
-			.filter((entity) => entity.HasComponents(...f.components))
-			.filter((entity) => {
-				return (
-					name.length === 0 ||
-					entity.Name.toLocaleLowerCase().includes(name) ||
-					(entity as Object).constructor.name.toLocaleLowerCase().includes(name)
-				);
-			});
-	});
-
+    //#region Lifetime
     onMount(() => {
-        projectUnsubcriber = currentGameStore.subscribe((project) => {
-            if (!project) {
+        gameUnsubcriber = currentGameStore.subscribe((currentGame) => {
+            game = currentGame;
+
+            if (!game) {
                 return;
             }
-            decoratorManager = (window as any).DecoratorManager as DecoratorManager;
-            console.log({ decoratorManager })
+            
+            componentTypes = game!.GetRegisteredComponentTypes();
         });
+
+        currentSceneUnsubcriber = currentSceneStore.subscribe(currentScene => {
+            scene = currentScene;
+            
+            if (!scene) {
+                return;
+            }
+
+            entities = scene.Entities.map(x => game!.GetEntity(x)!);
+            console.log(entities)
+            filters.set({components:[], systems:[], name: ''})
+        })
+
     });
     
     onDestroy(() => {
-        currentSceneUnsubcriber();
-        projectUnsubcriber();
+        if(gameUnsubcriber) {
+            gameUnsubcriber();
+        }
+
+        if(currentSceneUnsubcriber) {
+            currentSceneUnsubcriber();
+        }
     });
-    
+    //#endregion
+
+    //#region Events    
 	function updateNameFilters(event: Event): void {
 		filters.update((x) => {
 			return {
@@ -80,6 +92,23 @@
 			};
 		});
 	}
+    //#endregion
+
+    //#region Helpers
+	filters.subscribe((updatedFilters) => {
+		const name = updatedFilters.name.toLocaleLowerCase().trim();
+
+		filteredEntites = entities
+			.filter((entity) => entity.HasComponents(...updatedFilters.components))
+			.filter((entity) => {
+				return (
+					name.length === 0 ||
+					entity.Name.toLocaleLowerCase().includes(name) ||
+					(entity as Object).constructor.name.toLocaleLowerCase().includes(name)
+				);
+			});
+	});
+    //#endregion
 </script>
 
 <Panel {id}>
@@ -96,7 +125,7 @@
 			<Button class="!p-2"
 				><FilterOutline class="w-6 h-6" />
 				<Dropdown>
-					{#each Registry.GetRegisteredComponentTypes() as componentType}
+					{#each componentTypes as componentType}
 						<DropdownItem>
 							{componentType.name}
 						</DropdownItem>

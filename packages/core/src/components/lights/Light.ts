@@ -1,10 +1,10 @@
-import { Colour3, Colour3Array, FixedLengthArray, GL, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
+import { Colour3, Colour3Array, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
 import { Game, Shader } from "../../base";
 import { Component } from "../../ecs";
 
-export interface ILight
+export interface LightArgs
 {
-    colour?: Colour3 | Vector3 | FixedLengthArray<number, 3>;
+    colour?: Colour3 | Vector3 | Colour3Array;
     intensity?: number;
 }
 

@@ -1,19 +1,38 @@
 <script lang="ts">
-	import { Transform } from "@fwge/core";
-	import type { Entity } from "@fwge/ecs";
+	import { type Entity, Transform } from "@fwge/core";
 	import TransformType from "../fwge-components/TransformComponent.svelte";
 	import Panel from "../Panel.svelte";
 	import { Label } from "flowbite-svelte";
 	import { currentEntityStore } from "../../stores/project.store";
+	import { onDestroy, onMount } from "svelte";
+	import { type Unsubscriber } from "svelte/store";
+
     export let id: string;
 
     let entity: Entity | undefined = undefined;
     let transform: Transform | undefined = undefined;
 
-    currentEntityStore.subscribe(currentEntity => {
-        entity = currentEntity;
-        transform = currentEntity?.GetComponent(Transform);
-    })
+    let currentEntityUnsubscriber: Unsubscriber;
+
+    //#region Lifetime
+    onMount(() => {
+        currentEntityUnsubscriber = currentEntityStore.subscribe(currentEntity => {
+            entity = currentEntity;
+            
+            if (!entity) {
+                return
+            }
+
+            transform = entity.GetComponent(Transform);
+        });
+    });
+
+    onDestroy(() => {
+        if (currentEntityUnsubscriber) {
+            currentEntityUnsubscriber();
+        }
+    });
+    //#endregion
 
 </script>
 
@@ -23,7 +42,7 @@
             <div id="hierarchy-container">
                 <Label>{entity.Name}</Label>
                 
-                {#if entity && transform}
+                {#if transform}
                     <TransformType component={transform}/>
                 {/if}
             </div>

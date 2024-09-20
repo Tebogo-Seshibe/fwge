@@ -1,8 +1,13 @@
+import { Type } from "../ecs";
 import { Game } from "./Game";
 
-export interface Asset
+export abstract class Asset
 {
-    Load(game: Game): void;
-    Unload(game: Game): void;    
-    Destroy(game: Game): void;
+    constructor(
+        public readonly Type: Type<Asset> = new.target as any
+    ) { }
+
+    abstract Load(game: Game, protocol?: (...args: any[]) => Promise<Blob>): Promise<void>;
+    abstract Unload(game: Game): Promise<void>;
+    abstract Destroy(game: Game): Promise<void>;
 }

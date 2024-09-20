@@ -2,7 +2,7 @@ import { Matrix4 } from '@fwge/common'
 import { Camera } from './Camera'
 import { Game } from '../../base';
 
-export interface IOrthographicCamera
+export interface OrthographicCameraArgs
 {
     near?: number
     far?: number
@@ -107,8 +107,8 @@ export class OrthographicCamera extends Camera
     }
 
     constructor(game: Game)
-    constructor(game: Game, camera: IOrthographicCamera)
-    constructor(game: Game, camera: IOrthographicCamera = { })
+    constructor(game: Game, camera: OrthographicCameraArgs)
+    constructor(game: Game, camera: OrthographicCameraArgs = { })
     {
         super(game)
 

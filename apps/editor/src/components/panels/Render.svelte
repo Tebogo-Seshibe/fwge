@@ -7,19 +7,22 @@
 
     export let id: string;
 
-	let game: Game;
+	let game: Game | undefined;
     let containerDiv: HTMLDivElement;
+
     let gameUnsubcriber: Unsubscriber;
 
-	onMount(async () => {
+    //#region Lifetime
+	onMount(() => {
         gameUnsubcriber = currentGameStore.subscribe(currentGame => {
-            if (!currentGame) {
+            game = currentGame;
+
+            if (!game) {
                 return;
             }
 
-            game = currentGame;
-            currentGame.Canvas.id = "canvas";
-            currentGame.Canvas.classList.add('cursor-crosshair');
+            game.Canvas.id = "canvas";
+            game.Canvas.classList.add('cursor-crosshair');
             
             containerDiv.appendChild(game.Canvas)
             resize();
@@ -31,12 +34,19 @@
 	});
 
 	onDestroy(() => {
-        if (gameUnsubcriber)
+        if (gameUnsubcriber) {
             gameUnsubcriber();
-		window.removeEventListener('resize', resize)
-        containerDiv.removeChild(game.Canvas)
-	});
+        }
 
+        if (game) {
+            containerDiv.removeChild(game.Canvas)
+        }
+
+        window.removeEventListener('resize', resize)
+	});
+    //#endregion
+
+    //#region Events
 	function resize(): void {
 		if (!game) {
 			return;
@@ -45,6 +55,7 @@
         game.Canvas.height = containerDiv.clientHeight;
         game.Canvas.width = containerDiv.clientWidth;
 	}
+    //#endregion
 </script>
 
 <Panel {id}>

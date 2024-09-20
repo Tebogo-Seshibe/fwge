@@ -1,5 +1,4 @@
-import type { Asset, Game, Scene } from "@fwge/core";
-import type { Entity, System } from "@fwge/ecs";
+import type { Asset, Entity, Game, Scene, System } from "@fwge/core";
 import { writable } from "svelte/store";
 
 export const currentGameStore = writable<Game | undefined>(undefined);

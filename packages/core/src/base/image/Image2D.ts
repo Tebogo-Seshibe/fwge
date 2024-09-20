@@ -23,20 +23,20 @@ export class Image2D extends ImageAsset
         this.Sources[0] = source;
     }
 
-    public Load(game: Game): void
+    public async Load(game: Game): Promise<void>
     {
         this.image = new Image();
         this.image.addEventListener('load', this.BindLoadedImageData.bind(this, game.GL));
         this.image.src = this.Sources[0];
     }
 
-    public Unload(_game: Game): void
+    public async Unload(_game: Game): Promise<void>
     {
         this.image!.src = undefined!;
         this.image = undefined!
     }
 
-    public Destroy(_game: Game): void
+    public async Destroy(_game: Game): Promise<void>
     {
         
     }

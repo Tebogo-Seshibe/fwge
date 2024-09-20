@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Game, Scene } from '@fwge/core';
+	import type { Game, Scene, SceneId } from '@fwge/core';
 	import
 		{
 			Label,
@@ -14,37 +14,52 @@
 	import { PlaySolid, StopSolid } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
-	import { FwgeDbContext } from '../../stores/fwgeDbContext';
-	export let id: string;
+	import { currentGameStore, currentSceneStore } from '../../stores/project.store';
+	
+    export let id: string;
 
-	let db: FwgeDbContext;
 	let game: Game | undefined;
 	let currentScene: Scene | undefined;
-	let scenes: SelectOptionType<Scene>[] = [];
+	let scenes: SelectOptionType<SceneId>[] = [];
 
-    let currentSceneUnsubcriber: Unsubscriber;
-    let projectUnsubcriber: Unsubscriber;
+    let gameUnsubcriber: Unsubscriber;
 
-    onMount(async () => {
-        try {
-            db = new FwgeDbContext();
-			await db.connect();
-		} catch (e) {
-			console.error(e);
-		}
+    //#region Lifetime
+    onMount(() => {
+        gameUnsubcriber = currentGameStore.subscribe(currentGame => {
+            if (!currentGame) {
+                return;
+            }
+
+            game = currentGame;
+            scenes = game.Scenes.map(scene => ({
+                name: scene.Name,
+                value: scene.Id
+            }));
+        })        
     })
 
     onDestroy(() => {
-        db.disconnect();
-        currentSceneUnsubcriber();
-        projectUnsubcriber();
+        if(gameUnsubcriber) {
+            gameUnsubcriber();
+        }
     });
+    //#endregion
 
+    //#region Events
+    function changeScene(sceneId: SceneId) {
+        if (game) {
+            game.Stop();
+            game.SetScene(sceneId);
+            currentScene = game.GetScene(sceneId)
+            currentSceneStore.set(currentScene);
+        }
+    }
 
-	async function play(): Promise<void> {
-		// if (project && currentScene) {
-		// 	project.SetScene(currentScene.Id);
-		// }
+	function play(): void{
+		if (game && currentScene) {
+			game.Start();
+		}
 	}
 
 	function stop(): void {
@@ -52,6 +67,12 @@
             game.Stop();   
 		}
 	}
+    //#endregion
+
+    //#region Helpers
+    //#endregion
+
+
 </script>
 
 <Navbar id={id} class="flex flex-row bg-[#272727]">
@@ -62,7 +83,7 @@
 		<ToolbarGroup>
 			<Label>
 				Scene
-				<Select size="sm" items={scenes} bind:value={currentScene} />
+				<Select size="sm" items={scenes} bind:value={currentScene} on:change={e => changeScene(+e.target.value)}/>
 			</Label>
 		</ToolbarGroup>
 

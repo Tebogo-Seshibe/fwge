@@ -1,20 +1,21 @@
 import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common";
 import { ColourType, DepthType, Game, RenderTarget, Shader } from "../../base";
 import { Transform } from "../Transform";
-import { ILight, Light } from "./Light";
+import { LightArgs, Light } from "./Light";
 
 export type PCFLevelType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export interface IDirectionalLight extends ILight
+
+export interface DirectionalLightArgs extends LightArgs
 {
     direction?: Vector3Array | Vector3;
     castShadows?: boolean;
     bias?: number;
     pcfLevel?: PCFLevelType;
     shadowResolution?: number;
-    cascades?: [IShadowCascade, IShadowCascade, IShadowCascade];
+    cascades?: [ShadowCascadeArgs, ShadowCascadeArgs, ShadowCascadeArgs];
 }
 
-export interface IShadowCascade
+export interface ShadowCascadeArgs
 {
     dimensions: Vector3 | Vector3Array;
     resolution: Vector2 | Vector2Array;
@@ -108,7 +109,7 @@ export class ShadowCascade
         return this._renderTarget;
     }
 
-    constructor(config: IShadowCascade)
+    constructor(config: ShadowCascadeArgs)
     {
         this._dimensions = new Vector3(config.dimensions as Vector3Array);
         this._resolution = new Vector2(config.resolution as Vector2Array);
@@ -185,9 +186,9 @@ export class DirectionalLight extends Light
         this._texelSize.Value = 1 / this.RenderTarget.Width;
     }
 
-    constructor(game: Game, );
-    constructor(game: Game, light: IDirectionalLight);
-    constructor(game: Game, light: IDirectionalLight = {})
+    constructor(game: Game);
+    constructor(game: Game, light: DirectionalLightArgs);
+    constructor(game: Game, light: DirectionalLightArgs = {})
     {
         super(game, light.colour, light.intensity, new Float32Array(28));
         

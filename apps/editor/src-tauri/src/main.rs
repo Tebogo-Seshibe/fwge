@@ -12,7 +12,7 @@ fn main() {
         "File", 
         Menu::new()
             .add_item(
-                CustomMenuItem::new("open".to_string(), "Open")
+                CustomMenuItem::new("open".to_string(), "Open...")
                 .accelerator("CmdOrCtrl+O")
                 .into()
             )
@@ -28,7 +28,7 @@ fn main() {
                 .into()
             )
             .add_item(
-                CustomMenuItem::new("save_as".to_string(), "Save As")
+                CustomMenuItem::new("save_as".to_string(), "Save As...")
                 .accelerator("CmdOrCtrl+Shift+S")
                 .into()
             )

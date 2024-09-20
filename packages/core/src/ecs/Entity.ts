@@ -98,9 +98,10 @@ export class Entity
     public GetComponent<T extends Component>(typeId: TypeId): T | undefined
     public GetComponent<T extends Component>(componentTypeOrId: Class<T> | TypeId): T | undefined
     {
+        const componentTypes = this.Game.GetRegisteredComponentTypes();
         const componentTypeId = typeof componentTypeOrId === 'number'
             ? componentTypeOrId
-            : componentTypeOrId.TypeId;
+            : componentTypes.find(x => x.name === componentTypeOrId.name)?.TypeId ?? -1;
 
         return this.Game.GetComponent(this.Id, componentTypeId) as T;
     }
@@ -110,13 +111,14 @@ export class Entity
     public GetComponents(...componentTypesOrIds: readonly Class<Component>[] | readonly TypeId[]): Record<string, Component | undefined>
     {
         const components: Record<string, Component | undefined> = {};
+        const componentTypes = this.Game.GetRegisteredComponentTypes();
 
         for (let i = 0; i < componentTypesOrIds.length; ++i)
         {
             const componentTypesOrId = componentTypesOrIds[i];
             const componentTypeId = typeof componentTypesOrId === 'number'
                 ? componentTypesOrId
-                : componentTypesOrId.TypeId;
+                : componentTypes.find(x => x.name === componentTypesOrId.name)?.TypeId ?? -1;;
             const componentType = this.Game.GetRegisteredComponentType(componentTypeId);
 
             components[componentType.name] = this.Game.GetComponent(this.Id, componentTypeId);

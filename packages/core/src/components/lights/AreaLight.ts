@@ -1,9 +1,9 @@
 import { Game, ICubemap, Shader } from "../../base"
 import { SkyboxTexture } from "../../base/image/SkyboxTexture"
 import { StaticMesh } from "../mesh"
-import { ILight, Light } from "./Light"
+import { LightArgs, Light } from "./Light"
 
-export interface IAreaLight extends ILight
+export interface IAreaLight extends LightArgs
 {
     skyBox?: ICubemap    
 }

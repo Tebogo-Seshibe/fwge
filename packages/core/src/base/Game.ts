@@ -26,6 +26,7 @@ export interface LibraryEntry<T>
 export interface GameConfig
 {
     debug?: boolean;
+    protocol?: string;
     canvas?: HTMLCanvasElement | (() => HTMLCanvasElement);
     height: number;
     width: number;
@@ -47,6 +48,7 @@ export abstract class Game
     private _debug: boolean = false;
     private _canvas: HTMLCanvasElement;
     private _gl!: WebGL2RenderingContext;
+    private _protocol?: (...args: any[]) => Promise<Blob>;
     //#endregion
 
     public get Height(): number
@@ -118,18 +120,25 @@ export abstract class Game
         this._gl = createContext(this._canvas, debug);
     }
 
-    Init(): void
+    async Init(): Promise<void>
     {
+        const assets = [];
         for (const asset of this.UseAssets)
         {
             this.RegisterAsset(asset, new asset());
-            this.LoadAsset(asset);
+            assets.push(this.LoadAsset(asset));
         }
+        await Promise.all(assets);
 
         for (const scene of this.UseScenes)
         {
             this.AddScene(new scene(this));
         }
+    }
+
+    public Protocol(protocol: (...args: any[]) => Promise<Blob>): void
+    {
+        this._protocol = protocol;
     }
 
     public Start(): void;
@@ -503,6 +512,19 @@ export abstract class Game
     {
         return this.componentTypes;
     }
+
+    public GetComponentTypeId(componentType: Class<Component>): TypeId
+    {
+        for (let i = 0; i < this.componentTypes.length; ++i)
+        {
+            if (this.componentTypes[i].name === componentType.name)
+            {
+                return this.componentTypes[i].TypeId;   
+            }
+        }
+
+        return -1;
+    }
     //#endregion
 
     //#region View
@@ -697,7 +719,7 @@ export abstract class Game
     }
 
     
-    public LoadAsset<T extends Asset>(assetType: Type<T>): boolean
+    public async LoadAsset<T extends Asset>(assetType: Type<T>): Promise<boolean>
     {
         const asset = this.assets.get(assetType.name);
 
@@ -706,7 +728,7 @@ export abstract class Game
             return false;
         }
 
-        asset.Load(this);
+        await asset.Load(this, this._protocol);
         return true;
     }
 

@@ -1,8 +1,8 @@
 import { Colour3, Vector3, Vector3Array } from "@fwge/common";
 import { Game, Shader } from "../../base";
-import { ILight, Light } from "./Light";
+import { LightArgs, Light } from "./Light";
 
-export interface ISpotLight extends ILight
+export interface SpotLightArgs extends LightArgs
 {
     angle?: number
     radius?: number
@@ -18,8 +18,8 @@ export class SpotLight extends Light
     CastShadows: boolean
 
     constructor(game: Game)
-    constructor(game: Game, light: ISpotLight)
-    constructor(game: Game, light: ISpotLight = { })
+    constructor(game: Game, light: SpotLightArgs)
+    constructor(game: Game, light: SpotLightArgs = { })
     {
         super(
             game,
