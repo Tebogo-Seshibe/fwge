@@ -22,7 +22,7 @@ importers:
         version: 8.57.0
       turbo:
         specifier: latest
-        version: 1.13.3
+        version: 2.4.3
 
   apps/cli:
     dependencies:
@@ -178,9 +178,9 @@ importers:
       '@fwge/common':
         specifier: workspace:*
         version: link:../common
-      '@fwge/ecs':
+      '@fwge/core':
         specifier: workspace:*
-        version: link:../ecs
+        version: link:../core
     devDependencies:
       '@types/jsdom':
         specifier: ^20.0.1
@@ -203,9 +203,9 @@ importers:
       '@fwge/common':
         specifier: workspace:*
         version: link:../common
-      '@fwge/ecs':
+      '@fwge/core':
         specifier: workspace:*
-        version: link:../ecs
+        version: link:../core
     devDependencies:
       '@types/jsdom':
         specifier: ^20.0.1
@@ -295,9 +295,6 @@ importers:
       '@fwge/core':
         specifier: workspace:*
         version: link:../core
-      '@fwge/ecs':
-        specifier: workspace:*
-        version: link:../ecs
     devDependencies:
       '@types/jsdom':
         specifier: ^20.0.1
@@ -419,9 +416,9 @@ importers:
       '@fwge/common':
         specifier: workspace:*
         version: link:../common
-      '@fwge/ecs':
+      '@fwge/core':
         specifier: workspace:*
-        version: link:../ecs
+        version: link:../core
     devDependencies:
       '@types/jsdom':
         specifier: ^20.0.1
@@ -1165,44 +1162,53 @@ packages:
 
   '@svelte-add/ast-manipulation@2.0.5':
     resolution: {integrity: sha512-kBXfSclbYV1VWGDkIoCkvX2K+VeEmPT3vfTfKzCU35M//CKTc9Kw+o2EMz8TT/SP5zRiBoCsR0By74m7PQasNg==}
+    deprecated: svelte-add has be merged together with create-svelte to become the Svelte CLI sv. The work continues in the sv repo over at https://github.com/sveltejs/cli
 
   '@svelte-add/ast-manipulation@2.1.2':
     resolution: {integrity: sha512-wq0pobNjg62E27MzKxX4oYHt24A8JjY0w5MmMY75wefR6x5h/ePbO9Kz5avdv0yTQKhZoGnPkFCm7sAjTCoyfw==}
 
   '@svelte-add/ast-tooling@2.0.4':
     resolution: {integrity: sha512-olYeTiULFrGzG7jCJ/NxQmh1bIeLrnJAptkK82Wb+bO8gOJ2h2TcuZdB/N15+5/AFtAfUXLA7v10NZnc/t831A==}
+    deprecated: svelte-add has be merged together with create-svelte to become the Svelte CLI sv. The work continues in the sv repo over at https://github.com/sveltejs/cli
 
   '@svelte-add/ast-tooling@2.1.1':
     resolution: {integrity: sha512-qt1xWK5RoLAjqMIkiSpFQ6Sp963/kNV5RHgSjEQXO34w00ccv8wCVDRwkWL4NPU1tB0tGcs/ZuKgOGpYOjwUNA==}
 
   '@svelte-add/bootstrap@1.0.10':
     resolution: {integrity: sha512-DRci3U9d/NyEgS5FJvLSZmwr2+srxL+OyXR1/8HnR5CH+sTFPhyrg4g0Fl5zuGzsm72lRdLXPkf7jbqrpZh7Ig==}
+    deprecated: Package no longer supported. Please use npx svelte-add bootstrap
     hasBin: true
 
   '@svelte-add/bulma@1.0.10':
     resolution: {integrity: sha512-y+K+A7ZVSEMbcKlEcRTYqmKevoDVIi/uj0oDP8/reHOmxsaWDkk9mQKHTnL7TFrjW+OfFpf39EYZVw5yxdutuA==}
+    deprecated: Package no longer supported. Please use npx svelte-add bulma
     hasBin: true
 
   '@svelte-add/core@2.4.0':
     resolution: {integrity: sha512-uF3xmh6fKRFglXh8jWN3rJuVNRcMtpJM7h76EZ2rS+r3Y5N1hi4ID4HJfYJoQuv2TnpxoGpbMFFlO1T/+sWA7A==}
+    deprecated: svelte-add has be merged together with create-svelte to become the Svelte CLI sv. The work continues in the sv repo over at https://github.com/sveltejs/cli
 
   '@svelte-add/core@2.5.2':
     resolution: {integrity: sha512-iudc7m5T2aIUynplB7Ynt8qMzbgkLqZM7hoA+rCvbgjCUsJX79NjF0oWt0bt6z18CxRn857CkLEK6YjDFnkP5w==}
 
   '@svelte-add/mdsvex@1.0.10':
     resolution: {integrity: sha512-gif43GMVXGtnhvJd0uIAaQ7PBOKicX87/DiWXEbIOXAMhWH9zzkKlISk5VSGQ0bFd5YJC1yQXUiVQVe+cVg/Kg==}
+    deprecated: Package no longer supported. Please use npx svelte-add mdsvex
     hasBin: true
 
   '@svelte-add/routify@1.0.10':
     resolution: {integrity: sha512-gWEix7MLqpXd+1G7RSmkeWapmj0wvrINECF+cXy286qxwBkKTKBVHMkPUFNsuaMLARsRM1YSP8OBUOj10ZsHSQ==}
+    deprecated: Package no longer supported. Please use npx svelte-add routify
     hasBin: true
 
   '@svelte-add/storybook@1.0.10':
     resolution: {integrity: sha512-MwA57ClRET/Zkh/82ssNpt/2dNEqluij0M2FXDuNCoOexAq/WL4yFgmrmK7A6PruI8LwHizhbo6dWP4ZQfFxwQ==}
+    deprecated: Package no longer supported. Please use npx svelte-add storybook
     hasBin: true
 
   '@svelte-add/tailwindcss@1.0.10':
     resolution: {integrity: sha512-3acWvRD4pagwCSdKAAdvaDyGPZdlUgQHq0e5I5uBnYzvMMoTcH21XmQ+I7P+cvtZCpAR4PMFZgImjXEccqyEkg==}
+    deprecated: Package no longer supported. Please use npx svelte-add tailwindcss
     hasBin: true
 
   '@sveltejs/adapter-auto@2.1.1':
@@ -2667,7 +2673,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
+    deprecated: Upgrade to fsevents v2 to mitigate potential security issues
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -4591,38 +4597,38 @@ packages:
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
 
-  turbo-darwin-64@1.13.3:
-    resolution: {integrity: sha512-glup8Qx1qEFB5jerAnXbS8WrL92OKyMmg5Hnd4PleLljAeYmx+cmmnsmLT7tpaVZIN58EAAwu8wHC6kIIqhbWA==}
+  turbo-darwin-64@2.4.3:
+    resolution: {integrity: sha512-TFKiCSJAAN8E7g8isVzocm5OaUGjXn5DVBCeIFmJ2dKe/wY64Gvw37Y5HnyKZLM2JWdEI2SkXrDLNfGMGwfXyg==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@1.13.3:
-    resolution: {integrity: sha512-/np2xD+f/+9qY8BVtuOQXRq5f9LehCFxamiQnwdqWm5iZmdjygC5T3uVSYuagVFsZKMvX3ycySwh8dylGTl6lg==}
+  turbo-darwin-arm64@2.4.3:
+    resolution: {integrity: sha512-pRCRHe5LPyF9L0qxCMGycl2NM9OV5obrG+J4/foO/e7a0yfwMRnQ7lJdHrrT5zfEYrj0/WN0ZxsaRAqyM3qZZw==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@1.13.3:
-    resolution: {integrity: sha512-G+HGrau54iAnbXLfl+N/PynqpDwi/uDzb6iM9hXEDG+yJnSJxaHMShhOkXYJPk9offm9prH33Khx2scXrYVW1g==}
+  turbo-linux-64@2.4.3:
+    resolution: {integrity: sha512-4SZj0K1OKXFBwGe7bNVYKcNJct6mdESWfq0zEYUp2yiWPxcihMWc60aGTccI5OC54UxhS52PcrBoiKQzIB6vkA==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@1.13.3:
-    resolution: {integrity: sha512-qWwEl5VR02NqRyl68/3pwp3c/olZuSp+vwlwrunuoNTm6JXGLG5pTeme4zoHNnk0qn4cCX7DFrOboArlYxv0wQ==}
+  turbo-linux-arm64@2.4.3:
+    resolution: {integrity: sha512-/wp0csB7GW6VUYsKAuMjVtvGy+Bo2g8RyE+5yx3/rD9+e8wHy0TZUiAiRtj0aeVJXiVPd/MA6u6IdxjV95/qxA==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@1.13.3:
-    resolution: {integrity: sha512-Nudr4bRChfJzBPzEmpVV85VwUYRCGKecwkBFpbp2a4NtrJ3+UP1VZES653ckqCu2FRyRuS0n03v9euMbAvzH+Q==}
+  turbo-windows-64@2.4.3:
+    resolution: {integrity: sha512-GpZl4YiIqf1eNFHys+tT9LgCfTi67TykOdI6xD7PB+oFsZisjQzhAVu/BW3oTe6lHRe0zndEQMuodP+fGAXHbA==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@1.13.3:
-    resolution: {integrity: sha512-ouJCgsVLd3icjRLmRvHQDDZnmGzT64GBupM1Y+TjtYn2LVaEBoV6hicFy8x5DUpnqdLy+YpCzRMkWlwhmkX7sQ==}
+  turbo-windows-arm64@2.4.3:
+    resolution: {integrity: sha512-AjyuOdQc2wRn2C+RksQ8rhpzvvpD3FOG3hUz9S9uhE5FpgUFUynGnYgFlKVnHkL/k7aslBL4dzNE7S4UaJeywA==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@1.13.3:
-    resolution: {integrity: sha512-n17HJv4F4CpsYTvKzUJhLbyewbXjq1oLCi90i5tW1TiWDz16ML1eDG7wi5dHaKxzh5efIM56SITnuVbMq5dk4g==}
+  turbo@2.4.3:
+    resolution: {integrity: sha512-CpUHqrLTnV9R41RiWMSj9ZNHl++I7eTUIU+pH5O5a/2fRMhiKI6JdgBszuQ2YyaZYXkZZh/oHwbgzS1pug0zMg==}
     hasBin: true
 
   type-check@0.4.0:
@@ -5680,7 +5686,7 @@ snapshots:
 
   '@svelte-add/ast-manipulation@2.0.5':
     dependencies:
-      '@svelte-add/ast-tooling': 2.0.4
+      '@svelte-add/ast-tooling': 2.1.1
 
   '@svelte-add/ast-manipulation@2.1.2':
     dependencies:
@@ -9519,32 +9525,32 @@ snapshots:
       tslib: 1.14.1
       typescript: 5.4.5
 
-  turbo-darwin-64@1.13.3:
+  turbo-darwin-64@2.4.3:
     optional: true
 
-  turbo-darwin-arm64@1.13.3:
+  turbo-darwin-arm64@2.4.3:
     optional: true
 
-  turbo-linux-64@1.13.3:
+  turbo-linux-64@2.4.3:
     optional: true
 
-  turbo-linux-arm64@1.13.3:
+  turbo-linux-arm64@2.4.3:
     optional: true
 
-  turbo-windows-64@1.13.3:
+  turbo-windows-64@2.4.3:
     optional: true
 
-  turbo-windows-arm64@1.13.3:
+  turbo-windows-arm64@2.4.3:
     optional: true
 
-  turbo@1.13.3:
+  turbo@2.4.3:
     optionalDependencies:
-      turbo-darwin-64: 1.13.3
-      turbo-darwin-arm64: 1.13.3
-      turbo-linux-64: 1.13.3
-      turbo-linux-arm64: 1.13.3
-      turbo-windows-64: 1.13.3
-      turbo-windows-arm64: 1.13.3
+      turbo-darwin-64: 2.4.3
+      turbo-darwin-arm64: 2.4.3
+      turbo-linux-64: 2.4.3
+      turbo-linux-arm64: 2.4.3
+      turbo-windows-64: 2.4.3
+      turbo-windows-arm64: 2.4.3
 
   type-check@0.4.0:
     dependencies:

@@ -9,9 +9,6 @@
     "name": "Tebogo Christopher Seshibe",
     "email": "tseshibe@gmail.com"
   },
-  "engines": {
-    "node": ">=14.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Tebogo-Seshibe/fwge.git",
