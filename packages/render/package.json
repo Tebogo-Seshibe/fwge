@@ -15,8 +15,9 @@
     "directory": "packages/render"
   },
   "scripts": {
-    "build:lib": "tsc",
-    "dev": "tsc -w",
+    "build": "tsc",
+    "clean": "rimraf lib .turbo tsconfig.tsbuildinfo node_modules",
+    "watch": "tsc -w",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },

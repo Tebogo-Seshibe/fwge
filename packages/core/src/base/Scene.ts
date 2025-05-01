@@ -1,4 +1,4 @@
-import { Class, Entity, EntityId, System, Type } from "../ecs";
+import { Class, Entity, EntityId, System, Type } from "@fwge/ecs";
 import { Game } from "./Game";
 import { RenderWindow } from "./render/RenderWindow";
 

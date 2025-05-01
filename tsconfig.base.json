@@ -15,6 +15,9 @@
         "composite": true,
         "incremental": true,
         "forceConsistentCasingInFileNames": true,
+        "paths": {
+            "@fwge/*": ["./packages/*/src"]
+        }
     },
     "buildOptions": {
         "incremental": true,

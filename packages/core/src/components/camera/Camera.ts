@@ -1,6 +1,5 @@
 import { CubeGeometry, Geometry3D, Matrix4, Vector3 } from "@fwge/common";
-import { Game } from "../../base";
-import { Component } from "../../ecs";
+import { Component } from "@fwge/ecs";
 
 export class Camera extends Component
 {
@@ -41,9 +40,4 @@ export class Camera extends Component
     }
 
     UpdateProjection(): void {}
-    
-    constructor(game: Game)
-    {
-        super(game, Camera)
-    }
 }

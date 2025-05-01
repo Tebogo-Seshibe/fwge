@@ -1,6 +1,5 @@
-import { Matrix4 } from '@fwge/common'
-import { Camera } from './Camera'
-import { Game } from '../../base';
+import { Matrix4 } from '@fwge/common';
+import { Camera } from './Camera';
 
 export interface PerspectiveCameraArgs
 {
@@ -55,11 +54,11 @@ export class PerspectiveCamera extends Camera
     }
 
 
-    constructor(game: Game)
-    constructor(game: Game, camera: PerspectiveCameraArgs)
-    constructor(game: Game, camera: PerspectiveCameraArgs = { })
+    constructor()
+    constructor(camera: PerspectiveCameraArgs)
+    constructor(camera: PerspectiveCameraArgs = { })
     {
-        super(game)
+        super()
 
         this.Data = new Float32Array(
         [

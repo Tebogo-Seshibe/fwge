@@ -14,10 +14,10 @@
     "vite": "^4.1.5"
   },
   "dependencies": {
-    "@fwge/animation": "file:../../../packages/animation",
-    "@fwge/common": "file:../../../packages/common",
-    "@fwge/core": "file:../../../packages/core",
-    "@fwge/ecs": "file:../../../packages/ecs",
-    "@fwge/input": "file:../../../packages/input"
+    "@fwge/animation": "workspace:*",
+    "@fwge/common": "workspace:*",
+    "@fwge/core": "workspace:*",
+    "@fwge/ecs": "workspace:*",
+    "@fwge/input": "workspace:*"
   }
 }

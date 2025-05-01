@@ -1,5 +1,5 @@
 import { CalcuateDelay, Vector2, createContext, type IDelay } from "@fwge/common";
-import { Class, Component, ComponentId, Entity, EntityId, ListContainer, System, Type, TypeId } from "../ecs";
+import { Class, Component, ComponentId, Entity, EntityId, ListContainer, System, Type, TypeId } from "@fwge/ecs";
 import { Asset } from "./Asset";
 import { Scene, type SceneId } from "./Scene";
 import { Shader } from "./shader/Shader";

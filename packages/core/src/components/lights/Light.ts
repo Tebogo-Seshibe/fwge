@@ -1,6 +1,6 @@
 import { Colour3, Colour3Array, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
 import { Game, Shader } from "../../base";
-import { Component } from "../../ecs";
+import { Component } from "@fwge/ecs";
 
 export interface LightArgs
 {

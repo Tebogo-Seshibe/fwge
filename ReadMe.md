@@ -1,7 +1,7 @@
 # fwge
 FWGE WebGL Game Engine
 
-Web based game engine library, built on top of the WebGL api
+Web based game engine library, built on top of the WebGL API
 
 ## Prerequisites
 - node: >= 14.0.0
@@ -10,4 +10,3 @@ Web based game engine library, built on top of the WebGL api
 ## Setup
 - pnpm install
 - pnpm build:libs
-

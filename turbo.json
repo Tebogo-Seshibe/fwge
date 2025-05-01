@@ -1,13 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "build:lib": {
-        "dependsOn": ["^build:lib"],
+    "build": {
+        "dependsOn": ["^build"],
         "outputs": ["lib"]
-    },
-    "build:app": {
-      "dependsOn": ["^build-app"],
-      "outputs": ["lib"]
     },
     "test": {
         "cache": false,
@@ -16,6 +12,10 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
     }
   }
 }

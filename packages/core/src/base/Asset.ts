@@ -1,4 +1,4 @@
-import { Type } from "../ecs";
+import { Type } from "@fwge/ecs";
 import { Game } from "./Game";
 
 export abstract class Asset

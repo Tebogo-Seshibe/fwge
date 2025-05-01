@@ -1,6 +1,6 @@
 import { DECIMAL_PLACES, DECIMAL_PLACES_2, randBetween } from "@fwge/common";
-import { BasicLitMaterial, DefaultWindow, Game, MeshRenderer, RenderMode, RenderType, Renderer, Scene, Script, ScriptSystem, Shader, StaticMesh, Transform } from "@fwge/core";
-import { Entity } from "@fwge/ecs";
+import { BasicLitMaterial, DefaultWindow, Entity, Game, MeshRenderer, RenderMode, RenderType, RenderWindow, Renderer, Scene, Script, ScriptSystem, Shader, StaticMesh, Transform, Type } from "@fwge/core";
+import { Entity, System } from "@fwge/ecs";
 import { Input, InputSystem, KeyState } from "@fwge/input";
 import { tetrominoI, tetrominoJ, tetrominoL, tetrominoO, tetrominoS, tetrominoT, tetrominoZ } from "../assets/TetrominoMesh";
 import { tetrominoShaderFrag, tetrominoShaderVert } from "../assets/TetrominoShader";
@@ -15,6 +15,18 @@ enum BoardState
 
 export class Level extends Scene
 {
+    protected UseWindows: Type<RenderWindow>[] = [
+        DefaultWindow
+    ];
+    protected UseEntites: Type<Entity>[] = [
+        Player
+    ];
+    protected UseSystems: Type<System>[] = [
+        InputSystem,
+        ScriptSystem,
+        RenderSystem
+    ];
+
     currentTetromino!: Entity;
 
     tetrominoScript!: Script;
@@ -53,23 +65,6 @@ export class Level extends Scene
         return true;
     }
 
-    constructor(game: Game)
-    {
-        super(game,
-        {
-            windows: [ DefaultWindow ],
-            systems:
-            [
-                InputSystem,
-                ScriptSystem,
-                RenderSystem
-            ],
-            entities:
-            [
-                Player
-            ],
-        });
-    }
 
     Init(): void
     {
