@@ -168,6 +168,8 @@ export class ProjectRenderSystem extends System
             const transform = Registry.GetComponent(entityId, Transform)!;
             const renderer = Registry.GetComponent(entityId, MeshRenderer)!;
 
+            // console.log({ transform, material, renderer });
+            // throw '';
             const mesh = renderer.Asset!;
             
             let renderMode: number;

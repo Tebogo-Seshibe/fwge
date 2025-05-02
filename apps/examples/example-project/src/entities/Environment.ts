@@ -1,9 +1,9 @@
 import type { Colour3Array } from "@fwge/common";
-import { BasicLitMaterial, MeshRenderer, Transform } from "@fwge/core";
+import { BasicLitMaterial, Material, MeshRenderer, Transform } from "@fwge/core";
+import { Entity } from "@fwge/ecs";
 import { CubeMesh } from "../assets/CubeMesh";
 import { CubeShader } from "../assets/CubeShader";
 import { EditorTag } from "../components/EditorTag";
-import { Entity, Registry } from "@fwge/ecs";
 
 export class Environment extends Entity
 {
@@ -11,18 +11,16 @@ export class Environment extends Entity
     {
         const ignore = new EditorTag();
         const cubeShader = new CubeShader();
-        const cubeMeshRender = new MeshRenderer(
-        {
-            asset: new CubeMesh()!
-        });
+        const cubeMesh = new CubeMesh()!;
+        const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
 
         const floor = new Entity()
             .AddComponents(
                 new Transform(
                 { 
-                    position:   [  0, 0,  0 ],
+                    position:   [  0, -1,  0 ],
                     rotation:   [  0,  0,  0 ],
-                    scale:      [ 2,  2, 2 ]
+                    scale:      [ 20,  1, 20 ]
                 }),
                 cubeMeshRender,
                 new BasicLitMaterial(
@@ -36,7 +34,7 @@ export class Environment extends Entity
             );
         const cube1 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, 0 ],
@@ -55,7 +53,7 @@ export class Environment extends Entity
             );
         const cube2 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ -2, 1, 0 ],
@@ -74,7 +72,7 @@ export class Environment extends Entity
             );
         const cube3 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ 2, 1, 0 ],
@@ -93,7 +91,7 @@ export class Environment extends Entity
             );
         const cube4 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ 0, 0.5, -2 ],
@@ -112,7 +110,7 @@ export class Environment extends Entity
             );            
         const cube5 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ 0, 2.5, -2 ],
@@ -131,7 +129,7 @@ export class Environment extends Entity
             );
         const cube6 = new Entity()
             .AddComponents(
-                ignore,
+                // ignore,
                 new Transform(
                 { 
                     position:   [ 0, 2, -5 ],
@@ -167,5 +165,9 @@ export class Environment extends Entity
             .AddChild(cube5);
 
         cubeShader.Init();
+        cubeMesh.Load();
+        [floor, cube1, cube2, cube3, cube4, cube5, cube6].forEach(entity => entity.GetComponent(Material)!.ImageTextures.filter(Boolean).forEach(tex => tex!.Load()));
+        console.log(floor)
+        console.log(floor.GetAllComponents())
     }
 }

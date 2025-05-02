@@ -131,35 +131,36 @@ export class Mesh extends Asset
 
     Load(): Promise<void>
     {
-        const mesh = this;
-        return new Promise((resolve) => 
+        const promise = new Promise<void>((resolve) => 
         {
-            if (mesh._initialized)
-            {
-                return;
-            }
-            
-            mesh._initialized = true;
-    
-            mesh._vertexArrayBuffer = GL.createVertexArray()!
-            mesh._vertexBuffer = GL.createBuffer()!
-            
-            mesh._faceBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.FaceBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('faces'), GL.STATIC_DRAW)
-            
-            mesh._edgeBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.EdgeBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('edges'), GL.STATIC_DRAW)
-            
-            mesh._pointBuffer = GL.createBuffer()!
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.PointBuffer)
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('points'), GL.STATIC_DRAW)
-            
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
-
             resolve();
-        })
+        });
+
+        const mesh = this;
+        if (mesh._initialized)
+        {
+            return promise;
+        }
+        
+        mesh._initialized = true;
+
+        mesh._vertexArrayBuffer = GL.createVertexArray()!
+        mesh._vertexBuffer = GL.createBuffer()!
+        
+        mesh._faceBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.FaceBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('faces'), GL.STATIC_DRAW)
+        
+        mesh._edgeBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.EdgeBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('edges'), GL.STATIC_DRAW)
+        
+        mesh._pointBuffer = GL.createBuffer()!
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.PointBuffer)
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('points'), GL.STATIC_DRAW)
+        
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
+        return promise;
     }
 
     Unload(game: Game): Promise<void> { return Promise.resolve(); }

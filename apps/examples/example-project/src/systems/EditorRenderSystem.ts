@@ -19,7 +19,6 @@ export class EditorRenderSystem extends System
             [Tag, Material, Renderer, Transform], 
             (_, tag) => tag instanceof EditorTag
         );
-        console.log({ Registry, cameraView: this.cameraView, renderableView: this.renderableView })
     }
 
     Start(): void 

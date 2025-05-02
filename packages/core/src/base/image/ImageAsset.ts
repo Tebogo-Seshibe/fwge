@@ -32,17 +32,17 @@ export class ImageAsset extends Asset
         this.Texture = GL.createTexture()!;
     }
     
-    public async Load(game: Game): Promise<void>
+    public async Load(): Promise<void>
     {
         throw new Error('Method not implemented');
     }
 
-    public async Unload(game: Game): Promise<void>
+    public async Unload(): Promise<void>
     {
         throw new Error('Method not implemented');
     }
 
-    public async Destroy(game: Game): Promise<void>
+    public async Destroy(): Promise<void>
     {
         throw new Error('Method not implemented');
     }    

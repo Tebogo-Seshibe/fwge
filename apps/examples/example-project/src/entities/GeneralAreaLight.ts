@@ -9,7 +9,7 @@ export class GeneralAreaLight extends Entity
             new AreaLight(
             {
                 colour: [1, 1, 1],
-                intensity: 1
+                intensity: 0.55
             })
         )
     }

@@ -61,7 +61,6 @@ export abstract class Scene
                 entity = new this.UseEntites[i](this.Game);
             }
             
-            entity.Init();
             this.Entities.push(entity.Id);
         }
         

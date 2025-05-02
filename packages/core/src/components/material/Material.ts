@@ -1,4 +1,4 @@
-import { Colour3, isPowerOf2, Scalar } from "@fwge/common";
+import { Colour3, GL, isPowerOf2, Scalar } from "@fwge/common";
 import { Game, ImageAsset } from "../../base";
 import { Shader } from "../../base/shader/Shader";
 import { Component } from "@fwge/ecs";
@@ -71,16 +71,16 @@ export class Material extends Component
         this.colour.Set(0.3, 0.3, 0.3)
         this.alpha.Set(1.0)
 
-        // if (!Material.Empty)
-        // {
-        //     Material.Empty = GL.createTexture()!
-        //     GL.bindTexture(GL.TEXTURE_2D, Material.Empty)
-        //     GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
-        //     GL.generateMipmap(GL.TEXTURE_2D)
-        //     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
-        //     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
-        //     GL.bindTexture(GL.TEXTURE_2D, null)            
-        // }
+        if (!Material.Empty)
+        {
+            Material.Empty = GL.createTexture()!
+            GL.bindTexture(GL.TEXTURE_2D, Material.Empty)
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+            GL.generateMipmap(GL.TEXTURE_2D)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST)
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+            GL.bindTexture(GL.TEXTURE_2D, null)            
+        }
     }
     
     // protected applyImage(texture: WebGLTexture, src: string): void

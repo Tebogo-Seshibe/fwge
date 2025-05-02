@@ -1,5 +1,4 @@
-import { isPowerOf2 } from "@fwge/common";
-import { Game } from "../Game";
+import { GL, isPowerOf2 } from "@fwge/common";
 import { ImageAsset, TextureFilter, WrapMode } from "./ImageAsset";
 
 export interface IImage2D
@@ -23,27 +22,27 @@ export class Image2D extends ImageAsset
         this.Sources[0] = source;
     }
 
-    public async Load(game: Game): Promise<void>
+    public async Load(): Promise<void>
     {
         this.image = new Image();
-        this.image.addEventListener('load', this.BindLoadedImageData.bind(this, game.GL));
+        this.image.addEventListener('load', this.BindLoadedImageData.bind(this));
         this.image.src = this.Sources[0];
     }
 
-    public async Unload(_game: Game): Promise<void>
+    public async Unload(): Promise<void>
     {
         this.image!.src = undefined!;
         this.image = undefined!
     }
 
-    public async Destroy(_game: Game): Promise<void>
+    public async Destroy(): Promise<void>
     {
         
     }
 
-    private BindLoadedImageData(GL: WebGL2RenderingContext): void
+    private BindLoadedImageData(): void
     {
-        this.image!.removeEventListener('load', this.BindLoadedImageData.bind(this, GL));
+        this.image!.removeEventListener('load', this.BindLoadedImageData.bind(this));
         
         GL.bindTexture(GL.TEXTURE_2D, this.Texture);
         GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, this.image!.width, this.image!.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, this.image!.buffer());

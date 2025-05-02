@@ -1,4 +1,4 @@
-import { Game } from "../Game";
+import { GL } from "@fwge/common";
 import { ImageAsset } from "./ImageAsset";
 
 export interface ICubemap
@@ -14,10 +14,10 @@ export class Cubemap extends ImageAsset
         // this.BindDefaultImageData();
     }
 
-    public async Load(game: Game): Promise<void>
+    public async Load(): Promise<void>
     {
         const image = new Image()
-        image.onload = () => this.applyImage(image, game.GL)
+        image.onload = () => this.applyImage(image)
         image.src = this.Sources[0]
     }
     
@@ -31,7 +31,7 @@ export class Cubemap extends ImageAsset
         throw new Error("Method not implemented.");
     }
 
-    protected applyImage(image: HTMLImageElement, GL: WebGL2RenderingContext): void
+    protected applyImage(image: HTMLImageElement): void
     {
         const size = image.height / 3
 

@@ -1,6 +1,5 @@
-import { Game } from "../Game";
-import { IImage2D } from "./Image2D"
-import { ImageAsset } from "./ImageAsset"
+import { IImage2D } from "./Image2D";
+import { ImageAsset } from "./ImageAsset";
 
 export interface IImageStack extends Array<IImage2D> { }
 
@@ -11,17 +10,17 @@ export class ImageStack extends ImageAsset
         super([])
     }
     
-    public async Load(game: Game): Promise<void>
+    public async Load(): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public async Unload(game: Game): Promise<void>
+    public async Unload(): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
 
-    public async Destroy(game: Game): Promise<void>
+    public async Destroy(): Promise<void>
     {
         throw new Error("Method not implemented.");
     }
