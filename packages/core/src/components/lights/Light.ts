@@ -1,6 +1,6 @@
 import { Colour3, Colour3Array, IsBindable, Scalar, Vector3, Vector3Array } from "@fwge/common";
-import { Game, Shader } from "../../base";
 import { Component } from "@fwge/ecs";
+import { Shader } from "../../base";
 
 export interface LightArgs
 {
@@ -50,13 +50,12 @@ export class Light extends Component implements IsBindable<Float32Array>
     }
 
     constructor(
-        game: Game,
         colour: Colour3 | Vector3 | Colour3Array = [0.7, 0.7, 0.7],
         intensity: number = 1.0,
         readonly BufferData: Float32Array = new Float32Array(4)
     )
     {
-        super(game, Light);
+        super(Light);
 
         this._colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0);
         this._intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3);
@@ -65,9 +64,9 @@ export class Light extends Component implements IsBindable<Float32Array>
         this._intensity.Set(intensity);
     }
 
-    Init(): void
+    Init(context: WebGL2RenderingContext): void
     {
-        this._buffer = this.Game.GL.createBuffer()!;
+        this._buffer = context.createBuffer()!;
     }
     
     Bind(shader: Shader, ..._args: any[]): void

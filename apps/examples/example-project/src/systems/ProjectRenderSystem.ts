@@ -1,7 +1,8 @@
 import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, EntityId, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, System, Tag, Transform, type Mesh } from "@fwge/core";
+import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
 import { FinalPassShader } from "../assets/FinalPassShader";
 import { EditorTag } from "../components/EditorTag";
+import { EntityId, Registry, System } from "@fwge/ecs";
 
 export class ProjectRenderSystem extends System
 {
@@ -16,36 +17,35 @@ export class ProjectRenderSystem extends System
 
     Init(): void 
     {
-        this.cameraView = this.Game.RegisterView(
+        this.cameraView = Registry.RegisterView(
             [Camera, Transform],
             // entity => !entity.HasComponent(EditorTag)
         );
 
-        this.renderableView = this.Game.RegisterView(
+        this.renderableView = Registry.RegisterView(
             [Material, Renderer, Transform],
             entity => !entity.HasComponent(EditorTag)
         );
         
-        this.renderableShadowView = this.Game.RegisterView(
+        this.renderableShadowView = Registry.RegisterView(
             [Material, Renderer, Transform],
             (_, material) => material.ProjectsShadows
         );
 
-        this.areaLightView = this.Game.RegisterView(
+        this.areaLightView = Registry.RegisterView(
             [Light],
             (_, light) => light instanceof AreaLight
         );
 
-        this.directionalLightView = this.Game.RegisterView(
+        this.directionalLightView = Registry.RegisterView(
             [Light],
             (_, light) => light instanceof DirectionalLight
         );
 
         this.finalPassShader = new FinalPassShader();
-        this.finalPassShader.Init(this.Game.GL);
+        this.finalPassShader.Init();
 
-        this.window = this.Game.CurrentScene!.Windows[0];
-        this.window.Panel.Load(this.Game);
+        // this.window = Registry.CurrentScene!.Windows[0];
     }
 
     Start(): void 
@@ -65,9 +65,9 @@ export class ProjectRenderSystem extends System
         GL.depthMask(true);
         
         GL.cullFace(GL.FRONT);
-        for (var entityId of this.Game.GetView(this.directionalLightView))
+        for (var entityId of Registry.GetView(this.directionalLightView))
         {
-            this.renderShadows(entityId, this.Game.GetComponent(entityId, DirectionalLight)!); 
+            this.renderShadows(entityId, Registry.GetComponent(entityId, DirectionalLight)!); 
         }
         GL.cullFace(GL.BACK);
             
@@ -77,28 +77,28 @@ export class ProjectRenderSystem extends System
         GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
         GL.clearColor(0, 0, 0, 0);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-        this.finalPassShader.Bind(this.Game.GL)
         
-        this.finalPassShader.SetTexture(this.Game.GL, 'U_Position', this.window.FinalComposite.ColourAttachments[0])
-        this.finalPassShader.SetTexture(this.Game.GL, 'U_Normal', this.window.FinalComposite.ColourAttachments[1])
-        this.finalPassShader.SetTexture(this.Game.GL, 'U_Albedo_Alpha', this.window.FinalComposite.ColourAttachments[2])
-        this.finalPassShader.SetTexture(this.Game.GL, 'U_Depth', this.window.FinalComposite.DepthAttachment!)
-        this.finalPassShader.SetTexture(this.Game.GL, `U_Dir_Tex`, this.Game.GetComponent(this.Game.GetView(this.directionalLightView)[0]!, DirectionalLight)!.RenderTarget.DepthAttachment!);
+        this.finalPassShader.Bind();
+        this.finalPassShader.SetTexture('U_Position', this.window.FinalComposite.ColourAttachments[0])
+        this.finalPassShader.SetTexture('U_Normal', this.window.FinalComposite.ColourAttachments[1])
+        this.finalPassShader.SetTexture('U_Albedo_Alpha', this.window.FinalComposite.ColourAttachments[2])
+        this.finalPassShader.SetTexture('U_Depth', this.window.FinalComposite.DepthAttachment!)
+        this.finalPassShader.SetTexture(`U_Dir_Tex`, Registry.GetComponent(Registry.GetView(this.directionalLightView)[0]!, DirectionalLight)!.RenderTarget.DepthAttachment!);
 
         let a = 0;
-        for (var entityId of this.Game.GetView(this.areaLightView))
+        for (var entityId of Registry.GetView(this.areaLightView))
         {
-            const light = this.Game.GetComponent(entityId, AreaLight)!;
-            this.finalPassShader.SetFloatVector(this.Game.GL, `U_AreaLight[${a}].Colour`, light.Colour);
-            this.finalPassShader.SetFloat(this.Game.GL, `U_AreaLight[${a}].Intensity`, light.Intensity);
+            const light = Registry.GetComponent(entityId, AreaLight)!;
+            this.finalPassShader.SetFloatVector(`U_AreaLight[${a}].Colour`, light.Colour);
+            this.finalPassShader.SetFloat(`U_AreaLight[${a}].Intensity`, light.Intensity);
             a++
         }
 
         let d = 0;
-        for (var entityId of this.Game.GetView(this.directionalLightView))
+        for (var entityId of Registry.GetView(this.directionalLightView))
         {
-            const light = this.Game.GetComponent(entityId, DirectionalLight)!;
-            const transform = this.Game.GetComponent(entityId, Transform)!;
+            const light = Registry.GetComponent(entityId, DirectionalLight)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
             const rotation = transform.GlobalRotation(entityId);
             const rotationMatrix = Matrix4.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z);
             const direction = Matrix4.MultiplyVector(
@@ -106,65 +106,67 @@ export class ProjectRenderSystem extends System
                 [...DirectionalLight.DefaultDirection, 1.0] as Vector4Array
             );
             
-            this.finalPassShader.SetFloatVector(this.Game.GL, `U_DirectionalLight[${d}].Colour`, light.Colour);
-            this.finalPassShader.SetFloat(this.Game.GL, `U_DirectionalLight[${d}].Intensity`, light.Intensity);
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Colour`, light.Colour);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Intensity`, light.Intensity);
 
-            this.finalPassShader.SetFloatVector(this.Game.GL, `U_DirectionalLight[${d}].Direction`, direction.XYZ.Negate());
-            this.finalPassShader.SetBool(this.Game.GL, `U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
+            this.finalPassShader.SetFloatVector(`U_DirectionalLight[${d}].Direction`, direction.XYZ.Negate());
+            this.finalPassShader.SetBool(`U_DirectionalLight[${d}].CastShadows`, light.CastShadows);
 
-            this.finalPassShader.SetFloat(this.Game.GL, `U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
-            this.finalPassShader.SetFloat(this.Game.GL, `U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
-            this.finalPassShader.SetFloat(this.Game.GL, `U_DirectionalLight[${d}].Bias`, light.Bias);
-            this.finalPassShader.SetFloat(this.Game.GL, `U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelSize`, 1 / light.RenderTarget.Width);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].TexelCount`, ((light.PCFLevel * 2) + 1) ** 2);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].Bias`, light.Bias);
+            this.finalPassShader.SetFloat(`U_DirectionalLight[${d}].PCFLevel`, light.PCFLevel);
 
-            this.finalPassShader.SetMatrix(this.Game.GL, `U_DirectionalLight[${d}].ProjectionMatrix`, light.ProjectionMatrix, true);
-            this.finalPassShader.SetMatrix(this.Game.GL, `U_DirectionalLight[${d}].ViewMatrix`, rotationMatrix, true);
+            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ProjectionMatrix`, light.ProjectionMatrix, true);
+            this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ViewMatrix`, rotationMatrix, true);
             d++
         }
         
-        const cameraEntityId = this.Game.GetView(this.cameraView)[0];
-        const cameraTransform = this.Game.GetComponent(cameraEntityId, Transform)!;
-        const cameraCamera = this.Game.GetComponent(cameraEntityId, Camera)!;
+        const cameraEntityId = Registry.GetView(this.cameraView)[0];
+        const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
+        const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;
         const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId).Inverse();
 
         
-        this.finalPassShader.SetBufferDataField(this.Game.GL, 'Camera', 'View', cameraMV, true);
-        this.finalPassShader.SetBufferDataField(this.Game.GL, 'Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
-        this.finalPassShader.PushBufferData(this.Game.GL, 'Camera');
+        this.finalPassShader.SetBufferDataField('Camera', 'View', cameraMV, true);
+        this.finalPassShader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
+        this.finalPassShader.PushBufferData('Camera');
         
         GL.bindVertexArray(this.window.Panel.VertexArrayBuffer);
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.window.Panel.FaceBuffer);
         GL.drawElements(GL.TRIANGLES, this.window.Panel.FaceCount, GL.UNSIGNED_BYTE, 0);
         GL.bindVertexArray(null);
-        this.finalPassShader.UnBind(this.Game.GL)
+        this.finalPassShader.UnBind();
     }
 
     private renderShadows(parentId: number, light: DirectionalLight)
     {
-        light.BindForShadows(parentId);
+        const parent = Registry.GetComponent(parentId, Transform)!;
+        const rotation = parent.GlobalRotation();
+        light.BindForShadows(rotation);
 
         
-        for (const entityId of this.Game.GetView(this.renderableView))
+        for (const entityId of Registry.GetView(this.renderableView))
         {
-            if (!this.Game.IsEntityActive(entityId))
+            if (!Registry.IsEntityActive(entityId))
             {
                 continue;
             }
 
-            const tag = this.Game.GetComponent(entityId, Tag);
+            const tag = Registry.GetComponent(entityId, Tag);
             if (tag instanceof EditorTag)
             {
                 continue;
             }
             
-            const material = this.Game.GetComponent(entityId, BasicLitMaterial)!;
+            const material = Registry.GetComponent(entityId, BasicLitMaterial)!;
             if (!material.ProjectsShadows)
             {
                 continue;
             }
 
-            const transform = this.Game.GetComponent(entityId, Transform)!;
-            const renderer = this.Game.GetComponent(entityId, MeshRenderer)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
+            const renderer = Registry.GetComponent(entityId, MeshRenderer)!;
 
             const mesh = renderer.Asset!;
             
@@ -199,7 +201,7 @@ export class ProjectRenderSystem extends System
                 break;
             }
             
-            DirectionalLight.ShadowShader.SetMatrix(this.Game.GL, 'U_Transform.ModelView', transform.GlobalModelViewMatrix(entityId), true)
+            DirectionalLight.ShadowShader.SetMatrix('U_Transform.ModelView', transform.GlobalModelViewMatrix(entityId), true)
             
             if (mesh instanceof InstanceMesh)
             {
@@ -216,38 +218,43 @@ export class ProjectRenderSystem extends System
 
     private renderScene(window: RenderWindow)
     {
-        window.MainPass.Output.Bind()
+        window.MainPass.Output.Bind();
+        // window.MainPass.Output.Framebuffer
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, window.MainPass.Output.Framebuffer);
+        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+        // GL.clearColor(0, 0, 0, 0);
+        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
         
-        const cameraEntityId = this.Game.GetView(this.cameraView)[0];
-        const cameraTransform = this.Game.GetComponent(cameraEntityId, Transform)!;
-        const cameraCamera = this.Game.GetComponent(cameraEntityId, Camera)!;
+        const cameraEntityId = Registry.GetView(this.cameraView)[0];
+        const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
+        const cameraCamera = Registry.GetComponent(cameraEntityId, Camera)!;
         const cameraMV = cameraTransform.GlobalModelViewMatrix(cameraEntityId).Inverse();
 
-        for (const entityId of this.Game.GetView(this.renderableView))
+        for (const entityId of Registry.GetView(this.renderableView))
         {
-            if (!this.Game.IsEntityActive(entityId))
+            if (!Registry.IsEntityActive(entityId))
             {
                 continue;
             }
 
-            const tag = this.Game.GetComponent(entityId, Tag);
+            const tag = Registry.GetComponent(entityId, Tag);
             if (tag instanceof EditorTag)
             {
                 continue;
             }
 
-            const transform = this.Game.GetComponent(entityId, Transform)!;
-            const material = this.Game.GetComponent(entityId, BasicLitMaterial)!;
-            const renderer = this.Game.GetComponent(entityId, MeshRenderer)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
+            const material = Registry.GetComponent(entityId, BasicLitMaterial)!;
+            const renderer = Registry.GetComponent(entityId, MeshRenderer)!;
 
             const mesh = renderer.Asset!;
             const shader = material.Shader!;
 
-            shader.Bind(this.Game.GL, );
+            shader.Bind();
 
-            shader.SetBufferDataField(this.Game.GL, 'Camera', 'View', cameraMV, true);
-            shader.SetBufferDataField(this.Game.GL, 'Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
-            shader.PushBufferData(this.Game.GL, 'Camera');
+            shader.SetBufferDataField('Camera', 'View', cameraMV, true);
+            shader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
+            shader.PushBufferData('Camera');
 
             material.BindBlock(shader)
             
@@ -292,31 +299,31 @@ export class ProjectRenderSystem extends System
                 this.drawMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
             }
 
-            shader.UnBind(this.Game.GL);
+            shader.UnBind();
         }
     }
 
     private drawInstanceMesh(entityId: EntityId, mesh: InstanceMesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
     {
-        this.Game.GL.bindVertexArray(mesh.VertexArrayBuffer);
+        GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
-        shader?.SetBufferDataField(this.Game.GL, 'Transform', 'Model', modelViewMatrix, true);
-        shader?.SetBufferDataField(this.Game.GL, 'Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader?.PushBufferData(this.Game.GL, 'Transform');
+        shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader?.PushBufferData('Transform');
 
         if (buffer)
         {
-            this.Game.GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
-            this.Game.GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+            GL.drawElementsInstanced(renderMode, renderCount, GL.UNSIGNED_BYTE, 0, mesh.InstanceCount);
         }
         else
         {
-            this.Game.GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);
+            GL.drawArraysInstanced(renderMode, 0, renderCount, mesh.InstanceCount);
         }
 
-        this.Game.GL.bindVertexArray(null);
+        GL.bindVertexArray(null);
     }
     
     private drawMesh(entityId: EntityId, mesh: Mesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
@@ -325,9 +332,9 @@ export class ProjectRenderSystem extends System
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
 
-        shader?.SetBufferDataField(this.Game.GL, 'Transform', 'Model', modelViewMatrix, true);
-        shader?.SetBufferDataField(this.Game.GL, 'Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader?.PushBufferData(this.Game.GL, 'Transform');
+        shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader?.PushBufferData('Transform');
 
         if (buffer)
         {

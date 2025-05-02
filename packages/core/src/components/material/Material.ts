@@ -1,7 +1,7 @@
 import { Colour3, isPowerOf2, Scalar } from "@fwge/common";
 import { Game, ImageAsset } from "../../base";
 import { Shader } from "../../base/shader/Shader";
-import { Component } from "../../ecs";
+import { Component } from "@fwge/ecs";
 
 export enum BlendMode
 {
@@ -57,12 +57,11 @@ export class Material extends Component
     }
 
     constructor(
-        game: Game,
         shader: Shader,
         renderType?: RenderType,
         readonly BufferData: Float32Array = new Float32Array([1, 1, 1, 1])
     ) {
-        super(game, Material)
+        super(Material)
 
         this.Shader = shader
         this.RenderType = renderType ?? RenderType.OPAQUE

@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@fwge/common": "workspace:*",
-    "@fwge/core": "workspace:*"
+    "@fwge/core": "workspace:*",
+    "@fwge/ecs": "workspace:*"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",

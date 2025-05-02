@@ -3,6 +3,7 @@ import { Class, Component, ComponentId, Entity, EntityId, ListContainer, System,
 import { Asset } from "./Asset";
 import { Scene, type SceneId } from "./Scene";
 import { Shader } from "./shader/Shader";
+import { RenderWindow } from "./render";
 
 export type Head<T extends any[]> = T extends [infer U, ...infer _]
     ? U
@@ -137,6 +138,7 @@ export abstract class Game
             assets.push(this.LoadAsset(asset));
         }
         await Promise.all(assets);
+        await RenderWindow.Init();
 
         for (const scene of this.UseScenes)
         {
@@ -672,6 +674,7 @@ export abstract class Game
         return filter.apply(undefined, [this.GetEntity(entityId), ...components]);
     }
     //#endregion
+   
     //#endregion
 
     //#region Scene Management

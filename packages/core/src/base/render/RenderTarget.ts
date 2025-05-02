@@ -188,7 +188,7 @@ export class RenderTarget
     private _config: RenderTargetConfig =
     {
         height: 1,
-        width: 0,
+        width: 1,
         depth: DepthType.NONE,
         colour: [],
         clear: [0,0,0,0]

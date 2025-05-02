@@ -2,8 +2,6 @@ import { GLWrapper } from "./GLWrapper"
 
 export let GL: WebGL2RenderingContext | GLWrapper
 
-let mainGL: WebGL2RenderingContext
-
 export let GLCall: Function
 
 export function createContext(canvas: HTMLCanvasElement, debug: boolean = true): WebGL2RenderingContext
@@ -68,4 +66,3 @@ export function glCheckError(functionName: string, ...args: any[]): boolean
 function assert(arg0: boolean) {
     throw new Error("Function not implemented.")
 }
-

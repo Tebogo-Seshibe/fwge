@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "lint": "tsc",
+    "clean": "rimraf lib .turbo tsconfig.tsbuildinfo node_modules",
     "preview": "vite preview",
-    "build:app": "vite build"
+    "build": "vite build"
   },
   "devDependencies": {
     "typescript": "^4.9.3",

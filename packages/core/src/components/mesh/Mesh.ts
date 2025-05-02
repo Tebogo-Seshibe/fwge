@@ -129,11 +129,9 @@ export class Mesh extends Asset
         }
     }
 
-    Load(game: Game): Promise<void>
+    Load(): Promise<void>
     {
         const mesh = this;
-        const GL = game.GL;
-
         return new Promise((resolve) => 
         {
             if (mesh._initialized)

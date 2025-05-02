@@ -1,30 +1,31 @@
 import type { Colour3Array } from "@fwge/common";
-import { BasicLitMaterial, Entity, MeshRenderer, Transform } from "@fwge/core";
+import { BasicLitMaterial, MeshRenderer, Transform } from "@fwge/core";
 import { CubeMesh } from "../assets/CubeMesh";
 import { CubeShader } from "../assets/CubeShader";
 import { EditorTag } from "../components/EditorTag";
+import { Entity, Registry } from "@fwge/ecs";
 
 export class Environment extends Entity
 {
     Init(): void
     {
-        const ignore = new EditorTag(this.Game);
+        const ignore = new EditorTag();
         const cubeShader = new CubeShader();
-        const cubeMeshRender = new MeshRenderer(this.Game,
+        const cubeMeshRender = new MeshRenderer(
         {
-            asset: this.Game.GetAsset(CubeMesh)!
+            asset: new CubeMesh()!
         });
 
-        const floor = new Entity(this.Game)
+        const floor = new Entity()
             .AddComponents(
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [  0, 0,  0 ],
                     rotation:   [  0,  0,  0 ],
                     scale:      [ 2,  2, 2 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -33,17 +34,17 @@ export class Environment extends Entity
                     colour: [51/255, 12/255, 47/255]
                 })
             );
-        const cube1 = new Entity(this.Game)
+        const cube1 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ 0, 0.5, 0 ],
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 1, 1, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -52,17 +53,17 @@ export class Environment extends Entity
                     colour: [123/255, 40/255, 125/255]
                 })
             );
-        const cube2 = new Entity(this.Game)
+        const cube2 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ -2, 1, 0 ],
                     rotation:   [ 0, 45, 0 ],
                     scale:      [ 1, 2, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -71,17 +72,17 @@ export class Environment extends Entity
                     colour: [112/255, 103/255, 207/255]
                 })
             );
-        const cube3 = new Entity(this.Game)
+        const cube3 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ 2, 1, 0 ],
                     rotation:   [ 0, 30, 0 ],
                     scale:      [ 2, 2, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -90,17 +91,17 @@ export class Environment extends Entity
                     colour: [183/255, 192/255, 238/255]
                 })
             );
-        const cube4 = new Entity(this.Game)
+        const cube4 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ 0, 0.5, -2 ],
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 2, 1, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -109,17 +110,17 @@ export class Environment extends Entity
                     colour: [203/255, 243/255, 210/255]
                 })
             );            
-        const cube5 = new Entity(this.Game)
+        const cube5 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ 0, 2.5, -2 ],
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 1, 1, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -128,17 +129,17 @@ export class Environment extends Entity
                     colour: [203/255, 243/255, 210/255].map(x => x * 0.5) as Colour3Array
                 })
             );
-        const cube6 = new Entity(this.Game)
+        const cube6 = new Entity()
             .AddComponents(
                 ignore,
-                new Transform(this.Game,
+                new Transform(
                 { 
                     position:   [ 0, 2, -5 ],
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 5, 5, 1 ]
                 }),
                 cubeMeshRender,
-                new BasicLitMaterial(this.Game,
+                new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
@@ -146,7 +147,7 @@ export class Environment extends Entity
                     receiveShadows: true,
                     colour: [203/255, 243/255, 210/255].reverse() as Colour3Array//.map(x => x * 0.25) as Colour3Array
                 })
-            );
+            )
 
 
         floor.Name = 'Floor';
@@ -165,7 +166,6 @@ export class Environment extends Entity
         cube3.AddChild(cube4)
             .AddChild(cube5);
 
-        cubeShader.Init(this.Game.GL);
-        console.log(this);
+        cubeShader.Init();
     }
 }

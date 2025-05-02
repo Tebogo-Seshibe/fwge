@@ -1,4 +1,4 @@
-import { Colour4, Vector2, Vector3 } from "@fwge/common";
+import { Colour4, GL, Vector2, Vector3 } from "@fwge/common";
 import { Game } from "../../base";
 import { COLOUR_INDEX, COLOUR_SIZE, NORMAL_INDEX, NORMAL_SIZE, POSITION_INDEX, POSITION_SIZE, UV_INDEX, UV_SIZE } from "./constants";
 import { IMesh, Mesh } from './Mesh';
@@ -106,38 +106,38 @@ export class StaticMesh extends Mesh
         //#endregion
     }
 
-    override async Load(game: Game): Promise<void>
+    override async Load(): Promise<void>
     {
-        await super.Load(game);
+        await super.Load();
         
         //#region VAO Setup
-        game.GL.bindVertexArray(this.VertexArrayBuffer)
-        game.GL.bindBuffer(game.GL.ARRAY_BUFFER, this.VertexBuffer)
-        game.GL.bufferData(game.GL.ARRAY_BUFFER, this.MeshData.View('vertices'), game.GL.STATIC_DRAW)
+        GL.bindVertexArray(this.VertexArrayBuffer)
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.VertexBuffer)
+        GL.bufferData(GL.ARRAY_BUFFER, this.MeshData.View('vertices'), GL.STATIC_DRAW)
         
-        game.GL.enableVertexAttribArray(POSITION_INDEX)
-        game.GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, game.GL.FLOAT, false, this._vertexSizeInBytes, this._positionOffset)
+        GL.enableVertexAttribArray(POSITION_INDEX)
+        GL.vertexAttribPointer(POSITION_INDEX, Vector3.SIZE, GL.FLOAT, false, this._vertexSizeInBytes, this._positionOffset)
 
         if (this._normalOffset !== -1)
         {
-            game.GL.enableVertexAttribArray(NORMAL_INDEX)
-            game.GL.vertexAttribPointer(NORMAL_INDEX, Vector3.SIZE, game.GL.FLOAT, false, this._vertexSizeInBytes, this._normalOffset)
+            GL.enableVertexAttribArray(NORMAL_INDEX)
+            GL.vertexAttribPointer(NORMAL_INDEX, Vector3.SIZE, GL.FLOAT, false, this._vertexSizeInBytes, this._normalOffset)
         }
 
         if (this._uvOffset !== -1)
         {
-            game.GL.enableVertexAttribArray(UV_INDEX)
-            game.GL.vertexAttribPointer(UV_INDEX, Vector2.SIZE, game.GL.FLOAT, false, this._vertexSizeInBytes, this._uvOffset)
+            GL.enableVertexAttribArray(UV_INDEX)
+            GL.vertexAttribPointer(UV_INDEX, Vector2.SIZE, GL.FLOAT, false, this._vertexSizeInBytes, this._uvOffset)
         }
 
         if (this._colourOffset !== -1)
         {
-            game.GL.enableVertexAttribArray(COLOUR_INDEX)
-            game.GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, game.GL.FLOAT, false, this._vertexSizeInBytes, this._colourOffset)
+            GL.enableVertexAttribArray(COLOUR_INDEX)
+            GL.vertexAttribPointer(COLOUR_INDEX, Colour4.SIZE, GL.FLOAT, false, this._vertexSizeInBytes, this._colourOffset)
         }
 
-        game.GL.bindVertexArray(null)
-        game.GL.bindBuffer(game.GL.ARRAY_BUFFER, null)
+        GL.bindVertexArray(null)
+        GL.bindBuffer(GL.ARRAY_BUFFER, null)
         //#endregion
     }
 }

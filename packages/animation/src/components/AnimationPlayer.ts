@@ -1,6 +1,6 @@
 import { CalcuateDelay, IDelay } from "@fwge/common"
 import { Animation } from "../base"
-import { Component, Game } from "@fwge/core";
+import { Component } from "@fwge/ecs"
 
 export class AnimationPlayer extends Component
 {
@@ -12,9 +12,9 @@ export class AnimationPlayer extends Component
         return this.activeAnimation
     }
 
-    constructor(game: Game)
+    constructor()
     {
-        super(game, AnimationPlayer)
+        super(AnimationPlayer)
     }
 
     Play(name: string): void

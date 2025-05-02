@@ -1,6 +1,5 @@
 import { Vector2, Vector2Array } from "@fwge/common";
 import { UI } from "./UI";
-import { Game } from "@fwge/core";
 
 export type ScreenUIArgs =
 {
@@ -15,11 +14,11 @@ export class ScreenUI extends UI
     public readonly Rotation: Vector2;
     public readonly Scale: Vector2;
 
-    constructor(game: Game)
-    constructor(game: Game, args: ScreenUIArgs)
-    constructor(game: Game, args: ScreenUIArgs = { })
+    constructor()
+    constructor(args: ScreenUIArgs)
+    constructor(args: ScreenUIArgs = { })
     {
-        super(game);
+        super();
         
         const buffer = new Float32Array(6);
         this.Position = new Vector2(buffer, 0 * Vector2.BYTES_PER_ELEMENT);

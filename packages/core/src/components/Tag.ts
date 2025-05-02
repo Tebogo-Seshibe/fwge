@@ -1,12 +1,11 @@
-import { Game } from "../base";
-import { Component } from "../ecs";
+import { Component } from "@fwge/ecs";
 
 export class Tag extends Component
 {
-    constructor(
-        game: Game,
-        public readonly Name: string = 'Default'
-    ) { super(game, Tag); }
+    constructor(public readonly Name: string = 'Default')
+    {
+        super(Tag);
+    }
 
     Init(): void { }
     Destroy(): void { }

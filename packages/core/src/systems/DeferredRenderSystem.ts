@@ -1,4 +1,4 @@
-import { System } from "../ecs";
+import { System } from "@fwge/ecs";
 
 export class DeferredRenderSystem extends System
 {

@@ -1,6 +1,6 @@
 import { CubeGeometry, Vector3 } from "@fwge/common"
 import { Collider } from "./Collider"
-import { Entity, Game } from "@fwge/core";
+import { Entity } from "@fwge/ecs"
 
 interface ICubeCollider
 {
@@ -61,12 +61,11 @@ export class CubeCollider extends Collider
     public Right: Vector3 = new Vector3(1, 0, 0)
     public Forward: Vector3 = new Vector3(0, 0, 1)
 
-    constructor(game: Game)
-    constructor(game: Game, collider: ICubeCollider)
-    constructor(game: Game, collider: ICubeCollider = { })
+    constructor()
+    constructor(collider: ICubeCollider)
+    constructor(collider: ICubeCollider = { })
     {
         super(
-            game,
             collider.position ?? Vector3.Zero,
             collider.isStatic ?? false,
             collider.isTrigger ?? false,

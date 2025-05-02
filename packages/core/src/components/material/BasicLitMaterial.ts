@@ -125,9 +125,9 @@ export class BasicLitMaterial extends Material
         return this.Textures[2]
     }
 
-    constructor(game: Game, args: IBasicLitMaterial)
+    constructor(args: IBasicLitMaterial)
     {
-        super(game, args.shader, args.renderType)
+        super(args.shader, args.renderType)
 
         if (args.ambient)
         {
@@ -162,40 +162,40 @@ export class BasicLitMaterial extends Material
     Bind(shader: Shader): void
     Bind(shader: Shader = this.Shader): void
     {
-        shader.SetFloat(this.Game.GL, `U_Material.Shininess`, this.Shininess)
-        shader.SetFloat(this.Game.GL, `U_Material.Alpha`, this.Alpha)
-        shader.SetBool(this.Game.GL, `U_Material.ReceiveShadows`, this.ReceiveShadows)
-        shader.SetFloatVector(this.Game.GL, 'U_Material.Ambient', this.Ambient)
-        shader.SetFloatVector(this.Game.GL, 'U_Material.Diffuse', this.Diffuse)
-        shader.SetFloatVector(this.Game.GL, 'U_Material.Specular', this.Specular)
-        shader.SetFloatVector(this.Game.GL, 'U_Material.Colour', this.Colour)
+        shader.SetFloat(`U_Material.Shininess`, this.Shininess)
+        shader.SetFloat(`U_Material.Alpha`, this.Alpha)
+        shader.SetBool(`U_Material.ReceiveShadows`, this.ReceiveShadows)
+        shader.SetFloatVector('U_Material.Ambient', this.Ambient)
+        shader.SetFloatVector('U_Material.Diffuse', this.Diffuse)
+        shader.SetFloatVector('U_Material.Specular', this.Specular)
+        shader.SetFloatVector('U_Material.Colour', this.Colour)
 
         if (this.Textures[0])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Image', this.Textures[0])
+            shader.SetTexture('U_Sampler.Image', this.Textures[0])
             // shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Image', Material.Empty)
+            shader.SetTexture('U_Sampler.Image', Material.Empty)
         }
 
         if (this.Textures[1])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Bump', this.Textures[1])
+            shader.SetTexture('U_Sampler.Bump', this.Textures[1])
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Bump', Material.Empty)
+            shader.SetTexture('U_Sampler.Bump', Material.Empty)
         }
 
         if (this.Textures[2])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Shadow', this.Textures[2])
+            shader.SetTexture('U_Sampler.Shadow', this.Textures[2])
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Shadow', Material.Empty)
+            shader.SetTexture('U_Sampler.Shadow', Material.Empty)
         }
     }
 
@@ -204,46 +204,46 @@ export class BasicLitMaterial extends Material
     BindBlock(shader: Shader, block: string, push: boolean): void
     BindBlock(shader: Shader = this.Shader, block = 'BasicLitMaterial', push: boolean = true): void
     {
-        shader.SetBufferDataField(this.Game.GL, block, 'Colour', this.Colour);
-        shader.SetBufferDataField(this.Game.GL, block, 'Shininess', this.Shininess);
-        shader.SetBufferDataField(this.Game.GL, block, 'Alpha', this.Alpha);
-        shader.SetBufferDataField(this.Game.GL, block, 'Ambient', this.Ambient);
-        shader.SetBufferDataField(this.Game.GL, block, 'Diffuse', this.Diffuse);
-        shader.SetBufferDataField(this.Game.GL, block, 'Specular', this.Specular);
+        shader.SetBufferDataField(block, 'Colour', this.Colour);
+        shader.SetBufferDataField(block, 'Shininess', this.Shininess);
+        shader.SetBufferDataField(block, 'Alpha', this.Alpha);
+        shader.SetBufferDataField(block, 'Ambient', this.Ambient);
+        shader.SetBufferDataField(block, 'Diffuse', this.Diffuse);
+        shader.SetBufferDataField(block, 'Specular', this.Specular);
         // shader.SetBufferDataField(block, 'HasImageMap', this.ImageMap ? 1 : 0);
         // shader.SetBufferDataField(block, 'HasBumpMap', this.NormalMap ? 1 : 0);
-        shader.SetBufferDataField(this.Game.GL, block, 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
+        shader.SetBufferDataField(block, 'ReceiveShadows', this.ReceiveShadows ? 1 : 0);
 
         if (push)
         {
-            shader.PushBufferData(this.Game.GL, block);
+            shader.PushBufferData(block);
         }
         
         if (this.Textures[0])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Image', this.Textures[0]);
+            shader.SetTexture('U_Sampler.Image', this.Textures[0]);
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Image', Material.Empty);
+            shader.SetTexture('U_Sampler.Image', Material.Empty);
         }
 
         if (this.Textures[1])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Bump', this.Textures[1]);
+            shader.SetTexture('U_Sampler.Bump', this.Textures[1]);
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Bump', Material.Empty);
+            shader.SetTexture('U_Sampler.Bump', Material.Empty);
         }
 
         if (this.Textures[2])
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Shadow', this.Textures[2]);
+            shader.SetTexture('U_Sampler.Shadow', this.Textures[2]);
         }
         else
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.Shadow', Material.Empty);
+            shader.SetTexture('U_Sampler.Shadow', Material.Empty);
         }
     }
 }

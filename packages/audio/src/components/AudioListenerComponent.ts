@@ -1,9 +1,9 @@
-import { Component, Game } from "@fwge/core";
+import { Component } from "@fwge/ecs";
 
 export class AudioListenerComponent extends Component
 {
-    constructor(game: Game)
+    constructor()
     {
-        super(game, AudioListenerComponent)
+        super(AudioListenerComponent)
     }
 }

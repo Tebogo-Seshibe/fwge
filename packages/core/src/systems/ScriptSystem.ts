@@ -1,5 +1,5 @@
 import { Script } from "../components/Script";
-import { System } from "../ecs";
+import { Registry, System } from "@fwge/ecs";
 
 export class ScriptSystem extends System
 {
@@ -7,40 +7,40 @@ export class ScriptSystem extends System
     
     Init(): void
     { 
-        this.allScripts = this.Game.RegisterView([Script]);
+        this.allScripts = Registry.RegisterView([Script]);
     }
     
     Start(): void
     {
-        for (const entityId of this.Game.GetView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            const script = this.Game.GetComponent(entityId, Script)!;
-            const entity = this.Game.GetEntity(entityId)!;
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
             script.Start.call(entity);
         }
     }
 
     Update(delta: number): void
     {
-        for (const entityId of this.Game.GetView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            if (!this.Game.IsEntityActive(entityId))
+            if (!Registry.IsEntityActive(entityId))
             {
                 continue;   
             }
 
-            const script = this.Game.GetComponent(entityId, Script)!;
-            const entity = this.Game.GetEntity(entityId)!;
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
             script.Update.call(entity, delta);
         }
     }
 
     Stop(): void
     {
-        for (const entityId of this.Game.GetView(this.allScripts))
+        for (const entityId of Registry.GetView(this.allScripts))
         {
-            const script = this.Game.GetComponent(entityId, Script)!;
-            const entity = this.Game.GetEntity(entityId)!;
+            const script = Registry.GetComponent(entityId, Script)!;
+            const entity = Registry.GetEntity(entityId)!;
             script.End.call(entity);
         }
     }

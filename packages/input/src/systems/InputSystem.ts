@@ -1,9 +1,9 @@
-import { CompositeDataView } from "@fwge/common";
-import { System } from "@fwge/core";
+import { CompositeDataView, GL } from "@fwge/common";
 import { ControllerInputHandler } from "../base/controller/ControllerInputHandler";
 import { KeyboardInputHandler, NUM_KEYBOARD_KEYS } from "../base/keyboard/KeyboardInputHandler";
 import { MouseInputHandler } from "../base/mouse/MouseInputHandler";
 import { Input } from "../components";
+import { Registry, System } from "@fwge/ecs";
 
 export class InputSystem extends System
 {
@@ -39,26 +39,26 @@ export class InputSystem extends System
     });
     
     private readonly keyboard: KeyboardInputHandler = new KeyboardInputHandler(
-        this.Game.Canvas,
+        GL.canvas as HTMLCanvasElement,
         0.2,
         this.inputDataView.View('keyboard')
     );
 
     private readonly mouse: MouseInputHandler = new MouseInputHandler(
-        this.Game.Canvas,
+        GL.canvas as HTMLCanvasElement,
         this.inputDataView.View('mouseMovement')!,
         this.inputDataView.View('mouseButtons')!
     );
     
     private readonly controllers: ControllerInputHandler = new ControllerInputHandler(
-        this.Game.Canvas,
+        GL.canvas as HTMLCanvasElement,
         this.inputDataView.View('controllerAxes')!,
         this.inputDataView.View('controllerButtons')!
     );
 
     Init(): void
     {
-        this.inputView = this.Game.RegisterView([Input]);
+        this.inputView = Registry.RegisterView([Input]);
     }
     
     Start(): void
@@ -74,14 +74,14 @@ export class InputSystem extends System
         this.mouse.Update();
         this.controllers.Update();
 
-        for (const entityId of this.Game.GetView(this.inputView))
+        for (const entityId of Registry.GetView(this.inputView))
         {
-            if (!this.Game.IsEntityActive(entityId))
+            if (!Registry.IsEntityActive(entityId))
             {
                 continue;   
             }
 
-            const input = this.Game.GetComponent(entityId, Input)!;
+            const input = Registry.GetComponent(entityId, Input)!;
             input.OnInput(
                 delta, 
                 this.keyboard.State, 

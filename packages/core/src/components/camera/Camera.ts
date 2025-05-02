@@ -40,4 +40,9 @@ export class Camera extends Component
     }
 
     UpdateProjection(): void {}
+
+    constructor()
+    {
+        super(Camera);
+    }
 }

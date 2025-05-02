@@ -176,7 +176,9 @@ void main(void)
     // O_FragColour = vec4(fragment.Diffuse, fragment.Alpha);
     // O_FragColour = vec4(light, fragment.Alpha);
     // O_FragColour = vec4(vec3(texture(U_Dir_Tex, V_UV).r), fragment.Alpha);
-    O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
+    // O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
+
+    O_FragColour = vec4(vec3(1.0), 1.0);
 }`
         )
     }

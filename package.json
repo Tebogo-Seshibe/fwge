@@ -18,6 +18,7 @@
         "dev": "turbo run dev",
         "lint": "turbo run lint",
         "test": "turbo run test",
+        "demo": "node scripts/demo",
         "clean": "pnpm clean:libs && pnpm clean:root",
         "clean:libs": "turbo run clean",
         "clean:root": "rimraf node_modules",

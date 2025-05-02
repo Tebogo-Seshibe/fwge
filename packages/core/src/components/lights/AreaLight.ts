@@ -1,7 +1,7 @@
-import { Game, ICubemap, Shader } from "../../base"
+import { ICubemap, Shader } from "../../base"
 import { SkyboxTexture } from "../../base/image/SkyboxTexture"
 import { StaticMesh } from "../mesh"
-import { LightArgs, Light } from "./Light"
+import { Light, LightArgs } from "./Light"
 
 export interface IAreaLight extends LightArgs
 {
@@ -88,11 +88,11 @@ export class AreaLight extends Light
         ]
     })
 
-    constructor(game: Game)
-    constructor(game: Game, light: IAreaLight)
-    constructor(game: Game, light: IAreaLight = { })
+    constructor()
+    constructor(light: IAreaLight)
+    constructor(light: IAreaLight = { })
     {
-        super(game, light.colour, light.intensity)
+        super(light.colour, light.intensity)
 
         if (light.skyBox)
         {
@@ -108,20 +108,20 @@ export class AreaLight extends Light
 
     override Bind(shader: Shader, index: number = 0): void
     {
-        shader.SetBufferData(this.Game.GL, 'AreaLight', this.BufferData, index * this.BufferData.length)
+        shader.SetBufferData('AreaLight', this.BufferData, index * this.BufferData.length)
 
         if (this.Skybox)
         {
-            shader.SetBool(this.Game.GL, 'HasAmbientEnvironmentMap', true)
-            shader.SetTexture(this.Game.GL, 'AmbientEnvironmentMap', this.Skybox.Texture, false, true)
+            shader.SetBool('HasAmbientEnvironmentMap', true)
+            shader.SetTexture('AmbientEnvironmentMap', this.Skybox.Texture, false, true)
         }
         else
         {
-            shader.SetBool(this.Game.GL, 'HasAmbientEnvironmentMap', false)
+            shader.SetBool('HasAmbientEnvironmentMap', false)
         }
 
-        shader.SetFloatVector(this.Game.GL, 'U_AreaLight.Colour', this.Colour)
-        shader.SetFloat(this.Game.GL, 'U_AreaLight.Intensity', this.Intensity)
+        shader.SetFloatVector('U_AreaLight.Colour', this.Colour)
+        shader.SetFloat('U_AreaLight.Intensity', this.Intensity)
     }
     
     BindBlock(shader: Shader): void
@@ -138,12 +138,12 @@ export class AreaLight extends Light
             ? push_offset
             : offset
             
-        shader.SetBufferDataField(this.Game.GL, block, 'Colour', this.Colour, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'Intensity', this.Intensity, offset);
+        shader.SetBufferDataField(block, 'Colour', this.Colour, offset);
+        shader.SetBufferDataField(block, 'Intensity', this.Intensity, offset);
 
         if (push)
         {
-            shader.PushBufferData(this.Game.GL, block);
+            shader.PushBufferData(block);
         }
     }
 }

@@ -1,5 +1,5 @@
 import { BasicLitMaterial, Camera, Game, IBasicLitMaterial, Image2D, Material, Mesh, MeshRenderer, Prefab, RenderType, Shader, StaticMesh, Transform } from "@fwge/core"
-import { AccessorDataType, GLTF, GLTFAccessor, GLTFAccessorTypedArray, GLTFAttributeTypeLength, GLTFBuffer, GLTFBufferView, GLTFPrimitive } from "../models/GLTF"
+import { AccessorDataType, GLTF, GLTFAccessor, GLTFAccessorTypedArray, GLTFAttributeTypeLength, GLTFBufferView, GLTFPrimitive } from "../models/GLTF"
 import { ILoader } from "./ILoader"
 
 export const buffer_prefix = 'data:application/octet-stream;base64,'
@@ -115,7 +115,7 @@ function parsePrimitive(game: Game, primitive: GLTFPrimitive, gltf: GLTF, buffer
     }
     // meshes.push(new StaticMesh(args))
 
-    const meshRenderer = new MeshRenderer(game, { asset: new StaticMesh(mesh_args) })
+    const meshRenderer = new MeshRenderer({ asset: new StaticMesh(mesh_args) })
 
     return [null!,null!]
 }
@@ -174,13 +174,13 @@ function createPrefab(game: Game, gltf: GLTF, buffers: Uint8Array[], shader: Sha
             // meshes.push(new StaticMesh(args))
             const materialAccessor = gltf.accessors[primitive.material]
 
-            const meshRenderer = new MeshRenderer(game, { asset: new StaticMesh(mesh_args) })
+            const meshRenderer = new MeshRenderer({ asset: new StaticMesh(mesh_args) })
             meshRendererMap.set(0, meshRenderer)
-            prefab.AddComponent(new Transform(game))
+            prefab.AddComponent(new Transform())
             prefab.AddComponent(meshRenderer)
             // if (!materialAccessor)
             {
-                prefab.AddComponent(new BasicLitMaterial(game,
+                prefab.AddComponent(new BasicLitMaterial(
                 {
                     renderType: RenderType.OPAQUE,
                     shader: shader

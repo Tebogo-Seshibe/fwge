@@ -4,6 +4,9 @@
         "rootDir": "src",
         "outDir": "lib",
     },
+    "include": [
+        "./src/**/*"
+    ],
     "exclude": [
         "./lib",
         "./**/*.test.ts",
@@ -15,6 +18,9 @@
         },
         {
             "path": "../core"
+        },
+        {
+            "path": "../ecs"
         }
     ],
 }

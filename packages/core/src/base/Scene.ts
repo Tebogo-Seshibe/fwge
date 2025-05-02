@@ -1,4 +1,4 @@
-import { Class, Entity, EntityId, System, Type } from "@fwge/ecs";
+import { Class, Entity, EntityId, Registry, System, Type } from "@fwge/ecs";
 import { Game } from "./Game";
 import { RenderWindow } from "./render/RenderWindow";
 
@@ -50,7 +50,7 @@ export abstract class Scene
         for (let i = 0; i < this.UseEntites.length; ++i)
         {
             let entity: Entity;
-            const preExisting = this.Game.GetEntities(this.UseEntites[i] as Class<Entity>);
+            const preExisting = Registry.GetEntities(this.UseEntites[i] as Class<Entity>);
             
             if (preExisting.length !== 0)
             {
@@ -72,7 +72,7 @@ export abstract class Scene
 
         for (let i = 0; i < this.Entities.length; ++i)
         {
-            this.Game.GetEntity(this.Entities[i])!.Init();
+            Registry.GetEntity(this.Entities[i])!.Init();
         }
         
         for (let i = 0; i < this.Systems.length; ++i)

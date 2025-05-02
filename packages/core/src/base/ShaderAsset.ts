@@ -44,7 +44,7 @@ export class ShaderAsset extends Asset
             }
             
             this._shader = new Shader(vs, fs);
-            this._shader.Init(game.GL);
+            this._shader.Init();
         }
         catch(e)
         {

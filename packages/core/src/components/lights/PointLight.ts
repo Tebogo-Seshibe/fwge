@@ -1,6 +1,6 @@
 import { Scalar } from "@fwge/common";
-import { Game, Shader } from "../../base";
-import { LightArgs, Light } from "./Light";
+import { Shader } from "../../base";
+import { Light, LightArgs } from "./Light";
 
 export interface PointLightArgs extends LightArgs
 {
@@ -10,14 +10,14 @@ export interface PointLightArgs extends LightArgs
 
 export class PointLight extends Light
 {
-    #radius: Scalar
+    private _radius: Scalar
     get Radius(): number
     {
-        return this.#radius.Value
+        return this._radius.Value
     }
     set Radius(value: number)
     {
-        this.#radius.Value = value
+        this._radius.Value = value
     }
     CastShadows: boolean
 
@@ -28,12 +28,12 @@ export class PointLight extends Light
     //   width: 1024  
     // })
 
-    constructor(game: Game)
-    constructor(game: Game, light: PointLightArgs)
-    constructor(game: Game, light: PointLightArgs = { })
+    constructor()
+    constructor(light: PointLightArgs)
+    constructor(light: PointLightArgs = { })
     {
-        super(game, light.colour, light.intensity, new Float32Array(8))
-        this.#radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
+        super(light.colour, light.intensity, new Float32Array(8))
+        this._radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
 
         this.Radius = light.radius ?? 5
         this.CastShadows = light.castShadows ?? false

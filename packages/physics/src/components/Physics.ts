@@ -1,4 +1,4 @@
-import { Component } from "@fwge/core";
+import { Component } from "@fwge/ecs"
 import { Collider } from "."
 import { RigidBody } from "./RigidBody"
 

@@ -1,8 +1,9 @@
-import { AreaLight, Camera, Component, Constructor, DirectionalLight, Entity, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, System, Tag, Transform, Type } from "@fwge/core"
+import { AreaLight, Camera, DirectionalLight, Game, Material, PointLight, Prefab, RenderSystem, Scene, Script, ScriptSystem, Shader, SpotLight, StaticMesh, Tag, Transform } from "@fwge/core"
 import { Input, InputSystem } from "@fwge/input"
 import { CubeCollider, MeshCollider, PhysicsSystem, RigidBody, SphereCollider } from "@fwge/physics"
 import { ParticleSpawner } from "@fwge/render"
 import { ILoader } from "./ILoader"
+import { Component, Constructor, Entity, System, Type } from "@fwge/ecs"
 
 interface SceneConfig
 {

@@ -5,7 +5,7 @@ import { Environment } from "../entities/Environment";
 import { GeneralAreaLight } from "../entities/GeneralAreaLight";
 import { Grid } from "../entities/Grid";
 import { Sun } from "../entities/Sun";
-import { ProjectRenderSystem } from "../systems";
+import { EditorRenderSystem, ProjectRenderSystem } from "../systems";
 
 export class EditorScene extends Scene
 {
@@ -20,9 +20,9 @@ export class EditorScene extends Scene
         Environment
     ];
     UseSystems = [
-        InputSystem,
-        ScriptSystem,
+        // InputSystem,
+        // ScriptSystem,
         // EditorRenderSystem,
-        ProjectRenderSystem,
+        // ProjectRenderSystem,
     ];
 }

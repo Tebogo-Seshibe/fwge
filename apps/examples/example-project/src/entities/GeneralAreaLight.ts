@@ -1,11 +1,12 @@
-import { AreaLight, Entity, Game } from "@fwge/core";
+import { AreaLight } from "@fwge/core";
+import { Entity } from "@fwge/ecs";
 
 export class GeneralAreaLight extends Entity
 {
     Init(): void
     {
         this.AddComponents(
-            new AreaLight(this.Game,
+            new AreaLight(
             {
                 colour: [1, 1, 1],
                 intensity: 1

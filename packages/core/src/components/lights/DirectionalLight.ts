@@ -1,4 +1,4 @@
-import { CubeGeometry, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common";
+import { CubeGeometry, GL, Matrix4, Scalar, Vector2, Vector2Array, Vector3, Vector3Array } from "@fwge/common";
 import { ColourType, DepthType, Game, RenderTarget, Shader } from "../../base";
 import { Transform } from "../Transform";
 import { LightArgs, Light } from "./Light";
@@ -186,11 +186,11 @@ export class DirectionalLight extends Light
         this._texelSize.Value = 1 / this.RenderTarget.Width;
     }
 
-    constructor(game: Game);
-    constructor(game: Game, light: DirectionalLightArgs);
-    constructor(game: Game, light: DirectionalLightArgs = {})
+    constructor();
+    constructor(light: DirectionalLightArgs);
+    constructor(light: DirectionalLightArgs = {})
     {
-        super(game, light.colour, light.intensity, new Float32Array(28));
+        super(light.colour, light.intensity, new Float32Array(28));
         
         this._direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
         this._castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
@@ -256,20 +256,20 @@ export class DirectionalLight extends Light
         this._shadowMatrix.Set(this.ShadowMatrix);
         if (this.CastShadows)
         {
-            shader.SetTexture(this.Game.GL, 'U_Sampler.DirectionalShadow', this.RenderTarget.DepthAttachment!);
+            shader.SetTexture('U_Sampler.DirectionalShadow', this.RenderTarget.DepthAttachment!);
         }
 
-        shader.SetFloatVector(this.Game.GL, 'U_DirectionalLight.Colour', this.Colour);
-        shader.SetFloat(this.Game.GL, 'U_DirectionalLight.Intensity', this.Intensity);
+        shader.SetFloatVector('U_DirectionalLight.Colour', this.Colour);
+        shader.SetFloat('U_DirectionalLight.Intensity', this.Intensity);
 
-        shader.SetFloatVector(this.Game.GL, 'U_DirectionalLight.Direction', this._direction);
-        shader.SetBool(this.Game.GL, 'U_DirectionalLight.CastShadows', this.CastShadows);
+        shader.SetFloatVector('U_DirectionalLight.Direction', this._direction);
+        shader.SetBool('U_DirectionalLight.CastShadows', this.CastShadows);
 
-        shader.SetFloat(this.Game.GL, 'U_DirectionalLight.TexelSize', this._texelSize);
-        shader.SetFloat(this.Game.GL, 'U_DirectionalLight.TexelCount', this._texelCount);
-        shader.SetFloat(this.Game.GL, 'U_DirectionalLight.Bias', this._bias);
-        shader.SetFloat(this.Game.GL, 'U_DirectionalLight.PCFLevel', this._pcfLevel);
-        shader.SetMatrix(this.Game.GL, 'U_DirectionalLight.ShadowMatrix', this._shadowMatrix);
+        shader.SetFloat('U_DirectionalLight.TexelSize', this._texelSize);
+        shader.SetFloat('U_DirectionalLight.TexelCount', this._texelCount);
+        shader.SetFloat('U_DirectionalLight.Bias', this._bias);
+        shader.SetFloat('U_DirectionalLight.PCFLevel', this._pcfLevel);
+        shader.SetMatrix('U_DirectionalLight.ShadowMatrix', this._shadowMatrix);
         // super.Bind(shader)
     }
     
@@ -287,47 +287,42 @@ export class DirectionalLight extends Light
             ? push_offset
             : offset
             
-        shader.SetBufferDataField(this.Game.GL, block, 'Colour', this.Colour, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'Intensity', this.Intensity, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'Direction', this.Direction, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'CastShadows', this.CastShadows ? 1 : 0, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'TexelSize', this._texelSize, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'TexelCount', this._texelCount, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'Bias', this.Bias, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'PCFLevel', this.PCFLevel, offset);
-        shader.SetBufferDataField(this.Game.GL, block, 'ShadowMatrix', this.ShadowMatrix, offset);
+        shader.SetBufferDataField(block, 'Colour', this.Colour, offset);
+        shader.SetBufferDataField(block, 'Intensity', this.Intensity, offset);
+        shader.SetBufferDataField(block, 'Direction', this.Direction, offset);
+        shader.SetBufferDataField(block, 'CastShadows', this.CastShadows ? 1 : 0, offset);
+        shader.SetBufferDataField(block, 'TexelSize', this._texelSize, offset);
+        shader.SetBufferDataField(block, 'TexelCount', this._texelCount, offset);
+        shader.SetBufferDataField(block, 'Bias', this.Bias, offset);
+        shader.SetBufferDataField(block, 'PCFLevel', this.PCFLevel, offset);
+        shader.SetBufferDataField(block, 'ShadowMatrix', this.ShadowMatrix, offset);
 
         if (push)
         {
-            shader.PushBufferData(this.Game.GL, block);
+            shader.PushBufferData(block);
         }
     }
 
     i = 0
-    BindForShadows(parentId: number, offset: Vector3 | Vector3Array = [0, 0, 0])
+    BindForShadows(rotation: Vector3)
     {
-        const matrix = Matrix4.Identity;
-        const transform = this.Game.GetComponent(parentId, Transform);
-        if (transform)
-        {
-            const rotation = transform.GlobalRotation(parentId)
-            Matrix4.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z, matrix);
-        }
+        const matrix = Matrix4.RotationMatrix(rotation.X / 2, rotation.Y, rotation.Z);
+        // const rotation = transform.GlobalRotation()
 
         this.RenderTarget.Bind();
         if (!DirectionalLight._initialized)
         {
-            DirectionalLight.ShadowShader.Init(this.Game.GL);
+            DirectionalLight.ShadowShader.Init();
             DirectionalLight._initialized = true;
         }
-        DirectionalLight.ShadowShader.Bind(this.Game.GL);
-        DirectionalLight.ShadowShader.SetMatrix(this.Game.GL, 'U_Shadow.Projection', this.ProjectionMatrix, true);
-        DirectionalLight.ShadowShader.SetMatrix(this.Game.GL, 'U_Shadow.View', matrix, true);
+        DirectionalLight.ShadowShader.Bind();
+        DirectionalLight.ShadowShader.SetMatrix('U_Shadow.Projection', this.ProjectionMatrix, true);
+        DirectionalLight.ShadowShader.SetMatrix('U_Shadow.View', matrix, true);
     }
 
     UnbindForShadows()
     {
-        DirectionalLight.ShadowShader.UnBind(this.Game.GL);
+        DirectionalLight.ShadowShader.UnBind();
     }
 
     readonly ProjectionMatrix = Matrix4.BasicOrthographicProjection(-15, -15, -50, 15, 15, 50);

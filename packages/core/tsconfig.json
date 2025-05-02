@@ -4,6 +4,9 @@
         "rootDir": "./src",
         "outDir": "./lib",
     },
+    "include": [
+        "./src/**/*"
+    ],
     "exclude": [
         "./lib",
         "./**/*.test.ts",
@@ -12,6 +15,9 @@
     "references": [
         {
             "path": "../common"
+        },
+        {
+            "path": "../ecs"
         }
     ],
 }

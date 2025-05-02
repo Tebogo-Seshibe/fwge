@@ -96,7 +96,7 @@ export const MTLLoader: ILoader<MTL> =  (game: Game, src: string, defaultShader:
         material.shader = defaultShader
         material.renderType = src.includes('.png') || src.includes('.tga') ? RenderType.TRANSPARENT : RenderType.OPAQUE
         // console.log(material)
-        materials[key!] = new BasicLitMaterial(game, material)
+        materials[key!] = new BasicLitMaterial(material)
     }
 
     return materials

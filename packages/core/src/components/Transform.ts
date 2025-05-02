@@ -1,6 +1,5 @@
 import { Matrix4, MinLengthArray, Vector3, Vector3Array } from '@fwge/common';
-import { Component, EntityId } from '../ecs';
-import { Game } from '../base';
+import { Component, EntityId, Registry } from '@fwge/ecs';
 
 export interface ITransform
 {
@@ -27,12 +26,12 @@ export class Transform extends Component
     public readonly Rotation: Vector3;
     public readonly Scale: Vector3;
 
-    constructor(game: Game)
-    constructor(game: Game, transform: ISimpleTransform)
-    constructor(game: Game, transform: ITransformBuffered)
-    constructor(game: Game, args: ISimpleTransform | ITransformBuffered = { })
+    constructor()
+    constructor(transform: ISimpleTransform)
+    constructor(transform: ITransformBuffered)
+    constructor(args: ISimpleTransform | ITransformBuffered = { })
     {
-        super(game, Transform);
+        super(Transform);
 
         if ('buffer' in args && args.buffer)
         {
@@ -84,14 +83,14 @@ export class Transform extends Component
 
         while (ownerId !== -1)
         {
-            const transform = this.Game.GetComponent(ownerId, Transform);
+            const transform = Registry.GetComponent(ownerId, Transform);
 
             if (transform)
             {
                 position.Add(transform.Position);
             }
 
-            ownerId = this.Game.GetParentId(ownerId);
+            ownerId = Registry.GetParentId(ownerId);
         }
 
         return position;
@@ -105,14 +104,14 @@ export class Transform extends Component
         
         while (ownerId !== -1)
         {
-            const transform = this.Game.GetComponent(ownerId, Transform);
+            const transform = Registry.GetComponent(ownerId, Transform);
             
             if (transform)
             {
                 rotation.Add(transform.Rotation);
             }
                 
-            ownerId = this.Game.GetParentId(ownerId);
+            ownerId = Registry.GetParentId(ownerId);
         }
 
         return rotation;
@@ -126,14 +125,14 @@ export class Transform extends Component
         
         while (ownerId !== -1)
         {
-            const transform = this.Game.GetComponent(ownerId, Transform);
+            const transform = Registry.GetComponent(ownerId, Transform);
 
             if (transform)
             {
                 scale.Add(transform.Scale);
             }
 
-            ownerId = this.Game.GetParentId(ownerId);
+            ownerId = Registry.GetParentId(ownerId);
         }
 
         return scale;
@@ -157,7 +156,7 @@ export class Transform extends Component
         
         while (ownerId !== -1)
         {
-            const transform = this.Game.GetComponent(ownerId, Transform);
+            const transform = Registry.GetComponent(ownerId, Transform);
 
             if (transform)
             {
@@ -172,7 +171,7 @@ export class Transform extends Component
                 );
             }
 
-            ownerId = this.Game.GetParentId(ownerId);
+            ownerId = Registry.GetParentId(ownerId);
         }
 
         return modelViewMatrix;

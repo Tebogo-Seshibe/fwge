@@ -19,6 +19,7 @@ export class EditorRenderSystem extends System
             [Tag, Material, Renderer, Transform], 
             (_, tag) => tag instanceof EditorTag
         );
+        console.log({ Registry, cameraView: this.cameraView, renderableView: this.renderableView })
     }
 
     Start(): void 
@@ -66,8 +67,8 @@ export class EditorRenderSystem extends System
 
             shader.Bind();
 
-            shader.SetBufferDataField('Camera', 'ViewMatrix', cameraMVInverse, true);
-            shader.SetBufferDataField('Camera', 'ProjectionMatrix', cameraCamera.ProjectionMatrix, true);
+            shader.SetBufferDataField('Camera', 'View', cameraMVInverse, true);
+            shader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
             shader.PushBufferData('Camera');
 
             shader.SetBufferDataField('BasicLitMaterial', 'Colour', material.Colour);
@@ -123,9 +124,9 @@ export class EditorRenderSystem extends System
         GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
-        shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
-        shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader.PushBufferData('Object');
+        shader.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader.PushBufferData('Transform');
 
         if (buffer)
         {
@@ -146,9 +147,9 @@ export class EditorRenderSystem extends System
         GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
-        shader.SetBufferDataField('Object', 'ModelViewMatrix', modelViewMatrix, true);
-        shader.SetBufferDataField('Object', 'NormalMatrix', Matrix3.Inverse(modelViewMatrix.Matrix3));
-        shader.PushBufferData('Object');
+        shader.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
+        shader.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
+        shader.PushBufferData('Transform');
 
         if (buffer)
         {

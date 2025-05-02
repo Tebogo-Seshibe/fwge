@@ -1,6 +1,5 @@
-import { Game } from "../../base";
-import { Component } from "../../ecs";
-import { Mesh } from "../mesh"
+import { Component } from "@fwge/ecs";
+import { Mesh } from "../mesh";
 import { Transform } from "../Transform";
 
 export interface IRenderer<T>
@@ -19,8 +18,8 @@ export enum RenderMode
 
 export class Renderer<T extends Mesh> extends Component
 {
-    constructor(game: Game, public Asset: T, public RenderMode: RenderMode, instances?: readonly Transform[])
+    constructor(public Asset: T, public RenderMode: RenderMode, instances?: readonly Transform[])
     {
-        super(game, Renderer)
+        super(Renderer)
     }
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "lint": "tsc",
+    "clean": "rimraf lib .turbo tsconfig.tsbuildinfo node_modules",
     "preview": "vite preview",
     "build:app": "vite build"
   },

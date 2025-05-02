@@ -1,5 +1,6 @@
 import { Matrix4, Polygon3D, Vector3 } from "@fwge/common"
-import { Component, Entity, Game, Transform } from "@fwge/core"
+import { Transform } from "@fwge/core"
+import { Component, Entity } from "@fwge/ecs"
 
 export class Collider extends Component
 {    
@@ -42,7 +43,6 @@ export class Collider extends Component
     }
 
     constructor(
-        game: Game,
         public readonly Position: Vector3,
         public IsStatic: boolean,
         public IsTrigger: boolean,
@@ -51,5 +51,5 @@ export class Collider extends Component
         public OnCollisionUpdate: <T extends Entity>(this: T, other: T) => void = () => void 0,
         public OnCollisionExit: <T extends Entity>(this: T, other: T) => void = () => void 0,
         public Polygon: Polygon3D
-    ) { super(game, Collider) }    
+    ) { super(Collider) }    
 }

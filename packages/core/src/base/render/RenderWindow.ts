@@ -31,23 +31,29 @@ export class RenderWindow
 
     private static _panel: StaticMesh;
 
+    static async Init() {
+        RenderWindow._panel = new StaticMesh(
+            {
+                position: [
+                    [-1,  1, 0],
+                    [-1, -1, 0],
+                    [ 1, -1, 0],
+                    [ 1,  1, 0],
+                ],
+                index: [
+                    0, 1, 2,
+                    0, 2, 3,
+                ]
+            });
+
+        await RenderWindow._panel.Load();
+    }
+
     get Panel(): StaticMesh
     {
         if (!RenderWindow._panel)
         {
-            RenderWindow._panel = new StaticMesh(
-                {
-                    position: [
-                        [-1,  1, 0],
-                        [-1, -1, 0],
-                        [ 1, -1, 0],
-                        [ 1,  1, 0],
-                    ],
-                    index: [
-                        0, 1, 2,
-                        0, 2, 3,
-                    ]
-                });
+            RenderWindow.Init();
         }
 
         return RenderWindow._panel;
@@ -71,7 +77,7 @@ export class RenderWindow
     constructor(game: Game, window: IRenderWindow);
     constructor(game: Game, window: IRenderWindow = {})
     {
-        this.Camera = window.camera ?? new PerspectiveCamera(game);
+        this.Camera = window.camera ?? new PerspectiveCamera();
         this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080]);
         this.Offset = new Vector2(window.offset as Vector2Array ?? [0, 0]);
         this.Scale = new Vector2(window.scale as Vector2Array ?? [1, 1]);

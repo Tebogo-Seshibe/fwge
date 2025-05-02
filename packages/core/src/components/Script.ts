@@ -1,5 +1,4 @@
-import { Game } from "../base";
-import { Component } from "../ecs";
+import { Component } from "@fwge/ecs";
 
 type IScript =
 {
@@ -14,11 +13,11 @@ export class Script extends Component
     readonly Update: (delta: number) => void
     readonly End: () => void
 
-    constructor(game: Game)
-    constructor(game: Game, args: IScript)
-    constructor(game: Game, args: IScript = { })
+    constructor()
+    constructor(args: IScript)
+    constructor(args: IScript = { })
     {
-        super(game, Script)
+        super(Script)
 
         this.Start = args.start || function() { }
         this.Update = args.update || function() { }

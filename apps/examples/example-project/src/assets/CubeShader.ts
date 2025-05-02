@@ -100,6 +100,7 @@ export class CubeShader extends Shader
                 O_Position = V_Vertex.Position;
                 O_Normal = normalize(V_Vertex.Normal * texture(U_Sampler.Bump, V_Vertex.UV).xyz);
                 O_Albedo_Alpha = vec4(albedo, alpha);
+                
             }`
         );
     }

@@ -17,12 +17,11 @@ export class SpotLight extends Light
     readonly Direction: Vector3
     CastShadows: boolean
 
-    constructor(game: Game)
-    constructor(game: Game, light: SpotLightArgs)
-    constructor(game: Game, light: SpotLightArgs = { })
+    constructor()
+    constructor(light: SpotLightArgs)
+    constructor(light: SpotLightArgs = { })
     {
         super(
-            game,
             light.colour && new Colour3(light.colour as Vector3Array),
             light.intensity,
             new Float32Array(12)
@@ -49,6 +48,6 @@ export class SpotLight extends Light
                 [X] [Y] [Z] [angle]
             `
         }
-        super.Bind(shader)
+        // super.Bind(context, shader)
     }
 }
