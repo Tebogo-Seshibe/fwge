@@ -1,6 +1,6 @@
 {
-  "name": "@fwge/audio",
-  "description": "Audio library for the FWGE package",
+  "name": "@fwge/asset",
+  "description": "Asset library for the FWGE package",
   "version": "1.0.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Tebogo-Seshibe/fwge.git",
-    "directory": "packages/audio"
+    "directory": "packages/asset"
   },
   "scripts": {
     "build": "tsc",
@@ -22,9 +22,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@fwge/common": "workspace:*",
-    "@fwge/core": "workspace:*",
-    "@fwge/ecs": "workspace:*"
+    "@fwge/common": "workspace:*"
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.1",

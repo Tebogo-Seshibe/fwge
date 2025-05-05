@@ -1,0 +1,20 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib",
+    },
+    "include": [
+        "./src/**/*"
+    ],
+    "exclude": [
+        "./lib",
+        "./**/*.test.ts",
+        "./vite.config.ts"
+    ],
+    "references": [
+        {
+            "path": "../common"
+        }
+    ],
+}
