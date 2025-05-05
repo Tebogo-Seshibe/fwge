@@ -129,17 +129,14 @@ export class Mesh extends Asset
         }
     }
 
-    Load(): Promise<void>
+    Reset(): void { }
+    
+    Load(): void
     {
-        const promise = new Promise<void>((resolve) => 
-        {
-            resolve();
-        });
-
         const mesh = this;
         if (mesh._initialized)
         {
-            return promise;
+            return;
         }
         
         mesh._initialized = true;
@@ -159,20 +156,15 @@ export class Mesh extends Asset
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.PointBuffer)
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('points'), GL.STATIC_DRAW)
         
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null)
-        return promise;
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null);
     }
 
-    Unload(game: Game): Promise<void> { return Promise.resolve(); }
+    Unload(): void { }
 
-    Destroy(game: Game): Promise<void>
+    Destroy(): void
     {
-        return new Promise((resolve) => 
-        {
-            game.GL.deleteBuffer(this._faceBuffer);   
-            game.GL.deleteBuffer(this._edgeBuffer);   
-            game.GL.deleteBuffer(this._pointBuffer);
-        resolve();
-    })
+        GL.deleteBuffer(this._faceBuffer);   
+        GL.deleteBuffer(this._edgeBuffer);   
+        GL.deleteBuffer(this._pointBuffer);
     }    
 }

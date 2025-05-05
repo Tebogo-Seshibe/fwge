@@ -1,4 +1,5 @@
 export * from './Asset'
+export * from './AssetManager'
 export * from './Game'
 export * from './image'
 export * from './Prefab'

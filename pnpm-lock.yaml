@@ -206,6 +206,9 @@ importers:
 
   apps/examples/example-project:
     dependencies:
+      '@fwge/asset':
+        specifier: workspace:*
+        version: link:../../../packages/asset
       '@fwge/common':
         specifier: workspace:*
         version: link:../../../packages/common

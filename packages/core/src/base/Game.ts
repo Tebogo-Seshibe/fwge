@@ -131,14 +131,14 @@ export abstract class Game
 
     async Init(): Promise<void>
     {
-        const assets = [];
-        for (const asset of this.UseAssets)
-        {
-            this.RegisterAsset(asset, new asset());
-            assets.push(this.LoadAsset(asset));
-        }
-        await Promise.all(assets);
-        await RenderWindow.Init();
+        // const assets = [];
+        // for (const asset of this.UseAssets)
+        // {
+        //     this.RegisterAsset(asset, new asset());
+        //     assets.push(this.LoadAsset(asset));
+        // }
+        // await Promise.all(assets);
+        // await RenderWindow.Init();
 
         for (const scene of this.UseScenes)
         {
@@ -730,44 +730,44 @@ export abstract class Game
     }
 
     
-    public async LoadAsset<T extends Asset>(assetType: Type<T>): Promise<boolean>
-    {
-        const asset = this.assets.get(assetType.name);
+    // public async LoadAsset<T extends Asset>(assetType: Type<T>): Promise<boolean>
+    // {
+    //     const asset = this.assets.get(assetType.name);
 
-        if (!asset)
-        {
-            return false;
-        }
+    //     if (!asset)
+    //     {
+    //         return false;
+    //     }
 
-        await asset.Load(this, this._protocol);
-        return true;
-    }
+    //     await asset.Load(this, this._protocol);
+    //     return true;
+    // }
 
-    public GetAsset<T extends Asset>(assetType: Type<T>): T | undefined
-    {
-        return this.assets.get(assetType.name) as T;
-    }
+    // public GetAsset<T extends Asset>(assetType: Type<T>): T | undefined
+    // {
+    //     return this.assets.get(assetType.name) as T;
+    // }
 
-    public UnloadAsset<T extends Asset>(assetType: Type<T>): void
-    {
-        const asset = this.assets.get(assetType.name);
+    // public UnloadAsset<T extends Asset>(assetType: Type<T>): void
+    // {
+    //     const asset = this.assets.get(assetType.name);
 
-        if (asset)
-        {
-            asset.Unload(this);
-        }
-    }
+    //     if (asset)
+    //     {
+    //         asset.Unload(this);
+    //     }
+    // }
 
-    public DestroyAsset<T extends Asset>(assetType: Type<T>): void
-    {
-        const asset = this.assets.get(assetType.name);
+    // public DestroyAsset<T extends Asset>(assetType: Type<T>): void
+    // {
+    //     const asset = this.assets.get(assetType.name);
 
-        if (asset)
-        {
-            asset.Destroy(this);
-            this.assets.delete(assetType.name);
-        }
-    }
+    //     if (asset)
+    //     {
+    //         asset.Destroy(this);
+    //         this.assets.delete(assetType.name);
+    //     }
+    // }
     //#endregion
 
     // public GetPrefab<T extends Prefab = Prefab>(prefabType: Type<T>, name: string): T| undefined

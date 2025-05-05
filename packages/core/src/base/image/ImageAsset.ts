@@ -32,17 +32,28 @@ export class ImageAsset extends Asset
         this.Texture = GL.createTexture()!;
     }
     
-    public async Load(): Promise<void>
+    public Reset(): void
+    {
+        GL.bindTexture(GL.TEXTURE_2D, this.Texture);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8ClampedArray([255, 0, 255]));
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+        GL.bindTexture(GL.TEXTURE_2D, null);
+    }
+
+    public Load(): void
     {
         throw new Error('Method not implemented');
     }
 
-    public async Unload(): Promise<void>
+    public Unload(): void
     {
         throw new Error('Method not implemented');
     }
 
-    public async Destroy(): Promise<void>
+    public Destroy(): void
     {
         throw new Error('Method not implemented');
     }    

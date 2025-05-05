@@ -1,5 +1,5 @@
 import type { Colour3Array } from "@fwge/common";
-import { BasicLitMaterial, Material, MeshRenderer, Transform } from "@fwge/core";
+import { AssetManager, BasicLitMaterial, Material, MeshRenderer, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { CubeMesh } from "../assets/CubeMesh";
 import { CubeShader } from "../assets/CubeShader";
@@ -11,7 +11,7 @@ export class Environment extends Entity
     {
         const ignore = new EditorTag();
         const cubeShader = new CubeShader();
-        const cubeMesh = new CubeMesh()!;
+        const cubeMesh = AssetManager.Get(CubeMesh);
         const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
 
         const floor = new Entity()
