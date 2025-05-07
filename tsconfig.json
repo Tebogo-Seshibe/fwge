@@ -1,9 +1,8 @@
 {
     "files": [],
     "references": [
-        { "path": "packages/common"     },
         { "path": "packages/ecs"        },
-        { "path": "packages/asset"      },
+        { "path": "packages/common"     },
         { "path": "packages/core"       },
         { "path": "packages/render"     },
         { "path": "packages/audio"      },

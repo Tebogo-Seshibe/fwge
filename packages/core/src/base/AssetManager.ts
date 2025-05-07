@@ -1,4 +1,4 @@
-import { Constructor, Type} from "@fwge/ecs";
+import { Type } from "@fwge/ecs";
 import { Asset } from "./Asset";
 
 export class AssetManager
@@ -7,9 +7,8 @@ export class AssetManager
 
     public static Register(assetTypes: Type<Asset>[]): void
     {
-        for (let i = 0; i < assetTypes.length; ++i)
+        for (const assetType of assetTypes)
         {
-            const assetType = assetTypes[i];
             if (this.assets.has(assetType.name))
             {
                 console.error(`Asset with name "${assetType.name}" already registered`);
@@ -24,48 +23,35 @@ export class AssetManager
 
     public static Unregister(assetTypes: Type<Asset>[]): void
     {
-        for (let i = 0; i < assetTypes.length; ++i)
+        for (const assetType of assetTypes)
         {
-            const assetType = assetTypes[i];
-            const asset = this.Get(assetTypes[i]);
-            if (!asset)
-            {
-                throw `Asset with name "${assetType.name}" not found`;
-            }
-
-            asset.Unload();
+            const asset = this.Get(assetType);
+            asset?.Unload();
             this.assets.delete(assetType.name);
         }
     }
 
-    public static Get<T extends Asset>(assetType: Type<T>): T
+    public static Get<T extends Asset>(assetType: Type<T>): T | undefined
     {
-        const asset = this.assets.get(assetType.name);
-
-        if (!asset)
-        {
-            throw `Asset with name "${assetType.name}" not found`;
-        }
-
-        return asset as T;
+        return this.assets.get(assetType.name) as T;
     }
 
     public static Load(assetTypes: Type<Asset>[]): void
     {
-        for (let i = 0; i < assetTypes.length; ++i)
+        for (const assetType of assetTypes)
         {
-            const asset = this.Get(assetTypes[i]);
-            asset.Load();
+            const asset = this.Get(assetType);
+            asset?.Load();
         }
     }
     
     public static Unload(assetTypes: Type<Asset>[]): void
     {
-        for (let i = 0; i < assetTypes.length; ++i)
+        for (const assetType of assetTypes)
         {
-            const asset = this.Get(assetTypes[i]);
-            asset.Unload();
-            asset.Reset();
+            const asset = this.Get(assetType);
+            asset?.Unload();
+            asset?.Reset();
         }
     }
 }
