@@ -9,7 +9,7 @@ export function EditorEntity<EntityType extends Entity>(): ClassDecorator
     {
         const constructor = base as unknown as (new (...args: unknown[]) => EntityType);
         return new Proxy(base, {
-            construct(o, argArray, n) {
+            construct(_o, argArray, _n) {
                 const entity = new constructor(...argArray);
                 const components = Reflect.getMetadata(classComponent, constructor) as Map<string, ComponentMetadata>;
                 

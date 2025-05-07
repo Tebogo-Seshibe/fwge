@@ -12,30 +12,4 @@
         "./**/*.test.ts",
         "./vite.config.ts"
     ],
-    "references": [
-        {
-            "path": "../audio"
-        },
-        {
-            "path": "../common"
-        },
-        {
-            "path": "../core"
-        },
-        {
-            "path": "../ecs"
-        },
-        {
-            "path": "../input"
-        },
-        {
-            "path": "../physics"
-        },
-        {
-            "path": "../render"
-        },
-        {
-            "path": "../ui"
-        }
-    ]
 }

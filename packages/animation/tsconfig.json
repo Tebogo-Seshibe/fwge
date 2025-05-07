@@ -11,16 +11,5 @@
         "./lib",
         "./**/*.test.ts",
         "./vite.config.ts"
-    ],
-    "references": [
-        {
-            "path": "../common"
-        },
-        {
-            "path": "../core"
-        },
-        {
-            "path": "../ecs"
-        }
-    ],
+    ]
 }

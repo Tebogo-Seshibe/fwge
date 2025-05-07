@@ -12,12 +12,4 @@
         "./**/*.test.ts",
         "./vite.config.ts"
     ],
-    "references": [
-        {
-            "path": "../common"
-        },
-        {
-            "path": "../ecs"
-        }
-    ],
 }

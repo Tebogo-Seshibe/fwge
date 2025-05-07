@@ -6,7 +6,7 @@ import { Entity } from "@fwge/ecs";
 
 export class EditorViewer extends Entity
 {    
-    private readonly target: Vector3 = Vector3.Zero;
+    // private readonly target: Vector3 = Vector3.Zero;
     private readonly up: Vector3 = Vector3.Zero;
     private readonly right: Vector3 = Vector3.Zero;
     private readonly forward: Vector3 = Vector3.Zero;

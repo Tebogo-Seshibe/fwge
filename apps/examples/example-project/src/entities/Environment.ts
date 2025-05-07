@@ -3,15 +3,14 @@ import { AssetManager, BasicLitMaterial, Material, MeshRenderer, Transform } fro
 import { Entity } from "@fwge/ecs";
 import { CubeMesh } from "../assets/CubeMesh";
 import { CubeShader } from "../assets/CubeShader";
-import { EditorTag } from "../components/EditorTag";
 
 export class Environment extends Entity
 {
     Init(): void
     {
-        const ignore = new EditorTag();
+        // const _ignore = new EditorTag();
         const cubeShader = new CubeShader();
-        const cubeMesh = AssetManager.Get(CubeMesh);
+        const cubeMesh = AssetManager.Get(CubeMesh)!;
         const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
 
         const floor = new Entity()
