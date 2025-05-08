@@ -8,18 +8,27 @@ importers:
 
   .:
     devDependencies:
-      '@tauri-apps/cli':
-        specifier: ^1.4.0
-        version: 1.5.14
+      '@types/jsdom':
+        specifier: ^20.0.1
+        version: 20.0.1
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.60.1
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.8.3))(eslint@8.57.0)(typescript@5.8.3)
       '@typescript-eslint/parser':
         specifier: ^5.60.1
         version: 5.62.0(eslint@8.57.0)(typescript@5.8.3)
+      '@vitest/coverage-v8':
+        specifier: ^0.34.1
+        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
       eslint:
         specifier: ^8.44.0
         version: 8.57.0
+      jsdom:
+        specifier: ^20.0.2
+        version: 20.0.3
+      reflect-metadata:
+        specifier: ^0.1.13
+        version: 0.1.14
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -29,6 +38,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
+      vitest:
+        specifier: ^0.34.1
+        version: 0.34.6(jsdom@20.0.3)
 
   apps/cli:
     dependencies:
@@ -133,6 +145,9 @@ importers:
       '@sveltejs/kit':
         specifier: ^1.30.4
         version: 1.30.4(svelte@4.2.19)(vite@4.5.14(@types/node@22.15.3))
+      '@tauri-apps/cli':
+        specifier: ^1.4.0
+        version: 1.5.14
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.62.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.8.3))(eslint@8.57.0)(typescript@5.8.3)
@@ -262,22 +277,6 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
   packages/audio:
     dependencies:
@@ -290,40 +289,8 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
-  packages/common:
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
+  packages/common: {}
 
   packages/core:
     dependencies:
@@ -333,43 +300,8 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-      reflect-metadata:
-        specifier: ^0.1.13
-        version: 0.1.14
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
-  packages/ecs:
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
+  packages/ecs: {}
 
   packages/input:
     dependencies:
@@ -382,22 +314,6 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
   packages/io:
     dependencies:
@@ -425,22 +341,6 @@ importers:
       '@fwge/ui':
         specifier: workspace:*
         version: link:../ui
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
   packages/physics:
     dependencies:
@@ -453,22 +353,6 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
   packages/render:
     dependencies:
@@ -481,22 +365,6 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
   packages/ui:
     dependencies:
@@ -509,22 +377,6 @@ importers:
       '@fwge/ecs':
         specifier: workspace:*
         version: link:../ecs
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^20.0.1
-        version: 20.0.1
-      '@vitest/coverage-v8':
-        specifier: ^0.34.1
-        version: 0.34.6(vitest@0.34.6(jsdom@20.0.3))
-      jsdom:
-        specifier: ^20.0.2
-        version: 20.0.3
-      typescript:
-        specifier: ^4.7.2
-        version: 4.9.5
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.6(jsdom@20.0.3)
 
 packages:
 
@@ -1414,11 +1266,6 @@ packages:
   acorn-walk@8.3.4:
     resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
     engines: {node: '>=0.4.0'}
-
-  acorn@8.11.3:
-    resolution: {integrity: sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
 
   acorn@8.14.1:
     resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
@@ -5758,8 +5605,6 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
-  acorn@8.11.3: {}
-
   acorn@8.14.1: {}
 
   agent-base@6.0.2:
@@ -7764,7 +7609,7 @@ snapshots:
   jsdom@20.0.3:
     dependencies:
       abab: 2.0.6
-      acorn: 8.11.3
+      acorn: 8.14.1
       acorn-globals: 7.0.1
       cssom: 0.5.0
       cssstyle: 2.3.0
@@ -9327,7 +9172,7 @@ snapshots:
       '@vitest/snapshot': 0.34.6
       '@vitest/spy': 0.34.6
       '@vitest/utils': 0.34.6
-      acorn: 8.11.3
+      acorn: 8.14.1
       acorn-walk: 8.3.4
       cac: 6.7.14
       chai: 4.5.0

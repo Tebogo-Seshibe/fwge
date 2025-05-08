@@ -24,6 +24,11 @@ export class Image2D extends ImageAsset
 
     public async Load(): Promise<void>
     {
+        if (!this.loaded)
+        {
+            return;
+        }
+        
         this.image = new Image();
         this.image.addEventListener('load', this.BindLoadedImageData.bind(this));
         this.image.src = this.Sources[0];
@@ -101,5 +106,7 @@ export class Image2D extends ImageAsset
         }
 
         GL.bindTexture(GL.TEXTURE_2D, null);
+
+        this.loaded = true;
     }
 }

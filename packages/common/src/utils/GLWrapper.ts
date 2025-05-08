@@ -168,7 +168,7 @@ export class GLWrapper extends WebGL2RenderingContext
         glCheckError(this.context, 'copyTexSubImage2D', { target, level, xoffset, yoffset, x, y, width, height })
     }
     
-    createBuffer(): WebGLBuffer | null
+    createBuffer(): WebGLBuffer
     {
         glClearErrors(this.context)
         const result = this.context.createBuffer()
@@ -184,7 +184,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result!
     }
     
-    createProgram(): WebGLProgram | null
+    createProgram(): WebGLProgram
     {
         glClearErrors(this.context)
         const result = this.context.createProgram()
@@ -192,7 +192,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
     
-    createRenderbuffer(): WebGLRenderbuffer | null
+    createRenderbuffer(): WebGLRenderbuffer
     {
         glClearErrors(this.context)
         const result = this.context.createRenderbuffer()
@@ -208,7 +208,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
     
-    createTexture(): WebGLTexture | null
+    createTexture(): WebGLTexture
     {
         glClearErrors(this.context)
         const result = this.context.createTexture()
@@ -1036,7 +1036,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
 
-    createQuery(): WebGLQuery | null
+    createQuery(): WebGLQuery
     {
         glClearErrors(this.context)
         const result = this.context.createQuery()
@@ -1044,7 +1044,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
 
-    createSampler(): WebGLSampler | null
+    createSampler(): WebGLSampler
     {
         glClearErrors(this.context)
         const result = this.context.createSampler()
@@ -1052,7 +1052,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
 
-    createTransformFeedback(): WebGLTransformFeedback | null
+    createTransformFeedback(): WebGLTransformFeedback
     {
         glClearErrors(this.context)
         const result = this.context.createTransformFeedback()
@@ -1060,7 +1060,7 @@ export class GLWrapper extends WebGL2RenderingContext
         return result
     }
 
-    createVertexArray(): WebGLVertexArrayObject | null
+    createVertexArray(): WebGLVertexArrayObject
     {
         glClearErrors(this.context)
         const result = this.context.createVertexArray()

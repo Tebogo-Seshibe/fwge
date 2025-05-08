@@ -2,6 +2,8 @@ import { Type } from "@fwge/ecs";
 
 export abstract class Asset
 {
+    protected loaded: boolean = false;
+
     constructor(
         public readonly Type: Type<Asset> = new.target as any
     ) { }

@@ -16,6 +16,11 @@ export class SkyboxTexture extends ImageAsset
 
     public async Load(): Promise<void>
     {
+        if (!this.loaded)
+        {
+            return;
+        }
+        
         const image = new Image()
         image.onload = () => this.applyImage(image)
         image.src = this.Sources[0]
