@@ -4,6 +4,10 @@ import { ControllerState } from "./ControllerState";
 export class ControllerInputHandler
 {
     private readonly _controllers: FixedLengthArray<Gamepad | null, 4> = [null, null, null, null];
+    private readonly controllerReset = {
+        axes: [0,0,0,0],
+        buttons: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0].map((value) => ({value}))
+    }
     public readonly State: FixedLengthArray<ControllerState, 4>;
     
     constructor(
@@ -12,9 +16,9 @@ export class ControllerInputHandler
         private readonly controllerButtons: Uint8ClampedArray
     ) { 
         this.State = [
-            new ControllerState(controllerAxes, 0,  controllerButtons, 0),
-            new ControllerState(controllerAxes, 4,  controllerButtons, 16),
-            new ControllerState(controllerAxes, 8,  controllerButtons, 32),
+            new ControllerState(controllerAxes,  0, controllerButtons,  0),
+            new ControllerState(controllerAxes,  4, controllerButtons, 16),
+            new ControllerState(controllerAxes,  8, controllerButtons, 32),
             new ControllerState(controllerAxes, 12, controllerButtons, 48),
         ];
     }
@@ -28,9 +32,12 @@ export class ControllerInputHandler
     public Update(): void
     {
         const controllers = navigator.getGamepads() as FixedLengthArray<Gamepad | null, 4>;
-        let i = 0;
-        for (const controller of controllers)
+        for (let i = 0; i < controllers.length; ++i)
         {
+            const controller = controllers[i];
+            let axesOffset = i * 4;
+            let buttonsOffset = i * 16;
+
             if (!controller && this.State[i].Active)
             {
                 this.State[i].Active = false;
@@ -40,29 +47,29 @@ export class ControllerInputHandler
                 this.State[i].Active = true;
             }
             
-            if (!controller) continue;
+            let update = controller ?? this.controllerReset;
 
-            this.controllerAxes[controller.index + 0] = controller.axes[0];
-            this.controllerAxes[controller.index + 1] = controller.axes[1];
-            this.controllerAxes[controller.index + 2] = controller.axes[2];
-            this.controllerAxes[controller.index + 3] = controller.axes[3];
+            this.controllerAxes[axesOffset + 0] =  update.axes[0];
+            this.controllerAxes[axesOffset + 1] = -update.axes[1];
+            this.controllerAxes[axesOffset + 2] =  update.axes[2];
+            this.controllerAxes[axesOffset + 3] = -update.axes[3];
 
-            this.controllerButtons[controller.index +  0] = controller.buttons[ 0].value;
-            this.controllerButtons[controller.index +  1] = controller.buttons[ 1].value;
-            this.controllerButtons[controller.index +  2] = controller.buttons[ 2].value;
-            this.controllerButtons[controller.index +  3] = controller.buttons[ 3].value;
-            this.controllerButtons[controller.index +  4] = controller.buttons[ 4].value;
-            this.controllerButtons[controller.index +  5] = controller.buttons[ 5].value;
-            this.controllerButtons[controller.index +  6] = controller.buttons[ 6].value;
-            this.controllerButtons[controller.index +  7] = controller.buttons[ 7].value;
-            this.controllerButtons[controller.index +  8] = controller.buttons[ 8].value;
-            this.controllerButtons[controller.index +  9] = controller.buttons[ 9].value;
-            this.controllerButtons[controller.index + 10] = controller.buttons[10].value;
-            this.controllerButtons[controller.index + 11] = controller.buttons[11].value;
-            this.controllerButtons[controller.index + 12] = controller.buttons[12].value;
-            this.controllerButtons[controller.index + 13] = controller.buttons[13].value;
-            this.controllerButtons[controller.index + 14] = controller.buttons[14].value;
-            this.controllerButtons[controller.index + 15] = controller.buttons[15].value;
+            this.controllerButtons[buttonsOffset +  0] = update.buttons[ 0].value;
+            this.controllerButtons[buttonsOffset +  1] = update.buttons[ 1].value;
+            this.controllerButtons[buttonsOffset +  2] = update.buttons[ 2].value;
+            this.controllerButtons[buttonsOffset +  3] = update.buttons[ 3].value;
+            this.controllerButtons[buttonsOffset +  4] = update.buttons[ 4].value;
+            this.controllerButtons[buttonsOffset +  5] = update.buttons[ 5].value;
+            this.controllerButtons[buttonsOffset +  6] = update.buttons[ 6].value;
+            this.controllerButtons[buttonsOffset +  7] = update.buttons[ 7].value;
+            this.controllerButtons[buttonsOffset +  8] = update.buttons[ 8].value;
+            this.controllerButtons[buttonsOffset +  9] = update.buttons[ 9].value;
+            this.controllerButtons[buttonsOffset + 10] = update.buttons[10].value;
+            this.controllerButtons[buttonsOffset + 11] = update.buttons[11].value;
+            this.controllerButtons[buttonsOffset + 12] = update.buttons[12].value;
+            this.controllerButtons[buttonsOffset + 13] = update.buttons[13].value;
+            this.controllerButtons[buttonsOffset + 14] = update.buttons[14].value;
+            this.controllerButtons[buttonsOffset + 15] = update.buttons[15].value;
         }
     }
 

@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf lib .turbo tsconfig.tsbuildinfo node_modules",
+    "clean": "rimraf lib .turbo node_modules",
     "watch": "tsc -w",
     "test": "vitest",
     "coverage": "vitest --coverage"

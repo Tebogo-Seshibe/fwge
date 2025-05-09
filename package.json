@@ -19,8 +19,7 @@
         "test": "turbo run test",
         "clean": "pnpm clean:libs && pnpm clean:root",
         "clean:libs": "turbo run clean",
-        "clean:root": "rimraf node_modules",
-        "editor": "cd apps/editor && npm i && npm run tauri"
+        "clean:root": "rimraf node_modules"
     },
     "license": "MIT",
     "keywords": [
@@ -42,9 +41,6 @@
         "eslint": "^8.44.0",
         "jsdom": "^20.0.2",
         "reflect-metadata": "^0.1.13",
-        "rimraf": "^6.0.1",
-        "turbo": "^2.5.2",
-        "typescript": "^5.8.3",
         "vitest": "^0.34.1"
     },
     "packageManager": "pnpm@9.1.3",

@@ -14,14 +14,11 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "composite": true,
-        "incremental": true,
         "forceConsistentCasingInFileNames": true,
+        "noEmitOnError": true,
         "paths": {
-            "@fwge/*": ["./packages/*/src"]
+            "@fwge/*": ["./packages/*/lib"]
         },
-    },
-    "buildOptions": {
-        "incremental": true,
     },
     "references": [
         { "path": "packages/ecs"        },

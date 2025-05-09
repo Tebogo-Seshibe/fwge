@@ -120,6 +120,16 @@ export class ControllerState
     {
         return this.Buttons[7];
     }
+    
+    public get Share(): ButtonState
+    {
+        return this.Buttons[8];
+    }
+    
+    public get Options(): ButtonState
+    {
+        return this.Buttons[9];
+    }
     //#endregion
     
     //#region XBOX Buttons
@@ -165,6 +175,10 @@ export class ControllerState
     //#endregion
     
     public readonly Buttons: Readonly<FixedLengthArray<ButtonState, 16>>;
+    public buffers: {
+        axes: Float32Array,
+        buttons: Uint8ClampedArray
+    };
 
     constructor(
         controllerAxes: Float32Array,
@@ -172,8 +186,14 @@ export class ControllerState
         controllerButtons: Uint8ClampedArray,
         controllerButtonsOffset: number,
     ) {
-        this.LeftStick = new Vector2(controllerAxes.buffer, (0 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
-        this.RightStick = new Vector2(controllerAxes.buffer, (2 + controllerAxesOffset) * Vector2.BYTES_PER_ELEMENT);
-        this.Buttons = new Uint8ClampedArray(controllerButtons, controllerButtonsOffset * Vector2.BYTES_PER_ELEMENT, 16) as any as FixedLengthArray<ButtonState, 16>;
+        
+        this.LeftStick = new Vector2(controllerAxes.buffer, controllerAxes.byteOffset + ((0 + controllerAxesOffset) * Float32Array.BYTES_PER_ELEMENT));
+        this.RightStick = new Vector2(controllerAxes.buffer, controllerAxes.byteOffset + ((2 + controllerAxesOffset) * Float32Array.BYTES_PER_ELEMENT));
+        this.Buttons = new Uint8ClampedArray(controllerButtons.buffer, controllerButtons.byteOffset + (controllerButtonsOffset * Uint8ClampedArray.BYTES_PER_ELEMENT), 16) as any as FixedLengthArray<ButtonState, 16>;
+        
+        this.buffers = {
+            axes: controllerAxes,
+            buttons: controllerButtons
+        };
     }
 }

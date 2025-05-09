@@ -1,8 +1,8 @@
 import { GL, Maths, Matrix3, Matrix4, Vector3 } from "@fwge/common";
 import { PerspectiveCamera, Transform } from "@fwge/core";
-import { ButtonState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
-import { EditorTag } from "../components/EditorTag";
 import { Entity } from "@fwge/ecs";
+import { ButtonState, ControllerState, Input, KeyState, KeyboardState, WheelState } from "@fwge/input";
+import { EditorTag } from "../components/EditorTag";
 
 export class EditorViewer extends Entity
 {    
@@ -14,13 +14,14 @@ export class EditorViewer extends Entity
     private readonly rotationMatrix: Matrix3 = Matrix3.Zero;
 
     private readonly zoomSpeed: number = 50;
-    private readonly rotationSpeed: number = 25;
-    private readonly panSpeed: number = 5;
+    private readonly rotationSpeed: number = 50;
+    private readonly panSpeed: number = 10;
 
     private transform!: Transform;
     private cameraTransform!: Transform;
     private camera!: PerspectiveCamera;
     private locked = false;
+    private deadzone = 0.2;
 
     Init()
     {        
@@ -42,8 +43,9 @@ export class EditorViewer extends Entity
             this.transform,
             new Input(
             {
-                onInput: (delta, keyboard, mouse): void =>
+                onInput: (delta, keyboard, mouse, controllers): void =>
                 {
+                    const controller = controllers[0];
                     if (mouse.Wheel !== WheelState.CENTERED)
                     {
                         const scrollAmount = mouse.Wheel === WheelState.UP
@@ -51,8 +53,20 @@ export class EditorViewer extends Entity
                             : -this.zoomSpeed;
                         this.Zoom(scrollAmount * delta);
                     }
-                    
-                    if (mouse.Right === ButtonState.PRESSED)
+
+                    if (controller.Active)
+                    {
+                        const axes = [
+                            Math.abs(controller.RightStick.X) < this.deadzone ? 0 :  controller.RightStick.X,
+                            Math.abs(controller.RightStick.Y) < this.deadzone ? 0 : -controller.RightStick.Y 
+                        ] as const;
+                        this.PanController(delta, controller);
+                        this.Rotate(
+                            axes[0] * delta * this.rotationSpeed,
+                            axes[1] * delta * this.rotationSpeed
+                        );
+                    }
+                    else if (mouse.Right === ButtonState.PRESSED)
                     {
                         if (!this.locked)
                         {
@@ -84,7 +98,7 @@ export class EditorViewer extends Entity
         this.cameraTransform.Rotation.X = Maths.clamp(this.cameraTransform.Rotation.X + deltaPhi, -80, 80);
         this.transform.Rotation.Y += deltaTheta;
     }
-
+    
     private Zoom(delta: number): void
     {
         this.camera.FieldOfView -= delta;
@@ -133,6 +147,42 @@ export class EditorViewer extends Entity
         {
             this.up.Negate();
         }
+
+        Vector3.Add(this.forward, this.right, this.movement);
+        if (this.movement.Length !== 0)
+        {
+            this.movement.Scale(movementSpeed * delta / this.movement.Length);
+        }
+
+        this.transform.Position.Add(this.movement).Add(this.up);
+    }
+
+    private PanController(delta: number, controller: ControllerState): void
+    {
+        const leftBumperPressed = controller.LeftBumper === ButtonState.PRESSED;
+        const rightBumperPressed = controller.RightBumper === ButtonState.PRESSED;
+        const leftStickPressed = controller.LeftStickButton === ButtonState.PRESSED;
+        const movementSpeed = this.panSpeed * (leftStickPressed ? 2 : 1);
+
+        const axes = [
+            Math.abs(controller.LeftStick.X) < this.deadzone ? 0 :  controller.LeftStick.X,
+            Math.abs(controller.LeftStick.Y) < this.deadzone ? 0 : -controller.LeftStick.Y 
+        ] as const;
+
+        this.rotationMatrix.Set(Matrix4.RotationMatrix(this.transform.Rotation).Matrix3);
+        Matrix3.MultiplyVector(this.rotationMatrix, 0, 0, axes[1], this.forward);
+        Matrix3.MultiplyVector(this.rotationMatrix, axes[0], 0, 0, this.right);
+
+        this.up.Set(0, 0, 0);
+        if (leftBumperPressed)
+        {
+            this.up.Add(0, 1, 0)
+        }
+        if (rightBumperPressed)
+        {
+            this.up.Subtract(0, 1, 0)
+        }
+        this.up.Scale(delta * 5);
 
         Vector3.Add(this.forward, this.right, this.movement);
         if (this.movement.Length !== 0)

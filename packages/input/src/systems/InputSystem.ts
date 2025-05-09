@@ -8,7 +8,6 @@ import { Registry, System } from "@fwge/ecs";
 export class InputSystem extends System
 {
     private inputView!: number;
-
     private readonly inputDataView = new CompositeDataView(
     {
         keyboard:
@@ -58,7 +57,7 @@ export class InputSystem extends System
 
     Init(): void
     {
-        this.inputView = Registry.RegisterView([Input]);
+        this.inputView = Registry.RegisterView([Input], (entity) => entity.Active);
     }
     
     Start(): void
@@ -70,17 +69,12 @@ export class InputSystem extends System
 
     Update(delta: number): void
     {
-        this.keyboard.Update(delta!);
+        this.keyboard.Update(delta);
         this.mouse.Update();
         this.controllers.Update();
 
         for (const entityId of Registry.GetView(this.inputView))
         {
-            if (!Registry.IsEntityActive(entityId))
-            {
-                continue;   
-            }
-
             const input = Registry.GetComponent(entityId, Input)!;
             input.OnInput(
                 delta, 
