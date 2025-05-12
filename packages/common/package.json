@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf lib .turbo node_modules",
-    "watch": "tsc -w",
+    "dev": "tsc --watch --preserveWatchOutput",
     "test": "vitest",
     "coverage": "vitest --coverage"
   }

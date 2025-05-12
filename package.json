@@ -14,9 +14,11 @@
     },
     "scripts": {
         "build": "turbo run build",
+        "build:libs": "turbo run build --filter=\"./packages/*\"",
         "dev": "turbo run dev",
-        "lint": "turbo run lint",
+        "dev:libs": "turbo run dev --filter=\"./packages/*\"",
         "test": "turbo run test",
+        "test:libs": "turbo run test --filter=\"./packages/*\"",
         "clean": "pnpm clean:libs && pnpm clean:root",
         "clean:libs": "turbo run clean",
         "clean:root": "rimraf node_modules"
@@ -41,6 +43,8 @@
         "eslint": "^8.44.0",
         "jsdom": "^20.0.2",
         "reflect-metadata": "^0.1.13",
+        "turbo": "^2.5.3",
+        "typescript": "^5.8.3",
         "vitest": "^0.34.1"
     },
     "packageManager": "pnpm@9.1.3",

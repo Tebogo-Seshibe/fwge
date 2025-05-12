@@ -5,12 +5,11 @@ Web based game engine library, built on top of the WebGL API
 ## Prerequisites
 ### Global
 - node: >= 14.0.0
-- pnpm: >= 9.1.3 
+- pnpm: >= 9.1.3
 - rimraf
 - turbo
-- typescript (can be local)
+- typescript
 ### Local
-- typescript (can be global)
 - jsdom
 - vitest
 
