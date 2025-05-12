@@ -88,7 +88,7 @@ TypeMappers.set('Material', Material)
 // TypeMappers.set('UIComponent', UIComponent)
 //#endregion
 
-export const GameLoader: ILoader<Scene[] | void> = (game: Game, src: string) =>
+export const GameLoader: ILoader<Scene[] | void> = (src: string) =>
 {    
     const newGame: GameConfig = JSON.parse(src)
     const components: Component[] = []
@@ -114,8 +114,8 @@ export const GameLoader: ILoader<Scene[] | void> = (game: Game, src: string) =>
         if (constructor)
         {
             const newComponent = componentConfig.config instanceof Array
-                ? new constructor(game, ...componentConfig.config)
-                : new constructor(game, componentConfig.config)
+                ? new constructor(...componentConfig.config)
+                : new constructor(componentConfig.config)
             components.push(newComponent)
         }
     }

@@ -9,7 +9,7 @@ export type MTLKey = 'newmtl'
     | 'map_ks'
 
 export type MTL = { [name: string]: BasicLitMaterial }
-export const MTLLoader: ILoader<MTL> =  (game: Game, src: string, defaultShader: Shader) =>
+export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
 {
     const materials: MTL = { }
     const mtlLines = src.trim().split('\n').map(x => x.trim())

@@ -18,7 +18,8 @@
     "@fwge/common": "workspace:*",
     "@fwge/core": "workspace:*",
     "@fwge/ecs": "workspace:*",
-    "@fwge/input": "workspace:*"
+    "@fwge/input": "workspace:*",
+    "@fwge/io": "workspace:*"
   },
   "packageManager": "pnpm@9.1.3",
   "engines": {

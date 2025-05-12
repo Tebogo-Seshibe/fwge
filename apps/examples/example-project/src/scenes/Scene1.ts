@@ -1,4 +1,4 @@
-import { DefaultWindow, Scene } from "@fwge/core";
+import { DefaultWindow, Scene, ScriptSystem } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
 import { EditorViewer } from "../entities/EditorViewer";
 import { Environment } from "../entities/Environment";
@@ -19,6 +19,7 @@ export class Scene1 extends Scene
     ];
     UseSystems = [
         InputSystem,
+        ScriptSystem,
         ProjectRenderSystem,
     ];
     Init(): void {

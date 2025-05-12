@@ -1,6 +1,6 @@
 import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
-import { AreaLight, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
-import { FinalPassShader } from "../assets/FinalPassShader";
+import { AreaLight, AssetManager, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
+import { FinalPassShader, FinalPassShaderAsset } from "../assets/FinalPassShader";
 import { EditorTag } from "../components/EditorTag";
 import { EntityId, Registry, System } from "@fwge/ecs";
 
@@ -42,14 +42,14 @@ export class ProjectRenderSystem extends System
             (_, light) => light instanceof DirectionalLight
         );
 
-        this.finalPassShader = new FinalPassShader();
-        this.finalPassShader.Init();
 
         // this.window = Registry.CurrentScene!.Windows[0];
     }
 
     Start(): void 
     {
+        this.finalPassShader = AssetManager.Get(FinalPassShaderAsset)!.Shader!;
+        this.finalPassShader.Init();
         return;
     }
 

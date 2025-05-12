@@ -1,4 +1,15 @@
-import { Shader } from "@fwge/core";
+import { Shader, ShaderAsset } from "@fwge/core";
+
+export class FinalPassShaderAsset extends ShaderAsset
+{
+    constructor()
+    {
+        super(
+            './public/shaders/FinalPassShader.vert',
+            './public/shaders/FinalPassShader.frag',
+        )
+    }
+}
 
 export class FinalPassShader extends Shader
 {

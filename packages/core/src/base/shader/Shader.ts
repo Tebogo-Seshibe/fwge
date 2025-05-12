@@ -241,10 +241,13 @@ export class Shader
     //     this._compileShaders();
     // }
 
+    public Name: string;
+
     constructor(vertexShader: string, fragmentShader: string)
     constructor(vertexShader: string, fragmentShader: string, name: string)
     constructor(vertexShader: string, fragmentShader: string, name: string = 'Shader')
     {
+        this.Name = name;
         this._rawVertexSource = vertexShader;
         this._rawFragmentSource = fragmentShader;
         this._vertexSource = this._addIncludes(vertexShader);

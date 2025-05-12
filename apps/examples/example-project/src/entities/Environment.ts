@@ -1,5 +1,5 @@
 import type { Colour3Array } from "@fwge/common";
-import { AssetManager, BasicLitMaterial, Material, MeshRenderer, Transform } from "@fwge/core";
+import { AssetManager, BasicLitMaterial, Material, MeshRenderer, Script, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { CubeMesh } from "../assets/CubeMesh";
 import { CubeShader } from "../assets/CubeShader";
@@ -12,6 +12,7 @@ export class Environment extends Entity
         const cubeShader = new CubeShader();
         const cubeMesh = AssetManager.Get(CubeMesh)!;
         const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
+        const sphereMeshRender = new MeshRenderer({ asset: AssetManager.Get('Sphere')!});
 
         const floor = new Entity()
             .AddComponents(
@@ -40,7 +41,7 @@ export class Environment extends Entity
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 1, 1, 1 ]
                 }),
-                cubeMeshRender,
+                sphereMeshRender,
                 new BasicLitMaterial(
                 {
                     shader: cubeShader,
@@ -48,6 +49,13 @@ export class Environment extends Entity
                     projectShadows: true,
                     receiveShadows: true,
                     colour: [123/255, 40/255, 125/255]
+                }),
+                new Script({
+                    update: (delta) => {
+                        cube1.GetComponent(Transform)!.Rotation.Y += delta * 10;
+                        // floor.GetComponent(Transform)!.Scale.Add(1,1,1);
+                        // console.log(floor.GetComponent(Transform))
+                    }
                 })
             );
         const cube2 = new Entity()
@@ -166,7 +174,5 @@ export class Environment extends Entity
         cubeShader.Init();
         cubeMesh.Load();
         [floor, cube1, cube2, cube3, cube4, cube5, cube6].forEach(entity => entity.GetComponent(Material)!.ImageTextures.filter(Boolean).forEach(tex => tex!.Load()));
-        console.log(floor)
-        console.log(floor.GetAllComponents())
     }
 }

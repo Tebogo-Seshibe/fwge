@@ -4,7 +4,7 @@ import { ILoader } from "./ILoader"
 
 export const buffer_prefix = 'data:application/octet-stream;base64,'
 
-export const GLTFLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string, shader: Shader): Prefab<any> =>
+export const GLTFLoader: ILoader<Prefab<any>> = (srcGLTF: string, shader: Shader): Prefab<any> =>
 {
     const gltf = JSON.parse(srcGLTF) as GLTF
     const buffers: Uint8Array[] = []
@@ -23,10 +23,10 @@ export const GLTFLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string, sh
         buffers.push(bin)
     }
     
-    return createPrefab(game, gltf, buffers, shader)
+    return createPrefab(gltf, buffers, shader)
 }
 
-export const GLTFBinLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string, srcBin: string, shader: Shader) =>
+export const GLTFBinLoader: ILoader<Prefab<any>> = (srcGLTF: string, srcBin: string, shader: Shader) =>
 {
     const gltf = JSON.parse(srcGLTF) as GLTF
     const bin = new Uint8Array(gltf.buffers[0].byteLength)
@@ -36,10 +36,10 @@ export const GLTFBinLoader: ILoader<Prefab<any>> = (game: Game, srcGLTF: string,
         bin[byte] = srcBin.charCodeAt(byte)
     }
 
-    return createPrefab(game, gltf, [bin], shader)
+    return createPrefab(gltf, [bin], shader)
 }
 
-export const GLTBLoader: ILoader<Prefab<any>> = (game: Game, srcGLB: string, shader: Shader) =>
+export const GLTBLoader: ILoader<Prefab<any>> = (srcGLB: string, shader: Shader) =>
 {
     let start = -1
     let end = -1
@@ -89,10 +89,10 @@ export const GLTBLoader: ILoader<Prefab<any>> = (game: Game, srcGLB: string, sha
         offset += buffer.byteLength
     }
 
-    return createPrefab(game, gltf, buffers, shader)
+    return createPrefab(gltf, buffers, shader)
 }
 
-function parsePrimitive(game: Game, primitive: GLTFPrimitive, gltf: GLTF, buffers: Uint8Array[]): [Mesh, Material]
+function parsePrimitive(primitive: GLTFPrimitive, gltf: GLTF, buffers: Uint8Array[]): [Mesh, Material]
 {
     const positionAccessor = gltf.accessors[primitive.attributes.POSITION]
     const normalAccessor = gltf.accessors[primitive.attributes.NORMAL]
@@ -120,7 +120,7 @@ function parsePrimitive(game: Game, primitive: GLTFPrimitive, gltf: GLTF, buffer
     return [null!,null!]
 }
 
-function createPrefab(game: Game, gltf: GLTF, buffers: Uint8Array[], shader: Shader)
+function createPrefab(gltf: GLTF, buffers: Uint8Array[], shader: Shader)
 {
     const prefab = new Prefab()
 

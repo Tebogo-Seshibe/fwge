@@ -3,7 +3,7 @@ import { Game, StaticMesh } from "@fwge/core"
 import { ILoader, OBJKey, OBJObject } from "./ILoader"
 
 export type OBJ = { [name: string]:  {  mesh: StaticMesh, material: string } }
-export const OBJLoader: ILoader<OBJ> = (game: Game, src: string) =>
+export const OBJLoader: ILoader<OBJ> = (src: string) =>
 {
     const objects: OBJ = {}
     const objectMap: Map<string | undefined, OBJObject> = new Map()

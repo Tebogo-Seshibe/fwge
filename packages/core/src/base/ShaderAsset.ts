@@ -39,14 +39,14 @@ export class ShaderAsset extends Asset
         else
         {
             promise = Promise.all([
-                fetch(protocol + this._vertexShaderSrc).then(x => x.text().then(text => vs = text)),
-                fetch(protocol + this._fragmentShaderSrc).then(x => x.text().then(text => fs = text))
+                fetch(this._vertexShaderSrc).then(x => x.text().then(text => vs = text)),
+                fetch(this._fragmentShaderSrc).then(x => x.text().then(text => fs = text))
             ]);
         }
         
         promise.then(() => {
             this._shader = new Shader(vs, fs);
-            this._shader.Init();
+            console.log(protocol)
         });
     }
 
