@@ -12,22 +12,29 @@ export class Environment extends Entity
         const cubeShader = new CubeShader();
         const cubeMesh = AssetManager.Get(CubeMesh)!;
         const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
-        const sphereMeshRender = new MeshRenderer({ asset: AssetManager.Get('Sphere')!});
+        const sphereMeshRender = new MeshRenderer({ asset: cubeMesh });
 
+        // setTimeout(() => {
+        //     sphereMeshRender.Asset = AssetManager.Get('Helipad')!
+        // }, 3000);
+
+        // setTimeout(() => {
+        //     sphereMeshRender.Asset = AssetManager.Get('SmoothSphere')!
+        // }, 3000);
         const floor = new Entity()
             .AddComponents(
                 new Transform(
                 { 
-                    position:   [  0, -1,  0 ],
-                    rotation:   [  0,  0,  0 ],
-                    scale:      [ 20,  1, 20 ]
+                    position:   [ 0, -1, 0 ],
+                    rotation:   [ 0,  0, 0 ],
+                    scale:      [ 5,  1, 5 ]
                 }),
                 cubeMeshRender,
                 new BasicLitMaterial(
                 {
                     shader: cubeShader,
                     alpha: 1.0,
-                    projectShadows: true,
+                    projectShadows: false,
                     receiveShadows: true,
                     colour: [51/255, 12/255, 47/255]
                 })
@@ -52,7 +59,7 @@ export class Environment extends Entity
                 }),
                 new Script({
                     update: (delta) => {
-                        cube1.GetComponent(Transform)!.Rotation.Y += delta * 10;
+                        cube3.GetComponent(Transform)!.Rotation.Y += delta * 10;
                         // floor.GetComponent(Transform)!.Scale.Add(1,1,1);
                         // console.log(floor.GetComponent(Transform))
                     }

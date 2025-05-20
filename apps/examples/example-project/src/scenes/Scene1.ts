@@ -3,8 +3,10 @@ import { InputSystem } from "@fwge/input";
 import { EditorViewer } from "../entities/EditorViewer";
 import { Environment } from "../entities/Environment";
 import { GeneralAreaLight } from "../entities/GeneralAreaLight";
+import { Grid } from "../entities/Grid";
 import { Sun } from "../entities/Sun";
 import { ProjectRenderSystem } from "../systems";
+import { Lighting } from "../entities/Lighting";
 
 export class Scene1 extends Scene
 {
@@ -12,9 +14,11 @@ export class Scene1 extends Scene
         DefaultWindow 
     ];
     UseEntites = [
-        GeneralAreaLight,
+        // GeneralAreaLight,
+        Lighting,
         EditorViewer,
-        Sun,
+        // Sun,
+        Grid,
         Environment,
     ];
     UseSystems = [

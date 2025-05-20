@@ -14,7 +14,7 @@ export class Sun extends Entity
             {
                 castShadows: true,
                 colour: [1,1,1],
-                intensity: 0.5
+                intensity: 0.5,
             })
         )
     }

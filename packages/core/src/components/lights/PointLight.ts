@@ -6,6 +6,7 @@ export interface PointLightArgs extends LightArgs
 {
     radius?: number
     castShadows?: boolean
+    shininess?: number
 }
 
 export class PointLight extends Light
@@ -19,6 +20,17 @@ export class PointLight extends Light
     {
         this._radius.Value = value
     }
+
+    private _shininess: Scalar
+    get Shininess(): number
+    {
+        return this._shininess.Value
+    }
+    set Shininess(value: number)
+    {
+        this._shininess.Value = value
+    }
+
     CastShadows: boolean
 
     // readonly ShadowCubeMap: RenderTarget = new RenderTarget({
@@ -32,11 +44,13 @@ export class PointLight extends Light
     constructor(light: PointLightArgs)
     constructor(light: PointLightArgs = { })
     {
-        super(light.colour, light.intensity, new Float32Array(8))
+        super(light.colour, light.intensity, new Float32Array(9))
         this._radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
+        this._shininess = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8)
 
         this.Radius = light.radius ?? 5
         this.CastShadows = light.castShadows ?? false
+        this.Shininess = light.shininess ?? 32
         
         {
             `

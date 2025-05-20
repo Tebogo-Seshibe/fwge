@@ -9,7 +9,7 @@ export abstract class Asset
     ) { }
 
     abstract Reset(): void;
-    abstract Load(protocol?: (...args: any[]) => Promise<Blob>): void;
+    abstract Load(protocol?: (...args: any[]) => Promise<Blob>): any;
     abstract Unload(): void;
     abstract Destroy(): void;
 }

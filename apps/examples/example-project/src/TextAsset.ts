@@ -23,14 +23,18 @@ export class TextAsset extends Asset
 
     public Load(protocol?: (...args: any[]) => Promise<Blob>): void
     {
+        let promise;
+
         if (protocol)
         {
-            protocol(this._source).then(x => x.text()).then(text => this._content = text);
+            promise = protocol(this._source).then(x => x.text()).then(text => this._content = text);
         }
         else
         {
-            fetch(this._source).then(x => x.text().then(text => this._content = text));
+            promise = fetch(this._source).then(x => x.text().then(text => this._content = text));
         }
+
+        promise.then(() => {})
     }
     
     public Unload(): void

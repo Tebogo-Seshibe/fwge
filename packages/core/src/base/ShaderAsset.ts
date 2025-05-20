@@ -29,6 +29,7 @@ export class ShaderAsset extends Asset
         let [vs, fs] = ['', ''];
         let promise;
 
+        console.time(`Load: ${this.Type.name}`)
         if (protocol)
         {
             promise = Promise.all([
@@ -46,7 +47,7 @@ export class ShaderAsset extends Asset
         
         promise.then(() => {
             this._shader = new Shader(vs, fs);
-            console.log(protocol)
+            console.timeEnd(`Load: ${this.Type.name}`)
         });
     }
 

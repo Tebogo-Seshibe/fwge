@@ -1,8 +1,8 @@
 import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
-import { AreaLight, AssetManager, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
-import { FinalPassShader, FinalPassShaderAsset } from "../assets/FinalPassShader";
-import { EditorTag } from "../components/EditorTag";
+import { AreaLight, AssetManager, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, PointLight, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
 import { EntityId, Registry, System } from "@fwge/ecs";
+import { FinalPassShaderAsset } from "../assets/FinalPassShader";
+import { EditorTag } from "../components/EditorTag";
 
 export class ProjectRenderSystem extends System
 {
@@ -11,6 +11,7 @@ export class ProjectRenderSystem extends System
     renderableShadowView!: number;
     areaLightView!: number;
     directionalLightView!: number;
+    pointLightView!: number;
     
     finalPassShader!: Shader;
     window!: RenderWindow;
@@ -42,6 +43,11 @@ export class ProjectRenderSystem extends System
             (_, light) => light instanceof DirectionalLight
         );
 
+        this.pointLightView = Registry.RegisterView(
+            [Light],
+            (_, light) => light instanceof PointLight
+        );
+
 
         // this.window = Registry.CurrentScene!.Windows[0];
     }
@@ -50,7 +56,6 @@ export class ProjectRenderSystem extends System
     {
         this.finalPassShader = AssetManager.Get(FinalPassShaderAsset)!.Shader!;
         this.finalPassShader.Init();
-        return;
     }
 
     Stop(): void
@@ -120,6 +125,20 @@ export class ProjectRenderSystem extends System
             this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ProjectionMatrix`, light.ProjectionMatrix, true);
             this.finalPassShader.SetMatrix(`U_DirectionalLight[${d}].ViewMatrix`, rotationMatrix, true);
             d++
+        }
+
+        let p = 0;
+        for (let entityId of Registry.GetView(this.pointLightView))
+        {
+            const light = Registry.GetComponent(entityId, PointLight)!;
+            const transform = Registry.GetComponent(entityId, Transform)!;
+
+            this.finalPassShader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour);
+            this.finalPassShader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity);
+            this.finalPassShader.SetFloatVector(`U_PointLight[${p}].Position`, transform.GlobalPosition(entityId));
+            this.finalPassShader.SetFloat(`U_PointLight[${p}].Radius`, light.Radius);
+            this.finalPassShader.SetFloat(`U_PointLight[${p}].Shininess`, light.Shininess);
+            p++;
         }
         
         const cameraEntityId = Registry.GetView(this.cameraView)[0];
