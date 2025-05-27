@@ -361,8 +361,7 @@ export class ProjectRenderSystem extends System
         {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
             GL.drawElements(renderMode, renderCount, GL.UNSIGNED_BYTE, 0);
-        }
-
+        } 
         else
         {
             GL.drawArrays(renderMode, 0, renderCount);

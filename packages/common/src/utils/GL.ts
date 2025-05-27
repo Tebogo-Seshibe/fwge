@@ -1,6 +1,6 @@
 import { GLWrapper } from "./GLWrapper"
 
-export let GL: WebGL2RenderingContext | GLWrapper
+export let GL: WebGL2RenderingContext
 
 export let GLCall: Function
 

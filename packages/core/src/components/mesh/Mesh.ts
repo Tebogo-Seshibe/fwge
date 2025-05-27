@@ -68,27 +68,52 @@ export class Mesh extends Asset
         return this._pointBuffer;
     }
 
+    private _pointCount: number = 0;
+    private _edgeCount: number = 0;
+    private _faceCount: number = 0;
+    private _isIndexed: boolean = false
     
-    readonly PointCount: number
-    readonly EdgeCount: number
-    readonly FaceCount: number
-    readonly IsIndexed: boolean = false
+    get PointCount(): Readonly<number>
+    {
+        return this._pointCount
+    }
+    get EdgeCount(): Readonly<number>
+    {
+        return this._edgeCount
+    }
+    get FaceCount(): Readonly<number>
+    {
+        return this._faceCount
+    }
+    get IsIndexed(): Readonly<boolean>
+    {
+        return this._isIndexed
+    }
 
-    readonly MeshData: CompositeDataView<MeshData>;
+    private _meshData?: CompositeDataView<MeshData>;
+    get MeshData(): Readonly<CompositeDataView<MeshData>>
+    {
+        return this._meshData!;
+    }
 
     constructor(size: number, vertexCount: number, indices: number[] | undefined, name: string)
     {
         super(Mesh);
+        this.Initialize(size, vertexCount, indices);
+    }
+
+    private Initialize(size: number, vertexCount: number, indices: number[] | undefined)
+    {
         
-        this.FaceCount = indices?.length ?? vertexCount
-        this.EdgeCount = indices ? (indices.length * 2) : vertexCount
-        this.PointCount = vertexCount
+        this._faceCount = indices?.length ?? vertexCount
+        this._edgeCount = indices ? (indices.length * 2) : vertexCount
+        this._pointCount = vertexCount
 
         const faces: number[] = []
         const edges: number[] = []
         const points: number[] = []
 
-        this.MeshData = new CompositeDataView({
+        this._meshData = new CompositeDataView({
             vertices: {
                 type: Float32Array,
                 length: vertexCount * size
@@ -125,7 +150,7 @@ export class Mesh extends Asset
             this.MeshData.View('edges').set(edges)
             this.MeshData.View('points').set(points)
             
-            this.IsIndexed = true
+            this._isIndexed = true
         }
     }
 
@@ -159,7 +184,10 @@ export class Mesh extends Asset
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null);
     }
 
-    Unload(): void { }
+    Unload(): void
+    {
+
+    }
 
     Destroy(): void
     {

@@ -18,7 +18,7 @@ export type Class<T extends any = {}> =
 export type Constructor<T, U extends ConstructorParameters<Class<T>> = any[]> =
 {
     new(...args: U): T;
-    prototype: Partial<T>;
+    prototype?: Partial<T>;
     readonly TypeId: TypeId;
     readonly name: string;
 };

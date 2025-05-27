@@ -1,5 +1,6 @@
-import { Type } from "@fwge/ecs";
+import { Class, Constructor, Type } from "@fwge/ecs";
 import { Asset } from "./Asset";
+import { Args } from "./Game";
 
 export type AssetRegister =  
     Type<Asset> |
@@ -10,6 +11,12 @@ export type AssetRegister =
 export class AssetManager
 {
     static readonly assets: Map<string, Asset> = new Map();
+
+    public static Example<T extends Asset, U extends any[]>(name: string, type: Constructor<T, U>, ...args: U)
+    {
+        const asset = new type(...args);
+        this.assets.set(name, asset);
+    }
 
     public static Register(...assetTypes: AssetRegister[]): void
     {
