@@ -28,7 +28,14 @@ const helipad = new OBJMTLAsset(
     './public/objects/helipad/helipad.mtl',
 );
 
-AssetManager.Example('helipad', OBJMTLAsset)
+
+//TODO: Fix this
+AssetManager.Example(
+    'helipad', 
+    OBJMTLAsset,
+    './public/objects/helipad/helipad.obj',
+    './public/objects/helipad/helipad.mtl',
+)
 obj1Text.Load();
 obj2Text.Load();
 helipad.Load();

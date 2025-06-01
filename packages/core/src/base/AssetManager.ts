@@ -12,7 +12,7 @@ export class AssetManager
 {
     static readonly assets: Map<string, Asset> = new Map();
 
-    public static Example<T extends Asset, U extends any[]>(name: string, type: Constructor<T, U>, ...args: U)
+    public static Example<T extends Asset, U extends any[]>(name: string, type: Type<T>, ...args: U)
     {
         const asset = new type(...args);
         this.assets.set(name, asset);
