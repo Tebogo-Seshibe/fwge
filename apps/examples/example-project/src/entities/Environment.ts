@@ -1,26 +1,34 @@
 import type { Colour3Array } from "@fwge/common";
-import { AssetManager, BasicLitMaterial, Material, MeshRenderer, Script, Transform } from "@fwge/core";
+import { AssetManager, BasicLitMaterial, MeshRenderer, Script, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { CubeMesh } from "../assets/CubeMesh";
-import { CubeShader } from "../assets/CubeShader";
+import { CubeShaderAsset } from "../assets/CubeShader";
+import { OBJMTLAsset } from "../OBJMTLAsset";
 
 export class Environment extends Entity
 {
     Init(): void
     {
-        // const _ignore = new EditorTag();
-        const cubeShader = new CubeShader();
+        const cubeShader = AssetManager.Get(CubeShaderAsset)!.Shader!;
+
         const cubeMesh = AssetManager.Get(CubeMesh)!;
-        const cubeMeshRender = new MeshRenderer({ asset: cubeMesh });
-        const sphereMeshRender = new MeshRenderer({ asset: cubeMesh });
+        const sphereMesh = AssetManager.Get<OBJMTLAsset>('Sphere')!;
+        const helipad = AssetManager.Get<OBJMTLAsset>('helipad')!;
+        const cubeObjectMesh = AssetManager.Get<OBJMTLAsset>('CubeObject')!;
 
-        // setTimeout(() => {
-        //     sphereMeshRender.Asset = AssetManager.Get('Helipad')!
-        // }, 3000);
+        const helipadMesh = helipad.OBJ['Helipad'].mesh;
+        const helipadMaterial = helipad.MTL[helipad.OBJ['Helipad'].material]
 
-        // setTimeout(() => {
-        //     sphereMeshRender.Asset = AssetManager.Get('SmoothSphere')!
-        // }, 3000);
+        const cubeObjectMeshRender = new MeshRenderer({ asset: cubeMesh });
+        const cubeMeshRender = new MeshRenderer({ asset: cubeObjectMesh.OBJ['Cube'].mesh });
+        const sphereMeshRender = new MeshRenderer({ asset: sphereMesh.OBJ['Sphere'].mesh });
+        const helipadMeshRender = new MeshRenderer({ asset: helipadMesh });
+
+        console.log(helipadMesh)
+        console.log(helipadMaterial)
+        helipadMaterial.Shader = cubeShader;
+        helipadMaterial.ProjectsShadows = false;
+        helipadMaterial.ReceiveShadows = false;
         const floor = new Entity()
             .AddComponents(
                 new Transform(
@@ -48,15 +56,8 @@ export class Environment extends Entity
                     rotation:   [ 0, 0, 0 ],
                     scale:      [ 1, 1, 1 ]
                 }),
-                sphereMeshRender,
-                new BasicLitMaterial(
-                {
-                    shader: cubeShader,
-                    alpha: 1.0,
-                    projectShadows: true,
-                    receiveShadows: true,
-                    colour: [123/255, 40/255, 125/255]
-                }),
+                helipadMeshRender,
+                helipadMaterial,
                 new Script({
                     update: (delta) => {
                         cube3.GetComponent(Transform)!.Rotation.Y += delta * 10;
@@ -178,8 +179,8 @@ export class Environment extends Entity
         cube3.AddChild(cube4)
             .AddChild(cube5);
 
-        cubeShader.Init();
-        cubeMesh.Load();
-        [floor, cube1, cube2, cube3, cube4, cube5, cube6].forEach(entity => entity.GetComponent(Material)!.ImageTextures.filter(Boolean).forEach(tex => tex!.Load()));
+        // cubeShader.Init();
+        // cubeMesh.Load();
+        // [floor, cube1, cube2, cube3, cube4, cube5, cube6].forEach(entity => entity.GetComponent(Material)!.ImageTextures.filter(Boolean).forEach(tex => tex!.Load()));
     }
 }

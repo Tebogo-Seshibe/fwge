@@ -1,24 +1,41 @@
-import { Class, Constructor, Type } from "@fwge/ecs";
+import { Type } from "@fwge/ecs";
 import { Asset } from "./Asset";
-import { Args } from "./Game";
 
-export type AssetRegister =  
+export type AssetRegister<T extends Asset> =  
     Type<Asset> |
     Asset |
-    { title: string, asset: Type<Asset> } |
+    { title: string, asset: Type<T>, args: ConstructorParameters<Type<T>> } |
     { title: string, asset: Asset };
 
 export class AssetManager
 {
     static readonly assets: Map<string, Asset> = new Map();
 
-    public static Example<T extends Asset, U extends any[]>(name: string, type: Type<T>, ...args: U)
+    public static Add<T extends Asset>(type: Type<T>): typeof AssetManager
+    public static Add<T extends Asset>(name: string, type: Type<T>, ...args: ConstructorParameters<Type<T>>): typeof AssetManager
+    public static Add<T extends Asset>(_arg0: string | Type<T>, type?: Type<T>, ...args: ConstructorParameters<Type<T>>): typeof AssetManager
     {
-        const asset = new type(...args);
+        const name = typeof _arg0 === 'string'
+            ? _arg0
+            : _arg0.name;
+        
+        const asset = typeof _arg0 === 'string'
+            ? new type!(...args)
+            : new _arg0();
+
         this.assets.set(name, asset);
+        return this;
     }
 
-    public static Register(...assetTypes: AssetRegister[]): void
+    public static async Init()
+    {
+        for (const [, asset] of this.assets.entries())
+        {
+            await asset.Load();
+        }
+    } 
+
+    public static Register(...assetTypes: AssetRegister<Asset>[]): void
     {
         for (const item of assetTypes)
         {
@@ -28,9 +45,9 @@ export class AssetManager
             if ('title' in item)
             {
                 name = item.title;
-                asset = item.asset instanceof Asset
-                    ? item.asset
-                    : new item.asset();
+                asset = 'args' in item
+                    ? new item.asset(...item.args)
+                    : item.asset;
             }
             else if (item instanceof Asset)
             {

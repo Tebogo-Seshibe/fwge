@@ -15,8 +15,8 @@ export class Project extends Game
     
     constructor() {
         super({
-            height: 1080,
-            width: 1920,
+            height: 1080 * 0.65,
+            width: 1920 * 0.65,
             canvas() {
                 return document.getElementsByTagName('canvas')[0];
             }

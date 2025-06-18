@@ -389,7 +389,8 @@ export class DirectionalLight extends Light
 
                 void main(void)
                 {
-                }`
+                }`,
+                'DirectionalLight Shadow Shader'
             );
         }
 

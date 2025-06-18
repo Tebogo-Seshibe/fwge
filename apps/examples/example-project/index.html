@@ -10,16 +10,14 @@
         margin: 0;
         border: 0;
       }
-      body {
+      body, main {
         height: 100vh;
         width: 100vw;
         display: grid;
         place-content: center;
         margin: 0;
         background: #272727;
-      }
-      canvas {
-        width: 100%;
+        overflow: hidden;
       }
     </style>
   </head>
@@ -27,6 +25,7 @@
     <main>
       <canvas id="canvas"></canvas>
     </main>
+    
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

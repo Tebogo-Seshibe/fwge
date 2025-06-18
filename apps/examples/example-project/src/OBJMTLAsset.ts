@@ -44,21 +44,21 @@ export class OBJMTLAsset extends Asset
         this._mtlContent = '';
     }
 
-    public Load(protocol: (...args: any[]) => Promise<Blob | Response> = fetch): void
+    public async Load(protocol: (...args: any[]) => Promise<Blob | Response> = fetch): Promise<void>
     {
-        let promise;
-        console.time(`Load: ${this.Type.name}`)
-
-        promise = Promise.allSettled([
+        await Promise.allSettled([
             protocol(this._objSource).then(x => x.text()).then(text => this._objContent = text),
             protocol(this._mtlSource).then(x => x.text()).then(text => this._mtlContent = text)
         ]);
 
-        promise.then(() => {
-            this._obj = OBJLoader(this.OBJContent);
-            this._mtl = MTLLoader(this.MTLContent);
-            
-            console.timeEnd(`Load: ${this.Type.name}`)
+        this._obj = OBJLoader(this.OBJContent);
+        Object.keys(this._obj).forEach(async key => {
+            await this._obj[key].mesh.Load();
+        })
+        this._mtl = MTLLoader(this.MTLContent);
+        Object.keys(this._mtl).forEach(async key => {
+            const promises = this._mtl[key].ImageTextures.filter(Boolean).map(image => image!.Load());
+            await Promise.all(promises);
         })
     }
     

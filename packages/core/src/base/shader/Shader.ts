@@ -258,8 +258,9 @@ export class Shader
     
     Init(): void
     {
+        GL.useProgram(null);
         this._maxSamplerIndex = GL.getParameter(GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-        this._compileShaders();   
+        this._compileShaders();
         GL.useProgram(this._program);
         this._addUniformVariables();
         this._indexUniformBlocks();

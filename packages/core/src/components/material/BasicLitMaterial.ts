@@ -1,5 +1,5 @@
 import { Colour3, Vector3, Vector3Array } from "@fwge/common";
-import { Game, Shader } from "../../base";
+import { Game, ImageAsset, Shader } from "../../base";
 import { IMaterial, Material } from "./Material";
 
 export interface IBasicLitMaterial extends IMaterial
@@ -14,8 +14,8 @@ export interface IBasicLitMaterial extends IMaterial
     specular?: [number, number, number] | Colour3 | Vector3
 
     imagemap?: string
-    specularmap?: string
     normalmap?: string
+    specularmap?: string
 
     projectShadows?: boolean
     receiveShadows?: boolean
@@ -112,17 +112,23 @@ export class BasicLitMaterial extends Material
 
     get ImageTexture(): WebGLTexture | null
     {
-        return this.Textures[0]
+        return this.ImageTextures[0]?.Loaded
+            ? this.ImageTextures[0].Texture
+            : ImageAsset.EmptyTexture
     }
 
     get NormalTexture(): WebGLTexture | null
     {
-        return this.Textures[1]
+        return this.ImageTextures[1]?.Loaded
+            ? this.ImageTextures[1].Texture
+            : ImageAsset.EmptyTexture
     }
 
     get SpecularTexture(): WebGLTexture | null
     {
-        return this.Textures[2]
+        return this.ImageTextures[2]?.Loaded
+            ? this.ImageTextures[2].Texture
+            : ImageAsset.EmptyTexture
     }
 
     constructor(args: IBasicLitMaterial)
@@ -151,9 +157,16 @@ export class BasicLitMaterial extends Material
 
         this.Alpha = args.alpha ?? 1.0
         this.Shininess = args.shininess ?? 32
-        // this.ImageMap = args.imagemap ?? null
-        // this.NormalMap = args.normalmap ?? null
-        // this.SpecularMap = args.specularmap ?? null
+        
+        if (args.imagemap) {
+            this.ImageTextures[0] = new ImageAsset([args.imagemap]);
+        }
+        if (args.normalmap) {
+            this.ImageTextures[1] = new ImageAsset([args.normalmap]);
+        }
+        if (args.specularmap) {
+            this.ImageTextures[2] = new ImageAsset([args.specularmap]);
+        }
         this.ReceiveShadows = args.receiveShadows ?? true
         this.ProjectsShadows = args.projectShadows ?? true
     }
@@ -173,7 +186,6 @@ export class BasicLitMaterial extends Material
         if (this.Textures[0])
         {
             shader.SetTexture('U_Sampler.Image', this.Textures[0])
-            // shader.SetTexture('U_Sampler.Image', this.AmbientTexture.Texture)
         }
         else
         {

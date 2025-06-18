@@ -2,11 +2,8 @@ import { DefaultWindow, Scene, ScriptSystem } from "@fwge/core";
 import { InputSystem } from "@fwge/input";
 import { EditorViewer } from "../entities/EditorViewer";
 import { Environment } from "../entities/Environment";
-import { GeneralAreaLight } from "../entities/GeneralAreaLight";
-import { Grid } from "../entities/Grid";
-import { Sun } from "../entities/Sun";
-import { ProjectRenderSystem } from "../systems";
 import { Lighting } from "../entities/Lighting";
+import { ProjectRenderSystem } from "../systems";
 
 export class Scene1 extends Scene
 {
@@ -18,7 +15,6 @@ export class Scene1 extends Scene
         Lighting,
         EditorViewer,
         // Sun,
-        Grid,
         Environment,
     ];
     UseSystems = [
@@ -26,6 +22,7 @@ export class Scene1 extends Scene
         ScriptSystem,
         ProjectRenderSystem,
     ];
+    
     Init(): void {
         super.Init();
         const renderSystem = this.Systems.find(x => x.Name === ProjectRenderSystem.name) as ProjectRenderSystem;

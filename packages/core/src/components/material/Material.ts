@@ -40,7 +40,6 @@ export class Material extends Component
     readonly Textures: Array<WebGLTexture | null> = new Array(8).fill(null)
     readonly ImageTextures: Array<ImageAsset | null> = new Array(8).fill(null)
 
-
     get Alpha()
     {
         return this.alpha.Value

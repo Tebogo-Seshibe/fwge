@@ -7,6 +7,7 @@ export class FinalPassShaderAsset extends ShaderAsset
         super(
             './public/shaders/FinalPassShader.vert',
             './public/shaders/FinalPassShader.frag',
+            'Final Pass Shader'
         )
     }
 }

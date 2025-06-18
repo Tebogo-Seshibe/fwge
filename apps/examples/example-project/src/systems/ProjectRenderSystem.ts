@@ -1,4 +1,4 @@
-import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
+import { GL, Matrix3, Matrix4, Vector4Array } from "@fwge/common";
 import { AreaLight, AssetManager, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, PointLight, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
 import { EntityId, Registry, System } from "@fwge/ecs";
 import { FinalPassShaderAsset } from "../assets/FinalPassShader";
@@ -55,7 +55,7 @@ export class ProjectRenderSystem extends System
     Start(): void 
     {
         this.finalPassShader = AssetManager.Get(FinalPassShaderAsset)!.Shader!;
-        this.finalPassShader.Init();
+        // this.finalPassShader.Init();
     }
 
     Stop(): void
@@ -187,8 +187,6 @@ export class ProjectRenderSystem extends System
             const transform = Registry.GetComponent(entityId, Transform)!;
             const renderer = Registry.GetComponent(entityId, MeshRenderer)!;
 
-            // console.log({ transform, material, renderer });
-            // throw '';
             const mesh = renderer.Asset!;
             
             let renderMode: number;
@@ -241,7 +239,8 @@ export class ProjectRenderSystem extends System
     {
         window.MainPass.Output.Bind();
         // window.MainPass.Output.Framebuffer
-        // GL.bindFramebuffer(GL.FRAMEBUFFER, window.MainPass.Output.Framebuffer);
+        GL.bindFramebuffer(GL.FRAMEBUFFER, window.MainPass.Output.Framebuffer);
+        // GL.bindFramebuffer(GL.FRAMEBUFFER, null);
         // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
         // GL.clearColor(0, 0, 0, 0);
         // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
@@ -269,15 +268,17 @@ export class ProjectRenderSystem extends System
             const renderer = Registry.GetComponent(entityId, MeshRenderer)!;
 
             const mesh = renderer.Asset!;
-            const shader = material.Shader!;
+            const shader = material.Shader;
+
+            if (!shader)
+                continue;
 
             shader.Bind();
 
             shader.SetBufferDataField('Camera', 'View', cameraMV, true);
             shader.SetBufferDataField('Camera', 'Projection', cameraCamera.ProjectionMatrix, true);
             shader.PushBufferData('Camera');
-
-            material.BindBlock(shader)
+            material.BindBlock();
             
             let renderMode: number;
             let renderCount: number;
@@ -314,7 +315,6 @@ export class ProjectRenderSystem extends System
             {
                 this.drawInstanceMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
             }
-
             else
             {
                 this.drawMesh(entityId, mesh, transform, shader, buffer, renderMode, renderCount);
@@ -322,6 +322,7 @@ export class ProjectRenderSystem extends System
 
             shader.UnBind();
         }
+        this.print = false;
     }
 
     private drawInstanceMesh(entityId: EntityId, mesh: InstanceMesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
@@ -367,6 +368,8 @@ export class ProjectRenderSystem extends System
             GL.drawArrays(renderMode, 0, renderCount);
         }
 
+        
         GL.bindVertexArray(null);
     }
+    print = true;
 }

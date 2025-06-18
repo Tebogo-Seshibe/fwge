@@ -15,6 +15,8 @@ pub fn create_project(state: State<'_, Mutex<Project>>, project_name: &str, proj
     if create_folder {
         fs::create_dir(base_path).unwrap();
     }
+
+    /* #Anchor: */
     
     let project = Project {
         info: Info {

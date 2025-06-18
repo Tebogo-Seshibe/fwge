@@ -156,7 +156,7 @@ export class Mesh extends Asset
 
     Reset(): void { }
     
-    Load(): void
+    public async Load(): Promise<void>
     {
         const mesh = this;
         if (mesh._initialized)
@@ -182,6 +182,7 @@ export class Mesh extends Asset
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.MeshData.View('points'), GL.STATIC_DRAW)
         
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null);
+        this.loaded = true;
     }
 
     Unload(): void

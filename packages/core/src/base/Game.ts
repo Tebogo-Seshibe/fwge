@@ -126,6 +126,8 @@ export abstract class Game
     public ResetContext(debug: boolean = false): void
     {
         this.#gl = createContext(this.#canvas, debug);
+        this.#gl.canvas.width = this.#dimensions.X;
+        this.#gl.canvas.height = this.#dimensions.Y;
     }
 
     async Init(): Promise<void>

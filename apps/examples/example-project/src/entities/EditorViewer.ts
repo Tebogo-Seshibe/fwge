@@ -14,7 +14,7 @@ export class EditorViewer extends Entity
     private readonly rotationMatrix: Matrix3 = Matrix3.Zero;
 
     private readonly zoomSpeed: number = 50;
-    private readonly rotationSpeed: number = 50;
+    private readonly rotationSpeed: number = 25;
     private readonly panSpeed: number = 10;
 
     private transform!: Transform;

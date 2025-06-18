@@ -21,7 +21,7 @@ export class TextAsset extends Asset
         this._content = '';
     }
 
-    public Load(protocol?: (...args: any[]) => Promise<Blob>): void
+    public async Load(protocol?: (...args: any[]) => Promise<Blob>): Promise<void>
     {
         let promise;
 

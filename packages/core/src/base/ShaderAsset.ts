@@ -14,7 +14,7 @@ export class ShaderAsset extends Asset
         return this._shader;
     }
 
-    constructor(vertexShaderSrc: string, fragmentShaderSrc: string)
+    constructor(vertexShaderSrc: string, fragmentShaderSrc: string, private readonly name: string = 'Shader')
     {
         super(ShaderAsset);
         
@@ -24,12 +24,11 @@ export class ShaderAsset extends Asset
 
     Reset(): void { }
     
-    Load(protocol?: (...args: any[]) => Promise<Blob>): void
+    async Load(protocol?: (...args: any[]) => Promise<Blob>)
     {
         let [vs, fs] = ['', ''];
         let promise;
 
-        console.time(`Load: ${this.Type.name}`)
         if (protocol)
         {
             promise = Promise.all([
@@ -45,10 +44,10 @@ export class ShaderAsset extends Asset
             ]);
         }
         
-        promise.then(() => {
-            this._shader = new Shader(vs, fs);
-            console.timeEnd(`Load: ${this.Type.name}`)
-        });
+        await promise;
+        this._shader = new Shader(vs, fs, this.name);
+        this._shader.Init();
+        this.loaded = true;
     }
 
     Unload(): void

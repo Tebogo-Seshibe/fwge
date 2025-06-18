@@ -23,7 +23,7 @@ export class Lighting extends Entity
                 new AreaLight(
                 {
                     colour: [1, 1, 1],
-                    intensity: 0.15
+                    intensity: 0.35
                 })
             );
         children.push(environment)
@@ -39,7 +39,7 @@ export class Lighting extends Entity
             .AddComponents(
                 new Transform(
                 {
-                    rotation: [0,0,0]
+                    rotation: [10,0,0]
                 }),
                 new DirectionalLight(
                 {
