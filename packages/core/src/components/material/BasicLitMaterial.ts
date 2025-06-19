@@ -110,21 +110,21 @@ export class BasicLitMaterial extends Material
     //     }
     // }
 
-    get ImageTexture(): WebGLTexture | null
+    get ImageTexture(): WebGLTexture
     {
         return this.ImageTextures[0]?.Loaded
             ? this.ImageTextures[0].Texture
             : ImageAsset.EmptyTexture
     }
 
-    get NormalTexture(): WebGLTexture | null
+    get NormalTexture(): WebGLTexture
     {
         return this.ImageTextures[1]?.Loaded
             ? this.ImageTextures[1].Texture
             : ImageAsset.EmptyTexture
     }
 
-    get SpecularTexture(): WebGLTexture | null
+    get SpecularTexture(): WebGLTexture
     {
         return this.ImageTextures[2]?.Loaded
             ? this.ImageTextures[2].Texture
@@ -231,31 +231,8 @@ export class BasicLitMaterial extends Material
             shader.PushBufferData(block);
         }
         
-        if (this.Textures[0])
-        {
-            shader.SetTexture('U_Sampler.Image', this.Textures[0]);
-        }
-        else
-        {
-            shader.SetTexture('U_Sampler.Image', Material.Empty);
-        }
-
-        if (this.Textures[1])
-        {
-            shader.SetTexture('U_Sampler.Bump', this.Textures[1]);
-        }
-        else
-        {
-            shader.SetTexture('U_Sampler.Bump', Material.Empty);
-        }
-
-        if (this.Textures[2])
-        {
-            shader.SetTexture('U_Sampler.Shadow', this.Textures[2]);
-        }
-        else
-        {
-            shader.SetTexture('U_Sampler.Shadow', Material.Empty);
-        }
+        shader.SetTexture('U_Sampler.Image', this.ImageTexture);
+        shader.SetTexture('U_Sampler.Bump', this.NormalTexture);
+        shader.SetTexture('U_Sampler.Shadow', this.SpecularTexture);
     }
 }

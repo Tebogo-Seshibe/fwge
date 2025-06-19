@@ -6,6 +6,7 @@ import { OBJMTLAsset } from './OBJMTLAsset';
 import { Project } from './Project';
 import { TextAsset } from './TextAsset';
 import { CubeShaderAsset } from './assets/CubeShader';
+import { Registry } from '@fwge/ecs';
 
 const game = new Project();
 await AssetManager
@@ -19,7 +20,7 @@ await AssetManager
     .Add('helipad', OBJMTLAsset, './public/objects/helipad/helipad.obj', './public/objects/helipad/helipad.mtl')
     .Add('Sphere', OBJMTLAsset, './public/objects/Sphere/Sphere.obj', './public/objects/Sphere/Sphere.mtl')
     .Add('SmoothSphere', OBJMTLAsset, './public/objects/SmoothSphere/SmoothSphere.obj', './public/objects/SmoothSphere/SmoothSphere.mtl')
-    .Add('CubeObject', OBJMTLAsset, './public/objects/Cube/Cube.obj', './public/objects/Cube/Cube.mtl')
+    .Add('Cube', OBJMTLAsset, './public/objects/Cube/Cube.obj', './public/objects/Cube/Cube.mtl')
     .Init();
 await game.Init();
 
@@ -27,3 +28,5 @@ game.SetScene(0);
 game.Start();
 
 (window as any).game = game;
+(window as any).AssetManager = AssetManager;
+(window as any).Registry = Registry;

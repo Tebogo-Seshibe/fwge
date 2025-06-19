@@ -160,7 +160,7 @@ vec3 CalcPointLight(PointLight light)
 
     vec3 result = colour;
 
-    return result * light.Intensity;
+    return diffuse * light.Intensity;
 }
 // Directional Lighting --------------------------------
 
@@ -192,15 +192,13 @@ void main(void)
         
     for (int i = 0; i < U_PointLight.length(); ++i)
     {
-        PointLight light = U_PointLight[i];
-        if (light.Intensity <= 0.0)
-        {
-            continue;
-        }
-        point += CalcPointLight(light);
+        point += CalcPointLight(U_PointLight[i]);
     }
 
     light = area + dir + point;
     
     O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
+    // O_FragColour = vec4(light, fragment.Alpha);
+    // O_FragColour = vec4(light, 1.0);
+    // O_FragColour = vec4(fragment.Normal, 1.0);
 }

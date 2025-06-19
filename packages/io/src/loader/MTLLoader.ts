@@ -96,7 +96,6 @@ export const MTLLoader: ILoader<MTL> =  (src: string, defaultShader: Shader) =>
         const src = (material.imagemap ?? '')
         material.shader = defaultShader
         material.renderType = src.includes('.png') || src.includes('.tga') ? RenderType.TRANSPARENT : RenderType.OPAQUE
-        console.log(material)
         materials[key!] = new BasicLitMaterial(material)
     }
 

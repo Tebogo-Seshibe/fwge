@@ -35,8 +35,9 @@ export class ImageAsset extends Asset
         this.Data = new Image();
         if (!ImageAsset.EmptyTexture)
         {
+            ImageAsset.EmptyTexture = GL.createTexture();
             GL.bindTexture(GL.TEXTURE_2D, ImageAsset.EmptyTexture);
-            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, 1, 1, 0, GL.RGBA, GL.UNSIGNED_BYTE, new Uint8ClampedArray([255, 0, 255]));
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGB, 1, 1, 0, GL.RGB, GL.UNSIGNED_BYTE, new Uint8ClampedArray([255, 255, 255,]));
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);

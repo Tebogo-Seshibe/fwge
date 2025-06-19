@@ -48,14 +48,12 @@ export class ProjectRenderSystem extends System
             (_, light) => light instanceof PointLight
         );
 
-
-        // this.window = Registry.CurrentScene!.Windows[0];
+        this.finalPassShader = AssetManager.Get(FinalPassShaderAsset)!.Shader!;
     }
 
     Start(): void 
     {
-        this.finalPassShader = AssetManager.Get(FinalPassShaderAsset)!.Shader!;
-        // this.finalPassShader.Init();
+        
     }
 
     Stop(): void
@@ -132,10 +130,12 @@ export class ProjectRenderSystem extends System
         {
             const light = Registry.GetComponent(entityId, PointLight)!;
             const transform = Registry.GetComponent(entityId, Transform)!;
-
+            
+            const pos = transform.GlobalPosition(entityId);
+            // console.log(pos)
             this.finalPassShader.SetFloatVector(`U_PointLight[${p}].Colour`, light.Colour);
             this.finalPassShader.SetFloat(`U_PointLight[${p}].Intensity`, light.Intensity);
-            this.finalPassShader.SetFloatVector(`U_PointLight[${p}].Position`, transform.GlobalPosition(entityId));
+            this.finalPassShader.SetFloatVector(`U_PointLight[${p}].Position`, pos);
             this.finalPassShader.SetFloat(`U_PointLight[${p}].Radius`, light.Radius);
             this.finalPassShader.SetFloat(`U_PointLight[${p}].Shininess`, light.Shininess);
             p++;
@@ -238,12 +238,6 @@ export class ProjectRenderSystem extends System
     private renderScene(window: RenderWindow)
     {
         window.MainPass.Output.Bind();
-        // window.MainPass.Output.Framebuffer
-        GL.bindFramebuffer(GL.FRAMEBUFFER, window.MainPass.Output.Framebuffer);
-        // GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-        // GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
-        // GL.clearColor(0, 0, 0, 0);
-        // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
         
         const cameraEntityId = Registry.GetView(this.cameraView)[0];
         const cameraTransform = Registry.GetComponent(cameraEntityId, Transform)!;
@@ -322,14 +316,12 @@ export class ProjectRenderSystem extends System
 
             shader.UnBind();
         }
-        this.print = false;
     }
 
     private drawInstanceMesh(entityId: EntityId, mesh: InstanceMesh, transform: Transform, shader: Shader | null, buffer: WebGLBuffer | null, renderMode: number, renderCount: number)
     {
         GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
-
 
         shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
         shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
@@ -353,7 +345,6 @@ export class ProjectRenderSystem extends System
         GL.bindVertexArray(mesh.VertexArrayBuffer);
         const modelViewMatrix = transform.GlobalModelViewMatrix(entityId);
 
-
         shader?.SetBufferDataField('Transform', 'Model', modelViewMatrix, true);
         shader?.SetBufferDataField('Transform', 'Normal', Matrix3.Inverse(modelViewMatrix.Matrix3));
         shader?.PushBufferData('Transform');
@@ -371,5 +362,4 @@ export class ProjectRenderSystem extends System
         
         GL.bindVertexArray(null);
     }
-    print = true;
 }
