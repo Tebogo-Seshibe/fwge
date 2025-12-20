@@ -1,93 +1,108 @@
-import { Colour4, Vector2, Vector3 } from "@fwge/common"
-import { Game, StaticMesh } from "@fwge/core"
-import { ILoader, OBJKey, OBJObject } from "./ILoader"
+import { Colour4, Colour4Array, Vector2Array, Vector3Array } from "@fwge/common"
+import { IMesh, Mesh, StaticMesh } from "@fwge/core"
+import { ILoader, OBJFace, OBJKey, OBJObject } from "./ILoader"
 
-export type OBJ = { [name: string]:  {  mesh: StaticMesh, material: string } }
+export type OBJ = { [name: string]:  {  mesh: Mesh, material: string } }
 export const OBJLoader: ILoader<OBJ> = (src: string) =>
 {
     const objects: OBJ = {}
-    const objectMap: Map<string | undefined, OBJObject> = new Map()
-    const v: Vector3[] = []
-    const vn: Vector3[] = []
-    const vt: Vector2[] = []
-    const vp: Vector3[] = []
 
-    const objLines = src.trim().split('\n').map(x => x.trim())
+    const v: Vector3Array[] = []
+    const vn: Vector3Array[] = []
+    const vt: Vector2Array[] = []
+    const vp: Vector3Array[] = []
+
     let o = ''
-    let i = 0
+    let usemtl = ''
+    // let i = 0
     let objObject: OBJObject
+    let objectMap: Map<string, OBJObject> = new Map()
+    let parsingVertexData = true;
+    let addingFaces = false;
+    let currentObject: string | undefined = undefined;
+    
+    const objLines = src.trim().split('\n').map(x => x.trim())
     for (let line of objLines)
     {
         const key = line.split(' ')[0].trim() as OBJKey
         const value = line.substring(key.length).trim()
         const values = value.split(' ').map(x => x.trim()).filter(x => x.length > 0)
-
+        
         switch (key)
         {
-            case 'usemtl':
-                objObject = objectMap.get(o) ?? {}
-                objObject.material = value
-                objectMap.set(o, { ...objObject })
-                break
-
+            //#region Shared vertex data
             case 'o':
-                o = value
-                
-                objObject = objectMap.get(o) ?? {}
-                objObject.name = value
-                objectMap.set(o, { ...objObject })
-                break
-
-            case 'g':
-                if (objectMap.has(value))
-                {
-                    o = value + '_' + i++
-                }
-                else
-                {
-                    o = value
-                }
-                break
+                o = value;
+                break;
 
             case 'v':
                 v.push(
-                    new Vector3(
-                        parseFloat(values[0]),
-                        parseFloat(values[1]),
-                        parseFloat(values[2])
-                    )
-                )
-                break
+                [
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2])
+                ])
+                break;
 
             case 'vn':
                 vn.push(
-                    new Vector3(
-                        parseFloat(values[0]),
-                        parseFloat(values[1]),
-                        parseFloat(values[2])
-                    )
-                )
-                break
-
+                [
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2])
+                ])
+                break;
+                
             case 'vp':
-                break
+                vp.push(
+                [
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2])
+                ])
+                break;
 
             case 'vt':
                 vt.push(
-                    new Vector2(
-                        parseFloat(values[0]),
-                        parseFloat(values[1])
-                    )
-                )
+                [
+                    parseFloat(values[0]),
+                    parseFloat(values[1])
+                ])
+                break;
+            //#endregion
+
+            case 'usemtl':
+                usemtl = value;
+                currentObject = value;
                 break
 
+
+            // case 'g':
+            //     if (objectMap.has(value))
+            //     {
+            //         o = value + '_' + i++
+            //     }
+            //     else
+            //     {
+            //         o = value
+            //     }
+            //     break
+
             case 'f':
-                objObject = objectMap.get(o) ?? {}
+                let name = usemtl ?? o;
+
+                if (!currentObject) {
+                    currentObject = o;
+                }
+
+                objObject = objectMap.get(name) ?? {}
+                
                 if (!objObject.faces)
                 {
                     objObject.faces = []
+                    
                 }
-                const face = []
+                const face: OBJFace[] = []
                 for (const indices of values)
                 {
                     const index = indices.split('/').map(x => x.trim())
@@ -99,14 +114,13 @@ export const OBJLoader: ILoader<OBJ> = (src: string) =>
                     })
                 }
                 objObject.faces.push(face)
+                objectMap.set(name, objObject)
                 break
         }
     }
 
-    const keys = Array.from(objectMap.keys())
-    for (const key of keys)
+    for (const [key, object] of objectMap.entries())
     {
-        const object = objectMap.get(key)
         const f = object?.faces
         
         if (!f)
@@ -114,21 +128,20 @@ export const OBJLoader: ILoader<OBJ> = (src: string) =>
             continue
         }
 
-        const position: Vector3[] = []
-        const colour: Colour4[] = []
-        const normal: Vector3[] | undefined = []
-        const uv: Vector2[] | undefined = []
+        const position: Vector3Array[] = []
+        const colour: Colour4Array[] = []
+        const normal: Vector3Array[] | undefined = []
+        const uv: Vector2Array[] | undefined = []
         
         for (const face of f)
         {
-            let offset = 0;
             const view = new Float32Array(face.length * Colour4.SIZE);
             view.fill(1);
 
             for (const indices of face)
             {
                 position.push(v[indices.v])
-                colour.push(new Colour4(view.buffer, offset * Float32Array.BYTES_PER_ELEMENT));
+                colour.push([1,1,1,1]);
                 
                 if (indices.vn !== undefined && !Number.isNaN(indices.vn))
                 {
@@ -146,7 +159,7 @@ export const OBJLoader: ILoader<OBJ> = (src: string) =>
         {
             objects[key!] =
             {
-                material: object.material!,
+                material: key,
                 mesh: new StaticMesh(
                 {
                     position: position,

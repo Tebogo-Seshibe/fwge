@@ -1,26 +1,41 @@
-    <script lang="ts">
+<script lang="ts">
+	import { Game } from '@fwge/core';
 	import type { UnlistenFn } from '@tauri-apps/api/event';
 	import { onDestroy, onMount } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
 	import '../../app.css';
-	import Actions from "../../components/panels/Actions.svelte";
-	import Browser from "../../components/panels/Browser.svelte";
-	import Console from "../../components/panels/Console.svelte";
-	import Hierarchy from "../../components/panels/Hierarchy.svelte";
-	import Inspector from "../../components/panels/Inspector.svelte";
-	import Render from "../../components/panels/Render.svelte";
-	import { registerEditorListeners } from '../../utils/editor/events';
+	import { currentGameStore } from '../../stores/project.store';
 	import { registerMenuListeners } from '../../utils/menu/events';
 
+    let canvas: HTMLCanvasElement;
     let unlistens: UnlistenFn[] = [];
+    let game: Game;
+    let gameUnsubcriber: Unsubscriber;
 
+    currentGameStore.subscribe
     onMount(async () => {
         unlistens = [
             ...await registerMenuListeners(),
-            ...await registerEditorListeners()
+            // ...await registerEditorListeners()
         ];
+
+        gameUnsubcriber = currentGameStore.subscribe((currentGame) => {
+            if (!currentGame) {
+                return;
+            }
+
+            game = currentGame;
+            game.SetCanvas(canvas);
+            console.log({ game })
+        })
+        
     });
 
     onDestroy(() => {
+        if (gameUnsubcriber) {
+            gameUnsubcriber();
+        }
+
         for (const unlisten of unlistens) {
             unlisten();
         }
@@ -28,12 +43,13 @@
 </script>
 
 <div id="editor">
-    <Actions id="Actions"/>
+    <canvas bind:this={canvas}></canvas>
+    <!-- <Actions id="Actions"/>
     <Browser id="Browser"/>
     <Console id="Console"/>
     <Hierarchy id="Hierarchy"/>
     <Inspector id="Inspector"/>
-    <Render id="Render"/>
+    <Render id="Render"/> -->
 </div>
 
 <style>

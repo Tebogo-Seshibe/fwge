@@ -77,6 +77,7 @@ export class RenderWindow
     constructor(game: Game, window: IRenderWindow);
     constructor(game: Game, window: IRenderWindow = {})
     {
+        const buffer = new Float32Array(6);
         this.Camera = window.camera ?? new PerspectiveCamera();
         this.Resolution = new Vector2(window.resolution as Vector2Array ?? [1920, 1080]);
         this.Offset = new Vector2(window.offset as Vector2Array ?? [0, 0]);

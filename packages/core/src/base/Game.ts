@@ -34,10 +34,10 @@ export interface GameConfig
     width: number;
 }
 
-export abstract class Game
+export class Game
 {
-    abstract UseAssets: Type<Asset>[];
-    abstract UseScenes: Type<Scene>[];
+    UseAssets: Type<Asset>[] = [];
+    UseScenes: Type<Scene>[] = [];
 
     //#region Private Fields
     #dimensions: Vector2 = new Vector2();
@@ -123,6 +123,12 @@ export abstract class Game
         Scene.SceneId = 0;
     }
     
+    public SetCanvas(canvas: HTMLCanvasElement)
+    {
+        this.#canvas = canvas;
+        this.ResetContext();
+    }
+
     public ResetContext(debug: boolean = false): void
     {
         this.#gl = createContext(this.#canvas, debug);

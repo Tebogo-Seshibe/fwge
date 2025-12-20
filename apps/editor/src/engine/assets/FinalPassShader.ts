@@ -1,4 +1,35 @@
-#version 300 es
+import { Shader, ShaderAsset } from "@fwge/core";
+
+export class FinalPassShaderAsset extends ShaderAsset
+{
+    constructor()
+    {
+        super(
+            './public/shaders/FinalPassShader.vert',
+            './public/shaders/FinalPassShader.frag',
+            'Final Pass Shader'
+        )
+    }
+}
+
+export class FinalPassShader extends Shader
+{
+    constructor()
+    {
+        super(
+`#version 300 es
+#pragma vscode_glsllint_stage: vert
+
+layout(location = 0) in vec2 A_Position;
+out vec2 V_UV;
+
+void main(void)
+{
+    V_UV = A_Position * 0.5 + 0.5;
+    gl_Position = vec4(A_Position, 0.0, 1.0);
+}
+`,
+`#version 300 es
 #pragma vscode_glsllint_stage: frag
 
 precision highp float;
@@ -128,43 +159,6 @@ vec3 CalcDirectionalLight(DirectionalLight light)
 // Directional Lighting --------------------------------
 
 
-//# Point Lighting --------------------------------
-struct PointLight
-{
-    vec3 Colour;
-    float Intensity;
-
-    vec3 Position;
-    float Radius;
-    
-    float Shininess;
-};
-uniform PointLight[100] U_PointLight;
-
-vec3 CalcPointLight(PointLight light)
-{
-    vec3 difference = light.Position - fragment.Position;
-    vec3 direction = normalize(difference);
-    vec3 eye = normalize(-fragment.Normal);
-    vec3 reflection = reflect(direction, fragment.Normal);
-    float len = length(difference);
-
-    float diffuseWeight = max(0.0, dot(fragment.Normal, direction));
-    float specularWeight = pow(max(0.0, dot(reflection, eye)), light.Shininess);
-
-    float attenuation = light.Radius / (len * len);
-
-    vec3 diffuse = light.Colour * diffuseWeight * attenuation;
-    vec3 specular = light.Colour * specularWeight * attenuation;
-    vec3 colour = diffuse + specular;
-
-    vec3 result = colour;
-
-    return diffuse * light.Intensity;
-}
-// Directional Lighting --------------------------------
-
-
 void main(void)
 {
     fragment = Fragment(
@@ -178,7 +172,6 @@ void main(void)
     vec3 light = vec3(0.0);
     vec3 area = vec3(0.0);
     vec3 dir = vec3(0.0);
-    vec3 point = vec3(0.0);
 
     for (int i = 0; i < U_AreaLight.length(); ++i)
     {
@@ -189,18 +182,14 @@ void main(void)
     {
         dir += CalcDirectionalLight(U_DirectionalLight[i]);
     }
-        
-    for (int i = 0; i < U_PointLight.length(); ++i)
-    {
-        point += CalcPointLight(U_PointLight[i]);
-    }
 
-    light = area + dir + point;
+    light = area + dir;
     
-    // O_FragColour = vec4(fragment.Diffuse * 20.0, fragment.Alpha);
-    // O_FragColour = vec4(fragment.Diffuse * 10.0, fragment.Alpha);
+    // O_FragColour = vec4(fragment.Diffuse, fragment.Alpha);
     // O_FragColour = vec4(light, fragment.Alpha);
+    // O_FragColour = vec4(vec3(texture(U_Dir_Tex, V_UV).r), fragment.Alpha);
     O_FragColour = vec4(fragment.Diffuse * light, fragment.Alpha);
-    // O_FragColour = vec4(light, 1.0);
-    // O_FragColour = vec4(fragment.Normal, 1.0);
+}`
+        )
+    }
 }
