@@ -19,14 +19,19 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
 
     constructor();
     constructor(value: number);
+    constructor(scalar: Scalar);
     constructor(array: ScalarArray);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | SharedArrayBuffer | ScalarArray | number = 0, _1: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | ScalarArray | Scalar | number = 0, _1: number = 0)
     {
         if (typeof _0 === 'number')
         {
             super([_0]);
+        }
+        else if (_0 instanceof Scalar)
+        {
+            super(_0[0]);
         }
         else if (_0 instanceof Array)
         {
@@ -34,7 +39,7 @@ export class Scalar extends Float32Array implements IsEquatable<Scalar>
         }
         else
         {
-            super(_0, _1, Scalar.SIZE);
+            super(_0 as ArrayBuffer, _1, Scalar.SIZE);
         }
     }
 

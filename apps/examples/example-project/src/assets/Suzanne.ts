@@ -1,6 +1,6 @@
 import { Entity } from "@fwge/ecs";
 import { OBJMTLAsset } from "../OBJMTLAsset";
-import { AssetManager, Material, Mesh, MeshRenderer, Shader, ShaderAsset, Transform } from "@fwge/core";
+import { AssetManager, Material, Mesh, MeshRenderer, ShaderAsset, Transform } from "@fwge/core";
 
 export class Suzanne extends OBJMTLAsset {    
     get HelicopterMesh(): Mesh {

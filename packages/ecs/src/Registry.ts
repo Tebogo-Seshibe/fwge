@@ -61,9 +61,9 @@ export class Registry
 
     //#region Entity
     public static CreateEntity<T extends Entity = Entity>(entity: T): EntityId
+
     {
         const entityId = this.entityComponentList.Add([]);
-
         this.entityGraph[entityId] = {
             entity: entity,
             children: [],
@@ -126,7 +126,7 @@ export class Registry
     
     public static GetParent(childId: EntityId): Entity | undefined
     {
-        return this.entityGraph[this.entityGraph[childId]!.parent]!.entity;
+        return this.entityGraph[this.entityGraph[childId]!.parent]?.entity;
     }
     
     public static GetParentId(childId: EntityId): EntityId

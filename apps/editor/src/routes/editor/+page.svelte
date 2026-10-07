@@ -15,19 +15,26 @@
     currentGameStore.subscribe
     onMount(async () => {
         unlistens = [
-            ...await registerMenuListeners(),
+            // ...await registerMenuListeners(),
             // ...await registerEditorListeners()
         ];
 
-        gameUnsubcriber = currentGameStore.subscribe((currentGame) => {
-            if (!currentGame) {
-                return;
-            }
+        gameUnsubcriber = currentGameStore.subscribe(
+            (currentGame) => {
+                if (!currentGame) {
+                    return;
+                }
 
-            game = currentGame;
-            game.SetCanvas(canvas);
-            console.log({ game })
-        })
+                game = currentGame;
+                game.SetCanvas(canvas);
+                console.log({ game })
+            },
+            (currentGame) => {                
+                if (!currentGame) {
+                    return;
+                }
+            }
+        )
         
     });
 

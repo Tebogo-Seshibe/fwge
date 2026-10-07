@@ -52,9 +52,9 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
     constructor(vector: Vector3);
     constructor(vector: Vector4);
     constructor(array: Vector2Array);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | SharedArrayBuffer | Vector2 | Vector3 | Vector4 | Vector2Array | number = 0, _1: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Vector2 | Vector3 | Vector4 | Vector2Array | number = 0, _1: number = 0)
     {
         if (typeof _0 === 'number')
         {
@@ -66,7 +66,7 @@ export class Vector2 extends Float32Array implements IsEquatable<Vector2>
         }
         else
         {
-            super(_0, _1, Vector2.SIZE);
+            super(_0 as ArrayBuffer, _1, Vector2.SIZE);
         }
     }
 

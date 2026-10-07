@@ -18,12 +18,12 @@ export abstract class Geometry<T extends Vector2 | Vector3, U extends T extends 
 
             if (old instanceof Vector2)
             {
-                vertex = new Vector2(this.BufferData.buffer, offset)
+                vertex = new Vector2(this.BufferData.buffer as ArrayBuffer, offset)
                 vertex.Set(old as Vector2Array)
             }
             else
             {
-                vertex = new Vector3(this.BufferData.buffer, offset)
+                vertex = new Vector3(this.BufferData.buffer as ArrayBuffer, offset)
                 vertex.Set(old as Vector3Array)
             }
 

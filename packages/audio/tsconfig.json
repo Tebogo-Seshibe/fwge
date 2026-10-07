@@ -1,8 +1,8 @@
 {
-    "extends": "../../tsconfig.base.json",
+    "extends": "../../tsconfig.lib.json",
     "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "lib",
+        "rootDir": "./src",
+        "outDir": "./lib",
         "declarationDir": "./lib",
         "tsBuildInfoFile": "./lib/.tsbuildinfo"
     },
@@ -13,5 +13,5 @@
         "./lib",
         "./**/*.test.ts",
         "./vite.config.ts"
-    ],
+    ]
 }

@@ -8,6 +8,10 @@ export interface IAreaLight extends LightArgs
     skyBox?: ICubemap    
 }
 
+/**
+ * Uniform Block Structure
+ * [R] [G] [B] [intensity]
+ */
 export class AreaLight extends Light
 {
     public Skybox: SkyboxTexture | null = null
@@ -98,17 +102,11 @@ export class AreaLight extends Light
         {
             this.Skybox = new SkyboxTexture(light.skyBox)
         }
-
-        {   
-            `
-                [R] [G] [B] [intensity]
-            `
-        }
     }
 
     override Bind(shader: Shader, index: number = 0): void
     {
-        shader.SetBufferData('AreaLight', this.BufferData, index * this.BufferData.length)
+        shader.SetBufferData('AreaLight', this._bufferData, index * this._bufferData.length)
 
         if (this.Skybox)
         {

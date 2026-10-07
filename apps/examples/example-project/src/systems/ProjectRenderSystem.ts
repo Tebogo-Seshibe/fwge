@@ -189,9 +189,9 @@ export class ProjectRenderSystem extends System
 
             const mesh = renderer.Asset!;
             
-            let renderMode: number;
-            let renderCount: number;
-            let buffer: WebGLBuffer | null;
+            let renderMode: number = -1;
+            let renderCount: number = -1;
+            let buffer: WebGLBuffer | null = null;
 
             switch (renderer.RenderMode)
             {
@@ -274,9 +274,9 @@ export class ProjectRenderSystem extends System
             shader.PushBufferData('Camera');
             material.BindBlock();
             
-            let renderMode: number;
-            let renderCount: number;
-            let buffer: WebGLBuffer | null;
+            let renderMode: number = -1;
+            let renderCount: number = -1;
+            let buffer: WebGLBuffer | null = null;
 
             switch (renderer.RenderMode)
             {

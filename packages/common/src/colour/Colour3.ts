@@ -48,9 +48,9 @@ export class Colour3 extends Float32Array implements IsEquatable<Colour3>
     constructor(colour: Colour3);
     constructor(colour: Colour4);
     constructor(colour: Colour3Array);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Colour4 | Colour3 | number[] | number = 0, _1: number = 0, _2: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Colour4 | Colour3 | number[] | number = 0, _1: number = 0, _2: number = 0)
     {
         if (typeof _0 === 'number')
         {
@@ -62,7 +62,7 @@ export class Colour3 extends Float32Array implements IsEquatable<Colour3>
         }
         else
         {
-            super(_0, _1, Colour3.SIZE);
+            super(_0 as ArrayBuffer, _1, Colour3.SIZE);
         }
     }
 

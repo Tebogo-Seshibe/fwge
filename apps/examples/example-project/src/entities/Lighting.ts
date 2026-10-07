@@ -34,7 +34,7 @@ export class Lighting extends Entity
                 new AreaLight(
                 {
                     colour: [1, 1, 1],
-                    intensity: 1
+                    intensity: 5
                 })
             );
         children.push(environment)
@@ -50,13 +50,14 @@ export class Lighting extends Entity
             .AddComponents(
                 new Transform(
                 {
-                    rotation: [10,0,0]
+                    rotation: [40,0,0]
                 }),
                 new DirectionalLight(
                 {
+                    direction: [0,-1,0],
                     castShadows: true,
                     colour: [1,1,1],
-                    intensity: 0.5,
+                    intensity: 50,
                 })
             )
         children.push(sun)

@@ -1,6 +1,6 @@
-import { GL, Matrix3, Matrix4, Vector4Array } from "@fwge/common";
+import { GL, Matrix3, Matrix4, type Vector4Array } from "@fwge/common";
 import { AreaLight, AssetManager, BasicLitMaterial, Camera, DirectionalLight, InstanceMesh, Light, Material, MeshRenderer, PointLight, RenderMode, RenderWindow, Renderer, Shader, Tag, Transform, type Mesh } from "@fwge/core";
-import { EntityId, Registry, System } from "@fwge/ecs";
+import { type EntityId, Registry, System } from "@fwge/ecs";
 import { FinalPassShaderAsset } from "../assets/FinalPassShader";
 import { EditorTag } from "../components/EditorTag";
 

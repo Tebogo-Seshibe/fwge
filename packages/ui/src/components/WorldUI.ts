@@ -22,9 +22,9 @@ export class WorldUI extends UI
         super();
         
         const buffer = new Float32Array(9);
-        this.Position = new Vector3(buffer, 0 * Vector3.BYTES_PER_ELEMENT);
-        this.Rotation = new Vector3(buffer, 1 * Vector3.BYTES_PER_ELEMENT);
-        this.Scale = new Vector3(buffer, 2 * Vector3.BYTES_PER_ELEMENT);
+        this.Position = new Vector3(buffer.buffer, 0 * Vector3.BYTES_PER_ELEMENT);
+        this.Rotation = new Vector3(buffer.buffer, 1 * Vector3.BYTES_PER_ELEMENT);
+        this.Scale = new Vector3(buffer.buffer, 2 * Vector3.BYTES_PER_ELEMENT);
         
         if (args.position)
         {

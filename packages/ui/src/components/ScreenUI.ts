@@ -21,9 +21,9 @@ export class ScreenUI extends UI
         super();
         
         const buffer = new Float32Array(6);
-        this.Position = new Vector2(buffer, 0 * Vector2.BYTES_PER_ELEMENT);
-        this.Rotation = new Vector2(buffer, 1 * Vector2.BYTES_PER_ELEMENT);
-        this.Scale = new Vector2(buffer, 2 * Vector2.BYTES_PER_ELEMENT);
+        this.Position = new Vector2(buffer.buffer, 0 * Vector2.BYTES_PER_ELEMENT);
+        this.Rotation = new Vector2(buffer.buffer, 1 * Vector2.BYTES_PER_ELEMENT);
+        this.Scale = new Vector2(buffer.buffer, 2 * Vector2.BYTES_PER_ELEMENT);
         
         if (args.position)
         {

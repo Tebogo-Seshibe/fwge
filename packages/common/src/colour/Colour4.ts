@@ -57,9 +57,9 @@ export class Colour4 extends Float32Array
     constructor(colour: Colour3, alpha: number);
     constructor(colour: Colour4);
     constructor(colour: [number, number, number, number]);
-    constructor(buffer: ArrayBuffer);
-    constructor(buffer: ArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | Colour4 | Colour3 | number[] | number = 0, _1: number = 0, _2: number = 0, _3: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Colour4 | Colour3 | number[] | number = 0, _1: number = 0, _2: number = 0, _3: number = 0)
     {
         if (typeof _0 === 'number')
         {
@@ -75,7 +75,7 @@ export class Colour4 extends Float32Array
         }
         else
         {
-            super(_0, _1, Colour4.SIZE);
+            super(_0 as ArrayBuffer, _1, Colour4.SIZE);
         }
     }
 

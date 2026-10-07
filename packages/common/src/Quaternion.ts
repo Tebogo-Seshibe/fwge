@@ -104,9 +104,9 @@ export class Quaternion extends Float32Array
     constructor(vector: Vector4);
     constructor(w: number, vector: Vector3);
     constructor(array: FixedLengthArray<number, 4>);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0?: Quaternion | Vector4 | number | FixedLengthArray<number, 4> | ArrayBuffer | SharedArrayBuffer | number, _1?: Vector3 | number, _2?: number, _3?: number)
+    constructor(buffer: ArrayBuffer);
+    constructor(buffer: ArrayBuffer, byteOffset: number);
+    constructor(_0?: Quaternion | Vector4 | number | FixedLengthArray<number, 4> | ArrayBuffer | number, _1?: Vector3 | number, _2?: number, _3?: number)
     {
         if (_0 instanceof Vector4 || _0 instanceof Quaternion || _0 instanceof Array)
         {

@@ -11,24 +11,27 @@ export interface PointLightArgs extends LightArgs
 
 export class PointLight extends Light
 {
-    private _radius: Scalar
+    private readonly _radius: Scalar;
+    private readonly _shininess: Scalar;
+
     get Radius(): number
     {
-        return this._radius.Value
-    }
-    set Radius(value: number)
-    {
-        this._radius.Value = value
+        return this._radius.Value;
     }
 
-    private _shininess: Scalar
+    set Radius(value: number)
+    {
+        this._radius.Value = value;
+    }
+
     get Shininess(): number
     {
-        return this._shininess.Value
+        return this._shininess.Value;
     }
+
     set Shininess(value: number)
     {
-        this._shininess.Value = value
+        this._shininess.Value = value;
     }
 
     CastShadows: boolean
@@ -44,9 +47,10 @@ export class PointLight extends Light
     constructor(light: PointLightArgs)
     constructor(light: PointLightArgs = { })
     {
-        super(light.colour, light.intensity, new Float32Array(9))
-        this._radius = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
-        this._shininess = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8)
+        super(light.colour, light.intensity, new Float32Array(9));
+        
+        this._radius = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7)
+        this._shininess = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8)
 
         this.Radius = light.radius ?? 5
         this.CastShadows = light.castShadows ?? false

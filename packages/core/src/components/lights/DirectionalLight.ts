@@ -192,13 +192,13 @@ export class DirectionalLight extends Light
     {
         super(light.colour, light.intensity, new Float32Array(28));
         
-        this._direction = new Vector3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
-        this._castShadows = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
-        this._texelSize = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8);
-        this._texelCount = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 9);
-        this._bias = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 10);
-        this._pcfLevel = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 11);
-        this._shadowMatrix = new Matrix4(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12);
+        this._direction = new Vector3(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 4);
+        this._castShadows = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 7);
+        this._texelSize = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 8);
+        this._texelCount = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 9);
+        this._bias = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 10);
+        this._pcfLevel = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 11);
+        this._shadowMatrix = new Matrix4(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 12);
 
         this._direction.Set(DirectionalLight.DefaultDirection);
         this.CastShadows = light.castShadows ?? false;

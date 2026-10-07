@@ -1,4 +1,11 @@
 packages:
   - "packages/*"
-  - "apps/*"
-  - "apps/examples/*"
+  # - "apps/*"
+  # - "apps/examples/*"
+  - "apps/examples/example-project"
+allowBuilds:
+  '@sveltejs/kit': true
+  '@swc/core': true
+  es5-ext: true
+  esbuild: true
+  svelte-preprocess: true

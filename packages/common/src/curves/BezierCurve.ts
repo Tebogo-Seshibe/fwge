@@ -24,6 +24,6 @@ export class BezierCurve<T extends Vector2 | Vector3 | Vector4>
     }
 
     constructor(
-        private _controlPoints: [ControlPoint<T>, ControlPoint<T>, ControlPoint<T>, ControlPoint<T>]
+        private readonly _controlPoints: [ControlPoint<T>, ControlPoint<T>, ControlPoint<T>, ControlPoint<T>]
     ) { }
 }

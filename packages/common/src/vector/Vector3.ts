@@ -57,13 +57,13 @@ export class Vector3 extends Float32Array implements IsEquatable<Vector3>
 
     constructor();
     constructor(x: number, y: number, z: number);
-    constructor(vector: Vector2, z: number);
+    constructor(vector: Vector2);
     constructor(vector: Vector3);
     constructor(vector: Vector4);
     constructor(array: Vector3Array);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | SharedArrayBuffer | Vector4 | Vector3 | Vector2 | Vector3Array | number = 0, _1: number = 0, _2: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Vector4 | Vector3 | Vector2 | Vector3Array | number = 0, _1: number = 0, _2: number = 0)
     {
         if (typeof _0 === 'number')
         {
@@ -79,7 +79,7 @@ export class Vector3 extends Float32Array implements IsEquatable<Vector3>
         }
         else
         {
-            super(_0, _1, Vector3.SIZE);
+            super(_0 as ArrayBuffer, _1, Vector3.SIZE);
         }
     }
 

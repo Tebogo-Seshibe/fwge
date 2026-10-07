@@ -1,4 +1,4 @@
-import { AssetManager, MeshRenderer, Transform } from "@fwge/core";
+import { AssetManager, FWGEComponent, MeshRenderer, Transform } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
 import { CubeShaderAsset } from "../assets/CubeShader";
 import { OBJMTLAsset } from "../OBJMTLAsset";

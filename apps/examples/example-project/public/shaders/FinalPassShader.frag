@@ -160,7 +160,7 @@ vec3 CalcPointLight(PointLight light)
 
     vec3 result = colour;
 
-    return diffuse * light.Intensity;
+    return result * light.Intensity;
 }
 // Directional Lighting --------------------------------
 
@@ -192,7 +192,7 @@ void main(void)
         
     for (int i = 0; i < U_PointLight.length(); ++i)
     {
-        point += CalcPointLight(U_PointLight[i]);
+        point += 0.0; //CalcPointLight(U_PointLight[i]);
     }
 
     light = area + dir + point;

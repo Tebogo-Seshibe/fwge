@@ -275,9 +275,9 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
     constructor(matrix: Matrix3);
     constructor(matrix: Matrix4);
     constructor(array: Matrix4Array);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | SharedArrayBuffer | Matrix4 | Matrix3 | Matrix2 | number[] | number = 0, _1: number = 0, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Matrix4 | Matrix3 | Matrix2 | number[] | number = 0, _1: number = 0, _2?: number, _3?: number, _4?: number, _5?: number, _6?: number, _7?: number, _8?: number, _9?: number, _10?: number, _11?: number, _12?: number, _13?: number, _14?: number, _15?: number)
     {
         if (typeof _2 === 'number')
         {
@@ -331,7 +331,7 @@ export class Matrix4 extends Float32Array implements IsEquatable<Matrix4>
         }
         else
         {
-            super(_0, _1, Matrix4.SIZE);
+            super(_0 as ArrayBuffer, _1, Matrix4.SIZE);
         }
     }
 

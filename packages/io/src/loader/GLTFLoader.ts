@@ -265,7 +265,7 @@ function getArrayBuffer(accessor: GLTFAccessor | undefined, bufferView: GLTFBuff
     const typedBufferChunk = new bufferType(rawBufferChunk.buffer)
      
     const stride = (bufferView.byteStride ?? 0) + bytesPerElement
-    const sub_buffer = new bufferType(buffer, offset, (bytesPerElement * accessor.count))
+    const sub_buffer = new bufferType(buffer.buffer as any, offset, (bytesPerElement * accessor.count))
   
 
     for (let i = 0; i < typedBufferChunk.length; i += size)

@@ -66,29 +66,33 @@ export class Vector4 extends Float32Array implements IsEquatable<Vector4>
 
     constructor();
     constructor(x: number, y: number, z: number, w: number);
-    constructor(xy: Vector2, z: number, w: number);
-    constructor(xyz: Vector3, w: number);
+    constructor(xy: Vector2);
+    constructor(xyz: Vector3);
     constructor(vector: Vector4);
     constructor(array: Vector4Array);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer);
-    constructor(buffer: ArrayBuffer | SharedArrayBuffer, byteOffset: number);
-    constructor(_0: ArrayBuffer | SharedArrayBuffer | Vector4 | Vector3 | Vector2 | Vector4Array | number = 0, _1: number  = 0, _2: number = 0, _3: number = 0)
+    constructor(buffer: ArrayBufferLike);
+    constructor(buffer: ArrayBufferLike, byteOffset: number);
+    constructor(_0: ArrayBufferLike | Vector4 | Vector3 | Vector2 | Vector4Array | number = 0, _1: number  = 0, _2: number = 0, _3: number = 0)
     {
         if (typeof _0 === 'number')
         {
             super([_0 as number, _1 as number, _2 as number, _3 as number]);
         }
-        else if (_0 instanceof Vector2 && typeof _1 === 'number')
+        else if (_0 instanceof Vector2)
         {
             super([_0[0], _0[1], _1, _2]);
         }
-        else if (_0 instanceof Vector3 || _0 instanceof Vector4 || _0 instanceof Array)
+        else if (_0 instanceof Vector3)
         {
-            super([_0[0], _0[1], _0[2]]);
+            super([_0[0], _0[1], _0[2], _1]);
+        }
+        else if (_0 instanceof Vector4 || _0 instanceof Array)
+        {
+            super([_0[0], _0[1], _0[2], _0[3]]);
         }
         else
         {
-            super(_0, _1 as number, Vector4.SIZE);
+            super(_0 as ArrayBuffer, _1, Vector4.SIZE);
         }
     }
 

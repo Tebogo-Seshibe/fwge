@@ -1,13 +1,12 @@
-import { AssetManager, MeshRenderer, Transform } from "@fwge/core";
+import { AssetManager } from "@fwge/core";
 import { Entity } from "@fwge/ecs";
-import { CubeShaderAsset } from "../assets/CubeShader";
 import { Helipad as HelipadAsset } from "../assets/Helipad";
 
 export class Helipad extends Entity
 {
     Init(): void
     {
-        const cubeShader = AssetManager.Get(CubeShaderAsset)!.Shader!;
+        // const cubeShader = AssetManager.Get(CubeShaderAsset)!.Shader!;
         const helipad = AssetManager.Get(HelipadAsset)!;
         
         this.AddChild(helipad.Instance);

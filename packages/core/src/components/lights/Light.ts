@@ -8,14 +8,16 @@ export interface LightArgs
     intensity?: number;
 }
 
-export class Light extends Component implements IsBindable<Float32Array>
+export class Light extends Component
 {
     static BlockIndex = new Map<string, any>();
     static BindingPoint = new Map<string, number>();
 
     private _buffer: WebGLBuffer | undefined;
-    private _intensity: Scalar;
-    private _colour: Colour3;
+    protected readonly _bufferData: Float32Array;
+    
+    private readonly _intensity: Scalar;
+    private readonly _colour: Colour3;
 
     get Intensity(): number
     {
@@ -44,7 +46,7 @@ export class Light extends Component implements IsBindable<Float32Array>
         this._colour.Set(colour as Vector3Array);
     }
 
-    public get LightBuffer(): WebGLBuffer | undefined
+    get LightBuffer(): WebGLBuffer | undefined
     {
         return this._buffer;
     }
@@ -52,13 +54,14 @@ export class Light extends Component implements IsBindable<Float32Array>
     constructor(
         colour: Colour3 | Vector3 | Colour3Array = [0.7, 0.7, 0.7],
         intensity: number = 1.0,
-        readonly BufferData: Float32Array = new Float32Array(4)
+        data: Float32Array = new Float32Array(4)
     )
     {
         super(Light);
 
-        this._colour = new Colour3(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0);
-        this._intensity = new Scalar(this.BufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3);
+        this._bufferData = data;
+        this._colour = new Colour3(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 0);
+        this._intensity = new Scalar(this._bufferData.buffer, Float32Array.BYTES_PER_ELEMENT * 3);
 
         this._colour.Set(colour as Colour3Array);
         this._intensity.Set(intensity);
@@ -70,6 +73,11 @@ export class Light extends Component implements IsBindable<Float32Array>
     }
     
     Bind(shader: Shader, ..._args: any[]): void
+    {
+        throw new Error('Please implement')
+    }
+    
+    BindBlock(shader: Shader, ..._args: any[]): void
     {
         throw new Error('Please implement')
     }

@@ -27,6 +27,18 @@ export class Entity
         return this as unknown as T;
     }
 
+    //#region Parent
+    public get ParentId(): EntityId | -1
+    {
+        return Registry.GetParentId(this.Id);
+    }
+
+    public get Parent(): Entity | undefined
+    {
+        return Registry.GetParent(this.Id);
+    }
+    //#endregion
+
     //#region Children
     public AddChild(entityId: EntityId): Entity
     public AddChild(entity: Entity): Entity
