@@ -3,12 +3,12 @@ import { ControllerState } from "./ControllerState";
 
 export class ControllerInputHandler
 {
-    private readonly _controllers: FixedLengthArray<Gamepad | null, 4> = [null, null, null, null];
+    private readonly _controllers: FixedLengthArray<Gamepad | null, 8> = [null, null, null, null, null, null, null, null];
     private readonly controllerReset = {
         axes: [0,0,0,0],
         buttons: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0].map((value) => ({value}))
     }
-    public readonly State: FixedLengthArray<ControllerState, 4>;
+    public readonly State: FixedLengthArray<ControllerState, 8>;
     
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -16,10 +16,14 @@ export class ControllerInputHandler
         private readonly controllerButtons: Uint8ClampedArray
     ) { 
         this.State = [
-            new ControllerState(controllerAxes,  0, controllerButtons,  0),
-            new ControllerState(controllerAxes,  4, controllerButtons, 16),
-            new ControllerState(controllerAxes,  8, controllerButtons, 32),
-            new ControllerState(controllerAxes, 12, controllerButtons, 48),
+            new ControllerState(controllerAxes,  0, controllerButtons,   0),
+            new ControllerState(controllerAxes,  4, controllerButtons,  16),
+            new ControllerState(controllerAxes,  8, controllerButtons,  32),
+            new ControllerState(controllerAxes, 12, controllerButtons,  48),
+            new ControllerState(controllerAxes, 16, controllerButtons,  64),
+            new ControllerState(controllerAxes, 20, controllerButtons,  80),
+            new ControllerState(controllerAxes, 24, controllerButtons,  96),
+            new ControllerState(controllerAxes, 28, controllerButtons, 112),
         ];
     }
 

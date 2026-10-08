@@ -6,7 +6,4 @@ export class Tag extends Component
     {
         super(Tag);
     }
-
-    Init(): void { }
-    Destroy(): void { }
 }

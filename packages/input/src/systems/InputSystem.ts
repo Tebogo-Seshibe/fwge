@@ -28,12 +28,12 @@ export class InputSystem extends System
         controllerAxes:
         {
             type: Float32Array,
-            length: 16
+            length: 32
         },
         controllerButtons:
         {
             type: Uint8ClampedArray,
-            length: 64
+            length: 128
         }
     });
     

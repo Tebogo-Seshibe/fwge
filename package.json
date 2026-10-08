@@ -18,6 +18,7 @@
         "build:ex": "turbo run build --filter=\"./apps/examples/example-project\"",
         "dev": "turbo run dev",
         "dev:libs": "turbo run dev --filter=\"./packages/*\"",
+        "dev:ex": "turbo run dev --filter=\"./apps/examples/example-project\"",
         "test": "turbo run test",
         "test:libs": "turbo run test --filter=\"./packages/*\"",
         "clean": "pnpm clean:root && pnpm clean:libs",

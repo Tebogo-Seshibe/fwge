@@ -34,7 +34,7 @@ export class TextAsset extends Asset
             promise = fetch(this._source).then(x => x.text().then(text => this._content = text));
         }
 
-        promise.then(() => {})
+        promise.then();
     }
     
     public Unload(): void
